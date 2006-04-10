@@ -30,7 +30,7 @@ from optparse import OptionParser
 import Numeric, sys, pickle
 
 # completely arbitrary
-EPSILON = 0.5**29
+EPSILON = 0.3**29
 
 def fixnegative (x):
     while x < 0:
@@ -41,21 +41,6 @@ def fix360 (x):
     if x == 360:
         return 0
     return x
-
-def comb (bones, items):
-    """Returns a list of combinatoric nodes created by combining nodes from
-       items.
-       """
-    if len (items) == 1:
-        return [{bone: x} for x in items[0]]
-
-    a = comb(bones[1:], items[1:])
-    ret = []
-    for x in items[0]:
-        for y in a:
-            y[bones[0]] = x
-            ret.append(y)
-    return ret
 
 def comb2(bones, items, position=0, current=[], current_probability=1.0):
     results = []
@@ -83,7 +68,7 @@ def comb2(bones, items, position=0, current=[], current_probability=1.0):
             new_current = current + [item]
             children = comb2(bones, items, position + 1, new_current, current_probability)
             if len(children):
-                results.append(children)
+                results.extend(children)
             pass
         else:
             spot = (tuple(pbone.mins), tuple(item.mins))
@@ -91,13 +76,13 @@ def comb2(bones, items, position=0, current=[], current_probability=1.0):
                 probability = net[spot]
                 new_current = current + [item]
                 new_prob = current_probability * probability
-                if new_prob > EPSILON and probability > 0.001:
+                if new_prob > EPSILON and probability > 0.0002:
                     if position == len(bones) - 1:
                         results.append(new_current)
                     else:
                         children = comb2(bones, items, position + 1, new_current, new_prob)
                         if len(children):
-                            results.append(children)
+                            results.extend(children)
 
     res = len(results)
     if res:
