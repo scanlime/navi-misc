@@ -1,5 +1,8 @@
 #!/usr/bin/env python
-
+"""Utility for removing bones from an AMC file. Takes a list of bones to keep,
+   and input file, and an output file.  The AMC file is written to the output
+   file with only the bones listed on the command line.
+   """
 # Copyright (C) 2006 W. Evan Sheehan
 #
 # This program is free software; you can redistribute it and/or
