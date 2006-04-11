@@ -413,13 +413,13 @@
      borderopacity="1.0"
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.76592593"
+     inkscape:zoom="1.1451852"
      inkscape:cx="450"
      inkscape:cy="337.5"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
-     inkscape:window-width="1024"
-     inkscape:window-height="689"
+     inkscape:window-width="1280"
+     inkscape:window-height="945"
      inkscape:window-x="0"
      inkscape:window-y="25"
      showguides="true"
@@ -685,53 +685,46 @@
            y="112.64554"
            style="font-size:24px;font-style:oblique;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans" /></flowRegion><flowPara
          id="flowPara1421">&quot;Chaos is aperiodic long-term behavior in a deterministic system that exhibits sensitive dependence on initial conditions&quot;</flowPara></flowRoot>    <g
-       id="g1405"
-       transform="translate(1.363193,-28)">
+       id="g3249"
+       transform="matrix(0.910744,0,0,0.910744,47.42295,14.71733)">
       <rect
-         ry="15.694489"
-         rx="15.694488"
-         y="217.69125"
-         x="503.84863"
-         height="206.4351"
+         ry="17.232605"
+         rx="17.232597"
+         y="166.43422"
+         x="505.21182"
+         height="253.82269"
          width="358.89392"
          id="rect1391"
-         style="fill:#f7f9fc;fill-opacity:0.73224045;stroke:#000000;stroke-width:2.78660607;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <text
-         transform="scale(1.076579,0.928869)"
-         sodipodi:linespacing="125%"
-         id="text1393"
-         y="357.78357"
-         x="525.263"
-         style="font-size:44.58568192px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-         xml:space="preserve"><tspan
-           y="357.78357"
-           x="525.263"
-           id="tspan1395"
-           sodipodi:role="line">Trajectory</tspan></text>
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3.08993268;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <image
+         y="169.72565"
+         x="539.26776"
+         xlink:href="/home/evan/Projects/motion/dlc-presentation/data/voronoi.png"
+         sodipodi:absref="/home/evan/Projects/motion/dlc-presentation/data/voronoi.png"
+         width="290.78207"
+         height="247.23984"
+         id="image1454" />
     </g>
     <g
-       id="g1416"
-       transform="translate(-0.819881,-28)">
+       id="g4126"
+       transform="translate(-0.152013,0)">
       <rect
          ry="15.694489"
-         rx="15.694488"
-         y="454.94824"
-         x="505.59509"
-         height="206.0802"
-         width="359.76715"
+         rx="15.694489"
+         y="418.45059"
+         x="505.52008"
+         height="238.79349"
+         width="331.20752"
          id="rect1410"
-         style="fill:#f7f9fc;fill-opacity:0.73224045;stroke:#000000;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <text
-         sodipodi:linespacing="125%"
-         id="text1412"
-         y="571.23053"
-         x="582.27161"
-         style="font-size:48px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-         xml:space="preserve"><tspan
-           y="571.23053"
-           x="582.27161"
-           id="tspan1414"
-           sodipodi:role="line">Mapping</tspan></text>
+         style="fill:#f7f9fc;fill-opacity:1;stroke:#000000;stroke-width:3.09851575;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <image
+         y="423.46802"
+         x="523.15295"
+         xlink:href="/home/evan/Projects/motion/dlc-presentation/data/voronoi-men.png"
+         sodipodi:absref="/home/evan/Projects/motion/dlc-presentation/data/voronoi-men.png"
+         width="295.94177"
+         height="228.75864"
+         id="image3246" />
     </g>
   </g>
 </svg>
