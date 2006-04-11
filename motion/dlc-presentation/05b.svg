@@ -427,7 +427,7 @@
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:zoom="1.1451852"
-     inkscape:cx="450.00004"
+     inkscape:cx="450.00001"
      inkscape:cy="337.5"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
@@ -793,27 +793,41 @@
          sodipodi:type="arc"
          transform="matrix(0.975707,0,0,0.963561,1.343502,5.692209)" />
     </g>
-    <image
-       id="image1540"
-       height="141.52393"
-       width="109.73232"
-       sodipodi:absref="/home/evan/Projects/motion/dlc-presentation/data/step-1.png"
-       xlink:href="/home/evan/Projects/motion/dlc-presentation/data/step-1.png"
-       x="-712.26056"
-       y="194.69727"
-       transform="scale(-1,1)" />
-    <image
-       id="image1598"
-       height="132.29411"
-       width="105.63018"
-       sodipodi:absref="/home/evan/Projects/motion/dlc-presentation/data/step-2.png"
-       xlink:href="/home/evan/Projects/motion/dlc-presentation/data/step-2.png"
-       x="-857.97034"
-       y="203.92709"
-       transform="scale(-1,1)" />
-    <path
-       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#TriangleOutM);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 711.59314,265.45924 L 744.77554,265.45924"
-       id="path1601" />
+    <g
+       id="g1410">
+      <image
+         transform="scale(-1,1)"
+         y="194.69727"
+         x="-712.26056"
+         xlink:href="/home/evan/Projects/motion/dlc-presentation/data/step-1.png"
+         sodipodi:absref="/home/evan/Projects/motion/dlc-presentation/data/step-1.png"
+         width="109.73232"
+         height="141.52393"
+         id="image1540" />
+      <image
+         transform="scale(-1,1)"
+         y="203.92709"
+         x="-857.97034"
+         xlink:href="/home/evan/Projects/motion/dlc-presentation/data/step-2.png"
+         sodipodi:absref="/home/evan/Projects/motion/dlc-presentation/data/step-2.png"
+         width="105.63018"
+         height="132.29411"
+         id="image1598" />
+      <path
+         id="path1601"
+         d="M 711.59314,265.45924 L 744.77554,265.45924"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#TriangleOutM);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="651.09302"
+       y="342.29932"
+       id="text1415"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan1417"
+         x="651.09302"
+         y="342.29932">© 2006 Ajay Young http://stewped.com</tspan></text>
   </g>
 </svg>
