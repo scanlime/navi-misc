@@ -292,7 +292,7 @@ conversation_panel_check_word (GtkWidget *xtext, char *word, int len)
         current_sess = gui.current_session;
 
 	url = url_check_word (word, len);
-	if (url == 0) {
+	if (url == 0 && current_sess) {
 		if (current_sess->type == SESS_DIALOG) {
 			if (strcmp (word, current_sess->channel) == 0)
 				return WORD_NICK;
