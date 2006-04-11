@@ -414,7 +414,7 @@
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:zoom="1.1451852"
-     inkscape:cx="450"
+     inkscape:cx="450.00001"
      inkscape:cy="337.5"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
@@ -632,12 +632,12 @@
        transform="translate(-17.46442,127.7862)"><flowRegion
          id="flowRegion1421"><rect
            id="rect1423"
-           width="686.35187"
-           height="51.520077"
+           width="684.60547"
+           height="93.4347"
            x="86.448898"
            y="131.8564"
            style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans" /></flowRegion><flowPara
-         id="flowPara1425">Each node represents a joint position</flowPara></flowRoot>    <g
+         id="flowPara1425">Each vertex represents a joint position</flowPara></flowRoot>    <g
        id="g5840"
        transform="translate(22.44011,24)">
       <rect

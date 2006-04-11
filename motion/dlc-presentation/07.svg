@@ -599,7 +599,7 @@
            x="86.448898"
            y="131.8564"
            style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans" /></flowRegion><flowPara
-         id="flowPara1409">Estimated 5   successors per node</flowPara></flowRoot>    <g
+         id="flowPara1409">Estimated 5   successors per vertex</flowPara></flowRoot>    <g
        id="g10062"
        transform="translate(-5.329071e-15,139.6171)">
       <rect
@@ -7212,7 +7212,7 @@
            height="49.917198"
            width="732.21716"
            id="rect11775" /></flowRegion><flowPara
-         id="flowPara11777">Paths longer than 20 nodes</flowPara></flowRoot>    <g
+         id="flowPara11777">Paths longer than 20 vertices</flowPara></flowRoot>    <g
        id="g11783"
        transform="translate(-16.80837,136.5225)">
       <path
