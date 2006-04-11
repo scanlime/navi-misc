@@ -22,6 +22,19 @@
    inkscape:export-ydpi="90">
   <defs
      id="defs4">
+    <marker
+       inkscape:stockid="TriangleOutM"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="TriangleOutM"
+       style="overflow:visible">
+      <path
+         id="path2545"
+         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
+         transform="scale(0.4)" />
+    </marker>
     <linearGradient
        id="linearGradient3956">
       <stop
@@ -414,7 +427,7 @@
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:zoom="1.1451852"
-     inkscape:cx="450.00002"
+     inkscape:cx="450.00003"
      inkscape:cy="337.5"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
@@ -594,7 +607,7 @@
            style="font-size:28px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans" /></flowRegion><flowPara
          id="flowPara1425">Perform this search on all joint graphs simultaneously</flowPara></flowRoot>    <g
        id="g2398"
-       transform="translate(-3.49292,0)">
+       transform="translate(-3.49292,-34)">
       <rect
          ry="15"
          rx="15"
@@ -787,5 +800,27 @@
          sodipodi:type="arc"
          transform="matrix(0.975707,0,0,0.963561,1.343502,5.692209)" />
     </g>
+    <image
+       id="image1540"
+       height="141.52393"
+       width="109.73232"
+       sodipodi:absref="/home/evan/Projects/motion/dlc-presentation/data/step-1.png"
+       xlink:href="/home/evan/Projects/motion/dlc-presentation/data/step-1.png"
+       x="-712.26056"
+       y="194.69727"
+       transform="scale(-1,1)" />
+    <image
+       id="image1598"
+       height="132.29411"
+       width="105.63018"
+       sodipodi:absref="/home/evan/Projects/motion/dlc-presentation/data/step-2.png"
+       xlink:href="/home/evan/Projects/motion/dlc-presentation/data/step-2.png"
+       x="-857.97034"
+       y="203.92709"
+       transform="scale(-1,1)" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#TriangleOutM);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 711.59314,265.45924 L 744.77554,265.45924"
+       id="path1601" />
   </g>
 </svg>
