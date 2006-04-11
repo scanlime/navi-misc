@@ -422,7 +422,7 @@
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:zoom="1.1451852"
-     inkscape:cx="450.00001"
+     inkscape:cx="450.00002"
      inkscape:cy="337.5"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
@@ -556,7 +556,7 @@
            x="86.448898"
            y="131.8564"
            style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans" /></flowRegion><flowPara
-         id="flowPara1409">Each node is created by combining the nodes from all the graphs</flowPara></flowRoot>    <g
+         id="flowPara1409">Each pose is created by combining the vertices from all the graphs</flowPara></flowRoot>    <g
        id="g1450">
       <text
          xml:space="preserve"
@@ -568,18 +568,18 @@
            sodipodi:role="line"
            id="tspan1421"
            x="491.9209"
-           y="72.477364">N</tspan></text>
+           y="72.477364">P</tspan></text>
       <text
          xml:space="preserve"
          style="font-size:56px;font-style:oblique;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:URW Gothic L"
-         x="543.05688"
+         x="531.05688"
          y="72.477364"
          id="text1423"
          sodipodi:linespacing="100%"><tspan
            sodipodi:role="line"
            id="tspan1425"
-           x="543.05688"
-           y="72.477364">ODES</tspan></text>
+           x="531.05688"
+           y="72.477364">OSES</tspan></text>
     </g>
     <g
        id="g6300"
