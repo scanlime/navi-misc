@@ -1,3 +1,8 @@
+Wed Apr 12 15:44:45 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* data/xchat-gnome.desktop.in.in:
+	  - Remove the Application category.
+
 Wed Apr 12 17:27:27 CEST 2006  Gathy Grégory <gigooo@gmail.com>
 
 	* src/fe-gnome/preferences-page-plugins.c:
