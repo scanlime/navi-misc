@@ -23,6 +23,9 @@
 #include <glib/gi18n.h>
 #include <gconf/gconf-client.h>
 #include <string.h>
+#ifdef HAVE_LIBSEXY
+#include <libsexy/sexy-tree-view.h>
+#endif
 
 #include "preferences-page-plugins.h"
 #include "preferences-dialog.h"
@@ -44,6 +47,9 @@ extern GSList *enabled_plugins;	// Our list of loaded plugins.
 extern XChatGUI gui;
 
 static PreferencesPluginsPage *pageref;
+#ifdef HAVE_LIBSEXY
+static GtkWidget* get_plugin_tooltip (SexyTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, PreferencesPluginsPage *page);
+#endif
 
 enum
 {
@@ -249,6 +255,28 @@ set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, 
 	return FALSE;
 }
 
+#ifdef HAVE_LIBSEXY
+static GtkWidget*
+get_plugin_tooltip (SexyTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, PreferencesPluginsPage *page)
+{
+	GtkTreeIter iter;
+	GtkWidget *label;
+	gchar *text;
+	
+	label = NULL;
+
+	if (gtk_tree_model_get_iter (GTK_TREE_MODEL (page->plugin_store), &iter, path))
+	{	
+		gtk_tree_model_get (GTK_TREE_MODEL (page->plugin_store), &iter, COL_DESC, &text, -1);
+		label = gtk_label_new (text);
+		g_free (text);
+		gtk_widget_show_all (label);	
+	}
+
+	return label;
+}
+#endif
+
 PreferencesPluginsPage *
 preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 {
@@ -256,6 +284,7 @@ preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
 	GtkTreeIter iter;
 	GtkTreeSelection *select;
+	GtkWidget *scroll;
 	GSList *list;
 	xchat_plugin *plugin;
 
@@ -263,11 +292,20 @@ preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 	gchar *xchatdir;
 
 #define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
-	GW(plugins_list);
 	GW(plugins_open);
 	GW(plugins_remove);
 #undef GW
+	
+#ifdef HAVE_LIBSEXY
+	page->plugins_list = sexy_tree_view_new ();
+#else
+	page->plugins_list = gtk_tree_view_new ();
+#endif
+	scroll = glade_xml_get_widget (xml, "scrolledwindow19");
+	gtk_container_add (GTK_CONTAINER (scroll), page->plugins_list);
 
+	gtk_widget_show (page->plugins_list);
+	
 	if (g_file_test ("../../data/plugin-manager.png", G_FILE_TEST_EXISTS))
 		page->icon = gdk_pixbuf_new_from_file ("../../data/plugin-manager.png", NULL);
 	else
@@ -302,6 +340,10 @@ preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 	g_signal_connect (G_OBJECT (page->plugins_remove), "clicked",       G_CALLBACK (remove_plugin_clicked), page);
 	g_signal_connect (G_OBJECT (select),               "changed",       G_CALLBACK (selection_changed),     page);
 	g_signal_connect (G_OBJECT (page->plugins_list),   "row-activated", G_CALLBACK (row_activated),         page);
+
+#ifdef HAVE_LIBSEXY
+	g_signal_connect (G_OBJECT (page->plugins_list),   "get-tooltip",   G_CALLBACK (get_plugin_tooltip),    page);
+#endif
 
 	homedir = g_get_home_dir ();
 	xchatdir = g_strdup_printf ("%s/.xchat2/plugins", homedir);

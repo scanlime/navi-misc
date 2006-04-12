@@ -1,3 +1,11 @@
+Wed Apr 12 17:27:27 CEST 2006  Gathy Grégory <gigooo@gmail.com>
+
+	* src/fe-gnome/preferences-page-plugins.c:
+	* data/preferences-dialog.glade:
+	  - Replace the gtk_tree_view by a sexy_tree_view when compiled
+	    with libsexy support too see the description of the plugin
+	    in a tooltip. (#338207)
+
 Tue Apr 11 19:16:48 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/conversation-panel.c:
