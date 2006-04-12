@@ -703,29 +703,21 @@
            height="96.927567"
            width="400.8085"
            id="rect1443" /></flowRegion><flowPara
-         id="flowPara1445">Jumps need to be smoothed out</flowPara></flowRoot>    <g
-       id="g1402"
-       transform="translate(0,-42.43231)">
-      <rect
-         ry="15.694488"
-         rx="15.694488"
-         y="215.42554"
-         x="481.76984"
-         height="329.01355"
-         width="369.48743"
-         id="rect1396"
-         style="fill:#f7f9fc;fill-opacity:0.73224045;stroke:#000000;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <text
-         sodipodi:linespacing="125%"
-         id="text1398"
-         y="397.82684"
-         x="594.4198"
-         style="font-size:48px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-         xml:space="preserve"><tspan
-           y="397.82684"
-           x="594.4198"
-           id="tspan1400"
-           sodipodi:role="line">Movie</tspan></text>
-    </g>
+         id="flowPara1445">Jumps need to be smoothed out</flowPara></flowRoot>    <image
+       id="image1439"
+       height="256.74081"
+       width="342.32108"
+       sodipodi:absref="/home/evan/00003.jpg"
+       xlink:href="/home/evan/00003.jpg"
+       x="488.60733"
+       y="120.34817" />
+    <image
+       id="image1482"
+       height="256.4144"
+       width="341.88589"
+       sodipodi:absref="/home/evan/00002.jpg"
+       xlink:href="/home/evan/00002.jpg"
+       x="488.82492"
+       y="391.91489" />
   </g>
 </svg>
