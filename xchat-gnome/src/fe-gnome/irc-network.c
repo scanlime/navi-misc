@@ -173,10 +173,16 @@ irc_network_save (IrcNetwork *network)
 	if (net->encoding) g_free (net->encoding);
 
 	net->name     = g_strdup (network->name);
-	net->pass     = g_strdup (network->password);
+	if (network->password && strlen (network->password) != 0)
+		net->pass = g_strdup (network->password);
+	else
+		net->pass = NULL;
 	net->nick     = g_strdup (network->nick);
 	net->real     = g_strdup (network->real);
-	net->nickserv = g_strdup (network->nickserv_password);
+	if (network->nickserv_password && strlen (network->nickserv_password) != 0)
+		net->nickserv = g_strdup (network->nickserv_password);
+	else
+		net->nickserv = NULL;
 	net->autojoin = g_strdup (network->autojoin);
 	net->encoding = g_strdup (encodings[network->encoding]);
 

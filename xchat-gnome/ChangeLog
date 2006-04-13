@@ -1,3 +1,9 @@
+Fri Apr 14 00:40:02 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/irc-network.c:
+	  - Avoid to set empty password for server and
+	    nickserv. (#338060)
+
 Thu Apr 13 23:14:52 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/preferences.c:
