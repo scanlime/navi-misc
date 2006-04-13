@@ -69,7 +69,7 @@ load_preferences (void)
 		g_free (text2);
 
 		text2 = g_strdup_printf ("%s__", text);
-		strcpy (prefs.nick2, text2);
+		strcpy (prefs.nick3, text2);
 		g_free (text2);
 	}
 	g_free (text);

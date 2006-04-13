@@ -1,3 +1,8 @@
+Thu Apr 13 23:14:52 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/preferences.c:
+	  - Set nick_ as first alternative nickname. (#338061)
+
 Wed Apr 12 15:44:45 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* data/xchat-gnome.desktop.in.in:
