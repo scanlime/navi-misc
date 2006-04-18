@@ -1,3 +1,20 @@
+Tue Apr 18 17:30:14 MDT 2006  Brian Pepple <bdpepple@ameritech.net>
+
+	* plugins/perl/perl.c:
+	* plugins/dbus/xchat-gnome-remote.c:
+	* src/common/outbound.c:
+	* src/common/servlist.c:
+	* src/common/cfgfiles.c:
+	* src/common/plugin.c:
+	* src/common/ctcp.c:
+	* src/fe-gnome/preferences.c:
+	* src/fe-gnome/fe-gnome.c:
+	* src/fe-gnome/about.c:
+	* src/fe-gnome/setup-dialog.c:
+	* configure.ac:
+	  - Drop version from AM_INIT_AUTOMAKE, and use AutoConf's macros for
+	    package & version. (#337435)
+
 Fri Apr 14 00:40:02 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/irc-network.c:
