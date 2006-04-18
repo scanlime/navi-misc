@@ -299,4 +299,10 @@ class CNode (object):
     def get(self, k, x=None):
         return self.data.get(k, x)
 
+    def __eq__(self, other):
+        for key in self.data.iterkeys():
+            if other.get(key) != self.data[key]:
+                return False
+        return True
+
 # vim: ts=4:sw=4:et
