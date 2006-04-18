@@ -85,8 +85,8 @@ def comb2(bones, items, position=0, current=[], current_probability=1.0):
                             results.extend(children)
 
     res = len(results)
-    if res:
-        print 'depth %.2d, results %d' % (position, res)
+    if position == 0:
+        print '%d likely successors' % res
     return results
 
 def successor (graphs, node):
@@ -238,13 +238,13 @@ for boundary in sequence.boundaries:
 
     print 'searching at boundary',boundary
     paths = Heuristic (graphs, CNode (starts), CNode (ends), f, successor).run ()
-
+    print paths
 
     if paths is None:
         print 'no path found!'
         sys.exit ()
 
-    for i in range (len (paths['root'])):
+    for i in range(len(paths)):
         frame = {}
         for bone in paths.keys():
             node = paths[bone][i]

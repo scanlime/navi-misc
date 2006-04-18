@@ -237,7 +237,7 @@ class Heuristic:
             # Get the next node and test for the goal
             node = agenda.pop ()
             visited.append (node)
-            if node is self.goal:
+            if node == self.goal:
                 # Reconstruct the path to the goal
                 self.path = self.pathToNode (node)
                 break
