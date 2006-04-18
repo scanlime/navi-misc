@@ -87,7 +87,7 @@ fe_args (int argc, char *argv[])
 
 #ifdef HAVE_LIBGNOME_214
 	g_option_context_add_main_entries (context, entries, GETTEXT_PACKAGE);
-	gui.program = gnome_program_init (PACKAGE, VERSION,
+	gui.program = gnome_program_init (PACKAGE_NAME, PACKAGE_VERSION,
 	                                  LIBGNOMEUI_MODULE, argc, argv,
 	                                  GNOME_PARAM_GOPTION_CONTEXT, context,
 	                                  GNOME_PARAM_HUMAN_READABLE_NAME, _("IRC Chat"),
@@ -99,7 +99,7 @@ fe_args (int argc, char *argv[])
 	g_option_context_parse (context, &argc, &argv, &error);
 	g_option_context_free (context);
 
-	gui.program = gnome_program_init (PACKAGE, VERSION,
+	gui.program = gnome_program_init (PACKAGE_NAME, PACKAGE_VERSION,
 	                                  LIBGNOMEUI_MODULE, argc, argv,
 	                                  GNOME_PARAM_HUMAN_READABLE_NAME, _("IRC Chat"),
 	                                  GNOME_PROGRAM_STANDARD_PROPERTIES,
@@ -113,7 +113,7 @@ fe_args (int argc, char *argv[])
 	}
 
 	if (opt_version) {
-		g_print ("xchat-gnome %s\n", VERSION);
+		g_print ("xchat-gnome %s\n", PACKAGE_VERSION);
 		return 0;
 	}
 

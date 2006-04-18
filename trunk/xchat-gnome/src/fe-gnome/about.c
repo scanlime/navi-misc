@@ -81,8 +81,13 @@ show_about_dialog (void)
 
 	gtk_show_about_dialog (GTK_WINDOW (gui.main_window),
 	                       "name",        "XChat-GNOME",
-	                       "version",     VERSION,
+	                       "version",     PACKAGE_VERSION,
 	                       "copyright",   _("Copyright © 2004-2006"),
+			       /* Translators: This is a random, mostly-meaningless
+				* quotation from Jeeves & Wooster.  Either leave it
+				* be or replace it with something funny (but inoffensive)
+				* in your own language, but don't translate it literally.
+				*/
 	                       "comments",    _("It has been well observed that a trombone is not a suitable instrument for a gentleman"),
 	                       "license",     license_trans,
 	                       "wrap-license", TRUE,

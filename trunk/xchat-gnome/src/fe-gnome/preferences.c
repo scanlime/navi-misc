@@ -110,6 +110,6 @@ void set_version (void)
 
 	client = gconf_client_get_default ();
 
-	gconf_client_set_string (client, "/apps/xchat/version", VERSION, NULL);
+	gconf_client_set_string (client, "/apps/xchat/version", PACKAGE_VERSION, NULL);
 	g_object_unref (client);
 }
