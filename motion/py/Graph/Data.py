@@ -287,10 +287,16 @@ class CNode (object):
        This primarily exists to provide a hashable object for the dictionary of
        back pointers used by ExtraAlgorithms.Heuristic.
        """
-    def __init__ (self, data):
+    def __init__(self, data):
         self.data = data
 
-    def iteritems (self):
-        return self.data.iteritems ()
+    def iteritems(self):
+        return self.data.iteritems()
+
+    def iterkeys(self):
+        return self.data.iterkeys()
+
+    def get(self, k, x=None):
+        return self.data.get(k, x)
 
 # vim: ts=4:sw=4:et
