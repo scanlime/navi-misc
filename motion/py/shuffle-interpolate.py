@@ -130,14 +130,14 @@ def fix360 (x):
         return 0
     return x
 
-def linear_interp (start, end, pos, len):
+def linear_interp(start, end, pos, length):
     result = []
-    for i in range (len (start)):
+    for i in range(len(start)):
         compstart = start[i]
         compend   = end[i]
 
-        pos = compstart + ((compend - compstart) * (float(pos) / float(len)))
-        result.append (pos)
+        pos = compstart + ((compend - compstart) * (float(pos) / float(length)))
+        result.append(pos)
     return result
 
 def f (path, goal):
@@ -246,18 +246,18 @@ for boundary in sequence.boundaries:
 
     for i in range(len(paths)):
         frame = {}
-        for bone in paths.keys():
-            node = paths[bone][i]
-            center = node.center ()
+        for bone in paths[i].data.keys():
+            node = paths[i].data[bone]
+            center = node.center
 
             if bone == 'root':
                 # Linearly interpolate root position, for now
                 rootstart = pre[1].bones['root'][0:3]
                 rootend   = post[1].bones['root'][0:3]
-                position = linear_interp (rootstart, rootend, i, len (paths['root']))
+                position = linear_interp (rootstart, rootend, i, len(paths))
                 center = position + center
             frame[bone] = center
-        sequence.insert (frame, index)
+        sequence.insert (frame, boundary)
 
     sequence.save(args[5], samc.format)
 
