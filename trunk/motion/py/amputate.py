@@ -33,7 +33,10 @@ keepers = sys.argv[1:-2]
 amputee = AMC ()
 
 for bone in keepers:
-    amputee.bones[bone] = amc.bones[bone]
+    try:
+        amputee.bones[bone] = amc.bones[bone]
+    except KeyError:
+        pass
 
 amputee.save (sys.argv[-1])
 
