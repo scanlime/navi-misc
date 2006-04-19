@@ -170,7 +170,7 @@ class SvnClient:
     """A CIA client for Subversion repositories. Uses svnlook to
     gather information"""
     name = 'Python Subversion client for CIA'
-    version = '1.18'
+    version = '1.19'
 
     def __init__(self, repository, revision, config):
         self.repository = repository
@@ -258,7 +258,8 @@ class SvnClient:
         # then we explicitly slurp that into a unicode object.
         return unicode(os.popen(
             'LC_ALL="en_US.UTF-8" svnlook %s -r "%s" "%s"' %
-            (command, self.revision, self.repository)).read(), 'utf-8')
+            (command, self.revision, self.repository)).read(),
+            'utf-8', 'replace')
 
     def collectData(self):
         self.author = self.svnlook('author').strip()
