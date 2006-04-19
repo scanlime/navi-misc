@@ -161,7 +161,11 @@ def f (path, goal):
 
         for i in range(1, len(path)):
             x = path[i]
-            cached_costs[bone][(endb, x)] = i
+            cached_costs[bone][(endb, x)] = i + 1
+
+        for i in range(0, len(path) - 1):
+            x = path[i]
+            cached_costs[bone][(x, goalb)] = i + 2
 
     return (g + h)
 
