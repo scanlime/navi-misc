@@ -76,7 +76,7 @@ def comb2(bones, items, position=0, current=[], current_probability=1.0):
                 probability = net[spot]
                 new_current = current + [item]
                 new_prob = current_probability * probability
-                if new_prob > EPSILON and probability > 0.01:
+                if new_prob > EPSILON and probability > 0.15:
                     if position == len(bones) - 1:
                         results.append(new_current)
                     else:
@@ -149,8 +149,19 @@ def f (path, goal):
         adj = adjacency[bone]
         endb = end.get(bone)
         goalb = goal.get(bone)
+
+        if bone not in cached_costs:
+            cached_costs[bone] = {}
+        if (endb, goalb) in cached_costs[bone]:
+            h += cached_costs[bone][(endb, goalb)]
+            continue
+
         path = algorithms_c.dijkstraSearch(adj, endb, goalb)
         h += len(path)
+
+        for i in range(1, len(path)):
+            x = path[i]
+            cached_costs[bone][(endb, x)] = i
 
     return (g + h)
 
@@ -207,6 +218,8 @@ bayes_net = pickle.load(open(args[3]))
 adjacency = {}
 for bone, graph in graphs.iteritems():
     adjacency[bone] = graph.representations[AdjacencyList]
+
+cached_costs = {}
 
 for boundary in sequence.boundaries:
     pre  = sequence[boundary - 1]
