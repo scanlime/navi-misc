@@ -1,3 +1,9 @@
+Thu Apr 20 09:05:39 CEST 2006  Isak Savo <isak.savo@gmail.com>
+
+	* plugins/autoaway/xscreensaver.c:
+	  - Fix a crash with xscreensaver backend. (Launchpad: #39461)
+	  - Make autoaway work on non-english systems
+
 Tue Apr 18 17:30:14 MDT 2006  Brian Pepple <bdpepple@ameritech.net>
 
 	* plugins/perl/perl.c:

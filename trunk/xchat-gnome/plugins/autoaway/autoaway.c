@@ -228,8 +228,8 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 	xchat_plugin_get_info (plugin_name, plugin_desc, plugin_version, NULL);
 
 	/* Hook up our callbacks. */
-	xchat_hook_print (ph, _("Disconnected"), XCHAT_PRI_NORM, network_change_cb, GINT_TO_POINTER (FALSE));
-	xchat_hook_print (ph, _("Connected"),    XCHAT_PRI_NORM, network_change_cb, GINT_TO_POINTER (TRUE));
+	xchat_hook_print (ph, "Disconnected", XCHAT_PRI_NORM, network_change_cb, GINT_TO_POINTER (FALSE));
+	xchat_hook_print (ph, "Connected",    XCHAT_PRI_NORM, network_change_cb, GINT_TO_POINTER (TRUE));
 
 	timeout_hook = xchat_hook_timer (ph, 5000, timeout_cb, NULL);
 
