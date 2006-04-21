@@ -180,6 +180,7 @@ initialize_main_window (void)
 	gui.find_bar           = glade_xml_get_widget (gui.xml, "find_bar");
 	gui.status_bar         = glade_xml_get_widget (gui.xml, "status_bar");
 	gui.text_entry         = glade_xml_get_widget (gui.xml, "text_entry");
+	gui.topic_hbox         = glade_xml_get_widget (gui.xml, "topic_hbox");
 	gui.topic_label        = glade_xml_get_widget (gui.xml, "topic_label");
 
 	/* Hook up accelerators for pgup/pgdn */
