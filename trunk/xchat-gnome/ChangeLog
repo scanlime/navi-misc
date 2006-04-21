@@ -1,3 +1,12 @@
+Fri Apr 21 17:09:21 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/main-window.c:
+	* src/fe-gnome/fe-gnome.c:
+	* src/fe-gnome/gui.h:
+	* src/fe-gnome/topic-label.c:
+	* data/xchat-gnome.glade:
+	  - Don't show the topic bar in server windows (#333856).
+
 Thu Apr 20 09:05:39 CEST 2006  Isak Savo <isak.savo@gmail.com>
 
 	* plugins/autoaway/xscreensaver.c:

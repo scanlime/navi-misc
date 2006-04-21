@@ -25,6 +25,7 @@
 #ifdef HAVE_LIBSEXY
 #include <libsexy/sexy-url-label.h>
 #endif
+#include "gui.h"
 #include "text-entry.h"
 #include "topic-label.h"
 #include "../common/fe.h"
@@ -178,6 +179,11 @@ topic_label_set_current (TopicLabel *label, struct session *sess)
 	if (topic) gtk_label_set_text (GTK_LABEL (label->priv->label), topic);
 	else       gtk_label_set_text (GTK_LABEL (label->priv->label), "");
 #endif
+
+	if (sess->type == SESS_SERVER)
+		gtk_widget_hide (gui.topic_hbox);
+	else
+		gtk_widget_show (gui.topic_hbox);
 
 	label->priv->current = sess;
 }

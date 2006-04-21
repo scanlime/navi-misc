@@ -328,7 +328,7 @@
 	      <property name="spacing">6</property>
 
 	      <child>
-		<widget class="GtkHBox" id="topic hbox">
+		<widget class="GtkHBox" id="topic_hbox">
 		  <property name="visible">True</property>
 		  <property name="homogeneous">False</property>
 		  <property name="spacing">6</property>

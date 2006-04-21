@@ -232,10 +232,18 @@ fe_new_window (struct session *sess, int focus)
 	}
 
 	conversation_panel_add_session (CONVERSATION_PANEL (gui.conversation_panel), sess, (gboolean) focus);
-	if (sess->type == SESS_SERVER)
+	if (sess->type == SESS_SERVER) {
 		navigation_tree_create_new_network_entry (gui.server_tree, sess);
-	else if (sess->type == SESS_CHANNEL || sess->type == SESS_DIALOG)
+	} else if (sess->type == SESS_CHANNEL) {
 		navigation_tree_create_new_channel_entry (gui.server_tree, sess, (gboolean) focus);
+	} else if (sess->type == SESS_DIALOG) {
+		struct User *user = NULL;
+
+		user = userlist_find_global (sess->server, sess->channel);
+
+		navigation_tree_create_new_channel_entry (gui.server_tree, sess, (gboolean) focus);
+		topic_label_set_topic (TOPIC_LABEL (gui.topic_label), sess, user->hostname);
+	}
 #ifdef USE_PLUGIN
 	if (!(opt_noplugins || loaded)) {
 		loaded = TRUE;
