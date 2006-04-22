@@ -1593,8 +1593,10 @@ on_close (GtkAction * action, gpointer data)
 	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
 		gtk_tree_model_get (model, &iter, 2, &s, 6, &joined, -1);
 
-		if (s->type == SESS_SERVER)
+		if (s->type == SESS_SERVER) {
 			status_bar_remove_server (STATUS_BAR (gui.status_bar), s->server);
+			s->server->disconnect (s, TRUE, -1);
+		}
 		conversation_panel_remove_session (CONVERSATION_PANEL (gui.conversation_panel), s);
 		topic_label_remove_session        (TOPIC_LABEL        (gui.topic_label),        s);
 		text_entry_remove_session         (TEXT_ENTRY         (gui.text_entry),         s);

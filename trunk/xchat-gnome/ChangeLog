@@ -1,3 +1,9 @@
+Sun Apr 23 00:17:04 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/navigation-tree.c:
+	  - Disconnect the server when we close it using the right
+	    click menu. (Launchpad: #40815)
+
 Sat Apr 22 23:06:24 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/conversation-panel.c:
