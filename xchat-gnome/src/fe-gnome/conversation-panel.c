@@ -362,6 +362,8 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 	if (event->button == 3) {
 		switch (conversation_panel_check_word (xtext, word, strlen (word))) {
 		case 0:
+		case WORD_DIALOG:
+		/* FIXME: show dialog context menu */
 			{
 				GtkWidget *menu;
 				menu = gtk_ui_manager_get_widget (gui.manager, "/DefaultPopup");
@@ -417,9 +419,6 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 				panel->priv->selected_word = g_strdup (word);
 				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
 			}
-			break;
-		case WORD_DIALOG:
-			/* FIXME: show dialog context menu */
 			break;
 		}
 	}
