@@ -1,3 +1,9 @@
+Sat Apr 22 23:06:24 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/conversation-panel.c:
+	  - Display the default menu when you right click in a private
+	    window.
+
 Fri Apr 21 17:09:21 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/main-window.c:
