@@ -127,7 +127,7 @@ class Font:
 if len(sys.argv) > 1:
     dev = sys.argv[1]
 else:
-    dev = "/dev/usb/rwand0"
+    dev = "/dev/rwand0"
 
 f = os.open(dev, os.O_RDWR)
 font = Font()
