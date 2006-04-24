@@ -239,7 +239,6 @@ static struct file_operations rwand_dev_fops = {
 static struct usb_class_driver rwand_class = {
 	.name       =  RWAND_DEV_NAMEFORMAT,
 	.fops       =  &rwand_dev_fops,
-	.mode       =  S_IFCHR | S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP,
 	.minor_base =  RWAND_MINOR_BASE,
 };
 
