@@ -109,7 +109,7 @@ class Device:
     """The Raster Wand device. Contains the parameters, and provides
        methods for generating frames to display.
        """
-    def __init__(self, name="/dev/usb/rwand0"):
+    def __init__(self, name="/dev/rwand0"):
         self.fd = os.open(name, os.O_RDWR)
         self.params = Params(self.fd)
         self.status = Status(self.fd)
