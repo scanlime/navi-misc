@@ -22,7 +22,7 @@
 from Motion import AMC
 import sys
 
-if sys.argv < 4:
+if len(sys.argv) < 4:
     print "usage: %s [joint list] <input file> <output file>" % (sys.argv[0])
     print
     print "please include an input AMC file, output file name, and at least one joint"
