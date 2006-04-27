@@ -95,11 +95,23 @@ class config:
     #   r"^ (branches|tags)/ (?P<module>[^/]+)/ (?P<branch>[^/]+)/ ",
         ]
 
-    # If your repository is accessable over the web, put its base URL here
+    # If your repository is accessible over the web, put its base URL here
     # and 'uri' attributes will be given to all <file> elements. This means
     # that in CIA's online message viewer, each file in the tree will link
-    # directly to the file in your repository
+    # directly to the file in your repository.
     repositoryURI = None
+
+    # If your repository is accessible over the web via a tool like ViewVC 
+    # that allows viewing information about a full revision, put a format string
+    # for its URL here. You can specify various substitution keys in the Python
+    # syntax: "%(project)s" is replaced by the project name, and likewise
+    # "%(revision)s" and "%(author)s" are replaced by the revision / author.
+    # The resulting URI is added to the data sent to CIA. After this, in CIA's
+    # online message viewer, the commit will link directly to the corresponding
+    # revision page.
+    revisionURI = None
+    # Example (works for ViewVC as used by SourceForge.net):
+    #revisionURI = "https://svn.sourceforge.net/viewcvs.cgi/%(project)s?view=rev&rev=%(revision)s"
 
     # This can be the http:// URI of the CIA server to deliver commits over
     # XML-RPC, or it can be an email address to deliver using SMTP. The
@@ -108,21 +120,20 @@ class config:
     server = "http://cia.navi.cx"
 
     # The SMTP server to use, only used if the CIA server above is an
-    # email address
+    # email address.
     smtpServer = "localhost"
 
     # The 'from' address to use. If you're delivering commits via email, set
     # this to the address you would normally send email from on this host.
     fromAddress = "cia-user@localhost"
 
-    # When nonzero, print the message to stdout instead of delivering it to CIA
+    # When nonzero, print the message to stdout instead of delivering it to CIA.
     debug = 0
 
 
 ############# Normally the rest of this won't need modification
 
-import sys, os, re, urllib
-
+import sys, os, re, urllib, getopt
 
 class File:
     """A file in a Subversion repository. According to our current
@@ -170,7 +181,7 @@ class SvnClient:
     """A CIA client for Subversion repositories. Uses svnlook to
     gather information"""
     name = 'Python Subversion client for CIA'
-    version = '1.19'
+    version = '1.20'
 
     def __init__(self, repository, revision, config):
         self.repository = repository
@@ -228,7 +239,6 @@ class SvnClient:
             )
 
     def makeSourceTag(self):
-        self.project = self.config.project
         return "<source>%s</source>" % self.makeAttrTags(
             'project',
             'module',
@@ -242,6 +252,7 @@ class SvnClient:
             'author',
             'log',
             'diffLines',
+            'url',
             ),
             self.makeFileTags(),
             )
@@ -263,9 +274,14 @@ class SvnClient:
 
     def collectData(self):
         self.author = self.svnlook('author').strip()
+        self.project = self.config.project
         self.log = self.svnlook('log')
         self.diffLines = len(self.svnlook('diff').split('\n'))
         self.files = self.collectFiles()
+        if self.config.revisionURI is not None:
+            self.url = self.config.revisionURI % self.__dict__
+        else:
+            self.url = None
 
     def collectFiles(self):
         # Extract all the files from the output of 'svnlook changed'
@@ -330,18 +346,53 @@ def escapeToXml(text, isAttrib=0):
         text = text.replace("\"", "&quot;")
     return text
 
-if __name__ == "__main__":
+
+def usage():
+    """Print a short usage description of this script and exit"""
+    sys.stderr.write("Usage: %s [OPTIONS] REPOS-PATH REVISION [PROJECTNAME]\n" %
+                      sys.argv[0])
+
+
+def version():
+    """Print out the version of this script"""
+    sys.stderr.write("%s %s\n" % (sys.argv[0], SvnClient.version))
+
+
+def main():
+    try:
+        options = [ "version" ]
+        for key in config.__dict__:
+            if not key.startswith("_"):
+                options.append(key + "=");
+        opts, args = getopt.getopt(sys.argv[1:], "", options)
+    except getopt.GetoptError:
+        usage()
+        sys.exit(2)
+    
+    for o, a in opts:
+        if o == "--version":
+            version()
+            sys.exit()
+        else:
+            # Everything else maps straight to a config key. Just have
+            # to remove the "--" prefix from the option name.
+            config.__dict__[o[2:]] = a
+
     # Print a usage message when not enough parameters are provided.
-    if len(sys.argv) < 3:
-        sys.stderr.write("USAGE: %s REPOS-PATH REVISION [PROJECTNAME]\n" %
-                         sys.argv[0])
-        sys.exit(1)
+    if not len(args) in (2,3):
+        sys.stderr.write("%s: incorrect number of arguments\n" % sys.argv[0])
+        usage();
+        sys.exit(2);
 
     # If a project name was provided, override the default project name.
-    if len(sys.argv) > 3:
-        config.project = sys.argv[3]
+    if len(args) == 3:
+        config.project = args[2]
 
     # Go do the real work.
-    SvnClient(sys.argv[1], sys.argv[2], config).main()
+    SvnClient(args[0], args[1], config).main()
+
+
+if __name__ == "__main__":
+    main()
 
 ### The End ###
