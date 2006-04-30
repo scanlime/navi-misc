@@ -242,7 +242,8 @@ fe_new_window (struct session *sess, int focus)
 		user = userlist_find_global (sess->server, sess->channel);
 
 		navigation_tree_create_new_channel_entry (gui.server_tree, sess, (gboolean) focus);
-		topic_label_set_topic (TOPIC_LABEL (gui.topic_label), sess, user->hostname);
+		if (user)
+			topic_label_set_topic (TOPIC_LABEL (gui.topic_label), sess, user->hostname);
 	}
 #ifdef USE_PLUGIN
 	if (!(opt_noplugins || loaded)) {
