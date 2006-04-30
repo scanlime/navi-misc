@@ -1,3 +1,11 @@
+Sun Apr 30 12:17:14 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/main-window.c:
+	* data/xchat-gnome.glade:
+	  - Pressing enter on the "Change Nick" prompt performs the
+	    default action. (Launchpad: #42130)
+	  - Change label from "OK" to "Change"; more HIG spirit.
+
 Sun Apr 23 00:17:04 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/navigation-tree.c:

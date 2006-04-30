@@ -599,6 +599,12 @@ on_help_about_activate (GtkAction *action, gpointer data)
 }
 
 static void
+nickname_dialog_entry_activated (GtkEntry *entry, GtkDialog *dialog)
+{
+	gtk_dialog_response (dialog, GTK_RESPONSE_OK);
+}
+
+static void
 on_nickname_clicked (GtkButton *widget, gpointer user_data)
 {
 	GtkWidget *dialog;
@@ -615,6 +621,7 @@ on_nickname_clicked (GtkButton *widget, gpointer user_data)
 
 	gtk_entry_set_text (GTK_ENTRY (entry), current_sess->server->nick);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (away), current_sess->server->is_away);
+	g_signal_connect (G_OBJECT (entry), "activate", G_CALLBACK (nickname_dialog_entry_activated), dialog);
 
 	result = gtk_dialog_run (GTK_DIALOG (dialog));
 	if (result == GTK_RESPONSE_OK) {
