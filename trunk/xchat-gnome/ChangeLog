@@ -1,3 +1,10 @@
+Mon May  1 00:06:26 CEST 2006  Christian Persch <chpe@gnome.org>
+
+	* src/fe-gnome/channel-list.c:
+	* data/channel-list.glade:
+	  - Code cleanup: use a GtkTable to dispose widgets.
+	    (#340190).
+
 Sun Apr 30 23:52:11 CEST 2006  Christian Persch <chpe@gnome.org>
 
 	* data/xchat-gnome.glade:

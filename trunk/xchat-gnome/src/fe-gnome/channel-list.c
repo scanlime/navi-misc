@@ -255,7 +255,6 @@ create_channel_list (session *sess)
 	GtkWidget *treeview, *widget, *refresh_button;
 	GtkCellRenderer *channel_r, *users_r, *topic_r;
 	GtkTreeViewColumn *channel_c, *users_c, *topic_c;
-	GtkSizeGroup *group;
 	GtkTreeSelection *select;
 	int width, height;
 	gchar *title;
@@ -335,28 +334,6 @@ create_channel_list (session *sess)
 	gtk_tree_view_column_set_resizable (topic_c, TRUE);
 	gtk_tree_view_column_set_sort_column_id (topic_c, 2);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), topic_c);
-
-	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-	widget = glade_xml_get_widget (win->xml, "minimum users");
-	gtk_size_group_add_widget (group, widget);
-	widget = glade_xml_get_widget (win->xml, "maximum users");
-	gtk_size_group_add_widget (group, widget);
-	widget = glade_xml_get_widget (win->xml, "text filter");
-	gtk_size_group_add_widget (group, widget);
-	widget = glade_xml_get_widget (win->xml, "toggles hbox");
-	gtk_size_group_add_widget (group, widget);
-	g_object_unref (group);
-
-	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-	widget = glade_xml_get_widget (win->xml, "minusers label");
-	gtk_size_group_add_widget (group, widget);
-	widget = glade_xml_get_widget (win->xml, "maxusers label");
-	gtk_size_group_add_widget (group, widget);
-	widget = glade_xml_get_widget (win->xml, "filter label");
-	gtk_size_group_add_widget (group, widget);
-	widget = glade_xml_get_widget (win->xml, "applyto label");
-	gtk_size_group_add_widget (group, widget);
-	g_object_unref (group);
 
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
