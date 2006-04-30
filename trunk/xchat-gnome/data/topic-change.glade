@@ -4,7 +4,7 @@
 <glade-interface>
 
 <widget class="GtkDialog" id="topic change">
-  <property name="border_width">6</property>
+  <property name="border_width">5</property>
   <property name="title">dialog1</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -26,7 +26,7 @@
     <widget class="GtkVBox" id="dialog-vbox1">
       <property name="visible">True</property>
       <property name="homogeneous">False</property>
-      <property name="spacing">0</property>
+      <property name="spacing">2</property>
 
       <child internal-child="action_area">
 	<widget class="GtkHButtonBox" id="dialog-action_area1">
@@ -132,7 +132,7 @@
 
       <child>
 	<widget class="GtkScrolledWindow" id="scrolledwindow1">
-	  <property name="border_width">6</property>
+	  <property name="border_width">5</property>
 	  <property name="visible">True</property>
 	  <property name="can_focus">True</property>
 	  <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
