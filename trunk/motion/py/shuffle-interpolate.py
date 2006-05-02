@@ -60,7 +60,11 @@ def comb2(bones, items, position=0, current=[], current_probability=1.0):
         pbone = current[parent_pos]
 
     for item in items[position]:
-        if not (bone in parents and asf.bones[bone].dof) or parent_pos == -1:
+        if not (bone in parents and \
+                (asf.bones[bone].dof or \
+                 (parent in asf.bones and \
+                  asf.bones[parent].dof))) or \
+           parent_pos == -1:
             # We're either on the root or a bone whose parent has no DOF.
             # The bayes net has entries for these, just they're histograms
             # of the bone's position, and so the probabilities are kind of
@@ -76,7 +80,7 @@ def comb2(bones, items, position=0, current=[], current_probability=1.0):
                 probability = net[spot]
                 new_current = current + [item]
                 new_prob = current_probability * probability
-                if new_prob > EPSILON and probability > 0.15:
+                if new_prob > EPSILON and probability > 0.1:
                     if position == len(bones) - 1:
                         results.append(new_current)
                     else:
@@ -274,7 +278,7 @@ for boundary in sequence.boundaries:
                 position = linear_interp (rootstart, rootend, i, len(paths))
                 center = position + center
             frame[bone] = center
-        sequence.insert (frame, boundary)
+        sequence.insert (frame, boundary + i)
 
     sequence.save(args[5], samc.format)
 
