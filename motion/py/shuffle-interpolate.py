@@ -30,7 +30,7 @@ from optparse import OptionParser
 import Numeric, sys, pickle
 
 # completely arbitrary
-EPSILON = 0.3**29
+EPSILON = 0.3**15
 
 def fixnegative (x):
     while x < 0:
@@ -70,10 +70,13 @@ def comb2(bones, items, position=0, current=[], current_probability=1.0):
             # of the bone's position, and so the probabilities are kind of
             # low.  Treat them as if they all pass
             new_current = current + [item]
-            children = comb2(bones, items, position + 1, new_current, current_probability)
-            if len(children):
-                results.extend(children)
-            pass
+            if position == len(bones) - 1:
+                results.append(new_current)
+            else:
+                children = comb2(bones, items, position + 1, new_current, current_probability)
+                if len(children):
+                    results.extend(children)
+                pass
         else:
             spot = (tuple(pbone.mins), tuple(item.mins))
             if spot in net:
