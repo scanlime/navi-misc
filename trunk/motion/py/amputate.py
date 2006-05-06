@@ -20,24 +20,32 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 from Motion import AMC
-import sys
+from optparse import OptionParser
 
-if len(sys.argv) < 4:
-    print "usage: %s [joint list] <input file> <output file>" % (sys.argv[0])
-    print
-    print "please include an input AMC file, output file name, and at least one joint"
-    sys.exit (1)
+usage = "usage: %prog [options] [joint list] <input file> <output file>"
+parser = OptionParser(usage)
+parser.add_option("-k", "--keep", action="store_true", default=False)
 
-amc = AMC.from_file (sys.argv[-2])
-keepers = sys.argv[1:-2]
+opts, args = parser.parse_args()
+
+if len(args) < 3:
+    parser.error("please include an input AMC file, output file name, and at least one joint")
+
+amc = AMC.from_file(args[-2])
+keepers = args[0:-2]
 amputee = AMC ()
 
-for bone in keepers:
-    try:
-        amputee.bones[bone] = amc.bones[bone]
-    except KeyError:
-        pass
+if opts.keep:
+    for bone in keepers:
+        try:
+            amputee.bones[bone] = amc.bones[bone]
+        except KeyError:
+            pass
+else:
+    for bone, v in amc.bones.iteritems():
+        if bone not in keepers:
+            amputee.bones[bone] = v
 
-amputee.save (sys.argv[-1])
+amputee.save(args[-1])
 
 # vim: ts=4:sw=4:et
