@@ -32,17 +32,7 @@ import Numeric, sys, pickle
 # completely arbitrary
 EPSILON = 0.3**15
 
-def fixnegative (x):
-    while x < 0:
-        x = x + 360
-    return x
-
-def fix360 (x):
-    if x == 360:
-        return 0
-    return x
-
-def comb2(bones, items, position=0, current=[], current_probability=1.0):
+def comb(bones, items, position=0, current=[], current_probability=1.0):
     results = []
     bone = bones[position]
 
@@ -73,7 +63,7 @@ def comb2(bones, items, position=0, current=[], current_probability=1.0):
             if position == len(bones) - 1:
                 results.append(new_current)
             else:
-                children = comb2(bones, items, position + 1, new_current, current_probability)
+                children = comb(bones, items, position + 1, new_current, current_probability)
                 if len(children):
                     results.extend(children)
                 pass
@@ -87,7 +77,7 @@ def comb2(bones, items, position=0, current=[], current_probability=1.0):
                     if position == len(bones) - 1:
                         results.append(new_current)
                     else:
-                        children = comb2(bones, items, position + 1, new_current, new_prob)
+                        children = comb(bones, items, position + 1, new_current, new_prob)
                         if len(children):
                             results.extend(children)
 
@@ -114,7 +104,7 @@ def successor (graphs, node):
             items.append(immediate_successors[bone])
 
     retval = []
-    for succ in comb2(bones, items):
+    for succ in comb(bones, items):
         retsucc = {}
         for pos in range(len(succ)):
             retsucc[bones[pos]] = succ[pos]
