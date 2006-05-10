@@ -30,6 +30,9 @@ import Numeric, sys, pickle
 EPSILON = 0.3**15
 
 def comb(bones, items, position=0, current=[], current_probability=1.0):
+    """Return a list of successors for a node. Prune out successors with a low
+       probability. Yay Bayes net!
+       """
     results = []
     bone = bones[position]
 
