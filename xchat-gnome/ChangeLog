@@ -1,3 +1,9 @@
+Sun May 14 18:29:10 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/fe-gnome.c:
+	  - Don't use the "--no-auto" option when we save the
+	    GNOME session. (Launchpad: #39863)
+
 Mon May  1 00:06:26 CEST 2006  Christian Persch <chpe@gnome.org>
 
 	* src/fe-gnome/channel-list.c:

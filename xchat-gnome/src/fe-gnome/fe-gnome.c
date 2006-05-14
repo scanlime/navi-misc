@@ -926,10 +926,9 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 	gint argc;
 	const gchar *prefix;
 
-	argv = g_new0 (gchar *, 3);
+	argv = g_new0 (gchar *, 2);
 	argv[0] = client_data;
-	argv[1] = "--no-auto";
-	argc = 2;
+	argc = 1;
 
 	gnome_client_set_restart_style (client, GNOME_RESTART_IF_RUNNING);
 	gnome_client_set_restart_command (client, argc, argv);
