@@ -1,7 +1,7 @@
 """Interpolation utilities.
 
 Functions:
-    spline -- interpolate a trajectory
+    - spline    interpolate a trajectory
 """
 
 # Copyright (C) 2005 W. Evan Sheehan
@@ -30,8 +30,8 @@ def spline(data, quality):
     """Interpolate a trajectory using natural cubic splines.
 
     Arguments:
-        data -- a list or AMC object containing the data to be interpolated
-        quality -- the number of new points to insert between data points
+        - data      a list or AMC object containing the data to be interpolated
+        - quality   the number of new points to insert between data points
     """
     # Special case: The input data is an AMC object. For each bone in the AMC
     # object create a spline. Return an AMC object.

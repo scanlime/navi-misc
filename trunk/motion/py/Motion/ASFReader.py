@@ -1,4 +1,14 @@
 #!/usr/bin/env python
+"""An ASF file parser.
+
+Utilities for parsing an ASF file.
+
+Classes:
+    - ASFReader     The ASF parser
+
+Functions:
+    - listToDict    Create a dictionary from a list
+"""
 #
 # ASFReader.py: parses Acclaim ASF (skeleton) files
 #
@@ -23,6 +33,11 @@ from Bone import *
 import Log
 
 def listToDict (list):
+    """Create a dictionary from a list.
+
+    Create a list using the the first item in the list as the key, and the rest
+    of the list as the item.
+    """
     s = {}
     for item in list:
         # If we've only got one item, use the item rather than a list
@@ -125,3 +140,5 @@ class ASFReader:
     def parse (self, filename):
         g = self.getGrammar ()
         g.parseFile (filename)
+
+# vim: ts=4:sw=4:et:tw=80
