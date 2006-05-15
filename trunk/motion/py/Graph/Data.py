@@ -284,22 +284,47 @@ class EdgeList (GraphRepresentation):
 
 class CNode (object):
     """A class for representing a combination of nodes from multiple graphs.
-       This primarily exists to provide a hashable object for the dictionary of
-       back pointers used by ExtraAlgorithms.Heuristic.
-       """
+
+    This primarily exists to provide a hashable object for the dictionary of
+    back pointers used by ExtraAlgorithms.Heuristic.
+
+    Members:
+        - data       Dictionary of data
+
+    Methods:
+        - iteritems      Get an iterator over the items in data
+        - iterkeys       Get an iterator over the keys in data
+        - get            Access a single item in data
+        - __eq__         Return True if two CNodes are equal
+    """
+
     def __init__(self, data):
+        """Create a CNode with data."""
         self.data = data
 
     def iteritems(self):
+        """Return an iterator over the items in data."""
         return self.data.iteritems()
 
     def iterkeys(self):
+        """Return an iterator over the keys in data."""
         return self.data.iterkeys()
 
     def get(self, k, x=None):
+        """Return the item corresponding to a key.
+
+        Arguments:
+            - k      The key to retrieve
+            - x      The value to return if k is not in data (default None)
+        """
         return self.data.get(k, x)
 
     def __eq__(self, other):
+        """Compare 2 CNodes and return True if they are equal.
+
+        Arguments:
+            - other     The other CNode to compare this node to
+        """
         for key in self.data.iterkeys():
             if other.get(key) != self.data[key]:
                 return False
