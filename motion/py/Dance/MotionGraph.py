@@ -1,6 +1,22 @@
-"""Dance.MotionGraph
+"""A module providing classes for graphs built from a corpus of motion.
 
-Build a graph from a corpus of motions
+A collection of functions and classes used to create graphs built from motion
+capture data.  The nodes in the graph represent a range of positions for a
+single joint.  Edges in the graph have a probability associate with them,
+indicating the likelihood that the transition from u to v along that edge
+occured in the corpus of motion capture data.
+
+Classes:
+    - ProbabilityEdge    A probablistic graph edge
+    - MotionGraph        A motion graph
+    - MotionGraphNode    A node in a motion graph
+
+Functions:
+    - search_graphs      Iterative deepening search of multiple graphs
+    - cp_range
+    - fixnegative        Remove negative values
+    - fix360             Change 360 to 0
+    - build_graphs       Build graphs from motion data
 """
 
 from Graph.Data import Graph, Edge, AdjacencyList, VertexMap, EdgeList
@@ -9,17 +25,37 @@ from Graph import algorithms_c
 import Numeric, MLab, math, gc
 
 class ProbabilityEdge (Edge):
+    """Represent an edge between nodes with a probability of following that edge.
+
+    Members:
+        - u            The starting node of the edge
+        - v            The ending node of the edge
+        - dot_label    The string to print next to the edge
+        - count        The number of times the transition from u to v was made
+        - weight       The probability of traversing the edge
+
+    Methods:
+        - visit        Increase count
+        - normalize    Calculate the weight
+    """
+
     __slots__ = ['u', 'v', 'dot_label', 'count', 'weight']
 
     def __init__ (self, u, v):
+        """Create an edge from u to v with count 0 and weight None."""
         Edge.__init__ (self, u, v)
         self.count = 0
         self.weight = None
 
     def visit (self):
+        """Increase the count of the edge by one."""
         self.count += 1
 
     def normalize (self, total):
+        """Calculate the weight of the edge.
+
+        The weight of the edge is equal to the count divided by total.
+        """
         self.weight = float (self.count) / total
         self.dot_label = '%.2f' % self.weight
 
@@ -30,13 +66,25 @@ class ProbabilityEdge (Edge):
         self.u, self.v, self.dot_label, self.count, self.weight = state
 
 class MotionGraph (Graph):
+    """Represent a graph of motion."""
     def __init__ (self):
+        """Initialize the graph with a DotPrint algorithm."""
         Graph.__init__ (self, [DotPrint])
 
 class MotionGraphNode:
+    """Represent a node in a motion graph.
+
+    Members:
+        - mins      Lower bound of this node
+        - maxs      Upper bound of this node
+
+    Methods:
+        - inside    Test a point to see if it is within this node
+    """
     __slots__ = ['mins', 'maxs']
 
     def __init__ (self, mins, maxs):
+        """Initialize the node with bounds mins and maxs."""
         self.mins = mins
         self.maxs = maxs
         self.center = []
@@ -51,6 +99,9 @@ class MotionGraphNode:
         return '<MGNode: %s>' % self.dot_label
 
     def inside (self, point):
+        """Return True if point lies within the minimum and maximum bounds of
+        this node.
+        """
         if len (point) != len (self.mins):
             raise AttributeError ("dimension doesn't match! %d vs %d" % (len (point), len (self.mins)))
         for i in range (len (point)):
@@ -59,6 +110,19 @@ class MotionGraphNode:
         return True
 
 def search_graphs (graphs, starts, ends, depth):
+    """Execute a depth limited search on multiple graphs and return paths for
+    each graph, if there is one.
+
+    graphs, starts, and ends should all be dictionaries with identical keys.
+
+    Arguments:
+        - graphs    A dictionary mapping a key to a motion graph
+        - starts    A dictionary mapping a key to a position representing the
+                    start position
+        - ends      A dictionary mapping a key to a position representing the
+                    goal of the search
+        - depth     The maximum depth to run the search to
+    """
     paths = {}
     for bone in graphs.keys():
         print '    searching',bone
@@ -111,17 +175,25 @@ def cp_range (dof, angle):
         return nodes
 
 def fixnegative (x):
+    """If x is negative, add 360 to it until it is positive."""
     while x < 0:
         x = x + 360
     return x
 
 def fix360 (x):
+    """If x is 360, make it 0."""
     if x == 360:
         return 0
     return x
 
 def build_graphs (key, datas):
-    """Build a graph using the data arrays from any number of files."""
+    """Build a graph using the data arrays from any number of files.
+   
+    Arguments:
+        - key      The key for which the graph should be built
+        - datas    A dictionary of motion data, the values in the dictionary are
+                   Numeric arrays
+    """
     # If this is the root, we only want the last 3 dof, for now
     # FIXME - we really should track root position, but that's more
     # complicated.  We also don't *know* that the last 3 DOF are going
@@ -214,3 +286,5 @@ def build_graph (d, graph, nodes, edge_list, interval):
                 graph.addList ([edge])
         data1 = data2
         node1 = node2
+
+# vim: ts=4:sw=4:et
