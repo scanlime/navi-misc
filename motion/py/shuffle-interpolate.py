@@ -225,6 +225,9 @@ cached_costs = {}
 for boundary in sequence.boundaries:
     pre  = sequence[boundary - 1]
     post = sequence[boundary]
+    print pre
+    print
+    print post
 
     starts = {}
     ends = {}
