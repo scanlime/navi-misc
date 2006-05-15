@@ -1,17 +1,36 @@
-""" ODE
+"""A collection of Ordinary Differential Equation (ODE) solvers.
 
-ODE solvers and related classes.
+Provides a variety of ODE solvers all based on a generic class so that they may
+be used interchangeably.
+
+Classes:
+    - RK4       Runge-Kutte 4 solver
+    - ARK4      Adaptive Runge-Kutte 4 solver
 """
 
 import Numeric, math
 
 
 class ODE:
-    """ Genereic ODE solver object. Just in case we end up using more than
-        just RK4 (doubtful). All ODEs need a function, initial conditions,
-        and some kind of time constraints.
-        """
+    """Genereic ODE solver object.
+   
+    Members:
+        - f             The ODE for the solver to solve
+
+    Methods:
+        - __init__      Create the solver
+        
+    Abstract Methods:
+        - __call__      Implemented by subclasses to execute the solver on the
+                        system
+    """
+
     def __init__ (self, func):
+        """Create a solver with an ODE to solve.
+
+        Arguments:
+            - func      The ODE to be solved
+        """
         self.f = func
 
     def __call__ (self):
@@ -19,12 +38,18 @@ class ODE:
 
 
 class RK4 (ODE):
-    """ RK4 object. """
+    """Runge-Kutte 4 ODE solver.
+
+    Methods:
+        - __call__      Overridden from the ODE class to solve f using the
+                        Runge-Kutte 4 solver
+    """
+
     def __init__ (self, func):
         ODE.__init__ (self, func)
 
     def _step (self, last, h, t):
-        """ Computations performed at each iteration of the ODE. """
+        """Execute a single RK4 step."""
         k1 = self.f (last, t, h)
         k2 = self.f (last + h/2. * k1, t + h/2., h)
         k3 = self.f (last + h/2. * k2, t + h/2., h)
@@ -33,7 +58,13 @@ class RK4 (ODE):
         return last + h/6.*(k1 + 2.*k2 + 2.*k3 + k4)
 
     def __call__ (self, ic, n, h):
-        """ Solve the system. """
+        """Solve the system and return the result.
+
+        Arguments:
+            - ic        The initial conditions
+            - n         The number of iterations
+            - h         The step size
+        """
         result = [Numeric.array (ic)]
 
         for i in range (n):
@@ -44,13 +75,22 @@ class RK4 (ODE):
 
 
 class ARK4 (RK4):
-    """ An adaptive RK4 object. """
+    """An Adaptive Runge-Kutte 4 ODE solver."""
+
     def __init__ (self, func, eps=.001):
+        """Create an ARK4 object with an error tolerance.
+
+        Arguments:
+            - func      The ODE to be solved
+            - eps       The error tolerance used to adjust the step size
+        """
+
         RK4.__init__ (self, func)
         # Error tolerance.
         self.epsilon = eps
 
     def _step (self, last, i):
+        """Overridden from RK4."""
         # Take one step.
         single = RK4._step (self, last, i)
 

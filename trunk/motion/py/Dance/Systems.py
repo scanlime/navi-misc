@@ -1,31 +1,56 @@
-''' Systems
+"""A collection of chaotic systems.
 
-These classes represent different systems we commonly use in
-CSCI 4446 Chaotic Dynamics. All systems are callable with a
-list of arguments and a time. They return a Numeric.array with 
-the results when called.
-'''
+These classes represent chaotic systems.  They are intended for use with the
+ODE classes in ODE.py.
+
+Classes:
+    - System        Interface for all systems
+    - Lorenz        The Lorenz system
+    - Rossler       The Rossler system
+"""
 
 import Numeric
 
 
 class System:
-    ''' A superclass that effectively just specifies an interface
-        for all systems.
-        '''
+    """Interface implemented by all systems.
+
+    Methods:
+        - __call__      Abstract function for executing the system
+    """
+
     def __call__( self, args, time, step ):
-        ''' All Systems should be callable. '''
+        """Calculate a value in the system."""
         pass
 
 
 class Lorenz( System ):
-    ''' The Lorenz system. '''
+    """The Lorenz system.
+
+    Members:
+        - a, r, b       The parameters of the system
+
+    Overridden Methods:
+        - __call__      Calculate a value in the system
+    """
+
     def __init__( self, a, r, b ):
+        """Create a Lorenz object with parameters a, r, and b."""
         self.a = a
         self.r = r
         self.b = b
 
     def __call__( self, args, time, step ):
+        """Calculate a value in the system.
+
+        Arguments:
+            - args      A List or Tuple with 3 values
+            - time      IGNORED
+            - step      IGNORED
+
+        Returns:
+            A Numeric array that is the solution given the 3 values in args.
+        """
         x, y, z = args
 
         return Numeric.array( [self.a*(y - x),
@@ -34,14 +59,39 @@ class Lorenz( System ):
 
 
 class Rossler( System ):
-    ''' The Rossler system. '''
+    """The Rossler system.
+
+    Members:
+        - a, b, c       Parameters of the system
+        - deltaMatrix
+
+    Overridden Methods:
+        - __call__      Calculate a value in the system
+    """
+
     def __init__( self, a, b, c, delta=False ):
+        """Create a Rossler object.
+
+        Arguments:
+            - a, b, c       Parameters of the system
+            - delta
+        """
         self.a = a
         self.b = b
         self.c = c
         self.deltaMatrix = delta
 
     def __call__( self, args, time, step ):
+        """Calculate a value in the system.
+
+        Arguments:
+            - args      A List or Tuple of 3 values
+            - time      IGNORED
+            - step      IGNORED
+
+        Returns:
+            A Numeric array that is the solution given the values in args.
+        """
         x, y, z = args
 
         if self.deltaMatrix:
