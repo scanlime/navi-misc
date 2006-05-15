@@ -1,6 +1,11 @@
-""" Sequence
+"""Map a sequence to a chaotic attractor and shuffle it.
 
-Map a sequence to a chaotic attractor and shuffle it.
+Provides classes for mapping a dance sequence to a chaotic trajectory and
+shuffling it.  The dance sequence is contained in an AMC object.
+
+Classes:
+    - Sequence      Maps a sequence to a trajectory
+    - Frame         Represents a single frame in the sequence
 """
 
 import Motion, Numeric, math
@@ -10,11 +15,30 @@ __all__ = ["Sequence", "Frame"]
 
 
 class Sequence:
-    """This class represents a dance sequence mapped to an attractor."""
+    """Represent a dance sequence mapped to a trajectory.
+
+    Members:
+        - ode               The ODE solver
+        - mapping           The mapping of a coordinate to a frame in the dance
+        - original          The original dance sequence
+
+    Methods:
+        - shuffle           Shuffle the dance sequence
+        - insert            Insert a frame into the dance sequence
+        - save              Write the sequence to an AMC file
+        - __getitem__       Access individual frames using the [] operator
+    """
+
     def __init__ (self, data, system, ic, n=10000, h=.001):
-        """Each Sequence object requires an ordinary differential equation
-           solver and some motion capture data (data).
-           """
+        """Create a new sequence from a chaotic system and a dance sequence.
+
+        Arguments:
+            - data      The motion data of the sequence
+            - system    The chaotic system to map the sequence to
+            - ic        The initial conditions for the chaotic system
+            - n         The number of iterations for the trajectory (default 10000)
+            - h         The step size for the trajectory (default .001)
+        """
         # If we got passed an AMC object, create a list from it. It's unlikely
         # that anything other than an AMC object will be useful here, but for
         # the purpose of testing, allow this class to work with any list of
@@ -37,9 +61,20 @@ class Sequence:
         self.original = data
 
     def shuffle (self, ic, n=10000, h=.001):
-        """Takes a set of initial conditions (ics) and returns a new
-           dance sequence.
-           """
+        """Create a shuffled sequence from this sequence.
+
+        Generate a new trajectory from the chaotic system used in the initial
+        mapping to shuffle the sequence.  Each time the new trajectory passes
+        near a point in the original that is mapped to a frame, add that frame
+        to the new sequence.  If the initial conditions given here are the same
+        as those given when the Sequence object was created, the 'shuffled'
+        sequence should be identical to the original.
+
+        Arguments:
+            - ic        The initial conditions of the new chaotic trajectory
+            - n         The number of iterations of the trajectory (default 10000)
+            - h         The step size of the trajectory (default .001)
+        """
         shuffled = []
         frames = len (self.mapping.keys ())
         traj = self.ode (ic, n, h)
@@ -54,7 +89,12 @@ class Sequence:
         self._markChunks ()
 
     def insert (self, data, index):
-        """Insert a frame into the sequence at index."""
+        """Insert a frame into the sequence at index.
+       
+        Arguments:
+            - data      The Frame object to be inserted
+            - index     The index at which the frame will be inserted
+        """
         # FIXME - should probably do some error checking to ensure that the
         # Frame or dictionary passed in is compatible with the existing Frames
         # in the sequence.
@@ -63,7 +103,12 @@ class Sequence:
         self.shuffled.insert (index, data)
 
     def save (self, filename, format):
-        """Store the sequence to a file."""
+        """Write the sequence to a file.
+        
+        Arguments:
+            - filename      The filename to write to
+            - format        The format of the AMC file
+        """
         amc = Motion.AMC ()
         amc.format = format
 
@@ -160,8 +205,29 @@ class _Coordinate:
 
 
 class Frame:
-    """A frame from the AMC file."""
+    """A frame in an AMC file.
+    
+    AMC objects store all their data in a dictionary mapping bone names to a
+    Numeric array.  The Numeric array has 2 dimensions so that the first index
+    is the frame number and the second is the degree of freedom of the joint.
+    Frame objects separate each individual frame out of these arrays.
+
+    Members:
+        - bones             A dictionary mapping bone name to a single position
+
+    Methods:
+        - __getitem__       Access a single bone in the frame using the []
+                            operator
+    """
     def __init__ (self, data, index=None):
+        """Create a Frame object from data.
+
+        Arguments:
+            - data      A dictionary mapping bone names to Numeric arrays
+                        (usually from an AMC object).  It should have the form:
+                        data["bone name"][frame, dof]
+            - index     The frame in data to represent in this Frame object
+        """
         # Map bone names to a list of values in a single frame. Each value
         # corresponds to a degree of freedom for that bone. index gives the
         # frame number and data is a dictionary mapping bones to motion data.
@@ -179,7 +245,11 @@ class Frame:
     #   return self.bones.__cmp__ (other.bones)
 
     def __getitem__ (self, bone):
-        return self.bones[bone]
+        """Return the position for bone in this frame.
 
+        Arguments:
+            - bone      A bone name as a string
+        """
+        return self.bones[bone]
 
 # vim:ts=4:sw=4:et:tw=80
