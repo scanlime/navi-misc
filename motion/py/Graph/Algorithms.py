@@ -5,6 +5,19 @@ GraphRepresentations to make them fast(ish)
 
 DFS and topoSort implementations originally Copyright (C)
     the Python Mission Control Kit team
+
+Classes:
+    - Algorithm                 An abstract class inherited by all algorithms
+    - DFS                       A Depth First Search
+    - Dijkstra                  Dijkstra's shortest path algorithm
+    - DotPrint                  Prints a graph as a dot(1) file
+
+Functions
+    - Relax                     Relax constraints on a graph
+
+Exceptions:
+    - CyclicGraphException      Indicates a cyclic graph when an acyclic graph
+                                was required
 """
 
 import Data

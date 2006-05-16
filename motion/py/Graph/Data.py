@@ -3,6 +3,19 @@ Graph data structures, for use in stuff.  Much of this code is "inspired"
 by Micah Dowty's code for space-grant's PyMCK system, so you should love him.
 
 Originally Copyright (C) 2004-2005 the Python Mission Control Kit team
+
+Classes:
+    - Edge                      A graph edge
+    - Graph                     A generic graph
+    - GraphRepresentation       Abstract class for data structures representing
+                                a graph
+    - AdjacencyList             Mapping of vertices 'u' to all 'v's for which
+                                an edge (u, v) exists
+    - VertexMap                 Mapping of all vertices to a hash of all edges
+                                connected to the vertex
+    - EdgeList                  Mapping between (u, v) pairs and edge objects
+    - CNode                     Represent a combination of vertices from
+                                multiple graphs
 """
 
 import Observable
