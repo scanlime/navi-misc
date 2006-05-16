@@ -19,12 +19,12 @@ class System:
         - __call__      Abstract function for executing the system
     """
 
-    def __call__( self, args, time, step ):
+    def __call__(self, args, time, step):
         """Calculate a value in the system."""
         pass
 
 
-class Lorenz( System ):
+class Lorenz(System):
     """The Lorenz system.
 
     Members:
@@ -34,13 +34,13 @@ class Lorenz( System ):
         - __call__      Calculate a value in the system
     """
 
-    def __init__( self, a, r, b ):
+    def __init__(self, a, r, b):
         """Create a Lorenz object with parameters a, r, and b."""
         self.a = a
         self.r = r
         self.b = b
 
-    def __call__( self, args, time, step ):
+    def __call__(self, args, time, step):
         """Calculate a value in the system.
 
         Arguments:
@@ -53,12 +53,12 @@ class Lorenz( System ):
         """
         x, y, z = args
 
-        return Numeric.array( [self.a*(y - x),
+        return Numeric.array([self.a*(y - x),
                                self.r*x - y - x*z,
-                               x*y - self.b*z] )
+                               x*y - self.b*z])
 
 
-class Rossler( System ):
+class Rossler(System):
     """The Rossler system.
 
     Members:
@@ -69,7 +69,7 @@ class Rossler( System ):
         - __call__      Calculate a value in the system
     """
 
-    def __init__( self, a, b, c, delta=False ):
+    def __init__(self, a, b, c, delta=False):
         """Create a Rossler object.
 
         Arguments:
@@ -81,7 +81,7 @@ class Rossler( System ):
         self.c = c
         self.deltaMatrix = delta
 
-    def __call__( self, args, time, step ):
+    def __call__(self, args, time, step):
         """Calculate a value in the system.
 
         Arguments:
@@ -107,7 +107,7 @@ class Rossler( System ):
                         x + self.a*y,
                         self.b + z*(x - self.c)]
 
-        return Numeric.array( matrix )
+        return Numeric.array(matrix)
 
 
 # vim:ts=4:sw=4:et
