@@ -120,4 +120,51 @@ def _getMatrix(data, dof):
     return (A, b)
 
 
+class GraphSearch:
+    """A class for interpolating by searching a motion graph."""
+
+    __slots__ = ["graphs", "adjacency", "order"]
+
+    def __init__(self, graphs, asf):
+        """Create the GraphSearch object with the graphs."""
+        self.graphs = graphs
+
+        # Build the dictionary of adjacency lists. If a graph doesn't have an
+        # AdjacencyList, raise an exception.
+        for bone, graph in graphs.iteritems():
+            try:
+                self.adjacency[bone] = graph.representations[AdjacencyList]
+            except KeyError:
+                raise Exception("%s graph doesn't have an AdjacencyList representation" % (bone))
+
+        # Initialize the build order for the successor function
+        build_order(asf)
+
+    def __call__(self, start, end):
+        """Execute the graph search.
+        
+        Interpolate between the frames 'start' and 'end'. Returns a path from
+        'start' to 'end', or None if there isn't one.
+        """
+        path = None
+
+        return path
+
+    def build_order(self, asf):
+        """Set the build order for the successor function."""
+        # Build order always starts at the root
+        self.order = ["root"]
+        pos = 0
+
+        # Create the build order based on the hierarchy specified in the ASF
+        # file. The hierarchy in the ASF file looks like: "parent child child..."
+        # This loop appends the list of children to the build order from each
+        # line.
+        while pos < len(order):
+            for group in asf.hierarchy:
+                if len(group) and group[0] == self.order[pos]:
+                    self.order.extend(group[1:])
+            pos += 1
+
+
 # vim: ts=4:sw=4:et
