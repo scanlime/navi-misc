@@ -30,7 +30,7 @@ from optparse import OptionParser
 import Numeric, sys, pickle
 
 # completely arbitrary
-EPSILON = 0.3**15
+EPSILON = 0.3**6
 
 def comb(bones, items, position=0, current=[], current_probability=1.0):
     results = []

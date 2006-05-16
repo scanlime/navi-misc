@@ -19,12 +19,17 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+"""Shuffle a motion sequence
+
+usage: shuffle.py [options] <input file> <output file>
+"""
+
 from Motion import AMC
 from Dance import Systems, Sequence
 from optparse import OptionParser
 import Numeric, string
 
-parser = OptionParser ("usage: %prog <input file> <output file>")
+parser = OptionParser ("usage: %prog [options] <input file> <output file>")
 parser.add_option ("-i", "--initial", dest="ic", default="60,15,1", \
         help="A comma separated list of initial conditions for the shuffle")
 parser.add_option ("-n", dest="n", type="int", default=10000, \

@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-"""Utility for removing bones from an AMC file. Takes a list of bones to keep,
-   and input file, and an output file.  The AMC file is written to the output
-   file with only the bones listed on the command line.
-   """
+
+"""Utility for removing bones from an AMC file.
+
+usage: amputate.py [options] [joint list] <input file> <output file>
+"""
+
 # Copyright (C) 2006 W. Evan Sheehan
 #
 # This program is free software; you can redistribute it and/or
@@ -22,7 +24,7 @@
 from Motion import AMC
 from optparse import OptionParser
 
-usage = "usage: %prog [options] [joint list] <input file> <output file>"
+usage = "%prog [options] [joint list] <input file> <output file>"
 parser = OptionParser(usage)
 parser.add_option("-k", "--keep", action="store_true", default=False)
 

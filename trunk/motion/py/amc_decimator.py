@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-"""amc_decimator.py
+"""Read in an AMC file and every nth frame out to another AMC file.
 
-Read in an AMC file and every nth frame out to another AMC file.
+usage: amc_decimator -n N input <input file> <output file>
 """
 
 # Copyright (C) 2005-2006 W. Evan Sheehan
@@ -24,7 +24,7 @@ from optparse import OptionParser
 from Motion import AMC
 import Numeric
 
-parser = OptionParser ("usage: %prog [options] -n N <input file> <output file>")
+parser = OptionParser ("%prog -n N <input file> <output file>")
 parser.add_option ("-n", type="int", dest="step", help="Choose every Nth frame")
 
 opts, args = parser.parse_args ()

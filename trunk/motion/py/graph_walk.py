@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+"""Create an animation by traversing a motion graph.
+
+usage: graph_walk.py [options] <graph pickle>
+"""
+
 from optparse import OptionParser
 from Dance import Sequence, MotionGraph
 from Graph.Data import AdjacencyList, VertexMap
@@ -54,7 +59,7 @@ def randomWalk (graph, len):
     return path
 
 
-parser = OptionParser ("usage: %prog <graph pickle>")
+parser = OptionParser ("usage: %prog [options] <graph pickle>")
 parser.add_option("--cliche", dest="cliche", default=False,
                    action="store_true",
                    help="Choose edges based on probability")

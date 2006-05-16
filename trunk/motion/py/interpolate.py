@@ -19,6 +19,11 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+"""Interpolate between two frames in an AMC file.
+
+usage: interpolate.py <asf file> <graph> <bayes net> <input amc> <output amc> <start frame> <end frame>
+"""
+
 from Motion import AMC, ASFReader
 from Dance import MotionGraph
 from Graph import algorithms_c
