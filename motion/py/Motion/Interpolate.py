@@ -123,11 +123,12 @@ def _getMatrix(data, dof):
 class GraphSearch:
     """A class for interpolating by searching a motion graph."""
 
-    __slots__ = ["graphs", "adjacency", "order", "epsilon"]
+    __slots__ = ["bayes", "graphs", "adjacency", "order", "epsilon"]
 
-    def __init__(self, graphs, asf, epsilon=0.3**29):
+    def __init__(self, graphs, bayes, asf, epsilon=0.3**29):
         """Create the GraphSearch object with the graphs."""
         self.graphs = graphs
+        self.bayes = bayes
         self.epsilon = epsilon
 
         # Build the dictionary of adjacency lists. If a graph doesn't have an
@@ -202,7 +203,7 @@ class GraphSearch:
         items in every possible way.
         """
         results = []
-        bone = bones[position]
+        bone = bones[0]
 
         net = bayes_net[bone]
         if bone in parents:
@@ -211,25 +212,24 @@ class GraphSearch:
             parent_pos = bones.index(parent)
             pbone = current[parent_pos]
 
-        for item in items[position]:
-            if not (bone in parents and \
-                    (asf.bones[bone].dof or \
-                    (parent in asf.bones and \
-                    asf.bones[parent].dof))) or \
-            parent_pos == -1:
-                # We're either on the root or a bone whose parent has no DOF.
-                # The bayes net has entries for these, just they're histograms
-                # of the bone's position, and so the probabilities are kind of
-                # low.  Treat them as if they all pass
+        for item in items[0]:
+            # If we're in a bone with no parent (the root) or a bone whose
+            # parent has no DOF, accept all successors for the bone.
+            #if not (bone in parents and (asf.bones[bone].dof or (parent in asf.bones and asf.bones[parent].dof))):
+            if bone not in parents or \
+                    (parent in asf.bone and asf.bones[parent].dof is 0):
                 new_current = current + [item]
-                if position == len(bones) - 1:
+
+                # If there's only one bone in the list, do not recurse further
+                if len(bones) is 1:
                     results.append(new_current)
                 else:
-                    children = combine(bones, items, position + 1, new_current, current_probability)
+                    children = combine(bones[1:], items[1:], new_current, current_probability)
                     if len(children):
                         results.extend(children)
                     pass
             else:
+                # Build the key for the Bayes net
                 spot = (tuple(pbone.mins), tuple(item.mins))
                 if spot in net:
                     probability = net[spot]
@@ -242,6 +242,9 @@ class GraphSearch:
                             children = combine(bones, items, position + 1, new_current, new_prob)
                             if len(children):
                                 results.extend(children)
+
+                # FIXME - What if the (parent, child) pair isn't in the Bayes
+                # net?
 
         res = len(results)
         if position == 0:
@@ -258,17 +261,15 @@ class GraphSearch:
 
         # Return a list of the combinatoric nodes
         items = []
-        bones = []
         for bone in comb_order:
             if bone in immediate_successors:
-                bones.append(bone)
                 items.append(immediate_successors[bone])
 
         retval = []
         for succ in combine(bones, items):
             retsucc = {}
             for pos in range(len(succ)):
-                retsucc[bones[pos]] = succ[pos]
+                retsucc[comb_order[pos]] = succ[pos]
             retval.append(CNode(retsucc))
 
         return retval
