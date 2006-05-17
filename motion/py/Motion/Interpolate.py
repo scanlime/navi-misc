@@ -195,7 +195,12 @@ class GraphSearch:
                     self.order.extend(group[1:])
             pos += 1
 
-    def comb(bones, items, position=0, current=[], current_probability=1.0):
+    def combine(bones, items, position=0, current=[], current_probability=1.0):
+        """Recusively create combinatoric successors.
+
+        Return a list of successors created by combining all the values in
+        items in every possible way.
+        """
         results = []
         bone = bones[position]
 
@@ -220,7 +225,7 @@ class GraphSearch:
                 if position == len(bones) - 1:
                     results.append(new_current)
                 else:
-                    children = comb(bones, items, position + 1, new_current, current_probability)
+                    children = combine(bones, items, position + 1, new_current, current_probability)
                     if len(children):
                         results.extend(children)
                     pass
@@ -234,7 +239,7 @@ class GraphSearch:
                         if position == len(bones) - 1:
                             results.append(new_current)
                         else:
-                            children = comb(bones, items, position + 1, new_current, new_prob)
+                            children = combine(bones, items, position + 1, new_current, new_prob)
                             if len(children):
                                 results.extend(children)
 
@@ -249,8 +254,7 @@ class GraphSearch:
         # Create a dictionary mapping bone name to the list of successors for that
         # bone in its current position.
         for bone, n in node.iteritems ():
-            adj = graphs[bone].representations[AdjacencyList]
-            immediate_successors[bone] = [edge.v for edge in adj.query (n)]
+            immediate_successors[bone] = [edge.v for edge in self.adjacency[bone].query (n)]
 
         # Return a list of the combinatoric nodes
         items = []
@@ -261,11 +265,12 @@ class GraphSearch:
                 items.append(immediate_successors[bone])
 
         retval = []
-        for succ in comb(bones, items):
+        for succ in combine(bones, items):
             retsucc = {}
             for pos in range(len(succ)):
                 retsucc[bones[pos]] = succ[pos]
             retval.append(CNode(retsucc))
+
         return retval
 
     def find_node (graph, pos):
