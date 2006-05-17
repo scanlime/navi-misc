@@ -37,8 +37,10 @@ const char *encodings[] =
 	N_("ISO-2022-JP (Japanese)"),
 	N_("SJIS (Japanese)"),
 	N_("CP949 (Korean)"),
+	N_("KOI8-R (Cyrillic)"),
 	N_("CP1251 (Cyrillic)"),
 	N_("CP1256 (Arabic)"),
+	N_("CP1257 (Baltic)"),
 	N_("GB18030 (Chinese)"),
 	NULL
 };
