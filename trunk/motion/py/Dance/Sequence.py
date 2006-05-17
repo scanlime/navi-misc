@@ -87,17 +87,16 @@ class Sequence:
         self._markChunks()
 
     def insert(self, data, index):
-        """Insert a frame into the sequence at index.
+        """Insert a frame into the shuffled sequence at index.
        
         Arguments:
-            - data      The Frame object to be inserted
+            - data      A dictionary to be inserted into the shuffled sequence
             - index     The index at which the frame will be inserted
         """
         # FIXME - should probably do some error checking to ensure that the
         # Frame or dictionary passed in is compatible with the existing Frames
         # in the sequence.
-        if isinstance(data, dict): data = Frame(data)
-        assert(isinstance(data, Frame))
+        assert(isinstance(data, dict))
         self.shuffled.insert(index, data)
 
     def save(self, filename, format):
@@ -112,7 +111,7 @@ class Sequence:
 
         bones = {}
 
-        for bone in self.shuffled[0].bones.iterkeys():
+        for bone in self.shuffled[0].iterkeys():
             bones[bone] = [frame[bone] for frame in self.shuffled]
 
         amc.bones = dict([(bone, Numeric.array(data)) for bone,data in bones.iteritems()])
@@ -125,11 +124,18 @@ class Sequence:
 
     def _dataFromAMC(self, amc):
         """Create a list of Frames from an AMC object."""
+        def buildFrame(data, index):
+            frame = {}
+            for bone, frames, in data.iteritems():
+                frame[bone] = frames[index]
+
+            return frame
+
         data = []
         n = len(amc.bones.values()[0])
 
         for i in range(n):
-            data.append(Frame(amc.bones, i))
+            data.append(buildFrame(amc.bones, i))
 
         return data
 
@@ -176,49 +182,5 @@ class Sequence:
            else:
                i += 1
 
-
-class Frame:
-    """A frame in an AMC file.
-    
-    AMC objects store all their data in a dictionary mapping bone names to a
-    Numeric array.  The Numeric array has 2 dimensions so that the first index
-    is the frame number and the second is the degree of freedom of the joint.
-    Frame objects separate each individual frame out of these arrays.
-
-    Members:
-        - bones             A dictionary mapping bone name to a single position
-
-    Methods:
-        - __getitem__       Access a single bone in the frame using the []
-                            operator
-    """
-    def __init__(self, data, index=None):
-        """Create a Frame object from data.
-
-        Arguments:
-            - data      A dictionary mapping bone names to Numeric arrays
-                        (usually from an AMC object).  It should have the form:
-                        data["bone name"][frame, dof]
-            - index     The frame in data to represent in this Frame object
-        """
-        # Map bone names to a list of values in a single frame. Each value
-        # corresponds to a degree of freedom for that bone. index gives the
-        # frame number and data is a dictionary mapping bones to motion data.
-        # The movement data is stored as follows: data["bone name"][frame, dof].
-        if index != None:
-            self.bones = {}
-
-            for bone, values in data.iteritems():
-                self.bones[bone] = values[index]
-        else:
-            self.bones = data
-
-    def __getitem__(self, bone):
-        """Return the position for bone in this frame.
-
-        Arguments:
-            - bone      A bone name as a string
-        """
-        return self.bones[bone]
 
 # vim:ts=4:sw=4:et:tw=80
