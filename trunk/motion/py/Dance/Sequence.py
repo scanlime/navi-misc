@@ -5,7 +5,6 @@ shuffling it.  The dance sequence is contained in an AMC object.
 
 Classes:
     - Sequence      Maps a sequence to a trajectory
-    - Frame         Represents a single frame in the sequence
 """
 
 import Motion, Numeric, math
@@ -158,7 +157,6 @@ class Sequence:
                 winner = frame
 
         return winner
-
 
 
 # vim:ts=4:sw=4:et:tw=80
