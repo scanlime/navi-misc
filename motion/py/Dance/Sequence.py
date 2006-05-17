@@ -120,7 +120,7 @@ class Sequence:
 
     def __getitem__(self, frame):
         """Use [] on a Sequence object to get a frame."""
-        return self.mapping.items() [frame]
+        return self.mapping.values() [frame]
 
     def _dataFromAMC(self, amc):
         """Create a list of Frames from an AMC object."""
