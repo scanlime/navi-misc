@@ -166,5 +166,128 @@ class GraphSearch:
                     self.order.extend(group[1:])
             pos += 1
 
+    def comb(bones, items, position=0, current=[], current_probability=1.0):
+        results = []
+        bone = bones[position]
+
+        def find(list, item):
+            for i in range(len(list)):
+                if list[i] == item:
+                    return i
+            return -1
+
+        net = bayes_net[bone]
+        if bone in parents:
+            parent = parents[bone]
+
+            parent_pos = find(bones, parent)
+            pbone = current[parent_pos]
+
+        for item in items[position]:
+            if not (bone in parents and \
+                    (asf.bones[bone].dof or \
+                    (parent in asf.bones and \
+                    asf.bones[parent].dof))) or \
+            parent_pos == -1:
+                # We're either on the root or a bone whose parent has no DOF.
+                # The bayes net has entries for these, just they're histograms
+                # of the bone's position, and so the probabilities are kind of
+                # low.  Treat them as if they all pass
+                new_current = current + [item]
+                if position == len(bones) - 1:
+                    results.append(new_current)
+                else:
+                    children = comb(bones, items, position + 1, new_current, current_probability)
+                    if len(children):
+                        results.extend(children)
+                    pass
+            else:
+                spot = (tuple(pbone.mins), tuple(item.mins))
+                if spot in net:
+                    probability = net[spot]
+                    new_current = current + [item]
+                    new_prob = current_probability * probability
+                    if new_prob > EPSILON and probability > 0.1:
+                        if position == len(bones) - 1:
+                            results.append(new_current)
+                        else:
+                            children = comb(bones, items, position + 1, new_current, new_prob)
+                            if len(children):
+                                results.extend(children)
+
+        res = len(results)
+        if position == 0:
+            print '%d likely successors' % res
+        return results
+
+    def successor (graphs, node):
+        """Generate successors of a combinatoric node."""
+        immediate_successors = {}
+        # Create a dictionary mapping bone name to the list of successors for that
+        # bone in its current position.
+        for bone, n in node.iteritems ():
+            adj = graphs[bone].representations[AdjacencyList]
+            immediate_successors[bone] = [edge.v for edge in adj.query (n)]
+
+        # Return a list of the combinatoric nodes
+        items = []
+        bones = []
+        for bone in comb_order:
+            if bone in immediate_successors:
+                bones.append(bone)
+                items.append(immediate_successors[bone])
+
+        retval = []
+        for succ in comb(bones, items):
+            retsucc = {}
+            for pos in range(len(succ)):
+                retsucc[bones[pos]] = succ[pos]
+            retval.append(CNode(retsucc))
+        return retval
+
+    def find_node (graph, pos):
+        vertex_map = graph.representations[VertexMap]
+        for vertex in vertex_map:
+            if vertex.inside (pos):
+                return vertex
+
+    def linear_interp(start, end, pos, length):
+        result = []
+        for i in range(len(start)):
+            compstart = start[i]
+            compend   = end[i]
+
+            pos = compstart + ((compend - compstart) * (float(pos) / float(length)))
+            result.append(pos)
+        return result
+
+    def f (path, goal):
+        end = path[-1]
+        g = len (path)
+        h = 0
+
+        for bone in end.iterkeys():
+            adj = adjacency[bone]
+            endb = end.get(bone)
+            goalb = goal.get(bone)
+
+            if bone not in cached_costs:
+                cached_costs[bone] = {}
+            if (endb, goalb) in cached_costs[bone]:
+                h += cached_costs[bone][(endb, goalb)]
+                continue
+
+            path = algorithms_c.dijkstraSearch(adj, endb, goalb)
+            h += len(path)
+
+            for i in range(1, len(path)):
+                x = path[i]
+                cached_costs[bone][(endb, x)] = i + 1
+
+            for i in range(0, len(path) - 1):
+                x = path[i]
+                cached_costs[bone][(x, goalb)] = i + 2
+
+        return (g + h)
 
 # vim: ts=4:sw=4:et
