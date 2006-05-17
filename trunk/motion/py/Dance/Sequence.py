@@ -11,14 +11,12 @@ Classes:
 import Motion, Numeric, math
 from ODE import RK4
 
-
 class Sequence:
     """Represent a dance sequence mapped to a trajectory.
 
     Members:
         - ode               The ODE solver
         - mapping           The mapping of a coordinate to a frame in the dance
-        - original          The original dance sequence
 
     Methods:
         - shuffle           Shuffle the dance sequence
@@ -26,6 +24,8 @@ class Sequence:
         - save              Write the sequence to an AMC file
         - __getitem__       Access individual frames using the [] operator
     """
+
+    __slots__ = ["ode", "mapping", "original", "n", "h"]
 
     def __init__(self, data, system, ic, n=10000, h=.001):
         """Create a new sequence from a chaotic system and a dance sequence.
@@ -44,6 +44,8 @@ class Sequence:
         if isinstance(data, Motion.AMC): data = self._dataFromAMC(data)
 
         self.ode = RK4(system)
+        self.n = n
+        self.h = h
 
         traj = self.ode(ic, n, h)
 
@@ -58,7 +60,7 @@ class Sequence:
 
         self.original = data
 
-    def shuffle(self, ic, n=10000, h=.001):
+    def shuffle(self, ic):
         """Create a shuffled sequence from this sequence.
 
         Generate a new trajectory from the chaotic system used in the initial
@@ -70,21 +72,45 @@ class Sequence:
 
         Arguments:
             - ic        The initial conditions of the new chaotic trajectory
-            - n         The number of iterations of the trajectory(default 10000)
-            - h         The step size of the trajectory(default .001)
         """
         shuffled = []
         frames = len(self.mapping.keys())
-        traj = self.ode(ic, n, h)
+        traj = self.ode(ic, self.n, self.h)
         step = len(traj) / frames
 
         for i in range(frames):
             shuffled.append(self._findNearest(traj[i*step]))
 
-        self.shuffled = shuffled
+        return shuffled
 
-        # Parse the shuffled sequence looking for chunk boundaries.
-        self._markChunks()
+    def markChunks(self, sequence):
+        """Return a list of chunk boundaries in 'sequence'.
+        
+        Go over the shuffled sequence looking for chunk boundaries that
+        require interpolation. The boundaries list contains indices that mark
+        the beginning of a new chunk in the shuffled sequence. So if
+        self.boundaries = [x, y], shuffled[x] and shuffled[y] are both the
+        beginning of new chunks. This means that interpolation is needed
+        between shuffled[x-1] and shuffled[x], and shuffled[y-1] and
+        shuffled[y].
+        """
+        boundaries = []
+        i = self.original.index(sequence[0])
+
+        for j in range(len(sequence)):
+            # If we've run off the end of the original sequence, or the frame
+            # in shuffled doesn't match the frame in original, we've got the
+            # first index of a new chunk.
+           if i >= len(self.original) or sequence[j] != self.original[i]:
+               boundaries.append(j)
+               # Add one to i because j will be incremented the next time
+               # around. At this point we know that shuffled[j] == original[i]
+               # because we set i to a value that makes that statement true.
+               i = self.original.index(sequence[j]) + 1
+           else:
+               i += 1
+
+        return boundaries
 
     def insert(self, data, index):
         """Insert a frame into the shuffled sequence at index.
@@ -98,29 +124,6 @@ class Sequence:
         # in the sequence.
         assert(isinstance(data, dict))
         self.shuffled.insert(index, data)
-
-    def save(self, filename, format):
-        """Write the sequence to a file.
-        
-        Arguments:
-            - filename      The filename to write to
-            - format        The format of the AMC file
-        """
-        amc = Motion.AMC()
-        amc.format = format
-
-        bones = {}
-
-        for bone in self.shuffled[0].iterkeys():
-            bones[bone] = [frame[bone] for frame in self.shuffled]
-
-        amc.bones = dict([(bone, Numeric.array(data)) for bone,data in bones.iteritems()])
-
-        amc.save(filename)
-
-    def __getitem__(self, frame):
-        """Use [] on a Sequence object to get a frame."""
-        return self.shuffled.values() [frame]
 
     def _dataFromAMC(self, amc):
         """Create a list of Frames from an AMC object."""
@@ -139,48 +142,23 @@ class Sequence:
 
         return data
 
-    def _distance(self, x, y):
-        """Calculate the Euclidean distance between the points x and y."""
-        return math.sqrt(Numeric.sum((y - x)**2))
-
     def _findNearest(self, point):
         """Find a point in the trajectory nearest to the coordinate given."""
+        def distance(x, y):
+            return math.sqrt(Numeric.sum((y - x)**2))
+
         # Initialize the distance to infinity
         dist = 1e300000
         winner = None
 
         for coord, frame in self.mapping.iteritems():
-            delta = self._distance(coord, point)
+            delta = distance(coord, point)
             if delta < dist:
                 dist = delta
                 winner = frame
 
         return winner
 
-    def _markChunks(self):
-        """Go over the shuffled sequence looking for chunk boundaries that
-           require interpolation. The boundaries list contains indices that mark
-           the beginning of a new chunk in the shuffled sequence. So if
-           self.boundaries = [x, y], shuffled[x] and shuffled[y] are both the
-           beginning of new chunks. This means that interpolation is needed
-           between shuffled[x-1] and shuffled[x], and shuffled[y-1] and
-           shuffled[y].
-           """
-        self.boundaries = []
-        i = self.original.index(self.shuffled[0])
-
-        for j in range(len(self.shuffled)):
-            # If we've run off the end of the original sequence, or the frame
-            # in shuffled doesn't match the frame in original, we've got the
-            # first index of a new chunk.
-           if i >= len(self.original) or self.shuffled[j] != self.original[i]:
-               self.boundaries.append(j)
-               # Add one to i because j will be incremented the next time
-               # around. At this point we know that shuffled[j] == original[i]
-               # because we set i to a value that makes that statement true.
-               i = self.original.index(self.shuffled[j]) + 1
-           else:
-               i += 1
 
 
 # vim:ts=4:sw=4:et:tw=80

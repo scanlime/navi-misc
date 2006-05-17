@@ -29,6 +29,18 @@ from Dance import Systems, Sequence
 from optparse import OptionParser
 import Numeric, string
 
+def save(sequence, format, file):
+    """Save a sequence to a file."""
+    amc = AMC()
+    amc.format = format
+    bones = {}
+
+    for bone in sequence[0].iterkeys():
+        bones[bone] = [frame[bone] for frame in sequence]
+
+    amc.bones = dict([(bone, Numeric.array(data)) for bone, data in bones.iteritems()])
+    amc.save(file)
+
 parser = OptionParser ("usage: %prog [options] <input file> <output file>")
 parser.add_option ("-i", "--initial", dest="ic", default="60,15,1", \
         help="A comma separated list of initial conditions for the shuffle")
@@ -42,8 +54,8 @@ if len (args) != 2: parser.error ("input and output file are required")
 amc = AMC.from_file (args[0])
 lorenz = Systems.Lorenz (16.0, 45.0, 4.0)
 sequence = Sequence.Sequence (amc, lorenz, Numeric.array ([60, 15, 1]), n=opts.n)
-sequence.shuffle (Numeric.array ([float(x) for x in string.split (opts.ic, ",")]), n=opts.n)
+shuffled = sequence.shuffle (Numeric.array ([float(x) for x in string.split (opts.ic, ",")]))
 
-sequence.save (args[1], amc.format)
+save (shuffled, amc.format, args[1])
 
 # vim: ts=4:sw=4:et
