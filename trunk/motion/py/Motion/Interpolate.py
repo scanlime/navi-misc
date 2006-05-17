@@ -24,7 +24,7 @@ from LinearAlgebra import inverse
 from Motion import AMC
 import Numeric
 
-__all__ = ["spline"]
+__all__ = ["spline", "GraphSearch"]
 
 def spline(data, quality):
     """Interpolate a trajectory using natural cubic splines.
@@ -123,11 +123,12 @@ def _getMatrix(data, dof):
 class GraphSearch:
     """A class for interpolating by searching a motion graph."""
 
-    __slots__ = ["graphs", "adjacency", "order"]
+    __slots__ = ["graphs", "adjacency", "order", "epsilon"]
 
-    def __init__(self, graphs, asf):
+    def __init__(self, graphs, asf, epsilon=0.3**29):
         """Create the GraphSearch object with the graphs."""
         self.graphs = graphs
+        self.epsilon = epsilon
 
         # Build the dictionary of adjacency lists. If a graph doesn't have an
         # AdjacencyList, raise an exception.
@@ -147,6 +148,34 @@ class GraphSearch:
         'start' to 'end', or None if there isn't one.
         """
         path = None
+        source = {}
+        goal = {}
+
+        for bone in start.iterkeys():
+            # Temporary storage for building graph nodes from frame data
+            s = start[bone]
+            e = end[bone]
+
+            # Only use graph search for orientation of root, not position
+            if bone is "root":
+                s = s[3:6]
+                e = e[3:6]
+
+            # Make all angles between 0 and 360 degrees
+            s = [Numeric.remainder(d, 360.0) for d in s]
+            e = [Numeric.remainder(d, 360.0) for d in e]
+
+            # Apply fix360 and fixnegative so that all angles are in the range
+            # [0, 360)
+            s = tuple(map(fix360, map(fixnegative, s)))
+            e = tuple(map(fix360, map(fixnegative, e)))
+
+            # Find the node in the graph corresponding to this joint position
+            source[bone] = self.find_node(self.graphs[bone], s)
+            goal[bone] = self.find_node(self.graphs[bone], e)
+
+        # Run the search
+        path = Heuristic(self.graphs, CNode(source), CNode(goal), self.f, self.successor).run()
 
         return path
 
@@ -170,17 +199,11 @@ class GraphSearch:
         results = []
         bone = bones[position]
 
-        def find(list, item):
-            for i in range(len(list)):
-                if list[i] == item:
-                    return i
-            return -1
-
         net = bayes_net[bone]
         if bone in parents:
             parent = parents[bone]
 
-            parent_pos = find(bones, parent)
+            parent_pos = bones.index(parent)
             pbone = current[parent_pos]
 
         for item in items[position]:
