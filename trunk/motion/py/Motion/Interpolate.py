@@ -126,12 +126,13 @@ def _getMatrix(data, dof):
 class GraphSearch:
     """A class for interpolating by searching a motion graph."""
 
-    __slots__ = ["bayes", "graphs", "adjacency", "order", "parents", "epsilon"]
+    __slots__ = ["asf", "bayes", "graphs", "adjacency", "order", "parents", "epsilon"]
 
     def __init__(self, graphs, bayes, asf, epsilon=0.3**29):
         """Create the GraphSearch object with the graphs."""
         self.graphs = graphs
         self.bayes = bayes
+        self.asf = asf
         self.epsilon = epsilon
         self.adjacency = {}
 
@@ -217,27 +218,32 @@ class GraphSearch:
         results = []
         bone = bones[0]
 
-        net = self.bayes[bone]
-        if bone in self.parents:
-            parent = parents[bone]
+        if bone in self.bayes:
+            net = self.bayes[bone]
 
-            parent_pos = bones.index(parent)
-            pbone = current[parent_pos]
+        if bone in self.parents:
+            parent = self.parents[bone]
+            try:
+                parent_pos = bones.index(parent)
+                pbone = current[parent_pos]
+            except ValueError:
+                parent_pos = None
 
         for item in items[0]:
             # If we're in a bone with no parent (the root) or a bone whose
             # parent has no DOF, accept all successors for the bone.
             if not (bone in self.parents and \
-                    (asf.bones[bone].dof or \
-                    (parent in asf.bones and \
-                    asf.bones[parent].dof))):
+                    (self.asf.bones[bone].dof or \
+                    (parent in self.asf.bones and \
+                    self.asf.bones[parent].dof))) or \
+                    not parent_pos:
                 new_current = current + [item]
 
                 # If there's only one bone in the list, do not recurse further
                 if len(bones) is 1:
                     results.append(new_current)
                 else:
-                    children = self.combine(bones[1:], items[1:], new_current, current_probability)
+                    children = self.combine(bones, items, position + 1, new_current, current_probability)
                     if len(children):
                         results.extend(children)
                     pass
