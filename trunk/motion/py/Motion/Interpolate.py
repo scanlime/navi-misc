@@ -126,7 +126,7 @@ def _getMatrix(data, dof):
 class GraphSearch:
     """A class for interpolating by searching a motion graph."""
 
-    __slots__ = ["bayes", "graphs", "adjacency", "order", "epsilon"]
+    __slots__ = ["bayes", "graphs", "adjacency", "order", "parents", "epsilon"]
 
     def __init__(self, graphs, bayes, asf, epsilon=0.3**29):
         """Create the GraphSearch object with the graphs."""
@@ -188,7 +188,15 @@ class GraphSearch:
         """Set the build order for the successor function."""
         # Build order always starts at the root
         self.order = ["root"]
+        self.parents = {}
         pos = 0
+
+        # Build the dictionary of parent joints
+        for group in asf.hierarchy:
+            if len(group) is 0:
+                continue
+            for child in group[1:]:
+                self.parents[child] = group[0]
 
         # Create the build order based on the hierarchy specified in the ASF
         # file. The hierarchy in the ASF file looks like: "parent child child..."
@@ -210,7 +218,7 @@ class GraphSearch:
         bone = bones[0]
 
         net = self.bayes[bone]
-        if bone in parents:
+        if bone in self.parents:
             parent = parents[bone]
 
             parent_pos = bones.index(parent)
@@ -219,16 +227,17 @@ class GraphSearch:
         for item in items[0]:
             # If we're in a bone with no parent (the root) or a bone whose
             # parent has no DOF, accept all successors for the bone.
-            #if not (bone in parents and (asf.bones[bone].dof or (parent in asf.bones and asf.bones[parent].dof))):
-            if bone not in parents or \
-                    (parent in asf.bone and asf.bones[parent].dof is 0):
+            if not (bone in self.parents and \
+                    (asf.bones[bone].dof or \
+                    (parent in asf.bones and \
+                    asf.bones[parent].dof))):
                 new_current = current + [item]
 
                 # If there's only one bone in the list, do not recurse further
                 if len(bones) is 1:
                     results.append(new_current)
                 else:
-                    children = combine(bones[1:], items[1:], new_current, current_probability)
+                    children = self.combine(bones[1:], items[1:], new_current, current_probability)
                     if len(children):
                         results.extend(children)
                     pass
@@ -243,7 +252,7 @@ class GraphSearch:
                         if position == len(bones) - 1:
                             results.append(new_current)
                         else:
-                            children = combine(bones, items, position + 1, new_current, new_prob)
+                            children = self.combine(bones, items, position + 1, new_current, new_prob)
                             if len(children):
                                 results.extend(children)
 
