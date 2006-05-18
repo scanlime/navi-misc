@@ -21,7 +21,8 @@ Functions:
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 from Dance.MotionGraph import fix360, fixnegative
-from Graph.Data import AdjacencyList, VertexMap
+from Graph.Data import AdjacencyList, VertexMap, CNode
+from Graph.ExtraAlgorithms import Heuristic
 from LinearAlgebra import inverse
 from Motion import AMC
 import Numeric
@@ -208,7 +209,7 @@ class GraphSearch:
         results = []
         bone = bones[0]
 
-        net = bayes_net[bone]
+        net = self.bayes[bone]
         if bone in parents:
             parent = parents[bone]
 
@@ -254,7 +255,7 @@ class GraphSearch:
             print '%d likely successors' % res
         return results
 
-    def successor (graphs, node):
+    def successor (self, graphs, node):
         """Generate successors of a combinatoric node."""
         immediate_successors = {}
         # Create a dictionary mapping bone name to the list of successors for that
@@ -264,15 +265,15 @@ class GraphSearch:
 
         # Return a list of the combinatoric nodes
         items = []
-        for bone in comb_order:
+        for bone in self.order:
             if bone in immediate_successors:
                 items.append(immediate_successors[bone])
 
         retval = []
-        for succ in combine(bones, items):
+        for succ in self.combine(self.order, items):
             retsucc = {}
             for pos in range(len(succ)):
-                retsucc[comb_order[pos]] = succ[pos]
+                retsucc[self.order[pos]] = succ[pos]
             retval.append(CNode(retsucc))
 
         return retval
