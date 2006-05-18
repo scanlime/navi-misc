@@ -20,6 +20,8 @@ Functions:
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+from Dance.MotionGraph import fix360, fixnegative
+from Graph.Data import AdjacencyList, VertexMap
 from LinearAlgebra import inverse
 from Motion import AMC
 import Numeric
@@ -130,6 +132,7 @@ class GraphSearch:
         self.graphs = graphs
         self.bayes = bayes
         self.epsilon = epsilon
+        self.adjacency = {}
 
         # Build the dictionary of adjacency lists. If a graph doesn't have an
         # AdjacencyList, raise an exception.
@@ -140,7 +143,7 @@ class GraphSearch:
                 raise Exception("%s graph doesn't have an AdjacencyList representation" % (bone))
 
         # Initialize the build order for the successor function
-        build_order(asf)
+        self.build_order(asf)
 
     def __call__(self, start, end):
         """Execute the graph search.
@@ -190,13 +193,13 @@ class GraphSearch:
         # file. The hierarchy in the ASF file looks like: "parent child child..."
         # This loop appends the list of children to the build order from each
         # line.
-        while pos < len(order):
+        while pos < len(self.order):
             for group in asf.hierarchy:
                 if len(group) and group[0] == self.order[pos]:
                     self.order.extend(group[1:])
             pos += 1
 
-    def combine(bones, items, position=0, current=[], current_probability=1.0):
+    def combine(self, bones, items, position=0, current=[], current_probability=1.0):
         """Recusively create combinatoric successors.
 
         Return a list of successors created by combining all the values in
@@ -274,13 +277,13 @@ class GraphSearch:
 
         return retval
 
-    def find_node (graph, pos):
+    def find_node (self, graph, pos):
         vertex_map = graph.representations[VertexMap]
         for vertex in vertex_map:
             if vertex.inside (pos):
                 return vertex
 
-    def linear_interp(start, end, pos, length):
+    def linear_interp(self, start, end, pos, length):
         result = []
         for i in range(len(start)):
             compstart = start[i]
