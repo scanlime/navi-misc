@@ -161,7 +161,7 @@ class GraphSearch:
             e = end[bone]
 
             # Only use graph search for orientation of root, not position
-            if bone is "root":
+            if bone == "root":
                 s = s[3:6]
                 e = e[3:6]
 
