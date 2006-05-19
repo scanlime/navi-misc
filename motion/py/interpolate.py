@@ -61,21 +61,4 @@ path = search(start, end)
 
 print path
 
-# for i in range(len(paths)):
-    # frame = {}
-    # for bone in paths[i].data.keys():
-        # node = paths[i].data[bone]
-        # center = node.center
-
-        # if bone == 'root':
-            # Linearly interpolate root position, for now
-            # rootstart = pre[1].bones['root'][0:3]
-            # rootend   = post[1].bones['root'][0:3]
-            # position = linear_interp (rootstart, rootend, i, len(paths))
-            # center = position + center
-        # frame[bone] = center
-    # sequence.insert (frame, boundary + i)
-
-# sequence.save(args[5], samc.format)
-
 # vim: ts=4:sw=4:et
