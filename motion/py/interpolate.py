@@ -56,6 +56,10 @@ for bone, data in samc.bones.iteritems():
     start[bone] = data[int(sys.argv[-2])]
     end[bone] = data[int(sys.argv[-1])]
 
+print start
+print end
+
+print "searching"
 path = search(start, end)
 
 print path
