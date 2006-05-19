@@ -1,15 +1,16 @@
 /*
  * Obfuscated 99 bottles of beer on the wall.
- * -- Micah Dowty <micah@navi.cx>
+ * -- (C) 2003, Micah Dowty <micah@navi.cx>
  *
- * Will only work on x86-linux machines. Tested on
- * various flavors of gcc 3.2 and 3.3. Known not
- * to work on gcc 3.4. If you want to see the results
- * but your compiler isn't supported, a binary has
- * been included. Do not compile with optimization
- * enabled!
+ * Will only work on x86-linux machines. Tested 
+ * successfully on gcc 3.2, 3.3, and 4.0. Tested
+ * unsuccessfully on gcc 3.4. If you want to see
+ * the results but your compiler isn't supported,
+ * a binary has been included. Do not compile with
+ * optimization enabled!
  */
 
+               main(int,...);
                char *i,*o;int
                n;void d(char*
                z){z[1]&15?z[1
