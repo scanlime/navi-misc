@@ -31,6 +31,18 @@ from Graph.Data import VertexMap, AdjacencyList, CNode
 from Graph.ExtraAlgorithms import ParallelBFS, Heuristic
 import Numeric, sys, pickle
 
+def save(sequence, format, file):
+    amc = AMC()
+    amc.format = format
+    bones = {}
+
+    for bone in sequence[0].iterkeys():
+        bones[bone] = [frame[bone] for frame in sequence]
+
+    amc.bones = dict([(bone, Numeric.array(data)) for bone, data in bones.iteritems()])
+    amc.save(file)
+
+
 if len(sys.argv) < 8:
     print "usage: %s <asf file> <graph> <bayes net> <input amc> <output amc> <start frame> <end frame>" % (sys.argv[0])
     sys.exit(1)
@@ -58,6 +70,8 @@ for bone, data in samc.bones.iteritems():
 
 print "searching..."
 path = search(start, end)
+
+save (path, samc.format, sys.argv[-3])
 
 print path
 
