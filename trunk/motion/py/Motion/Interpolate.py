@@ -127,7 +127,8 @@ def _getMatrix(data, dof):
 class GraphSearch:
     """A class for interpolating by searching a motion graph."""
 
-    __slots__ = ["asf", "bayes", "graphs", "adjacency", "order", "parents", "epsilon", "cached_costs"]
+    __slots__ = ["asf", "bayes", "graphs", "adjacency", "order", "parents", \
+            "epsilon", "cached_costs"]
 
     def __init__(self, graphs, bayes, asf, epsilon=0.3**29):
         """Create the GraphSearch object with the graphs."""
