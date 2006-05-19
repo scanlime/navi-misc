@@ -21,6 +21,7 @@ Functions:
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 from Dance.MotionGraph import fix360, fixnegative
+from Graph import algorithms_c
 from Graph.Data import AdjacencyList, VertexMap, CNode
 from Graph.ExtraAlgorithms import Heuristic
 from LinearAlgebra import inverse
@@ -126,7 +127,7 @@ def _getMatrix(data, dof):
 class GraphSearch:
     """A class for interpolating by searching a motion graph."""
 
-    __slots__ = ["asf", "bayes", "graphs", "adjacency", "order", "parents", "epsilon"]
+    __slots__ = ["asf", "bayes", "graphs", "adjacency", "order", "parents", "epsilon", "cached_costs"]
 
     def __init__(self, graphs, bayes, asf, epsilon=0.3**29):
         """Create the GraphSearch object with the graphs."""
@@ -135,6 +136,7 @@ class GraphSearch:
         self.asf = asf
         self.epsilon = epsilon
         self.adjacency = {}
+        self.cached_costs = {}
 
         # Build the dictionary of adjacency lists. If a graph doesn't have an
         # AdjacencyList, raise an exception.
@@ -309,20 +311,20 @@ class GraphSearch:
             result.append(pos)
         return result
 
-    def f (path, goal):
+    def f (self, path, goal):
         end = path[-1]
         g = len (path)
         h = 0
 
         for bone in end.iterkeys():
-            adj = adjacency[bone]
+            adj = self.adjacency[bone]
             endb = end.get(bone)
             goalb = goal.get(bone)
 
-            if bone not in cached_costs:
-                cached_costs[bone] = {}
-            if (endb, goalb) in cached_costs[bone]:
-                h += cached_costs[bone][(endb, goalb)]
+            if bone not in self.cached_costs:
+                self.cached_costs[bone] = {}
+            if (endb, goalb) in self.cached_costs[bone]:
+                h += self.cached_costs[bone][(endb, goalb)]
                 continue
 
             path = algorithms_c.dijkstraSearch(adj, endb, goalb)
@@ -330,11 +332,11 @@ class GraphSearch:
 
             for i in range(1, len(path)):
                 x = path[i]
-                cached_costs[bone][(endb, x)] = i + 1
+                self.cached_costs[bone][(endb, x)] = i + 1
 
             for i in range(0, len(path) - 1):
                 x = path[i]
-                cached_costs[bone][(x, goalb)] = i + 2
+                self.cached_costs[bone][(x, goalb)] = i + 2
 
         return (g + h)
 
