@@ -31,7 +31,7 @@ from Graph.Data import VertexMap, AdjacencyList, CNode
 from Graph.ExtraAlgorithms import ParallelBFS, Heuristic
 import Numeric, sys, pickle
 
-if len(sys.argv) < 7:
+if len(sys.argv) < 8:
     print "usage: %s <asf file> <graph> <bayes net> <input amc> <output amc> <start frame> <end frame>" % (sys.argv[0])
     sys.exit(1)
 
@@ -56,10 +56,7 @@ for bone, data in samc.bones.iteritems():
     start[bone] = data[int(sys.argv[-2])]
     end[bone] = data[int(sys.argv[-1])]
 
-print start
-print end
-
-print "searching"
+print "searching..."
 path = search(start, end)
 
 print path
