@@ -240,7 +240,7 @@ class GraphSearch:
                 new_current = current + [item]
 
                 # If there's only one bone in the list, do not recurse further
-                if len(bones) is 1:
+                if position == len(bones) -1:
                     results.append(new_current)
                 else:
                     children = self.combine(bones, items, position + 1, new_current, current_probability)
