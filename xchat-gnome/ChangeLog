@@ -1,3 +1,9 @@
+Sat May 20 17:19:53 MDT 2006  Przemyslaw Grzegorczyk <pgrzegorczyk@gmail.com>
+
+	* configure.ac:
+	* po/LINGUAS:
+	  - Update for intltool 0.35 and new po/LINGUAS standards. (#339300)
+
 Sat May 20 15:45:18 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/preferences.c:
