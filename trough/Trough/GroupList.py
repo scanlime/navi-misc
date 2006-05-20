@@ -10,8 +10,8 @@ class GroupList:
 	def __init__(self):
 	    self.pieces = []
 
-	def add(self, tree):
-	    self.pieces.extend(Formats.parse_tree(tree))
+	def load(self, path, shelf):
+	    self.pieces.extend(Formats.parse_shelf(path, shelf))
 #	    for x in self.pieces:
 #		for y in x:
 #		    print y.getPath()

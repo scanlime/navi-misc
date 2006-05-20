@@ -1,22 +1,22 @@
 ''' Trough.GroupTypes.None
 
-    Each file gets its own group
+    Each file gets its own glob
 '''
 
-__all__ = ['parse_tree']
+__all__ = ['parse_shelf']
 
 name = __name__.split('.').pop()
 
-def parse_tree (tree, formats, default):
+def parse_shelf (shelf, topdir, formats, default):
     result = []
 
-    for dir in tree.getDirectories():
-	if (dir.getProperty('format') or default) == name:
-	    result.extend(parse_tree(dir, formats, default))
+    for dir in shelf[topdir].getDirectories():
+	if (shelf[dir].getProperty('format') or default) == name:
+	    result.extend(parse_shelf(shelf, dir, formats, default))
 	else:
-	    result.extend(formats[dir.getProperty('format') or default].parse_tree(dir, formats, default))
+	    result.extend(formats[shelf[dir].getProperty('format') or default].parse_shelf(shelf, dir, formats, default))
 
-    result.extend(parse_list(tree.getFiles()))
+    result.extend(parse_list(shelf[topdir].getFiles(shelf)))
     return result
 
 def parse_list(filelist):
