@@ -15,8 +15,11 @@ libname=__name__
 def list_formats():
     return formats
 
-def parse_tree(tree):
-    fmt = tree.getProperty('format')
+def parse_shelf(topdir, shelf):
+    if not shelf.has_key(topdir):
+	print '** warning: shelf has no key "%s" for parse_tree' % topdir
+	return []
+    fmt = shelf[topdir].getProperty('format')
     formats = {}
 
     for format in list_formats():
@@ -25,7 +28,7 @@ def parse_tree(tree):
 	except:
 	    print '** warning: unable to load format module "'+mod+'" **'
 
-    return formats[tree.getProperty('format') or default].parse_tree(tree, formats, default)
+    return formats[shelf[topdir].getProperty('format') or default].parse_shelf(shelf, topdir, formats, default)
 
 def load_module(name):
     modname = libname+'.'+name

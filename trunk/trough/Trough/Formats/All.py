@@ -1,23 +1,23 @@
-''' Trough.GroupTypes.Navi
-	Digs through navi's filesystem sorting scheme.
+''' Trough.GroupTypes.None
 
-	As it turns out, with navi's somewhat arbitrarily restrictive naming
-	conventions, it's really easy to dig out groups of files.
+    Each directory gets its own glob
 '''
 
-import __init__
-__all__ = ['parse_tree']
+__all__ = ['parse_shelf']
 
-def parse_tree (tree, name):
+name = __name__.split('.').pop()
+
+def parse_shelf (shelf, topdir, formats, default):
     result = []
-    for dir in tree.getDirectories():
-	if dir.getProperty('format') == name:
-	    result.extend(parse_tree(dir, name))
-	else:
-	    result.extend(__init__.parse_tree(dir))
 
-    result.extend(parse_list(tree.getFiles()))
+    for dir in shelf[topdir].getDirectories():
+	if (shelf[dir].getProperty('format') or default) == name:
+	    result.extend(parse_shelf(shelf, dir, formats, default))
+	else:
+	    result.extend(formats[shelf[dir].getProperty('format') or default].parse_shelf(shelf, dir, formats, default))
+
+    result.extend(parse_list(shelf[topdir].getFiles(shelf)))
     return result
 
 def parse_list(filelist):
-    return [tuple(filelist)]
+    return tuple([filelist])

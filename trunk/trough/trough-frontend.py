@@ -30,8 +30,8 @@ parser.add_option('-l','--list',dest='list',action="store_true",
         help="list roots stored tree root(s)")
 parser.add_option('-n','--number',dest='num',type="int", default=1,
 		  help="number of pieces to select")
-parser.add_option('-r','--refresh',dest='refresh',action="store_true",
-        help="refresh stored trees in database")
+parser.add_option('-r','--reapply',dest='reapply',action="store_true",
+        help="reapply properties to trees")
 #parser.add_option('-p','--playlist',dest="playlist",type="string",
 #        help="path to playlist file")
 #parser.add_option('-v','--verbose',dest="verbose",action="store_true",
@@ -49,27 +49,16 @@ if options.confdir:
     conf = Trough.Config.Config(options.confdir)
 else:
     conf = Trough.Config.Config()
-conf.readTrees()
-
 if options.list:
     for x in conf.getTrees():
 	print x.getPath()
-    sys.exit(0)
-
-if options.refresh:
-    print "finished reading old trees, now refreshing:"
-    for x in conf.getTrees():
-	print '\t'+x.getPath()
-	x.read()
-    print "writing trees"
-    conf.writeTrees()
-    print "finished successfully"
     sys.exit(0)
 
 if options.add:
     for arg in arguments:
 	print 'adding '+arg
     	conf.addTree(arg)
+    print 'done!'
     sys.exit(0)
 
 if options.delete:
@@ -78,12 +67,15 @@ if options.delete:
 	conf.removeTree(arg)
     sys.exit(0)
 
-conf.readProperties()
-conf.applyProperties()
 grouplist = Trough.GroupList.GroupList()
 
-for x in conf.getTrees():
-    grouplist.add(x)
+if options.reapply:
+    conf.readProperties()
+    conf.applyProperties()
+    sys.exit(0)
+
+for arg in arguments:
+    grouplist.load(arg, conf.shelf)
 
 if options.info:
     for arg in arguments:
@@ -101,6 +93,7 @@ if grouplist.getCount() == 0:
     print '** warning: database empty, try `trough -a <path>` to create a tree from path'
     sys.exit(0)
 
+
 for x in xrange (0,options.num):
     for x in grouplist.random():
-        print x.getPath()
+        print x

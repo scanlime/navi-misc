@@ -3,43 +3,23 @@ import cPickle as pickle
 import os, os.path
 import sys
 import shutil
+import shelve
 
 class Config:
     def __init__(self,confdir=os.path.join(os.environ['HOME'],'.trough')):
 	self.confdir=confdir
-	self.trees=[]
 	self.properties=[]
+	self.shelf = shelve.open(self.__get_config__('trees'))
 	pass
-
-    def readTrees(self):
-    	try:
-	    file = self.__open_config__('trees','r')
-	except:
- 	    print '** warning: couldn\'t open saved directory tree(s) **'
-	    return
-	try:
-	    newtrees = pickle.load(file)
-	    self.trees = newtrees
-	except:
-		print '** warning: saved directory tree(s) empty or unreadable **'
-	file.close()
-
-    def writeTrees(self):
-    	file = self.__open_config__('trees','w')
-	pickle.dump(self.trees,file,True)
-	file.close()
-
-    def getTrees(self):
-	return self.trees
 
     def readProperties(self):
     	try:
-	    file = self.__open_config__('properties','r')
+	    file = open(self.__get_config__('properties'), 'r')
 	except:
 	    try:
 		self.__make_default_config__('properties')
 	    except:
- 	        print '** warning: couldn\'t open saved tree properties **'
+ 	        print '** warning: couldn\'t create preferences file **'
 	    return
 
 	try:
@@ -51,51 +31,37 @@ class Config:
 	file.close()
 
     def addTree(self, path):
-    	t = self.findTreeContaining(path)
-    	if t:
-	    if len(path) < len(t.getPath()): # the new path includes our path
-		self.trees.remove(t)
-	    else:
-		print '** warning: path \''+path+'\' is already in a tree, skipping'
-		return
-	self.trees.append(FileTree.Directory(path))
-	self.writeTrees()
+	# Is the parent in the shelf already?
+	parentPath = os.path.split(path)[0]
+	if not self.shelf.has_key(parentPath):
+	    # Nope, it's not!
+	    parentPath = None
 
-    def removeTree(self, path):
-    	t = self.findTreeRoot(path)
-	if t == None:
-	    print "** warning: no tree found rooted at ``"+path+"'' **"
-	    return
-	self.trees.remove(t)
-	self.writeTrees()
+	# Recurse & Shelve
+	self.shelf[path] = FileTree.Directory(path, self.shelf, parentPath)
 
-    def findTreeContaining(self, path):
-	for x in self.trees:
-	    if x.inPath(path):
-		return x
-	return None
-
-    def findTreeRoot(self, path):
-    	for x in self.trees:
-	    if x.getPath() == path:
-		return x
-    	return None
+    def getShelf():
+	return self.shelf
 
     def applyProperties(self):
     	for prop in self.properties:
-	    tree = self.findTreeContaining(prop[0])
-	    if tree == None:
-		print "** warning: no tree found containing `"+prop[0]+"'"
+	    path = os.path.normpath(prop[0])
+	    print path,self.shelf[path]
+	    if not self.shelf.has_key(path):
+		print '** warning: no shelved object "%s"' % path
 		continue
-	    tree.find(prop[0]).setProperty(prop[1][0],prop[1][1])
+	    try:
+		self.shelf[path].setProperty(self.shelf, prop[1][0],prop[1][1])
+	    except str:
+		print '** warning: unable to set property "%s" for "%s"' % prop
 
-    def __open_config__(self, name, mode):
+    def __get_config__(self, name):
 	if not os.path.isdir(self.confdir):
 	    os.mkdir(self.confdir)
-	return open(os.path.join(self.confdir,name), mode)
+	return os.path.join(self.confdir,name)
 
     def __make_default_config__(self, name):
-    	n = os.path.join('share','trough',name)
+    	n = os.path.join('share', 'trough', name)
 	try:
 	    shutil.copyfile(n,os.path.join(self.confdir,name))
 	except:

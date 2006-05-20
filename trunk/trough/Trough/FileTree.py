@@ -3,7 +3,7 @@
     structure.
 '''
 
-__all__=['File','Directory']
+__all__ = ['File', 'Directory']
 
 import os, os.path
 
@@ -18,40 +18,39 @@ def match_path(path):
 
 class File:
     ''' FileTree.File
-    A single filesystem leaf, generally (but not necessarily) attached to a
-    directory node.
+	A single filesystem leaf, possibly attached to a directory node.
 	'''
-    def __init__(self, name, parent=None, properties={}):
+    def __init__(self, name, parentPath=None, properties={}):
     	''' FileTree.File.__init__
             name (string)
 		Name of this file
             parent (Directory):
-		Optional parent Directory class (to be used by derived classes)
+		Function reference to get stuff
 	'''
-        self.parent = parent
-        self.name    = name
+	self.parentPath = parentPath or os.path.split(name)[0]
+        self.name = parentPath and name or os.path.split(name)[1]
 	self.properties = properties
         self.callback = []
 
     def getName (self):
 	''' FileTree.File.getName
-            Returns the filename
+            Returns the file name (go figure)
 	'''
         return self.name
 
     def getPath (self):
 	''' FileTree.File.getPath
-            Returns full path to the File
+	    Returns full path to the File
        	'''
-	if self.parent:
-            return os.path.join (self.parent.getPath(),self.name)
+	if self.parentPath:
+            return os.path.join (self.parentPath,self.getName())
 	return self.name
 
-    def getParent (self):
-	''' FileTree.File.getParent
+    def getParentPath (self):
+	''' FileTree.File.getParentPath
 	    Returns the File's parent node.
     	'''
-        return self.parent
+        return self.parentPath
 
     def getProperty (self, key):
 	if not self.properties.has_key(key):
@@ -67,20 +66,21 @@ class File:
 class Directory (File):
     ''' FileTree.Directory
     '''
-    def __init__(self, name, parent=None, properties={}):
+    def __init__(self, name, shelf, parentPath=None, properties={}):
     	''' FileTree.Directory.__init__
 
-            name:	Deepest-level name of the entry in it's parent directory
-            parent:	Optional parent Directory class
+            name:	Unqualified directory name
+            parentPath:	Optional callable that returns parent directory path
+
       	'''
 
-        File.__init__(self, name, parent, properties)
+        File.__init__(self, name, parentPath, properties)
 
-        self.read()
+        self.read(shelf)
 
-    def read(self):
+    def read(self, shelf):
     	''' FileTree.Directory.read
-		Read (and optionally recurse into) the contents of a directory.
+		Recursively store the contents of a directory.
 		On return, files are sorted alphabetically, and directories
 		are unsorted.
        	'''
@@ -88,6 +88,10 @@ class Directory (File):
 	self.dirs = []
         self.files = []
 	properties = ()
+	print self.getPath()
+
+	if shelf.has_key(self.getPath()):
+	    shelf[self.getPath()].remove(shelf)
 
 	# Temporarily changing the working directory is faster than creating
 	# a full path from the filename, especially for big directories.
@@ -99,13 +103,13 @@ class Directory (File):
 
 	for entry in entries:
 	    if os.path.isdir(entry):
-		self.__new_dir__(entry)
+		self.__new_dir__ (entry, shelf)
 	    else:
 		if match_path(entry) == True:
-		    self.__new_file__(entry)
+		    self.__new_file__(entry, shelf)
 		else:
 		    if entry == PROPERTY_FILENAME:
-			try:
+			try: # did i really write this? ugh
 			    f = file(entry)
 			    properties = eval(f.read())
 			    f.close()
@@ -130,65 +134,46 @@ class Directory (File):
     def getDirectories(self):
         return self.dirs
 
-    def getFiles(self):
+    def getFiles(self, shelf):
     	''' FileTree.Directory.getFiles
 
 	    Return the tuple containing the (sorted) file list
 	'''
 	result = []
 	for x in self.files:
-	    if not x.getProperty('mask'):
+	    if not shelf[x].getProperty('mask'):
 		result.append(x)
         return result
 
-    def setProperty(self, key, value):
+    def setProperty(self, shelf, key, value):
         ''' FileTree.Directory.setProperty
 
 	    Recursively set a property on all files inside the directory
 	'''
-        File.setProperty(self, key, value)
+	File.setProperty(self, key, value)
 	for x in self.dirs:
-	    x.setProperty(key, value)
+	    shelf[x].setProperty(shelf, key, value)
 	for x in self.files:
-	    x.setProperty(key, value)
+	    shelf[x].setProperty(key, value)
 
-    def find(self,path):
-    	''' FileTree.Directory.find
-		Returns a Directory structure for a file or directory with
-		the given path, if found inside anywhere recursively within
-		the current directory; returns None if the file was not found.
+    def removeChildren (self, shelf):
+	for entry in self.dirs:
+	    shelf[entry].removeChildren(shelf)
+	    del shelf[entry]
+	for entry in self.files:
+	    del shelf[entry]
 
-		TODO: This is still messy, and probably needs to be rewritten
-       	'''
-	path=os.path.abspath(path)
-	p = path.split(self.getPath())
-	if p[0] != '': return self
-        return self.__find__(p[1][1:].split(os.path.sep))
-
-    def inPath(self, path):
-    	''' FileTree.Directory.inPath
-
-            Returns True if path is somewhere inside the directory
-            heirarchy.
-       	'''
-        return self.find(path) != None
-
-    def destroy(self):
+    def remove(self, shelf):
     	''' FileTree.Directory.destroy
 
             Annihilates the tree politely, making sure any files
             with callbacks associated with them are given fair
             warning.
 	'''
-        for i in xrange(0,len(self.dirs)):
-            self.dirs[i].destroy()
-        while len(self.files):
-            l=len(self.files)
-            self.files[0].destroy()
-            if l == len(self.files):
-                self.files.remove(self.files[0])
+	self.removeChildren(shelf)
+	del shelf[self.getPath()]
 
-    def __find__(self,path):
+    def __find__(self, path):
 	''' FileTree.Directory.__find__
 		Search recursively for a file.
 
@@ -213,16 +198,20 @@ class Directory (File):
 	if i != None: return self.files[i]
 	return None
 
-    def __new_dir__(self, name):
-    	''' FileTree.Directory.__new_dir__
+    def __new_dir__ (self, name, shelf):
+	''' FileTree.Directory.__new_dir__
 		Allows new directories to be created in derived classes, with
 		a derived instance (when overloaded by the derived class)
 	'''
-    	self.dirs.append(Directory(name, self, self.properties.copy()))
+    	entry = Directory(name, shelf, self.getPath(), self.properties.copy())
+	self.dirs.append(entry.getPath())
+	shelf[entry.getPath()] = entry
 
-    def __new_file__(self, name):
+    def __new_file__ (self, name, shelf):
     	''' FileTree.Directory.__new_file__
 		Allows new directories to be created in derived classes, with
 		a derived instance (when overloaded by the derived class)
 	'''
-    	self.files.append(File(name, self, self.properties.copy()))
+    	entry = File(name, self.getPath(), self.properties.copy())
+	self.files.append(entry.getPath())
+	shelf[entry.getPath()] = entry

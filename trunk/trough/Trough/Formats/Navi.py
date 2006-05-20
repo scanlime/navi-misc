@@ -5,27 +5,27 @@
 	conventions, it's really easy to dig out groups of files.
 '''
 
-__all__ = ['parse_tree']
+__all__ = ['parse_shelf']
 
 name = __name__.split('.').pop()
 
-def parse_tree (tree, formats, default):
+def parse_shelf (shelf, topdir, formats, default):
     result = []
 
-    for dir in tree.getDirectories():
-	if (dir.getProperty('format') or default) == name:
-	    result.extend(parse_tree(dir, formats, default))
+    for dir in shelf[topdir].getDirectories():
+	if (shelf[dir].getProperty('format') or default) == name:
+	    result.extend(parse_shelf(shelf, dir, formats, default))
 	else:
-	    result.extend(formats[dir.getProperty('format') or default].parse_tree(dir, formats, default))
+	    result.extend(formats[shelf[dir].getProperty('format') or default].parse_shelf(shelf, dir, formats, default))
 
-    result.extend(parse_list(tree.getFiles()))
+    result.extend(parse_list(shelf, shelf[topdir].getFiles(shelf)))
     return result
 
-def parse_list(filelist):
+def parse_list(shelf, filelist):
     if len(filelist) == 0:
 	return ()
 
-    name = filelist[len(filelist)-1].getName()
+    name = shelf[filelist[len(filelist)-1]].getName()
     if name[0] >= '0' and name[0] <= '9':
 	return [tuple(filelist)]
     else:					# files ain't numbered
