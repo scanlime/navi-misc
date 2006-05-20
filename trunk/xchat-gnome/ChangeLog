@@ -1,5 +1,11 @@
+Sat May 20 15:45:18 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/preferences.c:
+	  - Add gconf listeners to update preferences when they change in
+	    the gconf daemon. (#332926)
+
 Wed May 17 23:53:21 CEST 2006  Guillaume Desmottes <cass@skynet.be>
-	
+
 	* src/fe-gnome/irc-network.c:
 	  - Add encodings KOI8-R (Cyrillic) and CP1257 (Baltic).
 	    (#341897)
