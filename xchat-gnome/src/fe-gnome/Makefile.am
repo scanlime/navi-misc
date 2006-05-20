@@ -21,10 +21,10 @@ endif
 
 bin_PROGRAMS = xchat-gnome
 xchat_gnome_LDFLAGS = -export-dynamic
-xchat_gnome_LDADD =				\
-	../common/libxchatcommon.la		\
-	$(DEPENDENCIES_LIBS)			\
-	$(OPENSSL_LIBS)				\
+xchat_gnome_LDADD =					\
+	$(top_builddir)/src/common/libxchatcommon.la	\
+	$(DEPENDENCIES_LIBS)				\
+	$(OPENSSL_LIBS)					\
 	$(LIBSEXY_LIBS)
 
 xchat_gnome_SOURCES =				\

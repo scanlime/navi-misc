@@ -1,3 +1,8 @@
+Sat May 20 17:28:42 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/Makefile.am:
+	  - Change library reference to hopefully fix some builds. (#331679)
+
 Sat May 20 17:19:53 MDT 2006  Przemyslaw Grzegorczyk <pgrzegorczyk@gmail.com>
 
 	* configure.ac:
