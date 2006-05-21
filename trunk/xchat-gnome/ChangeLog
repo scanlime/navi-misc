@@ -1,3 +1,9 @@
+Sun May 21 16:34:23 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/navigation-tree.c:
+	  - Change "Auto-join on startup" to "Auto-join on connect" to
+	    hopefully make the behavior more clear. (#338300)
+
 Sun May 21 19:06:43 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/common/plugin.c:

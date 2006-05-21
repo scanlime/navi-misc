@@ -100,7 +100,7 @@ static GtkToggleActionEntry toggle_action_entries[] = {
 	{"ServerAutoConnect", NULL, N_("_Auto-connect on startup"), "", NULL, G_CALLBACK (on_server_autoconnect), FALSE},
 
 	/* Channel context menu */
-	{"ChannelAutoJoin",   NULL, N_("_Auto-join on startup"),    "", NULL, G_CALLBACK (on_channel_autojoin), FALSE},
+	{"ChannelAutoJoin",   NULL, N_("_Auto-join on connect"),    "", NULL, G_CALLBACK (on_channel_autojoin), FALSE},
 };
 
 static GtkActionGroup *action_group;
