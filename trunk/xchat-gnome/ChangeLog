@@ -1,3 +1,12 @@
+Sun May 21 19:06:43 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/common/plugin.c:
+	  - Backport from xchat CVS.
+	  - xchat_get_info can now returns session independent informations
+	    when none session is started. It should fix a crasher when we
+	    try to load the Perl plugin without any session started.
+	    (Launchpad: #45235)
+
 Sat May 20 17:28:42 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/Makefile.am:
