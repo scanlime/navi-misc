@@ -1,3 +1,8 @@
+Mon May 22 19:49:29 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* po/POTFILES.in:
+	  - Add src/fe-gnome/userlist.c in the list of translatable files.
+
 Sun May 21 16:34:23 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/navigation-tree.c:
