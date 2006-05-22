@@ -55,3 +55,4 @@ src/fe-gnome/status-bar.c
 src/fe-gnome/text-entry.c
 src/fe-gnome/topic-label.c
 src/fe-gnome/userlist-gui.c
+src/fe-gnome/userlist.c
