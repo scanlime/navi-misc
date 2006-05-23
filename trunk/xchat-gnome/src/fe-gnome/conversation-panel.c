@@ -25,6 +25,9 @@
 #include <gconf/gconf-client.h>
 #include <libgnomeui/gnome-stock-icons.h>
 #include <libgnomevfs/gnome-vfs.h>
+#ifdef HAVE_LIBSEXY
+#include <libsexy/sexy-tooltip.h>
+#endif
 
 #include "conversation-panel.h"
 #include "gui.h"
@@ -54,6 +57,17 @@ static void     conversation_panel_clicked_word       (GtkWidget              *x
                                                        char                   *word,
                                                        GdkEventButton         *event,
                                                        ConversationPanel      *panel);
+#ifdef HAVE_LIBSEXY
+static void     conversation_panel_enter_word         (GtkWidget              *xtext,
+                                                       char                   *word,
+                                                       ConversationPanel      *panel);
+static void     conversation_panel_leave_word         (GtkWidget              *xtext,
+                                                       char                   *word,
+                                                       ConversationPanel      *panel);
+static gboolean	conversation_panel_lost_focus	      (GtkWidget	      *widget,
+						       GdkEventFocus	      *event,
+						       ConversationPanel      *panel);
+#endif
 static void     conversation_panel_set_font           (ConversationPanel      *panel);
 static void     conversation_panel_font_changed       (GConfClient            *client,
                                                        guint                   cnxn_id,
@@ -107,6 +121,9 @@ static void     on_default_copy_activate              (GtkAction              *a
                                                        ConversationPanel      *panel);
 static gboolean uri_is_text                           (gchar *uri);
 static gboolean check_file_size                       (gchar *uri);
+#ifdef HAVE_LIBSEXY
+GtkWidget* get_user_vbox_infos	    	    	      (struct User *user);
+#endif
 
 struct _fe_lastlog_info
 {
@@ -127,6 +144,11 @@ struct _ConversationPanelPriv
 
 	gchar          *selected_word;
 	GSList         *dropped_files;
+
+#ifdef HAVE_LIBSEXY
+	GtkWidget	*current_tooltip;
+	guint		tooltip_timeout;
+#endif
 };
 
 static GtkActionEntry url_actions[] = {
@@ -225,6 +247,11 @@ conversation_panel_init (ConversationPanel *panel)
 	gtk_ui_manager_insert_action_group (gui.manager, action_group, 0);
 	g_object_unref (action_group);
 
+#ifdef HAVE_LIBSEXY
+	panel->priv->tooltip_timeout = 0;
+	panel->priv->current_tooltip = NULL;
+#endif
+
 	g_signal_connect (G_OBJECT (panel->priv->xtext), "drag_data_received", G_CALLBACK (drag_data_received), panel);
 	gtk_drag_dest_set (panel->priv->xtext, GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT | GTK_DEST_DEFAULT_DROP,
 	                   target_table, G_N_ELEMENTS (target_table), GDK_ACTION_COPY | GDK_ACTION_ASK);
@@ -271,6 +298,11 @@ conversation_panel_realize (GtkWidget *widget)
 	conversation_panel_set_background (panel);
 
 	g_signal_connect (G_OBJECT (panel->priv->xtext), "word_click", G_CALLBACK (conversation_panel_clicked_word), panel);
+#ifdef HAVE_LIBSEXY
+	g_signal_connect (G_OBJECT (panel->priv->xtext), "word_enter", G_CALLBACK (conversation_panel_enter_word), panel);
+	g_signal_connect (G_OBJECT (panel->priv->xtext), "word_leave", G_CALLBACK (conversation_panel_leave_word), panel);
+	g_signal_connect (G_OBJECT (gui.main_window), "focus-out-event", G_CALLBACK (conversation_panel_lost_focus), panel);
+#endif
 	gconf_client_notify_add (client, "/apps/xchat/main_window/use_sys_fonts",
 	                         (GConfClientNotifyFunc) conversation_panel_font_changed,       panel, NULL, NULL);
 	gconf_client_notify_add (client, "/apps/xchat/main_window/font",
@@ -423,6 +455,89 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 		}
 	}
 }
+
+#ifdef HAVE_LIBSEXY
+static gboolean
+show_user_tooltip (gchar *nick)
+{
+	GtkWidget *tooltip;
+	ConversationPanel *panel;
+	struct User *user = NULL;
+	GdkRectangle rect;
+	GdkScreen *screen;
+	GtkWidget *vbox;
+	GdkDisplay *display;
+	
+	panel = CONVERSATION_PANEL(gui.conversation_panel);
+
+	user = userlist_find (gui.current_session, nick);
+	
+	if (user) {
+		tooltip = sexy_tooltip_new ();
+
+		display = gdk_display_get_default ();
+		gdk_display_get_pointer (display, &screen, &rect.x, &rect.y, NULL);
+		rect.y += 10;
+		rect.width = 1;
+		rect.height = 1;
+		
+		vbox = get_user_vbox_infos (user);
+		gtk_container_add (GTK_CONTAINER (tooltip), vbox);
+		sexy_tooltip_position_to_rect (SEXY_TOOLTIP (tooltip), &rect, screen);
+		gtk_widget_show (tooltip);
+
+		panel->priv->current_tooltip = tooltip;
+	}
+
+	return FALSE;
+}
+
+static void
+conversation_panel_enter_word (GtkWidget *xtext, char *word, ConversationPanel *panel)
+{
+	switch (conversation_panel_check_word (xtext, word, strlen (word))) {
+		case WORD_NICK:
+			{
+				panel->priv->tooltip_timeout =  
+					g_timeout_add (500, (GSourceFunc) show_user_tooltip, word);
+				break;
+			}
+	}
+}
+
+static void
+conversation_panel_remove_tooltip (ConversationPanel *panel)
+{
+	if (panel->priv->tooltip_timeout) {
+		g_source_remove (panel->priv->tooltip_timeout);
+		panel->priv->tooltip_timeout = 0;
+	}
+
+	if (panel->priv->current_tooltip) {
+		gtk_widget_destroy (panel->priv->current_tooltip);
+		panel->priv->current_tooltip = NULL;
+	}
+}
+
+static void
+conversation_panel_leave_word (GtkWidget *xtext, char *word, ConversationPanel *panel)
+{
+	switch (conversation_panel_check_word (xtext, word, strlen (word))) {
+		case WORD_NICK:
+			{
+				conversation_panel_remove_tooltip (panel);
+				break;
+			}
+	}
+}
+
+static gboolean
+conversation_panel_lost_focus (GtkWidget *widget, GdkEventFocus *event, ConversationPanel *panel)
+{
+	conversation_panel_remove_tooltip (panel);
+	return FALSE;
+}
+#endif
 
 static void
 conversation_panel_set_font (ConversationPanel *panel)
