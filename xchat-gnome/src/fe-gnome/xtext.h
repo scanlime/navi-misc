@@ -212,12 +212,16 @@ struct _GtkXText
 	unsigned int overdraw:1;
 	unsigned int indent_changed:1;
 	unsigned int shm:1;
+
+	gchar *current_word;
 };
 
 struct _GtkXTextClass
 {
 	GtkWidgetClass parent_class;
 	void (*word_click) (GtkXText * xtext, char *word, GdkEventButton * event);
+	void (*word_enter) (GtkXText * xtext, char *word);
+	void (*word_leave) (GtkXText * xtext, char *word);
 };
 
 GtkWidget *gtk_xtext_new (GdkColor palette[], int separator);

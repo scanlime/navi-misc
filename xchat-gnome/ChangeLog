@@ -1,3 +1,13 @@
+Tue May 23 21:59:01 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/xtext.c:
+	* src/fe-gnome/xtext.h:
+	  - Add two new signals "word_enter" and "word_leave".
+	* src/fe-gnome/userlist-gui.c:
+	* src/fe-gnome/conversation-panel.c:
+	  - The "whois tooltip" is now also displayed in the
+	    conversation panel!
+
 Mon May 22 19:49:29 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* po/POTFILES.in:

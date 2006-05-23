@@ -45,6 +45,7 @@ static void     userlist_popup_deactivate   (GtkMenuShell *menu, gpointer data);
 static gboolean userlist_button_release     (GtkWidget *widget, GdkEventButton *button, gpointer data);
 struct User*    userlist_get_selected       (void);
 #ifdef HAVE_LIBSEXY
+GtkWidget* get_user_vbox_infos	    	    (struct User *user);
 static GtkWidget* get_user_tooltip	    (SexyTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, gpointer data);
 #endif
 
@@ -377,15 +378,13 @@ userlist_button_release (GtkWidget *widget, GdkEventButton *button, gpointer dat
 }
 
 #ifdef HAVE_LIBSEXY
-static GtkWidget*
-get_user_tooltip (SexyTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, gpointer data)
+GtkWidget*
+get_user_vbox_infos (struct User *user)
 {
-	struct User *user;
 	GtkWidget *vbox, *label;
 	gchar *text, *tmp, *country_txt;
 
 	vbox = gtk_vbox_new (FALSE, 0);
-	user = userlist_get_selected ();
 
 	text = g_strdup_printf ("<span size=\"large\" weight=\"bold\">%s</span>", user->nick);
 
@@ -432,8 +431,18 @@ get_user_tooltip (SexyTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *
 	gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, TRUE, 0);
 	g_free (text);
 
-	gtk_widget_show_all (vbox);	
+	gtk_widget_show_all (vbox);
 
 	return vbox;
+}
+
+static GtkWidget*
+get_user_tooltip (SexyTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, gpointer data)
+{
+	struct User *user;
+
+	user = userlist_get_selected ();
+
+	return get_user_vbox_infos (user);
 }
 #endif

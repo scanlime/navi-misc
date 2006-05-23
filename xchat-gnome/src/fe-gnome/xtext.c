@@ -103,6 +103,8 @@ struct textentry
 enum
 {
 	WORD_CLICK,
+	WORD_ENTER,
+	WORD_LEAVE,
 	LAST_SIGNAL
 };
 
@@ -611,6 +613,8 @@ gtk_xtext_init (GtkXText * xtext)
 	xtext->dont_render2 = FALSE;
 	xtext->overdraw = FALSE;
 	xtext->tint_red = xtext->tint_green = xtext->tint_blue = TINT_VALUE;
+
+	xtext->current_word = NULL;
 
 	xtext->adj = (GtkAdjustment *) gtk_adjustment_new (0, 0, 1, 1, 1, 1);
 	g_object_ref (G_OBJECT (xtext->adj));
@@ -1831,6 +1835,17 @@ gtk_xtext_motion_notify (GtkWidget * widget, GdkEventMotion * event)
 		return FALSE;
 
 	word = gtk_xtext_get_word (xtext, x, y, &word_ent, &offset, &len);
+
+	if (!word || (xtext->current_word && strcmp (word, xtext->current_word) != 0)) {
+		if (xtext->current_word) {
+			g_signal_emit (G_OBJECT (xtext), xtext_signals[WORD_LEAVE],
+			       0, xtext->current_word);
+
+			g_free (xtext->current_word);
+			xtext->current_word = NULL;
+		}
+	}
+
 	if (word)
 	{
 		if (xtext->urlcheck_function (GTK_WIDGET (xtext), word, len) > 0)
@@ -1865,6 +1880,13 @@ gtk_xtext_motion_notify (GtkWidget * widget, GdkEventMotion * event)
 				xtext->render_hilights_only = FALSE;
 				xtext->skip_stamp = FALSE;
 			}
+
+			if (!xtext->current_word || strcmp (word, xtext->current_word)) {
+				xtext->current_word = g_strdup (word);
+				g_signal_emit (G_OBJECT (xtext), xtext_signals[WORD_ENTER],
+					       0, xtext->current_word);
+			}
+
 			return FALSE;
 		}
 	}
@@ -2258,6 +2280,25 @@ gtk_xtext_class_init (GtkXTextClass * class)
 							g_cclosure_user_marshal_VOID__POINTER_POINTER,
 							G_TYPE_NONE,
 							2, G_TYPE_POINTER, G_TYPE_POINTER);
+	xtext_signals[WORD_ENTER] =
+		g_signal_new ("word_enter",
+							G_TYPE_FROM_CLASS (object_class),
+							G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+							G_STRUCT_OFFSET (GtkXTextClass, word_enter),
+							NULL, NULL,
+							g_cclosure_marshal_VOID__POINTER,
+							G_TYPE_NONE,
+							1, G_TYPE_POINTER);
+	xtext_signals[WORD_LEAVE] =
+		g_signal_new ("word_leave",
+							G_TYPE_FROM_CLASS (object_class),
+							G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+							G_STRUCT_OFFSET (GtkXTextClass, word_leave),
+							NULL, NULL,
+							g_cclosure_marshal_VOID__POINTER,
+							G_TYPE_NONE,
+							1, G_TYPE_POINTER);
+
 	object_class->destroy = gtk_xtext_destroy;
 
 	widget_class->realize = gtk_xtext_realize;
