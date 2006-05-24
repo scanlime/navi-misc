@@ -42,16 +42,34 @@ class Bone:
 
 
 class StickFigure(Bone):
-    def draw(self):
+    def draw(self, data):
         """Draw the bone on screen.
 
         'data' is a dictionary mapping bone name to position.
         """
-        # Some joints defined in the ASF file have no degrees of freedom. So if
-        # there's no data for this bone don't draw anything and move on to the
-        # children of the bone.
-
         endpoint = self.direction * self.length
+
+        if self.name in data:
+            frame = data[self.name]
+            if "rx" in self.dof:
+                rx = frame[self.dof.index("rx")]
+                glRotate(rx, 1.0, 0.0, 0.0)
+            if "ry" in self.dof:
+                ry = frame[self.dof.index("ry")]
+                glRotate(ry, 0.0, 1.0, 0.0)
+            if "rz" in self.dof:
+                rz = frame[self.dof.index("rz")]
+                glRotate(rz, 0.0, 1.0, 0.0)
+
+            tx = ty = tz = 0.0
+            if "tx" in self.dof:
+                tx = frame[self.dof.index("tx")]
+            if "ty" in self.dof:
+                ty = frame[self.dof.index("ty")]
+            if "tz" in self.dof:
+                tz = frame[self.dof.index("tz")]
+            glTranslatef(tx, ty, tz)
+
         # Draw the line
         glBegin(GL_LINES)
         glVertex3f(0.0, 0.0, 0.0)
@@ -66,7 +84,7 @@ class StickFigure(Bone):
             # Push the matrix onto the stack so that rotations and translations
             # of one child do not affect another.
             glPushMatrix()
-            child.draw()
+            child.draw(data)
             glPopMatrix()
         
 

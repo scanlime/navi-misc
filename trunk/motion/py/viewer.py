@@ -22,6 +22,7 @@ from pygame.locals import *
 from Motion import ASFReader, AMC
 from Viewer import Skeleton
 from optparse import OptionParser
+import time
 
 def resize((width, height)):
     """Size the OpenGL window"""
@@ -51,36 +52,50 @@ def buildFrame(data, index):
     return frame
 
 
-parser = OptionParser(usage="%prog <asf file>")
+parser = OptionParser(usage="%prog [options] <asf file> <amc file>")
+parser.add_option("--fps", dest="fps", type="int", help="Frames per second")
 opts, args = parser.parse_args()
 
-if len(args) < 1:
-    parser.error("ASF file required")
+if len(args) < 2:
+    parser.error("ASF and AMC file required")
 
+# Load the ASF
 asf = ASFReader()
 asf.parse(args[0])
 
+# Create the bones from the ASF
 bones = {}
-
 bones["root"] = Skeleton.StickFigure("root", asf.orientation, 0.0, asf.order)
 for name, bone in asf.bones.iteritems():
     bones[name] = Skeleton.StickFigure(name, bone.direction, bone.length, bone.dof)
 
+# Build the body
 for line in asf.hierarchy:
     for child in line[1:]:
         bones[line[0]].addChild(bones[child])
 
+amc = AMC.from_file(args[1])
+
+frames = []
+for i in range(len(amc.bones.keys())):
+    frames.append(buildFrame(amc.bones, i))
+
+# Set up the display
 pygame.init()
 pygame.display.set_mode((640, 480), OPENGL | DOUBLEBUF)
-
 resize((640, 480))
 init()
 
-while True:
+# Run it
+for frame in frames:
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
     glTranslate(0.0, 0.0, -56.0)
-    bones["root"].draw()
+    bones["root"].draw(frame)
     pygame.display.flip()
+
+    if hasattr(opts, "fps"):
+        time.sleep(1.0/opts.fps)
 
 
 # vim: ts=4:sw=4:et
