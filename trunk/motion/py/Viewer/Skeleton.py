@@ -42,7 +42,7 @@ class Bone:
 
 
 class StickFigure(Bone):
-    def draw(self, data):
+    def draw(self):
         """Draw the bone on screen.
 
         'data' is a dictionary mapping bone name to position.
@@ -50,45 +50,23 @@ class StickFigure(Bone):
         # Some joints defined in the ASF file have no degrees of freedom. So if
         # there's no data for this bone don't draw anything and move on to the
         # children of the bone.
-        if self.name in data:
-            frame = data[self.name]
-            if "rx" in self.dof:
-                glRotatef(frame[self.dof.index("rx")], 1.0, 0.0, 0.0)
-            if "ry" in self.dof:
-                glRotatef(frame[self.dof.index("ry")], 0.0, 1.0, 0.0)
-            if "rz" in self.dof:
-                glRotatef(frame[self.dof.index("rz")], 0.0, 0.0, 1.0)
 
-            tx = ty = tz = 0.0
-            if "tx" in self.dof:
-                tx = frame[self.dof.index("tx")]
-            if "ty" in self.dof:
-                ty = frame[self.dof.index("ty")]
-            if "tz" in self.dof:
-                tz = frame[self.dof.index("tz")]
+        endpoint = self.direction * self.length
+        # Draw the line
+        glBegin(GL_LINES)
+        glVertex3f(0.0, 0.0, 0.0)
+        glVertex3f(endpoint[0], endpoint[1], endpoint[2])
+        glEnd()
 
-            # Add the translation for this bone
-            glTranslatef(tx, ty, tz)
-
-            # Draw the line
-            glBegin(GL_LINES)
-            glVertex3f(0.0, 0.0, 0.0)
-            glVertex3f(self.direction[0] * self.length,
-                    self.direction[1] * self.length,
-                    self.direction[2] * self.length)
-            glEnd()
-
-            # Add a translation to draw the children at the end of this bone
-            glTranslatef(self.direction[0] * self.length,
-                    self.direction[1] * self.length,
-                    self.direction[2] * self.length)
+        # Add a translation to draw the children at the end of this bone
+        glTranslatef(endpoint[0], endpoint[1], endpoint[2])
 
         # Draw each child of this bone
         for child in self.children:
             # Push the matrix onto the stack so that rotations and translations
             # of one child do not affect another.
             glPushMatrix()
-            child.draw(data)
+            child.draw()
             glPopMatrix()
         
 
