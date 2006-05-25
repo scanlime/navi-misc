@@ -91,6 +91,9 @@
         </popup>
 
         <popup name="DialogPopup" action="PopupAction">
+		<menuitem name="DialogSendFile" action="UserlistSendFile"/>
+		<menuitem name="DialogIgnore" action="UserlistIgnore"/>
+                <separator name="DialogSep0"/>
                 <menuitem name="DialogSave" action="DialogSave"/>
                 <separator name="DialogSep0"/>
                 <menuitem name="DialogClose" action="DialogClose"/>

@@ -1,3 +1,10 @@
+Wed May 24 20:42:41 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/conversation-panel.c:
+	* data/xchat-gnome-ui.xml:
+	  - Add "send file" and "ignore" items to the default context menu for
+	    query windows (#333455).
+
 Tue May 23 21:59:01 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/xtext.c:
