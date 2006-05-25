@@ -407,10 +407,7 @@ get_user_vbox_infos (struct User *user)
 		last = (gint) (time (NULL) - user->lasttalk) / 60;
 		if (last >= 1) {
 			tmp = text;
-			if (last == 1)
-				text = g_strdup_printf (_("%s\n<span weight=\"bold\">Last message:</span> 1 minute ago"), text);
-			else
-				text = g_strdup_printf (_("%s\n<span weight=\"bold\">Last message:</span> %d minutes ago"), text, last);
+			text = g_strdup_printf (ngettext("%s\n<span weight=\"bold\">Last message:</span> %d minute ago", "%s\n<span weight=\"bold\">Last message:</span> %d minutes ago", last), text, last);
 			g_free (tmp);
 		}
 	}

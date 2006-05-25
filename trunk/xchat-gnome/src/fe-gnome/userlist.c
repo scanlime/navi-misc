@@ -317,7 +317,7 @@ userlist_set_user_button (Userlist *userlist, session *sess)
 
 	if (gui.current_session == sess) {
 		if (sess->type == SESS_CHANNEL) {
-			label = g_strdup_printf ("%d %s", sess->total, sess->total > 1 ? _("Users"): _("User"));
+			label = g_strdup_printf (ngettext ("%d User", "%d Users", sess->total), sess->total);
 			gtk_button_set_label (GTK_BUTTON (gui.userlist_toggle), label);
 			g_free (label);
 		}

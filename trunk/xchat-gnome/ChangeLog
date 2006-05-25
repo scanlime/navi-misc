@@ -1,3 +1,9 @@
+Wed May 24 20:55:18 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/userlist-gui.c:
+	* src/fe-gnome/userlist.c:
+	  - Fix plural l10n (#342841).
+
 Wed May 24 20:42:41 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/conversation-panel.c:
