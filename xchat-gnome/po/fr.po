@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-04-03 15:57-0400\n"
+"POT-Creation-Date: 2006-05-25 14:54-0600\n"
 "PO-Revision-Date: 2006-04-03 14:37-0400\n"
 "Last-Translator: Olivier Lê Thanh Duong  <olivier@lethanh.be>\n"
 "Language-Team: French <olivier@lethanh.be>\n"
@@ -425,7 +425,7 @@ msgid "Nickname"
 msgstr "Pseudonyme"
 
 #: ../data/xchat-gnome.glade.h:6 ../src/common/text.c:805
-#: ../src/fe-gnome/channel-list.c:329
+#: ../src/fe-gnome/channel-list.c:328 ../src/fe-gnome/userlist.c:325
 msgid "Users"
 msgstr "Utilisateurs"
 
@@ -448,15 +448,6 @@ msgstr "Absence automatique"
 #: ../plugins/autoaway/autoaway.c:213
 msgid "Automatically go away / come back"
 msgstr "S'absente et revient automatiquement"
-
-#. Hook up our callbacks.
-#: ../plugins/autoaway/autoaway.c:231
-msgid "Disconnected"
-msgstr "Déconnecté"
-
-#: ../plugins/autoaway/autoaway.c:232
-msgid "Connected"
-msgstr "Connecté"
 
 #: ../plugins/autoaway/autoaway.c:261
 msgid "Auto-away plugin unloaded\n"
@@ -1478,7 +1469,7 @@ msgid "Nick of person who changed the topic"
 msgstr "Pseudo de la personne qui a changé le sujet"
 
 #: ../src/common/text.c:551 ../src/common/text.c:557
-#: ../src/fe-gnome/channel-list.c:334
+#: ../src/fe-gnome/channel-list.c:333
 msgid "Topic"
 msgstr "Sujet"
 
@@ -1715,7 +1706,7 @@ msgstr "IP réelle"
 
 #: ../src/common/text.c:789 ../src/common/text.c:798 ../src/common/text.c:804
 #: ../src/common/text.c:833 ../src/common/text.c:987
-#: ../src/fe-gnome/channel-list.c:324
+#: ../src/fe-gnome/channel-list.c:323
 msgid "Channel Name"
 msgstr "Nom du canal"
 
@@ -3480,7 +3471,7 @@ msgid "Zimbabwe"
 msgstr "Zimbabwe"
 
 #: ../src/common/util.c:1104 ../src/common/util.c:1114
-#: ../src/fe-gnome/userlist-gui.c:399
+#: ../src/fe-gnome/userlist-gui.c:398
 msgid "Unknown"
 msgstr "Inconnu"
 
@@ -3598,7 +3589,7 @@ msgstr "Donner l'Half-Ops"
 msgid "Take Half-Ops"
 msgstr "Prendre l'Half-Ops"
 
-#: ../src/common/xchat.c:839 ../src/fe-gnome/userlist-gui.c:63
+#: ../src/common/xchat.c:839 ../src/fe-gnome/userlist-gui.c:64
 msgid "Ignore"
 msgstr "Ignorer"
 
@@ -3745,14 +3736,19 @@ msgstr ""
 msgid "Copyright © 2004-2006"
 msgstr "Copyright © 2004-2006"
 
-#: ../src/fe-gnome/about.c:86
+#. Translators: This is a random, mostly-meaningless
+#. * quotation from Jeeves & Wooster.  Either leave it
+#. * be or replace it with something funny (but inoffensive)
+#. * in your own language, but don't translate it literally.
+#.
+#: ../src/fe-gnome/about.c:91
 msgid ""
 "It has been well observed that a trombone is not a suitable instrument for a "
 "gentleman"
 msgstr ""
 "Il est notoire qu'un trombone n'est pas un instrument digne d'un gentilhomme"
 
-#: ../src/fe-gnome/about.c:90
+#: ../src/fe-gnome/about.c:95
 msgid "XChat-GNOME Web Site"
 msgstr "Site Web XChat-GNOME"
 
@@ -3765,7 +3761,7 @@ msgstr "Site Web XChat-GNOME"
 #. * write each of them on a separated line seperated by
 #. * newlines (\n).
 #.
-#: ../src/fe-gnome/about.c:104
+#: ../src/fe-gnome/about.c:109
 msgid "translator-credits"
 msgstr ""
 "Olivier Lê Thanh Duong <olivier@lethanh.be>\n"
@@ -3866,7 +3862,7 @@ msgstr "Y position de la fenêtre principale sur l'écran"
 msgid "xchat configuration version"
 msgstr "version de la configuration xchat"
 
-#: ../src/fe-gnome/channel-list.c:297
+#: ../src/fe-gnome/channel-list.c:296
 #, c-format
 msgid "%s Channel List"
 msgstr "%s Liste des canaux"
@@ -3876,76 +3872,76 @@ msgstr "%s Liste des canaux"
 msgid "_Connect"
 msgstr "_Connecter"
 
-#: ../src/fe-gnome/conversation-panel.c:133
+#: ../src/fe-gnome/conversation-panel.c:155
 msgid "_Open Link in Browser"
 msgstr "_Ouvrir le lien"
 
-#: ../src/fe-gnome/conversation-panel.c:134
+#: ../src/fe-gnome/conversation-panel.c:156
 msgid "_Copy Link Location"
 msgstr "_Copier l'adresse du lien"
 
-#: ../src/fe-gnome/conversation-panel.c:138
+#: ../src/fe-gnome/conversation-panel.c:160
 msgid "Se_nd Message To..."
 msgstr "_Envoyer un message à..."
 
-#: ../src/fe-gnome/conversation-panel.c:139
+#: ../src/fe-gnome/conversation-panel.c:161
 msgid "_Copy Address"
 msgstr "_Copier l'adresse"
 
-#: ../src/fe-gnome/conversation-panel.c:143
+#: ../src/fe-gnome/conversation-panel.c:165
 msgid "_Send File"
 msgstr "_Envoyer le fichier"
 
-#: ../src/fe-gnome/conversation-panel.c:144
+#: ../src/fe-gnome/conversation-panel.c:166
 msgid "Paste File _Contents"
 msgstr "Coller le _contenu du fichier"
 
-#: ../src/fe-gnome/conversation-panel.c:145
+#: ../src/fe-gnome/conversation-panel.c:167
 msgid "Paste File_name"
 msgstr "Coller le _nom du fichier"
 
-#: ../src/fe-gnome/conversation-panel.c:146
+#: ../src/fe-gnome/conversation-panel.c:168
 msgid "_Cancel"
 msgstr "_Annuler"
 
-#: ../src/fe-gnome/conversation-panel.c:150 ../src/fe-gnome/main-window.c:113
+#: ../src/fe-gnome/conversation-panel.c:172 ../src/fe-gnome/main-window.c:113
 msgid "_Copy"
 msgstr "_Copier"
 
-#: ../src/fe-gnome/conversation-panel.c:625
+#: ../src/fe-gnome/conversation-panel.c:747
 #, c-format
 msgid "URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"
 msgstr ""
 "La liste d'URI déposée sur xchat-gnome a un mauvais format (%d) ou longueur "
 "(%d)\n"
 
-#: ../src/fe-gnome/conversation-panel.c:717
+#: ../src/fe-gnome/conversation-panel.c:839
 #, c-format
 msgid "Error reading file \"%s\": %s\n"
 msgstr "Erreur lors de la lecture du fichier \"%s\" : %s\n"
 
-#: ../src/fe-gnome/conversation-panel.c:732
+#: ../src/fe-gnome/conversation-panel.c:854
 #, c-format
 msgid "Error converting URI \"%s\" into filename: %s\n"
 msgstr ""
 "Erreur lors de la transformation de l'URI \"%s\" en nom de fichier : %s\n"
 
-#: ../src/fe-gnome/conversation-panel.c:776
+#: ../src/fe-gnome/conversation-panel.c:897
 #, c-format
 msgid "Error retrieving file information for \"%s\": %s\n"
 msgstr "Erreur lors de la lecture des informations du fichier \"%s\" : %s\n"
 
-#: ../src/fe-gnome/conversation-panel.c:838
+#: ../src/fe-gnome/conversation-panel.c:959
 msgid "Save Transcript"
 msgstr "Enregistrer la discussion"
 
-#: ../src/fe-gnome/conversation-panel.c:864
-#: ../src/fe-gnome/conversation-panel.c:874
+#: ../src/fe-gnome/conversation-panel.c:985
+#: ../src/fe-gnome/conversation-panel.c:995
 #, c-format
 msgid "Error saving %s"
 msgstr "Erreur lors de l'enregistrement du fichier %s"
 
-#: ../src/fe-gnome/conversation-panel.c:992
+#: ../src/fe-gnome/conversation-panel.c:1113
 msgid "Search buffer is empty.\n"
 msgstr "Le cache de recherche est vide.\n"
 
@@ -4066,7 +4062,7 @@ msgstr ""
 "xchat-gnome : %s\n"
 "Utilisez `xchat-gnome --help' pour plus d'informations\n"
 
-#: ../src/fe-gnome/fe-gnome.c:853
+#: ../src/fe-gnome/fe-gnome.c:862
 #, c-format
 msgid "Unable to show '%s'"
 msgstr "Impossible de montrer '%s'"
@@ -4178,14 +4174,24 @@ msgid "CP949 (Korean)"
 msgstr "CP949 (Coréen)"
 
 #: ../src/fe-gnome/irc-network.c:40
-msgid "CP1251 (Cyrillic)"
+#, fuzzy
+msgid "KOI8-R (Cyrillic)"
 msgstr "CP1251 (Cyrillique)"
 
 #: ../src/fe-gnome/irc-network.c:41
+msgid "CP1251 (Cyrillic)"
+msgstr "CP1251 (Cyrillique)"
+
+#: ../src/fe-gnome/irc-network.c:42
 msgid "CP1256 (Arabic)"
 msgstr "CP1256 (Arabe)"
 
-#: ../src/fe-gnome/irc-network.c:42
+#: ../src/fe-gnome/irc-network.c:43
+#, fuzzy
+msgid "CP1257 (Baltic)"
+msgstr "CP1256 (Arabe)"
+
+#: ../src/fe-gnome/irc-network.c:44
 msgid "GB18030 (Chinese)"
 msgstr "GB18030 (Chinois)"
 
@@ -4316,11 +4322,11 @@ msgstr "_Sommaire"
 msgid "_About"
 msgstr "À _propos"
 
-#: ../src/fe-gnome/main-window.c:503 ../src/fe-gnome/navigation-tree.c:1632
+#: ../src/fe-gnome/main-window.c:509 ../src/fe-gnome/navigation-tree.c:1634
 msgid "Ex-Chat"
 msgstr "Ex-Chat"
 
-#: ../src/fe-gnome/main-window.c:584
+#: ../src/fe-gnome/main-window.c:590
 msgid "Error showing help"
 msgstr "Erreur lors de l'affichage de l'aide"
 
@@ -4335,7 +4341,8 @@ msgstr "Reconnecter _automatiquement"
 
 #. Channel context menu
 #: ../src/fe-gnome/navigation-tree.c:103
-msgid "_Auto-join on startup"
+#, fuzzy
+msgid "_Auto-join on connect"
 msgstr "Rejoindre _automatiquement"
 
 #. Add the new server to the model. By default connected is false.
@@ -4387,38 +4394,38 @@ msgstr "Réseaux"
 msgid "Name"
 msgstr "Nom"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:84
-#: ../src/fe-gnome/preferences-page-plugins.c:85
+#: ../src/fe-gnome/preferences-page-plugins.c:90
+#: ../src/fe-gnome/preferences-page-plugins.c:91
 msgid "unknown"
 msgstr "inconnu"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:125
+#: ../src/fe-gnome/preferences-page-plugins.c:131
 #, c-format
 msgid "An error occured unloading %s"
 msgstr "Une erreur est survenue lors du déchargement du greffon %s"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:126
+#: ../src/fe-gnome/preferences-page-plugins.c:132
 msgid "Plugin Unload Failed"
 msgstr "Le déchargement du greffon a échoué"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:137
+#: ../src/fe-gnome/preferences-page-plugins.c:143
 msgid "Plugin Load Failed"
 msgstr "Le chargement du greffon a échoué"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:176
+#: ../src/fe-gnome/preferences-page-plugins.c:182
 msgid "Open Plugin"
 msgstr "Ouvrir le greffon"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:276
+#: ../src/fe-gnome/preferences-page-plugins.c:314
 msgid "Scripts and Plugins"
 msgstr "Scripts et greffons"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:289
+#: ../src/fe-gnome/preferences-page-plugins.c:327
 #: ../src/fe-gnome/preferences-page-spellcheck.c:199
 msgid "Enable"
 msgstr "Activé"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:291
+#: ../src/fe-gnome/preferences-page-plugins.c:329
 msgid "Plugin"
 msgstr "Greffon"
 
@@ -4523,28 +4530,28 @@ msgstr "Gris clair"
 msgid "White"
 msgstr "Blanc"
 
-#: ../src/fe-gnome/topic-label.c:244
+#: ../src/fe-gnome/topic-label.c:250
 #, c-format
 msgid "Changing topic for %s"
 msgstr "Changer le sujet pour %s"
 
-#: ../src/fe-gnome/userlist-gui.c:59
+#: ../src/fe-gnome/userlist-gui.c:60
 msgid "_Send File..."
 msgstr "_Envoyer un fichier..."
 
-#: ../src/fe-gnome/userlist-gui.c:60
+#: ../src/fe-gnome/userlist-gui.c:61
 msgid "Private _Chat"
 msgstr "_Discussion privée"
 
-#: ../src/fe-gnome/userlist-gui.c:61
+#: ../src/fe-gnome/userlist-gui.c:62
 msgid "_Kick"
 msgstr "_Kicker"
 
-#: ../src/fe-gnome/userlist-gui.c:62
+#: ../src/fe-gnome/userlist-gui.c:63
 msgid "_Ban"
 msgstr "_Bannir"
 
-#: ../src/fe-gnome/userlist-gui.c:394
+#: ../src/fe-gnome/userlist-gui.c:393
 #, c-format
 msgid ""
 "%s\n"
@@ -4553,32 +4560,31 @@ msgstr ""
 "%s\n"
 "<span weight=\"bold\">Nom  :</span> %s"
 
-#: ../src/fe-gnome/userlist-gui.c:401
+#: ../src/fe-gnome/userlist-gui.c:400
 #, c-format
 msgid ""
 "%s\n"
 "<span weight=\"bold\">Country:</span> %s"
-msgstr "%s\n<span weight=\"bold\">Pays :</span> %s"
-
-#: ../src/fe-gnome/userlist-gui.c:412
-#, c-format
-msgid ""
-"%s\n"
-"<span weight=\"bold\">Last message:</span> 1 minute ago"
 msgstr ""
 "%s\n"
-"<span weight=\"bold\">Dernier message :</span> Il y a 1 minute."
+"<span weight=\"bold\">Pays :</span> %s"
 
-#: ../src/fe-gnome/userlist-gui.c:414
-#, c-format
+#: ../src/fe-gnome/userlist-gui.c:410
+#, fuzzy, c-format
 msgid ""
+"%s\n"
+"<span weight=\"bold\">Last message:</span> %d minute ago"
+msgid_plural ""
 "%s\n"
 "<span weight=\"bold\">Last message:</span> %d minutes ago"
-msgstr ""
+msgstr[0] ""
+"%s\n"
+"<span weight=\"bold\">Dernier message :</span> Il y a %d minutes."
+msgstr[1] ""
 "%s\n"
 "<span weight=\"bold\">Dernier message :</span> Il y a %d minutes."
 
-#: ../src/fe-gnome/userlist-gui.c:425
+#: ../src/fe-gnome/userlist-gui.c:421
 #, c-format
 msgid ""
 "%s\n"
@@ -4586,6 +4592,26 @@ msgid ""
 msgstr ""
 "%s\n"
 "<span weight=\"bold\">Message d'absence :</span>%s"
+
+#: ../src/fe-gnome/userlist.c:320
+#, fuzzy, c-format
+msgid "%d User"
+msgid_plural "%d Users"
+msgstr[0] "Utilisateurs"
+msgstr[1] "Utilisateurs"
+
+#~ msgid "Disconnected"
+#~ msgstr "Déconnecté"
+
+#~ msgid "Connected"
+#~ msgstr "Connecté"
+
+#~ msgid ""
+#~ "%s\n"
+#~ "<span weight=\"bold\">Last message:</span> 1 minute ago"
+#~ msgstr ""
+#~ "%s\n"
+#~ "<span weight=\"bold\">Dernier message :</span> Il y a 1 minute."
 
 #~ msgid "active"
 #~ msgstr "actif"
