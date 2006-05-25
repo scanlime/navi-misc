@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-03-01 03:36-0700\n"
+"POT-Creation-Date: 2006-05-25 14:54-0600\n"
 "PO-Revision-Date: 2006-02-10 02:18-0700\n"
 "Last-Translator: Wei-Lun Chao <chaoweilun@pcmail.com.tw>\n"
 "Language-Team: Chinese (traditional) <zh-l10n@linux.org.tw>\n"
@@ -62,10 +62,6 @@ msgstr "列印文字檔案"
 msgid "C_onnect"
 msgstr "連接(_O)"
 
-#: ../data/dcc-accept.glade.h:1
-msgid "_Accept"
-msgstr "接受"
-
 #: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
 msgid "File Transfers"
 msgstr "檔案傳輸"
@@ -74,71 +70,67 @@ msgstr "檔案傳輸"
 msgid "<span weight=\"bold\">Automatically Join Channels</span>"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:2 ../data/preferences-dialog.glade.h:7
-msgid "<span weight=\"bold\">General</span>"
-msgstr ""
-
-#: ../data/irc-network-editor.glade.h:3
+#: ../data/irc-network-editor.glade.h:2
 msgid "<span weight=\"bold\">User Info</span>"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:4
+#: ../data/irc-network-editor.glade.h:3
 msgid "Accept _invalid SSL certificate"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:5
+#: ../data/irc-network-editor.glade.h:4
 msgid "Character _encoding:"
 msgstr "字元設定："
 
-#: ../data/irc-network-editor.glade.h:6
+#: ../data/irc-network-editor.glade.h:5
 msgid "Network Settings"
 msgstr "網路設定"
 
-#: ../data/irc-network-editor.glade.h:7
+#: ../data/irc-network-editor.glade.h:6
 msgid "Nickser_v Password:"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:8
+#: ../data/irc-network-editor.glade.h:7
 msgid "Server _Password:"
 msgstr "伺服器密碼："
 
-#: ../data/irc-network-editor.glade.h:9
+#: ../data/irc-network-editor.glade.h:8
 msgid "Servers"
 msgstr "伺服器"
 
-#: ../data/irc-network-editor.glade.h:10
+#: ../data/irc-network-editor.glade.h:9
 msgid "Use _global user settings"
 msgstr "使用廣域使用者資訊"
 
-#: ../data/irc-network-editor.glade.h:11
+#: ../data/irc-network-editor.glade.h:10
 msgid "Use _these user settings:"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:12
+#: ../data/irc-network-editor.glade.h:11
 msgid "User and Channels"
 msgstr "離開聊天室"
 
-#: ../data/irc-network-editor.glade.h:13
+#: ../data/irc-network-editor.glade.h:12
 msgid "_Automatically connect to network"
 msgstr "啟動時自動連接到此網路"
 
-#: ../data/irc-network-editor.glade.h:14
+#: ../data/irc-network-editor.glade.h:13
 msgid "_Cycle until connected"
 msgstr "並未連線。"
 
-#: ../data/irc-network-editor.glade.h:15
+#: ../data/irc-network-editor.glade.h:14
 msgid "_Name:"
 msgstr "名稱"
 
-#: ../data/irc-network-editor.glade.h:16
+#: ../data/irc-network-editor.glade.h:15
 msgid "_Nick name:"
 msgstr "暱稱(_N)："
 
-#: ../data/irc-network-editor.glade.h:17
+#: ../data/irc-network-editor.glade.h:16
 msgid "_Real Name:"
 msgstr "真實名稱："
 
-#: ../data/irc-network-editor.glade.h:18
+#: ../data/irc-network-editor.glade.h:17
 msgid "_Use secure connection (SSL)"
 msgstr ""
 
@@ -164,6 +156,10 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:6
 msgid "<span weight=\"bold\">File Transfers</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:7
+msgid "<span weight=\"bold\">General</span>"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:8
@@ -211,130 +207,142 @@ msgid "Buil_t-in schemes:"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:19
+msgid "Choose languages to use for spellcheck:"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:20
 msgid "Convert spaces to underscores in filenames"
 msgstr "發送前把空格轉換成底線"
 
-#: ../data/preferences-dialog.glade.h:20
+#: ../data/preferences-dialog.glade.h:21
 msgid "Download files to:"
 msgstr "把檔案下載到："
 
-#: ../data/preferences-dialog.glade.h:21
+#: ../data/preferences-dialog.glade.h:22
 msgid "Enter extra words to trigger highlighting"
 msgstr "需要高亮度顯示的其它詞組："
 
-#: ../data/preferences-dialog.glade.h:22
+#: ../data/preferences-dialog.glade.h:23
 msgid "Foreground mark:"
 msgstr "前景："
 
-#: ../data/preferences-dialog.glade.h:23
+#: ../data/preferences-dialog.glade.h:24
 msgid "Get IP Address From Server"
 msgstr "從 IRC 伺服器獲取我的位址"
 
-#: ../data/preferences-dialog.glade.h:24
+#: ../data/preferences-dialog.glade.h:25
 msgid "Global receive KB/s: "
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:25
+#: ../data/preferences-dialog.glade.h:26
 msgid "Global send KB/s: "
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:26
+#: ../data/preferences-dialog.glade.h:27
 msgid "Image _file:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:27
+#: ../data/preferences-dialog.glade.h:28
 msgid "Individual receive KB/s: "
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:28
+#: ../data/preferences-dialog.glade.h:29
 msgid "Individual send KB/s: "
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:29
+#: ../data/preferences-dialog.glade.h:30
 msgid "Move completed files to:"
 msgstr "移動完成下載的檔案到："
 
-#: ../data/preferences-dialog.glade.h:30
+#: ../data/preferences-dialog.glade.h:31
 msgid "Preferences"
 msgstr "偏好設定..."
 
-#: ../data/preferences-dialog.glade.h:31
+#: ../data/preferences-dialog.glade.h:32
 msgid "Real na_me:"
 msgstr "真實名稱(_L)："
 
-#: ../data/preferences-dialog.glade.h:32
+#: ../data/preferences-dialog.glade.h:33
 msgid "Save sender nickname in filenames"
 msgstr "把暱稱存入檔案名"
 
-#: ../data/preferences-dialog.glade.h:33
+#: ../data/preferences-dialog.glade.h:34
 msgid "Select A File"
 msgstr "選擇一個圖像檔案"
 
-#: ../data/preferences-dialog.glade.h:34
+#: ../data/preferences-dialog.glade.h:35
 msgid "Select Completed Files Directory"
 msgstr "移動完成下載的檔案到："
 
-#: ../data/preferences-dialog.glade.h:35
+#: ../data/preferences-dialog.glade.h:36
 msgid "Select Download Directory"
 msgstr "檔案和目錄"
 
-#: ../data/preferences-dialog.glade.h:36
+#: ../data/preferences-dialog.glade.h:37
 msgid "Show _timestamps"
 msgstr "打開時間戳記"
 
-#: ../data/preferences-dialog.glade.h:37
+#: ../data/preferences-dialog.glade.h:38
 msgid ""
 "To edit a shortcut key, click on the corresponding row and type a new "
 "accelerator, or press backspace to clear."
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:38
+#: ../data/preferences-dialog.glade.h:39
 msgid "Use System Terminal Font"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:39
+#: ../data/preferences-dialog.glade.h:40
 msgid "Use This IP Address:"
 msgstr "DCC IP 位址："
 
-#: ../data/preferences-dialog.glade.h:40
+#: ../data/preferences-dialog.glade.h:41
 msgid "Use this font:"
 msgstr "使用者列表"
 
-#: ../data/preferences-dialog.glade.h:41
+#: ../data/preferences-dialog.glade.h:42
 msgid "_Background color:"
 msgstr "背景："
 
-#: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:101
+#: ../data/preferences-dialog.glade.h:43
+msgid "_Check spelling"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:44 ../src/fe-gnome/main-window.c:98
 msgid "_Edit"
 msgstr "編輯(_E)"
 
-#: ../data/preferences-dialog.glade.h:43
+#: ../data/preferences-dialog.glade.h:45
 msgid "_Foreground color:"
 msgstr "前景："
 
-#: ../data/preferences-dialog.glade.h:44
+#: ../data/preferences-dialog.glade.h:46
 msgid "_Nickname:"
 msgstr "暱稱(_N)："
 
-#: ../data/preferences-dialog.glade.h:45
+#: ../data/preferences-dialog.glade.h:47
 msgid "_None (use solid color)"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:46
+#: ../data/preferences-dialog.glade.h:48
 msgid "_Part message:"
 msgstr "新訊息："
 
-#: ../data/preferences-dialog.glade.h:47
+#: ../data/preferences-dialog.glade.h:49
 msgid "_Quit message:"
 msgstr "右邊的訊息"
 
-#: ../data/preferences-dialog.glade.h:48
+#: ../data/preferences-dialog.glade.h:50
 msgid "_Show colors"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:49
+#: ../data/preferences-dialog.glade.h:51
 msgid "_Transparent background"
 msgstr "透明背景"
+
+#: ../data/preferences-dialog.glade.h:52
+msgid "spell checking"
+msgstr ""
 
 #: ../data/setup-dialog.glade.h:1
 msgid "Nick Name:"
@@ -357,8 +365,9 @@ msgid ""
 msgstr ""
 
 #: ../data/setup-dialog.glade.h:6
-msgid "xchat-gnome setup"
-msgstr ""
+#, fuzzy
+msgid "XChat-GNOME Setup"
+msgstr "XChat： DCC 交談列表"
 
 #: ../data/topic-change.glade.h:1
 msgid "Change"
@@ -368,7 +377,8 @@ msgstr "聊天室"
 msgid "Chat with people using IRC"
 msgstr ""
 
-#: ../data/xchat-gnome.desktop.in.h:2 ../src/fe-gnome/fe-gnome.c:92
+#: ../data/xchat-gnome.desktop.in.h:2 ../src/fe-gnome/fe-gnome.c:93
+#: ../src/fe-gnome/fe-gnome.c:104
 msgid "IRC Chat"
 msgstr "聊天"
 
@@ -377,38 +387,44 @@ msgid "XChat-GNOME IRC Chat"
 msgstr "XChat： DCC 交談列表"
 
 #: ../data/xchat-gnome.glade.h:1
-msgid "Change nickname to:"
+msgid "Apply on a_ll servers"
 msgstr ""
 
 #: ../data/xchat-gnome.glade.h:2
-msgid "Close this discussion"
+msgid "Change nickname to:"
 msgstr ""
 
 #: ../data/xchat-gnome.glade.h:3
-msgid "Enter a new nickname"
-msgstr "輸入新暱稱："
+msgid "Close this discussion"
+msgstr ""
 
-#. ! if (osvi.dwMajorVersion >= 5)
-#. fallback to error number
-#: ../data/xchat-gnome.glade.h:4 ../src/common/text.c:814
-#: ../src/common/text.c:851 ../src/common/text.c:862 ../src/common/text.c:869
-#: ../src/common/text.c:882 ../src/common/text.c:899 ../src/common/text.c:999
-#: ../src/common/util.c:352
-msgid "Error"
-msgstr "錯誤"
+#: ../data/xchat-gnome.glade.h:4
+msgid "Mark as _away"
+msgstr ""
 
-#: ../data/xchat-gnome.glade.h:5 ../src/common/text.c:805
-#: ../src/fe-gnome/channel-list.c:329
+#: ../data/xchat-gnome.glade.h:5 ../src/common/text.c:527
+#: ../src/common/text.c:533 ../src/common/text.c:540 ../src/common/text.c:607
+#: ../src/common/text.c:733 ../src/common/text.c:740 ../src/common/text.c:745
+#: ../src/common/text.c:750 ../src/common/text.c:755 ../src/common/text.c:761
+#: ../src/common/text.c:766 ../src/common/text.c:770 ../src/common/text.c:776
+#: ../src/common/text.c:782 ../src/common/text.c:828 ../src/common/text.c:838
+#: ../src/common/text.c:843 ../src/common/text.c:848 ../src/common/text.c:857
+#: ../src/common/text.c:868 ../src/common/text.c:875 ../src/common/text.c:881
+#: ../src/common/text.c:886 ../src/common/text.c:891 ../src/common/text.c:898
+#: ../src/common/text.c:904 ../src/common/text.c:910 ../src/common/text.c:915
+#: ../src/common/text.c:920 ../src/common/text.c:924 ../src/common/text.c:930
+#: ../src/common/text.c:938 ../src/common/text.c:972 ../src/common/text.c:977
+msgid "Nickname"
+msgstr "暱稱"
+
+#: ../data/xchat-gnome.glade.h:6 ../src/common/text.c:805
+#: ../src/fe-gnome/channel-list.c:328 ../src/fe-gnome/userlist.c:325
 msgid "Users"
 msgstr "使用者"
 
-#: ../data/xchat-gnome.glade.h:6
+#: ../data/xchat-gnome.glade.h:7
 msgid "nickname"
 msgstr "暱稱"
-
-#: ../data/xchat-gnome.glade.h:7
-msgid "on all servers"
-msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:164
 msgid "Screensaver activated, going away."
@@ -425,15 +441,6 @@ msgstr "離開"
 #: ../plugins/autoaway/autoaway.c:213
 msgid "Automatically go away / come back"
 msgstr "自動取消暫離狀態"
-
-#. Hook up our callbacks.
-#: ../plugins/autoaway/autoaway.c:231
-msgid "Disconnected"
-msgstr "切斷連接(_D)"
-
-#: ../plugins/autoaway/autoaway.c:232
-msgid "Connected"
-msgstr "連接"
 
 #: ../plugins/autoaway/autoaway.c:261
 msgid "Auto-away plugin unloaded\n"
@@ -590,68 +597,76 @@ msgstr "阿根廷"
 msgid "The orientation of the tray."
 msgstr "此人的暱稱"
 
-#: ../plugins/notification/notification.c:153
+#: ../plugins/notification/notification.c:139
 msgid "Notification"
 msgstr "位置"
 
-#: ../plugins/notification/notification.c:154
+#: ../plugins/notification/notification.c:140
 msgid "A notification area plugin."
 msgstr ""
 
-#: ../plugins/notification/notification.c:225
+#: ../plugins/notification/notification.c:219
 msgid "Notification plugin loaded.\n"
 msgstr "找不到該外掛程式。\n"
 
-#: ../plugins/notification/notification.c:270
+#: ../plugins/notification/notification.c:269
 msgid "Notification plugin unloaded.\n"
 msgstr "找不到該外掛程式。\n"
 
 #: ../plugins/notification/notification.schemas.in.h:1
-msgid "Keep icon in tray at all times"
+msgid "Level of the messages that require a notification"
 msgstr ""
 
-#: ../plugins/notify-osd/notify-osd.c:29
+#: ../plugins/notification/notification.schemas.in.h:2
+msgid ""
+"Messages are classified according to their importance. Select level of "
+"messages above which the notification icon will be displayed. Valid values "
+"are: \"0\" (always displayed), \"1\" (all messages including information), "
+"\"2\" (all channel messages), \"3\" (only private or highlighted messages)."
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:30
 msgid "On-screen display"
 msgstr ""
 
-#: ../plugins/notify-osd/notify-osd.c:31
+#: ../plugins/notify-osd/notify-osd.c:32
 msgid ""
 "Pops up notification of important messages when XChat-GNOME doesn't have the "
 "focus"
 msgstr ""
 
-#: ../plugins/notify-osd/notify-osd.c:56
+#: ../plugins/notify-osd/notify-osd.c:57
 #, c-format
 msgid "Error closing notification: %s\n"
 msgstr ""
 
-#: ../plugins/notify-osd/notify-osd.c:71
+#: ../plugins/notify-osd/notify-osd.c:72
 #, c-format
 msgid "Failed to send notification: %s\n"
 msgstr ""
 
-#: ../plugins/notify-osd/notify-osd.c:112
-#: ../plugins/notify-osd/notify-osd.c:139
+#: ../plugins/notify-osd/notify-osd.c:113
+#: ../plugins/notify-osd/notify-osd.c:140
 #, c-format
 msgid "Message in %s"
 msgstr ""
 
-#: ../plugins/notify-osd/notify-osd.c:114
-#: ../plugins/notify-osd/notify-osd.c:141
+#: ../plugins/notify-osd/notify-osd.c:115
+#: ../plugins/notify-osd/notify-osd.c:142
 #, c-format
 msgid "Message from %s"
 msgstr ""
 
-#: ../plugins/notify-osd/notify-osd.c:160
+#: ../plugins/notify-osd/notify-osd.c:161
 #, c-format
 msgid "Private Message from %s"
 msgstr ""
 
-#: ../plugins/notify-osd/notify-osd.c:208
+#: ../plugins/notify-osd/notify-osd.c:209
 msgid "OSD loaded\n"
 msgstr ""
 
-#: ../plugins/notify-osd/notify-osd.c:212
+#: ../plugins/notify-osd/notify-osd.c:213
 msgid "OSD initialization failed\n"
 msgstr ""
 
@@ -669,7 +684,7 @@ msgstr "暱稱"
 
 #: ../plugins/url_scraper/urlscraper.c:68 ../src/common/text.c:552
 #: ../src/common/text.c:556 ../src/common/text.c:992
-#: ../src/fe-gnome/irc-network-editor.c:274
+#: ../src/fe-gnome/irc-network-editor.c:273
 msgid "Channel"
 msgstr "聊天室"
 
@@ -730,15 +745,15 @@ msgstr ""
 msgid "Cannot create ~/.xchat2"
 msgstr "無法建立~/.xchat2"
 
-#: ../src/common/cfgfiles.c:681
+#: ../src/common/cfgfiles.c:682
 msgid "I'm busy"
 msgstr "我很忙"
 
-#: ../src/common/cfgfiles.c:682
+#: ../src/common/cfgfiles.c:683
 msgid "Leaving"
 msgstr "暫離"
 
-#: ../src/common/cfgfiles.c:728
+#: ../src/common/cfgfiles.c:729
 msgid ""
 "* Running IRC as root is stupid! You should\n"
 "  create a User Account and use that to login.\n"
@@ -775,12 +790,12 @@ msgstr "連接"
 msgid "Aborted"
 msgstr "中止"
 
-#: ../src/common/dcc.c:1339
+#: ../src/common/dcc.c:1340
 #, c-format
 msgid "Cannot access %s\n"
 msgstr "無法存取 %s\n"
 
-#: ../src/common/dcc.c:2019
+#: ../src/common/dcc.c:2020
 msgid "No active DCCs\n"
 msgstr "沒有活躍的 DCC\n"
 
@@ -798,88 +813,88 @@ msgstr "是  "
 msgid "NO   "
 msgstr "否   "
 
-#: ../src/common/ignore.c:373
+#: ../src/common/ignore.c:370
 #, c-format
 msgid "You are being CTCP flooded from %s, ignoring %s\n"
 msgstr "您正受到來自 %s 的 CTCP flood 攻擊，忽略 %s\n"
 
-#: ../src/common/ignore.c:398
+#: ../src/common/ignore.c:395
 #, c-format
 msgid "You are being MSG flooded from %s, setting gui_auto_open_dialog OFF.\n"
 msgstr "您正受到來自 %s 的 MSG flood 攻擊，設定圖形化自動對話框為關閉。\n"
 
-#: ../src/common/notify.c:400
+#: ../src/common/notify.c:395
 #, c-format
 msgid "  %-20s online\n"
 msgstr "  %-20s 在線\n"
 
-#: ../src/common/notify.c:402
+#: ../src/common/notify.c:397
 #, c-format
 msgid "  %-20s offline\n"
 msgstr "  %-20s 離線\n"
 
-#: ../src/common/outbound.c:71
+#: ../src/common/outbound.c:72
 msgid "No channel joined. Try /join #<channel>\n"
 msgstr "沒有加入任何聊天室。請嘗試 /join #<channel>\n"
 
-#: ../src/common/outbound.c:77
+#: ../src/common/outbound.c:78
 msgid "Not connected. Try /server <host> [<port>]\n"
 msgstr "還未連接伺服器。請嘗試 /server <host> [<port>]\n"
 
-#: ../src/common/outbound.c:1647
+#: ../src/common/outbound.c:1650
 msgid "I need /bin/sh to run!\n"
 msgstr "使用 /bin/sh 才能執行本程式！\n"
 
-#: ../src/common/outbound.c:1975
+#: ../src/common/outbound.c:1983
 msgid "Commands Available:"
 msgstr "可用命令："
 
-#: ../src/common/outbound.c:1989
+#: ../src/common/outbound.c:1997
 msgid "User defined commands:"
 msgstr "使用者自訂命令："
 
-#: ../src/common/outbound.c:2005
+#: ../src/common/outbound.c:2013
 msgid "Plugin defined commands:"
 msgstr "使用者自訂命令："
 
-#: ../src/common/outbound.c:2016
+#: ../src/common/outbound.c:2024
 msgid "Type /HELP <command> for more information, or /HELP -l"
 msgstr "請鍵入 /HELP <command> 或者 /HELP -l 以獲取更多資訊"
 
-#: ../src/common/outbound.c:2091
+#: ../src/common/outbound.c:2099
 #, c-format
 msgid "Unknown arg '%s' ignored."
 msgstr "忽略未知引數「%s」。"
 
-#: ../src/common/outbound.c:2938
+#: ../src/common/outbound.c:2948
 msgid "No such plugin found.\n"
 msgstr "找不到該外掛程式。\n"
 
-#: ../src/common/outbound.c:2943
+#: ../src/common/outbound.c:2953
 msgid "That plugin is refusing to unload.\n"
 msgstr "無法卸載該外掛程式。\n"
 
-#: ../src/common/outbound.c:3178
+#: ../src/common/outbound.c:3188
 msgid "ADDBUTTON <name> <action>, adds a button under the user-list"
 msgstr "ADDBUTTON <name> <action>，在使用者列表下添加一個按鈕"
 
-#: ../src/common/outbound.c:3180
+#: ../src/common/outbound.c:3190
 msgid "ALLCHAN <cmd>, sends a command to all channels you're in"
 msgstr "ALLCHAN <cmd>，向您所在的所有聊天室發送命令"
 
-#: ../src/common/outbound.c:3182
+#: ../src/common/outbound.c:3192
 msgid "ALLCHANL <cmd>, sends a command to all channels you're in"
 msgstr "ALLCHANL <cmd>，向您所在的所有聊天室發送命令"
 
-#: ../src/common/outbound.c:3184
+#: ../src/common/outbound.c:3194
 msgid "ALLSERV <cmd>, sends a command to all servers you're in"
 msgstr "ALLSERV <cmd>，向您所在的所有伺服器發送命令"
 
-#: ../src/common/outbound.c:3185
+#: ../src/common/outbound.c:3195
 msgid "AWAY [<reason>], sets you away"
 msgstr "AWAY [<reason>]，設定您為暫離狀態"
 
-#: ../src/common/outbound.c:3187
+#: ../src/common/outbound.c:3197
 msgid ""
 "BAN <mask> [<bantype>], bans everyone matching the mask from the current "
 "channel. If they are already on the channel this doesn't kick them (needs "
@@ -888,20 +903,20 @@ msgstr ""
 "BAN <mask> [<bantype>]，禁止所有符合 mask 的使用者進入目前的聊天室。如果他們"
 "已在該聊天室，這個命令不會把他們踢出去(需要有 chanop 身分)"
 
-#: ../src/common/outbound.c:3189
+#: ../src/common/outbound.c:3199
 msgid "CLEAR, Clears the current text window"
 msgstr "CLEAR，清空目前文字視窗"
 
-#: ../src/common/outbound.c:3190
+#: ../src/common/outbound.c:3200
 msgid "CLOSE, Closes the current window/tab"
 msgstr "CLOSE，關閉目前視窗/分頁"
 
-#: ../src/common/outbound.c:3193
+#: ../src/common/outbound.c:3203
 msgid "COUNTRY [-s] <code|wildcard>, finds a country code, eg: au = australia"
 msgstr ""
 "COUNTRY [-s] <code|wildcard>，查看國家代碼對應的國家名，比如：tw = 臺灣"
 
-#: ../src/common/outbound.c:3195
+#: ../src/common/outbound.c:3205
 msgid ""
 "CTCP <nick> <message>, send the CTCP message to nick, common messages are "
 "VERSION and USERINFO"
@@ -909,11 +924,11 @@ msgstr ""
 "CTCP <nick> <message>，給暱稱為 <nick> 者發送 CTCP 訊息，常用訊息是 VERSION "
 "和 USERINFO"
 
-#: ../src/common/outbound.c:3197
+#: ../src/common/outbound.c:3207
 msgid "CYCLE, parts current channel and immediately rejoins"
 msgstr "CYCLE，離開目前聊天室並立即重新加入"
 
-#: ../src/common/outbound.c:3199
+#: ../src/common/outbound.c:3209
 msgid ""
 "\n"
 "DCC GET <nick>                      - accept an offered file\n"
@@ -935,7 +950,7 @@ msgstr ""
 "DCC CLOSE <type> <nick> <file>         例如：\n"
 "         /dcc close send johnsmith file.tar.gz"
 
-#: ../src/common/outbound.c:3211
+#: ../src/common/outbound.c:3221
 msgid ""
 "DEHOP <nick>, removes chanhalf-op status from the nick on the current "
 "channel (needs chanop)"
@@ -943,37 +958,37 @@ msgstr ""
 "DEHOP <nick>，取消目前聊天室內暱稱為 <nick> 者的 chanhalf-op 身分(需要有 "
 "chanop 身分)"
 
-#: ../src/common/outbound.c:3213
+#: ../src/common/outbound.c:3223
 msgid "DELBUTTON <name>, deletes a button from under the user-list"
 msgstr "DELBUTTON <name>，刪除使用者列表下的一個按鈕"
 
-#: ../src/common/outbound.c:3215
+#: ../src/common/outbound.c:3225
 msgid ""
 "DEOP <nick>, removes chanop status from the nick on the current channel "
 "(needs chanop)"
 msgstr ""
 "DEOP <nick>，取消暱稱為 <nick> 者在本聊天室的 chanop 身分(需要有 chanop 身分)"
 
-#: ../src/common/outbound.c:3217
+#: ../src/common/outbound.c:3227
 msgid ""
 "DEVOICE <nick>, removes voice status from the nick on the current channel "
 "(needs chanop)"
 msgstr ""
 "DEVOICE <nick>，取消暱稱為 <nick> 者在本聊天室的發言權(需要有 chanop 身分)"
 
-#: ../src/common/outbound.c:3218
+#: ../src/common/outbound.c:3228
 msgid "DISCON, Disconnects from server"
 msgstr "DISCON，切斷和伺服器的連接"
 
-#: ../src/common/outbound.c:3219
+#: ../src/common/outbound.c:3229
 msgid "DNS <nick|host|ip>, Finds a users IP number"
 msgstr "DNS <nick|host|ip>, 查詢某位使用者的 IP 位址"
 
-#: ../src/common/outbound.c:3220
+#: ../src/common/outbound.c:3230
 msgid "ECHO <text>, Prints text locally"
 msgstr "ECHO <text>，只在本地顯示文字"
 
-#: ../src/common/outbound.c:3223
+#: ../src/common/outbound.c:3233
 msgid ""
 "EXEC [-o] <command>, runs the command. If -o flag is used then output is "
 "sent to current channel, else is printed to current text box"
@@ -981,11 +996,11 @@ msgstr ""
 "EXEC [-o] <command>，執行命令。如果使用了 -o 選項則輸出到目前聊天室，否則輸出"
 "到目前文字框"
 
-#: ../src/common/outbound.c:3225
+#: ../src/common/outbound.c:3235
 msgid "EXECCONT, sends the process SIGCONT"
 msgstr "EXECCONT，向行程發送 SIGCONT 信號"
 
-#: ../src/common/outbound.c:3228
+#: ../src/common/outbound.c:3238
 msgid ""
 "EXECKILL [-9], kills a running exec in the current session. If -9 is given "
 "the process is SIGKILL'ed"
@@ -993,35 +1008,35 @@ msgstr ""
 "EXECKILL [-9]，砍掉目前會話中的某執行行程。如果使用 -9 選項，則用 SIGKILL 砍"
 "掉該行程"
 
-#: ../src/common/outbound.c:3230
+#: ../src/common/outbound.c:3240
 msgid "EXECSTOP, sends the process SIGSTOP"
 msgstr "EXECSTOP，向行程發送 SIGSTOP 信號"
 
-#: ../src/common/outbound.c:3231
+#: ../src/common/outbound.c:3241
 msgid "EXECWRITE, sends data to the processes stdin"
 msgstr "EXECWRITE，把資料發送給行程的標準輸入"
 
-#: ../src/common/outbound.c:3235
+#: ../src/common/outbound.c:3245
 msgid "FLUSHQ, flushes the current server's send queue"
 msgstr "FLUSHQ，排空目前伺服器的發送佇列"
 
-#: ../src/common/outbound.c:3237
+#: ../src/common/outbound.c:3247
 msgid "GATE <host> [<port>], proxies through a host, port defaults to 23"
 msgstr "GATE <host> [<port>]，經由某主機來代理，預設輸出入埠為 23"
 
-#: ../src/common/outbound.c:3240
+#: ../src/common/outbound.c:3250
 msgid "GHOST <nick> <password>, Kills a ghosted nickname"
 msgstr "GHOST <nick> <password>，砍掉已無息消失的暱稱"
 
-#: ../src/common/outbound.c:3244
+#: ../src/common/outbound.c:3255
 msgid "HOP <nick>, gives chanhalf-op status to the nick (needs chanop)"
 msgstr "HOP <nick>，給暱稱為 <nick> 者以 chanhalf-op 身分 (需要有 chanop 身分)"
 
-#: ../src/common/outbound.c:3245
+#: ../src/common/outbound.c:3256
 msgid "ID <password>, identifies yourself to nickserv"
 msgstr "ID <password>，向暱稱伺服器表明您自己的身分"
 
-#: ../src/common/outbound.c:3247
+#: ../src/common/outbound.c:3258
 msgid ""
 "IGNORE <mask> <types..> <options..>\n"
 "    mask - host mask to ignore, eg: *!*@*.aol.com\n"
@@ -1035,7 +1050,7 @@ msgstr ""
 "            PRIV，CHAN，NOTI，CTCP，INVI，ALL\n"
 "    options - NOSAVE, QUIET"
 
-#: ../src/common/outbound.c:3254
+#: ../src/common/outbound.c:3265
 msgid ""
 "INVITE <nick> [<channel>], invites someone to a channel, by default the "
 "current channel (needs chanop)"
@@ -1043,15 +1058,15 @@ msgstr ""
 "INVITE <nick> [<channel>]，邀請暱稱為 <nick> 者加入聊天室，預設為目前聊天室"
 "(需要有 chanop 身分)"
 
-#: ../src/common/outbound.c:3255
+#: ../src/common/outbound.c:3266
 msgid "JOIN <channel>, joins the channel"
 msgstr "JOIN <channel>，加入聊天室"
 
-#: ../src/common/outbound.c:3257
+#: ../src/common/outbound.c:3268
 msgid "KICK <nick>, kicks the nick from the current channel (needs chanop)"
 msgstr "KICK <nick>，把暱稱為 <nick> 者踢出目前聊天室(需要有 chanop 身分)"
 
-#: ../src/common/outbound.c:3259
+#: ../src/common/outbound.c:3270
 msgid ""
 "KICKBAN <nick>, bans then kicks the nick from the current channel (needs "
 "chanop)"
@@ -1059,28 +1074,28 @@ msgstr ""
 "KICKBAN <nick>，把暱稱為 <nick> 者踢出目前聊天室，並禁止他再進入(需要有 "
 "chanop 身分)"
 
-#: ../src/common/outbound.c:3262
+#: ../src/common/outbound.c:3273
 msgid "LAGCHECK, forces a new lag check"
 msgstr "LAGCHECK，強制進行新的延遲檢查"
 
-#: ../src/common/outbound.c:3264
+#: ../src/common/outbound.c:3275
 msgid "LASTLOG <string>, searches for a string in the buffer"
 msgstr "LASTLOG <string>，在緩衝區中搜索字串"
 
-#: ../src/common/outbound.c:3266
+#: ../src/common/outbound.c:3277
 msgid "LOAD [-e] <file>, loads a plugin or script"
 msgstr "LOAD [-e] <file>，載入外掛程式或命令稿"
 
-#: ../src/common/outbound.c:3269
+#: ../src/common/outbound.c:3280
 msgid ""
 "MDEHOP, Mass deop's all chanhalf-ops in the current channel (needs chanop)"
 msgstr "MDEHOP，取消目前聊天室中所有 chanhalf-op 的權限 (需要有 chanop 身分)"
 
-#: ../src/common/outbound.c:3271
+#: ../src/common/outbound.c:3282
 msgid "MDEOP, Mass deop's all chanops in the current channel (needs chanop)"
 msgstr "MDEOP，取消目前聊天室中所有 chanop 的權限 (需要有 chanop 身分)"
 
-#: ../src/common/outbound.c:3273
+#: ../src/common/outbound.c:3284
 msgid ""
 "ME <action>, sends the action to the current channel (actions are written in "
 "the 3rd person, like /me jumps)"
@@ -1088,72 +1103,72 @@ msgstr ""
 "ME <action>，向目前聊天室中發送一個動作 (動作使用第三人稱陳述，例如 /me "
 "jumps)"
 
-#: ../src/common/outbound.c:3276
+#: ../src/common/outbound.c:3287
 msgid ""
 "MKICK, Mass kicks everyone except you in the current channel (needs chanop)"
 msgstr "MKICK，踢出目前聊天室中除您自己之外的所有使用者 (需要有 chanop 身分)"
 
-#: ../src/common/outbound.c:3279
+#: ../src/common/outbound.c:3290
 msgid "MOP, Mass op's all users in the current channel (needs chanop)"
 msgstr "MOP，給本聊天室中所有使用者 chanop 身分(需要有 chanop 身分)"
 
-#: ../src/common/outbound.c:3280
+#: ../src/common/outbound.c:3291
 msgid "MSG <nick> <message>, sends a private message"
 msgstr "MSG <nick> <message>，給暱稱為 <nick> 者發送一則悄悄話"
 
-#: ../src/common/outbound.c:3283
+#: ../src/common/outbound.c:3294
 msgid "NAMES, Lists the nicks on the current channel"
 msgstr "NAMES，列出目前聊天室的所有使用者暱稱"
 
-#: ../src/common/outbound.c:3285
+#: ../src/common/outbound.c:3296
 msgid "NCTCP <nick> <message>, Sends a CTCP notice"
 msgstr "NCTCP <nick> <message>，給暱稱為 <nick> 者發送一則 CTCP 通知"
 
-#: ../src/common/outbound.c:3286
+#: ../src/common/outbound.c:3297
 msgid "NEWSERVER [-noconnect] <hostname> [<port>]"
 msgstr "NEWSERVER <hostname> [<port>]"
 
-#: ../src/common/outbound.c:3287
+#: ../src/common/outbound.c:3298
 msgid "NICK <nickname>, sets your nick"
 msgstr "NICK <nickname>，設定您的暱稱"
 
-#: ../src/common/outbound.c:3290
+#: ../src/common/outbound.c:3301
 msgid ""
 "NOTICE <nick/channel> <message>, sends a notice. Notices are a type of "
 "message that should be auto reacted to"
 msgstr ""
 "NOTICE <nick/channel> <message>，發送一則通知。通知是一種能被自動回應的訊息"
 
-#: ../src/common/outbound.c:3292
+#: ../src/common/outbound.c:3303
 msgid "NOTIFY [<nick>], lists your notify list or adds someone to it"
 msgstr "NOTIFY [<nick>]，列出您的通知列表，或在列表中添加某人"
 
-#: ../src/common/outbound.c:3294
+#: ../src/common/outbound.c:3305
 msgid "OP <nick>, gives chanop status to the nick (needs chanop)"
 msgstr "OP <nick>，給予暱稱為 <nick> 者 chanop 身分 (需要有 chanop 身分)"
 
-#: ../src/common/outbound.c:3296
+#: ../src/common/outbound.c:3307
 msgid ""
 "PART [<channel>] [<reason>], leaves the channel, by default the current one"
 msgstr "PART [<channel>] [<reason>]，離開聊天室，預設為目前的聊天室"
 
-#: ../src/common/outbound.c:3298
+#: ../src/common/outbound.c:3309
 msgid "PING <nick | channel>, CTCP pings nick or channel"
 msgstr "PING <nick | channel>，CTCP ping 某位使用者或聊天室"
 
-#: ../src/common/outbound.c:3300
+#: ../src/common/outbound.c:3311
 msgid "QUERY <nick>, opens up a new privmsg window to someone"
 msgstr "QUERY <暱稱>，跟某人打開一個悄悄話視窗"
 
-#: ../src/common/outbound.c:3302
+#: ../src/common/outbound.c:3313
 msgid "QUIT [<reason>], disconnects from the current server"
 msgstr "QUIT [<reason>]，切斷與目前伺服器的連接"
 
-#: ../src/common/outbound.c:3304
+#: ../src/common/outbound.c:3315
 msgid "QUOTE <text>, sends the text in raw form to the server"
 msgstr "QUOTE <text>，向伺服器發送原始格式的文字"
 
-#: ../src/common/outbound.c:3307
+#: ../src/common/outbound.c:3318
 msgid ""
 "RECONNECT [-ssl] [<host>] [<port>] [<password>], Can be called just as /"
 "RECONNECT to reconnect to the current server or with /RECONNECT ALL to "
@@ -1162,7 +1177,7 @@ msgstr ""
 "RECONNECT [-ssl] [<host>] [<port>] [<password>]，可用 /RECONNECT 重新連接目前"
 "伺服器或用 /RECONNECT ALL 重新連接所有伺服器"
 
-#: ../src/common/outbound.c:3310
+#: ../src/common/outbound.c:3321
 msgid ""
 "RECONNECT [<host>] [<port>] [<password>], Can be called just as /RECONNECT "
 "to reconnect to the current server or with /RECONNECT ALL to reconnect to "
@@ -1171,30 +1186,30 @@ msgstr ""
 "RECONNECT [<host>] [<port>] [<password>]，可用 /RECONNECT 重新連接目前伺服器"
 "或用 /RECONNECT ALL 重新連接所有伺服器"
 
-#: ../src/common/outbound.c:3312
+#: ../src/common/outbound.c:3323
 msgid ""
 "RECV <text>, send raw data to xchat, as if it was received from the irc "
 "server"
 msgstr ""
 "RECV <text>，向 xchat 發送原始資料，就好像它是從 irc 伺服器上接收到的一樣"
 
-#: ../src/common/outbound.c:3315
+#: ../src/common/outbound.c:3326
 msgid "SAY <text>, sends the text to the object in the current window"
 msgstr "SAY <text>，向目前視窗中的對象發送文字"
 
-#: ../src/common/outbound.c:3316
+#: ../src/common/outbound.c:3327
 msgid "SEND <nick> [<file>]"
 msgstr "SEND <nick> [<file>]"
 
-#: ../src/common/outbound.c:3319
+#: ../src/common/outbound.c:3330
 msgid "SERVCHAN [-ssl] <host> <port> <channel>, connects and joins a channel"
 msgstr "SERVCHAN [-ssl] <host> <port> <channel>，連接伺服器並加入某聊天室"
 
-#: ../src/common/outbound.c:3322
+#: ../src/common/outbound.c:3333
 msgid "SERVCHAN <host> <port> <channel>, connects and joins a channel"
 msgstr "SERVCHAN <host> <port> <channel>，連接伺服器並加入某聊天室"
 
-#: ../src/common/outbound.c:3326
+#: ../src/common/outbound.c:3337
 msgid ""
 "SERVER [-ssl] <host> [<port>] [<password>], connects to a server, the "
 "default port is 6667 for normal connections, and 9999 for ssl connections"
@@ -1202,66 +1217,66 @@ msgstr ""
 "SERVER [-ssl] <host> [<port>] [<password>]，連接伺服器。普通連線預設輸出入埠"
 "為 6667，SSL 加密連線預設輸出入埠為 9999"
 
-#: ../src/common/outbound.c:3329
+#: ../src/common/outbound.c:3340
 msgid ""
 "SERVER <host> [<port>] [<password>], connects to a server, the default port "
 "is 6667"
 msgstr "SERVER <host> [<port>] [<password>]，連接伺服器。預設輸出入埠為 6667"
 
-#: ../src/common/outbound.c:3331
+#: ../src/common/outbound.c:3342
 msgid "SET [-quiet] <variable> [<value>]"
 msgstr "SET [-quiet] <variable> [<value>]"
 
-#: ../src/common/outbound.c:3332
+#: ../src/common/outbound.c:3343
 msgid "SETCURSOR [-|+]<position>"
 msgstr "SETCURSOR [-|+]<position>"
 
-#: ../src/common/outbound.c:3336
+#: ../src/common/outbound.c:3347
 msgid ""
 "TOPIC [<topic>], sets the topic if one is given, else shows the current topic"
 msgstr "TOPIC [<topic>]，設定話題為指定話題，如果未指定則顯示目前話題"
 
-#: ../src/common/outbound.c:3338
+#: ../src/common/outbound.c:3349
 msgid "UNBAN <mask> [<mask>...], unbans the specified masks."
 msgstr "UNBAN <mask> [<mask>...]，解禁指定的遮罩。"
 
-#: ../src/common/outbound.c:3339
+#: ../src/common/outbound.c:3350
 msgid "UNIGNORE <mask> [QUIET]"
 msgstr "UNIGNORE <mask> [QUIET]"
 
-#: ../src/common/outbound.c:3340
+#: ../src/common/outbound.c:3351
 msgid "UNLOAD <name>, unloads a plugin or script"
 msgstr "UNLOAD <name>，卸載外掛程式或命令稿"
 
-#: ../src/common/outbound.c:3341
+#: ../src/common/outbound.c:3352
 msgid "URL <url>, opens a URL in your browser"
 msgstr "URL <url>，在您的瀏覽器中開啟 <url>"
 
-#: ../src/common/outbound.c:3343
+#: ../src/common/outbound.c:3354
 msgid ""
 "USELECT [-a] [-s] <nick1> <nick2> etc, highlights nick(s) in channel userlist"
 msgstr ""
 "USELECT [-a] [-s] <nick1> <nick2>...，在聊天室使用者列表中以高亮度標示暱稱"
 
-#: ../src/common/outbound.c:3346
+#: ../src/common/outbound.c:3357
 msgid "VOICE <nick>, gives voice status to someone (needs chanop)"
 msgstr "VOICE <nick>，給予暱稱為 <nick> 者發言權(需要有 chanop 身分)"
 
-#: ../src/common/outbound.c:3348
+#: ../src/common/outbound.c:3359
 msgid "WALLCHAN <message>, writes the message to all channels"
 msgstr "WALLCHAN <message>，發送訊息到所有的聊天室"
 
-#: ../src/common/outbound.c:3350
+#: ../src/common/outbound.c:3361
 msgid ""
 "WALLCHOP <message>, sends the message to all chanops on the current channel"
 msgstr "WALLCHOP <message>，給目前聊天室中所有 chanop 發送訊息"
 
-#: ../src/common/outbound.c:3383
+#: ../src/common/outbound.c:3394
 #, c-format
 msgid "Usage: %s\n"
 msgstr "用法：%s\n"
 
-#: ../src/common/outbound.c:3388
+#: ../src/common/outbound.c:3399
 msgid ""
 "\n"
 "No help available on that command.\n"
@@ -1269,19 +1284,19 @@ msgstr ""
 "\n"
 "沒有關於該命令的求助資訊。\n"
 
-#: ../src/common/outbound.c:3394
+#: ../src/common/outbound.c:3405
 msgid "No such command.\n"
 msgstr "無此命令。\n"
 
-#: ../src/common/outbound.c:3721
+#: ../src/common/outbound.c:3732
 msgid "Bad arguments for user command.\n"
 msgstr "使用者命令的引數不對。\n"
 
-#: ../src/common/outbound.c:3885
+#: ../src/common/outbound.c:3888
 msgid "Too many recursive usercommands, aborting."
 msgstr "太多遞迴的使用者命令，中止。"
 
-#: ../src/common/outbound.c:3962
+#: ../src/common/outbound.c:3965
 msgid "Unknown Command. Try /help\n"
 msgstr "未知命令。請嘗試 /help\n"
 
@@ -1306,12 +1321,12 @@ msgstr ""
 msgid "Proxy traversal failed.\n"
 msgstr "代理傳送失敗。\n"
 
-#: ../src/common/servlist.c:634
+#: ../src/common/servlist.c:636
 #, c-format
 msgid "Cycling to next server in %s...\n"
 msgstr "輪跳至 %s 的下一個伺服器中...\n"
 
-#: ../src/common/servlist.c:1053
+#: ../src/common/servlist.c:1059
 #, c-format
 msgid ""
 "Warning: \"%s\" character set is unknown. No conversion will be applied for "
@@ -1357,21 +1372,6 @@ msgstr "加入的聊天室"
 msgid "The host of the person"
 msgstr "此人的主機"
 
-#: ../src/common/text.c:527 ../src/common/text.c:533 ../src/common/text.c:540
-#: ../src/common/text.c:607 ../src/common/text.c:733 ../src/common/text.c:740
-#: ../src/common/text.c:745 ../src/common/text.c:750 ../src/common/text.c:755
-#: ../src/common/text.c:761 ../src/common/text.c:766 ../src/common/text.c:770
-#: ../src/common/text.c:776 ../src/common/text.c:782 ../src/common/text.c:828
-#: ../src/common/text.c:838 ../src/common/text.c:843 ../src/common/text.c:848
-#: ../src/common/text.c:857 ../src/common/text.c:868 ../src/common/text.c:875
-#: ../src/common/text.c:881 ../src/common/text.c:886 ../src/common/text.c:891
-#: ../src/common/text.c:898 ../src/common/text.c:904 ../src/common/text.c:910
-#: ../src/common/text.c:915 ../src/common/text.c:920 ../src/common/text.c:924
-#: ../src/common/text.c:930 ../src/common/text.c:938 ../src/common/text.c:972
-#: ../src/common/text.c:977
-msgid "Nickname"
-msgstr "暱稱"
-
 #: ../src/common/text.c:528
 msgid "The action"
 msgstr "動作"
@@ -1406,7 +1406,7 @@ msgid "Nick of person who changed the topic"
 msgstr "更改話題的使用者"
 
 #: ../src/common/text.c:551 ../src/common/text.c:557
-#: ../src/fe-gnome/channel-list.c:334
+#: ../src/fe-gnome/channel-list.c:333
 msgid "Topic"
 msgstr "話題"
 
@@ -1643,7 +1643,7 @@ msgstr "真實 IP"
 
 #: ../src/common/text.c:789 ../src/common/text.c:798 ../src/common/text.c:804
 #: ../src/common/text.c:833 ../src/common/text.c:987
-#: ../src/fe-gnome/channel-list.c:324
+#: ../src/fe-gnome/channel-list.c:323
 msgid "Channel Name"
 msgstr "聊天室名"
 
@@ -1667,6 +1667,14 @@ msgstr "暱稱已被使用"
 #: ../src/common/text.c:810
 msgid "Nick being tried"
 msgstr "已試用過的暱稱"
+
+#. ! if (osvi.dwMajorVersion >= 5)
+#. fallback to error number
+#: ../src/common/text.c:814 ../src/common/text.c:851 ../src/common/text.c:862
+#: ../src/common/text.c:869 ../src/common/text.c:882 ../src/common/text.c:899
+#: ../src/common/text.c:999 ../src/common/util.c:352
+msgid "Error"
+msgstr "錯誤"
 
 #: ../src/common/text.c:819 ../src/common/text.c:954
 msgid "IP"
@@ -1781,7 +1789,7 @@ msgstr ""
 "解析事件 %s 時出錯。\n"
 "載入預設值。"
 
-#: ../src/common/text.c:1714
+#: ../src/common/text.c:1712
 #, c-format
 msgid ""
 "Cannot read sound file:\n"
@@ -3383,6 +3391,7 @@ msgid "Zimbabwe"
 msgstr "辛巴威"
 
 #: ../src/common/util.c:1104 ../src/common/util.c:1114
+#: ../src/fe-gnome/userlist-gui.c:398
 msgid "Unknown"
 msgstr "未知"
 
@@ -3500,7 +3509,7 @@ msgstr "給准管理員權限"
 msgid "Take Half-Ops"
 msgstr "取消准管理員權限"
 
-#: ../src/common/xchat.c:839 ../src/fe-gnome/userlist-gui.c:54
+#: ../src/common/xchat.c:839 ../src/fe-gnome/userlist-gui.c:64
 msgid "Ignore"
 msgstr "忽略"
 
@@ -3609,39 +3618,48 @@ msgstr "聊天"
 msgid "Clear"
 msgstr "清除"
 
-#: ../src/fe-gnome/about.c:66
+#: ../src/fe-gnome/about.c:64
 msgid ""
-"X-Chat GNOME is free software; you can redistribute it and/or modify\n"
-"it under the terms of the GNU General Public License as published by\n"
-"the Free Software Foundation; either version 2 of the License, or\n"
-"(at your option) any later version.\n"
+"X-Chat GNOME is free software; you can redistribute it and/or modify it "
+"under the terms of the GNU General Public License as published by the Free "
+"Software Foundation; either version 2 of the License, or (at your option) "
+"any later version."
 msgstr ""
 
-#: ../src/fe-gnome/about.c:70
+#: ../src/fe-gnome/about.c:68
 msgid ""
-"X-Chat GNOME is distributed in the hope that it will be useful,\n"
-"but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-"GNU General Public License for more details.\n"
+"X-Chat GNOME is distributed in the hope that it will be useful, but WITHOUT "
+"ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
+"FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for "
+"more details."
 msgstr ""
 
-#: ../src/fe-gnome/about.c:74
+#: ../src/fe-gnome/about.c:72
 msgid ""
-"You should have received a copy of the GNU General Public License\n"
-"along with X-Chat GNOME; if not, write to the Free Software Foundation, "
-"Inc.,\n"
-"59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
+"You should have received a copy of the GNU General Public License along with "
+"X-Chat GNOME; if not, write to the Free Software Foundation, Inc., 59 Temple "
+"Place, Suite 330, Boston, MA  02111-1307  USA"
 msgstr ""
 
-#: ../src/fe-gnome/about.c:94
+#: ../src/fe-gnome/about.c:85
 msgid "Copyright © 2004-2006"
 msgstr ""
 
-#: ../src/fe-gnome/about.c:95
+#. Translators: This is a random, mostly-meaningless
+#. * quotation from Jeeves & Wooster.  Either leave it
+#. * be or replace it with something funny (but inoffensive)
+#. * in your own language, but don't translate it literally.
+#.
+#: ../src/fe-gnome/about.c:91
 msgid ""
 "It has been well observed that a trombone is not a suitable instrument for a "
 "gentleman"
 msgstr ""
+
+#: ../src/fe-gnome/about.c:95
+#, fuzzy
+msgid "XChat-GNOME Web Site"
+msgstr "XChat： DCC 交談列表"
 
 #. Translators: This is a special message that shouldn't
 #. * be translated literally. It is used in the about box
@@ -3652,7 +3670,7 @@ msgstr ""
 #. * write each of them on a separated line seperated by
 #. * newlines (\n).
 #.
-#: ../src/fe-gnome/about.c:111
+#: ../src/fe-gnome/about.c:109
 msgid "translator-credits"
 msgstr ""
 
@@ -3673,150 +3691,158 @@ msgid "Default real name used by servers without special options set"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:5
-msgid "Font for the main window"
+msgid "Enable spellchecking"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:6
-msgid "Height of the channel list"
+msgid "Font for the main window"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:7
-msgid "Height of the main window"
+msgid "Height of the channel list"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:8
-msgid "List of enabled plugins"
+msgid "Height of the main window"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:9
-msgid "Message sent on away"
-msgstr "訊息"
+msgid "Languages to use for spellchecking"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:10
-msgid "Message sent on channel part"
+msgid "List of enabled plugins"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:11
-msgid "Message sent on quit"
+msgid "Message sent on away"
 msgstr "訊息"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:12
-msgid "Position of the horizontal pane in the main window"
+msgid "Message sent on channel part"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:13
-msgid "Selected background type"
-msgstr ""
+msgid "Message sent on quit"
+msgstr "訊息"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:14
-msgid "Selected color scheme"
+msgid "Position of the horizontal pane in the main window"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:15
-msgid "Show colors in the main window"
+msgid "Selected background type"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:16
+msgid "Selected color scheme"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:17
+msgid "Show colors in the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:18
 msgid "Show timestamps in the main window"
 msgstr "打開時間戳記"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:17
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:19
 msgid "Use system fonts"
 msgstr "使用者列表"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:18
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:20
 msgid "Width of the main window"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:19
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:21
 msgid "X position of the main window on the screen"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:20
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:22
 msgid "Y position of the main window on the screen"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:21
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:23
 msgid "xchat configuration version"
 msgstr ""
 
-#: ../src/fe-gnome/channel-list.c:297
+#: ../src/fe-gnome/channel-list.c:296
 #, c-format
 msgid "%s Channel List"
 msgstr ""
 
 #. IRC menu
-#: ../src/fe-gnome/connect-dialog.c:132 ../src/fe-gnome/main-window.c:110
+#: ../src/fe-gnome/connect-dialog.c:132 ../src/fe-gnome/main-window.c:107
 msgid "_Connect"
 msgstr "連接"
 
-#: ../src/fe-gnome/conversation-panel.c:132
+#: ../src/fe-gnome/conversation-panel.c:155
 msgid "_Open Link in Browser"
 msgstr "在瀏覽器中開啟連結"
 
-#: ../src/fe-gnome/conversation-panel.c:133
+#: ../src/fe-gnome/conversation-panel.c:156
 msgid "_Copy Link Location"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:137
+#: ../src/fe-gnome/conversation-panel.c:160
 msgid "Se_nd Message To..."
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:138
+#: ../src/fe-gnome/conversation-panel.c:161
 msgid "_Copy Address"
 msgstr "您的位址"
 
-#: ../src/fe-gnome/conversation-panel.c:142
+#: ../src/fe-gnome/conversation-panel.c:165
 msgid "_Send File"
 msgstr "發送檔案"
 
-#: ../src/fe-gnome/conversation-panel.c:143
+#: ../src/fe-gnome/conversation-panel.c:166
 msgid "Paste File _Contents"
 msgstr "內容(_C)"
 
-#: ../src/fe-gnome/conversation-panel.c:144
+#: ../src/fe-gnome/conversation-panel.c:167
 msgid "Paste File_name"
 msgstr "新檔案名"
 
-#: ../src/fe-gnome/conversation-panel.c:145
+#: ../src/fe-gnome/conversation-panel.c:168
 msgid "_Cancel"
 msgstr "取消"
 
-#: ../src/fe-gnome/conversation-panel.c:149 ../src/fe-gnome/main-window.c:116
+#: ../src/fe-gnome/conversation-panel.c:172 ../src/fe-gnome/main-window.c:113
 msgid "_Copy"
 msgstr "複製"
 
-#: ../src/fe-gnome/conversation-panel.c:605
+#: ../src/fe-gnome/conversation-panel.c:747
 #, c-format
 msgid "URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:697
+#: ../src/fe-gnome/conversation-panel.c:839
 #, c-format
 msgid "Error reading file \"%s\": %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:712
+#: ../src/fe-gnome/conversation-panel.c:854
 #, c-format
 msgid "Error converting URI \"%s\" into filename: %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:755
+#: ../src/fe-gnome/conversation-panel.c:897
 #, c-format
 msgid "Error retrieving file information for \"%s\": %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:816
+#: ../src/fe-gnome/conversation-panel.c:959
 msgid "Save Transcript"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:842
-#: ../src/fe-gnome/conversation-panel.c:852
+#: ../src/fe-gnome/conversation-panel.c:985
+#: ../src/fe-gnome/conversation-panel.c:995
 #, c-format
 msgid "Error saving %s"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:970
+#: ../src/fe-gnome/conversation-panel.c:1113
 msgid "Search buffer is empty.\n"
 msgstr "搜索緩衝區目前無內容。\n"
 
@@ -3833,16 +3859,23 @@ msgstr "檔案"
 msgid "Remaining"
 msgstr "暫離"
 
-#: ../src/fe-gnome/dcc-window.c:238
+#: ../src/fe-gnome/dcc-window.c:228
+#, fuzzy
+msgid "Incoming File Transfer"
+msgstr "檔案傳輸"
+
+#: ../src/fe-gnome/dcc-window.c:229
+msgid "_Accept"
+msgstr "接受"
+
+#: ../src/fe-gnome/dcc-window.c:230
 #, c-format
 msgid ""
-"<span weight=\"bold\" size=\"larger\">Incoming File Transfer</span>\n"
-"\n"
-"%s is attempting to send you a file named \"%s\".  Do you wish to accept the "
+"%s is attempting to send you a file named \"%s\". Do you wish to accept the "
 "transfer?"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:260
+#: ../src/fe-gnome/dcc-window.c:250
 #, c-format
 msgid ""
 "<b>%s</b>\n"
@@ -3850,11 +3883,11 @@ msgid ""
 "%s of %s"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:271
+#: ../src/fe-gnome/dcc-window.c:261
 msgid "starting"
 msgstr "等待"
 
-#: ../src/fe-gnome/dcc-window.c:301
+#: ../src/fe-gnome/dcc-window.c:291
 #, c-format
 msgid ""
 "<b>%s</b>\n"
@@ -3862,39 +3895,39 @@ msgid ""
 "%s of %s at %s/s"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:308
+#: ../src/fe-gnome/dcc-window.c:298
 msgid "queued"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:313
+#: ../src/fe-gnome/dcc-window.c:303
 #, c-format
 msgid "Transfer of %s to %s failed"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:315
+#: ../src/fe-gnome/dcc-window.c:305
 #, c-format
 msgid "Transfer of %s from %s failed"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:316
+#: ../src/fe-gnome/dcc-window.c:306
 msgid "Transfer failed"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:325
+#: ../src/fe-gnome/dcc-window.c:315
 msgid "stalled"
 msgstr "失敗"
 
-#: ../src/fe-gnome/dcc-window.c:329
+#: ../src/fe-gnome/dcc-window.c:319
 #, c-format
 msgid "%.2d:%.2d:%.2d"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:331
+#: ../src/fe-gnome/dcc-window.c:321
 #, c-format
 msgid "%.2d:%.2d"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:444
+#: ../src/fe-gnome/dcc-window.c:434
 msgid "Send File..."
 msgstr "發送檔案"
 
@@ -3914,7 +3947,7 @@ msgstr "不自動載入任何外掛程式"
 msgid "Show version information"
 msgstr "顯示版本資訊"
 
-#: ../src/fe-gnome/fe-gnome.c:102
+#: ../src/fe-gnome/fe-gnome.c:110
 #, c-format
 msgid ""
 "xchat-gnome: %s\n"
@@ -3923,7 +3956,7 @@ msgstr ""
 "xchat-gnome: %s\n"
 "試試 `xchat-gnome --help' 以獲得更多資訊\n"
 
-#: ../src/fe-gnome/fe-gnome.c:839
+#: ../src/fe-gnome/fe-gnome.c:862
 #, c-format
 msgid "Unable to show '%s'"
 msgstr ""
@@ -3954,43 +3987,43 @@ msgstr ""
 msgid "<span foreground=\"red\">Search string not found</span>"
 msgstr ""
 
-#: ../src/fe-gnome/irc-network-editor.c:269
+#: ../src/fe-gnome/irc-network-editor.c:268
 msgid "Server"
 msgstr "伺服器"
 
 #. We're creating a new network. Don't populate things from the structure
-#: ../src/fe-gnome/irc-network-editor.c:388
+#: ../src/fe-gnome/irc-network-editor.c:380
 msgid "New Network"
 msgstr ""
 
-#: ../src/fe-gnome/irc-network-editor.c:396
+#: ../src/fe-gnome/irc-network-editor.c:388
 #, c-format
 msgid "%s Network Properties"
 msgstr ""
 
-#: ../src/fe-gnome/irc-network-editor.c:519
-#: ../src/fe-gnome/irc-network-editor.c:526
-#: ../src/fe-gnome/irc-network-editor.c:532
+#: ../src/fe-gnome/irc-network-editor.c:511
+#: ../src/fe-gnome/irc-network-editor.c:518
+#: ../src/fe-gnome/irc-network-editor.c:524
 msgid "Invalid input"
 msgstr ""
 
-#: ../src/fe-gnome/irc-network-editor.c:519
+#: ../src/fe-gnome/irc-network-editor.c:511
 msgid "You must enter a network name"
 msgstr ""
 
-#: ../src/fe-gnome/irc-network-editor.c:526
+#: ../src/fe-gnome/irc-network-editor.c:518
 msgid "You must enter a nick name"
 msgstr "輸入新暱稱："
 
-#: ../src/fe-gnome/irc-network-editor.c:532
+#: ../src/fe-gnome/irc-network-editor.c:524
 msgid "You must enter a real name"
 msgstr ""
 
-#: ../src/fe-gnome/irc-network-editor.c:539
+#: ../src/fe-gnome/irc-network-editor.c:531
 msgid "No Servers"
 msgstr "伺服器"
 
-#: ../src/fe-gnome/irc-network-editor.c:539
+#: ../src/fe-gnome/irc-network-editor.c:531
 msgid "You must add at least one server for this network"
 msgstr "在本網路的所有伺服器使用 SSL"
 
@@ -4031,198 +4064,199 @@ msgid "CP949 (Korean)"
 msgstr ""
 
 #: ../src/fe-gnome/irc-network.c:40
-msgid "CP1251 (Cyrillic)"
+msgid "KOI8-R (Cyrillic)"
 msgstr ""
 
 #: ../src/fe-gnome/irc-network.c:41
-msgid "CP1256 (Arabic)"
+msgid "CP1251 (Cyrillic)"
 msgstr ""
 
 #: ../src/fe-gnome/irc-network.c:42
+msgid "CP1256 (Arabic)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:43
+msgid "CP1257 (Baltic)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:44
 msgid "GB18030 (Chinese)"
 msgstr ""
 
 #. Toplevel
-#: ../src/fe-gnome/main-window.c:100
+#: ../src/fe-gnome/main-window.c:97
 msgid "_IRC"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:102
+#: ../src/fe-gnome/main-window.c:99
 msgid "In_sert"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:103
+#: ../src/fe-gnome/main-window.c:100
 msgid "_Network"
 msgstr "網路"
 
-#: ../src/fe-gnome/main-window.c:104
+#: ../src/fe-gnome/main-window.c:101
 msgid "_Discussion"
 msgstr "切斷連接(_D)"
 
-#: ../src/fe-gnome/main-window.c:105
+#: ../src/fe-gnome/main-window.c:102
 msgid "_Go"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:106
+#: ../src/fe-gnome/main-window.c:103
 msgid "_Help"
 msgstr "求助(_H)"
 
-#: ../src/fe-gnome/main-window.c:111
+#: ../src/fe-gnome/main-window.c:108
 msgid "_File Transfers"
 msgstr "檔案傳輸"
 
-#: ../src/fe-gnome/main-window.c:112
+#: ../src/fe-gnome/main-window.c:109
 msgid "_Quit"
 msgstr "離開(_Q)"
 
 #. Edit menu
-#: ../src/fe-gnome/main-window.c:115
+#: ../src/fe-gnome/main-window.c:112
 msgid "Cu_t"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:117
+#: ../src/fe-gnome/main-window.c:114
 msgid "_Paste"
 msgstr "私人"
 
-#: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:91
-#: ../src/fe-gnome/navigation-tree.c:98
-msgid "C_lear"
-msgstr "清除"
-
-#: ../src/fe-gnome/main-window.c:119
+#: ../src/fe-gnome/main-window.c:115
 msgid "Prefere_nces"
 msgstr "偏好設定..."
 
 #. Network menu
 #. Server context menu
-#: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:80
+#: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:79
 msgid "_Information"
 msgstr "資訊的"
 
-#: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:81
+#: ../src/fe-gnome/main-window.c:119 ../src/fe-gnome/navigation-tree.c:80
 msgid "_Reconnect"
 msgstr "重新連接(_R)"
 
-#: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:82
+#: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:81
 msgid "_Disconnect"
 msgstr "切斷連接(_D)"
 
-#: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:83
-#: ../src/fe-gnome/navigation-tree.c:89 ../src/fe-gnome/navigation-tree.c:96
+#: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:82
+#: ../src/fe-gnome/navigation-tree.c:88 ../src/fe-gnome/navigation-tree.c:94
 msgid "_Close"
 msgstr "關閉(_C)"
 
-#: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:84
+#: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:83
 msgid "_Channels..."
 msgstr "聊天室列表..."
 
 #. Discussion menu
 #. Channel context menu
 #. Dialog context menu
-#: ../src/fe-gnome/main-window.c:129 ../src/fe-gnome/navigation-tree.c:87
-#: ../src/fe-gnome/navigation-tree.c:95
+#: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:86
+#: ../src/fe-gnome/navigation-tree.c:93
 msgid "_Save Transcript"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:88
+#: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:87
 msgid "_Leave"
 msgstr "暫離"
 
-#: ../src/fe-gnome/main-window.c:131
+#: ../src/fe-gnome/main-window.c:127
 msgid "Cl_ose"
 msgstr "關閉"
 
-#: ../src/fe-gnome/main-window.c:132
+#: ../src/fe-gnome/main-window.c:128
 msgid "_Find"
 msgstr "尋找"
 
-#: ../src/fe-gnome/main-window.c:133
-msgid "_Clear Window"
-msgstr "關閉視窗(_C)"
-
-#: ../src/fe-gnome/main-window.c:134
+#: ../src/fe-gnome/main-window.c:129
 msgid "Change _Topic"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:135 ../src/fe-gnome/navigation-tree.c:92
+#: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:90
 msgid "_Bans..."
 msgstr "封禁列表..."
 
-#: ../src/fe-gnome/main-window.c:136
+#: ../src/fe-gnome/main-window.c:131
 msgid "_Users"
 msgstr "使用者"
 
 #. Go menu
-#: ../src/fe-gnome/main-window.c:139
+#: ../src/fe-gnome/main-window.c:134
 msgid "Pre_vious Network"
 msgstr "新網路"
 
-#: ../src/fe-gnome/main-window.c:140
+#: ../src/fe-gnome/main-window.c:135
 msgid "Nex_t Network"
 msgstr "新網路"
 
-#: ../src/fe-gnome/main-window.c:141
+#: ../src/fe-gnome/main-window.c:136
 msgid "_Previous Discussion"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:142
+#: ../src/fe-gnome/main-window.c:137
 msgid "_Next Discussion"
 msgstr ""
 
 #. Help menu
-#: ../src/fe-gnome/main-window.c:145
+#: ../src/fe-gnome/main-window.c:140
 msgid "_Contents"
 msgstr "內容(_C)"
 
-#: ../src/fe-gnome/main-window.c:146
+#: ../src/fe-gnome/main-window.c:141
 msgid "_About"
 msgstr "關於(_A)"
 
-#: ../src/fe-gnome/main-window.c:510 ../src/fe-gnome/navigation-tree.c:1635
+#: ../src/fe-gnome/main-window.c:509 ../src/fe-gnome/navigation-tree.c:1634
 msgid "Ex-Chat"
 msgstr "聊天"
 
-#: ../src/fe-gnome/main-window.c:597
+#: ../src/fe-gnome/main-window.c:590
 msgid "Error showing help"
 msgstr ""
 
-#: ../src/fe-gnome/navigation-tree.c:90 ../src/fe-gnome/navigation-tree.c:97
+#: ../src/fe-gnome/navigation-tree.c:89 ../src/fe-gnome/navigation-tree.c:95
 msgid "_Find..."
 msgstr "尋找"
 
 #. Server context menu
-#: ../src/fe-gnome/navigation-tree.c:103
-msgid "_Auto-connect"
+#: ../src/fe-gnome/navigation-tree.c:100
+#, fuzzy
+msgid "_Auto-connect on startup"
 msgstr "重新連接(_R)"
 
 #. Channel context menu
-#: ../src/fe-gnome/navigation-tree.c:106
-msgid "_Auto-join"
-msgstr "自動(_A)"
+#: ../src/fe-gnome/navigation-tree.c:103
+#, fuzzy
+msgid "_Auto-join on connect"
+msgstr "重新連接(_R)"
 
 #. Add the new server to the model. By default connected is false.
-#: ../src/fe-gnome/navigation-tree.c:353
-#: ../src/fe-gnome/navigation-tree.c:1255
+#: ../src/fe-gnome/navigation-tree.c:354
+#: ../src/fe-gnome/navigation-tree.c:1263
 msgid "<none>"
 msgstr "<無>"
 
-#: ../src/fe-gnome/preferences-page-colors.c:224
+#: ../src/fe-gnome/preferences-page-colors.c:223
 msgid "Colors"
 msgstr "顏色"
 
-#: ../src/fe-gnome/preferences-page-colors.c:227
+#: ../src/fe-gnome/preferences-page-colors.c:226
 msgid "Black on White"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-colors.c:228
+#: ../src/fe-gnome/preferences-page-colors.c:227
 msgid "White on Black"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-colors.c:229
+#: ../src/fe-gnome/preferences-page-colors.c:228
 msgid "Custom"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-dcc.c:195
+#: ../src/fe-gnome/preferences-page-dcc.c:184
 msgid "File Transfers & DCC"
 msgstr "檔案傳輸"
 
@@ -4230,7 +4264,7 @@ msgstr "檔案傳輸"
 msgid "Effects"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-irc.c:257
+#: ../src/fe-gnome/preferences-page-irc.c:256
 msgid "IRC Preferences"
 msgstr "XChat： 偏好設定"
 
@@ -4247,39 +4281,58 @@ msgstr "網路"
 msgid "Name"
 msgstr "名稱"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:84
-#: ../src/fe-gnome/preferences-page-plugins.c:85
+#: ../src/fe-gnome/preferences-page-plugins.c:90
+#: ../src/fe-gnome/preferences-page-plugins.c:91
 msgid "unknown"
 msgstr "未知"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:125
+#: ../src/fe-gnome/preferences-page-plugins.c:131
 #, c-format
 msgid "An error occured unloading %s"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-plugins.c:126
+#: ../src/fe-gnome/preferences-page-plugins.c:132
 msgid "Plugin Unload Failed"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-plugins.c:137
+#: ../src/fe-gnome/preferences-page-plugins.c:143
 msgid "Plugin Load Failed"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-plugins.c:176
+#: ../src/fe-gnome/preferences-page-plugins.c:182
 msgid "Open Plugin"
 msgstr "打開對話框於："
 
-#: ../src/fe-gnome/preferences-page-plugins.c:276
+#: ../src/fe-gnome/preferences-page-plugins.c:314
 msgid "Scripts and Plugins"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-plugins.c:289
+#: ../src/fe-gnome/preferences-page-plugins.c:327
+#: ../src/fe-gnome/preferences-page-spellcheck.c:199
 msgid "Enable"
 msgstr "名稱"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:291
+#: ../src/fe-gnome/preferences-page-plugins.c:329
 msgid "Plugin"
 msgstr "Ping"
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:101
+#, c-format
+msgid "Error in language %s activation: %s\n"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:140
+#, c-format
+msgid "Error in spell checking configuration: %s\n"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:190
+msgid "Spell checking"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:204
+msgid "Language"
+msgstr ""
 
 #: ../src/fe-gnome/status-bar.c:92
 #, c-format
@@ -4291,91 +4344,153 @@ msgstr ""
 msgid "%d bytes buffered"
 msgstr "%d 位元組"
 
-#: ../src/fe-gnome/text-entry.c:281
-msgid "I_nsert Color Code"
-msgstr "插入屬性或顏色代碼"
-
-#: ../src/fe-gnome/text-entry.c:288
-msgid "Black"
-msgstr ""
-
-#: ../src/fe-gnome/text-entry.c:292
-msgid "Dark Blue"
-msgstr ""
-
-#: ../src/fe-gnome/text-entry.c:296
-msgid "Dark Green"
-msgstr ""
-
-#: ../src/fe-gnome/text-entry.c:300
-msgid "Red"
-msgstr ""
-
-#: ../src/fe-gnome/text-entry.c:304
-msgid "Brown"
-msgstr ""
-
-#: ../src/fe-gnome/text-entry.c:308
-msgid "Purple"
-msgstr ""
-
-#: ../src/fe-gnome/text-entry.c:312
-msgid "Orange"
-msgstr ""
-
-#: ../src/fe-gnome/text-entry.c:316
-msgid "Yellow"
-msgstr ""
-
-#: ../src/fe-gnome/text-entry.c:320
-msgid "Light Green"
-msgstr ""
-
-#: ../src/fe-gnome/text-entry.c:324
-msgid "Aqua"
-msgstr ""
-
-#: ../src/fe-gnome/text-entry.c:328
-msgid "Light Blue"
-msgstr ""
-
-#: ../src/fe-gnome/text-entry.c:332
-msgid "Blue"
-msgstr ""
-
-#: ../src/fe-gnome/text-entry.c:336
-msgid "Violet"
+#: ../src/fe-gnome/text-entry.c:145 ../src/fe-gnome/text-entry.c:708
+#, c-format
+msgid "Error in spellchecking configuration: %s\n"
 msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:340
+msgid "I_nsert Color Code"
+msgstr "插入屬性或顏色代碼"
+
+#: ../src/fe-gnome/text-entry.c:347
+msgid "Black"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:351
+msgid "Dark Blue"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:355
+msgid "Dark Green"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:359
+msgid "Red"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:363
+msgid "Brown"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:367
+msgid "Purple"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:371
+msgid "Orange"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:375
+msgid "Yellow"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:379
+msgid "Light Green"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:383
+msgid "Aqua"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:387
+msgid "Light Blue"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:391
+msgid "Blue"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:395
+msgid "Violet"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:399
 msgid "Grey"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:344
+#: ../src/fe-gnome/text-entry.c:403
 msgid "Light Grey"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:348
+#: ../src/fe-gnome/text-entry.c:407
 msgid "White"
 msgstr ""
 
-#: ../src/fe-gnome/topic-label.c:239
+#: ../src/fe-gnome/topic-label.c:250
 #, c-format
 msgid "Changing topic for %s"
 msgstr ""
 
-#: ../src/fe-gnome/userlist-gui.c:50
+#: ../src/fe-gnome/userlist-gui.c:60
 msgid "_Send File..."
 msgstr "發送檔案"
 
-#: ../src/fe-gnome/userlist-gui.c:51
+#: ../src/fe-gnome/userlist-gui.c:61
 msgid "Private _Chat"
 msgstr "私人"
 
-#: ../src/fe-gnome/userlist-gui.c:52
+#: ../src/fe-gnome/userlist-gui.c:62
 msgid "_Kick"
 msgstr "踢出"
 
-#: ../src/fe-gnome/userlist-gui.c:53
+#: ../src/fe-gnome/userlist-gui.c:63
 msgid "_Ban"
 msgstr "封禁"
+
+#: ../src/fe-gnome/userlist-gui.c:393
+#, c-format
+msgid ""
+"%s\n"
+"<span weight=\"bold\">Name:</span> %s"
+msgstr ""
+
+#: ../src/fe-gnome/userlist-gui.c:400
+#, c-format
+msgid ""
+"%s\n"
+"<span weight=\"bold\">Country:</span> %s"
+msgstr ""
+
+#: ../src/fe-gnome/userlist-gui.c:410
+#, c-format
+msgid ""
+"%s\n"
+"<span weight=\"bold\">Last message:</span> %d minute ago"
+msgid_plural ""
+"%s\n"
+"<span weight=\"bold\">Last message:</span> %d minutes ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/fe-gnome/userlist-gui.c:421
+#, c-format
+msgid ""
+"%s\n"
+"<span weight=\"bold\">Away message:</span> %s"
+msgstr ""
+
+#: ../src/fe-gnome/userlist.c:320
+#, fuzzy, c-format
+msgid "%d User"
+msgid_plural "%d Users"
+msgstr[0] "使用者"
+msgstr[1] "使用者"
+
+#~ msgid "Enter a new nickname"
+#~ msgstr "輸入新暱稱："
+
+#~ msgid "Disconnected"
+#~ msgstr "切斷連接(_D)"
+
+#~ msgid "Connected"
+#~ msgstr "連接"
+
+#~ msgid "C_lear"
+#~ msgstr "清除"
+
+#~ msgid "_Clear Window"
+#~ msgstr "關閉視窗(_C)"
+
+#~ msgid "_Auto-join"
+#~ msgstr "自動(_A)"
