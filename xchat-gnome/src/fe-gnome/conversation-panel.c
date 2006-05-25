@@ -394,13 +394,21 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 	if (event->button == 3) {
 		switch (conversation_panel_check_word (xtext, word, strlen (word))) {
 		case 0:
-		case WORD_DIALOG:
-		/* FIXME: show dialog context menu */
 			{
 				GtkWidget *menu;
 				menu = gtk_ui_manager_get_widget (gui.manager, "/DefaultPopup");
 				/* FIXME: we should not display the copy action if no text is selected */
-				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
+				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, event->time);
+			}
+			break;
+		case WORD_DIALOG:
+			{
+				GtkWidget *menu;
+				menu = gtk_ui_manager_get_widget (gui.manager, "/DialogPopup");
+				strcpy (dialog_user.nick, gui.current_session->channel);
+				dialog_user.nick[strlen (gui.current_session->channel)] = '\0';
+				current_user = &dialog_user;
+				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, event->time);
 			}
 			break;
 		case WORD_URL:
@@ -411,7 +419,7 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 				if (panel->priv->selected_word)
 					g_free (panel->priv->selected_word);
 				panel->priv->selected_word = g_strdup (word);
-				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
+				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, event->time);
 			}
 			break;
 		case WORD_NICK:
@@ -428,14 +436,14 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 					user = userlist_find (gui.current_session, word);
 					if (user) {
 						current_user = user;
-						gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
+						gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, event->time);
 					}
 				} else if (gui.current_session->type == SESS_DIALOG) {
 					menu = gtk_ui_manager_get_widget (gui.manager, "/UserDialogPopup");
 					strcpy (dialog_user.nick, word);
 					dialog_user.nick[strlen (word)] = '\0';
 					current_user = &dialog_user;
-					gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
+					gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, event->time);
 				}
 			}
 			break;
@@ -449,7 +457,7 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 				if (panel->priv->selected_word)
 					g_free (panel->priv->selected_word);
 				panel->priv->selected_word = g_strdup (word);
-				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
+				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, event->time);
 			}
 			break;
 		}
