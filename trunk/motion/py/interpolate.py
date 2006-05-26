@@ -33,14 +33,33 @@ from optparse import OptionParser
 import Numeric, pickle
 
 def save(sequence, file):
-    amc = AMC()
-    bones = {}
+    """Save a sequence to a file.
 
-    for bone in sequence[0].iterkeys():
-        bones[bone] = [frame[bone] for frame in sequence]
+    For now, this function writes sequence out to a file manually, instead of
+    using the save() function built in to AMC object. The AMC.save() function
+    is only writing out 0's.
+    """
+    f = open(file, "w")
+    # Default format for all of our AMC files
+    f.write(":FULLY-SPECIFIED\n")
+    f.write(":DEGREES\n")
 
-    amc.bones = dict([(bone, Numeric.array(data)) for bone, data in bones.iteritems()])
-    amc.save(file)
+    # For each frame...
+    for i in range(len(sequence)):
+        # Write the frame number
+        f.write("%d\n" % (i + 1))
+
+        # Write the data for each bone in the frame
+        for bone, data in sequence[i].iteritems():
+            # Line starts with the bone name
+            line = bone
+            # Add all the position data
+            for x in data:
+                line += " %f" % (x)
+            line += "\n"
+            f.write(line)
+
+    f.close()
 
 
 options = OptionParser(usage="%prog <asf file> <graph> <bayes net> <input amc> <output amc> <start frame> <end frame>")

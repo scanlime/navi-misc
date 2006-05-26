@@ -186,8 +186,6 @@ class GraphSearch:
         # Run the search
         path = Heuristic(self.graphs, CNode(source), CNode(goal), self.f, self.successor).run()
 
-        print [n.data for n in path]
-
         # Interpolate the root position linearly.
         for i in range(len(path)):
             frame = {}
@@ -196,10 +194,12 @@ class GraphSearch:
                 center = node.center
 
                 if bone == "root":
-                    rootstart = start["root"][0:3]
-                    rootend = end["root"][0:3]
-                    pos = self.linear_interp(rootstart, rootend, i, len(path))
-                    center = pos + center
+                    # FIXME
+                    # rootstart = start["root"][0:3]
+                    # rootend = end["root"][0:3]
+                    # pos = self.linear_interp(rootstart, rootend, i, len(path))
+                    # center = pos + center
+                    center = [0, 0, 0] + center
                 frame[bone] = center
             path[i] = frame
 
