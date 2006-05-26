@@ -29,10 +29,18 @@ from Dance import Systems, Sequence
 from optparse import OptionParser
 import Numeric, string
 
-def save(sequence, format, file):
-    """Save a sequence to a file."""
+def save(sequence, file):
+    """Save a sequence to a file.
+   
+    'sequence' is a list of dictionaries. Each dictionary represents a single
+    frame in the motion; it maps a bone name to a list of floats representing
+    an angle for each degree of freedom. This function builds a single 2D
+    Numeric array for each bone; the first dimension is the frame, the second
+    dimension is the data for the frame. This dictionary is set to the 'bones'
+    attribute of an AMC object and saved to a file specified by 'file'. 'file'
+    is a string.
+    """
     amc = AMC()
-    amc.format = format
     bones = {}
 
     for bone in sequence[0].iterkeys():
@@ -41,21 +49,29 @@ def save(sequence, format, file):
     amc.bones = dict([(bone, Numeric.array(data)) for bone, data in bones.iteritems()])
     amc.save(file)
 
-parser = OptionParser ("usage: %prog [options] <input file> <output file>")
-parser.add_option ("-i", "--initial", dest="ic", default="60,15,1", \
+
+# Set up the options
+parser = OptionParser("usage: %prog [options] <input file> <output file>")
+parser.add_option("-i", "--initial", dest="ic", default="60,15,1", \
         help="A comma separated list of initial conditions for the shuffle")
-parser.add_option ("-n", dest="n", type="int", default=10000, \
+parser.add_option("-n", dest="n", type="int", default=10000, \
         help="Number of iterations for the chaotic systems")
 
-opts, args = parser.parse_args ()
+opts, args = parser.parse_args()
 
-if len (args) != 2: parser.error ("input and output file are required")
+if len (args) != 2:
+    parser.error("input and output file are required")
 
-amc = AMC.from_file (args[0])
-lorenz = Systems.Lorenz (16.0, 45.0, 4.0)
-sequence = Sequence.Sequence (amc, lorenz, Numeric.array ([60, 15, 1]), n=opts.n)
-shuffled = sequence.shuffle (Numeric.array ([float(x) for x in string.split (opts.ic, ",")]))
+# Load the AMC
+amc = AMC.from_file(args[0])
 
-save (shuffled, amc.format, args[1])
+# Create the dance sequence
+lorenz = Systems.Lorenz(16.0, 45.0, 4.0)
+sequence = Sequence.Sequence(amc, lorenz, Numeric.array ([60, 15, 1]), n=opts.n)
+
+# Shuffle the sequence
+shuffled = sequence.shuffle(Numeric.array([float(x) for x in string.split(opts.ic, ",")]))
+
+save(shuffled, args[1])
 
 # vim: ts=4:sw=4:et
