@@ -24,16 +24,16 @@
 usage: interpolate.py <asf file> <graph> <bayes net> <input amc> <output amc> <start frame> <end frame>
 """
 
-from Motion import AMC, ASFReader, Interpolate
 from Dance import MotionGraph
 from Graph import algorithms_c
 from Graph.Data import VertexMap, AdjacencyList, CNode
 from Graph.ExtraAlgorithms import ParallelBFS, Heuristic
-import Numeric, sys, pickle
+from Motion import AMC, ASFReader, Interpolate
+from optparse import OptionParser
+import Numeric, pickle
 
-def save(sequence, format, file):
+def save(sequence, file):
     amc = AMC()
-    amc.format = format
     bones = {}
 
     for bone in sequence[0].iterkeys():
@@ -43,21 +43,24 @@ def save(sequence, format, file):
     amc.save(file)
 
 
-if len(sys.argv) < 8:
-    print "usage: %s <asf file> <graph> <bayes net> <input amc> <output amc> <start frame> <end frame>" % (sys.argv[0])
-    sys.exit(1)
+options = OptionParser(usage="%prog <asf file> <graph> <bayes net> <input amc> <output amc> <start frame> <end frame>")
 
-samc = AMC.from_file(sys.argv[4])
+opts, args = options.parse_args()
+
+if len(args) < 7:
+    options.error("Missing %d arguments" % (7 - len(args)))
+
+samc = AMC.from_file(args[3])
 
 print 'loading asf'
 asf = ASFReader()
-asf.parse(sys.argv[1])
+asf.parse(args[0])
 
 print 'loading graphs'
-graphs = pickle.load(open(sys.argv[2]))
+graphs = pickle.load(open(args[1]))
 
 print 'loading bayes net'
-bayes_net = pickle.load(open(sys.argv[3]))
+bayes_net = pickle.load(open(args[2]))
 
 search = Interpolate.GraphSearch(graphs, bayes_net, asf)
 
@@ -65,14 +68,12 @@ start = {}
 end = {}
 
 for bone, data in samc.bones.iteritems():
-    start[bone] = data[int(sys.argv[-2])]
-    end[bone] = data[int(sys.argv[-1])]
+    start[bone] = data[int(args[-2])]
+    end[bone] = data[int(args[-1])]
 
 print "searching..."
 path = search(start, end)
 
-save (path, samc.format, sys.argv[-3])
-
-print path
+save (path, args[-3])
 
 # vim: ts=4:sw=4:et
