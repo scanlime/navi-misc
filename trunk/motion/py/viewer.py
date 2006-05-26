@@ -94,7 +94,7 @@ for frame in frames:
     bones["root"].draw(frame)
     pygame.display.flip()
 
-    if hasattr(opts, "fps"):
+    if hasattr(opts, "fps") and opts.fps is not None:
         time.sleep(1.0/opts.fps)
 
 
