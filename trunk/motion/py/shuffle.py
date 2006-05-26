@@ -25,7 +25,8 @@ usage: shuffle.py [options] <input file> <output file>
 """
 
 from Motion import AMC
-from Dance import Systems, Sequence
+from Dance import Systems
+from Dance.Sequence import Sequence
 from optparse import OptionParser
 import Numeric, string
 
@@ -67,10 +68,11 @@ amc = AMC.from_file(args[0])
 
 # Create the dance sequence
 lorenz = Systems.Lorenz(16.0, 45.0, 4.0)
-sequence = Sequence.Sequence(amc, lorenz, Numeric.array ([60, 15, 1]), n=opts.n)
+sequence = Sequence(amc, lorenz, Numeric.array ([60, 15, 1]), n=opts.n)
 
 # Shuffle the sequence
-shuffled = sequence.shuffle(Numeric.array([float(x) for x in string.split(opts.ic, ",")]))
+initial = [float(x) for x in opts.ic.split(",")]
+shuffled = sequence.shuffle(initial)
 
 save(shuffled, args[1])
 
