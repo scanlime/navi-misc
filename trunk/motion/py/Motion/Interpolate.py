@@ -206,7 +206,13 @@ class GraphSearch:
         return path
 
     def build_order(self, asf):
-        """Set the build order for the successor function."""
+        """Set the build order for the successor function.
+       
+        'asf' is an ASFReader object created from an ASF file. The bone
+        hierarchy defined in the ASF file is used to create the build order.
+        The build order is used in successor generation during the graph search
+        in conjunction with a Bayes net to weed out unlikely successors.
+        """
         # Build order always starts at the root
         self.order = ["root"]
         self.parents = {}
@@ -291,7 +297,15 @@ class GraphSearch:
         return results
 
     def successor (self, graphs, node):
-        """Generate successors of a combinatoric node."""
+        """Return a list of successors for a combinatoric node.
+        
+        Returns a list of dictionaries. Each dictionary represents a single
+        whole-body position that can be reached from the current position
+        defined by 'node'. 'graphs' is a dictionary of motion graphs mapping a
+        bone name to the motion graph for that bone. 'node' is a dictionary
+        mapping bone names to positions; it represents the current position for
+        which successors should be generated.
+        """
         immediate_successors = {}
         # Create a dictionary mapping bone name to the list of successors for that
         # bone in its current position.
@@ -314,12 +328,24 @@ class GraphSearch:
         return retval
 
     def find_node (self, graph, pos):
+        """Returns a vertex from 'graph' that contains 'pos'.
+
+        The vertices in motion graphs are often discretized such that a single
+        vertex represents a range of positions. This function finds a vertex in
+        'graph that contains the position 'pos'. 'graph' is a motion graph.
+        'pos' is a tuple with the same dimensions as the degrees of freedom in
+        each graph vertex.
+        """
         vertex_map = graph.representations[VertexMap]
         for vertex in vertex_map:
             if vertex.inside (pos):
                 return vertex
 
     def linear_interp(self, start, end, pos, length):
+        """Linearly interpolate from 'start' to 'end'.
+       
+        Returns a list.
+        """
         result = []
         for i in range(len(start)):
             compstart = start[i]
@@ -330,11 +356,22 @@ class GraphSearch:
         return result
 
     def f (self, path, goal):
+        """Return a cost from the end of 'path' to 'goal'.
+
+        Calculate a cost from 'path' to 'goal'. 'path' is a list of
+        dictionaries, each representing a single body position. 'goal' is the
+        desired body position. The cost is the length of 'path' plus the length
+        of the shortest path (for each bone) from the end of 'path' to 'goal'.
+        These costs are cached to minimize runs of Dijkstra's shortest path
+        algorithm.
+        """
         end = path[-1]
         g = len (path)
         h = 0
 
         for bone in end.iterkeys():
+            if bone not in self.adjacency:
+                continue
             adj = self.adjacency[bone]
             endb = end.get(bone)
             goalb = goal.get(bone)
