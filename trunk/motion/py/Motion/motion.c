@@ -380,6 +380,7 @@ AMC_save (AMC *self, PyObject *args)
 		GIOStatus status;
 		char *frame;
 
+		// Write out the frame number
 		frame = g_strdup_printf ("%d\n", j + 1);
 		g_io_channel_write_chars (file, frame, strlen (frame), NULL, NULL);
 		g_free (frame);
@@ -389,10 +390,13 @@ AMC_save (AMC *self, PyObject *args)
 			char *bone_name;
 			PyArrayObject *bone;
 
+			// Write the bone name
 			key = PyList_GetItem (keys, i);
 			bone = (PyArrayObject *) PyDict_GetItem (self->bones, key);
 			bone_name = PyString_AsString (key);
 			g_io_channel_write_chars (file, bone_name, strlen (bone_name), NULL, NULL);
+
+			// Write out the bone data
 			for (k = 0; k < bone->dimensions[1]; k++) {
 				char *data = g_strdup_printf (" %f", *((float*) (bone->data + (j * bone->strides[0]) + (k * bone->strides[1]))));
 				g_io_channel_write_chars (file, data, strlen (data), NULL, NULL);
