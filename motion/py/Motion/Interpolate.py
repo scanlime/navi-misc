@@ -154,7 +154,10 @@ class GraphSearch:
         """Execute the graph search.
         
         Interpolate between the frames 'start' and 'end'. Returns a path from
-        'start' to 'end', or None if there isn't one.
+        'start' to 'end', or None if there isn't one. Paths are represented as
+        a list of dictionaries. Each dictionary maps from bone names to
+        positions (in tuples of floats). A single dictionary represents a
+        single body position that is one frame in the motion.
         """
         path = None
         source = {}
