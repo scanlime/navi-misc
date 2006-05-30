@@ -242,13 +242,12 @@ class GraphSearch:
                     self.order.extend(group[1:])
             pos += 1
 
-    def combine(self, bones, items, position=0, current=[], current_probability=1.0):
+    def combine(self, bones, items, current={}, current_probability=1.0):
         """Recusively create combinatoric successors.
 
         Return a list of successors created by combining all the values in
         items in every possible way.
         """
-        results = []
         bone = bones[0]
 
         if bone in self.bayes:
@@ -256,13 +255,9 @@ class GraphSearch:
 
         if bone in self.parents:
             parent = self.parents[bone]
-            try:
-                parent_pos = bones.index(parent)
-                pbone = current[parent_pos]
-            except ValueError:
-                parent_pos = None
+            pbone = current[parent]
 
-        for item in items[position]:
+        for item in items[bone]:
             # If we're in a bone with no parent (the root) or a bone whose
             # parent has no DOF, accept all successors for the bone.
             if not (bone in self.parents and \
@@ -270,38 +265,33 @@ class GraphSearch:
                     (parent in self.asf.bones and \
                     self.asf.bones[parent].dof))) or \
                     not parent_pos:
-                new_current = current + [item]
+                current[bone] = item
 
                 # If there's only one bone in the list, do not recurse further
-                if position == len(bones) -1:
-                    results.append(new_current)
+                if len(bones) == 1:
+                    yield current.copy()
                 else:
-                    children = self.combine(bones, items, position + 1, new_current, current_probability)
-                    if len(children):
-                        results.extend(children)
-                    pass
+                    for child in self.combine(bones[1:], items, current,
+                            current_probability):
+                        yield child
             else:
                 # Build the key for the Bayes net
                 spot = (tuple(pbone.mins), tuple(item.mins))
                 if spot in net:
                     probability = net[spot]
-                    new_current = current + [item]
+                    current[bone] = item
                     new_prob = current_probability * probability
                     if new_prob > EPSILON and probability > 0.1:
-                        if position == len(bones) - 1:
-                            results.append(new_current)
+                        if len(bones) == 1:
+                            yield current.copy()
                         else:
-                            children = self.combine(bones, items, position + 1, new_current, new_prob)
-                            if len(children):
-                                results.extend(children)
+                            for child in self.combine(bones[1:], items,
+                                    current, new_prob):
+                                yield child
 
                 # FIXME - What if the (parent, child) pair isn't in the Bayes
                 # net?
 
-        res = len(results)
-        if position == 0:
-            print '%d likely successors' % res
-        return results
 
     def successor (self, graphs, node):
         """Return a list of successors for a combinatoric node.
@@ -319,20 +309,8 @@ class GraphSearch:
         for bone, n in node.iteritems ():
             immediate_successors[bone] = [edge.v for edge in self.adjacency[bone].query (n)]
 
-        # Return a list of the combinatoric nodes
-        items = []
-        for bone in self.order:
-            if bone in immediate_successors:
-                items.append(immediate_successors[bone])
-
-        retval = []
-        for succ in self.combine(self.order, items):
-            retsucc = {}
-            for pos in range(len(succ)):
-                retsucc[self.order[pos]] = succ[pos]
-            retval.append(retsucc)
-
-        return retval
+        for succ in self.combine(self.order, immediate_successors):
+            yield succ
 
     def find_node (self, graph, pos):
         """Returns a vertex from 'graph' that contains 'pos'.
