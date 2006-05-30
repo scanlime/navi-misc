@@ -305,7 +305,7 @@ class Heuristic:
         - run               Execute the search
         - pathToNode        Return a path to given node
     """
-    def __init__ (self, graph, source, goal, costf, successorf):
+    def __init__(self, graph, source, goal, costf, successorf):
         self.path = None
         self.predecessors = {source: None}
         self.costs = {}
@@ -315,7 +315,7 @@ class Heuristic:
         self.costf = costf
         self.successorf = successorf
 
-    def run (self):
+    def run(self):
         """Execute a heuristic search of a graph.
         
         Returns:
@@ -323,14 +323,14 @@ class Heuristic:
             None if there is no path.
         """
         # Use this function to sort the agenda
-        def compare (a, b):
-            if not self.costs.has_key (a):
-                a_path = self.pathToNode (a)
-                self.costs[a] = self.costf (a_path, self.goal)
+        def compare(a, b):
+            if not self.costs.has_key(a):
+                a_path = self.pathToNode(a)
+                self.costs[a] = self.costf(a_path, self.goal)
 
-            if not self.costs.has_key (b):
-                b_path = self.pathToNode (b)
-                self.costs[b] = self.costf (b_path, self.goal)
+            if not self.costs.has_key(b):
+                b_path = self.pathToNode(b)
+                self.costs[b] = self.costf(b_path, self.goal)
 
             ac = self.costs[a]
             bc = self.costs[b]
@@ -340,28 +340,34 @@ class Heuristic:
         agenda = [self.source]
         visited = []
 
-        while (len (agenda) > 0):
+        while len(agenda) > 0:
             # Get the next node and test for the goal
-            node = agenda.pop ()
-            visited.append (node)
+            node = agenda.pop()
+            visited.append(node)
             if node == self.goal:
+                print "GOAL!"
                 # Reconstruct the path to the goal
-                self.path = self.pathToNode (node)
+                self.path = self.pathToNode(node)
                 break
+            print "not goal"
 
             # Add the successors of this node to the agenda and record the node
             # that generated these successors.
-            for s in self.successorf (self.graph, node):
+            for s in self.successorf(self.graph, node):
+                print "a successor"
                 if s not in visited:
+                    print "    not visited"
                     self.predecessors[s] = node
-                    agenda.append (s)
+                    agenda.append(s)
 
+            print "sorting..."
             # Resort the queue
-            agenda.sort (cmp=compare)
+            agenda.sort(cmp=compare)
+            print "    done."
 
         return self.path
 
-    def pathToNode (self, node):
+    def pathToNode(self, node):
         """Return the path to a given node.
 
         Follows the back pointers in predecessors to find a path from the
@@ -373,7 +379,7 @@ class Heuristic:
         path = [node]
         next = self.predecessors[node]
         while next:
-            path.insert (0, next)
+            path.insert(0, next)
             next = self.predecessors[next]
 
         return path
