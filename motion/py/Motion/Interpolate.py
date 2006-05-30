@@ -157,10 +157,11 @@ class GraphSearch:
         positions (in tuples of floats). A single dictionary represents a
         single body position that is one frame in the motion.
         """
-        path = None
+        path = []
         source = {}
         goal = {}
 
+        # Assemble the source and goal dictionaries for the search
         for bone in start.iterkeys():
             # Temporary storage for building graph nodes from frame data
             s = start[bone]
@@ -186,8 +187,6 @@ class GraphSearch:
 
         # Run the search
         path = self.search.run(source, goal)
-
-        print path
 
         # Construct a list of dictionaries to return. Each dictionary is a
         # frame in the animation.
