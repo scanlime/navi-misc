@@ -299,6 +299,9 @@ class Heuristic:
     Methods:
         - run               Execute the search
     """
+
+    __slots__ = ["graph", "costf", "successorf"]
+
     def __init__(self, graph, costf, successorf):
         self.graph = graph
         self.costf = costf
@@ -358,7 +361,7 @@ class Heuristic:
             visited.append(node)
             if node == goal:
                 # Reconstruct the path to the goal
-                self.path = pathToNode(node)
+                path = pathToNode(node)
                 break
 
             # Add the successors of this node to the agenda and record the node
