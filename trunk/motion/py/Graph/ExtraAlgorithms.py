@@ -292,30 +292,19 @@ class Heuristic:
     """A heuristic best first search.
    
     Members:
-        - path              The path from start to end
-        - predecessors      A dictionary of back pointers
-        - costs             Cached path costs
         - graph             The graph to search
-        - source            The node to start the search from
-        - goal              The goal of the search
         - costf             The cost function
         - successorf        The successor generating function
 
     Methods:
         - run               Execute the search
-        - pathToNode        Return a path to given node
     """
-    def __init__(self, graph, source, goal, costf, successorf):
-        self.path = None
-        self.predecessors = {self._dictToTuple(source): None}
-        self.costs = {}
+    def __init__(self, graph, costf, successorf):
         self.graph = graph
-        self.source = source
-        self.goal = goal
         self.costf = costf
         self.successorf = successorf
 
-    def run(self):
+    def run(self, source, goal):
         """Execute a heuristic search of a graph.
         
         Returns:
@@ -324,79 +313,65 @@ class Heuristic:
         """
         # Use this function to sort the agenda
         def compare(a, b):
-            keyA = self._dictToTuple(a)
-            keyB = self._dictToTuple(b)
+            keyA = toTuple(a)
+            keyB = toTuple(b)
 
-            if not self.costs.has_key(keyA):
+            if not costs.has_key(keyA):
                 a_path = self.pathToNode(a)
-                self.costs[keyA] = self.costf(a_path, self.goal)
+                costs[keyA] = self.costf(a_path, self.goal)
 
-            if not self.costs.has_key(keyB):
+            if not costs.has_key(keyB):
                 b_path = self.pathToNode(b)
-                self.costs[keyB] = self.costf(b_path, self.goal)
+                costs[keyB] = self.costf(b_path, self.goal)
 
-            ac = self.costs[keyA]
-            bc = self.costs[keyB]
+            ac = costs[keyA]
+            bc = costs[keyB]
 
             return (bc - ac)
 
-        agenda = [self.source]
+        # Function to generate a list of nodes from the back pointers in the
+        # predecessors dictionary
+        def pathToNode(node):
+            path = [node]
+            next = predecessors[toTuple(node)]
+            while next:
+                path.insert(0, dict(next))
+                next = predecessors[next]
+
+            return path
+
+        # Function to create a tuple of (bone, position) pairs from a
+        # dictionary of positions
+        def toTuple(dictionary):
+            return tuple([(bone, pos) for bone, pos in dictionary.iteritems()])
+
+        # Initialize all the local variables
+        costs = {}
+        predecessors = {toTuple(source):None}
+        agenda = [source]
         visited = []
+        path = []
 
         while len(agenda) > 0:
             # Get the next node and test for the goal
             node = agenda.pop()
             visited.append(node)
-            if node == self.goal:
+            if node == goal:
                 # Reconstruct the path to the goal
-                self.path = self.pathToNode(node)
+                self.path = pathToNode(node)
                 break
 
             # Add the successors of this node to the agenda and record the node
             # that generated these successors.
             for s in self.successorf(self.graph, node):
                 if s not in visited:
-                    self.predecessors[self._dictToTuple(s)] = self._dictToTuple(node)
+                    predecessors[toTuple(s)] = toTuple(node)
                     agenda.append(s)
 
             # Resort the queue
             agenda.sort(cmp=compare)
 
-        return self.path
-
-    def pathToNode(self, node):
-        """Return the path to a given node.
-
-        Follows the back pointers in predecessors to find a path from the
-        source to node.
-
-        Arguments:
-            - node      The node at the end of the desired path
-        """
-        path = [node]
-        next = self.predecessors[self._dictToTuple(node)]
-        while next:
-            path.insert(0, dict(next))
-            next = self.predecessors[next]
-
         return path
 
-    def _dictToTuple(self, a):
-        """A simple list comprehension that creates a tuple of (key, value)
-        pairs from a dictionary.
-
-        Takes a dictionary and returns a tuple of (key, value) pairs. Tuples
-        created from dictionaries are used when a hashable object is needed for
-        using frames of motion data as keys in a dictionary. These tuples are
-        used as keys in the dictionary of cached path costs and the dictionary
-        of back pointers. To recreate the dictionary simply pass the tuple to
-        the dict() constructor. If 'x' is a dictionary, the statement:
-
-            x = dict(self._dictToTuple(x))
-
-        has no effect.
-        """
-        return tuple([(key, item) for key, item in a.iteritems()])
-    
 
 # vim:ts=4:sw=4:et

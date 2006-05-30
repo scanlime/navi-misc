@@ -187,7 +187,7 @@ class GraphSearch:
             goal[bone] = self.find_node(self.graphs[bone], e)
 
         # Run the search
-        path = Heuristic(self.graphs, source, goal, self.f, self.successor).run()
+        path = Heuristic(self.graphs, self.f, self.successor).run(source, goal)
 
         print path
 
