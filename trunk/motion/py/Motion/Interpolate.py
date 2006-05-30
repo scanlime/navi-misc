@@ -227,20 +227,19 @@ class GraphSearch:
 
         # Build the dictionary of parent joints
         for group in asf.hierarchy:
-            if len(group) is 0:
-                continue
-            for child in group[1:]:
-                self.parents[child] = group[0]
+            if len(group) > 0:
+                for child in group[1:]:
+                    self.parents[child] = group[0]
 
         # Create the build order based on the hierarchy specified in the ASF
         # file. The hierarchy in the ASF file looks like: "parent child child..."
         # This loop appends the list of children to the build order from each
         # line.
-        while pos < len(self.order):
-            for group in asf.hierarchy:
-                if len(group) and group[0] == self.order[pos]:
-                    self.order.extend(group[1:])
-            pos += 1
+        for group in asf.hierarchy:
+            if len(group) and group[0] in self.order:
+                for bone in group[1:]:
+                    if bone not in self.order:
+                        self.order.append(bone)
 
     def combine(self, bones, items, current={}, current_probability=1.0):
         """Recusively create combinatoric successors.
@@ -248,14 +247,22 @@ class GraphSearch:
         Return a list of successors created by combining all the values in
         items in every possible way.
         """
+        print bones
         bone = bones[0]
 
-        if bone in self.bayes:
-            net = self.bayes[bone]
+        if not items.has_key(bone):
+            print "skipping", bone
+            for child in self.combine(bones[1:], items, current,
+                    current_probability):
+                yield child
+            return
 
         if bone in self.parents:
             parent = self.parents[bone]
-            pbone = current[parent]
+            try:
+                pbone = current[parent]
+            except KeyError:
+                pbone = None
 
         for item in items[bone]:
             # If we're in a bone with no parent (the root) or a bone whose
@@ -264,7 +271,7 @@ class GraphSearch:
                     (self.asf.bones[bone].dof or \
                     (parent in self.asf.bones and \
                     self.asf.bones[parent].dof))) or \
-                    not parent_pos:
+                    not pbone:
                 current[bone] = item
 
                 # If there's only one bone in the list, do not recurse further
@@ -275,6 +282,7 @@ class GraphSearch:
                             current_probability):
                         yield child
             else:
+                net = self.bayes[bone]
                 # Build the key for the Bayes net
                 spot = (tuple(pbone.mins), tuple(item.mins))
                 if spot in net:
@@ -303,9 +311,9 @@ class GraphSearch:
         mapping bone names to positions; it represents the current position for
         which successors should be generated.
         """
-        immediate_successors = {}
         # Create a dictionary mapping bone name to the list of successors for that
         # bone in its current position.
+        immediate_successors = {}
         for bone, n in node.iteritems ():
             immediate_successors[bone] = [edge.v for edge in self.adjacency[bone].query (n)]
 
