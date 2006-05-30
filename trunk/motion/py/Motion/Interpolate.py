@@ -262,7 +262,7 @@ class GraphSearch:
             except ValueError:
                 parent_pos = None
 
-        for item in items[0]:
+        for item in items[position]:
             # If we're in a bone with no parent (the root) or a bone whose
             # parent has no DOF, accept all successors for the bone.
             if not (bone in self.parents and \
