@@ -290,6 +290,11 @@ class DLS:
 
 class Heuristic:
     """A heuristic best first search.
+
+    A class for executing heuristic best first searches on a graph or graphs.
+    It requires the graph(s), a function that returns a path cost given a node
+    and a goal, and a function that returns a list or generates the successors
+    of a given node.
    
     Members:
         - graph             The graph to search
@@ -310,9 +315,12 @@ class Heuristic:
     def run(self, source, goal):
         """Execute a heuristic search of a graph.
         
-        Returns:
-            A list of nodes that is the path from the source to the goal or
-            None if there is no path.
+        Returns a list of nodes that is the path from the source to the goal or
+        None if there is no path.
+
+        Arguments:
+            - source        The starting node for the search
+            - goal          The goal node for the search
         """
         # Use this function to sort the agenda
         def compare(a, b):
