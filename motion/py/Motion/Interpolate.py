@@ -244,8 +244,18 @@ class GraphSearch:
     def combine(self, bones, items, current={}, current_probability=1.0):
         """Recusively create combinatoric successors.
 
-        Return a list of successors created by combining all the values in
-        items in every possible way.
+        A generator that yields dictionaries representing a whole-body position
+        created from every possible combination (with a high enough
+        probability) of every successor of every bone.
+
+        Arguments:
+            - bones     An ordered list of the bones to check, the first item
+                        in the list is always the current bone to check
+            - items     A dictionary mapping the bone name to a list of all
+                        successor states of that bone
+            - current   A dictionary representing the current working position
+                        of all bones previously seen
+            - current_probability   The current probability of this position
         """
         bone = bones[0]
 
@@ -311,14 +321,16 @@ class GraphSearch:
                 # net?
 
     def successor (self, graphs, node):
-        """Return a list of successors for a combinatoric node.
-        
-        Returns a list of dictionaries. Each dictionary represents a single
-        whole-body position that can be reached from the current position
-        defined by 'node'. 'graphs' is a dictionary of motion graphs mapping a
-        bone name to the motion graph for that bone. 'node' is a dictionary
-        mapping bone names to positions; it represents the current position for
-        which successors should be generated.
+        """A generator that yields successors of a whole-body pose.
+
+        Yields dictionaries representing a whole-body position based on the
+        position specified by 'node' and the motion graphs in 'graphs'. Each
+        dictionary maps a bone name to a node in the graph representing a
+        position.
+
+        Arguments:
+            - graphs        A dictionary mapping bone name to graph
+            - node          A dictionary mapping bone name to a graph node
         """
         # Create a dictionary mapping bone name to the list of successors for that
         # bone in its current position.
