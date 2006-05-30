@@ -247,16 +247,19 @@ class GraphSearch:
         Return a list of successors created by combining all the values in
         items in every possible way.
         """
-        print bones
         bone = bones[0]
 
+        # If the bone is not in the motion data, skip it. This happens for
+        # bones like hipjoints---they exist in the bone hierarchy, but have no
+        # degrees of freedom.
         if not items.has_key(bone):
-            print "skipping", bone
             for child in self.combine(bones[1:], items, current,
                     current_probability):
                 yield child
+
             return
 
+        # Get the parent bone, if there is one.
         if bone in self.parents:
             parent = self.parents[bone]
             try:
@@ -264,6 +267,7 @@ class GraphSearch:
             except KeyError:
                 pbone = None
 
+        # For each possible successor position of this bone...
         for item in items[bone]:
             # If we're in a bone with no parent (the root) or a bone whose
             # parent has no DOF, accept all successors for the bone.
@@ -286,10 +290,16 @@ class GraphSearch:
                 # Build the key for the Bayes net
                 spot = (tuple(pbone.mins), tuple(item.mins))
                 if spot in net:
+                    # Probability voodoo
                     probability = net[spot]
                     current[bone] = item
                     new_prob = current_probability * probability
+                    # If the bone's probability is high enough to warrant
+                    # checking...
                     if new_prob > EPSILON and probability > 0.1:
+                        # If this is the last bone in the build order return a
+                        # copy of this node. Otherwise, recurse further down
+                        # the build order.
                         if len(bones) == 1:
                             yield current.copy()
                         else:
@@ -299,7 +309,6 @@ class GraphSearch:
 
                 # FIXME - What if the (parent, child) pair isn't in the Bayes
                 # net?
-
 
     def successor (self, graphs, node):
         """Return a list of successors for a combinatoric node.
