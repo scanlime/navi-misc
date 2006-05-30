@@ -345,25 +345,19 @@ class Heuristic:
             node = agenda.pop()
             visited.append(node)
             if node == self.goal:
-                print "GOAL!"
                 # Reconstruct the path to the goal
                 self.path = self.pathToNode(node)
                 break
-            print "not goal"
 
             # Add the successors of this node to the agenda and record the node
             # that generated these successors.
             for s in self.successorf(self.graph, node):
-                print "a successor"
                 if s not in visited:
-                    print "    not visited"
                     self.predecessors[s] = node
                     agenda.append(s)
 
-            print "sorting..."
             # Resort the queue
             agenda.sort(cmp=compare)
-            print "    done."
 
         return self.path
 
