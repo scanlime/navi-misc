@@ -307,7 +307,7 @@ class Heuristic:
     """
     def __init__(self, graph, source, goal, costf, successorf):
         self.path = None
-        self.predecessors = {source: None}
+        self.predecessors = {self._dictToTuple(source): None}
         self.costs = {}
         self.graph = graph
         self.source = source
@@ -324,16 +324,19 @@ class Heuristic:
         """
         # Use this function to sort the agenda
         def compare(a, b):
-            if not self.costs.has_key(a):
+            keyA = self._dictToTuple(a)
+            keyB = self._dictToTuple(b)
+
+            if not self.costs.has_key(keyA):
                 a_path = self.pathToNode(a)
-                self.costs[a] = self.costf(a_path, self.goal)
+                self.costs[keyA] = self.costf(a_path, self.goal)
 
-            if not self.costs.has_key(b):
+            if not self.costs.has_key(keyB):
                 b_path = self.pathToNode(b)
-                self.costs[b] = self.costf(b_path, self.goal)
+                self.costs[keyB] = self.costf(b_path, self.goal)
 
-            ac = self.costs[a]
-            bc = self.costs[b]
+            ac = self.costs[keyA]
+            bc = self.costs[keyB]
 
             return (bc - ac)
 
@@ -353,7 +356,7 @@ class Heuristic:
             # that generated these successors.
             for s in self.successorf(self.graph, node):
                 if s not in visited:
-                    self.predecessors[s] = node
+                    self.predecessors[self._dictToTuple(s)] = self._dictToTuple(node)
                     agenda.append(s)
 
             # Resort the queue
@@ -371,11 +374,29 @@ class Heuristic:
             - node      The node at the end of the desired path
         """
         path = [node]
-        next = self.predecessors[node]
+        next = self.predecessors[self._dictToTuple(node)]
         while next:
-            path.insert(0, next)
+            path.insert(0, dict(next))
             next = self.predecessors[next]
 
         return path
+
+    def _dictToTuple(self, a):
+        """A simple list comprehension that creates a tuple of (key, value)
+        pairs from a dictionary.
+
+        Takes a dictionary and returns a tuple of (key, value) pairs. Tuples
+        created from dictionaries are used when a hashable object is needed for
+        using frames of motion data as keys in a dictionary. These tuples are
+        used as keys in the dictionary of cached path costs and the dictionary
+        of back pointers. To recreate the dictionary simply pass the tuple to
+        the dict() constructor. If 'x' is a dictionary, the statement:
+
+            x = dict(self._dictToTuple(x))
+
+        has no effect.
+        """
+        return tuple([(key, item) for key, item in a.iteritems()])
+    
 
 # vim:ts=4:sw=4:et

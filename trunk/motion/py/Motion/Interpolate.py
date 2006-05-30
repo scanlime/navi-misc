@@ -22,7 +22,7 @@ Functions:
 
 from Dance.MotionGraph import fix360, fixnegative
 from Graph import algorithms_c
-from Graph.Data import AdjacencyList, VertexMap, CNode
+from Graph.Data import AdjacencyList, VertexMap
 from Graph.ExtraAlgorithms import Heuristic
 from LinearAlgebra import inverse
 from Motion import AMC
@@ -187,7 +187,7 @@ class GraphSearch:
             goal[bone] = self.find_node(self.graphs[bone], e)
 
         # Run the search
-        path = Heuristic(self.graphs, CNode(source), CNode(goal), self.f, self.successor).run()
+        path = Heuristic(self.graphs, source, goal, self.f, self.successor).run()
 
         print path
 
@@ -195,8 +195,8 @@ class GraphSearch:
         # frame in the animation.
         for i in range(len(path)):
             frame = {}
-            for bone in path[i].data.keys():
-                node = path[i].data[bone]
+            for bone in path[i].keys():
+                node = path[i][bone]
                 center = node.center
 
                 # Linearly interpolate the position of the root at each frame
@@ -330,7 +330,7 @@ class GraphSearch:
             retsucc = {}
             for pos in range(len(succ)):
                 retsucc[self.order[pos]] = succ[pos]
-            retval.append(CNode(retsucc))
+            retval.append(retsucc)
 
         return retval
 
