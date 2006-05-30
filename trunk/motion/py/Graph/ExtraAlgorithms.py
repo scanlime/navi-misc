@@ -328,12 +328,12 @@ class Heuristic:
             keyB = toTuple(b)
 
             if not costs.has_key(keyA):
-                a_path = self.pathToNode(a)
-                costs[keyA] = self.costf(a_path, self.goal)
+                a_path = pathToNode(a)
+                costs[keyA] = self.costf(a_path, goal)
 
             if not costs.has_key(keyB):
-                b_path = self.pathToNode(b)
-                costs[keyB] = self.costf(b_path, self.goal)
+                b_path = pathToNode(b)
+                costs[keyB] = self.costf(b_path, goal)
 
             ac = costs[keyA]
             bc = costs[keyB]
@@ -374,10 +374,17 @@ class Heuristic:
 
             # Add the successors of this node to the agenda and record the node
             # that generated these successors.
+            numSucc = numAdded = 0
             for s in self.successorf(self.graph, node):
+                numSucc += 1
                 if s not in visited:
+                    numAdded += 1
                     predecessors[toTuple(s)] = toTuple(node)
                     agenda.append(s)
+
+            # Some debuggative statements
+            print "%d likely successors" % (numSucc)
+            print "    %d added to agenda" % (numAdded)
 
             # Resort the queue
             agenda.sort(cmp=compare)
