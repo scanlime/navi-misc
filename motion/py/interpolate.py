@@ -26,7 +26,7 @@ usage: interpolate.py <asf file> <graph> <bayes net> <input amc> <output amc> <s
 
 from Dance import MotionGraph
 from Graph import algorithms_c
-from Graph.Data import VertexMap, AdjacencyList, CNode
+from Graph.Data import VertexMap, AdjacencyList
 from Graph.ExtraAlgorithms import ParallelBFS, Heuristic
 from Motion import AMC, ASFReader, Interpolate
 from optparse import OptionParser
