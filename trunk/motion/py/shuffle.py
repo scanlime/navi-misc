@@ -30,7 +30,7 @@ from Dance.Sequence import Sequence
 from optparse import OptionParser
 import Numeric, string
 
-def save(sequence, file):
+def save(sequence, chunks, file):
     """Save a sequence to a file.
    
     'sequence' is a list of dictionaries. Each dictionary represents a single
@@ -48,6 +48,8 @@ def save(sequence, file):
         bones[bone] = [frame[bone] for frame in sequence]
 
     amc.bones = dict([(bone, Numeric.array(data)) for bone, data in bones.iteritems()])
+    # Store the chunk boundaries as a comment at the top of the file.
+    amc.comments = ["# Chunk boundaries: " + string.join([str(i) for i in chunks])]
     amc.save(file)
 
 
@@ -74,6 +76,6 @@ sequence = Sequence(amc, lorenz, Numeric.array ([60, 15, 1]), n=opts.n)
 initial = [float(x) for x in opts.ic.split(",")]
 shuffled = sequence.shuffle(initial)
 
-save(shuffled, args[1])
+save(shuffled, sequence.markChunks(shuffled), args[1])
 
 # vim: ts=4:sw=4:et
