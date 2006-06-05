@@ -349,4 +349,55 @@ class DotPrint (Algorithm):
     def identity (self):
         return hash (self.graph)
 
+class SearchPrint (DotPrint):
+    def setStep (self, start, end, path):
+        self.start = start
+        self.end = end
+        self.path = path
+
+    def run (self):
+        if self.valid:
+            return self.results
+
+        self.printline ('Digraph {')
+
+        self_loops = set([])
+
+        # print vertices
+        for vertex in self.vertexMap:
+            if vertex == self.start:
+                color = "green"
+            elif vertex == self.end:
+                color = "red"
+            elif vertex in self.path:
+                color = "blue"
+            else:
+                color = "black"
+
+            # we use the hash of the vertex as the node id, since only the label will be
+            # visible, and we're relatively safe that hashes will be unique within our graph
+            if hasattr (vertex, 'dot_label') and vertex.dot_label is not None:
+                self.printline ('%s [label="%s",color=%s];' % (hash (vertex), vertex.dot_label, color))
+            else:
+                self.printline ('%s [label="%s",color=%s];' % (hash (vertex), vertex, color))
+
+        # print edges
+        for vertex in self.vertexMap:
+            edges = self.vertexMap.query (vertex)
+            for edge in edges:
+                if edge.u is vertex:
+                    if hasattr (edge, 'dot_label') and edge.dot_label is not None:
+                        self.printline ('%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge.dot_label))
+                    else:
+                        self.printline ('%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge))
+
+        self.printline ('}')
+
+        if self.file is not None:
+            self.file.write (self.results)
+
+        self.valid = True
+        return self.results
+
+
 # vim: ts=4:sw=4:et
