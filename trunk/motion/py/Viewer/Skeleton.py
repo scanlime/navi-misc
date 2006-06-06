@@ -42,6 +42,8 @@ class Bone:
 
 
 class StickFigure(Bone):
+    """Draw bones in the skeleton as lines."""
+
     def draw(self, data):
         """Draw the bone on screen.
 
