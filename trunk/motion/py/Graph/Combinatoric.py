@@ -120,9 +120,26 @@ class VertexMap (Data.GraphRepresentation):
     __slots__ = ["vertexMap"]
 
     def __init__ (self, graphs):
-        self.vertexMap = {}
+        self.vertexMaps = {}
         for name, graph in graphs.iteritems ():
-            self.vertexMap[name] = graph.representations[Data.VertexMap]
+            self.vertexMaps[name] = graph.representations[Data.VertexMap]
+
+    def __iter__ (self):
+        """Iterate over all the vertices in the graph."""
+        def combine (names):
+            """Recursively combine the individual vertices into the
+               combinatoric nodes.
+               """
+            map = self.vertexMaps[names[0]]
+            for vertex in map:
+                if len(names) == 1:
+                    yield {names[0]:vertex}
+                    continue
+                for v in combine (names[1:]):
+                    v[names[0]] = vertex
+                    yield v
+
+        combine (self.vertexMaps.keys ())
 
     def query (self, u):
         pass
