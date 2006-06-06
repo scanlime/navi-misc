@@ -217,7 +217,15 @@ class EdgeList (Data.GraphRepresentation):
             yield edge
 
     def query (self, u, v):
-        pass
+        """Return the edge from 'u' to 'v'."""
+        returnEdge = self.edgeClass ({}, {})
+        for name in u.iterkeys ():
+            edges = self.edgeLists[name]
+            edge = edges.query (u[name], v[name])
+            returnEdge.u[name] = edge.u
+            returnEdge.v[name] = edge.v
+
+        return returnEdge
 
 
 # vim: ts=4:sw=4:et
