@@ -43,10 +43,11 @@ class Graph (Data.Graph):
 class AdjacencyList (Data.GraphRepresentation):
     """Combinatoric adjacency list."""
 
-    __slots__ = ["adjacency"]
+    __slots__ = ["adjacency", "edgeClass"]
 
     def __init__ (self, graphs):
         self.adjacency = {}
+        self.edgeClass = graphs.items ()[0].edgeClass
         for name, graph in graphs:
             self.adjacency[name] = graphs.representations[Data.AdjacencyList]
 
@@ -61,7 +62,7 @@ class AdjacencyList (Data.GraphRepresentation):
                 if len(names) == 1:
                     u = {names[0]:edge.u}
                     v = {names[0]:edge.v}
-                    yield adj.graph.EdgeClass (u, v)
+                    yield self.edgeClass (u, v)
                     continue
 
                 for e in combine(names[1:]):
@@ -115,16 +116,17 @@ class AdjacencyList (Data.GraphRepresentation):
 
         edgeClass = self.adjacency.items ()[0].EdgeClass
         for v in combine (self.adjacency.keys ()):
-            yield edgeClass (u, v)
+            yield self.edgeClass (u, v)
 
 
 class VertexMap (Data.GraphRepresentation):
     """Maps each vertex to a hash of all the edges connected to that vertex."""
 
-    __slots__ = ["vertexMap"]
+    __slots__ = ["vertexMap", "edgeClass"]
 
     def __init__ (self, graphs):
         self.vertexMaps = {}
+        edgeClass = graphs.items ()[0].edgeClass
         for name, graph in graphs.iteritems ():
             self.vertexMaps[name] = graph.representations[Data.VertexMap]
 
@@ -144,8 +146,8 @@ class VertexMap (Data.GraphRepresentation):
                     v[names[0]] = vertex
                     yield v
 
-        for edge in combine (self.vertexMaps.keys ()):
-            yield edge
+        for v in combine (self.vertexMaps.keys ()):
+            yield v 
 
     def query (self, node):
         """Iterate over the edges containing the vertex 'u'."""
@@ -178,10 +180,10 @@ class VertexMap (Data.GraphRepresentation):
                         yield v
 
         for u in combineU (self.vertexMaps.keys ()):
-            yield EdgeClass (u, node)
+            yield self.edgeClass (u, node)
 
         for v in combineV (self.vertexMaps.keys ()):
-            yield EdgeClass (node, v)
+            yield self.edgeClass (node, v)
 
 
 class EdgeList (Data.GraphRepresentation):
