@@ -28,6 +28,7 @@ class Graph (Data.Graph):
 
 
 class AdjacencyList (Data.GraphRepresentation):
+    """Combinatoric adjacency list."""
 
     __slots__ = ["adjacency"]
 
@@ -38,21 +39,35 @@ class AdjacencyList (Data.GraphRepresentation):
 
     def __iter__ (self):
         """Iterate over all the edges in the graph."""
-        self._combine (self.adjacency.keys())
+        def combine (names):
+            adj = self.adjacency[names[0]]
+            for edge in adj:
+                if len(names) == 1:
+                    u = {names[0]:edge.u}
+                    v = {names[0]:edge.v}
+                    yield adj.graph.EdgeClass (u, v)
+                    continue
 
-    def _combine (self, names):
-        adj = self.adjacency[names[0]]
-        for edge in adj:
-            if len(names) == 1:
-                u = {names[0]:edge.u}
-                v = {names[0]:edge.v}
-                yield adj.graph.EdgeClass (u, v)
-                continue
+                for e in combine(names[1:]):
+                    e.u[names[0]] = edge.u
+                    e.v[names[0]] = edge.v
+                    yield e
 
-            for e in self._combine(names[1:]):
-                e.u[names[0]] = edge.u
-                e.v[names[0]] = edge.v
-                yield e
+        combine (self.adjacency.keys ())
+
+    def iterU (self):
+        def combine (names):
+            adj = self.adjacency[names[0]]
+            for u in adj.iterU ():
+                if len(names) == 1:
+                    yield {names[0]:u}
+                    continue
+                
+                for dictU in combine(names[1:]):
+                    dictU[names[0]] = u
+                    yield dictU
+
+        combine (self.adjacency.keys ())
 
 
 class VertexMap (Data.GraphRepresentation):
