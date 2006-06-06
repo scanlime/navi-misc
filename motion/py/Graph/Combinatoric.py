@@ -1,4 +1,16 @@
 """Data structures for building graphs by combining multiple graphs.
+
+A module for manipulating combinatoric graphs. It's easier on memory to keep
+the individual graphs separate and pretend that there is a giant graph composed
+of all possible combinations of the nodes in the individual graphs. These
+classes allow you to manipulate this pretend graph as though it actually
+existed in memory.
+
+Classes:
+    - Graph
+    - AdjacencyList
+    - VertexMap
+    - EdgeList
 """
 
 # Copyright (C) 2006 W. Evan Sheehan
@@ -20,6 +32,7 @@
 import Data
 
 class Graph (Data.Graph):
+    """A combinatoric graph."""
     def __init__ (self, graphs):
         pass
 
@@ -40,6 +53,9 @@ class AdjacencyList (Data.GraphRepresentation):
     def __iter__ (self):
         """Iterate over all the edges in the graph."""
         def combine (names):
+            """Recursive function for combining the edges in the adjacency
+               lists of all graphs.
+               """
             adj = self.adjacency[names[0]]
             for edge in adj:
                 if len(names) == 1:
@@ -56,10 +72,17 @@ class AdjacencyList (Data.GraphRepresentation):
         combine (self.adjacency.keys ())
 
     def __contains__ (self, edge):
+        """Returns true if edge exists in the adjacency list."""
         pass
 
     def iterU (self):
+        """Iterate over all the 'u' vertices in the edges of the adjacency
+           list.
+           """
         def combine (names):
+            """Recursive function to combine the 'u' vertices into dictionaries
+               mapping the graph name to the vertex.
+               """
             adj = self.adjacency[names[0]]
             for u in adj.iterU ():
                 if len(names) == 1:
@@ -73,7 +96,11 @@ class AdjacencyList (Data.GraphRepresentation):
         combine (self.adjacency.keys ())
 
     def query (self, u):
+        """Iterate over all edges going out from vertex 'u'."""
         def combine (names):
+            """Recursively combine all the edges from the graphs going out from
+               'u'.
+               """
             adj = self.adjacency[names[0]]
             for v in adj.query(u[names[0]]):
                 if len(names) == 1:
@@ -88,6 +115,7 @@ class AdjacencyList (Data.GraphRepresentation):
 
 
 class VertexMap (Data.GraphRepresentation):
+    """Maps each vertex to a hash of all the edges connected to that vertex."""
 
     __slots__ = ["vertexMap"]
 
@@ -101,6 +129,7 @@ class VertexMap (Data.GraphRepresentation):
 
 
 class EdgeList (Data.GraphRepresentation):
+    """A simple graph representation that maps (u,v) pairs to edge objects."""
 
     __slots__ = ["edgeLists"]
 
