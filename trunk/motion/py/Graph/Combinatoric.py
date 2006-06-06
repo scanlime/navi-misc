@@ -55,6 +55,9 @@ class AdjacencyList (Data.GraphRepresentation):
 
         combine (self.adjacency.keys ())
 
+    def __contains__ (self, edge):
+        pass
+
     def iterU (self):
         def combine (names):
             adj = self.adjacency[names[0]]
@@ -66,6 +69,20 @@ class AdjacencyList (Data.GraphRepresentation):
                 for dictU in combine(names[1:]):
                     dictU[names[0]] = u
                     yield dictU
+
+        combine (self.adjacency.keys ())
+
+    def query (self, u):
+        def combine (names):
+            adj = self.adjacency[names[0]]
+            for v in adj.query(u[names[0]]):
+                if len(names) == 1:
+                    yield {names[0]:v}
+                    continue
+
+                for node in combine (names[1:]):
+                    node[names[0]] = v
+                    yield node
 
         combine (self.adjacency.keys ())
 
