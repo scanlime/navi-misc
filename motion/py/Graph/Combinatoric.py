@@ -139,6 +139,7 @@ class VertexMap (Data.GraphRepresentation):
                 if len(names) == 1:
                     yield {names[0]:vertex}
                     continue
+
                 for v in combine (names[1:]):
                     v[names[0]] = vertex
                     yield v
@@ -146,13 +147,41 @@ class VertexMap (Data.GraphRepresentation):
         for edge in combine (self.vertexMaps.keys ()):
             yield edge
 
-    def query (self, u):
+    def query (self, node):
         """Iterate over the edges containing the vertex 'u'."""
-        def combine (names):
-            pass
-        
-        for edge in combine (self.vertexMaps.keys ()):
-            yield edge
+        def combineU (names):
+            name = names[0]
+            map = self.vertexMaps[name]
+
+            for edge in map.query (node[name]):
+                if edge.v == node[name]:
+                    if len (names) == 1:
+                        yield {name:edge.v}
+                        continue
+
+                    for u in combineU (names[1:]):
+                        u[name] = edge.u
+                        yield u
+
+        def combineV (names):
+            name = names[0]
+            map = self.vertexMaps[name]
+
+            for edge in map.query (node[name]):
+                if edge.u == node[name]:
+                    if len (names) == 1:
+                        yield {name:edge.v}
+                        continue
+
+                    for v in combineV (names[1:]):
+                        v[name] = edge.v
+                        yield v
+
+        for u in combineU (self.vertexMaps.keys ()):
+            yield EdgeClass (u, node)
+
+        for v in combineV (self.vertexMaps.keys ()):
+            yield EdgeClass (node, v)
 
 
 class EdgeList (Data.GraphRepresentation):
