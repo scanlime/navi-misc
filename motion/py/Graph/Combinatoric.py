@@ -75,7 +75,12 @@ class AdjacencyList (Data.GraphRepresentation):
 
     def __contains__ (self, edge):
         """Returns true if edge exists in the adjacency list."""
-        pass
+        for name in edge.u.iterkeys ():
+            e = self.edgeClass (edge.u[name], edge.v[name])
+            if e not in self.adjacency[name]:
+                return False
+
+        return True
 
     def iterU (self):
         """Iterate over all the 'u' vertices in the edges of the adjacency
