@@ -187,15 +187,34 @@ class VertexMap (Data.GraphRepresentation):
 class EdgeList (Data.GraphRepresentation):
     """A simple graph representation that maps (u,v) pairs to edge objects."""
 
-    __slots__ = ["edgeLists"]
+    __slots__ = ["edgeLists", "edgeClass"]
 
     def __init__ (self, graphs):
         self.edgeLists = {}
+        self.edgeClass = graphs.items ()[0]
         for name, graph in graphs.iteritems ():
             self.edgeLists[name] = graph.representations[Data.EdgeList]
 
     def __iter__ (self):
-        pass
+        """Iterate over the edges of the graph."""
+        def combine (names):
+            name = names[0]
+            edges = self.edgeLists[name]
+
+            for edge in edges:
+                if len (names) == 1:
+                    u = {name:edge.u}
+                    v = {name:edge.v}
+                    yield edge
+                    continue
+
+                for e in combine (names[1:]):
+                    e.u[name] = edge.u
+                    e.v[name] = edge.v
+                    yield e
+
+        for edge in combine (self.edgeLists.keys ()):
+            yield edge
 
     def query (self, u, v):
         pass
