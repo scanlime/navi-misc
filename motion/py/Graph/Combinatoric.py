@@ -88,7 +88,31 @@ class AdjacencyList (Data.GraphRepresentation):
 
 
 class VertexMap (Data.GraphRepresentation):
+
+    __slots__ = ["vertexMap"]
+
     def __init__ (self, graphs):
+        self.vertexMap = {}
+        for name, graph in graphs.iteritems ():
+            self.vertexMap[name] = graph.representations[Data.VertexMap]
+
+    def query (self, u):
+        pass
+
+
+class EdgeList (Data.GraphRepresentation):
+
+    __slots__ = ["edgeLists"]
+
+    def __init__ (self, graphs):
+        self.edgeLists = {}
+        for name, graph in graphs.iteritems ():
+            self.edgeLists[name] = graph.representations[Data.EdgeList]
+
+    def __iter__ (self):
+        pass
+
+    def query (self, u, v):
         pass
 
 
