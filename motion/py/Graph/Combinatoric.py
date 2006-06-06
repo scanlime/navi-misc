@@ -69,7 +69,8 @@ class AdjacencyList (Data.GraphRepresentation):
                     e.v[names[0]] = edge.v
                     yield e
 
-        combine (self.adjacency.keys ())
+        for edge in combine (self.adjacency.keys ()):
+            yield edge
 
     def __contains__ (self, edge):
         """Returns true if edge exists in the adjacency list."""
@@ -93,7 +94,8 @@ class AdjacencyList (Data.GraphRepresentation):
                     dictU[names[0]] = u
                     yield dictU
 
-        combine (self.adjacency.keys ())
+        for u in combine (self.adjacency.keys ()):
+            yield u
 
     def query (self, u):
         """Iterate over all edges going out from vertex 'u'."""
@@ -111,7 +113,9 @@ class AdjacencyList (Data.GraphRepresentation):
                     node[names[0]] = v
                     yield node
 
-        combine (self.adjacency.keys ())
+        edgeClass = self.adjacency.items ()[0].EdgeClass
+        for v in combine (self.adjacency.keys ()):
+            yield edgeClass (u, v)
 
 
 class VertexMap (Data.GraphRepresentation):
@@ -139,10 +143,16 @@ class VertexMap (Data.GraphRepresentation):
                     v[names[0]] = vertex
                     yield v
 
-        combine (self.vertexMaps.keys ())
+        for edge in combine (self.vertexMaps.keys ()):
+            yield edge
 
     def query (self, u):
-        pass
+        """Iterate over the edges containing the vertex 'u'."""
+        def combine (names):
+            pass
+        
+        for edge in combine (self.vertexMaps.keys ()):
+            yield edge
 
 
 class EdgeList (Data.GraphRepresentation):
