@@ -154,21 +154,21 @@ class VertexMap (Data.GraphRepresentation):
 
     def __iter__ (self):
         """Iterate over all the vertices in the graph."""
-        def combine (names):
+        def combine (graphs):
             """Recursively combine the individual vertices into the
                combinatoric nodes.
                """
-            map = self.vertexMaps[names[0]]
+            name, map = graphs[0]
             for vertex in map:
                 if len(names) == 1:
-                    yield {names[0]:vertex}
+                    yield {name: vertex}
                     continue
 
-                for v in combine (names[1:]):
-                    v[names[0]] = vertex
+                for v in combine (graphs[1:]):
+                    v[name] = vertex
                     yield v
 
-        for v in combine (self.vertexMaps.keys ()):
+        for v in combine (self.data):
             yield v 
 
     def onAdd (self, graph):
