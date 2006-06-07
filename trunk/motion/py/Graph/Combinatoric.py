@@ -33,12 +33,22 @@ import Data
 
 __all__ = ["AdjacenceyList", "VertexMap", "EdgeList"]
 
-class AdjacencyList (Data.GraphRepresentation):
-    """Combinatoric adjacency list."""
-
+class CombinatoricRepresentation (Data.GraphRepresentation):
     def __init__ (self, graph):
         Data.GraphRepresentation.__init__ (self, graph)
         self.data = []
+
+    def onAdd (self, data):
+        try:
+            if len (data) != 2:
+                raise ValueError ("Combinatoric graph representations expect list or tuple of the form (name, graph), got: %s" % (data))
+        except TypeError:
+            raise TypeError ("Combinatoric graph representations expect a list or tuple, got: %s" % (data))
+
+
+
+class AdjacencyList (CombinatoricRepresentation):
+    """Combinatoric adjacency list."""
 
     def __iter__ (self):
         """Iterate over all the edges in the graph."""
@@ -88,15 +98,11 @@ class AdjacencyList (Data.GraphRepresentation):
         return True
 
     def onAdd (self, data):
-        try:
-            if len (data) != 2:
-                raise ValueError ("Combinatoric graph representations expect list or tuple of the form (name, graph), got: %s" % (data))
-        except TypeError:
-            raise TypeError ("Combinatoric graph representations expect a list or tuple, got: %s" % (data))
-
+        CombinatoricRepresentation.onAdd (self, data)
        
         name, graph = data
         adj = graph.representations[Data.AdjacencyList]
+
         if (name, adj) in self.data:
             raise ValueError ("Duplicate graph %s" % data)
         self.data.append ((name, adj))
@@ -146,11 +152,8 @@ class AdjacencyList (Data.GraphRepresentation):
             yield self.graph.edgeClass (u, v)
 
 
-class VertexMap (Data.GraphRepresentation):
+class VertexMap (CombinatoricRepresentation):
     """Maps each vertex to a hash of all the edges connected to that vertex."""
-    def __init__ (self, graph):
-        Data.GraphRepresentation.__init__ (self, graph)
-        self.data = []
 
     def __iter__ (self):
         """Iterate over all the vertices in the graph."""
@@ -172,7 +175,7 @@ class VertexMap (Data.GraphRepresentation):
             yield v 
 
     def onAdd (self, graph):
-        pass
+        CombinatoricRepresentation.onAdd (self, graph)
 
     def onRemove (self, graph):
         pass
