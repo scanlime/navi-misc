@@ -87,17 +87,19 @@ class AdjacencyList (Data.GraphRepresentation):
         # If nothing has failed, assume we contain 'edge'
         return True
 
-    def onAdd (self, graph):
+    def onAdd (self, data):
         try:
-            if len (graph) != 2:
-                raise ValueError ("Combinatoric graph representations expect list or tuple of the form (name, graph), got: %s" % (graph))
+            if len (data) != 2:
+                raise ValueError ("Combinatoric graph representations expect list or tuple of the form (name, graph), got: %s" % (data))
         except TypeError:
-            raise TypeError ("Combinatoric graph representations expect a list or tuple, got: %s" % (graph))
+            raise TypeError ("Combinatoric graph representations expect a list or tuple, got: %s" % (data))
 
-        graph = tuple (graph)
-        if graph in self.data:
-            raise ValueError ("Duplicate graph %s" % graph)
-        self.data.append (tuple (graph))
+       
+        name, graph = data
+        adj = graph.representations[Data.AdjacencyList]
+        if (name, adj) in self.data:
+            raise ValueError ("Duplicate graph %s" % data)
+        self.data.append ((name, adj))
 
     def onRemove (self, graph):
         graph = tuple (graph)
@@ -146,6 +148,9 @@ class AdjacencyList (Data.GraphRepresentation):
 
 class VertexMap (Data.GraphRepresentation):
     """Maps each vertex to a hash of all the edges connected to that vertex."""
+    def __init__ (self, graph):
+        Data.GraphRepresentation.__init__ (self, graph)
+        self.data = []
 
     def __iter__ (self):
         """Iterate over all the vertices in the graph."""
