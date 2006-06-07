@@ -33,10 +33,6 @@ import Data
 
 __all__ = ["AdjacenceyList", "VertexMap", "EdgeList"]
 
-def makeList (dictionary):
-    """Utility for building a list of tuples from a dictionary."""
-    return [(key, value) for key, value in dictionary.iteritems ()]
-
 class AdjacencyList (Data.GraphRepresentation):
     """Combinatoric adjacency list."""
 
@@ -88,10 +84,20 @@ class AdjacencyList (Data.GraphRepresentation):
         return True
 
     def onAdd (self, graph):
-        pass
+        try:
+            if len (graph) != 2:
+                raise ValueError ("Combinatoric graph representations expect list or tuple of the form (name, graph), got: %s" % (graph))
+        except TypeError:
+            raise TypeError ("Combinatoric graph representations expect a list or tuple, got: %s" % (graph))
+
+        graph = tuple (graph)
+        if graph in self.data:
+            raise ValueError ("Duplicate graph %s" % graph)
+        self.data.append (tuple (graph))
 
     def onRemove (self, graph):
-        pass
+        graph = tuple (graph)
+        self.data.remove (graph)
 
     def iterU (self):
         """Iterate over all the 'u' vertices in the edges of the adjacency
