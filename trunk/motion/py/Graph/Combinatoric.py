@@ -7,7 +7,6 @@ classes allow you to manipulate this pretend graph as though it actually
 existed in memory.
 
 Classes:
-    - Graph
     - AdjacencyList
     - VertexMap
     - EdgeList
@@ -34,6 +33,12 @@ import Data
 __all__ = ["AdjacenceyList", "VertexMap", "EdgeList"]
 
 class CombinatoricRepresentation (Data.GraphRepresentation):
+    """Base class for all combinatoric graph representations.
+
+    This class handles some of the error checking required by all the
+    combinatoric representations.
+    """
+
     def __init__ (self, graph):
         Data.GraphRepresentation.__init__ (self, graph)
         self.data = []
