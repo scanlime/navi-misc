@@ -36,6 +36,10 @@ __all__ = ["AdjacenceyList", "VertexMap", "EdgeList"]
 class AdjacencyList (Data.GraphRepresentation):
     """Combinatoric adjacency list."""
 
+    def __init__ (self, graph):
+        Data.GraphRepresentation.__init__ (self, graph)
+        self.data = []
+
     def __iter__ (self):
         """Iterate over all the edges in the graph."""
         def combine (graphs):
