@@ -73,6 +73,12 @@ class AdjacencyList (Data.GraphRepresentation):
 
         return True
 
+    def onAdd (self, graph):
+        pass
+
+    def onRemove (self, graph):
+        pass
+
     def iterU (self):
         """Iterate over all the 'u' vertices in the edges of the adjacency
            list.
@@ -145,6 +151,12 @@ class VertexMap (Data.GraphRepresentation):
         for v in combine (self.vertexMaps.keys ()):
             yield v 
 
+    def onAdd (self, graph):
+        pass
+
+    def onRemove (self, graph):
+        pass
+
     def query (self, node):
         """Iterate over the edges containing the vertex 'u'."""
         def combineU (names):
@@ -213,6 +225,12 @@ class EdgeList (Data.GraphRepresentation):
 
         for edge in combine (self.edgeLists.keys ()):
             yield edge
+
+    def onAdd (self, graph):
+        pass
+
+    def onRemove (self, graph):
+        pass
 
     def query (self, u, v):
         """Return the edge from 'u' to 'v'."""
