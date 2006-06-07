@@ -31,25 +31,16 @@ Classes:
 
 import Data
 
-class Graph (Data.Graph):
-    """A combinatoric graph."""
-    def __init__ (self, graphs):
-        pass
-
-    def addGraph (self, name, graph):
-        pass
-
-
 class AdjacencyList (Data.GraphRepresentation):
     """Combinatoric adjacency list."""
 
     __slots__ = ["adjacency", "edgeClass"]
 
-    def __init__ (self, graphs):
+    def __init__ (self, graph):
         self.adjacency = {}
-        self.edgeClass = graphs.items ()[0].edgeClass
-        for name, graph in graphs:
-            self.adjacency[name] = graphs.representations[Data.AdjacencyList]
+        self.edgeClass = graph.items ()[0].edgeClass
+        for name, graph in graph:
+            self.adjacency[name] = graph.representations[Data.AdjacencyList]
 
     def __iter__ (self):
         """Iterate over all the edges in the graph."""
@@ -129,10 +120,10 @@ class VertexMap (Data.GraphRepresentation):
 
     __slots__ = ["vertexMap", "edgeClass"]
 
-    def __init__ (self, graphs):
+    def __init__ (self, graph):
         self.vertexMaps = {}
-        edgeClass = graphs.items ()[0].edgeClass
-        for name, graph in graphs.iteritems ():
+        edgeClass = graph.items ()[0].edgeClass
+        for name, graph in graph.iteritems ():
             self.vertexMaps[name] = graph.representations[Data.VertexMap]
 
     def __iter__ (self):
@@ -196,10 +187,10 @@ class EdgeList (Data.GraphRepresentation):
 
     __slots__ = ["edgeLists", "edgeClass"]
 
-    def __init__ (self, graphs):
+    def __init__ (self, graph):
         self.edgeLists = {}
-        self.edgeClass = graphs.items ()[0]
-        for name, graph in graphs.iteritems ():
+        self.edgeClass = graph.items ()[0]
+        for name, graph in graph.iteritems ():
             self.edgeLists[name] = graph.representations[Data.EdgeList]
 
     def __iter__ (self):
