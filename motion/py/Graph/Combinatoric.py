@@ -223,31 +223,22 @@ class VertexMap (CombinatoricRepresentation):
             yield self.graph.edgeClass (node, v)
 
 
-class EdgeList (Data.GraphRepresentation):
+class EdgeList (CombinatoricRepresentation):
     """A simple graph representation that maps (u,v) pairs to edge objects."""
-
-    __slots__ = ["edgeLists", "edgeClass"]
-
-    def __init__ (self, graph):
-        self.edgeLists = {}
-        self.edgeClass = graph.items ()[0]
-        for name, graph in graph.iteritems ():
-            self.edgeLists[name] = graph.representations[Data.EdgeList]
 
     def __iter__ (self):
         """Iterate over the edges of the graph."""
-        def combine (names):
-            name = names[0]
-            edges = self.edgeLists[name]
+        def combine (graphs):
+            name, edges = graphs[0]
 
             for edge in edges:
-                if len (names) == 1:
-                    u = {name:edge.u}
-                    v = {name:edge.v}
-                    yield edge
+                if len (graphs) == 1:
+                    u = {name: edge.u}
+                    v = {name: edge.v}
+                    yield self.graph.edgeClass (u, v)
                     continue
 
-                for e in combine (names[1:]):
+                for e in combine (graphs[1:]):
                     e.u[name] = edge.u
                     e.v[name] = edge.v
                     yield e
@@ -255,8 +246,15 @@ class EdgeList (Data.GraphRepresentation):
         for edge in combine (self.edgeLists.keys ()):
             yield edge
 
-    def onAdd (self, graph):
-        pass
+    def onAdd (self, data):
+        CombinatoricRepresentation.onAdd (self, data)
+
+        name, graph = data
+        edges = graph.representations[Data.EdgeList]
+
+        if (name, edges) in self.data:
+            raise ValueError ("Duplicate graph %s", data)
+        self.data.append ((name, edges))
 
     def onRemove (self, graph):
         pass
