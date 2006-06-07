@@ -64,6 +64,7 @@ def save(sequence, file):
 
 options = OptionParser(usage="%prog <asf file> <graph> <bayes net> <input amc> <output amc> <start frame> <end frame>")
 
+options.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False)
 opts, args = options.parse_args()
 
 if len(args) < 7:
@@ -81,7 +82,7 @@ graphs = pickle.load(open(args[1]))
 print 'loading bayes net'
 bayes_net = pickle.load(open(args[2]))
 
-search = Interpolate.GraphSearch(graphs, bayes_net, asf)
+search = Interpolate.GraphSearch(graphs, bayes_net, asf, verbose=opts.verbose)
 
 start = {}
 end = {}

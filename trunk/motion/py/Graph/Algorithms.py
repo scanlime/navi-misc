@@ -350,6 +350,12 @@ class DotPrint (Algorithm):
         return hash (self.graph)
 
 class SearchPrint (DotPrint):
+    def __init__ (self, graph, file=None):
+        DotPrint.__init__ (self, graph, file)
+        self.start = None
+        self.end = None
+        self.path = None
+
     def setStep (self, start, end, path):
         self.start = start
         self.end = end
