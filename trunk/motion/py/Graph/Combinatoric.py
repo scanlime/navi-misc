@@ -31,46 +31,60 @@ Classes:
 
 import Data
 
+__all__ = ["AdjacenceyList", "VertexMap", "EdgeList"]
+
+def makeList (dictionary):
+    """Utility for building a list of tuples from a dictionary."""
+    return [(key, value) for key, value in dictionary.iteritems ()]
+
 class AdjacencyList (Data.GraphRepresentation):
     """Combinatoric adjacency list."""
 
-    __slots__ = ["adjacency", "edgeClass"]
-
-    def __init__ (self, graph):
-        self.adjacency = {}
-        self.edgeClass = graph.items ()[0].edgeClass
-        for name, graph in graph:
-            self.adjacency[name] = graph.representations[Data.AdjacencyList]
-
     def __iter__ (self):
         """Iterate over all the edges in the graph."""
-        def combine (names):
+        def combine (graphs):
             """Recursive function for combining the edges in the adjacency
                lists of all graphs.
                """
-            adj = self.adjacency[names[0]]
+            name, adj = graphs[0]
             for edge in adj:
-                if len(names) == 1:
-                    u = {names[0]:edge.u}
-                    v = {names[0]:edge.v}
-                    yield self.edgeClass (u, v)
+                if len(graphs) == 1:
+                    u = {name: edge.u}
+                    v = {name: edge.v}
+                    yield self.graph.edgeClass (u, v)
                     continue
 
-                for e in combine(names[1:]):
-                    e.u[names[0]] = edge.u
-                    e.v[names[0]] = edge.v
+                for e in combine(graphs[1:]):
+                    e.u[name] = edge.u
+                    e.v[name] = edge.v
                     yield e
 
-        for edge in combine (self.adjacency.keys ()):
+        for edge in combine (self.data):
             yield edge
 
     def __contains__ (self, edge):
         """Returns true if edge exists in the adjacency list."""
-        for name in edge.u.iterkeys ():
-            e = self.edgeClass (edge.u[name], edge.v[name])
-            if e not in self.adjacency[name]:
+        names = []
+        for (name, adj) in self.data:
+            # Try to create an edge for this just this graph. If we get a
+            # KeyError here, 'edge' doesn't have data for one of our graphs so
+            # return False.
+            try:
+                e = self.edgeClass (edge.u[name], edge.v[name])
+            except KeyError:
                 return False
 
+            # If this graph doesn't contain 'e', we don't contain 'edge'
+            if e not in adj:
+                return False
+
+            names.append (name)
+
+        # If 'edge' has data for a graph we don't have, we don't contain 'edge'
+        if names != edge.u.keys ():
+            return False
+                   
+        # If nothing has failed, assume we contain 'edge'
         return True
 
     def onAdd (self, graph):
@@ -83,54 +97,45 @@ class AdjacencyList (Data.GraphRepresentation):
         """Iterate over all the 'u' vertices in the edges of the adjacency
            list.
            """
-        def combine (names):
+        def combine (graphs):
             """Recursive function to combine the 'u' vertices into dictionaries
                mapping the graph name to the vertex.
                """
-            adj = self.adjacency[names[0]]
+            name, adj = graphs[0]
             for u in adj.iterU ():
-                if len(names) == 1:
-                    yield {names[0]:u}
+                if len(graphs) == 1:
+                    yield {name: u}
                     continue
                 
-                for dictU in combine(names[1:]):
-                    dictU[names[0]] = u
+                for dictU in combine(graphs[1:]):
+                    dictU[name] = u
                     yield dictU
 
-        for u in combine (self.adjacency.keys ()):
+        for u in combine (self.data):
             yield u
 
     def query (self, u):
         """Iterate over all edges going out from vertex 'u'."""
-        def combine (names):
+        def combine (graphs):
             """Recursively combine all the edges from the graphs going out from
                'u'.
                """
-            adj = self.adjacency[names[0]]
-            for v in adj.query(u[names[0]]):
-                if len(names) == 1:
-                    yield {names[0]:v}
+            name, adj = self.adjacency[names[0]]
+            for v in adj.query(u[name]):
+                if len(graphs) == 1:
+                    yield {name: v}
                     continue
 
-                for node in combine (names[1:]):
-                    node[names[0]] = v
+                for node in combine (graphs[1:]):
+                    node[name] = v
                     yield node
 
-        edgeClass = self.adjacency.items ()[0].EdgeClass
         for v in combine (self.adjacency.keys ()):
-            yield self.edgeClass (u, v)
+            yield self.graph.edgeClass (u, v)
 
 
 class VertexMap (Data.GraphRepresentation):
     """Maps each vertex to a hash of all the edges connected to that vertex."""
-
-    __slots__ = ["vertexMap", "edgeClass"]
-
-    def __init__ (self, graph):
-        self.vertexMaps = {}
-        edgeClass = graph.items ()[0].edgeClass
-        for name, graph in graph.iteritems ():
-            self.vertexMaps[name] = graph.representations[Data.VertexMap]
 
     def __iter__ (self):
         """Iterate over all the vertices in the graph."""
