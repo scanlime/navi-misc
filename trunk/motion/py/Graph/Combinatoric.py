@@ -174,47 +174,53 @@ class VertexMap (CombinatoricRepresentation):
         for v in combine (self.data):
             yield v 
 
-    def onAdd (self, graph):
-        CombinatoricRepresentation.onAdd (self, graph)
+    def onAdd (self, data):
+        CombinatoricRepresentation.onAdd (self, data)
+
+        name, graph = data
+        map = graph.representations[Data.VertexMap]
+
+        if (name, map) in self.data:
+            raise ValueError ("Duplicate graph %s" % (data))
+
+        self.data.append ((name, map))
 
     def onRemove (self, graph):
         pass
 
     def query (self, node):
         """Iterate over the edges containing the vertex 'u'."""
-        def combineU (names):
-            name = names[0]
-            map = self.vertexMaps[name]
-
-            for edge in map.query (node[name]):
-                if edge.v == node[name]:
-                    if len (names) == 1:
-                        yield {name:edge.v}
-                        continue
-
-                    for u in combineU (names[1:]):
-                        u[name] = edge.u
-                        yield u
-
-        def combineV (names):
-            name = names[0]
-            map = self.vertexMaps[name]
+        def combineU (graphs):
+            name, map = graphs[0]
 
             for edge in map.query (node[name]):
                 if edge.u == node[name]:
-                    if len (names) == 1:
-                        yield {name:edge.v}
+                    if len (graphs) == 1:
+                        yield {name: edge.u}
                         continue
 
-                    for v in combineV (names[1:]):
+                    for u in combineU (graphs[1:]):
+                        u[name] = edge.u
+                        yield u
+
+        def combineV (graphs):
+            name, map = graphs[0]
+
+            for edge in map.query (node[name]):
+                if edge.u == node[name]:
+                    if len (graphs) == 1:
+                        yield {name: edge.v}
+                        continue
+
+                    for v in combineV (graphs[1:]):
                         v[name] = edge.v
                         yield v
 
-        for u in combineU (self.vertexMaps.keys ()):
-            yield self.edgeClass (u, node)
+        for u in combineU (self.data):
+            yield self.graph.edgeClass (u, node)
 
-        for v in combineV (self.vertexMaps.keys ()):
-            yield self.edgeClass (node, v)
+        for v in combineV (self.data):
+            yield self.graph.edgeClass (node, v)
 
 
 class EdgeList (Data.GraphRepresentation):
