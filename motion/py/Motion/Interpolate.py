@@ -127,7 +127,7 @@ def _getMatrix(data, dof):
 class GraphSearch:
     """A class for interpolating by searching a motion graph."""
 
-    def __init__(self, graphs, bayes, asf, epsilon=0.3**29):
+    def __init__(self, graphs, bayes, asf, epsilon=0.3**29, verbose=False):
         """Create the GraphSearch object with the graphs."""
         self.graphs = graphs
         self.bayes = bayes
@@ -135,7 +135,7 @@ class GraphSearch:
         self.epsilon = epsilon
         self.adjacency = {}
         self.cached_costs = {}
-        self.search = Heuristic(self.graphs, self.f, self.successor)
+        self.search = Heuristic(self.graphs, self.f, self.successor, verbose)
 
         # Build the dictionary of adjacency lists. If a graph doesn't have an
         # AdjacencyList, raise an exception.

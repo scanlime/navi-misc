@@ -10,6 +10,7 @@ Classes:
     - Heuristic             A heuristic best first search
 """
 
+from Algorithms import SearchPrint
 import Data, gc
 
 class ParallelBFS:
@@ -305,12 +306,17 @@ class Heuristic:
         - run               Execute the search
     """
 
-    __slots__ = ["graph", "costf", "successorf"]
+    __slots__ = ["graph", "costf", "successorf", "dotPrint"]
 
-    def __init__(self, graph, costf, successorf):
+    def __init__(self, graph, costf, successorf, verbose=False):
         self.graph = graph
         self.costf = costf
         self.successorf = successorf
+
+        if verbose:
+            self.dotPrint = SearchPrint(graph['root'])
+        else:
+            self.dotPrint = None
 
     def run(self, source, goal):
         """Execute a heuristic search of a graph.
@@ -362,14 +368,28 @@ class Heuristic:
         agenda = [source]
         visited = []
         path = []
+        steps = []
 
         while len(agenda) > 0:
             # Get the next node and test for the goal
             node = agenda.pop()
             visited.append(node)
+
+            if self.dotPrint:
+                path = pathToNode
+                self.dotPrint.setStep(source, goal, path)
+                steps.append(self.dotPrint.run())
+                path = []
+
             if node == goal:
                 # Reconstruct the path to the goal
                 path = pathToNode(node)
+                if self.dotPrint:
+                    for i in range(len(steps)):
+                        print "writing step", i
+                        f = open("step-" + str(i), "w")
+                        f.write(steps[i])
+                        f.close()
                 break
 
             # Add the successors of this node to the agenda and record the node
