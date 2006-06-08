@@ -164,6 +164,16 @@ class AdjacencyList (CombinatoricRepresentation):
 class VertexMap (CombinatoricRepresentation):
     """Maps each vertex to a hash of all the edges connected to that vertex."""
 
+    def __init__ (self, graph):
+        if graph.has_representation (Data.VertexMap):
+            return graph.representations[Data.VertexMap]
+
+        self.graph = graph
+        graph.add.observe (self.onAdd)
+        graph.remove.observe (self.onRemove)
+        graph.representations[Data.VertexMap] = self
+        self.data = []
+
     def __iter__ (self):
         """Iterate over all the vertices in the graph."""
         def combine (graphs):
@@ -172,16 +182,16 @@ class VertexMap (CombinatoricRepresentation):
                """
             name, map = graphs[0]
             for vertex in map:
-                if len(names) == 1:
-                    yield {name: vertex}
+                if len(graphs) == 1:
+                    yield [(name, vertex)]
                     continue
 
                 for v in combine (graphs[1:]):
-                    v[name] = vertex
+                    v.append ((name, vertex))
                     yield v
 
         for v in combine (self.data):
-            yield v 
+            yield tuple (v)
 
     def onAdd (self, data):
         CombinatoricRepresentation.onAdd (self, data)
