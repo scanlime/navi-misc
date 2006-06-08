@@ -46,9 +46,12 @@ class CombinatoricRepresentation (Data.GraphRepresentation):
     def onAdd (self, data):
         try:
             if len (data) != 2:
-                raise ValueError ("Combinatoric graph representations expect list or tuple of the form (name, graph), got: %s" % (data))
+                raise ValueError ("Combinatoric graph representations expect \
+                        list or tuple of the form (name, graph), got: %s" %
+                        (data))
         except TypeError:
-            raise TypeError ("Combinatoric graph representations expect a list or tuple, got: %s" % (data))
+            raise TypeError ("Combinatoric graph representations expect a \
+                    list or tuple, got: %s" % (data))
 
 
 
@@ -112,9 +115,10 @@ class AdjacencyList (CombinatoricRepresentation):
             raise ValueError ("Duplicate graph %s" % data)
         self.data.append ((name, adj))
 
-    def onRemove (self, graph):
-        graph = tuple (graph)
-        self.data.remove (graph)
+    def onRemove (self, data):
+        name, graph = data
+        adj = graph.representations[Data.AdjacencyList]
+        self.data.remove ((name, adj))
 
     def iterU (self):
         """Iterate over all the 'u' vertices in the edges of the adjacency
@@ -190,8 +194,10 @@ class VertexMap (CombinatoricRepresentation):
 
         self.data.append ((name, map))
 
-    def onRemove (self, graph):
-        pass
+    def onRemove (self, data):
+        name, graph = data
+        map = graph.representations[Data.VertexMap]
+        self.data.remove ((name, map))
 
     def query (self, node):
         """Iterate over the edges containing the vertex 'u'."""
@@ -261,8 +267,10 @@ class EdgeList (CombinatoricRepresentation):
             raise ValueError ("Duplicate graph %s", data)
         self.data.append ((name, edges))
 
-    def onRemove (self, graph):
-        pass
+    def onRemove (self, data):
+        name, graph = data
+        edges = data.representations[Data.EdgeList]
+        self.data.remove ((name, edges))
 
     def query (self, u, v):
         """Return the edge from 'u' to 'v'."""
