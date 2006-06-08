@@ -20,11 +20,14 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+from Graph import Combinatoric, Data
 from Graph.Algorithms import DotPrint
 import sys, pickle
 
 def go (filename):
     graphs = pickle.load (open (filename))
+    cgraph = Data.Graph ([DotPrint])
+    vertex_map = Combinatoric.VertexMap (cgraph)
 
     for key, graph in graphs.iteritems():
         if graph is not None:
@@ -32,8 +35,15 @@ def go (filename):
             f = file ('graphs/%s.dot' % key, 'w')
             DotPrint (graph, f)
             f.close ()
+            cgraph.addList ([(key, graph)])
+
+    f = file ("graphs/combined.dot", "w")
+    DotPrint (cgraph, f)
+    f.close ()
 
 if len (sys.argv) != 2:
     print 'Usage: %s [graph pickle]' % sys.argv[0]
 else:
     go (sys.argv[1])
+
+# vim: ts=4:sw=4:et

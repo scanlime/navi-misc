@@ -67,7 +67,7 @@ class Graph (object):
        """
     edgeClass = Edge
 
-    __slots__ = ['representations']
+    #__slots__ = ['representations']
 
     def __init__ (self, algorithms=[]):
         self.addEvents ()
