@@ -164,10 +164,7 @@ class AdjacencyList (CombinatoricRepresentation):
 class VertexMap (CombinatoricRepresentation):
     """Maps each vertex to a hash of all the edges connected to that vertex."""
 
-    def __init__ (self, graph):
-        if graph.has_representation (Data.VertexMap):
-            return graph.representations[Data.VertexMap]
-
+    def __init__ (self, graphs):
         self.graph = graph
         graph.add.observe (self.onAdd)
         graph.remove.observe (self.onRemove)
