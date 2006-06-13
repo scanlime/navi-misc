@@ -3,10 +3,8 @@
 These classes represent chaotic systems.  They are intended for use with the
 ODE classes in ODE.py.
 
-Classes:
-    - System        Interface for all systems
-    - Lorenz        The Lorenz system
-    - Rossler       The Rossler system
+:Authors:
+    Evan Sheehan <Wallace.Sheehan@gmail.com>
 """
 
 import Numeric
@@ -15,27 +13,29 @@ import Numeric
 class System:
     """Interface implemented by all systems.
 
-    Methods:
-        - __call__      Abstract function for executing the system
+    Implementing this interface requires all `System`\s to be callable. This
+    insures that they are compatible with any class inheriting from `ODE`.
     """
 
     def __call__(self, args, time, step):
-        """Calculate a value in the system."""
-        pass
+        """Abstract `__call__` function.
+       
+        All `System` subclasses should override this function. Raises an
+        exception if it gets called, indicating that the subclass did not
+        implement `__call__`.
+        """
+        raise Exception ("__call__ not implemented in %s" % (self.__class__))
 
 
 class Lorenz(System):
     """The Lorenz system.
 
     Members:
-        - a, r, b       The parameters of the system
-
-    Overridden Methods:
-        - __call__      Calculate a value in the system
+        - ``a``, ``r``, ``b``       The parameters of the system
     """
 
     def __init__(self, a, r, b):
-        """Create a Lorenz object with parameters a, r, and b."""
+        """Create a Lorenz object with parameters ``a``, ``r``, and ``b``."""
         self.a = a
         self.r = r
         self.b = b
@@ -44,9 +44,9 @@ class Lorenz(System):
         """Calculate a value in the system.
 
         Arguments:
-            - args      A List or Tuple with 3 values
-            - time      IGNORED
-            - step      IGNORED
+            - ``args``      A list or tuple of 3 values
+            - ``time``      IGNORED
+            - ``step``      IGNORED
 
         Returns:
             A Numeric array that is the solution given the 3 values in args.
@@ -62,19 +62,16 @@ class Rossler(System):
     """The Rossler system.
 
     Members:
-        - a, b, c       Parameters of the system
-        - deltaMatrix
-
-    Overridden Methods:
-        - __call__      Calculate a value in the system
+        - ``a``, ``b``, ``c``       Parameters of the system
+        - ``deltaMatrix``
     """
 
     def __init__(self, a, b, c, delta=False):
         """Create a Rossler object.
 
         Arguments:
-            - a, b, c       Parameters of the system
-            - delta
+            - ``a``, ``b``, ``c``       Parameters of the system
+            - ``delta``
         """
         self.a = a
         self.b = b
@@ -85,9 +82,9 @@ class Rossler(System):
         """Calculate a value in the system.
 
         Arguments:
-            - args      A List or Tuple of 3 values
-            - time      IGNORED
-            - step      IGNORED
+            - ``args``      A list or tuple of 3 values
+            - ``time``      IGNORED
+            - ``step``      IGNORED
 
         Returns:
             A Numeric array that is the solution given the values in args.
