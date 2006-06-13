@@ -51,14 +51,16 @@ static void      navigation_tree_dispose (GObject *object);
 static void      navigation_tree_finalize (GObject *object);
 static void      navigation_tree_update_refs (NavTree *navtree);
 /* Context menus. */
-static void      navigation_context (GtkWidget *treeview, session *selected);
-static void      server_context (GtkWidget *treeview, session *selected);
-static void      channel_context (GtkWidget *treeview, session *selected);
-static void      dialog_context (GtkWidget *treeview, session *selected);
+static GtkWidget *navigation_context (GtkWidget *treeview, session *selected);
+static GtkWidget *server_context (GtkWidget *treeview, session *selected);
+static GtkWidget *channel_context (GtkWidget *treeview, session *selected);
+static GtkWidget *dialog_context (GtkWidget *treeview, session *selected);
 static gboolean  channel_is_autojoin (ircnet *network, gchar *chan);
+static void      show_context_menu (GtkWidget *treeview, GdkEventButton *event);
 /* Callbacks. */
 static gboolean  click (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 static gboolean  declick (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
+static gboolean  popup_menu (GtkWidget *treeview, gpointer user_data);
 static void      navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_data);
 static void      row_expanded (GtkTreeView *treeview, GtkTreeIter *iter, GtkTreePath *path, gpointer user_data);
 static void      row_collapsed (GtkTreeView *treeview, GtkTreeIter *iter, GtkTreePath *path, gpointer user_data);
@@ -173,6 +175,7 @@ navigation_tree_init (NavTree *navtree)
 	g_signal_connect (G_OBJECT (navtree), "row-collapsed", G_CALLBACK (row_collapsed), NULL);
 	g_signal_connect (G_OBJECT (navtree), "button_press_event", G_CALLBACK (click), NULL);
 	g_signal_connect (G_OBJECT (navtree), "button_release_event", G_CALLBACK (declick), NULL);
+	g_signal_connect (G_OBJECT (navtree), "popup_menu", G_CALLBACK (popup_menu), NULL);
 
 	/* Initialize our row references. */
 	navtree->last_server = NULL;
@@ -896,30 +899,29 @@ navigation_tree_server_is_connected (NavTree *navtree, gchar *name)
 
 
 /***** Context Menus *****/
-static void
+static GtkWidget *
 navigation_context (GtkWidget *treeview, session *selected)
 {
 	switch (selected->type) {
 	case SESS_SERVER:
-		server_context (treeview, selected);
-		return;
+		return server_context (treeview, selected);
 	case SESS_CHANNEL:
-		channel_context (treeview, selected);
-		return;
+		return channel_context (treeview, selected);
 	case SESS_DIALOG:
-		dialog_context (treeview, selected);
-		return;
+		return dialog_context (treeview, selected);
+	default:
+		g_return_val_if_reached (NULL);
 	}
 }
 
-static void
+static GtkWidget *
 server_context (GtkWidget *treeview, session *selected)
 {
 	GtkWidget *menu;
 	GtkAction *action;
 
 	menu = gtk_ui_manager_get_widget (gui.manager, "/ServerPopup");
-	g_return_if_fail (menu != NULL);
+	g_return_val_if_fail (menu != NULL, NULL);
 
 	if (((ircnet *)selected->server->network) == NULL) {
 		/* disable the auto-connect action.
@@ -937,11 +939,10 @@ server_context (GtkWidget *treeview, session *selected)
 		else
 			gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), FALSE);
 	}
-
-	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
+	return menu;
 }
 
-static void
+static GtkWidget *
 channel_context (GtkWidget *treeview, session *selected)
 {
 	GtkWidget *menu;
@@ -949,7 +950,7 @@ channel_context (GtkWidget *treeview, session *selected)
 	ircnet *network;
 
 	menu = gtk_ui_manager_get_widget (gui.manager, "/ChannelPopup");
-	g_return_if_fail (menu != NULL);
+	g_return_val_if_fail (menu != NULL, NULL);
 
 	/* check if the channel is in the auto-join list */
 	action = gtk_action_group_get_action (action_group, "ChannelAutoJoin");
@@ -965,18 +966,51 @@ channel_context (GtkWidget *treeview, session *selected)
 			gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), FALSE);
 	}
 
-	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
+	return menu;
 }
 
-static void
+static GtkWidget *
 dialog_context (GtkWidget *treeview, session *selected)
 {
 	GtkWidget *menu;
 
 	menu = gtk_ui_manager_get_widget (gui.manager, "/DialogPopup");
+	g_return_val_if_fail (menu != NULL, NULL);
+
+	return menu;
+}
+
+static void
+show_context_menu (GtkWidget *treeview, GdkEventButton *event)
+{
+	GtkTreePath *path;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	GtkWidget *menu;
+	session *s;
+
+	model = gtk_tree_row_reference_get_model (NAVTREE (treeview)->current_rowref);
+	path = gtk_tree_row_reference_get_path (NAVTREE (treeview)->current_rowref);
+	gtk_tree_model_get_iter (model, &iter, path);
+	gtk_tree_path_free(path);
+	gtk_tree_model_get (model, &iter, 2, &s, -1);
+
+	if (s == NULL)
+		return;
+
+	menu = navigation_context (treeview, s); /* FIXME */	
 	g_return_if_fail (menu != NULL);
 
-	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
+	if (event != NULL) {
+		gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL,
+				event->button, event->time);
+	} else {
+		gtk_menu_popup (GTK_MENU (menu), NULL, NULL,
+				menu_position_under_tree_view, treeview,
+				0, gtk_get_current_event_time ());
+
+		gtk_menu_shell_select_first (GTK_MENU_SHELL (menu), FALSE);
+	}
 }
 
 /***** Callbacks *****/
@@ -985,9 +1019,6 @@ click (GtkWidget *treeview, GdkEventButton *event, gpointer data)
 {
 	GtkTreePath *path;
 	GtkTreeSelection *select;
-	GtkTreeModel *model;
-	GtkTreeIter iter;
-	struct session *s;
 
 	if (!event)
 		return FALSE;
@@ -1003,13 +1034,7 @@ click (GtkWidget *treeview, GdkEventButton *event, gpointer data)
 			gtk_tree_path_free (path);
 		}
 
-		model = gtk_tree_row_reference_get_model (NAVTREE (treeview)->current_rowref);
-		path = gtk_tree_row_reference_get_path (NAVTREE (treeview)->current_rowref);
-		gtk_tree_model_get_iter (model, &iter, path);
-		gtk_tree_path_free(path);
-		gtk_tree_model_get (model, &iter, 2, &s, -1);
-		if (s != NULL)
-			navigation_context (treeview, s); /* FIXME */
+		show_context_menu (treeview, event);
 		return TRUE;
 	}
 
@@ -1027,6 +1052,13 @@ declick (GtkWidget *treeview, GdkEventButton *e, gpointer data)
 	gtk_editable_set_position (GTK_EDITABLE (gui.text_entry), position);
 	g_object_set (G_OBJECT (treeview), "can-focus", TRUE, NULL);
 	return FALSE;
+}
+
+static gboolean
+popup_menu (GtkWidget *treeview, gpointer user_data)
+{
+	show_context_menu (treeview, NULL);
+	return TRUE;
 }
 
 static void
@@ -1160,8 +1192,6 @@ row_collapsed (GtkTreeView * treeview, GtkTreeIter * iter, GtkTreePath * path, g
 {
 	navigation_tree_update_refs (NAVTREE (treeview));
 }
-
-
 
 /********** NavModel **********/
 

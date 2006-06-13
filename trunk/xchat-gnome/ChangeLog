@@ -1,3 +1,14 @@
+Tue Jun 12 16:52:40 MDT 2006  Steve Frécinaux <steve@istique.net>
+
+	* src/fe-gnome/util.c:
+	* src/fe-gnome/util.h:
+	  - New GtkMenuPositionFunc functions to position context menu when
+	    using keyboard.
+	* src/fe-gnome/navigation-tree.c:
+	  - foo_context() functions now return the menu instead of showing it
+	  - handle the popup-menu event (issued when using keyboard) and
+	    position the context menu accordingly.
+
 Mon May 12 17:12:08 CEST 2006  Steve Frécinaux <steve@istique.net>
 
 	* src/fe-gnome/text-entry.c:
