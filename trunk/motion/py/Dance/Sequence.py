@@ -1,10 +1,10 @@
 """Map a sequence to a chaotic attractor and shuffle it.
 
 Provides classes for mapping a dance sequence to a chaotic trajectory and
-shuffling it.  The dance sequence is contained in an AMC object.
+shuffling it.  The dance sequence is contained in an `AMC` object.
 
-Classes:
-    - Sequence      Maps a sequence to a trajectory
+:Authors:
+    Evan Sheehan <Wallace.Sheehan@gmail.com>
 """
 
 import Motion, Numeric, math
@@ -13,15 +13,16 @@ from ODE import RK4
 class Sequence:
     """Represent a dance sequence mapped to a trajectory.
 
-    Members:
-        - ode               The ODE solver
-        - mapping           The mapping of a coordinate to a frame in the dance
+    Each frame in a dance sequence is represented as a dictionary mapping a bone
+    name to a position (stored in an array). The mapped sequence is a dictionary
+    mapping a point in a trajectory (as a tuple) to a frame dictionary. Each
+    `Sequence` object represents a single mapping of a dance onto a trajectory.
+    `Sequence`\s can be shuffled multiple times without affecting the `Sequence`
+    object.
 
-    Methods:
-        - shuffle           Shuffle the dance sequence
-        - insert            Insert a frame into the dance sequence
-        - save              Write the sequence to an AMC file
-        - __getitem__       Access individual frames using the [] operator
+    Members:
+        - ``ode``               The ODE solver
+        - ``mapping``           The mapping of a coordinate to a frame in the dance
     """
 
     __slots__ = ["ode", "mapping", "original", "n", "h"]
@@ -30,11 +31,11 @@ class Sequence:
         """Create a new sequence from a chaotic system and a dance sequence.
 
         Arguments:
-            - data      The motion data of the sequence
-            - system    The chaotic system to map the sequence to
-            - ic        The initial conditions for the chaotic system
-            - n         The number of iterations for the trajectory(default 10000)
-            - h         The step size for the trajectory(default .001)
+            - ``data``      The motion data of the sequence
+            - ``system``    The chaotic system to map the sequence to
+            - ``ic``        The initial conditions for the chaotic system
+            - ``n``         The number of iterations for the trajectory(default 10000)
+            - ``h``         The step size for the trajectory(default .001)
         """
         # If we got passed an AMC object, create a list from it. It's unlikely
         # that anything other than an AMC object will be useful here, but for
@@ -64,13 +65,16 @@ class Sequence:
 
         Generate a new trajectory from the chaotic system used in the initial
         mapping to shuffle the sequence.  Each time the new trajectory passes
-        near a point in the original that is mapped to a frame, add that frame
+        near a point in the original that is mapped to a frame, append that frame
         to the new sequence.  If the initial conditions given here are the same
         as those given when the Sequence object was created, the 'shuffled'
         sequence should be identical to the original.
 
         Arguments:
-            - ic        The initial conditions of the new chaotic trajectory
+            - ``ic``    The initial conditions of the new chaotic trajectory
+
+        Returns:
+            A list of frames (represented as dictionaries)
         """
         shuffled = []
         frames = len(self.mapping.keys())
@@ -92,6 +96,13 @@ class Sequence:
         beginning of new chunks. This means that interpolation is needed
         between shuffled[x-1] and shuffled[x], and shuffled[y-1] and
         shuffled[y].
+
+        Arguments:
+            - ``sequence``      A list of frames to be compared to the
+              `self.sequence`
+
+        Returns:
+            A list of indices indicating chunk boundaries in ``sequence``
         """
         boundaries = []
         i = self.original.index(sequence[0])
@@ -115,8 +126,8 @@ class Sequence:
         """Insert a frame into the shuffled sequence at index.
        
         Arguments:
-            - data      A dictionary to be inserted into the shuffled sequence
-            - index     The index at which the frame will be inserted
+            - ``data``      A dictionary to be inserted into the shuffled sequence
+            - ``index``     The index at which the frame will be inserted
         """
         # FIXME - should probably do some error checking to ensure that the
         # Frame or dictionary passed in is compatible with the existing Frames
@@ -125,7 +136,14 @@ class Sequence:
         self.shuffled.insert(index, data)
 
     def _dataFromAMC(self, amc):
-        """Create a list of Frames from an AMC object."""
+        """Create a list of Frames from an `AMC` object.
+        
+        Arguments:
+            - ``amc``       An `AMC` object
+
+        Returns:
+            A list of dictionaries representing the dance sequence
+        """
         def buildFrame(data, index):
             frame = {}
             for bone, frames, in data.iteritems():
@@ -142,7 +160,18 @@ class Sequence:
         return data
 
     def _findNearest(self, point):
-        """Find a point in the trajectory nearest to the coordinate given."""
+        """Find a point in the trajectory nearest to the coordinate given.
+
+        When shuffling a dance sequence, we need to discover which point in the
+        original trajectory used in the mapping is closest to each point in the
+        new trajectory.
+        
+        Arguments:
+            - ``point``     The point for whom a "nearest neighbor" is desired
+
+        Returns:
+            The point in the original trajectory nearest to ``point``
+        """
         def distance(x, y):
             return math.sqrt(Numeric.sum((y - x)**2))
 

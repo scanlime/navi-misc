@@ -5,6 +5,9 @@ capture data.  The nodes in the graph represent a range of positions for a
 single joint.  Edges in the graph have a probability associated with them,
 indicating the likelihood that the transition from u to v along that edge
 occured in the corpus of motion capture data.
+
+:Authors:
+    David Trowbridge
 """
 
 from Graph.Data import Graph, Edge, AdjacencyList, VertexMap, EdgeList
@@ -16,7 +19,6 @@ class ProbabilityEdge (Edge):
     """Represent an edge between nodes with a probability of following that edge.
 
     Members:
-
         - `u`            The starting node of the edge
         - `v`            The ending node of the edge
         - `dot_label`    The string to print next to the edge
@@ -109,7 +111,6 @@ def search_graphs (graphs, starts, ends, depth):
     `graphs`, `starts`, and `ends` should all be dictionaries with identical keys.
 
     Arguments:
-
         - `graphs`    A dictionary mapping a key to a motion graph
         - `starts`    A dictionary mapping a key to a position representing
           the start position
@@ -185,7 +186,6 @@ def build_graphs (key, datas):
     """Build a graph using the data arrays from any number of files.
    
     Arguments:
-
         - `key`      The key for which the graph should be built
         - `datas`    A dictionary of motion data, the values in the
           dictionary are Numeric arrays
@@ -243,7 +243,6 @@ def build_graph (d, graph, nodes, edge_list, interval):
     graph represents a position within an interval `interval`.
 
     Arguments:
-
         - `d` Numeric array of data from which the graph is built
         - `graph` The graph
         - `nodes` A dictionary of nodes mapping an angle to a MotionGraphNode
