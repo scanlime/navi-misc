@@ -205,6 +205,8 @@ text_entry_key_press (GtkWidget *widget, GdkEventKey *event, gpointer data)
 			text_entry_history_up (GTK_ENTRY (widget));
 			return TRUE;
 		case GDK_Tab:
+			if (event->state & GDK_CONTROL_MASK)
+				break;
 			return text_entry_tab_complete (GTK_ENTRY (widget));
 		default:
 			break;
