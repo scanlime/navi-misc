@@ -1,3 +1,8 @@
+Mon May 12 17:12:08 CEST 2006  Steve Frécinaux <steve@istique.net>
+
+	* src/fe-gnome/text-entry.c:
+	  - Fix widget cycling by not eating Ctrl+Tab
+
 Wed May 24 20:55:18 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/userlist-gui.c:
