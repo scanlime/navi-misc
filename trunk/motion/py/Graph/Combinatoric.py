@@ -164,7 +164,7 @@ class AdjacencyList (CombinatoricRepresentation):
 class VertexMap (CombinatoricRepresentation):
     """Maps each vertex to a hash of all the edges connected to that vertex."""
 
-    def __init__ (self, graphs):
+    def __init__ (self, graph):
         self.graph = graph
         graph.add.observe (self.onAdd)
         graph.remove.observe (self.onRemove)
@@ -210,9 +210,9 @@ class VertexMap (CombinatoricRepresentation):
         """Iterate over the edges containing the vertex 'u'."""
         def combineU (graphs):
             name, map = graphs[0]
-
-            for edge in map.query (node[name]):
-                if edge.u == node[name]:
+            n = dict (node)
+            for edge in map.query (n[name]):
+                if edge.u == n[name]:
                     if len (graphs) == 1:
                         yield {name: edge.u}
                         continue
@@ -223,9 +223,10 @@ class VertexMap (CombinatoricRepresentation):
 
         def combineV (graphs):
             name, map = graphs[0]
+            n = dict (node)
 
-            for edge in map.query (node[name]):
-                if edge.u == node[name]:
+            for edge in map.query (n[name]):
+                if edge.u == n[name]:
                     if len (graphs) == 1:
                         yield {name: edge.v}
                         continue
@@ -234,11 +235,14 @@ class VertexMap (CombinatoricRepresentation):
                         v[name] = edge.v
                         yield v
 
+        def makeTuple (d):
+            return tuple ([(k, v) for k, v in d.iteritems ()])
+
         for u in combineU (self.data):
-            yield self.graph.edgeClass (u, node)
+            yield self.graph.edgeClass (makeTuple (u), node)
 
         for v in combineV (self.data):
-            yield self.graph.edgeClass (node, v)
+            yield self.graph.edgeClass (node, makeTuple (v))
 
 
 class EdgeList (CombinatoricRepresentation):
