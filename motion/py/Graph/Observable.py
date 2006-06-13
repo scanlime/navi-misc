@@ -22,14 +22,14 @@ import types
 
 class Event:
     """An event that can be observed and triggered.
-       This event can be called, and all observers will be
-       called with the same arguments. Simple and effective :)
 
-       The event can be constructed with a list of initial observers.
-       This makes it easy to transparently make a member function
-       an event with a line like:
-       self.foo = Observable.Event (self.foo)
-       """
+    This event can be called, and all observers will be called with the same
+    arguments. Simple and effective :)
+
+    The event can be constructed with a list of initial observers.  This makes
+    it easy to transparently make a member function an event with a line like:
+    	self.foo = Observable.Event (self.foo)
+    """
 
     __slots__ = ['unhandledCallback', 'clients', 'callables', '__weakref__']
 
@@ -43,20 +43,23 @@ class Event:
         self.unhandledCallback = None
 
     def observe (self, callback, *args, **kwargs):
-        """Call the supplied calllback with the same arguments when this event is called.
-           Callbacks are referenced weakly, so their observation ends when the callback
-           is not used anywhere else.
+	"""Call the supplied calllback with the same arguments when this event
+	is called.
 
-           This means that lines like the following won't work, since the callback immediately
-           becomes unreferenced and is removed:
-               foo.observe (lambda: self.boing (5))
-               foo.observe (SuperClass ().frob)
+	Callbacks are referenced weakly, so their observation ends when the
+	callback is not used anywhere else.
 
-           To solve these issues you must reference the callback at least one other place.
-           This could be in the local namespace of your script, in your class' dictionary, etc.
-           It is usually best to replace lambda expressions with class member functions.
-           The same is true of functions declared inside another function's body.
-           """
+	This means that lines like the following won't work, since the callback
+	immediately becomes unreferenced and is removed:
+            foo.observe (lambda: self.boing (5))
+            foo.observe (SuperClass ().frob)
+
+	To solve these issues you must reference the callback at least one
+	other place.  This could be in the local namespace of your script, in
+	your class' dictionary, etc.  It is usually best to replace lambda
+	expressions with class member functions.  The same is true of functions
+	declared inside another function's body.
+        """
         if kwargs.has_key ('index'):
             index = kwargs['index']
         else:
@@ -88,10 +91,12 @@ class Event:
             self.args[hash (callback)] = (args, kwargs)
 
     def strongObserve (self, callback, *args, **kwargs):
-        """Like observe (), but use a normal reference rather than a weak ref. This is
-           necessary for using lambdas or other types of temporary functions as obsrvers.
-           The only way for these observers to be removed is explicitly calling unobserve().
-           """
+        """Like observe (), but use a normal reference rather than a weak ref.
+
+	This is necessary for using lambdas or other types of temporary
+	functions as obsrvers.  The only way for these observers to be removed
+	is explicitly calling unobserve().
+        """
         if kwargs.has_key ('index'):
             index = kwargs['index']
         else:
@@ -107,8 +112,9 @@ class Event:
 
     def observeOnce (self, callback, *args, **kwargs):
         """Install an observer that is automatically removed after it fires once.
-           This uses a strong reference.
-           """
+
+        This uses a strong reference.
+        """
         def oneshot (*args, **kwargs):
             self.unobserve (oneshot)
             return callback (*args, **kwargs)
@@ -140,15 +146,19 @@ class Event:
         self.callables.remove (callable)
 
     def __call__ (self, *args, **kw):
-        """Trigger this event by calling it. The parameters passed to the event will
-           be broadcast to all of its observers.
-           """
+        """Trigger this event by calling it.
+	
+	The parameters passed to the event will be broadcast to all of its
+	observers.
+	"""
         self._notify (*args, **kw)
 
     def _notify (self, *args, **kw):
-        """Actually invoke the callables. This is always run from an "IO thread"
-           as defined by Twisted. Usually this is the application's main thread.
-           """
+        """Actually invoke the callables.
+	
+	This is always run from an "IO thread" as defined by Twisted. Usually
+	this is the application's main thread.
+	"""
         # If we're frozen, this notification get saved for later.
         # We only emit one final notification after unfreezing, so
         # only the most recent one gets stored.
@@ -190,18 +200,18 @@ class Event:
     def trace (self, fmt):
         """A debugging aid, prints a line of text whenever this event is triggered.
 
-           fmt can be a printf-style format string that can include references
-           to both positional and keyword arguments, for example:
-                %(2)s       = The second argument, as a string
-                %(boing)d   = keyword argument 'boing', as an integer
+        fmt can be a printf-style format string that can include references
+        to both positional and keyword arguments, for example:
+             %(2)s       = The second argument, as a string
+             %(boing)d   = keyword argument 'boing', as an integer
 
-           fmt can also be a callable expression (created with lambda, for example)
-           that will be called with the event's arguments and the result will be print'ed.
+        fmt can also be a callable expression (created with lambda, for example)
+        that will be called with the event's arguments and the result will be print'ed.
 
-           A reference is returned to the trace's callback function. The trace is
-           referenced strongly, so it will not disappear if you discard this reference,
-           but the reference can be passed to unobserve () later to cancel the trace.
-           """
+        A reference is returned to the trace's callback function. The trace is
+        referenced strongly, so it will not disappear if you discard this reference,
+        but the reference can be passed to unobserve () later to cancel the trace.
+        """
         def traceCallback (*args, **kw):
             if type (fmt) == str:
                 # Make a dictionary with both keyword args and normal
@@ -218,16 +228,17 @@ class Event:
         return traceCallback
 
     def freeze (self):
-        """Stop sending notifications for this event. If the event
-           was invoked while frozen, thaw () will send only the
-           most recent one.
-           """
+        """Stop sending notifications for this event.
+	
+	If the event was invoked while frozen, thaw () will send only the most
+	recent one.
+        """
         self._frozen = True
 
     def thaw (self):
-        """Reverse the effects of freeze () and send at most one
-           pending notification event.
-           """
+	"""Reverse the effects of freeze () and send at most one pending
+	notification event.
+        """
         self._frozen = False
         if self._frozenNotify is not None:
             args, kw = self._frozenNotify
@@ -236,17 +247,17 @@ class Event:
 
 
 def attachEvents (cls, *args):
-    """A convenience function for setting up several transparent
-       Event instances. Pass this your class instance and the names
-       of all the functions you'd like turned into events.
-       If any of the names specified don't exist yet, they are
-       still set to a new Event instance, but no callback will
-       be associated with it yet.
+    """A convenience function for setting up several transparent Event
+    instances.
+       
+    Pass this your class instance and the names of all the functions you'd like
+    turned into events.  If any of the names specified don't exist yet, they
+    are still set to a new Event instance, but no callback will be associated
+    with it yet.
 
-       Note that Events are only suitable for use with functions
-       without useful return values, however all arguments are
-       passed through to observers.
-       """
+    Note that Events are only suitable for use with functions without useful
+    return values, however all arguments are passed through to observers.
+    """
     for arg in args:
         if hasattr (cls, arg):
             setattr (cls, arg, Event (getattr (cls, arg)))
@@ -255,8 +266,9 @@ def attachEvents (cls, *args):
 
 class _EventObserver:
     """A helper class for Event that wraps the callback in a weakref and
-       automatically self-destructs when it's time.
-       """
+    automatically self-destructs when it's time.
+    """
+
     __slots__ = ["event", "callbackHash", "ref", "__weakref__"]
 
     def __init__ (self, event, callback):
@@ -280,9 +292,11 @@ class _EventObserver:
 
 class _EventMethodObserver:
     """An alternative to _EventObserver that is used for bound methods.
-       Since bound methods are usually one-time-use objects, this stores the
-       unbound method and a weakref to the bound method's instance.
-       """
+
+    Since bound methods are usually one-time-use objects, this stores the
+    unbound method and a weakref to the bound method's instance.
+    """
+
     __slots__ = ["event", "callbackHash", "im_self_ref", "im_func", "__weakref__"]
 
     def __init__ (self, event, callback):
