@@ -5,20 +5,6 @@ capture data.  The nodes in the graph represent a range of positions for a
 single joint.  Edges in the graph have a probability associated with them,
 indicating the likelihood that the transition from u to v along that edge
 occured in the corpus of motion capture data.
-
-Classes:
-
-    - `ProbabilityEdge`    A probablistic graph edge
-    - `MotionGraph`        A motion graph
-    - `MotionGraphNode`    A node in a motion graph
-
-Functions:
-
-    - `search_graphs`      Iterative deepening search of multiple graphs
-    - `cp_range`
-    - `fixnegative`        Remove negative values
-    - `fix360`             Change 360 to 0
-    - `build_graphs`       Build graphs from motion data
 """
 
 from Graph.Data import Graph, Edge, AdjacencyList, VertexMap, EdgeList
@@ -36,11 +22,6 @@ class ProbabilityEdge (Edge):
         - `dot_label`    The string to print next to the edge
         - `count`        The number of times the transition from u to v was made
         - `weight`       The probability of traversing the edge
-
-    Methods:
-
-        - `visit`        Increase count
-        - `normalize`    Calculate the weight
     """
 
     __slots__ = ['u', 'v', 'dot_label', 'count', 'weight']
@@ -91,9 +72,6 @@ class MotionGraphNode:
     Members:
         - ``mins``      Lower bound of this node
         - ``maxs``      Upper bound of this node
-
-    Methods:
-        - `inside`    Test a point to see if it is within this node
     """
 
     __slots__ = ['mins', 'maxs']
