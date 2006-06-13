@@ -1,52 +1,45 @@
-"""A collection of Ordinary Differential Equation(ODE) solvers.
+"""A collection of Ordinary Differential Equation (ODE) solvers.
 
-Provides a variety of ODE solvers all based on a generic class so that they may
-be used interchangeably.
+This module provides a variety of ODE solvers all based on a generic class so
+that they may be used interchangeably.
 
-Classes:
-    - RK4       Runge-Kutte 4 solver
-    - ARK4      Adaptive Runge-Kutte 4 solver
+:Authors:
+    Evan Sheehan <Wallace.Sheehan@gmail.com>
 """
 
 import Numeric, math
 
 
 class ODE:
-    """Genereic ODE solver object.
+    """Abstract ODE solver object.
+
+    This class is abstract. It's main purpose is to require all ODE solvers to
+    be callable by implementing the `__call__` method.
    
     Members:
-        - f             The ODE for the solver to solve
-
-    Methods:
-        - __init__      Create the solver
-        
-    Abstract Methods:
-        - __call__      Implemented by subclasses to execute the solver on the
-                        system
+        - ``f``     The ODE for the solver to solve
     """
 
     def __init__(self, func):
         """Create a solver with an ODE to solve.
 
         Arguments:
-            - func      The ODE to be solved
+            - ``func``      The ODE to be solved
         """
         self.f = func
 
     def __call__(self):
-        pass
+        """Abstract `__call__` method.
+
+        All `ODE`\s should be callable, so all subclasses of `ODE` should
+        override this method. If they don't, an exception is raised when the
+        object is called.
+        """
+        raise Exception ("Not implemented in class %s" % (self.__class__))
 
 
 class RK4(ODE):
-    """Runge-Kutte 4 ODE solver.
-
-    Methods:
-        - __call__      Overridden from the ODE class to solve f using the
-                        Runge-Kutte 4 solver
-    """
-
-    def __init__(self, func):
-        ODE.__init__(self, func)
+    """Runge-Kutte 4 ODE solver."""
 
     def _step(self, last, h, t):
         """Execute a single RK4 step."""
@@ -61,9 +54,9 @@ class RK4(ODE):
         """Solve the system and return the result.
 
         Arguments:
-            - ic        The initial conditions
-            - n         The number of iterations
-            - h         The step size
+            - ``ic``    The initial conditions
+            - ``n``     The number of iterations
+            - ``h``     The step size
         """
         result = [Numeric.array(ic)]
 
@@ -81,10 +74,9 @@ class ARK4(RK4):
         """Create an ARK4 object with an error tolerance.
 
         Arguments:
-            - func      The ODE to be solved
-            - eps       The error tolerance used to adjust the step size
+            - ``func``      The ODE to be solved
+            - ``eps``       The error tolerance used to adjust the step size
         """
-
         RK4.__init__(self, func)
         # Error tolerance.
         self.epsilon = eps

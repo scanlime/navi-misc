@@ -1,13 +1,13 @@
 """A package for creating shuffled dance sequences.
 
-This package handles the actual dance sequences. It maps them to a chaotic
-attractor and shuffles the sequence when given a new set of initial conditions.
+This package handles the dance sequences once they've been loaded from AMC
+files. It provides classes for generating chaotic trajectories in both the
+Lorenz and Rossler systems, mapping a dance sequence to the trajectory, and
+shuffling the sequence.
 
-Modules:
-    - MotionGraph       Create graphs from a motion corpus
-    - ODE               ODE solvers
-    - Sequence          Map and shuffle a dance sequence using chaotic trajectories
-    - Systems           Chaotic systems used in shuffling
+:Authors:
+    Evan Sheehan <Wallace.Sheehan@gmail.com>,
+    David Trowbridge
 """
 
 # vim:ts=4:sw=4:et:tw=80
