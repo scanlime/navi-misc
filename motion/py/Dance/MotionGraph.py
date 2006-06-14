@@ -42,7 +42,7 @@ class ProbabilityEdge (Edge):
         """Calculate the weight of the edge.
 
         The weight of the edge is equal to the number of times the edge has
-        been visited divided by `total`.
+        been visited divided by ``total``.
         """
         self.weight = float (self.count) / total
         self.dot_label = '%.2f' % self.weight
