@@ -1,3 +1,10 @@
+Tue Jun 14 14:09:54 MDT  Dan Kuester <dkuester@colorado.edu>
+	* src/fe-gnome/xtext.h:
+	* src/fe-gnome/xtext.c:
+	  - Add another string for keeping track of the last user entered.
+	* src/fe-gnome/conversation-panel.c:
+	  - Don't print consecutive redundant nickstamps
+
 Wed Jun 14 02:04:20 MDT 2006 Jeremy Nickurak <atrus@rifetech.com>
 
 	* src/fe-gnome/conversation-panel.c:
