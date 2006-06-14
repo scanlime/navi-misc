@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <gnome.h>
+#include <math.h>
 #include "palette.h"
 #include "preferences.h"
 #include "../common/xchat.h"
@@ -100,6 +101,15 @@ const GdkColor colors_black_on_white[] =
 	{0, 0x9999, 0x9999, 0x9999}, /* away user (grey) */
 };
 
+GdkColor theme_colors[] =
+{
+	{0, 0xffff, 0x0000, 0x0000}, /* foreground (black) */
+	{0, 0x0000, 0xffff, 0x0000}, /* background (white) */
+	{0, 0x0000, 0x0000, 0xffff}, /* marktext fore (black) */
+	{0, 0xffff, 0xffff, 0x0000}, /* marktext back (blue) */
+	{0, 0xffff, 0x0000, 0xffff}, /* away user (grey) */
+};
+
 GdkColor custom_colors[9];
 
 const GdkColor *color_schemes[] =
@@ -107,9 +117,10 @@ const GdkColor *color_schemes[] =
 	colors_black_on_white,
 	colors_white_on_black,
 	custom_colors,
+	theme_colors,
 };
 
-const GdkColor palette_white_on_black[] =
+const GdkColor palette_black_on_white[] =
 {
 	{0, 0xcccc, 0xcccc, 0xcccc}, /* 1  white */
 	{0, 0x0000, 0x0000, 0x0000}, /* 2  black */
@@ -146,7 +157,7 @@ const GdkColor palette_white_on_black[] =
 	{0, 0x9595, 0x9595, 0x9595}, /* 31 light grey */
 };
 
-const GdkColor palette_black_on_white[] =
+const GdkColor palette_white_on_black[] =
 {
 	{0, 0xcf3c, 0xcf3c, 0xcf3c}, /* 0  white */
 	{0, 0x0000, 0x0000, 0x0000}, /* 1  black */
@@ -187,14 +198,30 @@ GdkColor custom_palette[32];
 
 const GdkColor *palette_schemes[] =
 {
-	palette_white_on_black,
 	palette_black_on_white,
+	palette_white_on_black,
 	custom_palette,
+	NULL,
 };
+
+void
+extract_theme_colors(void) {
+		GtkWidget* w;
+		w = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+		gtk_widget_ensure_style (w);
+		theme_colors[0] = w->style->text[GTK_STATE_NORMAL];
+		theme_colors[1] = w->style->base[GTK_STATE_NORMAL];
+		theme_colors[2] = w->style->text[GTK_STATE_SELECTED];
+		theme_colors[3] = w->style->base[GTK_STATE_SELECTED];
+		theme_colors[4] = w->style->text[GTK_STATE_INSENSITIVE];
+		gtk_widget_destroy (w);
+}
 
 void
 load_colors (int selection)
 {
+	if (selection == 3)
+		extract_theme_colors();
 	colors[34] = color_schemes[selection][0];
 	colors[35] = color_schemes[selection][1];
 	colors[32] = color_schemes[selection][2];
@@ -206,6 +233,19 @@ void
 load_palette (int selection)
 {
 	int i;
+	int background_magnitude;
+
+	if (selection == 3) {
+		extract_theme_colors();
+		background_magnitude = sqrt(pow(theme_colors[0].red,   2) +
+		                            pow(theme_colors[0].green, 2) +
+					    pow(theme_colors[0].blue,  2));
+		if (background_magnitude < 0x8000) {
+			selection = 0;
+		} else {
+			selection = 1;
+		}
+	}
 
 	for (i = 0; i < 32; i++)
 		colors[i] = palette_schemes[selection][i];

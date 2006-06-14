@@ -1,3 +1,14 @@
+Wed Jun 14 02:04:20 MDT 2006 Jeremy Nickurak <atrus@rifetech.com>
+
+	* src/fe-gnome/conversation-panel.c:
+	  - Update system color scheme when gtk theme changes
+	* src/fe-gnome/palette.c:
+	* src/fe-gnome/palette.h:
+	* src/fe-gnome/preferences/page-colors.c:
+	  - Implement system-theme color scheme. (#172168)
+	* src/fe-gnome/apps_xchat.schemas.in:
+	  - Make system-theme colors the default
+
 Tue Jun 13 22:26:54 MDT  David Trowbridge <trowbrds@gmail.com>
 
 	* data/topic-change.glade:

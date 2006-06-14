@@ -102,7 +102,7 @@
 			<applyto>/apps/xchat/irc/color_scheme</applyto>
 			<owner>xchat</owner>
 			<type>int</type>
-			<default>0</default>
+			<default>3</default>
 			<locale name="C">
 				<short>Selected color scheme</short>
 			</locale>
