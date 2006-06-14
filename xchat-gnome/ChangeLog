@@ -1,3 +1,9 @@
+Tue Jun 13 22:26:54 MDT  David Trowbridge <trowbrds@gmail.com>
+
+	* data/topic-change.glade:
+	  - Fix topic change dialog to not resize the window as you type
+	    words. (#343567)
+
 Tue Jun 12 16:52:40 MDT 2006  Steve Frécinaux <steve@istique.net>
 
 	* src/fe-gnome/util.c:
