@@ -226,6 +226,7 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_combo_box_append_text (GTK_COMBO_BOX (page->combo), _("Black on White"));
 	gtk_combo_box_append_text (GTK_COMBO_BOX (page->combo), _("White on Black"));
 	gtk_combo_box_append_text (GTK_COMBO_BOX (page->combo), _("Custom"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (page->combo), _("System Theme Colors"));
 	gtk_widget_show (page->combo);
 	gtk_label_set_mnemonic_widget (GTK_LABEL (page->color_label_1), page->combo);
 	gtk_box_pack_start (GTK_BOX (page->foreground_background_hbox), page->combo, FALSE, TRUE, 0);

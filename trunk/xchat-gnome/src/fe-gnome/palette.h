@@ -30,5 +30,6 @@ extern GdkColor custom_palette[32];
 void palette_alloc (GtkWidget *widget);
 void load_colors (int selection);
 void load_palette (int selection);
+void extract_theme_colors(void);
 void palette_init (void);
 void palette_save (void);

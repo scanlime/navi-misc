@@ -104,6 +104,9 @@ static void     drop_paste_filename                   (GtkAction              *a
                                                        ConversationPanel      *panel);
 static void     drop_cancel                           (GtkAction              *action,
                                                        ConversationPanel      *panel);
+static void		style_set_callback                    (GtkWidget              *widget,
+                                                       GtkStyle               *previous_style,
+                                                       void                   *data);
 static void     drag_data_received                    (GtkWidget              *widget,
                                                        GdkDragContext         *context,
                                                        gint                    x,
@@ -252,9 +255,11 @@ conversation_panel_init (ConversationPanel *panel)
 	panel->priv->current_tooltip = NULL;
 #endif
 
+	g_signal_connect (G_OBJECT (panel), "style_set", G_CALLBACK (style_set_callback), panel);
 	g_signal_connect (G_OBJECT (panel->priv->xtext), "drag_data_received", G_CALLBACK (drag_data_received), panel);
 	gtk_drag_dest_set (panel->priv->xtext, GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT | GTK_DEST_DEFAULT_DROP,
 	                   target_table, G_N_ELEMENTS (target_table), GDK_ACTION_COPY | GDK_ACTION_ASK);
+	                   
 }
 
 static void
@@ -899,6 +904,21 @@ check_file_size (gchar *uri)
 
 	gnome_vfs_file_info_unref (info);
 	return file_size_ok;
+}
+
+static void
+style_set_callback (GtkWidget *widget, GtkStyle  *previous_style, void *data)
+{
+	GConfClient *client;
+	gint color_scheme;
+	client = gconf_client_get_default ();
+	color_scheme = gconf_client_get_int (client, "/apps/xchat/irc/color_scheme", NULL);
+	g_object_unref (client);
+	if (color_scheme == 0) {
+		load_colors (color_scheme);
+		load_palette (color_scheme);
+	}
+	conversation_panel_update_colors (CONVERSATION_PANEL (gui.conversation_panel));
 }
 
 GtkWidget *
