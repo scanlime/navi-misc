@@ -309,22 +309,14 @@ class DotPrint (Algorithm):
 
         # print vertices
         for vertex in self.vertexMap:
-            # we use the hash of the vertex as the node id, since only the label will be
-            # visible, and we're relatively safe that hashes will be unique within our graph
-            if hasattr (vertex, 'dot_label') and vertex.dot_label is not None:
-                self.printline ('%s [label="%s"];' % (hash (vertex), vertex.dot_label))
-            else:
-                self.printline ('%s [label="%s"];' % (hash (vertex), vertex))
+            self.printline (vertex)
 
         # print edges
         for vertex in self.vertexMap:
             edges = self.vertexMap.query (vertex)
             for edge in edges:
                 if edge.u is vertex:
-                    if hasattr (edge, 'dot_label') and edge.dot_label is not None:
-                        self.printline ('%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge.dot_label))
-                    else:
-                        self.printline ('%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge))
+                    self.printline (edge)
 
         self.printline ('}')
 
