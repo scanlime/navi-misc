@@ -5015,6 +5015,7 @@ gtk_xtext_buffer_new (GtkXText *xtext)
 	buf->scrollbar_down = TRUE;
 	buf->indent = xtext->space_width * 2;
 	dontscroll (buf);
+	buf -> laststamp[0] = 0;
 
 	return buf;
 }

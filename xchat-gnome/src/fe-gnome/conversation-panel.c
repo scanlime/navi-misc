@@ -1038,6 +1038,7 @@ conversation_panel_print_line (xtext_buffer *buffer, guchar *text, int len, gboo
 {
 	int            leftlen;
 	unsigned char *tab;
+	guchar	      *newtext;
 
 	if (len == 0)
 		len = 1;
@@ -1060,7 +1061,38 @@ conversation_panel_print_line (xtext_buffer *buffer, guchar *text, int len, gboo
 	tab = strchr (text, '\t');
 	if (tab && tab < (text + len)) {
 		leftlen = tab - text;
-		gtk_xtext_append_indent (buffer, text, leftlen, tab + 1, len - (leftlen + 1));
+		/* It makes me sad that the core sort of choke-warns on this unicode.
+		   The trade-out-the-asterisk code code here makes me even sadder. */
+		if(text[leftlen-2] == '*')
+		{
+			char left[NICKLEN];
+
+			left[0]=0;
+			if(leftlen > 2)
+			{
+				strncpy(left, text, leftlen-2);
+				left[leftlen-2]=0;
+			}
+			newtext = g_strdup_printf ("%s‣%s",left,tab); /* a string dot product! */
+			tab = strchr (newtext, '\t');
+			leftlen = tab - newtext;
+			strncpy(buffer->laststamp, newtext, leftlen);
+			buffer->laststamp[leftlen]=0;
+			gtk_xtext_append_indent (buffer, newtext, leftlen, tab + 1, len - (leftlen + 1));
+			g_free (newtext);
+		}
+		else if(strncmp(buffer->laststamp, text, leftlen) == 0)
+		{
+			text = tab+1;
+			len -= leftlen;
+			gtk_xtext_append_indent (buffer, 0, 0, text, len);
+		}
+		else
+		{
+			strncpy(buffer->laststamp, text, leftlen);
+			buffer->laststamp[leftlen]=0;
+			gtk_xtext_append_indent (buffer, text, leftlen, tab + 1, len - (leftlen + 1));
+		}
 	} else {
 		gtk_xtext_append_indent (buffer, 0, 0, text, len);
 	}

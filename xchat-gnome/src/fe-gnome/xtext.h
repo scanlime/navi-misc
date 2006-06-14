@@ -39,6 +39,8 @@
 #define XTEXT_BG 35
 #define XTEXT_MARKER 36		/* for marker line */
 
+#include "../common/xchat.h"
+
 typedef struct _GtkXText GtkXText;
 typedef struct _GtkXTextClass GtkXTextClass;
 typedef struct textentry textentry;
@@ -61,6 +63,7 @@ typedef struct {
 	int pagetop_line;
 	int pagetop_subline;
 	textentry *pagetop_ent;			/* what's at xtext->adj->value */
+	char laststamp[NICKLEN];
 
 	int num_lines;
 	int indent;						  /* position of separator (pixels) from left */
