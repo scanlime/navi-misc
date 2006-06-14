@@ -37,9 +37,9 @@ def go (filename):
             f.close ()
             cgraph.addList ([(key, graph)])
 
-    f = file ("graphs/combined.dot", "w")
-    DotPrint (cgraph, f)
-    f.close ()
+    #f = file ("graphs/combined.dot", "w")
+    #DotPrint (cgraph, f)
+    #f.close ()
 
 if len (sys.argv) != 2:
     print 'Usage: %s [graph pickle]' % sys.argv[0]
