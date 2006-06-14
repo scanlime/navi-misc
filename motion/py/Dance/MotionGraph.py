@@ -93,6 +93,26 @@ class MotionGraphNode:
     def __repr__ (self):
         return '<MGNode: %s>' % self.dot_label
 
+    def __str__ (self):
+        """Generate a string suitable for printing to a .dot file.
+
+        Returns:
+            A string representing the node formatted for a .dot file for graph
+            printing using dot(1)
+        """
+        s = '%s [label=' % hash (self)
+
+        if hasattr (self, 'dot_label'):
+            s += '"%s"' % self.dot_label
+        else:
+            s += '"%r"' % self
+
+        if hasattr (self, 'color'):
+            s += ',color="%s"' % self.color
+
+        s += '];'
+        return s
+
     def inside (self, point):
         """Return `True` if `point` lies within the minimum and maximum bounds of
         this node.
