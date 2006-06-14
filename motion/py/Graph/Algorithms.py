@@ -3,21 +3,8 @@
 Various algorithms which work themselves upon the appropriate
 GraphRepresentations to make them fast(ish)
 
-DFS and topoSort implementations originally Copyright (C)
-    the Python Mission Control Kit team
-
-Classes:
-    - Algorithm                 An abstract class inherited by all algorithms
-    - DFS                       A Depth First Search
-    - Dijkstra                  Dijkstra's shortest path algorithm
-    - DotPrint                  Prints a graph as a dot(1) file
-
-Functions
-    - Relax                     Relax constraints on a graph
-
-Exceptions:
-    - CyclicGraphException      Indicates a cyclic graph when an acyclic graph
-                                was required
+*DFS and topoSort implementations originally Copyright (C)*
+    *the Python Mission Control Kit team*
 """
 
 import Data
@@ -262,6 +249,7 @@ class Dijkstra (Algorithm):
 
 class DotPrint (Algorithm):
     """Simple graph walker which prints the graph as a dot(1) file.
+
        By default, vertexes are visited in dictionary key order, but
        that doesn't matter, since dot doesn't care what order it sees
        things in.
@@ -350,6 +338,12 @@ class DotPrint (Algorithm):
         return hash (self.graph)
 
 class SearchPrint (DotPrint):
+    """Print a step in a graph search by coloring nodes.
+
+    The start and goal of the search are colored green and red, respectively.
+    Each node in the current path to the current node is colored blue.
+    """
+
     def __init__ (self, graph, file=None):
         DotPrint.__init__ (self, graph, file)
         self.start = None
@@ -357,11 +351,33 @@ class SearchPrint (DotPrint):
         self.path = None
 
     def setStep (self, start, end, path):
+        """Set the start, end, and path for the next print.
+
+        These nodes are used to identify what colors need to be set in the .dot
+        file when `run()` is called.
+
+        Arguments:
+            - ``start``     The node object that is the start of the search
+            - ``end``       The node object that is the goal of the search
+            - ``path``      A list containing all of the nodes in the current
+              search path, in order
+        """
         self.start = start
         self.end = end
         self.path = path
 
     def run (self):
+        """Run the search print algorithm.
+
+        Creates a string of the entire graph formatted for interpretation by
+        dot. Nodes are colored according to their role in the search.
+        `setStep()` needs to be called before this step to set the values of
+        ``self.start``, ``self.end``, and ``self.path``, so that the algorithm
+        knows which nodes to color.
+
+        Returns:
+            A string representing the graph in dot format.
+        """
         if self.valid:
             return self.results
 
