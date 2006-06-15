@@ -1033,25 +1033,6 @@ conversation_panel_clear (ConversationPanel *panel, struct session *sess)
 	gtk_xtext_refresh (GTK_XTEXT (panel->priv->xtext), FALSE);
 }
 
-guchar *strdup_replace (guchar *str, guchar *needle, guchar *newneedle, const gint len)
-{
-	guchar *sub, left[len], *result;
-	gint pos;
-
-	sub = g_strstr_len (str, len, needle);
-
-	if (sub == NULL)
-		return str;
-
-	pos = sub-str;
-
-	strncpy(left, str, pos);
-	left[pos]=0;
-
-	return g_strdup_printf("%s%s%s", left, newneedle, str+pos+strlen(needle));
-}
-
-
 static void
 conversation_panel_print_line (xtext_buffer *buffer, guchar *text, int len, gboolean indent)
 {
@@ -1078,48 +1059,20 @@ conversation_panel_print_line (xtext_buffer *buffer, guchar *text, int len, gboo
 
 	tab = strchr (text, '\t');
 	if (tab && tab < (text + len)) {
-		guchar	      *newtext;
-		int	       alloc;
-
 		leftlen = tab - text;
 
-		newtext = strdup_replace(text, "*", "‣", leftlen);
-		alloc = (newtext != text);
-		text = newtext;
-		tab = strchr (text, '\t');
-		leftlen = tab - text;
-
-		newtext = strdup_replace(text, "-10-11>", "⇢", leftlen);
-		alloc = (newtext != text);
-/*		if (alloc)
-			g_free(text);*/
-		text = newtext;
-		tab = strchr (text, '\t');
-		leftlen = tab - text;
-
-		newtext = strdup_replace(text, "-10-11-", "―11―", leftlen);
-		alloc = (newtext != text);
-/*		if (alloc)
-			g_free(text);*/
-		text = newtext;
-		tab = strchr (text, '\t');
-		leftlen = tab - text;
-
-		if(strncmp(buffer->laststamp, newtext, leftlen) == 0)
+		if(strncmp(buffer->laststamp, text, leftlen) == 0)
 		{
-			newtext = tab+1;
+			text = tab+1;
 			len -= leftlen;
-			gtk_xtext_append_indent (buffer, 0, 0, newtext, len);
+			gtk_xtext_append_indent (buffer, 0, 0, text, len);
 		}
 		else
 		{
 			strncpy(buffer->laststamp, text, leftlen);
 			buffer->laststamp[leftlen]=0;
-			gtk_xtext_append_indent (buffer, newtext, leftlen, tab + 1, strlen(newtext) - leftlen - 1);
+			gtk_xtext_append_indent (buffer, text, leftlen, tab + 1, strlen(text) - leftlen - 1);
 		}
-
-/*		if (alloc)
-			g_free(text);*/
 	} else {
 		gtk_xtext_append_indent (buffer, 0, 0, text, len);
 	}
