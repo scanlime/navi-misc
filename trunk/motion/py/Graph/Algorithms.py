@@ -352,7 +352,7 @@ class Heuristic (Algorithm):
         Algorithm.invalidate (self)
         self.path = None
 
-    def run(self, source, goal):
+    def run(self):
         """Execute a heuristic search of a graph.
         
         Returns a list of nodes that is the path from the source to the goal or
@@ -369,11 +369,11 @@ class Heuristic (Algorithm):
 
             if not costs.has_key(keyA):
                 a_path = pathToNode(a)
-                costs[keyA] = self.costf(a_path, goal)
+                costs[keyA] = self.costf(a_path, self.goal)
 
             if not costs.has_key(keyB):
                 b_path = pathToNode(b)
-                costs[keyB] = self.costf(b_path, goal)
+                costs[keyB] = self.costf(b_path, self.goal)
 
             ac = costs[keyA]
             bc = costs[keyB]
@@ -401,8 +401,8 @@ class Heuristic (Algorithm):
 
         # Initialize all the local variables
         costs = {}
-        predecessors = {toTuple(source):None}
-        agenda = [source]
+        predecessors = {toTuple(self.source):None}
+        agenda = [self.source]
         visited = []
         path = []
         steps = []
@@ -412,21 +412,9 @@ class Heuristic (Algorithm):
             node = agenda.pop()
             visited.append(node)
 
-            if self.dotPrint:
-                path = pathToNode
-                self.dotPrint.setStep(source, goal, path)
-                steps.append(self.dotPrint.run())
-                path = []
-
-            if node == goal:
+            if node == self.goal:
                 # Reconstruct the path to the goal
                 self.path = pathToNode(node)
-                if self.dotPrint:
-                    for i in range(len(steps)):
-                        print "writing step", i
-                        f = open("step-" + str(i), "w")
-                        f.write(steps[i])
-                        f.close()
                 break
 
             # Add the successors of this node to the agenda and record the node
