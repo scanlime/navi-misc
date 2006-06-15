@@ -1,7 +1,15 @@
+Fri Jun 16 00:09:00 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+	
+	* src/fe-gnome/conversation-panel.c:
+	* src/fe-gnome/apps_xchat.schemas.in:
+	  - Add a gconf key to disable the "don't print consecutive
+	    redundant nickstamps" feature.
+
 Thu Jun 15 11:10:34 MDT  Dan Kuester <dkuester@colorado.edu>
+
 	* src/fe-gnome/conversation-panel.c:
 	  - Remove cracky conversation replace code; put the same prettiness
-	   in as text events later.
+	    in as text events later.
 
 Wed Jun 14 18:37:48 MDT  David Trowbridge <trowbrds@gmail.com>
 
@@ -17,6 +25,7 @@ Wed Jun 14 17:48:29 MDT  David Trowbridge <trowbrds@gmail.com>
 	    color scheme.
 
 Tue Jun 14 14:09:54 MDT  Dan Kuester <dkuester@colorado.edu>
+
 	* src/fe-gnome/xtext.h:
 	* src/fe-gnome/xtext.c:
 	  - Add another string for keeping track of the last user entered.

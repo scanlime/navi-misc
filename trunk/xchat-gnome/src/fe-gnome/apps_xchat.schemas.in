@@ -221,6 +221,17 @@
 		</schema>
 
 		<schema>
+			<key>/schemas/apps/xchat/main_window/redundant_nickstamps</key>
+			<applyto>/apps/xchat/main_window/redundant_nickstamps</applyto>
+			<owner>xchat</owner>
+			<type>bool</type>
+			<default>false</default>
+			<locale name="C">
+				<short>Display redundant nickstamps</short>
+			</locale>
+		</schema>
+
+		<schema>
 			<key>/schemas/apps/xchat/channel_list/width</key>
 			<applyto>/apps/xchat/channel_list/width</applyto>
 			<owner>xchat</owner>
