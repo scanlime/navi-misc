@@ -82,7 +82,12 @@ static void     timestamps_changed                    (GConfClient            *c
                                                        guint                   cnxn_id,
                                                        GConfEntry             *entry,
                                                        xtext_buffer           *buffer);
-static void     conversation_panel_print_line         (xtext_buffer           *buffer,
+static void     redundant_nickstamp_changed           (GConfClient            *client,
+                                                       guint                   cnxn_id,
+                                                       GConfEntry             *entry,
+                                                       ConversationPanel      *panel);
+static void     conversation_panel_print_line         (ConversationPanel      *panel,
+		                                       xtext_buffer           *buffer,
                                                        guchar                  *text,
                                                        int                     len,
                                                        gboolean                indent);
@@ -152,6 +157,7 @@ struct _ConversationPanelPriv
 	GtkWidget	*current_tooltip;
 	guint		tooltip_timeout;
 #endif
+	gboolean	redundant_nickstamps;
 };
 
 static GtkActionEntry url_actions[] = {
@@ -220,6 +226,7 @@ conversation_panel_init (ConversationPanel *panel)
 {
 	GtkWidget *frame;
 	GtkActionGroup *action_group;
+	GConfClient       *client;
 
 	panel->priv = g_new0 (ConversationPanelPriv, 1);
 	panel->priv->xtext     = gtk_xtext_new (colors, TRUE);
@@ -254,7 +261,11 @@ conversation_panel_init (ConversationPanel *panel)
 	panel->priv->tooltip_timeout = 0;
 	panel->priv->current_tooltip = NULL;
 #endif
-
+	client = gconf_client_get_default ();
+	panel->priv->redundant_nickstamps = 
+		gconf_client_get_bool (client, "/apps/xchat/main_window/redundant_nickstamps", NULL);
+	g_object_unref (client);
+	
 	g_signal_connect (G_OBJECT (panel), "style_set", G_CALLBACK (style_set_callback), panel);
 	g_signal_connect (G_OBJECT (panel->priv->xtext), "drag_data_received", G_CALLBACK (drag_data_received), panel);
 	gtk_drag_dest_set (panel->priv->xtext, GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT | GTK_DEST_DEFAULT_DROP,
@@ -318,6 +329,9 @@ conversation_panel_realize (GtkWidget *widget)
 	                         (GConfClientNotifyFunc) conversation_panel_background_changed, panel, NULL, NULL);
 	gconf_client_notify_add (client, "/apps/xchat/main_window/background_transparency",
 	                         (GConfClientNotifyFunc) conversation_panel_background_changed, panel, NULL, NULL);
+	gconf_client_notify_add (client, "/apps/xchat/main_window/redundant_nickstamps",
+	                         (GConfClientNotifyFunc) redundant_nickstamp_changed, panel, NULL, NULL);
+
 
 	g_object_unref (client);
 }
@@ -643,6 +657,12 @@ static void
 timestamps_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, xtext_buffer *buffer)
 {
 	gtk_xtext_set_time_stamp (buffer, gconf_client_get_bool (client, entry->key, NULL));
+}
+
+static void
+redundant_nickstamp_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, ConversationPanel *panel)
+{
+	panel->priv->redundant_nickstamps = gconf_value_get_bool (entry->value);
 }
 
 static void
@@ -1034,7 +1054,7 @@ conversation_panel_clear (ConversationPanel *panel, struct session *sess)
 }
 
 static void
-conversation_panel_print_line (xtext_buffer *buffer, guchar *text, int len, gboolean indent)
+conversation_panel_print_line (ConversationPanel *panel, xtext_buffer *buffer, guchar *text, int len, gboolean indent)
 {
 	int            leftlen;
 	unsigned char *tab;
@@ -1061,7 +1081,7 @@ conversation_panel_print_line (xtext_buffer *buffer, guchar *text, int len, gboo
 	if (tab && tab < (text + len)) {
 		leftlen = tab - text;
 
-		if(strncmp(buffer->laststamp, text, leftlen) == 0)
+		if(!panel->priv->redundant_nickstamps && strncmp (buffer->laststamp, text, leftlen) == 0)
 		{
 			text = tab+1;
 			len -= leftlen;
@@ -1069,9 +1089,9 @@ conversation_panel_print_line (xtext_buffer *buffer, guchar *text, int len, gboo
 		}
 		else
 		{
-			strncpy(buffer->laststamp, text, leftlen);
+			strncpy (buffer->laststamp, text, leftlen);
 			buffer->laststamp[leftlen]=0;
-			gtk_xtext_append_indent (buffer, text, leftlen, tab + 1, strlen(text) - leftlen - 1);
+			gtk_xtext_append_indent (buffer, text, leftlen, tab + 1, strlen (text) - leftlen - 1);
 		}
 	} else {
 		gtk_xtext_append_indent (buffer, 0, 0, text, len);
@@ -1091,10 +1111,10 @@ conversation_panel_print (ConversationPanel *panel, struct session *sess, guchar
 	while (1) {
 		switch (*text) {
 		case '\0':
-			conversation_panel_print_line (buffer, last_text, len, indent);
+			conversation_panel_print_line (panel, buffer, last_text, len, indent);
 			return;
 		case '\n':
-			conversation_panel_print_line (buffer, last_text, len, indent);
+			conversation_panel_print_line (panel, buffer, last_text, len, indent);
 			text++;
 			if (*text == '\0')
 				return;
