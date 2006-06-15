@@ -211,7 +211,7 @@ float color_wedges[][6] = {
 	{ 10.0f,  25.0f, 80.0f, 100.0f, 50.0f,  70.0f}, /*  5 brown       */
 	{270.0f, 300.0f, 80.0f, 100.0f, 35.0f,  80.0f}, /*  6 purple      */
 	{ 10.0f,  30.0f, 90.0f, 100.0f, 85.0f, 100.0f}, /*  7 orange      */
-	{ 55.0f,  65.0f, 90.0f, 100.0f, 80.0f, 100.0f}, /*  8 yellow      */
+	{ 55.0f,  65.0f, 90.0f, 100.0f, 90.0f, 100.0f}, /*  8 yellow      */
 	{100.0f, 120.0f, 80.0f, 100.0f, 70.0f, 100.0f}, /*  9 light green */
 	{170.0f, 180.0f, 70.0f,  90.0f, 55.0f,  70.0f}, /* 10 teal        */
 	{175.0f, 190.0f, 80.0f, 100.0f, 70.0f,  85.0f}, /* 11 cyan        */
@@ -481,20 +481,9 @@ void
 load_palette (int selection)
 {
 	int i;
-	int background_magnitude;
 
 	if (selection == 3) {
 		extract_theme_colors();
-#if 0
-		background_magnitude = sqrt(pow(theme_colors[0].red,   2) +
-		                            pow(theme_colors[0].green, 2) +
-					    pow(theme_colors[0].blue,  2));
-		if (background_magnitude < 0x8000) {
-			selection = 0;
-		} else {
-			selection = 1;
-		}
-#endif
 	}
 
 	for (i = 0; i < 32; i++)

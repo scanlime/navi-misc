@@ -1,3 +1,9 @@
+Wed Jun 14 18:37:48 MDT  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/palette.c:
+	  - Remove some dead code and tweak the yellow color to be a little
+	    less sickening.
+
 Wed Jun 14 17:48:29 MDT  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/palette.c:
