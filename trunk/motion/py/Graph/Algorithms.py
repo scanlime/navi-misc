@@ -296,29 +296,26 @@ class DotPrint (Algorithm):
         except KeyError:
             raise Exception ('Graph does not contain VertexMap representation')
 
-    def printline (self, string):
-        self.results += '%s\n' % string
-
     def run (self):
         if self.valid:
             return self.results
 
-        self.printline ('Digraph {')
+        self.results = 'Digraph {\n'
 
         self_loops = set([])
 
         # print vertices
         for vertex in self.vertexMap:
-            self.printline (vertex)
+            self.results += '%s\n' % vertex
 
         # print edges
         for vertex in self.vertexMap:
             edges = self.vertexMap.query (vertex)
             for edge in edges:
                 if edge.u is vertex:
-                    self.printline (edge)
+                    self.results += '%s\n' % edge
 
-        self.printline ('}')
+        self.results += '}'
 
         if self.file is not None:
             self.file.write (self.results)
