@@ -5,11 +5,6 @@ the individual graphs separate and pretend that there is a giant graph composed
 of all possible combinations of the nodes in the individual graphs. These
 classes allow you to manipulate this pretend graph as though it actually
 existed in memory.
-
-Classes:
-    - AdjacencyList
-    - VertexMap
-    - EdgeList
 """
 
 # Copyright (C) 2006 W. Evan Sheehan
