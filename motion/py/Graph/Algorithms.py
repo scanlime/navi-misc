@@ -328,18 +328,7 @@ class DotPrint (Algorithm):
 
 
 class Heuristic (Algorithm):
-    """A heuristic best first search.
-
-    A class for executing heuristic best first searches on a graph or graphs.
-    It requires the graph(s), a function that returns a path cost given a node
-    and a goal, and a function that returns a list or generates the successors
-    of a given node.
-   
-    Members:
-        - graph             The graph to search
-        - costf             The cost function
-        - successorf        The successor generating function
-    """
+    """A heuristic best first search."""
 
     def __init__(self, graph, costf, successors, source, goal):
         Algorithm.__init__ (self, graph)
@@ -351,61 +340,49 @@ class Heuristic (Algorithm):
     def invalidate (self):
         Algorithm.invalidate (self)
         self.path = None
+        self.costs = {}
+        self.predecessors = {repr(source):None}
+
+    def compare(self, a, b):
+        keyA = repr(a)
+        keyB = repr(b)
+
+        if not self.costs.has_key(keyA):
+            a_path = self.pathToNode(a)
+            self.costs[keyA] = self.costf(a_path, self.goal)
+
+        if not self.costs.has_key(keyB):
+            b_path = self.pathToNode(b)
+            self.costs[keyB] = self.costf(b_path, self.goal)
+
+        ac = self.costs[keyA]
+        bc = self.costs[keyB]
+
+        return (bc - ac)
+
+    def pathToNode(self, node):
+        path = [node]
+        next = self.predecessors[repr(node)]
+
+        while next:
+            path.insert(0, next)
+            next = predecessors[repr(next)]
+
+        return path
 
     def run(self):
         """Execute a heuristic search of a graph.
         
-        Returns a list of nodes that is the path from the source to the goal or
-        None if there is no path.
-
-        Arguments:
-            - source        The starting node for the search
-            - goal          The goal node for the search
+        Returns:
+            A list of nodes that is the path from the source to the goal or
+            ``None`` if there is no path.
         """
-        # Use this function to sort the agenda
-        def compare(a, b):
-            keyA = toTuple(a)
-            keyB = toTuple(b)
-
-            if not costs.has_key(keyA):
-                a_path = pathToNode(a)
-                costs[keyA] = self.costf(a_path, self.goal)
-
-            if not costs.has_key(keyB):
-                b_path = pathToNode(b)
-                costs[keyB] = self.costf(b_path, self.goal)
-
-            ac = costs[keyA]
-            bc = costs[keyB]
-
-            return (bc - ac)
-
-        # Function to generate a list of nodes from the back pointers in the
-        # predecessors dictionary
-        def pathToNode(node):
-            path = [node]
-            next = predecessors[toTuple(node)]
-            while next:
-                path.insert(0, dict(next))
-                next = predecessors[next]
-
-            return path
-
-        # Function to create a tuple of (bone, position) pairs from a
-        # dictionary of positions
-        def toTuple(dictionary):
-            return tuple([(bone, pos) for bone, pos in dictionary.iteritems()])
-
         if self.path:
             return self.path
 
         # Initialize all the local variables
-        costs = {}
-        predecessors = {toTuple(self.source):None}
         agenda = [self.source]
         visited = []
-        path = []
-        steps = []
 
         while len(agenda) > 0:
             # Get the next node and test for the goal
@@ -414,7 +391,7 @@ class Heuristic (Algorithm):
 
             if node == self.goal:
                 # Reconstruct the path to the goal
-                self.path = pathToNode(node)
+                self.path = self.pathToNode(node)
                 break
 
             # Add the successors of this node to the agenda and record the node
@@ -424,7 +401,7 @@ class Heuristic (Algorithm):
                 numSucc += 1
                 if s not in visited:
                     numAdded += 1
-                    predecessors[toTuple(s)] = toTuple(node)
+                    self.predecessors[repr(s)] = node
                     agenda.append(s)
 
             # Some debuggative statements
@@ -432,7 +409,7 @@ class Heuristic (Algorithm):
             print "    %d added to agenda" % (numAdded)
 
             # Resort the queue
-            agenda.sort(cmp=compare)
+            agenda.sort(cmp=self.compare)
 
         return self.path
 
