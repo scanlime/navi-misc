@@ -341,12 +341,12 @@ class Heuristic (Algorithm):
         - successorf        The successor generating function
     """
 
-    __slots__ = ["graph", "costf", "successorf", "path"]
-
-    def __init__(self, graph, costf, successorf):
+    def __init__(self, graph, costf, successors, source, goal):
         Algorithm.__init__ (self, graph)
         self.costf = costf
-        self.successorf = successorf
+        self.successors = successors
+        self.source = source
+        self.goal = goal
 
     def invalidate (self):
         Algorithm.invalidate (self)
@@ -432,7 +432,7 @@ class Heuristic (Algorithm):
             # Add the successors of this node to the agenda and record the node
             # that generated these successors.
             numSucc = numAdded = 0
-            for s in self.successorf(self.graph, node):
+            for s in self.successors(self.graph, node):
                 numSucc += 1
                 if s not in visited:
                     numAdded += 1
@@ -447,6 +447,16 @@ class Heuristic (Algorithm):
             agenda.sort(cmp=compare)
 
         return self.path
+
+    def __hash__ (self):
+        """The hash value for this algorithm is the hash of the graph, source,
+        goal, and cost function.
+        """
+        return hash ((self.graph, self.source, self.goal, self.costf))
+
+    def identity (self):
+        """Identify runs of this algorithm by its hash value."""
+        return hash (self)
 
 
 # vim: ts=4:sw=4:et
