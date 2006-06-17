@@ -25,10 +25,10 @@
 <!-- please do not change the id; for translations, change lang to -->
 <!-- appropriate code -->
   <articleinfo>
-    <title><application>&app;</application> Manual V&manrevision;</title>
+    <title><application>&app;</application> Manual</title>
 
     <copyright>
-      <year>2005</year>
+      <year>2005-2006</year>
       <holder>Brian Pepple</holder>
     </copyright>
 <!-- translators: uncomment this:
@@ -43,7 +43,7 @@
      not specified, the publisher/author is the same for all versions of the
      document.  -->
     <publisher>
-      <publishername> Brian Pepple </publishername>
+      <publishername>Brian Pepple</publishername>
     </publisher>
 
    &legal;
@@ -114,7 +114,7 @@
     </legalnotice>
 
     <abstract role="description">
-      <para>This manual describes the use of XChat-GNOME</para>
+      <para>A user manual which describes the use of the XChat-GNOME IRC client.</para>
     </abstract>
   </articleinfo>
 
