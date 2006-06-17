@@ -989,6 +989,9 @@ show_context_menu (GtkWidget *treeview, GdkEventButton *event)
 	GtkWidget *menu;
 	session *s;
 
+	if (NAVTREE (treeview)->current_rowref == NULL)
+		return;
+
 	model = gtk_tree_row_reference_get_model (NAVTREE (treeview)->current_rowref);
 	path = gtk_tree_row_reference_get_path (NAVTREE (treeview)->current_rowref);
 	gtk_tree_model_get_iter (model, &iter, path);
