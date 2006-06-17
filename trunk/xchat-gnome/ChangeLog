@@ -1,3 +1,8 @@
+Sat Jun 17 16:13:53 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/main-window.c:
+	  - Fix a booboo in window resizing.
+
 Sat Jun 17 16:11:38 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/topic-label.c:
