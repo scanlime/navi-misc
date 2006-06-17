@@ -1,3 +1,9 @@
+Fri Jun 16 18:57:53 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/navigation-tree.c:
+	  - Don't show the context menu if we don't have a valid row
+	    reference. (#340191)
+
 Fri Jun 16 18:47:28 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* help/C/xchat-gnome.xml:
