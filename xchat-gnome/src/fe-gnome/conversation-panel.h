@@ -64,6 +64,7 @@ gpointer   conversation_panel_search          (ConversationPanel *panel, const g
 void       conversation_panel_page_up         (ConversationPanel *panel);
 void       conversation_panel_page_down       (ConversationPanel *panel);
 void	   conversation_panel_copy_selection  (ConversationPanel *panel);
+void       conversation_panel_queue_tdraw     (ConversationPanel *panel);
 
 G_END_DECLS
 
