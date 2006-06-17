@@ -759,4 +759,5 @@ static gboolean
 on_main_window_configure (GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 {
 	conversation_panel_queue_tdraw (CONVERSATION_PANEL (gui.conversation_panel));
+	return FALSE;
 }
