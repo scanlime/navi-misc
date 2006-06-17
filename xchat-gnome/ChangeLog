@@ -1,5 +1,11 @@
+Fri Jun 16 18:47:28 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* help/C/xchat-gnome.xml:
+	  - Update the description and title of the user manual to better
+	    match documentation standards. (#344482)
+
 Fri Jun 16 00:09:00 CEST 2006  Guillaume Desmottes <cass@skynet.be>
-	
+
 	* src/fe-gnome/conversation-panel.c:
 	* src/fe-gnome/apps_xchat.schemas.in:
 	  - Add a gconf key to disable the "don't print consecutive
