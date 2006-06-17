@@ -1235,10 +1235,20 @@ conversation_panel_copy_selection (ConversationPanel *panel)
 	gtk_xtext_copy_selection (GTK_XTEXT (panel->priv->xtext), clipboard);
 }
 
+void
+conversation_panel_queue_tdraw (ConversationPanel *panel)
+{
+	if (GTK_XTEXT (panel->priv->xtext)->transparent) {
+		gtk_widget_queue_draw (panel->priv->xtext);
+	}
+}
+
 static void
 redraw_transparency (ConversationPanel *panel)
 {
-	gtk_xtext_refresh (GTK_XTEXT (panel->priv->xtext), 1);
+	if (GTK_XTEXT (panel->priv->xtext)->transparent) {
+		gtk_xtext_refresh (GTK_XTEXT (panel->priv->xtext), 1);
+	}
 }
 
 #ifdef USE_XLIB

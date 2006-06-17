@@ -1,3 +1,10 @@
+Fri Jun 16 21:02:39 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/conversation-panel.c:
+	* src/fe-gnome/conversation-panel.h:
+	* src/fe-gnome/main-window.c:
+	  - Update transparency on window move. (#344609)
+
 Fri Jun 16 20:53:26 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/conversation-panel.c:

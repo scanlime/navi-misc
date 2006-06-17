@@ -90,6 +90,7 @@ static gboolean on_resize (GtkWidget *widget, GdkEventConfigure *event, gpointer
 static gboolean on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data);
 
 static gboolean on_main_window_focus_in (GtkWidget *widget, GdkEventFocus *event, gpointer data);
+static gboolean on_main_window_configure (GtkWidget *widget, GdkEventConfigure *event, gpointer data);
 
 static GtkActionEntry action_entries [] = {
 
@@ -152,6 +153,8 @@ initialize_main_window (void)
 	                  G_CALLBACK (on_main_window_close), NULL);
 	g_signal_connect (G_OBJECT (gui.main_window), "focus-in-event",
 	                  G_CALLBACK (on_main_window_focus_in), NULL);
+	g_signal_connect (G_OBJECT (gui.main_window), "configure-event",
+	                  G_CALLBACK (on_main_window_configure), NULL);
 
 	/* hook up the menus */
 	gui.action_group = gtk_action_group_new ("MenuAction");
@@ -750,4 +753,10 @@ on_main_window_focus_in (GtkWidget * widget, GdkEventFocus * event, gpointer dat
 {
 	gtk_window_set_urgency_hint (GTK_WINDOW (widget), FALSE);
 	return FALSE;
+}
+
+static gboolean
+on_main_window_configure (GtkWidget *widget, GdkEventConfigure *event, gpointer data)
+{
+	conversation_panel_queue_tdraw (CONVERSATION_PANEL (gui.conversation_panel));
 }
