@@ -421,6 +421,7 @@ const struct prefs vars[] = {
 	{"gui_dialog_top", P_OFFINT (dialog_top), TYPE_INT},
 	{"gui_dialog_width", P_OFFINT (dialog_width), TYPE_INT},
 	{"gui_hide_menu", P_OFFINT (hidemenu), TYPE_BOOL},
+	{"gui_input_spell", P_OFFINT (gui_input_spell), TYPE_BOOL},
 	{"gui_input_style", P_OFFINT (style_inputbox), TYPE_BOOL},
 	{"gui_join_dialog", P_OFFINT (gui_join_dialog), TYPE_BOOL},
 	{"gui_lagometer", P_OFFINT (lagometer), TYPE_INT},
@@ -454,7 +455,6 @@ const struct prefs vars[] = {
 	{"input_command_char", P_OFFSET (cmdchar), TYPE_STR},
 	{"input_filter_beep", P_OFFINT (filterbeep), TYPE_BOOL},
 	{"input_flash_hilight", P_OFFINT (flash_hilight), TYPE_BOOL},
-	{"input_fudge_snotice", P_OFFINT (fudgeservernotice), TYPE_BOOL},
 	{"input_perc_ascii", P_OFFINT (perc_ascii), TYPE_BOOL},
 	{"input_perc_color", P_OFFINT (perc_color), TYPE_BOOL},
 
@@ -494,6 +494,7 @@ const struct prefs vars[] = {
 	{"net_proxy_pass", P_OFFSET (proxy_pass), TYPE_STR},
 	{"net_proxy_port", P_OFFINT (proxy_port), TYPE_INT},
 	{"net_proxy_type", P_OFFINT (proxy_type), TYPE_INT},
+	{"net_proxy_use", P_OFFINT (proxy_use), TYPE_INT},
 	{"net_proxy_user", P_OFFSET (proxy_user), TYPE_STR},
 
 	{"net_reconnect_delay", P_OFFINT (recon_delay), TYPE_INT},
@@ -513,7 +514,6 @@ const struct prefs vars[] = {
 
 	{"tab_chans", P_OFFINT (tabchannels), TYPE_BOOL},
 	{"tab_dialogs", P_OFFINT (privmsgtab), TYPE_BOOL},
-	{"tab_dnd",  P_OFFINT (tab_dnd), TYPE_BOOL},
 	{"tab_icons", P_OFFINT (tab_icons), TYPE_BOOL},
 	{"tab_layout", P_OFFINT (tab_layout), TYPE_INT},
 	{"tab_new_to_front", P_OFFINT (newtabstofront), TYPE_INT},
@@ -605,6 +605,7 @@ load_config (void)
 	prefs.wordwrap = 1;
 	prefs.autosave = 1;
 	prefs.autodialog = 1;
+	prefs.gui_input_spell = 1;
 	prefs.autoreconnect = 1;
 	prefs.recon_delay = 10;
 	prefs.tabchannels = 1;
@@ -644,10 +645,10 @@ load_config (void)
 	prefs.autoopendccsendwindow = 1;
 	prefs.autoopendccchatwindow = 1;
 	prefs.userhost = 1;
-	prefs.dcc_send_fillspaces = 1;
 	prefs.mainwindow_save = 1;
 	prefs.bantype = 2;
 	prefs.flash_hilight = 1;
+	prefs.autodccsend = 2;	/* browse mode */
 #ifdef WIN32
 	prefs.identd = 1;
 #endif

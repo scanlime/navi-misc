@@ -34,6 +34,7 @@ struct DCC
 {
 	struct server *serv;
 	struct dcc_chat *dccchat;
+	struct proxy_state *proxy;
 	guint32 addr;					/* the 32bit IP number, host byte order */
 	int fp;							/* file pointer */
 	int sok;
@@ -62,11 +63,21 @@ struct DCC
 	char *nick;
 	unsigned char type;		  /* 0 = SEND  1 = RECV  2 = CHAT */
 	unsigned char dccstat;	  /* 0 = QUEUED  1 = ACTIVE  2 = FAILED  3 = DONE */
+	unsigned int resume_sent:1;	/* resume request sent */
 	unsigned int fastsend:1;
 	unsigned int ackoffset:1;	/* is reciever sending acks as an offset from */
 										/* the resume point? */
 	unsigned int throttled:2;	/* 0x1 = per send/get throttle
 											0x2 = global throttle */
+};
+
+#define MAX_PROXY_BUFFER 1024
+struct proxy_state
+{
+	int phase;
+	unsigned char buffer[MAX_PROXY_BUFFER];
+	int buffersize;
+	int bufferused;
 };
 
 struct dcc_chat
@@ -97,5 +108,6 @@ void dcc_chat (session *sess, char *nick, int passive);
 void handle_dcc (session *sess, char *nick, char *word[], char *word_eol[]);
 void dcc_show_list (session *sess);
 guint32 dcc_get_my_address (void);
+void dcc_get_with_destfile (struct DCC *dcc, char *utf8file);
 
 #endif

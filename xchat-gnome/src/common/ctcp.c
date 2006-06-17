@@ -156,13 +156,13 @@ ctcp_handle (session *sess, char *to, char *nick,
 								 nick, NULL, NULL, 0);
 			}
 
-			snprintf (outbuf, sizeof (outbuf), "%s/%s", prefs.sounddir, word[5]);
-			if (strchr (word[5], '/') == 0 && access (outbuf, R_OK) == 0)
-			{
-				snprintf (outbuf, sizeof (outbuf), "%s %s/%s", prefs.soundcmd,
-							 prefs.sounddir, word[5]);
-				xchat_exec (outbuf);
-			}
+			/* don't let IRCers specify path */
+#ifdef WIN32
+			if (strchr (word[5], '/') == NULL && strchr (word[5], '\\') == NULL)
+#else
+			if (strchr (word[5], '/') == NULL)
+#endif
+				sound_play (word[5], TRUE);
 			return;
 		}
 	}

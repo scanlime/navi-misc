@@ -79,6 +79,7 @@ void *xchat_realloc (char *old, int len, char *file, int line);
 #define CHANLEN		300
 #define PDIWORDS		32
 #define USERNAMELEN 10
+#define HIDDEN_CHAR	8			/* invisible character for xtext */
 
 #define safe_strcpy(dest,src,len)	{strncpy((dest),(src),(len)); \
 												(dest)[len-1] = 0;}
@@ -141,6 +142,7 @@ struct xchatprefs
 	char proxy_host[64];
 	int proxy_port;
 	int proxy_type; /* 0=disabled, 1=wingate 2=socks4, 3=socks5, 4=http */
+	int proxy_use; /* 0=all 1=IRC_ONLY 2=DCC_ONLY */
 	unsigned int proxy_auth;
 	char proxy_user[32];
 	char proxy_pass[32];
@@ -188,7 +190,6 @@ struct xchatprefs
 	char dcc_ip_str[DOMAINLEN + 1];
 
 	unsigned int tab_small;
-	unsigned int tab_dnd;
 	unsigned int tab_sort;
 	unsigned int tab_icons;
 	unsigned int mainwindow_save;
@@ -258,8 +259,8 @@ struct xchatprefs
 	unsigned int thin_separator;
 	unsigned int auto_indent;
 	unsigned int wordwrap;
+	unsigned int gui_input_spell;
 	unsigned int throttle;
-	unsigned int fudgeservernotice;
 	unsigned int topicbar;
 	unsigned int hideuserlist;
 	unsigned int hidemenu;
@@ -343,6 +344,14 @@ typedef struct session
 	int done_away_check:1;	/* done checking for away status changes */
 } session;
 
+struct msproxy_state_t
+{
+	gint32				clientid;
+	gint32				serverid;
+	unsigned char		seq_recv;		/* seq number of last packet recv.	*/
+	unsigned char		seq_sent;		/* seq number of last packet sent.	*/
+};
+
 typedef struct server
 {
 	/*  server control operations (in server*.c) */
@@ -387,8 +396,12 @@ typedef struct server
 
 	int port;
 	int sok;					/* is equal to sok4 or sok6 (the one we are using) */
-	int sok4;				/* tcp4 socket */
-	int sok6;				/* tcp6 socket */
+	int sok4;					/* tcp4 socket */
+	int sok6;					/* tcp6 socket */
+	int proxy_sok;				/* Additional information for MS Proxy beast */
+	int proxy_sok4;
+	int proxy_sok6;
+	struct msproxy_state_t msp_state;
 	int id;					/* unique ID number (for plugin API) */
 #ifdef USE_OPENSSL
 	SSL *ssl;

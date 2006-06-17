@@ -156,8 +156,14 @@ static const struct defaultserver def[] =
 	{0,			"nc.d-t-net.de"},
 	{0,			"wakka.d-t-net.de"},
 
+	{"DarkMyst", 0},
+	{0,			"irc.darkmyst.org"},
+
 	{"DeepIRC", 0},
 	{0,			"irc.deepirc.net"},
+
+	{"DeltaAnime", 0},
+	{0,			"irc.deltaanime.net"},
 
 	{"EFnet",	0},
 	{0,			"irc.Prison.NET"},
@@ -632,9 +638,12 @@ servlist_auto_connect (session *sess)
 static gint
 servlist_cycle_cb (server *serv)
 {
-	PrintTextf (serv->server_session,
-		_("Cycling to next server in %s...\n"), ((ircnet *)serv->network)->name);
-	servlist_connect (serv->server_session, serv->network, TRUE);
+	if (serv->network)
+	{
+		PrintTextf (serv->server_session,
+			_("Cycling to next server in %s...\n"), ((ircnet *)serv->network)->name);
+		servlist_connect (serv->server_session, serv->network, TRUE);
+	}
 
 	return 0;
 }
