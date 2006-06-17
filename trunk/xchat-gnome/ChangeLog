@@ -1,3 +1,8 @@
+Fri Jun 16 20:53:26 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/conversation-panel.c:
+	  - Update transparency when the desktop background changes. (#344609)
+
 Fri Jun 16 20:32:50 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/common/outbound.c:

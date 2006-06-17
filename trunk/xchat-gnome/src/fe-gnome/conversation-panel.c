@@ -127,10 +127,16 @@ static void     send_file                             (gpointer                f
                                                        gpointer                user_data);
 static void     on_default_copy_activate              (GtkAction              *action,
                                                        ConversationPanel      *panel);
-static gboolean uri_is_text                           (gchar *uri);
-static gboolean check_file_size                       (gchar *uri);
+static gboolean uri_is_text                           (gchar                  *uri);
+static gboolean check_file_size                       (gchar                  *uri);
 #ifdef HAVE_LIBSEXY
-GtkWidget* get_user_vbox_infos	    	    	      (struct User *user);
+GtkWidget* get_user_vbox_infos	    	    	      (struct User            *user);
+#endif
+static void redraw_transparency                       (ConversationPanel      *panel);
+#ifdef USE_XLIB
+static GdkFilterReturn root_event_cb                  (GdkXEvent              *xev,
+                                                       GdkEventProperty       *event,
+                                                       ConversationPanel      *panel);
 #endif
 
 struct _fe_lastlog_info
@@ -262,15 +268,19 @@ conversation_panel_init (ConversationPanel *panel)
 	panel->priv->current_tooltip = NULL;
 #endif
 	client = gconf_client_get_default ();
-	panel->priv->redundant_nickstamps = 
+	panel->priv->redundant_nickstamps =
 		gconf_client_get_bool (client, "/apps/xchat/main_window/redundant_nickstamps", NULL);
 	g_object_unref (client);
-	
+
 	g_signal_connect (G_OBJECT (panel), "style_set", G_CALLBACK (style_set_callback), panel);
 	g_signal_connect (G_OBJECT (panel->priv->xtext), "drag_data_received", G_CALLBACK (drag_data_received), panel);
 	gtk_drag_dest_set (panel->priv->xtext, GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT | GTK_DEST_DEFAULT_DROP,
 	                   target_table, G_N_ELEMENTS (target_table), GDK_ACTION_COPY | GDK_ACTION_ASK);
-	                   
+
+#ifdef USE_XLIB
+	gdk_window_set_events (gdk_get_default_root_window (), GDK_PROPERTY_CHANGE_MASK);
+	gdk_window_add_filter (gdk_get_default_root_window (), (GdkFilterFunc)root_event_cb, panel);
+#endif
 }
 
 static void
@@ -1224,3 +1234,26 @@ conversation_panel_copy_selection (ConversationPanel *panel)
 	GtkClipboard *clipboard = gtk_widget_get_clipboard (GTK_WIDGET (panel), GDK_SELECTION_CLIPBOARD);
 	gtk_xtext_copy_selection (GTK_XTEXT (panel->priv->xtext), clipboard);
 }
+
+static void
+redraw_transparency (ConversationPanel *panel)
+{
+	gtk_xtext_refresh (GTK_XTEXT (panel->priv->xtext), 1);
+}
+
+#ifdef USE_XLIB
+static GdkFilterReturn
+root_event_cb (GdkXEvent *xev, GdkEventProperty *event, ConversationPanel *panel)
+{
+	static Atom at = None;
+	XEvent *xevent = (XEvent *)xev;
+
+	if (xevent->type == PropertyNotify) {
+		if (at == None)
+			at = XInternAtom (xevent->xproperty.display, "_XROOTPMAP_ID", True);
+		if (at == xevent->xproperty.atom)
+			redraw_transparency (panel);
+	}
+	return GDK_FILTER_CONTINUE;
+}
+#endif
