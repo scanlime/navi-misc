@@ -37,7 +37,9 @@ static void  topic_label_init             (TopicLabel      *label);
 static void  topic_label_finalize         (GObject         *object);
 static void  topic_label_expand_activate  (GtkExpander     *expander,
                                            TopicLabel      *label);
-static char *topic_label_get_topic_string (const char *topic);
+static char *topic_label_get_topic_string (const char      *topic);
+static void  topic_label_size_allocate    (GtkWidget       *widget,
+                                           GtkAllocation   *allocation);
 #ifdef HAVE_LIBSEXY
 static void  topic_label_url_activated    (GtkWidget       *url_label,
                                            const char      *url,
@@ -53,6 +55,7 @@ struct _TopicLabelPriv
 {
 	GtkWidget      *expander;
 	GtkWidget      *label;
+	GtkWidget      *sizing_label;
 
 	GHashTable     *topics;
 	struct session *current;
@@ -65,13 +68,16 @@ G_DEFINE_TYPE (TopicLabel, topic_label, GTK_TYPE_HBOX);
 static void
 topic_label_class_init (TopicLabelClass *klass)
 {
-	GObjectClass *gobject_class;
+	GObjectClass   *gobject_class;
+	GtkWidgetClass *widget_class;
 
 	parent_class = g_type_class_peek_parent (klass);
 
 	gobject_class = G_OBJECT_CLASS (klass);
-
 	gobject_class->finalize = topic_label_finalize;
+
+	widget_class = GTK_WIDGET_CLASS (klass);
+	widget_class->size_allocate = topic_label_size_allocate;
 }
 
 static void
@@ -80,9 +86,11 @@ topic_label_init (TopicLabel *label)
 	label->priv = g_new0 (TopicLabelPriv, 1);
 	label->priv->expander = gtk_expander_new (NULL);
 #ifdef HAVE_LIBSEXY
-	label->priv->label    = sexy_url_label_new ();
+	label->priv->label = sexy_url_label_new ();
+	label->priv->sizing_label = sexy_url_label_new ();
 #else
-	label->priv->label    = gtk_label_new (NULL);
+	label->priv->label = gtk_label_new (NULL);
+	label->priv->sizing_label = gtk_label_new (NULL);
 #endif
 
 	gtk_expander_set_expanded (GTK_EXPANDER (label->priv->expander), FALSE);
@@ -175,9 +183,15 @@ topic_label_set_current (TopicLabel *label, struct session *sess)
 #ifdef HAVE_LIBSEXY
 	if (topic) sexy_url_label_set_markup (SEXY_URL_LABEL (label->priv->label), topic);
 	else       gtk_label_set_text (GTK_LABEL (label->priv->label), "");
+
+	if (topic) sexy_url_label_set_markup (SEXY_URL_LABEL (label->priv->sizing_label), topic);
+	else       gtk_label_set_text (GTK_LABEL (label->priv->sizing_label), "");
 #else
 	if (topic) gtk_label_set_text (GTK_LABEL (label->priv->label), topic);
 	else       gtk_label_set_text (GTK_LABEL (label->priv->label), "");
+
+	if (topic) gtk_label_set_text (GTK_LABEL (label->priv->sizing_label), topic);
+	else       gtk_label_set_text (GTK_LABEL (label->priv->sizing_label), "");
 #endif
 
 	if (sess->type == SESS_SERVER)
@@ -273,6 +287,25 @@ topic_label_change_current (TopicLabel *label)
 
 	gtk_widget_destroy (dialog);
         g_object_unref (xml);
+}
+
+static void
+topic_label_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
+{
+	TopicLabel     *label;
+	GtkRequisition  request;
+
+	if (GTK_WIDGET_CLASS (parent_class)->size_allocate)
+		GTK_WIDGET_CLASS (parent_class)->size_allocate (widget, allocation);
+
+	label = TOPIC_LABEL (widget);
+	gtk_widget_size_request (label->priv->sizing_label, &request);
+
+	if (request.width < allocation->width - 6) {
+		gtk_widget_hide (label->priv->expander);
+	} else {
+		gtk_widget_show (label->priv->expander);
+	}
 }
 
 static void
