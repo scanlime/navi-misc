@@ -1,5 +1,6 @@
 de
 fr
+en_GB
 
 # these have just been imported from xchat or old branches on rosetta, so could use some review
 am
@@ -8,7 +9,6 @@ bg
 ca
 cs
 el
-en_GB
 es
 et
 eu
@@ -26,7 +26,6 @@ mk
 ms
 nb
 nl
-no
 pa
 pl
 pt
