@@ -30,6 +30,7 @@
 #include "util.h"
 #include "../common/xchat.h"
 #include "../common/xchatc.h"
+#include "../common/dcc.h"
 
 enum {
 	DCC_COLUMN,
@@ -211,13 +212,9 @@ dcc_window_add (DccWindow *window, struct DCC *dcc)
 	gchar *done_text, *info_text;
 	char *size, *pos;
 
-	/* We don't care about DCC chats */
-	if (dcc->type == 2)
-		return;
-
 	/* If this is a recieve and auto-accept isn't turned on, pop up a
 	 * confirmation dialog */
-	if ((dcc->type == 1) && (dcc->dccstat == 0) && (prefs.autodccsend == FALSE)) {
+	if ((dcc->type == TYPE_RECV) && (dcc->dccstat == STAT_QUEUED) && (prefs.autodccsend == FALSE)) {
 		GtkWidget *dialog;
 		gint response;
 

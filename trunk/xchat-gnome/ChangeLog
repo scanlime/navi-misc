@@ -1,3 +1,9 @@
+Fri Jun 16 22:45:51 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/fe-gnome.c:
+	* src/fe-gnome/dcc-window.c:
+	  - Add a dialog box for accepting DCC chats. (#337074)
+
 Fri Jun 16 21:02:39 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/conversation-panel.c:

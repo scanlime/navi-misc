@@ -44,6 +44,7 @@
 #include "plugins.h"
 #include "../common/xchat.h"
 #include "../common/xchatc.h"
+#include "../common/dcc.h"
 #include "../common/servlist.h"
 #include "../common/fe.h"
 #include "../common/util.h"
@@ -466,22 +467,58 @@ fe_userlist_clear (struct session *sess)
 void
 fe_dcc_add (struct DCC *dcc)
 {
-	/* FIXME: chats? */
-	dcc_window_add (gui.dcc, dcc);
+	if (dcc->type == TYPE_CHATRECV || dcc->type == TYPE_CHATSEND) {
+		/* chats */
+		if (prefs.autodccchat == FALSE) {
+			GtkWidget *dialog;
+			gint response;
+
+			dialog = gtk_message_dialog_new (GTK_WINDOW (gui.main_window),
+			                                 GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+			                                 GTK_MESSAGE_QUESTION,
+			                                 GTK_BUTTONS_CANCEL,
+			                                 _("Incoming DCC Chat"));
+			gtk_dialog_add_button (GTK_DIALOG (dialog),
+			                       _("_Accept"),
+			                       GTK_RESPONSE_ACCEPT);
+			gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+				_("%s is attempting to create a direct chat. Do you wish to accept the connection?"),
+				dcc->nick);
+
+			response = gtk_dialog_run (GTK_DIALOG (dialog));
+			if (response == GTK_RESPONSE_ACCEPT) {
+				dcc_get (dcc);
+			} else {
+				dcc_abort (dcc->serv->server_session, dcc);
+			}
+			gtk_widget_destroy (dialog);
+		}
+	} else {
+		/* file transfers */
+		dcc_window_add (gui.dcc, dcc);
+	}
 }
 
 void
 fe_dcc_update (struct DCC *dcc)
 {
-	/* FIXME: chats? */
-	dcc_window_update (gui.dcc, dcc);
+	if (dcc->type == TYPE_CHATRECV || dcc->type == TYPE_CHATSEND) {
+		/* chats */
+	} else {
+		/* file transfers */
+		dcc_window_update (gui.dcc, dcc);
+	}
 }
 
 void
 fe_dcc_remove (struct DCC *dcc)
 {
-	/* FIXME: chats? */
-	dcc_window_remove (gui.dcc, dcc);
+	if (dcc->type == TYPE_CHATRECV || dcc->type == TYPE_CHATSEND) {
+		/* chats */
+	} else {
+		/* file transfers */
+		dcc_window_remove (gui.dcc, dcc);
+	}
 }
 
 int
