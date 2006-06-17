@@ -1,3 +1,8 @@
+Sat Jun 17 16:17:10 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* data/xchat-gnome.glade:
+	  - Make the close button more svelte.
+
 Sat Jun 17 16:13:53 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/main-window.c:
