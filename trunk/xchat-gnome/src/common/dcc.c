@@ -1,5 +1,6 @@
 /* X-Chat
- * Copyright (C) 1998 Peter Zelezny.
+ * Copyright (C) 1998-2006 Peter Zelezny.
+ * Copyright (C) 2006 Damjan Jovanovic
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -270,6 +271,38 @@ dcc_check_timeouts (void)
 }
 
 static int
+dcc_lookup_proxy (char *host, struct sockaddr_in *addr)
+{
+	struct hostent *h;
+	static char *cache_host = NULL;
+	static guint32 cache_addr;
+
+	/* too lazy to thread this, so we cache results */
+	if (cache_host)
+	{
+		if (strcmp (host, cache_host) == 0)
+		{
+			memcpy (&addr->sin_addr, &cache_addr, 4);
+			return TRUE;
+		}
+		free (cache_host);
+	}
+
+	h = gethostbyname (host);
+	if (h != NULL && h->h_length == 4 && h->h_addr_list[0] != NULL)
+	{
+		memcpy (&addr->sin_addr, h->h_addr, 4);
+		memcpy (&cache_addr, h->h_addr, 4);
+		cache_host = strdup (host);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+#define DCC_USE_PROXY() (prefs.proxy_host[0] && prefs.proxy_type>0 && prefs.proxy_type<5 && prefs.proxy_use!=1)
+
+static int
 dcc_connect_sok (struct DCC *dcc)
 {
 	int sok;
@@ -280,9 +313,21 @@ dcc_connect_sok (struct DCC *dcc)
 		return -1;
 
 	memset (&addr, 0, sizeof (addr));
-	addr.sin_port = htons (dcc->port);
 	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = htonl (dcc->addr);
+	if (DCC_USE_PROXY ())
+	{
+		if (!dcc_lookup_proxy (prefs.proxy_host, &addr))
+		{
+			closesocket (sok);
+			return -1;
+		}
+		addr.sin_port = htons (prefs.proxy_port);
+	}
+	else
+	{
+		addr.sin_port = htons (dcc->port);
+		addr.sin_addr.s_addr = htonl (dcc->addr);
+	}
 
 	set_nonblocking (sok);
 	connect (sok, (struct sockaddr *) &addr, sizeof (addr));
@@ -344,6 +389,8 @@ dcc_close (struct DCC *dcc, int dccstat, int destroy)
 	{
 		dcc_list = g_slist_remove (dcc_list, dcc);
 		fe_dcc_remove (dcc);
+		if (dcc->proxy)
+			free (dcc->proxy);
 		if (dcc->file)
 			free (dcc->file);
 		if (dcc->destfile)
@@ -747,32 +794,18 @@ dcc_read (GIOChannel *source, GIOCondition condition, struct DCC *dcc)
 }
 
 static void
-dcc_open_query (session *sess, char *nick)
+dcc_open_query (server *serv, char *nick)
 {
-	char *cmd;
-
 	if (prefs.autodialog)
-	{
-		cmd = malloc (8 + strlen (nick));
-		sprintf (cmd, "query %s", nick);
-		handle_command (sess, cmd, FALSE);
-		free (cmd);
-	}
+		open_query (serv, nick);
 }
 
 static gboolean
-dcc_connect_finished (GIOChannel *source, GIOCondition condition, struct DCC *dcc)
+dcc_did_connect (GIOChannel *source, GIOCondition condition, struct DCC *dcc)
 {
 	int er;
-	char host[128];
 	struct sockaddr_in addr;
-
-	if (dcc->iotag)
-	{
-		fe_input_remove (dcc->iotag);
-		dcc->iotag = 0;
-	}
-
+	
 #ifdef WIN32
 	if (condition & G_IO_ERR)
 	{
@@ -786,7 +819,7 @@ dcc_connect_finished (GIOChannel *source, GIOCondition condition, struct DCC *dc
 						 NULL, 0);
 		dcc->dccstat = STAT_FAILED;
 		fe_dcc_update (dcc);
-		return TRUE;
+		return FALSE;
 	}
 
 #else
@@ -799,21 +832,34 @@ dcc_connect_finished (GIOChannel *source, GIOCondition condition, struct DCC *dc
 	if (connect (dcc->sok, (struct sockaddr *) &addr, sizeof (addr)) != 0)
 	{
 		er = sock_error ();
-#ifndef WIN32
 		if (er != EISCONN)
-#else
-		if (er != WSAEISCONN)
-#endif
 		{
 			EMIT_SIGNAL (XP_TE_DCCCONFAIL, dcc->serv->front_session,
 							 dcctypes[dcc->type], dcc->nick, errorstring (er),
 							 NULL, 0);
 			dcc->dccstat = STAT_FAILED;
 			fe_dcc_update (dcc);
-			return TRUE;
+			return FALSE;
 		}
 	}
 #endif
+	
+	return TRUE;
+}
+
+static gboolean
+dcc_connect_finished (GIOChannel *source, GIOCondition condition, struct DCC *dcc)
+{
+	char host[128];
+
+	if (dcc->iotag)
+	{
+		fe_input_remove (dcc->iotag);
+		dcc->iotag = 0;
+	}
+
+	if (!dcc_did_connect (source, condition, dcc))
+		return TRUE;
 
 	dcc->dccstat = STAT_ACTIVE;
 	snprintf (host, sizeof host, "%s:%d", net_ip (dcc->addr), dcc->port);
@@ -836,7 +882,7 @@ dcc_connect_finished (GIOChannel *source, GIOCondition condition, struct DCC *dc
 						 dcc->nick, host, dcc->file, NULL, 0);
 		break;
 	case TYPE_CHATSEND:	/* pchat */
-		dcc_open_query (dcc->serv->server_session, dcc->nick);
+		dcc_open_query (dcc->serv, dcc->nick);
 	case TYPE_CHATRECV:	/* normal chat */
 		dcc->iotag = fe_input_add (dcc->sok, FIA_READ|FIA_EX, dcc_read_chat, dcc);
 		dcc->dccchat = malloc (sizeof (struct dcc_chat));
@@ -849,6 +895,492 @@ dcc_connect_finished (GIOChannel *source, GIOCondition condition, struct DCC *dc
 	dcc->lasttime = dcc->starttime;
 	fe_dcc_update (dcc);
 
+	return TRUE;
+}
+
+static gboolean
+read_proxy (struct DCC *dcc)
+{
+	struct proxy_state *proxy = dcc->proxy;
+	while (proxy->bufferused < proxy->buffersize)
+	{
+		int ret = recv (dcc->sok, &proxy->buffer[proxy->bufferused],
+						proxy->buffersize - proxy->bufferused, 0);
+		if (ret > 0)
+			proxy->bufferused += ret;
+		else
+		{
+			if (would_block ())
+				return FALSE;
+			else
+			{
+				dcc->dccstat = STAT_FAILED;
+				fe_dcc_update (dcc);
+				if (dcc->iotag)
+				{
+					fe_input_remove (dcc->iotag);
+					dcc->iotag = 0;
+				}
+				return FALSE;
+			}
+		}
+	}
+	return TRUE;
+}
+
+static gboolean
+write_proxy (struct DCC *dcc)
+{
+	struct proxy_state *proxy = dcc->proxy;
+	while (proxy->bufferused < proxy->buffersize)
+	{
+		int ret = send (dcc->sok, &proxy->buffer[proxy->bufferused],
+						proxy->buffersize - proxy->bufferused, 0);
+		if (ret >= 0)
+			proxy->bufferused += ret;
+		else
+		{
+			if (would_block ())
+				return FALSE;
+			else
+			{
+				dcc->dccstat = STAT_FAILED;
+				fe_dcc_update (dcc);
+				if (dcc->wiotag)
+				{
+					fe_input_remove (dcc->wiotag);
+					dcc->wiotag = 0;
+				}
+				return FALSE;
+			}
+		}
+	}
+	return TRUE;
+}
+
+static gboolean
+proxy_read_line (struct DCC *dcc)
+{
+	struct proxy_state *proxy = dcc->proxy;
+	while (1)
+	{
+		proxy->buffersize = proxy->bufferused + 1;
+		if (!read_proxy (dcc))
+			return FALSE;
+		if (proxy->buffer[proxy->bufferused - 1] == '\n'
+			|| proxy->bufferused == MAX_PROXY_BUFFER)
+		{
+			proxy->buffer[proxy->bufferused - 1] = 0;
+			return TRUE;
+		}
+	}
+}
+
+static gboolean
+dcc_wingate_proxy_traverse (GIOChannel *source, GIOCondition condition, struct DCC *dcc)
+{
+	struct proxy_state *proxy = dcc->proxy;
+	if (proxy->phase == 0)
+	{
+		proxy->buffersize = snprintf ((char*) proxy->buffer, MAX_PROXY_BUFFER,
+										"%s %d\r\n", net_ip(dcc->addr),
+										dcc->port);
+		proxy->bufferused = 0;
+		dcc->wiotag = fe_input_add (dcc->sok, FIA_WRITE|FIA_EX,
+									dcc_wingate_proxy_traverse, dcc);
+		++proxy->phase;
+	}
+	if (proxy->phase == 1)
+	{
+		if (!read_proxy (dcc))
+			return TRUE;
+		fe_input_remove (dcc->wiotag);
+		dcc->wiotag = 0;
+		dcc_connect_finished (source, 0, dcc);
+	}
+	return TRUE;
+}
+
+struct sock_connect
+{
+	char version;
+	char type;
+	guint16 port;
+	guint32 address;
+	char username[10];
+};
+static gboolean
+dcc_socks_proxy_traverse (GIOChannel *source, GIOCondition condition, struct DCC *dcc)
+{
+	struct proxy_state *proxy = dcc->proxy;
+
+	if (proxy->phase == 0)
+	{
+		struct sock_connect sc;
+		sc.version = 4;
+		sc.type = 1;
+		sc.port = htons (dcc->port);
+		sc.address = htonl (dcc->addr);
+		strncpy (sc.username, prefs.username, 9);
+		memcpy (proxy->buffer, &sc, sizeof (sc));
+		proxy->buffersize = 8 + strlen (sc.username) + 1;
+		proxy->bufferused = 0;
+		dcc->wiotag = fe_input_add (dcc->sok, FIA_WRITE|FIA_EX,
+									dcc_socks_proxy_traverse, dcc);
+		++proxy->phase;
+	}
+
+	if (proxy->phase == 1)
+	{
+		if (!write_proxy (dcc))
+			return TRUE;
+		fe_input_remove (dcc->wiotag);
+		dcc->wiotag = 0;
+		proxy->bufferused = 0;
+		proxy->buffersize = 8;
+		dcc->iotag = fe_input_add (dcc->sok, FIA_READ|FIA_EX,
+									dcc_socks_proxy_traverse, dcc);
+		++proxy->phase;
+	}
+
+	if (proxy->phase == 2)
+	{
+		if (!read_proxy (dcc))
+			return TRUE;
+		fe_input_remove (dcc->iotag);
+		dcc->iotag = 0;
+		if (proxy->buffer[1] == 90)
+			dcc_connect_finished (source, 0, dcc);
+		else
+		{
+			dcc->dccstat = STAT_FAILED;
+			fe_dcc_update (dcc);
+		}
+	}
+
+	return TRUE;
+}
+
+struct sock5_connect1
+{
+        char version;
+        char nmethods;
+        char method;
+};
+static gboolean
+dcc_socks5_proxy_traverse (GIOChannel *source, GIOCondition condition, struct DCC *dcc)
+{
+	struct proxy_state *proxy = dcc->proxy;
+	int auth = prefs.proxy_auth && prefs.proxy_user[0] && prefs.proxy_pass[0];
+
+	if (proxy->phase == 0)
+	{
+		struct sock5_connect1 sc1;
+
+		sc1.version = 5;
+		sc1.nmethods = 1;
+		sc1.method = 0;
+		if (auth)
+			sc1.method = 2;
+		memcpy (proxy->buffer, &sc1, 3);
+		proxy->buffersize = 3;
+		proxy->bufferused = 0;
+		dcc->wiotag = fe_input_add (dcc->sok, FIA_WRITE|FIA_EX,
+									dcc_socks5_proxy_traverse, dcc);
+		++proxy->phase;
+	}
+
+	if (proxy->phase == 1)
+	{
+		if (!write_proxy (dcc))
+			return TRUE;
+		fe_input_remove (dcc->wiotag);
+		dcc->wiotag = 0;
+		proxy->bufferused = 0;
+		proxy->buffersize = 2;
+		dcc->iotag = fe_input_add (dcc->sok, FIA_READ|FIA_EX,
+									dcc_socks5_proxy_traverse, dcc);
+		++proxy->phase;
+	}
+
+	if (proxy->phase == 2)
+	{
+		if (!read_proxy (dcc))
+			return TRUE;
+		fe_input_remove (dcc->iotag);
+		dcc->iotag = 0;
+
+		/* did the server say no auth required? */
+		if (proxy->buffer[0] == 5 && proxy->buffer[1] == 0)
+			auth = 0;
+
+		/* Set up authentication I/O */
+		if (auth)
+		{
+			int len_u=0, len_p=0;
+
+			/* authentication sub-negotiation (RFC1929) */
+			if ( proxy->buffer[0] != 5 || proxy->buffer[1] != 2 )  /* UPA not supported by server */
+			{
+				PrintText (dcc->serv->front_session, "SOCKS\tServer doesn't support UPA authentication.\n");
+				dcc->dccstat = STAT_FAILED;
+				fe_dcc_update (dcc);
+				return TRUE;
+			}
+
+			memset (proxy->buffer, 0, MAX_PROXY_BUFFER);
+
+			/* form the UPA request */
+			len_u = strlen (prefs.proxy_user);
+			len_p = strlen (prefs.proxy_pass);
+			proxy->buffer[0] = 1;
+			proxy->buffer[1] = len_u;
+			memcpy (proxy->buffer + 2, prefs.proxy_user, len_u);
+			proxy->buffer[2 + len_u] = len_p;
+			memcpy (proxy->buffer + 3 + len_u, prefs.proxy_pass, len_p);
+
+			proxy->buffersize = 3 + len_u + len_p;
+			proxy->bufferused = 0;
+			dcc->wiotag = fe_input_add (dcc->sok, FIA_WRITE|FIA_EX,
+										dcc_socks5_proxy_traverse, dcc);
+			++proxy->phase;
+		}
+		else
+		{
+			if (proxy->buffer[0] != 5 || proxy->buffer[1] != 0)
+			{
+				PrintText (dcc->serv->front_session, "SOCKS\tAuthentication required but disabled in settings.\n");
+				dcc->dccstat = STAT_FAILED;
+				fe_dcc_update (dcc);
+				return TRUE;
+			}
+			proxy->phase += 2;
+		}
+	}
+	
+	if (proxy->phase == 3)
+	{
+		if (!write_proxy (dcc))
+			return TRUE;
+		fe_input_remove (dcc->wiotag);
+		dcc->wiotag = 0;
+		proxy->buffersize = 2;
+		proxy->bufferused = 0;
+		dcc->iotag = fe_input_add (dcc->sok, FIA_READ|FIA_EX,
+									dcc_socks5_proxy_traverse, dcc);
+		++proxy->phase;
+	}
+
+	if (proxy->phase == 4)
+	{
+		if (!read_proxy (dcc))
+			return TRUE;
+		if (dcc->iotag)
+		{
+			fe_input_remove (dcc->iotag);
+			dcc->iotag = 0;
+		}
+		if (proxy->buffer[1] != 0)
+		{
+			PrintText (dcc->serv->front_session, "SOCKS\tAuthentication failed. "
+							 "Is username and password correct?\n");
+			dcc->dccstat = STAT_FAILED;
+			fe_dcc_update (dcc);
+			return TRUE;
+		}
+		++proxy->phase;
+	}
+
+	if (proxy->phase == 5)
+	{
+		proxy->buffer[0] = 5;	/* version (socks 5) */
+		proxy->buffer[1] = 1;	/* command (connect) */
+		proxy->buffer[2] = 0;	/* reserved */
+		proxy->buffer[3] = 1;	/* address type (IPv4) */
+		proxy->buffer[4] = (dcc->addr >> 24) & 0xFF;	/* IP address */
+		proxy->buffer[5] = (dcc->addr >> 16) & 0xFF;
+		proxy->buffer[6] = (dcc->addr >> 8) & 0xFF;
+		proxy->buffer[7] = (dcc->addr & 0xFF);
+		proxy->buffer[8] = (dcc->port >> 8) & 0xFF;		/* port */
+		proxy->buffer[9] = (dcc->port & 0xFF);
+		proxy->buffersize = 10;
+		proxy->bufferused = 0;
+		dcc->wiotag = fe_input_add (dcc->sok, FIA_WRITE|FIA_EX,
+									dcc_socks5_proxy_traverse, dcc);
+		++proxy->phase;
+	}
+
+	if (proxy->phase == 6)
+	{
+		if (!write_proxy (dcc))
+			return TRUE;
+		fe_input_remove (dcc->wiotag);
+		dcc->wiotag = 0;
+		proxy->buffersize = 4;
+		proxy->bufferused = 0;
+		dcc->iotag = fe_input_add (dcc->sok, FIA_READ|FIA_EX,
+									dcc_socks5_proxy_traverse, dcc);
+		++proxy->phase;
+	}
+
+	if (proxy->phase == 7)
+	{
+		if (!read_proxy (dcc))
+			return TRUE;
+		if (proxy->buffer[0] != 5 || proxy->buffer[1] != 0)
+		{
+			fe_input_remove (dcc->iotag);
+			dcc->iotag = 0;
+			if (proxy->buffer[1] == 2)
+				PrintText (dcc->serv->front_session, "SOCKS\tProxy refused to connect to host (not allowed).\n");
+			else
+				PrintTextf (dcc->serv->front_session, "SOCKS\tProxy failed to connect to host (error %d).\n", proxy->buffer[1]);
+			dcc->dccstat = STAT_FAILED;
+			fe_dcc_update (dcc);
+			return TRUE;
+		}
+		switch (proxy->buffer[3])
+		{
+			case 1: proxy->buffersize += 6; break;
+			case 3: proxy->buffersize += 1; break;
+			case 4: proxy->buffersize += 18; break;
+		};
+		++proxy->phase;
+	}
+
+	if (proxy->phase == 8)
+	{
+		if (!read_proxy (dcc))
+			return TRUE;
+		/* handle domain name case */
+		if (proxy->buffer[3] == 3)
+		{
+			proxy->buffersize = 5 + proxy->buffer[4] + 2;
+		}
+		/* everything done? */
+		if (proxy->bufferused == proxy->buffersize)
+		{
+			fe_input_remove (dcc->iotag);
+			dcc->iotag = 0;
+			dcc_connect_finished (source, 0, dcc);
+		}
+	}
+	return TRUE;
+}
+
+static gboolean
+dcc_http_proxy_traverse (GIOChannel *source, GIOCondition condition, struct DCC *dcc)
+{
+	struct proxy_state *proxy = dcc->proxy;
+
+	if (proxy->phase == 0)
+	{
+		char buf[256];
+		char auth_data[128];
+		char auth_data2[68];
+		int n, n2;
+
+		n = snprintf (buf, sizeof (buf), "CONNECT %s:%d HTTP/1.0\r\n",
+                                          net_ip(dcc->addr), dcc->port);
+		if (prefs.proxy_auth)
+		{
+			n2 = snprintf (auth_data2, sizeof (auth_data2), "%s:%s",
+							prefs.proxy_user, prefs.proxy_pass);
+			base64_encode (auth_data, auth_data2, n2);
+			n += snprintf (buf+n, sizeof (buf)-n, "Proxy-Authorization: Basic %s\r\n", auth_data);
+		}
+		n += snprintf (buf+n, sizeof (buf)-n, "\r\n");
+		proxy->buffersize = n;
+		proxy->bufferused = 0;
+		memcpy (proxy->buffer, buf, proxy->buffersize);
+		dcc->wiotag = fe_input_add (dcc->sok, FIA_WRITE|FIA_EX,
+									dcc_http_proxy_traverse, dcc);
+		++proxy->phase;
+	}
+
+	if (proxy->phase == 1)
+	{
+		if (!write_proxy (dcc))
+			return TRUE;
+		fe_input_remove (dcc->wiotag);
+		dcc->wiotag = 0;
+		proxy->bufferused = 0;
+		dcc->iotag = fe_input_add (dcc->sok, FIA_READ|FIA_EX,
+										dcc_http_proxy_traverse, dcc);
+		++proxy->phase;
+	}
+
+	if (proxy->phase == 2)
+	{
+		if (!proxy_read_line (dcc))
+			return TRUE;
+		/* "HTTP/1.0 200 OK" */
+		if (proxy->bufferused < 12 ||
+			 memcmp (proxy->buffer, "HTTP/", 5) || memcmp (proxy->buffer + 9, "200", 3))
+		{
+			fe_input_remove (dcc->iotag);
+			dcc->iotag = 0;
+			PrintText (dcc->serv->front_session, proxy->buffer);
+			dcc->dccstat = STAT_FAILED;
+			fe_dcc_update (dcc);
+			return TRUE;
+		}
+		proxy->bufferused = 0;
+		++proxy->phase;
+	}
+
+	if (proxy->phase == 3)
+	{
+		while (1)
+		{
+			/* read until blank line */
+			if (proxy_read_line (dcc))
+			{
+				if (proxy->bufferused < 1 ||
+					(proxy->bufferused == 2 && proxy->buffer[0] == '\r'))
+				{
+					break;
+				}
+				if (proxy->bufferused > 1)
+					PrintText (dcc->serv->front_session, proxy->buffer);
+				proxy->bufferused = 0;
+			}
+			else
+				return TRUE;
+		}
+		fe_input_remove (dcc->iotag);
+		dcc->iotag = 0;
+		dcc_connect_finished (source, 0, dcc);
+	}
+
+	return TRUE;
+}
+
+static gboolean
+dcc_proxy_connect (GIOChannel *source, GIOCondition condition, struct DCC *dcc)
+{
+	fe_input_remove (dcc->iotag);
+	dcc->iotag = 0;
+
+	if (!dcc_did_connect (source, condition, dcc))
+		return TRUE;
+
+	dcc->proxy = malloc (sizeof (struct proxy_state));
+	if (!dcc->proxy)
+	{
+		dcc->dccstat = STAT_FAILED;
+		fe_dcc_update (dcc);
+		return TRUE;
+	}
+	memset (dcc->proxy, 0, sizeof (struct proxy_state));
+
+	switch (prefs.proxy_type)
+	{
+		case 1: return dcc_wingate_proxy_traverse (source, condition, dcc);
+		case 2: return dcc_socks_proxy_traverse (source, condition, dcc);
+		case 3: return dcc_socks5_proxy_traverse (source, condition, dcc);
+		case 4: return dcc_http_proxy_traverse (source, condition, dcc);
+	}
 	return TRUE;
 }
 
@@ -893,7 +1425,10 @@ dcc_connect (struct DCC *dcc)
 			fe_dcc_update (dcc);
 			return;
 		}
-		dcc->iotag = fe_input_add (dcc->sok, FIA_WRITE|FIA_EX, dcc_connect_finished, dcc);
+		if (DCC_USE_PROXY ())
+			dcc->iotag = fe_input_add (dcc->sok, FIA_WRITE|FIA_EX, dcc_proxy_connect, dcc);
+		else
+			dcc->iotag = fe_input_add (dcc->sok, FIA_WRITE|FIA_EX, dcc_connect_finished, dcc);
 	}
 	
 	fe_dcc_update (dcc);
@@ -1074,7 +1609,7 @@ dcc_accept (GIOChannel *source, GIOCondition condition, struct DCC *dcc)
 		break;
 
 	case TYPE_CHATSEND:
-		dcc_open_query (dcc->serv->server_session, dcc->nick);
+		dcc_open_query (dcc->serv, dcc->nick);
 		dcc->iotag = fe_input_add (dcc->sok, FIA_READ|FIA_EX, dcc_read_chat, dcc);
 		dcc->dccchat = malloc (sizeof (struct dcc_chat));
 		dcc->dccchat->pos = 0;
@@ -1423,6 +1958,93 @@ dcc_change_nick (struct server *serv, char *oldnick, char *newnick)
 	}
 }
 
+/* is the destination file the same? new_dcc is not opened yet */
+
+static int
+is_same_file (struct DCC *dcc, struct DCC *new_dcc)
+{
+	struct stat st_a, st_b;
+
+	/* if it's the same filename, must be same */
+	if (strcmp (dcc->destfile, new_dcc->destfile) == 0)
+		return TRUE;
+
+	/* now handle case-insensitive Filesystems: HFS+, FAT */
+#ifdef WIN32
+#error implement me!
+#else
+	/* this fstat() shouldn't really fail */
+	if ((dcc->fp == -1 ? stat (dcc->destfile_fs, &st_a) : fstat (dcc->fp, &st_a)) == -1)
+		return FALSE;
+	if (stat (new_dcc->destfile_fs, &st_b) == -1)
+		return FALSE;
+
+	/* same inode, same device, same file! */
+	if (st_a.st_ino == st_b.st_ino &&
+		 st_a.st_dev == st_b.st_dev)
+		return TRUE;
+#endif
+
+	return FALSE;
+}
+
+static int
+is_resumable (struct DCC *dcc)
+{
+	dcc->resumable = 0;
+
+	/* Check the file size */
+	if (access (dcc->destfile_fs, W_OK) == 0)
+	{
+		struct stat st;
+
+		if (stat (dcc->destfile_fs, &st) != -1)
+		{
+			if (st.st_size < dcc->size)
+			{
+				dcc->resumable = st.st_size;
+				dcc->pos = st.st_size;
+			}
+			else
+				dcc->resume_error = 2;
+		} else
+		{
+			dcc->resume_errno = errno;
+			dcc->resume_error = 1;
+		}
+	} else
+	{
+		dcc->resume_errno = errno;
+		dcc->resume_error = 1;
+	}
+
+	/* Now verify that this DCC is not already in progress from someone else */
+
+	if (dcc->resumable)
+	{
+		GSList *list = dcc_list;
+		struct DCC *d;
+		while (list)
+		{
+			d = list->data;
+			if (d->type == TYPE_RECV && d->dccstat != STAT_ABORTED &&
+				 d->dccstat != STAT_DONE && d->dccstat != STAT_FAILED)
+			{
+				if (d != dcc && is_same_file (d, dcc))
+				{
+					dcc->resume_error = 3;	/* dccgui.c uses it */
+					dcc->resumable = 0;
+					dcc->pos = 0;
+					break;
+				}
+			}
+			list = list->next;
+		}
+	}
+
+	return dcc->resumable;
+}
+
 void
 dcc_get (struct DCC *dcc)
 {
@@ -1449,6 +2071,24 @@ dcc_get (struct DCC *dcc)
 		dcc_close (dcc, 0, TRUE);
 		break;
 	}
+}
+
+/* for "Save As..." dialog */
+
+void
+dcc_get_with_destfile (struct DCC *dcc, char *file)
+{
+	g_free (dcc->destfile);
+	dcc->destfile = g_strdup (file);	/* utf-8 */
+
+	/* get the local filesystem encoding */
+	g_free (dcc->destfile_fs);
+	dcc->destfile_fs = g_filename_from_utf8 (dcc->destfile, -1, 0, 0, 0);
+
+	/* since destfile changed, must check resumability again */
+	is_resumable (dcc);
+
+	dcc_get (dcc);
 }
 
 void
@@ -1567,93 +2207,6 @@ dcc_malformed (struct session *sess, char *nick, char *data)
 	EMIT_SIGNAL (XP_TE_MALFORMED, sess, nick, data, NULL, NULL, 0);
 }
 
-/* is the destination file the same? new_dcc is not opened yet */
-
-static int
-is_same_file (struct DCC *dcc, struct DCC *new_dcc)
-{
-	struct stat st_a, st_b;
-
-	/* if it's the same filename, must be same */
-	if (strcmp (dcc->destfile, new_dcc->destfile) == 0)
-		return TRUE;
-
-	/* now handle case-insensitive Filesystems: HFS+, FAT */
-#ifdef WIN32
-#error implement me!
-#else
-	/* this fstat() shouldn't really fail */
-	if ((dcc->fp == -1 ? stat (dcc->destfile_fs, &st_a) : fstat (dcc->fp, &st_a)) == -1)
-		return FALSE;
-	if (stat (new_dcc->destfile_fs, &st_b) == -1)
-		return FALSE;
-
-	/* same inode, same device, same file! */
-	if (st_a.st_ino == st_b.st_ino &&
-		 st_a.st_dev == st_b.st_dev)
-		return TRUE;
-#endif
-
-	return FALSE;
-}
-
-static int
-is_resumable (struct DCC *dcc)
-{
-	dcc->resumable = 0;
-
-	/* Check the file size */
-	if (access (dcc->destfile_fs, W_OK) == 0)
-	{
-		struct stat st;
-
-		if (stat (dcc->destfile_fs, &st) != -1)
-		{
-			if (st.st_size < dcc->size)
-			{
-				dcc->resumable = st.st_size;
-				dcc->pos = st.st_size;
-			}
-			else
-				dcc->resume_error = 2;
-		} else
-		{
-			dcc->resume_errno = errno;
-			dcc->resume_error = 1;
-		}
-	} else
-	{
-		dcc->resume_errno = errno;
-		dcc->resume_error = 1;
-	}
-
-	/* Now verify that this DCC is not already in progress from someone else */
-
-	if (dcc->resumable)
-	{
-		GSList *list = dcc_list;
-		struct DCC *d;
-		while (list)
-		{
-			d = list->data;
-			if (d->type == TYPE_RECV && d->dccstat != STAT_ABORTED &&
-				 d->dccstat != STAT_DONE && d->dccstat != STAT_FAILED)
-			{
-				if (d != dcc && is_same_file (d, dcc))
-				{
-					dcc->resume_error = 3;	/* dccgui.c uses it */
-					dcc->resumable = 0;
-					dcc->pos = 0;
-					break;
-				}
-			}
-			list = list->next;
-		}
-	}
-
-	return dcc->resumable;
-}
-
 int
 dcc_resume (struct DCC *dcc)
 {
@@ -1661,6 +2214,7 @@ dcc_resume (struct DCC *dcc)
 
 	if (dcc->dccstat == STAT_QUEUED && dcc->resumable)
 	{
+		dcc->resume_sent = 1;
 		/* filename contains spaces? Quote them! */
 		snprintf (tbuf, sizeof (tbuf) - 10, strchr (dcc->file, ' ') ?
 					  "DCC RESUME \"%s\" %d %"DCC_SFMT :
@@ -1737,7 +2291,7 @@ dcc_add_chat (session *sess, char *nick, int port, guint32 addr, int pasvid)
 		else if (prefs.autodccchat == 2)
 		{
 			char buff[128];
-			snprintf (buff, sizeof (buff), "%s is offering DCC Chat.  Do you want to accept?", nick);
+			snprintf (buff, sizeof (buff), "%s is offering DCC Chat. Do you want to accept?", nick);
 			fe_confirm (buff, dcc_confirm_chat, dcc_deny_chat, dcc);
 		}
 	}
@@ -1805,9 +2359,8 @@ dcc_add_file (session *sess, char *file, DCC_SIZE size, int port, char *nick, gu
 		}
 		else if (prefs.autodccsend == 2)
 		{
-			char buff[128];
-			snprintf (buff, sizeof (buff), "%s is offering \"%s\" via DCC.  Do you want to accept the transfer?", nick, file);
-			fe_confirm (buff, dcc_confirm_send, dcc_deny_send, dcc);
+			snprintf (tbuf, sizeof (tbuf), _("%s is offering \"%s\". Do you want to accept?"), nick, file);
+			fe_confirm (tbuf, dcc_confirm_send, dcc_deny_send, dcc);
 		}
 		if (prefs.autoopendccrecvwindow)
 		{

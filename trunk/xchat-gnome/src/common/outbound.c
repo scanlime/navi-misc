@@ -2243,7 +2243,7 @@ cmd_load (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 		fp = xchat_fopen_file (file, "r", XOF_FULLPATH);
 		if (!fp)
 		{
-			PrintTextf (sess, "Cannot access %s\n", file);
+			PrintTextf (sess, _("Cannot access %s\n"), file);
 			PrintText (sess, errorstring (errno));
 			free (file);
 			return TRUE;
@@ -2577,14 +2577,26 @@ cmd_ping (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 	return TRUE;
 }
 
+void
+open_query (server *serv, char *nick)
+{
+	session *sess;
+
+	sess = find_dialog (serv, nick);
+	if (sess)
+		fe_ctrl_gui (sess, 2, 0);	/* bring-to-front */
+	else
+		new_ircwindow (serv, nick, SESS_DIALOG, 1);
+}
+
 static int
 cmd_query (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 {
 	char *nick = word[2];
+
 	if (*nick && !is_channel (sess->server, nick))
 	{
-		if (!find_dialog (sess->server, nick))
-			new_ircwindow (sess->server, nick, SESS_DIALOG, 1);
+		open_query (sess->server, nick);
 		return TRUE;
 	}
 	return FALSE;
@@ -3622,7 +3634,7 @@ check_special_chars (char *cmd, int do_ascii) /* check for %X */
 						buf[i] = '\017';
 						break;
 					case 'H':	/* CL: invisible text code */
-						buf[i] = '\001';
+						buf[i] = HIDDEN_CHAR;
 						break;
 					case '%':
 						buf[i] = '%';

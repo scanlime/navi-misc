@@ -14,7 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+ *
+ * MS Proxy (ISA server) support is (c) 2006 Pavel Fedin <sonic_amiga@rambler.ru>
+ * based on Dante source code
+ * Copyright (c) 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+ *      Inferno Nettverk A/S, Norway.  All rights reserved.
  */
+
+/*#define DEBUG_MSPROXY*/
 
 #include <stdio.h>
 #include <string.h>
@@ -53,6 +60,10 @@
 #include <openssl/ssl.h>		  /* SSL_() */
 #include <openssl/err.h>		  /* ERR_() */
 #include "ssl.h"
+#endif
+
+#ifdef USE_MSPROXY
+#include "msproxy.h"
 #endif
 
 #ifdef WIN32
@@ -880,6 +891,7 @@ server_read_child (GIOChannel *source, GIOCondition condition, server *serv)
 	char outbuf[512];
 	char host[100];
 	char ip[100];
+	char *p;
 
 	waitline2 (source, tbuf, sizeof tbuf);
 
@@ -892,9 +904,13 @@ server_read_child (GIOChannel *source, GIOCondition condition, server *serv)
 	case '1':						  /* unknown host */
 		server_stopconnecting (serv);
 		closesocket (serv->sok4);
+		if (serv->proxy_sok4 != -1)
+			closesocket (serv->proxy_sok4);
 #ifdef USE_IPV6
 		if (serv->sok6 != -1)
 			closesocket (serv->sok6);
+		if (serv->proxy_sok6 != -1)
+			closesocket (serv->proxy_sok6);
 #endif
 		EMIT_SIGNAL (XP_TE_UKNHOST, sess, NULL, NULL, NULL, NULL, 0);
 		if (!servlist_cycle (serv))
@@ -905,9 +921,13 @@ server_read_child (GIOChannel *source, GIOCondition condition, server *serv)
 		waitline2 (source, tbuf, sizeof tbuf);
 		server_stopconnecting (serv);
 		closesocket (serv->sok4);
+		if (serv->proxy_sok4 != -1)
+			closesocket (serv->proxy_sok4);
 #ifdef USE_IPV6
 		if (serv->sok6 != -1)
 			closesocket (serv->sok6);
+		if (serv->proxy_sok6 != -1)
+			closesocket (serv->proxy_sok6);
 #endif
 		EMIT_SIGNAL (XP_TE_CONNFAIL, sess, errorstring (atoi (tbuf)), NULL,
 						 NULL, NULL, 0);
@@ -943,13 +963,36 @@ server_read_child (GIOChannel *source, GIOCondition condition, server *serv)
 		break;
 	case '4':						  /* success */
 		waitline2 (source, tbuf, sizeof (tbuf));
+#ifdef USE_MSPROXY
+		serv->sok = strtol (tbuf, &p, 10);
+		if (*p++ == ' ')
+		{
+			serv->proxy_sok = strtol (p, &p, 10);
+			serv->msp_state.clientid = strtol (++p, &p, 10);
+			serv->msp_state.serverid = strtol (++p, &p, 10);
+			serv->msp_state.seq_sent = atoi (++p);
+		} else
+			serv->proxy_sok = -1;
+#ifdef DEBUG_MSPROXY
+		printf ("Parent got main socket: %d, proxy socket: %d\n", serv->sok, serv->proxy_sok);
+		printf ("Client ID 0x%08x server ID 0x%08x seq_sent %d\n", serv->msp_state.clientid, serv->msp_state.serverid, serv->msp_state.seq_sent);
+#endif
+#else
 		serv->sok = atoi (tbuf);
+#endif
 #ifdef USE_IPV6
 		/* close the one we didn't end up using */
 		if (serv->sok == serv->sok4)
 			closesocket (serv->sok6);
 		else
 			closesocket (serv->sok4);
+		if (serv->proxy_sok != -1)
+		{
+			if (serv->proxy_sok == serv->proxy_sok4)
+				closesocket (serv->proxy_sok6);
+			else
+				closesocket (serv->proxy_sok4);
+		}
 #endif
 		server_connect_success (serv);
 		break;
@@ -1008,14 +1051,20 @@ server_cleanup (server * serv)
 	{
 		server_stopconnecting (serv);
 		closesocket (serv->sok4);
+		if (serv->proxy_sok4 != -1)
+			closesocket (serv->proxy_sok4);
 		if (serv->sok6 != -1)
 			closesocket (serv->sok6);
+		if (serv->proxy_sok6 != -1)
+			closesocket (serv->proxy_sok6);
 		return 1;
 	}
 
 	if (serv->connected)
 	{
 		close_socket (serv->sok);
+		if (serv->proxy_sok)
+			close_socket (serv->proxy_sok);
 		serv->connected = FALSE;
 		serv->end_of_motd = FALSE;
 		return 2;
@@ -1085,12 +1134,21 @@ server_disconnect (session * sess, int sendquit, int err)
 	notify_cleanup ();
 }
 
+/* send a "print text" command to the parent process - MUST END IN \n! */
+
+static void
+proxy_error (int fd, char *msg)
+{
+	write (fd, "0\n", 2);
+	write (fd, msg, strlen (msg));
+}
+
 struct sock_connect
 {
 	char version;
 	char type;
-	unsigned short port;
-	unsigned long address;
+	guint16 port;
+	guint32 address;
 	char username[10];
 };
 
@@ -1099,10 +1157,10 @@ struct sock_connect
  *          1 socks traversal failed */
 
 static int
-traverse_socks (int sok, char *serverAddr, int port)
+traverse_socks (int print_fd, int sok, char *serverAddr, int port)
 {
 	struct sock_connect sc;
-	unsigned char buf[10];
+	unsigned char buf[256];
 
 	sc.version = 4;
 	sc.type = 1;
@@ -1116,6 +1174,8 @@ traverse_socks (int sok, char *serverAddr, int port)
 	if (buf[1] == 90)
 		return 0;
 
+	snprintf (buf, sizeof (buf), "SOCKS\tServer reported error %d,%d.\n", buf[0], buf[1]);
+	proxy_error (print_fd, buf);
 	return 1;
 }
 
@@ -1127,38 +1187,44 @@ struct sock5_connect1
 };
 
 static int
-traverse_socks5 (int sok, char *serverAddr, int port)
+traverse_socks5 (int print_fd, int sok, char *serverAddr, int port)
 {
 	struct sock5_connect1 sc1;
 	unsigned char *sc2;
 	unsigned int packetlen, addrlen;
 	unsigned char buf[260];
+	int auth = prefs.proxy_auth && prefs.proxy_user[0] && prefs.proxy_pass[0];
 
 	sc1.version = 5;
 	sc1.nmethods = 1;
-	if ( prefs.proxy_auth )
-	{
-		if ( !prefs.proxy_user[0] || !prefs.proxy_pass[0] )
-		{
-			return 1;
-		}
+	if (auth)
 		sc1.method = 2;  /* Username/Password Authentication (UPA) */
-	}
 	else
-	{
 		sc1.method = 0;  /* NO Authentication */
-	}
 	send (sok, (char *) &sc1, 3, 0);
 	if (recv (sok, buf, 2, 0) != 2)
-		return 1;
+		goto read_error;
 
-	if ( prefs.proxy_auth )
+	if (buf[0] != 5)
+	{
+		proxy_error (print_fd, "SOCKS\tServer is not socks version 5.\n");
+		return 1;
+	}
+
+	/* did the server say no auth required? */
+	if (buf[1] == 0)
+		auth = 0;
+
+	if (auth)
 	{
 		int len_u=0, len_p=0;
 
 		/* authentication sub-negotiation (RFC1929) */
-		if ( buf[0] != 5 || buf[1] != 2 )  /* UPA not supported by server */
+		if (buf[1] != 2)  /* UPA not supported by server */
+		{
+			proxy_error (print_fd, "SOCKS\tServer doesn't support UPA authentication.\n");
 			return 1;
+		}
 
 		memset (buf, 0, sizeof(buf));
 
@@ -1173,14 +1239,21 @@ traverse_socks5 (int sok, char *serverAddr, int port)
 
 		send (sok, buf, 3 + len_u + len_p, 0);
 		if ( recv (sok, buf, 2, 0) != 2 )
-			return 1;
+			goto read_error;
 		if ( buf[1] != 0 )
+		{
+			proxy_error (print_fd, "SOCKS\tAuthentication failed. "
+							 "Is username and password correct?\n");
 			return 1; /* UPA failed! */
+		}
 	}
 	else
 	{
-		if (buf[0] != 5 || buf[1] != 0)
+		if (buf[1] != 0)
+		{
+			proxy_error (print_fd, "SOCKS\tAuthentication required but disabled in settings.\n");
 			return 1;
+		}
 	}
 
 	addrlen = strlen (serverAddr);
@@ -1193,36 +1266,47 @@ traverse_socks5 (int sok, char *serverAddr, int port)
 	sc2[4] = (unsigned char) addrlen;	/* hostname length */
 	memcpy (sc2 + 5, serverAddr, addrlen);
 	*((unsigned short *) (sc2 + 5 + addrlen)) = htons (port);
-
 	send (sok, sc2, packetlen, 0);
 	free (sc2);
+
 	/* consume all of the reply */
 	if (recv (sok, buf, 4, 0) != 4)
+		goto read_error;
+	if (buf[0] != 5 || buf[1] != 0)
+	{
+		if (buf[1] == 2)
+			snprintf (buf, sizeof (buf), "SOCKS\tProxy refused to connect to host (not allowed).\n");
+		else
+			snprintf (buf, sizeof (buf), "SOCKS\tProxy failed to connect to host (error %d).\n", buf[1]);
+		proxy_error (print_fd, buf);
 		return 1;
-	if (buf[0] != 5 && buf[1] != 0)
-		return 1;
-	if (buf[3] == 1)
+	}
+	if (buf[3] == 1)	/* IPV4 32bit address */
 	{
 		if (recv (sok, buf, 6, 0) != 6)
-			return 1;
-	} else if (buf[3] == 4)
+			goto read_error;
+	} else if (buf[3] == 4)	/* IPV6 128bit address */
 	{
 		if (recv (sok, buf, 18, 0) != 18)
-			return 1;
-	} else if (buf[3] == 3)
+			goto read_error;
+	} else if (buf[3] == 3)	/* string, 1st byte is size */
 	{
-		if (recv (sok, buf, 1, 0) != 1)
-			return 1;
+		if (recv (sok, buf, 1, 0) != 1)	/* read the string size */
+			goto read_error;
 		packetlen = buf[0] + 2;	/* can't exceed 260 */
 		if (recv (sok, buf, packetlen, 0) != packetlen)
-			return 1;
+			goto read_error;
 	}
 
-	return 0;
+	return 0;	/* success */
+
+read_error:
+	proxy_error (print_fd, "SOCKS\tRead error from server.\n");
+	return 1;
 }
 
 static int
-traverse_wingate (int sok, char *serverAddr, int port)
+traverse_wingate (int print_fd, int sok, char *serverAddr, int port)
 {
 	char buf[128];
 
@@ -1251,7 +1335,7 @@ three_to_four (char *from, char *to)
 	to[3] = tab64 [ from[2] & 63 ];
 };
 
-static void
+void
 base64_encode (char *to, char *from, unsigned int len)
 {
 	while (len >= 3)
@@ -1342,18 +1426,22 @@ traverse_http (int print_fd, int sok, char *serverAddr, int port)
 }
 
 static int
-traverse_proxy (int print_fd, int sok, char *ip, int port)
+traverse_proxy (int print_fd, int sok, char *ip, int port, struct msproxy_state_t *state, netstore *ns_proxy, int csok4, int csok6, int *csok, char bound)
 {
 	switch (prefs.proxy_type)
 	{
 	case 1:
-		return traverse_wingate (sok, ip, port);
+		return traverse_wingate (print_fd, sok, ip, port);
 	case 2:
-		return traverse_socks (sok, ip, port);
+		return traverse_socks (print_fd, sok, ip, port);
 	case 3:
-		return traverse_socks5 (sok, ip, port);
+		return traverse_socks5 (print_fd, sok, ip, port);
 	case 4:
 		return traverse_http (print_fd, sok, ip, port);
+#ifdef USE_MSPROXY
+	case 5:
+		return traverse_msproxy (sok, ip, port, state, ns_proxy, csok4, csok6, csok, bound);
+#endif
 	}
 
 	return 1;
@@ -1369,7 +1457,7 @@ server_child (server * serv)
 	netstore *ns_local;
 	int port = serv->port;
 	int error;
-	int sok;
+	int sok, psok;
 	char *hostname = serv->hostname;
 	char *real_hostname = NULL;
 	char *ip;
@@ -1377,6 +1465,7 @@ server_child (server * serv)
 	char *local_ip;
 	int connect_port;
 	char buf[512];
+	char bound = 0;
 
 	ns_server = net_store_new ();
 
@@ -1390,6 +1479,7 @@ server_child (server * serv)
 			snprintf (buf, sizeof (buf), "5\n%s\n", local_ip);
 			write (serv->childwrite, buf, strlen (buf));
 			net_bind (ns_local, serv->sok4, serv->sok6);
+			bound = 1;
 		} else
 		{
 			write (serv->childwrite, "7\n", 2);
@@ -1398,7 +1488,10 @@ server_child (server * serv)
 	}
 
 	/* first resolve where we want to connect to */
-	if (!serv->dont_use_proxy && prefs.proxy_host[0] && prefs.proxy_type > 0)
+	if (!serv->dont_use_proxy && /* blocked in serverlist? */
+		prefs.proxy_host[0] &&
+		prefs.proxy_type > 0 &&
+		prefs.proxy_use != 2)	/* proxy is NOT dcc-only */
 	{
 		snprintf (buf, sizeof (buf), "9\n%s\n", prefs.proxy_host);
 		write (serv->childwrite, buf, strlen (buf));
@@ -1411,8 +1504,8 @@ server_child (server * serv)
 		}
 		connect_port = prefs.proxy_port;
 
-		/* if using socks4, attempt to resolve ip for irc server */
-		if (prefs.proxy_type == 2)
+		/* if using socks4 or MS Proxy, attempt to resolve ip for irc server */
+		if ((prefs.proxy_type == 2) || (prefs.proxy_type == 5))
 		{
 			ns_proxy = net_store_new ();
 			proxy_ip = net_resolve (ns_proxy, hostname, port, &real_hostname);
@@ -1438,7 +1531,13 @@ server_child (server * serv)
 				 real_hostname, ip, connect_port);
 	write (serv->childwrite, buf, strlen (buf));
 
-	error = net_connect (ns_server, serv->sok4, serv->sok6, &sok);
+	if (!serv->dont_use_proxy && (prefs.proxy_type == 5))
+		error = net_connect (ns_server, serv->proxy_sok4, serv->proxy_sok6, &psok);
+	else
+	{
+		error = net_connect (ns_server, serv->sok4, serv->sok6, &sok);
+		psok = sok;
+	}
 
 	if (error != 0)
 	{
@@ -1449,10 +1548,16 @@ server_child (server * serv)
 		/* connect succeeded */
 		if (proxy_ip)
 		{
-			switch (traverse_proxy (serv->childwrite, sok, proxy_ip, port))
+			switch (traverse_proxy (serv->childwrite, psok, proxy_ip, port, &serv->msp_state, ns_proxy, serv->sok4, serv->sok6, &sok, bound))
 			{
 			case 0:	/* success */
-				snprintf (buf, sizeof (buf), "4\n%d\n", sok);	/* success */
+#ifdef USE_MSPROXY
+				if (!serv->dont_use_proxy && (prefs.proxy_type == 5))
+					snprintf (buf, sizeof (buf), "4\n%d %d %d %d %d\n", sok, psok, serv->msp_state.clientid, serv->msp_state.serverid,
+						serv->msp_state.seq_sent);
+				else
+#endif
+					snprintf (buf, sizeof (buf), "4\n%d\n", sok);	/* success */
 				write (serv->childwrite, buf, strlen (buf));
 				break;
 			case 1:	/* socks traversal failed */
@@ -1493,7 +1598,7 @@ static void
 server_connect (server *serv, char *hostname, int port, int no_login)
 {
 	int pid, read_des[2];
-	session *sess;
+	session *sess = serv->server_session;
 
 #ifdef USE_OPENSSL
 	if (!ctx && serv->use_ssl)
@@ -1509,7 +1614,7 @@ server_connect (server *serv, char *hostname, int port, int no_login)
 	if (!hostname[0])
 		return;
 
-	if (port < 0 || port >= 65536)
+	if (port < 0)
 	{
 		/* use default port for this server type */
 		port = 6667;
@@ -1518,8 +1623,7 @@ server_connect (server *serv, char *hostname, int port, int no_login)
 			port = 9999;
 #endif
 	}
-
-	sess = serv->server_session;
+	port &= 0xffff;	/* wrap around */
 
 	if (serv->connected || serv->connecting || serv->recondelay_tag)
 		server_disconnect (sess, TRUE, -1);
@@ -1555,6 +1659,16 @@ server_connect (server *serv, char *hostname, int port, int no_login)
 
 	/* create both sockets now, drop one later */
 	net_sockets (&serv->sok4, &serv->sok6);
+#ifdef USE_MSPROXY
+	/* In case of MS Proxy we have a separate UDP control connection */
+	if (!serv->dont_use_proxy && (prefs.proxy_type == 5))
+		udp_sockets (&serv->proxy_sok4, &serv->proxy_sok6);
+	else
+#endif
+	{
+		serv->proxy_sok4 = -1;
+		serv->proxy_sok6 = -1;
+	}
 
 #ifdef WIN32
 	CloseHandle (CreateThread (NULL, 0,

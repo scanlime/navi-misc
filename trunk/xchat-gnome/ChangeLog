@@ -1,3 +1,29 @@
+Fri Jun 16 20:32:50 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/common/outbound.c:
+	* src/common/outbound.h:
+	* src/common/servlist.c:
+	* src/common/util.c:
+	* src/common/proto-irc.c:
+	* src/common/cfgfiles.c:
+	* src/common/text.c:
+	* src/common/text.h:
+	* src/common/dcc.c:
+	* src/common/network.c:
+	* src/common/dcc.h:
+	* src/common/network.h:
+	* src/common/plugin.c:
+	* src/common/server.c:
+	* src/common/xchat.c:
+	* src/common/notify.c:
+	* src/common/CVS/Entries:
+	* src/common/server.h:
+	* src/common/xchat.h:
+	* src/common/notify.h:
+	* src/common/ignore.c:
+	* src/common/ctcp.c:
+	  - Update from xchat CVS.
+
 Fri Jun 16 18:57:53 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/navigation-tree.c:

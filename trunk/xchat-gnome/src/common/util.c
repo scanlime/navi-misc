@@ -462,7 +462,7 @@ strip_color2 (char *src, int len, char *dst, int flags)
 				if (!(flags & STRIP_COLOR)) goto pass_char;
 				rcol = 2;
 				break;
-			case '\001':	/* CL: invisible text (for event formats only) */	/* this takes care of the topic */
+			case HIDDEN_CHAR:	/* CL: invisible text (for event formats only) */	/* this takes care of the topic */
 				if (!(flags & STRIP_HIDDEN)) goto pass_char;
 				break;
 			case '\007':			  /*ATTR_BEEP: */
@@ -491,7 +491,7 @@ strip_hidden_attribute (char *src, char *dst)
 	int len = 0;
 	while (*src != '\000')
 	{
-		if (*src != '\001')
+		if (*src != HIDDEN_CHAR)
 		{
 			*dst++ = *src;
 			len++;
@@ -766,6 +766,8 @@ break_while:
       default:
 	if (rfc_tolower(*s) != rfc_tolower(ch))
 	{
+	  if (!*s)
+	    return 0;
 	  m = bm;
 	  s = bs;
 	  goto got_star;
@@ -834,6 +836,7 @@ country_compare (const void *a, const void *b)
 
 static const domain_t domain[] =
 {
+		{"AC", N_("Ascension Island") },
 		{"AD", N_("Andorra") },
 		{"AE", N_("United Arab Emirates") },
 		{"AF", N_("Afghanistan") },
@@ -851,6 +854,7 @@ static const domain_t domain[] =
 		{"ATO", N_("Nato Fiel") },
 		{"AU", N_("Australia") },
 		{"AW", N_("Aruba") },
+		{"AX", N_("Aland Islands") },
 		{"AZ", N_("Azerbaijan") },
 		{"BA", N_("Bosnia and Herzegovina") },
 		{"BB", N_("Barbados") },
@@ -906,13 +910,13 @@ static const domain_t domain[] =
 		{"ER", N_("Eritrea") },
 		{"ES", N_("Spain") },
 		{"ET", N_("Ethiopia") },
+		{"EU", N_("European Union") },
 		{"FI", N_("Finland") },
 		{"FJ", N_("Fiji") },
 		{"FK", N_("Falkland Islands") },
 		{"FM", N_("Micronesia") },
 		{"FO", N_("Faroe Islands") },
 		{"FR", N_("France") },
-		{"FX", N_("France, Metropolitan") },
 		{"GA", N_("Gabon") },
 		{"GB", N_("Great Britain") },
 		{"GD", N_("Grenada") },
@@ -942,6 +946,7 @@ static const domain_t domain[] =
 		{"ID", N_("Indonesia") },
 		{"IE", N_("Ireland") },
 		{"IL", N_("Israel") },
+		{"IM", N_("Isle of Man") },
 		{"IN", N_("India") },
 		{"INFO", N_("Informational") },
 		{"INT", N_("International") },
@@ -950,6 +955,7 @@ static const domain_t domain[] =
 		{"IR", N_("Iran") },
 		{"IS", N_("Iceland") },
 		{"IT", N_("Italy") },
+		{"JE", N_("Jersey") },
 		{"JM", N_("Jamaica") },
 		{"JO", N_("Jordan") },
 		{"JP", N_("Japan") },
@@ -1009,7 +1015,6 @@ static const domain_t domain[] =
 		{"NO", N_("Norway") },
 		{"NP", N_("Nepal") },
 		{"NR", N_("Nauru") },
-		{"NT", N_("Neutral Zone") },
 		{"NU", N_("Niue") },
 		{"NZ", N_("New Zealand") },
 		{"OM", N_("Oman") },
@@ -1061,6 +1066,7 @@ static const domain_t domain[] =
 		{"TH", N_("Thailand") },
 		{"TJ", N_("Tajikistan") },
 		{"TK", N_("Tokelau") },
+		{"TL", N_("East Timor") },
 		{"TM", N_("Turkmenistan") },
 		{"TN", N_("Tunisia") },
 		{"TO", N_("Tonga") },
