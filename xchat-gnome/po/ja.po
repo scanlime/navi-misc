@@ -10,13 +10,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-05-25 14:54-0600\n"
-"PO-Revision-Date: 2006-02-10 02:09-0700\n"
+"POT-Creation-Date: 2006-06-16 19:21-0600\n"
+"PO-Revision-Date: 2006-06-17 01:46+0000\n"
 "Last-Translator: Ryoichi INAGAKI <ryo1@bc.wakwak.com>\n"
 "Language-Team: Japanese <translation@gnome.gr.jp>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
 
 #: ../data/channel-list.glade.h:1
 msgid "<span weight=\"bold\">List Filtering</span>"
@@ -774,27 +775,22 @@ msgstr ""
 msgid "Waiting"
 msgstr "待機中"
 
-#. black
 #: ../src/common/dcc.c:67
 msgid "Active"
 msgstr "アクティブ"
 
-#. cyan
 #: ../src/common/dcc.c:68
 msgid "Failed"
 msgstr "失敗"
 
-#. red
 #: ../src/common/dcc.c:69
 msgid "Done"
 msgstr "終了"
 
-#. green
 #: ../src/common/dcc.c:70 ../src/fe-gnome/connect-dialog.c:154
 msgid "Connect"
 msgstr "接続"
 
-#. black
 #: ../src/common/dcc.c:71
 msgid "Aborted"
 msgstr "中断"
@@ -829,7 +825,8 @@ msgstr ""
 
 #: ../src/common/ignore.c:395
 #, c-format
-msgid "You are being MSG flooded from %s, setting gui_auto_open_dialog OFF.\n"
+msgid ""
+"You are being MSG flooded from %s, setting gui_auto_open_dialog OFF.\n"
 msgstr ""
 
 #: ../src/common/notify.c:395
@@ -844,13 +841,11 @@ msgstr "  %-20s オフライン\n"
 
 #: ../src/common/outbound.c:72
 msgid "No channel joined. Try /join #<channel>\n"
-msgstr ""
-"チャンネルに参加していません. 『/join #<チャンネル>』を実行して下さい.\n"
+msgstr "チャンネルに参加していません. 『/join #<チャンネル>』を実行して下さい.\n"
 
 #: ../src/common/outbound.c:78
 msgid "Not connected. Try /server <host> [<port>]\n"
-msgstr ""
-"サーバと接続していません. 『/server <ホスト> [<ポート>]』を実行して下さい.\n"
+msgstr "サーバと接続していません. 『/server <ホスト> [<ポート>]』を実行して下さい.\n"
 
 #: ../src/common/outbound.c:1650
 msgid "I need /bin/sh to run!\n"
@@ -911,9 +906,8 @@ msgid ""
 "channel. If they are already on the channel this doesn't kick them (needs "
 "chanop)"
 msgstr ""
-"BAN <マスク> [<禁止タイプ>], 現在のチャンネルから, マスクに一致するニックをバ"
-"ンする. 既にチャンネルに参加しているニックに関しては効果がない (なるとが必"
-"要）"
+"BAN <マスク> [<禁止タイプ>], 現在のチャンネルから, マスクに一致するニックをバンする. "
+"既にチャンネルに参加しているニックに関しては効果がない (なるとが必要）"
 
 #: ../src/common/outbound.c:3199
 msgid "CLEAR, Clears the current text window"
@@ -924,7 +918,8 @@ msgid "CLOSE, Closes the current window/tab"
 msgstr "CLOSE, 現在のウィンドウ／タブを閉じる"
 
 #: ../src/common/outbound.c:3203
-msgid "COUNTRY [-s] <code|wildcard>, finds a country code, eg: au = australia"
+msgid ""
+"COUNTRY [-s] <code|wildcard>, finds a country code, eg: au = australia"
 msgstr "COUNTRY <コード>, 国コードを検出, 例: au = オーストラリア"
 
 #: ../src/common/outbound.c:3205
@@ -950,19 +945,16 @@ msgid ""
 "         /dcc close send johnsmith file.tar.gz"
 msgstr ""
 "\n"
-"DCC GET <ニック>                         - 差し出されたファイルを受け取るDCC "
-"SEND [-maxcps=#] <ニック> [ファイル] - ファイルを送信するDCC "
-"LIST                                 - DCC リストを表示するDCC CHAT <ニック"
-">                        - 誰かに DCC CHATを提案するDCC CLOSE <種類> <ニック"
-"> <ファイル>     例:         /dcc close send kenji file.tar.gz"
+"DCC GET <ニック>                         - 差し出されたファイルを受け取るDCC SEND [-maxcps=#] "
+"<ニック> [ファイル] - ファイルを送信するDCC LIST                                 - DCC "
+"リストを表示するDCC CHAT <ニック>                        - 誰かに DCC CHATを提案するDCC CLOSE "
+"<種類> <ニック> <ファイル>     例:         /dcc close send kenji file.tar.gz"
 
 #: ../src/common/outbound.c:3221
 msgid ""
 "DEHOP <nick>, removes chanhalf-op status from the nick on the current "
 "channel (needs chanop)"
-msgstr ""
-"DEHOP <ニック>, 現在のチャンネルの指定ニックから, ハーフなるとを剥奪する (な"
-"るとが必要)"
+msgstr "DEHOP <ニック>, 現在のチャンネルの指定ニックから, ハーフなるとを剥奪する (なるとが必要)"
 
 #: ../src/common/outbound.c:3223
 msgid "DELBUTTON <name>, deletes a button from under the user-list"
@@ -972,17 +964,13 @@ msgstr "DELBUTTON <ボタン名>, ユーザリストの下のボタンを削除�
 msgid ""
 "DEOP <nick>, removes chanop status from the nick on the current channel "
 "(needs chanop)"
-msgstr ""
-"DEOP <ニック>, 現在のチャンネルの指定ニックから, なるとを剥奪する(なるとが必"
-"要)"
+msgstr "DEOP <ニック>, 現在のチャンネルの指定ニックから, なるとを剥奪する(なるとが必要)"
 
 #: ../src/common/outbound.c:3227
 msgid ""
 "DEVOICE <nick>, removes voice status from the nick on the current channel "
 "(needs chanop)"
-msgstr ""
-"DEVOICE <ニック>, 現在のチャンネルの指定ニックから, 発言権を削除する (なると"
-"が必要)"
+msgstr "DEVOICE <ニック>, 現在のチャンネルの指定ニックから, 発言権を削除する (なるとが必要)"
 
 #: ../src/common/outbound.c:3228
 msgid "DISCON, Disconnects from server"
@@ -1001,8 +989,8 @@ msgid ""
 "EXEC [-o] <command>, runs the command. If -o flag is used then output is "
 "sent to current channel, else is printed to current text box"
 msgstr ""
-"EXEC [-o] <コマンド>, コマンドを実行する. -o フラグを利用すると 出力は現在の"
-"チャンネルへ送信する. それ以外は現在のテキスト・ボックスに表示する"
+"EXEC [-o] <コマンド>, コマンドを実行する. -o フラグを利用すると 出力は現在のチャンネルへ送信する. "
+"それ以外は現在のテキスト・ボックスに表示する"
 
 #: ../src/common/outbound.c:3235
 msgid "EXECCONT, sends the process SIGCONT"
@@ -1012,9 +1000,7 @@ msgstr "EXECCONT, プロセスに対して SIGCONT を発行する"
 msgid ""
 "EXECKILL [-9], kills a running exec in the current session. If -9 is given "
 "the process is SIGKILL'ed"
-msgstr ""
-"EXECKILL [-9], 現在のプロセスに対してシグナルを発行する. -9 を指定した場合,プ"
-"ロセスは SIGKILL される"
+msgstr "EXECKILL [-9], 現在のプロセスに対してシグナルを発行する. -9 を指定した場合,プロセスは SIGKILL される"
 
 #: ../src/common/outbound.c:3240
 msgid "EXECSTOP, sends the process SIGSTOP"
@@ -1062,9 +1048,7 @@ msgstr ""
 msgid ""
 "INVITE <nick> [<channel>], invites someone to a channel, by default the "
 "current channel (needs chanop)"
-msgstr ""
-"INVITE <ニック> [<チャンネル>], 指定のチャンネルへ招待する, 標準では現在の"
-"チャンネル名 (なるとが必要)"
+msgstr "INVITE <ニック> [<チャンネル>], 指定のチャンネルへ招待する, 標準では現在のチャンネル名 (なるとが必要)"
 
 #: ../src/common/outbound.c:3266
 msgid "JOIN <channel>, joins the channel"
@@ -1072,16 +1056,13 @@ msgstr "JOIN <チャンネル>, チャンネルに参加する"
 
 #: ../src/common/outbound.c:3268
 msgid "KICK <nick>, kicks the nick from the current channel (needs chanop)"
-msgstr ""
-"KICK <ニック>, 現在のチャンネルから, 指定のニックをキックする (なるとが必要)"
+msgstr "KICK <ニック>, 現在のチャンネルから, 指定のニックをキックする (なるとが必要)"
 
 #: ../src/common/outbound.c:3270
 msgid ""
 "KICKBAN <nick>, bans then kicks the nick from the current channel (needs "
 "chanop)"
-msgstr ""
-"KICKBAN <ニック>, 現在のチャンネルから, 指定のニックをキックして, さらにバン"
-"する (なるとが必要)"
+msgstr "KICKBAN <ニック>, 現在のチャンネルから, 指定のニックをキックして, さらにバンする (なるとが必要)"
 
 #: ../src/common/outbound.c:3273
 msgid "LAGCHECK, forces a new lag check"
@@ -1109,8 +1090,7 @@ msgid ""
 "ME <action>, sends the action to the current channel (actions are written in "
 "the 3rd person, like /me jumps)"
 msgstr ""
-"ME <行動>, 現在のチャンネルに対して, 指定の ACTION を送信する (行動は 『/me "
-"jumps』のように第3者側で書かれる)"
+"ME <行動>, 現在のチャンネルに対して, 指定の ACTION を送信する (行動は 『/me jumps』のように第3者側で書かれる)"
 
 #: ../src/common/outbound.c:3287
 msgid ""
@@ -1145,14 +1125,11 @@ msgstr "NICK <ニック>, 自分のニックを設定する"
 msgid ""
 "NOTICE <nick/channel> <message>, sends a notice. Notices are a type of "
 "message that should be auto reacted to"
-msgstr ""
-"NOTICE <ニック/チャンネル> <メッセージ>, NOTICE を送信する. NOTICE は自動的に"
-"応答されるメッセージである"
+msgstr "NOTICE <ニック/チャンネル> <メッセージ>, NOTICE を送信する. NOTICE は自動的に応答されるメッセージである"
 
 #: ../src/common/outbound.c:3303
 msgid "NOTIFY [<nick>], lists your notify list or adds someone to it"
-msgstr ""
-"NOTIFY [<ニック>], 自分の通知リストを表示する, または誰かをそれに追加する"
+msgstr "NOTIFY [<ニック>], 自分の通知リストを表示する, または誰かをそれに追加する"
 
 #: ../src/common/outbound.c:3305
 msgid "OP <nick>, gives chanop status to the nick (needs chanop)"
@@ -1161,9 +1138,7 @@ msgstr "OP <ニック>, 指定のニックになるとを与える (なるとが
 #: ../src/common/outbound.c:3307
 msgid ""
 "PART [<channel>] [<reason>], leaves the channel, by default the current one"
-msgstr ""
-"PART [<チャンネル>]  [<理由>], チャンネルを去る. デフォルトでは現在のチャンネ"
-"ル"
+msgstr "PART [<チャンネル>]  [<理由>], チャンネルを去る. デフォルトでは現在のチャンネル"
 
 #: ../src/common/outbound.c:3309
 msgid "PING <nick | channel>, CTCP pings nick or channel"
@@ -1183,13 +1158,12 @@ msgstr "QUOTE <テキスト>, サーバへ生形式のテキストを送信す�
 
 #: ../src/common/outbound.c:3318
 msgid ""
-"RECONNECT [-ssl] [<host>] [<port>] [<password>], Can be called just as /"
-"RECONNECT to reconnect to the current server or with /RECONNECT ALL to "
+"RECONNECT [-ssl] [<host>] [<port>] [<password>], Can be called just as "
+"/RECONNECT to reconnect to the current server or with /RECONNECT ALL to "
 "reconnect to all the open servers"
 msgstr ""
-"RECONNECT [-ssl] [<ホスト>] [<ポート>] [<パスワード>], /RECONNECTだけで現在の"
-"サーバに接続しなおすこともできるし、/RECONNECT ALLで開いているサーバすべてに"
-"接続しなおすこともできる"
+"RECONNECT [-ssl] [<ホスト>] [<ポート>] [<パスワード>], "
+"/RECONNECTだけで現在のサーバに接続しなおすこともできるし、/RECONNECT ALLで開いているサーバすべてに接続しなおすこともできる"
 
 #: ../src/common/outbound.c:3321
 msgid ""
@@ -1197,9 +1171,8 @@ msgid ""
 "to reconnect to the current server or with /RECONNECT ALL to reconnect to "
 "all the open servers"
 msgstr ""
-"RECONNECT [<ホスト>] [<ポート>] [<パスワード>], /RECONNECTだけで現在のサーバ"
-"に接続しなおすこともできるし、/RECONNECT ALLで開いているサーバすべてに接続し"
-"なおすこともできる"
+"RECONNECT [<ホスト>] [<ポート>] [<パスワード>], "
+"/RECONNECTだけで現在のサーバに接続しなおすこともできるし、/RECONNECT ALLで開いているサーバすべてに接続しなおすこともできる"
 
 #: ../src/common/outbound.c:3323
 msgid ""
@@ -1217,30 +1190,25 @@ msgstr ""
 
 #: ../src/common/outbound.c:3330
 msgid "SERVCHAN [-ssl] <host> <port> <channel>, connects and joins a channel"
-msgstr ""
-"SERVCHAN [-ssl] <ホスト> <ポート> <チャンネル>, 接続およびチャンネルへ参加す"
-"る"
+msgstr "SERVCHAN [-ssl] <ホスト> <ポート> <チャンネル>, 接続およびチャンネルへ参加する"
 
 #: ../src/common/outbound.c:3333
 msgid "SERVCHAN <host> <port> <channel>, connects and joins a channel"
-msgstr ""
-"SERVCHAN <ホスト> <ポート> <チャンネル>, 接続およびチャンネルへ参加する"
+msgstr "SERVCHAN <ホスト> <ポート> <チャンネル>, 接続およびチャンネルへ参加する"
 
 #: ../src/common/outbound.c:3337
 msgid ""
 "SERVER [-ssl] <host> [<port>] [<password>], connects to a server, the "
 "default port is 6667 for normal connections, and 9999 for ssl connections"
 msgstr ""
-"SERVER [-ssl] <ホスト> [<ポート>] [<パスワード>], サーバへ接続する. 通常の接"
-"続では標準ポート番号は6667, ssl接続では994"
+"SERVER [-ssl] <ホスト> [<ポート>] [<パスワード>], サーバへ接続する. 通常の接続では標準ポート番号は6667, "
+"ssl接続では994"
 
 #: ../src/common/outbound.c:3340
 msgid ""
 "SERVER <host> [<port>] [<password>], connects to a server, the default port "
 "is 6667"
-msgstr ""
-"SERVER <ホスト> [<ポート>] [<パスワード>], サーバへ接続する. 標準ポート番号は"
-"6667"
+msgstr "SERVER <ホスト> [<ポート>] [<パスワード>], サーバへ接続する. 標準ポート番号は6667"
 
 #: ../src/common/outbound.c:3342
 msgid "SET [-quiet] <variable> [<value>]"
@@ -1253,9 +1221,7 @@ msgstr ""
 #: ../src/common/outbound.c:3347
 msgid ""
 "TOPIC [<topic>], sets the topic if one is given, else shows the current topic"
-msgstr ""
-"TOPIC [<トピック>], トピックを設定する. 引数がなければ現在のトピックを表示す"
-"る"
+msgstr "TOPIC [<トピック>], トピックを設定する. 引数がなければ現在のトピックを表示する"
 
 #: ../src/common/outbound.c:3349
 msgid "UNBAN <mask> [<mask>...], unbans the specified masks."
@@ -1289,9 +1255,7 @@ msgstr "WALLCHAN <メッセージ>, 全チャンネルへメッセージを送�
 #: ../src/common/outbound.c:3361
 msgid ""
 "WALLCHOP <message>, sends the message to all chanops on the current channel"
-msgstr ""
-"WALLCHOP <メッセージ>, 現在のチャンネルのなると保持者全員へメッセージを送信す"
-"る"
+msgstr "WALLCHOP <メッセージ>, 現在のチャンネルのなると保持者全員へメッセージを送信する"
 
 #: ../src/common/outbound.c:3394
 #, c-format
@@ -1687,7 +1651,6 @@ msgid "Nick being tried"
 msgstr "次に利用するニック"
 
 #. ! if (osvi.dwMajorVersion >= 5)
-#. fallback to error number
 #: ../src/common/text.c:814 ../src/common/text.c:851 ../src/common/text.c:862
 #: ../src/common/text.c:869 ../src/common/text.c:882 ../src/common/text.c:899
 #: ../src/common/text.c:999 ../src/common/util.c:352
@@ -1935,9 +1898,9 @@ msgid "-%C10-%C11-%O$tConnected. Now logging in.."
 msgstr "-%C10-%C11-%O$t 接続しました. 直ちにログインします.."
 
 #: ../src/common/textevents.h:99
-msgid "-%C10-%C11-%O$tConnecting to %C11$1 %C14(%C11$2%C14)%C port %C11$3%C.."
-msgstr ""
-"-%C10-%C11-%O$t%C11$1 %C14(%C11$2%C14)%C ポート %C11$3%C へ接続しています.."
+msgid ""
+"-%C10-%C11-%O$tConnecting to %C11$1 %C14(%C11$2%C14)%C port %C11$3%C.."
+msgstr "-%C10-%C11-%O$t%C11$1 %C14(%C11$2%C14)%C ポート %C11$3%C へ接続しています.."
 
 #: ../src/common/textevents.h:102
 msgid "-%C10-%C11-%O$tConnection failed. Error: $1"
@@ -1970,14 +1933,12 @@ msgstr "-%C10-%C11-%O$t %C11$1%O への DCC チャットを中断しました"
 #: ../src/common/textevents.h:123
 msgid ""
 "-%C10-%C11-%O$tDCC CHAT connection established to %C11$1 %C14[%O$2%C14]%O"
-msgstr ""
-"-%C10-%C11-%O$t %C11$1 への DCC チャット接続が設立されました %C14[%O$2%C14]%O"
+msgstr "-%C10-%C11-%O$t %C11$1 への DCC チャット接続が設立されました %C14[%O$2%C14]%O"
 
 #: ../src/common/textevents.h:126
 msgid ""
 "-%C10-%C11-%O$tDCC CHAT failed. Connection to $1 %C14[%O$2:$3%C14]%O lost."
-msgstr ""
-"-%C10-%C11-%O$t %C11$1 への DCC チャット接続が設立されました %C14[%O$2%C14]%O"
+msgstr "-%C10-%C11-%O$t %C11$1 への DCC チャット接続が設立されました %C14[%O$2%C14]%O"
 
 #: ../src/common/textevents.h:129
 msgid "-%C10-%C11-%O$tReceived a DCC CHAT offer from $1"
@@ -2009,8 +1970,8 @@ msgid ""
 "-%C10-%C11-%O$tReceived a malformed DCC request from %C11$1%O.%010-%C10-%C11-"
 "%O$tContents of packet: $2"
 msgstr ""
-"-%C10-%C11-%O$t%C11$1%O から異常な DCC チャット要求を受け取りました.%010-%"
-"C10-%C11-%O$tパケット内容: $2"
+"-%C10-%C11-%O$t%C11$1%O から異常な DCC チャット要求を受け取りました.%010-%C10-%C11-%O$tパケット内容: "
+"$2"
 
 #: ../src/common/textevents.h:150
 msgid "-%C10-%C11-%O$tOffering %C11$1 %Cto %C11$2%O"
@@ -2026,8 +1987,8 @@ msgstr ""
 
 #: ../src/common/textevents.h:159
 msgid ""
-"-%C10-%C11-%O$tDCC RECV %C11$1%O from %C11$3%O complete %C14[%C11$4%O cps%"
-"C14]%O."
+"-%C10-%C11-%O$tDCC RECV %C11$1%O from %C11$3%O complete %C14[%C11$4%O "
+"cps%C14]%O."
 msgstr ""
 
 #: ../src/common/textevents.h:162
@@ -2050,7 +2011,8 @@ msgid ""
 msgstr ""
 
 #: ../src/common/textevents.h:174
-msgid "-%C10-%C11-%O$t%C11$1 %Chas requested to resume %C11$2 %Cfrom %C11$3%C."
+msgid ""
+"-%C10-%C11-%O$t%C11$1 %Chas requested to resume %C11$2 %Cfrom %C11$3%C."
 msgstr ""
 
 #: ../src/common/textevents.h:177
@@ -2059,8 +2021,8 @@ msgstr ""
 
 #: ../src/common/textevents.h:180
 msgid ""
-"-%C10-%C11-%O$tDCC SEND %C11$1%O to %C11$2%O complete %C14[%C11$3%O cps%C14]%"
-"O."
+"-%C10-%C11-%O$tDCC SEND %C11$1%O to %C11$2%O complete %C14[%C11$3%O "
+"cps%C14]%O."
 msgstr ""
 
 #: ../src/common/textevents.h:183
@@ -2131,7 +2093,8 @@ msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Channel is invite only)."
 msgstr ""
 
 #: ../src/common/textevents.h:231
-msgid "-%C10-%C11-%O$tYou have been invited to %C11$1%C by %C11$2%C (%C11$3%C)"
+msgid ""
+"-%C10-%C11-%O$tYou have been invited to %C11$1%C by %C11$2%C (%C11$3%C)"
 msgstr ""
 
 #: ../src/common/textevents.h:234
@@ -2169,9 +2132,7 @@ msgstr "-%C10-%C11-%O$t$1 はすでに使用されています. $2 で再試行�
 
 #: ../src/common/textevents.h:258
 msgid "-%C10-%C11-%O$tNickname already in use. Use /NICK to try another."
-msgstr ""
-"-%C10-%C11-%O$t ニックはすでに使用されています. 他を『/NICK』で指定して下さ"
-"い."
+msgstr "-%C10-%C11-%O$t ニックはすでに使用されています. 他を『/NICK』で指定して下さい."
 
 #: ../src/common/textevents.h:261
 msgid "-%C10-%C11-%O$tNo such DCC."
@@ -2267,9 +2228,7 @@ msgstr "-%C10-%C11-%O$t$1 がトピックを変更しました: $2%O"
 
 #: ../src/common/textevents.h:348
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C set by %C11$2%C at %C11$3%O"
-msgstr ""
-"-%C10-%C11-%O$tチャンネル %C11$1%C のトピックは %C11$3%O に %C11$2%C によって"
-"設定されました"
+msgstr "-%C10-%C11-%O$tチャンネル %C11$1%C のトピックは %C11$3%O に %C11$2%C によって設定されました"
 
 #: ../src/common/textevents.h:351
 msgid "-%C10-%C11-%O$tUnknown host. Maybe you misspelled it?"
@@ -2318,9 +2277,7 @@ msgstr "-%C10-%C11-%O$t%C12[%O$1%C12] %C14(%O$2@$3%C14) %O: $4%O"
 #: ../src/common/textevents.h:384
 msgid ""
 "-%C10-%C11-%O$t%C12[%O$1%C12] %Oreal user@host %C11$2%O, real IP %C11$3%O"
-msgstr ""
-"-%C10-%C11-%O$tチャンネル %C11$1%C のトピックは %C11$3%O に %C11$2%C によって"
-"設定されました"
+msgstr "-%C10-%C11-%O$tチャンネル %C11$1%C のトピックは %C11$3%O に %C11$2%C によって設定されました"
 
 #: ../src/common/textevents.h:387
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O $2"
@@ -3672,8 +3629,6 @@ msgstr ""
 #. Translators: This is a random, mostly-meaningless
 #. * quotation from Jeeves & Wooster.  Either leave it
 #. * be or replace it with something funny (but inoffensive)
-#. * in your own language, but don't translate it literally.
-#.
 #: ../src/fe-gnome/about.c:91
 msgid ""
 "It has been well observed that a trombone is not a suitable instrument for a "
@@ -3691,8 +3646,6 @@ msgstr ""
 #. * should also include other translators who have
 #. * contributed to this translation; in that case, please
 #. * write each of them on a separated line seperated by
-#. * newlines (\n).
-#.
 #: ../src/fe-gnome/about.c:109
 msgid "translator-credits"
 msgstr ""
@@ -3714,78 +3667,82 @@ msgid "Default real name used by servers without special options set"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:5
-msgid "Enable spellchecking"
+msgid "Display redundant nickstamps"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:6
-msgid "Font for the main window"
+msgid "Enable spellchecking"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:7
-msgid "Height of the channel list"
+msgid "Font for the main window"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:8
-msgid "Height of the main window"
+msgid "Height of the channel list"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:9
-msgid "Languages to use for spellchecking"
+msgid "Height of the main window"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:10
-msgid "List of enabled plugins"
+msgid "Languages to use for spellchecking"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:11
+msgid "List of enabled plugins"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:12
 msgid "Message sent on away"
 msgstr "メッセージ"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:12
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:13
 msgid "Message sent on channel part"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:13
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:14
 msgid "Message sent on quit"
 msgstr "メッセージ"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:14
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:15
 msgid "Position of the horizontal pane in the main window"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:15
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:16
 msgid "Selected background type"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:16
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:17
 msgid "Selected color scheme"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:17
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:18
 msgid "Show colors in the main window"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:18
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:19
 msgid "Show timestamps in the main window"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:19
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:20
 msgid "Use system fonts"
 msgstr "ユーザリスト"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:20
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:21
 msgid "Width of the main window"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:21
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:22
 msgid "X position of the main window on the screen"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:22
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:23
 msgid "Y position of the main window on the screen"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:23
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:24
 msgid "xchat configuration version"
 msgstr ""
 
@@ -3794,82 +3751,81 @@ msgstr ""
 msgid "%s Channel List"
 msgstr ""
 
-#. IRC menu
 #: ../src/fe-gnome/connect-dialog.c:132 ../src/fe-gnome/main-window.c:107
 msgid "_Connect"
 msgstr "接続"
 
-#: ../src/fe-gnome/conversation-panel.c:155
+#: ../src/fe-gnome/conversation-panel.c:164
 msgid "_Open Link in Browser"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:156
+#: ../src/fe-gnome/conversation-panel.c:165
 msgid "_Copy Link Location"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:160
+#: ../src/fe-gnome/conversation-panel.c:169
 msgid "Se_nd Message To..."
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:161
+#: ../src/fe-gnome/conversation-panel.c:170
 msgid "_Copy Address"
 msgstr "IPアドレス"
 
-#: ../src/fe-gnome/conversation-panel.c:165
+#: ../src/fe-gnome/conversation-panel.c:174
 msgid "_Send File"
 msgstr "%s にファイルを送信"
 
-#: ../src/fe-gnome/conversation-panel.c:166
+#: ../src/fe-gnome/conversation-panel.c:175
 msgid "Paste File _Contents"
 msgstr "目次(_C)"
 
-#: ../src/fe-gnome/conversation-panel.c:167
+#: ../src/fe-gnome/conversation-panel.c:176
 msgid "Paste File_name"
 msgstr "新ファイル名"
 
-#: ../src/fe-gnome/conversation-panel.c:168
+#: ../src/fe-gnome/conversation-panel.c:177
 msgid "_Cancel"
 msgstr "キャンセル"
 
-#: ../src/fe-gnome/conversation-panel.c:172 ../src/fe-gnome/main-window.c:113
+#: ../src/fe-gnome/conversation-panel.c:181 ../src/fe-gnome/main-window.c:113
 msgid "_Copy"
 msgstr "コピー"
 
-#: ../src/fe-gnome/conversation-panel.c:747
+#: ../src/fe-gnome/conversation-panel.c:772
 #, c-format
-msgid "URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"
+msgid ""
+"URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:839
+#: ../src/fe-gnome/conversation-panel.c:864
 #, c-format
 msgid "Error reading file \"%s\": %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:854
+#: ../src/fe-gnome/conversation-panel.c:879
 #, c-format
 msgid "Error converting URI \"%s\" into filename: %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:897
+#: ../src/fe-gnome/conversation-panel.c:922
 #, c-format
 msgid "Error retrieving file information for \"%s\": %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:959
+#: ../src/fe-gnome/conversation-panel.c:999
 msgid "Save Transcript"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:985
-#: ../src/fe-gnome/conversation-panel.c:995
+#: ../src/fe-gnome/conversation-panel.c:1025
+#: ../src/fe-gnome/conversation-panel.c:1035
 #, c-format
 msgid "Error saving %s"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:1113
+#: ../src/fe-gnome/conversation-panel.c:1165
 msgid "Search buffer is empty.\n"
 msgstr "検索バッファが空です.\n"
 
-#. File completion percent
 #: ../src/fe-gnome/dcc-window.c:143
 msgid "%"
 msgstr ""
@@ -3995,13 +3951,14 @@ msgid "_Next"
 msgstr "テキスト"
 
 #: ../src/fe-gnome/find-bar.c:218
-msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
+msgid ""
+"<span foreground=\"dark grey\">Reached end, continuing from top</span>"
 msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:225
 msgid ""
-"<span foreground=\"dark grey\">Reached beginning, continuing from bottom</"
-"span>"
+"<span foreground=\"dark grey\">Reached beginning, continuing from "
+"bottom</span>"
 msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:232
@@ -4012,7 +3969,6 @@ msgstr ""
 msgid "Server"
 msgstr "サーバ"
 
-#. We're creating a new network. Don't populate things from the structure
 #: ../src/fe-gnome/irc-network-editor.c:380
 msgid "New Network"
 msgstr ""
@@ -4104,7 +4060,6 @@ msgstr ""
 msgid "GB18030 (Chinese)"
 msgstr ""
 
-#. Toplevel
 #: ../src/fe-gnome/main-window.c:97
 msgid "_IRC"
 msgstr "_IRC"
@@ -4137,7 +4092,6 @@ msgstr "ファイル転送"
 msgid "_Quit"
 msgstr "終了"
 
-#. Edit menu
 #: ../src/fe-gnome/main-window.c:112
 msgid "Cu_t"
 msgstr ""
@@ -4151,37 +4105,35 @@ msgid "Prefere_nces"
 msgstr "設定..."
 
 #. Network menu
-#. Server context menu
-#: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:79
+#: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:81
 msgid "_Information"
 msgstr "サーバ情報"
 
-#: ../src/fe-gnome/main-window.c:119 ../src/fe-gnome/navigation-tree.c:80
+#: ../src/fe-gnome/main-window.c:119 ../src/fe-gnome/navigation-tree.c:82
 msgid "_Reconnect"
 msgstr "再接続"
 
-#: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:81
+#: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:83
 msgid "_Disconnect"
 msgstr "切断"
 
-#: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:82
-#: ../src/fe-gnome/navigation-tree.c:88 ../src/fe-gnome/navigation-tree.c:94
+#: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:84
+#: ../src/fe-gnome/navigation-tree.c:90 ../src/fe-gnome/navigation-tree.c:96
 msgid "_Close"
 msgstr "閉じる(_C)"
 
-#: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:83
+#: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:85
 msgid "_Channels..."
 msgstr "チャンネルリスト..."
 
 #. Discussion menu
 #. Channel context menu
-#. Dialog context menu
-#: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:86
-#: ../src/fe-gnome/navigation-tree.c:93
+#: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:88
+#: ../src/fe-gnome/navigation-tree.c:95
 msgid "_Save Transcript"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:87
+#: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:89
 msgid "_Leave"
 msgstr "ラトビア"
 
@@ -4197,7 +4149,7 @@ msgstr "ウィンドウ(_W)"
 msgid "Change _Topic"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:90
+#: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:92
 msgid "_Bans..."
 msgstr "Ban リスト..."
 
@@ -4205,7 +4157,6 @@ msgstr "Ban リスト..."
 msgid "_Users"
 msgstr "ユーザ"
 
-#. Go menu
 #: ../src/fe-gnome/main-window.c:134
 msgid "Pre_vious Network"
 msgstr "ネットワーク"
@@ -4222,7 +4173,6 @@ msgstr ""
 msgid "_Next Discussion"
 msgstr ""
 
-#. Help menu
 #: ../src/fe-gnome/main-window.c:140
 msgid "_Contents"
 msgstr "目次(_C)"
@@ -4231,7 +4181,7 @@ msgstr "目次(_C)"
 msgid "_About"
 msgstr "情報 (_A)"
 
-#: ../src/fe-gnome/main-window.c:509 ../src/fe-gnome/navigation-tree.c:1634
+#: ../src/fe-gnome/main-window.c:509 ../src/fe-gnome/navigation-tree.c:1667
 msgid "Ex-Chat"
 msgstr "チャド"
 
@@ -4239,25 +4189,22 @@ msgstr "チャド"
 msgid "Error showing help"
 msgstr "エラー文字列"
 
-#: ../src/fe-gnome/navigation-tree.c:89 ../src/fe-gnome/navigation-tree.c:95
+#: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:97
 msgid "_Find..."
 msgstr "ファイルの送信..."
 
-#. Server context menu
-#: ../src/fe-gnome/navigation-tree.c:100
+#: ../src/fe-gnome/navigation-tree.c:102
 #, fuzzy
 msgid "_Auto-connect on startup"
 msgstr "接続(_O)"
 
-#. Channel context menu
-#: ../src/fe-gnome/navigation-tree.c:103
+#: ../src/fe-gnome/navigation-tree.c:105
 #, fuzzy
 msgid "_Auto-join on connect"
 msgstr "接続(_O)"
 
-#. Add the new server to the model. By default connected is false.
-#: ../src/fe-gnome/navigation-tree.c:354
-#: ../src/fe-gnome/navigation-tree.c:1263
+#: ../src/fe-gnome/navigation-tree.c:357
+#: ../src/fe-gnome/navigation-tree.c:1296
 msgid "<none>"
 msgstr "<なし>"
 
@@ -4275,6 +4222,10 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-colors.c:228
 msgid "Custom"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-colors.c:229
+msgid "System Theme Colors"
 msgstr ""
 
 #: ../src/fe-gnome/preferences-page-dcc.c:184
@@ -4365,76 +4316,76 @@ msgstr ""
 msgid "%d bytes buffered"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:145 ../src/fe-gnome/text-entry.c:708
+#: ../src/fe-gnome/text-entry.c:145 ../src/fe-gnome/text-entry.c:710
 #, c-format
 msgid "Error in spellchecking configuration: %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:340
+#: ../src/fe-gnome/text-entry.c:342
 msgid "I_nsert Color Code"
 msgstr "カラーコードを挿入"
 
-#: ../src/fe-gnome/text-entry.c:347
+#: ../src/fe-gnome/text-entry.c:349
 msgid "Black"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:351
+#: ../src/fe-gnome/text-entry.c:353
 msgid "Dark Blue"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:355
+#: ../src/fe-gnome/text-entry.c:357
 msgid "Dark Green"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:359
+#: ../src/fe-gnome/text-entry.c:361
 msgid "Red"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:363
+#: ../src/fe-gnome/text-entry.c:365
 msgid "Brown"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:367
+#: ../src/fe-gnome/text-entry.c:369
 msgid "Purple"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:371
+#: ../src/fe-gnome/text-entry.c:373
 msgid "Orange"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:375
+#: ../src/fe-gnome/text-entry.c:377
 msgid "Yellow"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:379
+#: ../src/fe-gnome/text-entry.c:381
 msgid "Light Green"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:383
+#: ../src/fe-gnome/text-entry.c:385
 msgid "Aqua"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:387
+#: ../src/fe-gnome/text-entry.c:389
 msgid "Light Blue"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:391
+#: ../src/fe-gnome/text-entry.c:393
 msgid "Blue"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:395
+#: ../src/fe-gnome/text-entry.c:397
 msgid "Violet"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:399
+#: ../src/fe-gnome/text-entry.c:401
 msgid "Grey"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:403
+#: ../src/fe-gnome/text-entry.c:405
 msgid "Light Grey"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:407
+#: ../src/fe-gnome/text-entry.c:409
 msgid "White"
 msgstr ""
 
@@ -4482,7 +4433,6 @@ msgid_plural ""
 "%s\n"
 "<span weight=\"bold\">Last message:</span> %d minutes ago"
 msgstr[0] ""
-msgstr[1] ""
 
 #: ../src/fe-gnome/userlist-gui.c:421
 #, c-format
@@ -4492,11 +4442,10 @@ msgid ""
 msgstr ""
 
 #: ../src/fe-gnome/userlist.c:320
-#, fuzzy, c-format
+#, c-format
 msgid "%d User"
 msgid_plural "%d Users"
-msgstr[0] "ユーザ"
-msgstr[1] "ユーザ"
+msgstr[0] ""
 
 #~ msgid "Enter a new nickname"
 #~ msgstr "新しいニックを入力:"
