@@ -130,6 +130,7 @@ class GraphSearch (Algorithm):
     def __init__(self, graph, source, goal):
         """Create the GraphSearch object with the graphs."""
         Algorithm.__init__ (self, graph)
+        self.adjacency = dict (graph.representations[AdjacencyList].data) 
         self.run ()
 
     def invalidate (self):
