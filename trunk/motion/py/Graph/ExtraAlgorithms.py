@@ -10,7 +10,6 @@ Classes:
     - Heuristic             A heuristic best first search
 """
 
-from Algorithms import SearchPrint
 import Data, gc
 
 class ParallelBFS:

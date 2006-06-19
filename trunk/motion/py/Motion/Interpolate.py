@@ -20,10 +20,10 @@ Functions:
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-from Dance.MotionGraph import fix360, fixnegative
 from Graph import algorithms_c
+from Graph.Algorithms import Heuristic
 from Graph.Data import AdjacencyList, VertexMap
-from Graph.ExtraAlgorithms import Heuristic
+from Graph.MotionGraph import fix360, fixnegative
 from LinearAlgebra import inverse
 from Motion import AMC
 import Numeric
