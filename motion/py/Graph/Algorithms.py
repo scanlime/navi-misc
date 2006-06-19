@@ -452,12 +452,13 @@ class HeuristicPrint (Heuristic):
             node = agenda.pop()
             visited.append(node)
 
+            print "coloring path"
             path = self.pathToNode (node)
             for n in path:
                 if n != self.source or n != self.goal:
                     n.color = "blue"
 
-            print "print step %i" % step
+            print "printing step %i" % step
             f = file ('graphs/%s.dot' % step, 'w')
             DotPrint (self.graph, f)
             f.close ()
@@ -485,8 +486,10 @@ class HeuristicPrint (Heuristic):
             print "%d likely successors" % (numSucc)
             print "    %d added to agenda" % (numAdded)
 
+            print "sorting..."
             # Resort the queue
             agenda.sort(cmp=self.compare)
+            print "done"
 
         return self.path
 
