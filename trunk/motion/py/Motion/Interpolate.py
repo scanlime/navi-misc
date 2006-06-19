@@ -136,7 +136,8 @@ class GraphSearch (Algorithm):
                     pos = pos[3:6]
                 pos = [Numeric.remainder (d, 360.0) for d in pos]
                 pos = tuple (map (fix360, map (fixnegative, pos)))
-            return self.find_node (node)
+                n[bone] = pos
+            return self.find_node (n)
 
         Algorithm.__init__ (self, graph)
         self.search = Heuristic (graph, self.f, fixNode (source),
@@ -197,7 +198,9 @@ class GraphSearch (Algorithm):
         """
         vertex_map = self.graph.representations[VertexMap]
         for vertex in vertex_map:
-            if vertex.inside (pos):
+            for bone, node in vertex.iteritems ():
+                if node.inside (pos[bone]):
+                    break
                 return vertex
 
     def linear_interp(self, start, end, pos, length):
