@@ -129,9 +129,18 @@ class GraphSearch (Algorithm):
 
     def __init__(self, graph, source, goal):
         """Create the GraphSearch object with the graphs."""
+        def fixNode (node):
+            for bone, pos in node.iteritems ():
+                if bone == "root":
+                    pos = pos[3:6]
+                pos = [Numeric.remainder (d, 360.0) for d in pos]
+                pos = tuple (map (fix360, map (fixnegative (pos))))
+                node[bone] = pos
+            return node
+
         Algorithm.__init__ (self, graph)
-        self.source = source
-        self.goal = goal
+        self.source = fixNode (source)
+        self.goal = fixNode (goal)
         self.cached_costs = {}
         self.run ()
 
@@ -148,10 +157,6 @@ class GraphSearch (Algorithm):
         positions (in tuples of floats). A single dictionary represents a
         single body position that is one frame in the motion.
         """
-        path = []
-        source = {}
-        goal = {}
-
         # Assemble the source and goal dictionaries for the search
         for bone in start.iterkeys():
             # Temporary storage for building graph nodes from frame data
