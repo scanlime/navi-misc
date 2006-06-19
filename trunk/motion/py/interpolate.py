@@ -77,7 +77,8 @@ asf.parse(args[0])
 print 'loading graphs'
 graphs = pickle.load(open(args[1]))
 cgraph = Graph ()
-bAdj = Combinatoric.AdjacencyList (cgraph)
+cAdj = Combinatoric.AdjacencyList (cgraph)
+cVMap = Combinatoric.VertexMap (cgraph)
 cgraph.addList ([(name, graph) for name, graph in graphs.iteritems ()])
 
 print 'loading bayes net'
