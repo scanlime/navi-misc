@@ -129,24 +129,25 @@ class GraphSearch (Algorithm):
 
     def __init__(self, graph, source, goal):
         """Create the GraphSearch object with the graphs."""
-        def fixNode (node):
-            for bone, pos in node.iteritems ():
-                if bone == "root":
-                    pos = pos[3:6]
-                pos = [Numeric.remainder (d, 360.0) for d in pos]
-                pos = tuple (map (fix360, map (fixnegative (pos))))
-                node[bone] = pos
-            return node
-
         Algorithm.__init__ (self, graph)
-        self.source = fixNode (source)
-        self.goal = fixNode (goal)
-        self.cached_costs = {}
         self.run ()
 
     def invalidate (self):
+        def fixNode (node):
+            n = {}
+            for bone, pos in node.iteritems ():
+               if bone == "root":
+                   pos = pos[3:6]
+               pos = [Numeric.remainder (d, 360.0) for d in pos]
+               pos = tuple (map (fix360, map (fixnegative (pos))))
+           return self.find_node (node)
+
         Algorithm.invalidate (self)
+        self.search = Heuristic (self.graph, self.f, fixNode (source),
+                fixNode (goal))
+        self.search.invalidate ()
         self.path = None
+        self.cached_costs = {}
 
     def run (self):
         """Execute the graph search.
@@ -157,55 +158,33 @@ class GraphSearch (Algorithm):
         positions (in tuples of floats). A single dictionary represents a
         single body position that is one frame in the motion.
         """
-        # Assemble the source and goal dictionaries for the search
-        for bone in start.iterkeys():
-            # Temporary storage for building graph nodes from frame data
-            s = start[bone]
-            e = end[bone]
+        if self.path:
+            return self.path
 
-            # Only use graph search for orientation of root, not position
-            if bone == "root":
-                s = s[3:6]
-                e = e[3:6]
-
-            # Make all angles between 0 and 360 degrees
-            s = [Numeric.remainder(d, 360.0) for d in s]
-            e = [Numeric.remainder(d, 360.0) for d in e]
-
-            # Apply fix360 and fixnegative so that all angles are in the range
-            # [0, 360)
-            s = tuple(map(fix360, map(fixnegative, s)))
-            e = tuple(map(fix360, map(fixnegative, e)))
-
-            # Find the node in the graph corresponding to this joint position
-            source[bone] = self.find_node(self.graphs[bone], s)
-            goal[bone] = self.find_node(self.graphs[bone], e)
-
-        # Run the search
-        path = self.search.run(source, goal)
+        self.path = self.search.run ()
 
         # Construct a list of dictionaries to return. Each dictionary is a
         # frame in the animation.
         for i in range(len(path)):
             frame = {}
-            for bone in path[i].keys():
-                node = path[i][bone]
+            for bone in self.path[i].keys():
+                node = self.path[i][bone]
                 center = node.center
 
                 # Linearly interpolate the position of the root at each frame
                 if bone == "root":
                     rootstart = list(start["root"][0:3])
                     rootend = list(end["root"][0:3])
-                    pos = self.linear_interp(rootstart, rootend, i, len(path))
+                    pos = self.linear_interp(rootstart, rootend, i, len(self.path))
                     center = pos + center
 
                 frame[bone] = center
 
-            path[i] = frame
+            self.path[i] = frame
 
-        return path
+        return self.path
 
-    def find_node (self, graph, pos):
+    def find_node (self, pos):
         """Returns a vertex from 'graph' that contains 'pos'.
 
         The vertices in motion graphs are often discretized such that a single
