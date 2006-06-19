@@ -331,17 +331,18 @@ class Heuristic (Algorithm):
     """A heuristic best first search."""
 
     def __init__(self, graph, costf, successors, source, goal):
-        Algorithm.__init__ (self, graph)
         self.costf = costf
         self.successors = successors
         self.source = source
         self.goal = goal
+        Algorithm.__init__ (self, graph)
+        self.run ()
 
     def invalidate (self):
         Algorithm.invalidate (self)
         self.path = None
         self.costs = {}
-        self.predecessors = {repr(source):None}
+        self.predecessors = {repr(self.source):None}
 
     def compare(self, a, b):
         keyA = repr(a)
@@ -366,7 +367,7 @@ class Heuristic (Algorithm):
 
         while next:
             path.insert(0, next)
-            next = predecessors[repr(next)]
+            next = self.predecessors[repr(next)]
 
         return path
 
@@ -422,6 +423,72 @@ class Heuristic (Algorithm):
     def identity (self):
         """Identify runs of this algorithm by its hash value."""
         return hash (self)
+
+
+class HeuristicPrint (Heuristic):
+    def __init__ (self, graph, costf, successors, source, goal):
+        source.color = "green"
+        goal.color = "red"
+        Heuristic.__init__ (self, graph, costf, successors, source, goal)
+
+    def run (self):
+        """Execute a heuristic search of a graph.
+        
+        Returns:
+            A list of nodes that is the path from the source to the goal or
+            ``None`` if there is no path.
+        """
+        if self.path:
+            return self.path
+
+        # Initialize all the local variables
+        agenda = [self.source]
+        visited = []
+        path = None
+        step = 0
+
+        while len(agenda) > 0:
+            # Get the next node and test for the goal
+            node = agenda.pop()
+            visited.append(node)
+
+            path = self.pathToNode (node)
+            for n in path:
+                if n != self.source or n != self.goal:
+                    n.color = "blue"
+
+            print "print step %i" % step
+            f = file ('graphs/%s.dot' % step, 'w')
+            DotPrint (self.graph, f)
+            f.close ()
+
+            for n in path:
+                if n != self.source or n != self.goal:
+                    del n.color
+
+            if node == self.goal:
+                # Reconstruct the path to the goal
+                self.path = path
+                break
+
+            # Add the successors of this node to the agenda and record the node
+            # that generated these successors.
+            numSucc = numAdded = 0
+            for s in self.successors(self.graph, node):
+                numSucc += 1
+                if s not in visited:
+                    numAdded += 1
+                    self.predecessors[repr(s)] = node
+                    agenda.append(s)
+
+            # Some debuggative statements
+            print "%d likely successors" % (numSucc)
+            print "    %d added to agenda" % (numAdded)
+
+            # Resort the queue
+            agenda.sort(cmp=self.compare)
+
+        return self.path
 
 
 # vim: ts=4:sw=4:et
