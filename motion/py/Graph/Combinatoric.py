@@ -290,4 +290,93 @@ class EdgeList (CombinatoricRepresentation):
         return returnEdge
 
 
+class BayesAdjacency (AdjacencyList):
+    """An adjacency list filtered by a Bayes net.
+
+    This representation uses a Bayes net to filter out unlikely combinations of
+    nodes to reduce the number of successors for a combinatoric node.
+    """
+
+    def __init__ (self, graph, bayes, asf=None, eps=0.3**29):
+        AdjacencyList.__init__ (self, graph)
+        self.bayes = bayes
+        self.epsilon = eps
+        if asf:
+            self.setOrder (asf)
+
+    def setOrder (self, asf):
+        """Set the build order for nodes from the hierarchy in an ASF file.
+
+        Arguments:
+            - ``asf``   An ASF object
+        """
+        self.order = ["root"]
+        self.parents = {}
+        self.bones = asf.bones
+
+        for group in asf.hierarchy:
+            if len (group) > 1:
+                for child in group[1:]:
+                    self.parents[child] = group[0]
+                    if group[0] in self.order and child not in self.order:
+                        self.order.append (child)
+
+    def query (self, u):
+        """Iterate over the edges going out from vertex ``u`` that are not
+        filtered out by the Bayes net.
+        """
+        def filter (order, current={}, prob=1.0):
+            """Generator function used for creating filtered successors of
+            ``u``.
+            """
+            # If there are no bones left in ``order``, yield the current node
+            if len (order) == 0:
+                yield current.copy ()
+                return
+
+            bone = order[0]
+
+            # If the bone has no DOF, skip it
+            if not self.bones[bone].dof:
+                return filter (order[1:], current, prob)
+
+            # Get parent information
+            if bone in self.parents:
+                parent = self.parents[bone]
+                pbone = current.get(parent)
+
+            # Iterate over all the nodes connected to this one
+            for node in self.adj[bone].query (u[bone]):
+                current[bone] = node
+
+                # If the bone has no parent or the parent has no mocap data
+                # (i.e. the parent has no DOF), skip it
+                if (bone not in self.parents or not pbone):
+                    return filter (order[1:], current, prob)
+                # If the bone has a parent and the parent has a position in
+                # ``current``, apply the Bayes net to this bone to filter
+                # unlikely positions
+                else:
+                    net = self.bayes[bone]
+                    # Generate the index used by the Bayes net
+                    spot = (tuple (pbone.mins), tuple (node.mins))
+
+                    # If the Bayes net has an entry for this pair of positions,
+                    # calculate the new probabilities. If they're high enough,
+                    # recurse further down the body. If they're too low, ignore
+                    # them.
+                    if spot in net:
+                        p = net[spot]
+                        newProb = prob * p
+                        # FIXME: What is this 0.1 and why is it hard-coded?
+                        if newProb > self.eps and prob > 0.1:
+                            return filter (order[1:], current, newProb)
+
+                    # FIXME: what if ``spot`` isn't in the Bayes net?
+       
+        # Yield edges with a high enough probability to warrant checking.
+        for v in filter (self.order):
+            yield self.graph.edgeClass (u, v)
+
+
 # vim: ts=4:sw=4:et
