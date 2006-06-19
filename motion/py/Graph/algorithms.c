@@ -23,23 +23,17 @@
 #include <Python.h>
 #include "dijkstra.h"
 #include "utilities.h"
-#include "path_tree.h"
 
 static PyObject* depth_limited_search (PyObject* self, PyObject* args);
-static PyObject* aStar_search (PyObject* self, PyObject *args);
 static PyObject* dijkstra_search (PyObject* self, PyObject* args);
 
 
 /* Defined in depth_limited.c */
 void search (GSList* path, GHashTable* adjacency, GHashTable *edges, PyObject*
 		goal, int depth, GSList* good_paths[]);
-/* Defined in a_star.c */
-path_tree* heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
-		PyObject* fcost);
 
 static PyMethodDef AlgorithmC_methods[] = {
 	{"depthLimitedSearch", depth_limited_search, METH_VARARGS, "Execute a depth limited search of the graph"},
-	{"aStarSearch",        aStar_search,         METH_VARARGS, "Execute the A* search of the graph"},
 	{"dijkstraSearch",     dijkstra_search,      METH_VARARGS, "Execute dijkstra's single-source shortest-path search"},
         {NULL,                 NULL,                 0,            NULL},
 };
@@ -103,7 +97,6 @@ depth_limited_search (PyObject* self, PyObject* args)
 	 */
 	for (int i = 0; i < depth; i++) {
 		GSList*   path  = paths[i];
-		int       len   = g_slist_length (path);
 		PyObject* list  = PyList_New (0);
 
 		/* FIXME: This could be more efficient by prepending to the list
@@ -125,58 +118,6 @@ depth_limited_search (PyObject* self, PyObject* args)
 	free_edges (edges);
 
 	return path_list;
-}
-
-static PyObject*
-aStar_search (PyObject* self, PyObject *args)
-{
-	PyObject*   adjacency_list;
-	PyObject*   start;
-	PyObject*   end;
-	PyObject*   f_cost;
-	PyObject*   result;
-	PyObject*   key;
-	PyObject*   value;
-	GHashTable* adjacency = NULL;
-	int         pos = 0;
-
-	/* Get all the arguments */
-	if (!PyArg_ParseTuple (args, "OOOO", &adjacency_list, &start, &end, &f_cost)) {
-		return NULL;
-	}
-
-	/* Check that f_cost is a function */
-	if (!PyCallable_Check (f_cost)) {
-		PyErr_SetString (PyExc_RuntimeError, "f cost needs to be callable");
-		return NULL;
-	}
-
-	/* Retrieve adjacency and edge lists */
-	adjacency = g_hash_table_new (g_str_hash, g_str_equal);
-	while (PyDict_Next (adjacency_list, &pos, &key, &value)) {
-		GHashTable* adj = query_adjacency (value);
-		if (adj == NULL) {
-			PyErr_SetString (PyExc_RuntimeError, "couldn't build adjacency hash table");
-			return NULL;
-		}
-		g_hash_table_insert (adjacency, PyString_AsString (key), adj);
-	}
-
-	/* Search */
-	path_tree* path = heuristic_search (adjacency, start, end, f_cost);
-
-	if (path) {
-		result = PyList_New (0);
-		for (path_tree* node = path; node; node = node->parent) {
-			PyList_Append (result, (PyObject*) node->data);
-		}
-		PyList_Reverse (result);
-	} else {
-		Py_INCREF (Py_None);
-		result = Py_None;
-	}
-
-	return result;
 }
 
 static PyObject *
