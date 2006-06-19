@@ -175,15 +175,15 @@ class VertexMap (CombinatoricRepresentation):
             name, map = graphs[0]
             for vertex in map:
                 if len(graphs) == 1:
-                    yield [(name, vertex)]
+                    yield {name: vertex}
                     continue
 
                 for v in combine (graphs[1:]):
-                    v.append ((name, vertex))
+                    v[name] = vertex
                     yield v
 
         for v in combine (self.data):
-            yield tuple (v)
+            yield v
 
     def onAdd (self, data):
         CombinatoricRepresentation.onAdd (self, data)
@@ -205,9 +205,8 @@ class VertexMap (CombinatoricRepresentation):
         """Iterate over the edges containing the vertex 'u'."""
         def combineU (graphs):
             name, map = graphs[0]
-            n = dict (node)
-            for edge in map.query (n[name]):
-                if edge.u == n[name]:
+            for edge in map.query (node[name]):
+                if edge.u == node[name]:
                     if len (graphs) == 1:
                         yield {name: edge.u}
                         continue
@@ -218,10 +217,8 @@ class VertexMap (CombinatoricRepresentation):
 
         def combineV (graphs):
             name, map = graphs[0]
-            n = dict (node)
-
-            for edge in map.query (n[name]):
-                if edge.u == n[name]:
+            for edge in map.query (node[name]):
+                if edge.u == node[name]:
                     if len (graphs) == 1:
                         yield {name: edge.v}
                         continue
@@ -230,14 +227,11 @@ class VertexMap (CombinatoricRepresentation):
                         v[name] = edge.v
                         yield v
 
-        def makeTuple (d):
-            return tuple ([(k, v) for k, v in d.iteritems ()])
-
         for u in combineU (self.data):
-            yield self.graph.edgeClass (makeTuple (u), node)
+            yield self.graph.edgeClass (u, node)
 
         for v in combineV (self.data):
-            yield self.graph.edgeClass (node, makeTuple (v))
+            yield self.graph.edgeClass (node, v)
 
 
 class EdgeList (CombinatoricRepresentation):
