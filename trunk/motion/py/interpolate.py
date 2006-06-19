@@ -24,8 +24,8 @@
 usage: interpolate.py <asf file> <graph> <bayes net> <input amc> <output amc> <start frame> <end frame>
 """
 
-from Graph import algorithms_c, MotionGraph
-from Graph.Data import VertexMap, AdjacencyList
+from Graph import algorithms_c, Combinatoric, MotionGraph
+from Graph.Data import Graph, VertexMap, AdjacencyList
 from Graph.Algorithms import Heuristic
 from Motion import AMC, ASFReader, Interpolate
 from optparse import OptionParser
@@ -63,7 +63,6 @@ def save(sequence, file):
 
 options = OptionParser(usage="%prog <asf file> <graph> <bayes net> <input amc> <output amc> <start frame> <end frame>")
 
-options.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False)
 opts, args = options.parse_args()
 
 if len(args) < 7:
@@ -77,11 +76,12 @@ asf.parse(args[0])
 
 print 'loading graphs'
 graphs = pickle.load(open(args[1]))
+cgraph = Graph ()
+bAdj = Combinatoric.AdjacencyList (cgraph)
+cgraph.addList ([(name, graph) for name, graph in graphs.iteritems ()])
 
 print 'loading bayes net'
 bayes_net = pickle.load(open(args[2]))
-
-search = Interpolate.GraphSearch(graphs, bayes_net, asf, verbose=opts.verbose)
 
 start = {}
 end = {}
@@ -91,8 +91,9 @@ for bone, data in samc.bones.iteritems():
     end[bone] = data[int(args[-1]) - 1]
 
 print "searching..."
-path = search(start, end)
 
-save (path, args[-3])
+search = Interpolate.GraphSearch(cgraph, start, end)
+
+save (search.path, args[-3])
 
 # vim: ts=4:sw=4:et
