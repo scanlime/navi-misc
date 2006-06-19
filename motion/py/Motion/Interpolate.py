@@ -128,8 +128,17 @@ class GraphSearch (Algorithm):
     """A class for interpolating by searching a motion graph."""
 
     def __init__(self, graph, source, goal):
-        """Create the GraphSearch object with the graphs."""
+        """Create the GraphSearch object with a graph.
+       
+        Arguments:
+            - ``graph``     The `Graph` used for the search
+            - ``source``    The starting node of the search
+            - ``goal``      The ending node of the search
+        """
         def fixNode (node):
+            """Short helper function that fixes negative angles and insures
+            that all angles are on the interval [0, 360).
+            """
             n = {}
             for bone, pos in node.iteritems ():
                 if bone == "root":
@@ -146,6 +155,11 @@ class GraphSearch (Algorithm):
         self.run ()
 
     def invalidate (self):
+        """Invalidate the algorithm.
+
+        Resets the ``path`` and ``cached_costs`` member variables. Also
+        invalidates the `Heuristic` search, if it is present.
+        """
         Algorithm.invalidate (self)
         self.path = None
         self.cached_costs = {}
@@ -153,14 +167,7 @@ class GraphSearch (Algorithm):
             self.search.invalidate ()
 
     def run (self):
-        """Execute the graph search.
-        
-        Interpolate between the frames 'start' and 'end'. Returns a path from
-        'start' to 'end', or None if there isn't one. Paths are represented as
-        a list of dictionaries. Each dictionary maps from bone names to
-        positions (in tuples of floats). A single dictionary represents a
-        single body position that is one frame in the motion.
-        """
+        """Execute the graph search."""
         if self.path:
             return self.path
 
@@ -188,13 +195,17 @@ class GraphSearch (Algorithm):
         return self.path
 
     def find_node (self, pos):
-        """Returns a vertex from 'graph' that contains 'pos'.
+        """Finds the node in ``self.graph`` conataining the position ``pos``.
 
         The vertices in motion graphs are often discretized such that a single
         vertex represents a range of positions. This function finds a vertex in
-        'graph that contains the position 'pos'. 'graph' is a motion graph.
-        'pos' is a tuple with the same dimensions as the degrees of freedom in
-        each graph vertex.
+        ``self.graph`` that contains the position ``pos``.
+
+        Arguments:
+            - ``pos``       The body position for which to find a graph node
+
+        Returns:
+            A `MotionGraphNode` from ``self.graph`` containing ``pos``
         """
         vertex_map = self.graph.representations[VertexMap]
         for vertex in vertex_map:
@@ -218,14 +229,20 @@ class GraphSearch (Algorithm):
         return result
 
     def f (self, path, goal):
-        """Return a cost from the end of 'path' to 'goal'.
+        """Return a cost from the end of ``path`` to ``goal``.
 
-        Calculate a cost from 'path' to 'goal'. 'path' is a list of
-        dictionaries, each representing a single body position. 'goal' is the
-        desired body position. The cost is the length of 'path' plus the length
-        of the shortest path (for each bone) from the end of 'path' to 'goal'.
-        These costs are cached to minimize runs of Dijkstra's shortest path
-        algorithm.
+        Calculate a cost from ``path`` to ``goal``.  The cost is the length of
+        ``path`` plus the length of the shortest path (for each bone) from the
+        end of ``path`` to ``goal``.  These costs are cached to minimize runs
+        of Dijkstra's shortest path algorithm.
+
+        Arguments:
+            - ``path``      A list of nodes that is the path whose cost is
+              desired
+            - ``goal``      The desired goal of the search
+
+        Returns:
+            A number representing the cost of ``path`` in relation to ``goal``
         """
         end = path[-1]
         g = len (path)
