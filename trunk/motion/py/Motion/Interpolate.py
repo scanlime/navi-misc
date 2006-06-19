@@ -124,31 +124,22 @@ def _getMatrix(data, dof):
     return (A, b)
 
 
-class GraphSearch:
+class GraphSearch (Algorithm):
     """A class for interpolating by searching a motion graph."""
 
-    def __init__(self, graphs, bayes, asf, epsilon=0.3**29, verbose=False):
+    def __init__(self, graph, source, goal):
         """Create the GraphSearch object with the graphs."""
-        self.graphs = graphs
-        self.bayes = bayes
-        self.asf = asf
-        self.epsilon = epsilon
-        self.adjacency = {}
+        Algorithm.__init__ (self, graph)
+        self.source = source
+        self.goal = goal
         self.cached_costs = {}
-        self.search = Heuristic(self.graphs, self.f, self.successor, verbose)
+        self.run ()
 
-        # Build the dictionary of adjacency lists. If a graph doesn't have an
-        # AdjacencyList, raise an exception.
-        for bone, graph in graphs.iteritems():
-            try:
-                self.adjacency[bone] = graph.representations[AdjacencyList]
-            except KeyError:
-                raise Exception("%s graph doesn't have an AdjacencyList representation" % (bone))
+    def invalidate (self):
+        Algorithm.invalidate (self)
+        self.path = None
 
-        # Initialize the build order for the successor function
-        self.build_order(asf)
-
-    def __call__(self, start, end):
+    def run (self):
         """Execute the graph search.
         
         Interpolate between the frames 'start' and 'end'. Returns a path from
@@ -208,135 +199,6 @@ class GraphSearch:
             path[i] = frame
 
         return path
-
-    def build_order(self, asf):
-        """Set the build order for the successor function.
-       
-        'asf' is an ASFReader object created from an ASF file. The bone
-        hierarchy defined in the ASF file is used to create the build order.
-        The build order is used in successor generation during the graph search
-        in conjunction with a Bayes net to weed out unlikely successors.
-        """
-        # Build order always starts at the root
-        self.order = ["root"]
-        self.parents = {}
-        pos = 0
-
-        # Build the dictionary of parent joints
-        for group in asf.hierarchy:
-            if len(group) > 0:
-                for child in group[1:]:
-                    self.parents[child] = group[0]
-
-        # Create the build order based on the hierarchy specified in the ASF
-        # file. The hierarchy in the ASF file looks like: "parent child child..."
-        # This loop appends the list of children to the build order from each
-        # line.
-        for group in asf.hierarchy:
-            if len(group) and group[0] in self.order:
-                for bone in group[1:]:
-                    if bone not in self.order:
-                        self.order.append(bone)
-
-    def combine(self, bones, items, current={}, current_probability=1.0):
-        """Recusively create combinatoric successors.
-
-        A generator that yields dictionaries representing a whole-body position
-        created from every possible combination (with a high enough
-        probability) of every successor of every bone.
-
-        Arguments:
-            - bones     An ordered list of the bones to check, the first item
-                        in the list is always the current bone to check
-            - items     A dictionary mapping the bone name to a list of all
-                        successor states of that bone
-            - current   A dictionary representing the current working position
-                        of all bones previously seen
-            - current_probability   The current probability of this position
-        """
-        bone = bones[0]
-
-        # If the bone is not in the motion data, skip it. This happens for
-        # bones like hipjoints---they exist in the bone hierarchy, but have no
-        # degrees of freedom.
-        if not items.has_key(bone):
-            for child in self.combine(bones[1:], items, current,
-                    current_probability):
-                yield child
-
-            return
-
-        # Get the parent bone, if there is one.
-        if bone in self.parents:
-            parent = self.parents[bone]
-            try:
-                pbone = current[parent]
-            except KeyError:
-                pbone = None
-
-        # For each possible successor position of this bone...
-        for item in items[bone]:
-            # If we're in a bone with no parent (the root) or a bone whose
-            # parent has no DOF, accept all successors for the bone.
-            if not (bone in self.parents and \
-                    (self.asf.bones[bone].dof or \
-                    (parent in self.asf.bones and \
-                    self.asf.bones[parent].dof))) or \
-                    not pbone:
-                current[bone] = item
-
-                # If there's only one bone in the list, do not recurse further
-                if len(bones) == 1:
-                    yield current.copy()
-                else:
-                    for child in self.combine(bones[1:], items, current,
-                            current_probability):
-                        yield child
-            else:
-                net = self.bayes[bone]
-                # Build the key for the Bayes net
-                spot = (tuple(pbone.mins), tuple(item.mins))
-                if spot in net:
-                    # Probability voodoo
-                    probability = net[spot]
-                    current[bone] = item
-                    new_prob = current_probability * probability
-                    # If the bone's probability is high enough to warrant
-                    # checking...
-                    if new_prob > EPSILON and probability > 0.1:
-                        # If this is the last bone in the build order return a
-                        # copy of this node. Otherwise, recurse further down
-                        # the build order.
-                        if len(bones) == 1:
-                            yield current.copy()
-                        else:
-                            for child in self.combine(bones[1:], items,
-                                    current, new_prob):
-                                yield child
-
-                # FIXME - What if the (parent, child) pair isn't in the Bayes
-                # net?
-
-    def successor (self, graphs, node):
-        """A generator that yields successors of a whole-body pose.
-
-        Yields dictionaries representing a whole-body position based on the
-        position specified by 'node' and the motion graphs in 'graphs'. Each
-        dictionary maps a bone name to a node in the graph representing a
-        position.
-
-        Arguments:
-            - graphs        A dictionary mapping bone name to graph
-            - node          A dictionary mapping bone name to a graph node
-        """
-        # Create a dictionary mapping bone name to the list of successors for that
-        # bone in its current position.
-        immediate_successors = {}
-        for bone, n in node.iteritems ():
-            immediate_successors[bone] = [edge.v for edge in self.adjacency[bone].query (n)]
-
-        for succ in self.combine(self.order, immediate_successors):
-            yield succ
 
     def find_node (self, graph, pos):
         """Returns a vertex from 'graph' that contains 'pos'.
