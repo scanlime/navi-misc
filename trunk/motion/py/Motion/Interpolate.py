@@ -21,7 +21,7 @@ Functions:
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 from Graph import algorithms_c
-from Graph.Algorithms import Heuristic
+from Graph.Algorithms import Algorithm, Heuristic
 from Graph.Data import AdjacencyList, VertexMap
 from Graph.MotionGraph import fix360, fixnegative
 from LinearAlgebra import inverse
@@ -137,11 +137,11 @@ class GraphSearch (Algorithm):
         def fixNode (node):
             n = {}
             for bone, pos in node.iteritems ():
-               if bone == "root":
-                   pos = pos[3:6]
-               pos = [Numeric.remainder (d, 360.0) for d in pos]
-               pos = tuple (map (fix360, map (fixnegative (pos))))
-           return self.find_node (node)
+                if bone == "root":
+                    pos = pos[3:6]
+                pos = [Numeric.remainder (d, 360.0) for d in pos]
+                pos = tuple (map (fix360, map (fixnegative (pos))))
+            return self.find_node (node)
 
         Algorithm.invalidate (self)
         self.search = Heuristic (self.graph, self.f, fixNode (source),
