@@ -129,26 +129,27 @@ class GraphSearch (Algorithm):
 
     def __init__(self, graph, source, goal):
         """Create the GraphSearch object with the graphs."""
-        Algorithm.__init__ (self, graph)
-        self.adjacency = dict (graph.representations[AdjacencyList].data) 
-        self.run ()
-
-    def invalidate (self):
         def fixNode (node):
             n = {}
             for bone, pos in node.iteritems ():
                 if bone == "root":
                     pos = pos[3:6]
                 pos = [Numeric.remainder (d, 360.0) for d in pos]
-                pos = tuple (map (fix360, map (fixnegative (pos))))
+                pos = tuple (map (fix360, map (fixnegative, pos)))
             return self.find_node (node)
 
-        Algorithm.invalidate (self)
-        self.search = Heuristic (self.graph, self.f, fixNode (source),
+        Algorithm.__init__ (self, graph)
+        self.search = Heuristic (graph, self.f, fixNode (source),
                 fixNode (goal))
-        self.search.invalidate ()
+        self.adjacency = dict (graph.representations[AdjacencyList].data) 
+        self.run ()
+
+    def invalidate (self):
+        Algorithm.invalidate (self)
         self.path = None
         self.cached_costs = {}
+        if hasattr (self, "search"):
+            self.search.invalidate ()
 
     def run (self):
         """Execute the graph search.
@@ -194,7 +195,7 @@ class GraphSearch (Algorithm):
         'pos' is a tuple with the same dimensions as the degrees of freedom in
         each graph vertex.
         """
-        vertex_map = graph.representations[VertexMap]
+        vertex_map = self.graph.representations[VertexMap]
         for vertex in vertex_map:
             if vertex.inside (pos):
                 return vertex

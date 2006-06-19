@@ -338,7 +338,8 @@ class BayesAdjacency (AdjacencyList):
 
             # If the bone has no DOF, skip it
             if not self.bones[bone].dof:
-                return filter (order[1:], current, prob)
+                for child in filter (order[1:], current, prob):
+                    yield child
 
             # Get parent information
             if bone in self.parents:
@@ -352,7 +353,8 @@ class BayesAdjacency (AdjacencyList):
                 # If the bone has no parent or the parent has no mocap data
                 # (i.e. the parent has no DOF), skip it
                 if (bone not in self.parents or not pbone):
-                    return filter (order[1:], current, prob)
+                    for child in filter (order[1:], current, prob):
+                        yield child
                 # If the bone has a parent and the parent has a position in
                 # ``current``, apply the Bayes net to this bone to filter
                 # unlikely positions
@@ -370,7 +372,8 @@ class BayesAdjacency (AdjacencyList):
                         newProb = prob * p
                         # FIXME: What is this 0.1 and why is it hard-coded?
                         if newProb > self.eps and prob > 0.1:
-                            return filter (order[1:], current, newProb)
+                            for child in filter (order[1:], current, newProb):
+                                yield child
 
                     # FIXME: what if ``spot`` isn't in the Bayes net?
        
