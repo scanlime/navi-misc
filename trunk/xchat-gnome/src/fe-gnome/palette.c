@@ -1,6 +1,9 @@
 /* X-Chat
  * Copyright (C) 1998 Peter Zelezny.
  *
+ * Palette optimization
+ * Copyright (C) 2006 David Trowbridge.
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -196,29 +199,27 @@ const GdkColor palette_white_on_black[] =
 
 /*
  * These numbers are completely arbitrary decisions, uninformed by the experts
- * at crayola.  They seem to match up with my knowledge of color response in
- * the human eye, so maybe it's not complete bunk.  These colors are defined as
- * wedges within the HSV color space -- while they're not fully inclusive, they
- * are "safe" in that anywhere within a region can be called that color.
+ * at crayola.  These colors are defined as boxes within the CIE L*a*b* color
+ * space -- while they're not fully inclusive, they are "safe" in that anywhere
+ * within a given region is guaranteed to be the expected color.
  */
-float color_wedges[][6] = {
-	//H min,  H max, S min,  S max, V min,  V max
-	{  0.0f,   0.0f,  0.0f,   0.0f, 75.0f, 100.0f}, /*  0 white       */
-	{  0.0f,   0.0f,  0.0f,   0.0f,  0.0f,  25.0f}, /*  1 black       */
-	{220.0f, 235.0f, 80.0f, 100.0f, 40.0f,  70.0f}, /*  2 dark blue   */
-	{110.0f, 150.0f, 80.0f, 100.0f, 40.0f,  70.0f}, /*  3 dark green  */
-	{355.0f,   5.0f, 80.0f, 100.0f, 40.0f,  70.0f}, /*  4 dark red    */
-	{ 10.0f,  25.0f, 80.0f, 100.0f, 50.0f,  70.0f}, /*  5 brown       */
-	{270.0f, 300.0f, 80.0f, 100.0f, 35.0f,  80.0f}, /*  6 purple      */
-	{ 10.0f,  30.0f, 90.0f, 100.0f, 85.0f, 100.0f}, /*  7 orange      */
-	{ 55.0f,  65.0f, 90.0f, 100.0f, 90.0f, 100.0f}, /*  8 yellow      */
-	{100.0f, 120.0f, 80.0f, 100.0f, 70.0f, 100.0f}, /*  9 light green */
-	{170.0f, 180.0f, 70.0f,  90.0f, 55.0f,  70.0f}, /* 10 teal        */
-	{175.0f, 190.0f, 80.0f, 100.0f, 70.0f,  85.0f}, /* 11 cyan        */
-	{210.0f, 230.0f, 70.0f, 100.0f, 70.0f, 100.0f}, /* 12 light blue  */
-	{340.0f, 360.0f, 15.0f,  35.0f, 80.0f, 100.0f}, /* 13 pink        */
-	{  0.0f,   0.0f,  0.0f,   0.0f, 30.0f,  60.0f}, /* 14 grey        */
-	{  0.0f,   0.0f,  0.0f,   0.0f, 50.0f,  80.0f}, /* 15 light grey  */
+float color_regions[][6] = {
+	{75.0f, 100.0f,    0.0f,   0.0f,    0.0f,   0.0f}, /*  0 white       */
+	{ 0.0f,  30.0f,    0.0f,   0.0f,    0.0f,   0.0f}, /*  1 black       */
+	{ 0.0f,  20.0f, -100.0f,  50.0f, -100.0f, -60.0f}, /*  2 dark blue   */
+	{15.0f,  40.0f, -100.0f, -80.0f,   80.0f, 100.0f}, /*  3 green       */
+	{10.0f,  40.0f,   90.0f, 100.0f,   70.0f, 100.0f}, /*  4 dark red    */
+	{30.0f,  60.0f,   30.0f,  50.0f,   70.0f, 100.0f}, /*  5 brown       */
+	{35.0f,  45.0f,   85.0f, 100.0f,  -90.0f, -80.0f}, /*  6 purple      */
+	{65.0f,  80.0f,   20.0f,  65.0f,   90.0f, 100.0f}, /*  7 orange      */
+	{90.0f, 100.0f,    5.0f,  15.0f,   92.5f, 105.0f}, /*  8 yellow      */
+	{80.0f,  90.0f, -100.0f, -70.0f,   70.0f, 100.0f}, /*  9 light green */
+	{40.0f,  60.0f, -100.0f, -80.0f,  -10.0f,  20.0f}, /* 10 teal        */
+	{50.0f,  70.0f, -100.0f, -20.0f, -100.0f, -50.0f}, /* 11 cyan        */
+	{40.0f,  50.0f, -100.0f,   0.0f, -100.0f, -60.0f}, /* 12 light blue  */
+	{70.0f,  95.0f,   90.0f, 100.0f, -100.0f,   0.0f}, /* 13 pink        */
+	{30.0f,  60.0f,    0.0f,   0.0f,    0.0f,   0.0f}, /* 14 grey        */
+	{50.0f,  80.0f,    0.0f,   0.0f,    0.0f,   0.0f}, /* 15 light grey  */
 };
 
 GdkColor custom_palette[32];
@@ -232,145 +233,179 @@ const GdkColor *palette_schemes[] =
 	optimized_palette,
 };
 
-#define MIN3(x, y, z) (((x) < (y) && (x) < (z)) ? (x) : ((y) < (x) && (y) < (z)) ? (y) : z)
-#define MAX3(x, y, z) (((x) > (y) && (x) > (z)) ? (x) : ((y) > (x) && (y) > (z)) ? (y) : z)
-
-static void
-rgb_to_hsv (guint16 r, guint16 g, guint16 b, float *h, float *s, float *v)
+static float
+srgb_to_xyz_g (float K)
 {
-	float rf, gf, bf, color_min, color_max, delta;
+	const float a     = 0.055f;
+	const float gamma = 2.4f;
 
-	rf = ((float) r) / 65535;
-	gf = ((float) g) / 65535;
-	bf = ((float) b) / 65535;
+	/*
+	 * This performs the non-linear transformation that accounts for the
+	 * gamma curve in sRGB, but avoids numerical problems.
+	 */
 
-	color_min = MIN3 (rf, gf, bf);
-	color_max = MAX3 (rf, gf, bf);
-
-	*v = color_max;
-	delta = color_max - color_min;
-
-	if (color_max != 0.0f) {
-		*s = (delta / color_max);
-	} else {
-		/*
-		 * R = G = B = 0; Black, at the bottom of the HSV hexacone.
-		 * S = 0, H and V are undefined. H = S = V = 0 seems like a
-		 * reasonable representation.
-		 */
-		*h = *s = *v = 0.0f;
-		return;
-	}
-
-	if (delta == 0.0f) {
-		// Achromatic (grey)
-		*h = 0.0f;
-		*s = 0.0f;
-		*v = color_max * 100;
-		return;
-	} else {
-		if (rf == color_max) {
-			*h = (gf - bf) / delta;
-		} else if (gf == color_max) {
-			*h = 2 + (bf - rf) / delta;
-		} else {
-			*h = 4 + (rf - gf) / delta;
-		}
-	}
-
-	// Convert to degrees
-	*h = *h * 60;
-	if (*h < 0) {
-		*h = *h + 360;
-	}
-	*s = *s * 100;
-	*v = *v * 100;
-}
-
-static void
-hsv_to_rgb (float h, float s, float v, guint16 *r, guint16 *g, guint16 *b)
-{
-	int i;
-	float f, p, q, t;
-
-	h /= 60.0f;
-	s /= 100.0f;
-	v /= 100.0f;
-
-	if (s == 0.0f) {
-		// Achromatic (grey)
-		*r = (int) (v * 0xffff);
-		*g = (int) (v * 0xffff);
-		*b = (int) (v * 0xffff);
-		return;
-	}
-
-	i = (int) floor (h);
-	f = h - i;
-	p = v * (1 - s);
-	q = v * (1 - s * f);
-	t = v * (1 - s * (1 - f));
-
-	// This selects the proper section of the HSV hexacone
-	switch (i) {
-	case 0:
-		*r = (int) (v * 0xffff);
-		*g = (int) (t * 0xffff);
-		*b = (int) (p * 0xffff);
-		return;
-	case 1:
-		*r = (int) (q * 0xffff);
-		*g = (int) (v * 0xffff);
-		*b = (int) (p * 0xffff);
-		return;
-	case 2:
-		*r = (int) (p * 0xffff);
-		*g = (int) (v * 0xffff);
-		*b = (int) (t * 0xffff);
-		return;
-	case 3:
-		*r = (int) (p * 0xffff);
-		*g = (int) (q * 0xffff);
-		*b = (int) (v * 0xffff);
-		return;
-	case 4:
-		*r = (int) (t * 0xffff);
-		*g = (int) (p * 0xffff);
-		*b = (int) (v * 0xffff);
-		return;
-	case 5:
-		*r = (int) (v * 0xffff);
-		*g = (int) (p * 0xffff);
-		*b = (int) (q * 0xffff);
-		return;
-	}
+	if (K > 0.04045)
+		return pow((K + a) / (1 + a), gamma);
+	else
+		return K / 12.92;
 }
 
 static float
-hue_distance (float ha, float hb)
+xyz_to_srgb_C (float K)
 {
-	float hd1, hd2, hd3;
+	const float a     = 0.055;
+	const float gamma = 2.4;
 
-	// This is truly a pain, because it's a cylindrical coordinate system,
-	// and angular values are modulo 360.
-	hd1 = fabs (hb - ha);
-	hd2 = fabs (hb - ha - 360);
-	hd3 = fabs (hb - ha + 360);
-	return MIN3 (hd1, hd2, hd3);
+	if (K > 0.00304)
+		return (1 + a) * pow (K, (1.0 / gamma)) - a;
+	else
+		return K * 12.92;
+}
+
+
+static void
+srgb_to_xyz (guint16 r, guint16 g, guint16 b, float *x, float *y, float *z)
+{
+	float gr = srgb_to_xyz_g(r / 65535.0f);
+	float gg = srgb_to_xyz_g(g / 65535.0f);
+	float gb = srgb_to_xyz_g(b / 65535.0f);
+
+	*x = 0.412424f * gr + 0.357579f * gg + 0.180464f * gb;
+	*y = 0.212656f * gr + 0.715158f * gg + 0.072186f * gb;
+	*z = 0.019332f * gr + 0.119193f * gg + 0.950444f * gb;
 }
 
 static float
-hsv_distance (float ha, float sa, float va, float hb, float sb, float vb)
+xyz_to_lab_f (float t)
 {
-	float dh, ds, dv;
+	if (t > 0.008856f)
+		return pow(t, 1/3.0f);
+	else
+		return 7.787*t + 16/116.0f;
+}
 
-	dh = hue_distance (ha, hb);
-	ds = fabs (sb - sa);
-	dv = fabs (vb - va);
+static void
+xyz_to_lab (float x, float y, float z, float *L, float *a, float *b)
+{
+	float Xn, Yn, Zn;
+	float fy;
 
-	// We bias the value component here, because it is principal in our
-	// perception of contrast.
-	return (sqrt (dh*dh + ds*ds) + dv);
+	/*
+	 * This is our reference white point.  Since we're treating RGB as sRGB,
+	 * this is the sRGB white point, that has a correlated color temperature
+	 * of 6500K.
+	 */
+	Xn = 0.93819f;
+	Yn = 0.98705f;
+	Zn = 1.07475f;
+
+	fy = xyz_to_lab_f (y / Yn);
+
+	*L = 116 * fy - 16;
+	*a = 500 * (xyz_to_lab_f (x / Xn) - fy);
+	*b = 200 * (fy - xyz_to_lab_f (z / Zn));
+}
+
+static void
+lab_to_xyz (float L, float a, float b, float *x, float *y, float *z)
+{
+	float fy, fx, fz, delta, delta2;
+	float Xn, Yn, Zn;
+
+	fy = (L + 16) / 116;
+	fx = fy + a / 500;
+	fz = fy - b / 200;
+	delta = 6.0f / 29;
+	delta2 = pow (delta, 2);
+
+	Xn = 0.93819f;
+	Yn = 0.98705f;
+	Zn = 1.07475f;
+
+	if (fx > delta)
+		*x = Xn * pow (fx, 3);
+	else
+		*x = (fx - 16.0f/116) * 3 * delta2 * Xn;
+
+	if (fy > delta)
+		*y = Yn * pow (fy, 3);
+	else
+		*y = (fy - 16.0f/116) * 3 * delta2 * Yn;
+
+	if (fz > delta)
+		*z = Zn * pow (fz, 3);
+	else
+		*z = (fz - 16.0f/116) * 3 * delta2 * Zn;
+}
+
+static int
+clamp (int C)
+{
+	if (C < 0)
+		return 0;
+	if (C > 65535)
+		return 65535;
+	return C;
+}
+
+static void
+xyz_to_srgb (float x, float y, float z, guint16 *r, guint16 *g, guint16 *b)
+{
+	float rs, gs, bs;
+
+	/* Compute the tristimulus values */
+	rs =  3.2410f * x - 1.5374f * y - 0.4986f * z;
+	gs = -0.9692f * x + 1.8760f * y + 0.0416f * z;
+	bs =  0.0556f * x - 0.2040f * y + 1.0570f * z;
+
+	/* Convert to 8-bit sRGB */
+	*r = clamp ((int) round(xyz_to_srgb_C (rs) * 65535));
+	*g = clamp ((int) round(xyz_to_srgb_C (gs) * 65535));
+	*b = clamp ((int) round(xyz_to_srgb_C (bs) * 65535));
+}
+
+static void
+srgb_to_lab (guint16 R, guint16 G, guint16 B, float *L, float *a, float *b)
+{
+	float x, y, z;
+
+	srgb_to_xyz (R, G, B, &x, &y, &z);
+	xyz_to_lab (x, y, z, L, a, b);
+}
+
+static void
+lab_to_srgb (float L, float a, float b, guint16 *R, guint16 *G, guint16 *B)
+{
+	float x, y, z;
+
+	lab_to_xyz (L, a, b, &x, &y, &z);
+	xyz_to_srgb (x, y, z, R, G, B);
+}
+
+static float
+L_distance (float la, float lb)
+{
+	return fabs (lb - la);
+}
+
+static float
+ab_distance (float aa, float ba, float ab, float bb)
+{
+	float da, db;
+
+	da = fabs (ab - aa);
+	db = fabs (bb - ba);
+	return sqrt (da*da + db*db);
+}
+
+static float
+distance (float La, float aa, float ba, float Lb, float ab, float bb)
+{
+	float dL, da, db;
+	dL = fabs (Lb - La);
+	da = fabs (ab - aa);
+	db = fabs (bb - ba);
+	return sqrt (dL*dL + da*da + db*db);
 }
 
 /*
@@ -382,66 +417,65 @@ hsv_distance (float ha, float sa, float va, float hb, float sb, float vb)
  * the chosen background color.
  */
 static void
-optimize_palette (guint16 r, guint16 g, guint16 b)
+optimize_palette (guint16 R, guint16 G, guint16 B)
 {
 	int i, j;
-	float h, s, v;
+	float L, a, b;
 
-	rgb_to_hsv(r, g, b, &h, &s, &v);
+	srgb_to_lab (R, G, B, &L, &a, &b);
 
 	for (i = 0; i < 16; i++) {
 		int max_color;
 		float max_dist;
-		float hd;
+		float ld, cd;
 		float points[8][3];
 		GdkColor color;
 
-		points[0][0] = color_wedges[i][0]; points[0][1] = color_wedges[i][2]; points[0][2] = color_wedges[i][4];
-		points[1][0] = color_wedges[i][0]; points[1][1] = color_wedges[i][2]; points[1][2] = color_wedges[i][5];
-		points[2][0] = color_wedges[i][0]; points[2][1] = color_wedges[i][3]; points[2][2] = color_wedges[i][4];
-		points[3][0] = color_wedges[i][0]; points[3][1] = color_wedges[i][3]; points[3][2] = color_wedges[i][5];
-		points[4][0] = color_wedges[i][1]; points[4][1] = color_wedges[i][2]; points[4][2] = color_wedges[i][4];
-		points[5][0] = color_wedges[i][1]; points[5][1] = color_wedges[i][2]; points[5][2] = color_wedges[i][5];
-		points[6][0] = color_wedges[i][1]; points[6][1] = color_wedges[i][3]; points[6][2] = color_wedges[i][4];
-		points[7][0] = color_wedges[i][1]; points[7][1] = color_wedges[i][3]; points[7][2] = color_wedges[i][5];
+		points[0][0] = color_regions[i][0]; points[0][1] = color_regions[i][2]; points[0][2] = color_regions[i][4];
+		points[1][0] = color_regions[i][0]; points[1][1] = color_regions[i][2]; points[1][2] = color_regions[i][5];
+		points[2][0] = color_regions[i][0]; points[2][1] = color_regions[i][3]; points[2][2] = color_regions[i][4];
+		points[3][0] = color_regions[i][0]; points[3][1] = color_regions[i][3]; points[3][2] = color_regions[i][5];
+		points[4][0] = color_regions[i][1]; points[4][1] = color_regions[i][2]; points[4][2] = color_regions[i][4];
+		points[5][0] = color_regions[i][1]; points[5][1] = color_regions[i][2]; points[5][2] = color_regions[i][5];
+		points[6][0] = color_regions[i][1]; points[6][1] = color_regions[i][3]; points[6][2] = color_regions[i][4];
+		points[7][0] = color_regions[i][1]; points[7][1] = color_regions[i][3]; points[7][2] = color_regions[i][5];
 
 		max_dist = 0;
 		max_color = 0;
 		for (j = 0; j < 8; j++) {
-			float distance = hsv_distance(h, s, v, points[j][0], points[j][1], points[j][2]);
-			if (distance > max_dist) {
-				max_dist = distance;
+			float dist = distance (L, a, b, points[j][0], points[j][1], points[j][2]);
+			if (dist > max_dist) {
+				max_dist = dist;
 				max_color = j;
 			}
 		}
 
 		/*
-		 * If the distance in hue is really short, extend the value
-		 * component a little further.  This may push it outside the
-		 * bounds of the wedge we've specified, but it keeps things
-		 * readable when the background is right smack in the middle of
-		 * a wedge.  However, we only want to do this when the
-		 * saturation is high enough for it to matter (white, grey and
-		 * black have an undefined hue value).
+		 * If the luminosity distance is really short, extend the
+		 * vector further out.  This may push it outside the bounds of
+		 * the region that a color is specified in, but it keeps things
+		 * readable when the background and foreground are really close.
 		 */
-		hd = hue_distance(points[max_color][0], h);
-		if (hd <= 70.0f && points[max_color][1] >= 20.0f && s >= 20.0f) {
-			float vd = points[max_color][2] - v;
-			v = v + (vd * 1.1);
-			if (v < 0)
-				v = 0;
-			if (v > 100)
-				v = 100;
-			points[max_color][2] = v;
+		ld = L_distance (L, points[max_color][0]);
+		cd = ab_distance (a, b, points[max_color][1], points[max_color][2]);
+		if ((ld < 10.0f) && (cd < 60.0f)) {
+			float dL, da, db;
+			dL = points[max_color][0] - L;
+			da = points[max_color][1] - a;
+			db = points[max_color][2] - b;
+
+			points[max_color][0] = L + (dL * 4.0f);
+			points[max_color][1] = a + (da * 1.5f);
+			points[max_color][2] = b + (db * 1.5f);
 		}
 
 		color.pixel = 0;
-		hsv_to_rgb(points[max_color][0],
-		           points[max_color][1],
-		           points[max_color][2],
-		           &color.red,
-		           &color.green,
-		           &color.blue);
+		lab_to_srgb(points[max_color][0],
+		            points[max_color][1],
+		            points[max_color][2],
+		            &color.red,
+		            &color.green,
+		            &color.blue);
 
 		optimized_palette[i]      = color;
 		optimized_palette[i + 16] = color;

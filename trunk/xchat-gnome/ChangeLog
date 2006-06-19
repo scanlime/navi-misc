@@ -1,3 +1,8 @@
+Sun Jun 18 22:34:58 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/palette.c:
+	  - Use CIE L*a*b* instead of HSV, for improved results.
+
 Sat Jun 17 16:17:10 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* data/xchat-gnome.glade:
