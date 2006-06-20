@@ -7,7 +7,7 @@ GraphRepresentations to make them fast(ish)
     *the Python Mission Control Kit team*
 """
 
-import Data
+import Data, Combinatoric
 
 # Constants for graph coloring
 WHITE, GRAY, BLACK = range(3)
@@ -330,9 +330,8 @@ class DotPrint (Algorithm):
 class Heuristic (Algorithm):
     """A heuristic best first search."""
 
-    def __init__(self, graph, costf, successors, source, goal):
+    def __init__(self, graph, costf, source, goal):
         self.costf = costf
-        self.successors = successors
         self.source = source
         self.goal = goal
         Algorithm.__init__ (self, graph)
@@ -349,13 +348,16 @@ class Heuristic (Algorithm):
         keyB = repr(b)
 
         if not self.costs.has_key(keyA):
+            print "calculating cost to a"
             a_path = self.pathToNode(a)
             self.costs[keyA] = self.costf(a_path, self.goal)
 
         if not self.costs.has_key(keyB):
+            print "calculating cost to b"
             b_path = self.pathToNode(b)
             self.costs[keyB] = self.costf(b_path, self.goal)
 
+        print "Looking up costs"
         ac = self.costs[keyA]
         bc = self.costs[keyB]
 
@@ -366,9 +368,11 @@ class Heuristic (Algorithm):
         next = self.predecessors[repr(node)]
 
         while next:
+            print "loop"
             path.insert(0, next)
             next = self.predecessors[repr(next)]
 
+        print "got path to node"
         return path
 
     def run(self):
@@ -384,6 +388,13 @@ class Heuristic (Algorithm):
         # Initialize all the local variables
         agenda = [self.source]
         visited = []
+        
+        if self.graph.representations.has_key (Combinatoric.BayesAdjacency):
+            adj = self.graph.representations[Combinatoric.BayesAdjacency]
+        elif self.graph.representations.has_key (Combinatoric.AdjacencyList):
+            adj = self.graph.representations[Combinatoric.AdjacencyList]
+        else:
+            adj = self.graph.representations[Data.AdjacencyList]
 
         while len(agenda) > 0:
             # Get the next node and test for the goal
@@ -398,7 +409,7 @@ class Heuristic (Algorithm):
             # Add the successors of this node to the agenda and record the node
             # that generated these successors.
             numSucc = numAdded = 0
-            for s in self.successors(self.graph, node):
+            for s in adj.query (node):
                 numSucc += 1
                 if s not in visited:
                     numAdded += 1
@@ -418,7 +429,7 @@ class Heuristic (Algorithm):
         """The hash value for this algorithm is the hash of the graph, source,
         goal, and cost function.
         """
-        return hash ((self.graph, self.source, self.goal, self.costf))
+        return hash ((self.graph, repr(self.source), repr(self.goal), self.costf))
 
     def identity (self):
         """Identify runs of this algorithm by its hash value."""
@@ -463,11 +474,13 @@ class HeuristicPrint (Heuristic):
             DotPrint (self.graph, f)
             f.close ()
 
+            print "coloring..."
             for n in path:
                 if n != self.source or n != self.goal:
                     del n.color
 
             if node == self.goal:
+                print "goal!"
                 # Reconstruct the path to the goal
                 self.path = path
                 break
