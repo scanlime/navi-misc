@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<fyre-pipeline>
-	<stochastic-blur id="c675142d-681c-432c-a354-b2ed644c3932">
-		<edge source="0" dest="465513cf-9726-410e-8040-ed0f133e6bc8:0" />
-	</stochastic-blur>
-	<two-d-transform id="465513cf-9726-410e-8040-ed0f133e6bc8" />
-</fyre-pipeline>
