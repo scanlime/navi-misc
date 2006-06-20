@@ -1,3 +1,10 @@
+Tue Jun 20 17:31:10 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* configure.ac:
+	  - Bump to 0.13svn
+
+==================== 0.12 ====================
+
 Tue Jun 20 16:16:24 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* NEWS:
