@@ -63,7 +63,6 @@ static void on_edit_cut_activate (GtkAction *action, gpointer data);
 static void on_edit_copy_activate (GtkAction *action, gpointer data);
 static void on_edit_paste_activate (GtkAction *action, gpointer data);
 static void on_edit_preferences_activate (GtkAction *action, gpointer data);
-static void on_network_information_activate (GtkAction *action, gpointer data);
 static void on_network_reconnect_activate (GtkAction *action, gpointer data);
 static void on_network_disconnect_activate (GtkAction *action, gpointer data);
 static void on_network_close_activate (GtkAction *action, gpointer data);
@@ -116,7 +115,6 @@ static GtkActionEntry action_entries [] = {
 	{ "EditPreferences", GTK_STOCK_PREFERENCES, N_("Prefere_nces"), "",           NULL, G_CALLBACK (on_edit_preferences_activate) },
 
 	/* Network menu */
-	{ "NetworkInformation", GTK_STOCK_DIALOG_INFO, N_("_Information"), "",                  NULL, G_CALLBACK (on_network_information_activate) },
 	{ "NetworkReconnect",   GTK_STOCK_REFRESH,     N_("_Reconnect"),   "<control>R",        NULL, G_CALLBACK (on_network_reconnect_activate) },
 	{ "NetworkDisconnect",  GTK_STOCK_DISCONNECT,  N_("_Disconnect"),  "",                  NULL, G_CALLBACK (on_network_disconnect_activate) },
 	{ "NetworkClose",       GTK_STOCK_CLOSE,       N_("_Close"),       "<shift><control>W", NULL, G_CALLBACK (on_network_close_activate) },
@@ -325,8 +323,6 @@ run_main_window ()
 	gtk_widget_show (gui.main_window);
 
 	/* Temporarily disable menu items */
-	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/NetworkMenu/NetworkInformationItem");
-	gtk_widget_set_sensitive (widget, FALSE);
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionBansItem");
 	gtk_widget_set_sensitive (widget, FALSE);
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/ChannelPopup/ChannelBans");
@@ -431,12 +427,6 @@ on_edit_preferences_activate (GtkAction *action, gpointer data)
 	}
 
 	preferences_dialog_show (gui.prefs_dialog);
-}
-
-static void
-on_network_information_activate (GtkAction *action, gpointer data)
-{
-	/* FIXME: implement */
 }
 
 static void
