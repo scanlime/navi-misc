@@ -1,0 +1,4470 @@
+# Translation of xchat-gnome into the Basque language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
+# Mikel Olasagasti <hey_neken@euskal.org>, 2004.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: xchat-gnome\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-06-16 19:21-0600\n"
+"PO-Revision-Date: 2006-06-17 01:43+0000\n"
+"Last-Translator: Mikel Olasagasti <hey_neken@mundurat.net>\n"
+"Language-Team: Basque <translation-team-eu@lists.sourceforge.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1\n"
+
+#: ../data/channel-list.glade.h:1
+msgid "<span weight=\"bold\">List Filtering</span>"
+msgstr ""
+
+#: ../data/channel-list.glade.h:2
+msgid "Apply Text Filter To:    "
+msgstr ""
+
+#: ../data/channel-list.glade.h:3
+msgid "Channel _Name"
+msgstr "Kanalaren izena"
+
+#: ../data/channel-list.glade.h:4
+msgid "Channel _Topic"
+msgstr "Kanala"
+
+#: ../data/channel-list.glade.h:5
+msgid "Join Channel"
+msgstr "Sartu kanalera"
+
+#: ../data/channel-list.glade.h:6
+msgid "Maximum Users:"
+msgstr "Gehienezko erabiltzaileak:"
+
+#: ../data/channel-list.glade.h:7
+msgid "Minimum Users:"
+msgstr "Gutxienezko erabiltzaileak:"
+
+#: ../data/channel-list.glade.h:8
+msgid "Save List _As"
+msgstr "Gorde honela"
+
+#: ../data/channel-list.glade.h:9
+msgid "Text Filter:"
+msgstr "Inprimatu testuen fitxategia"
+
+#: ../data/connect-dialog.glade.h:1
+msgid "C_onnect"
+msgstr "K_onektatu"
+
+#: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
+msgid "File Transfers"
+msgstr "Fitxategi transferentziak"
+
+#: ../data/irc-network-editor.glade.h:1
+msgid "<span weight=\"bold\">Automatically Join Channels</span>"
+msgstr ""
+
+#: ../data/irc-network-editor.glade.h:2
+msgid "<span weight=\"bold\">User Info</span>"
+msgstr ""
+
+#: ../data/irc-network-editor.glade.h:3
+msgid "Accept _invalid SSL certificate"
+msgstr ""
+
+#: ../data/irc-network-editor.glade.h:4
+msgid "Character _encoding:"
+msgstr "Karaktere-jokoa:"
+
+#: ../data/irc-network-editor.glade.h:5
+msgid "Network Settings"
+msgstr "Sareko ezarpenak"
+
+#: ../data/irc-network-editor.glade.h:6
+msgid "Nickser_v Password:"
+msgstr ""
+
+#: ../data/irc-network-editor.glade.h:7
+msgid "Server _Password:"
+msgstr "Zerbitzariko pasahitza:"
+
+#: ../data/irc-network-editor.glade.h:8
+msgid "Servers"
+msgstr "Zerbitzariak"
+
+#: ../data/irc-network-editor.glade.h:9
+msgid "Use _global user settings"
+msgstr "Erabili erabiltzailearen informazio globala"
+
+#: ../data/irc-network-editor.glade.h:10
+msgid "Use _these user settings:"
+msgstr ""
+
+#: ../data/irc-network-editor.glade.h:11
+msgid "User and Channels"
+msgstr "Irten kanaletik"
+
+#: ../data/irc-network-editor.glade.h:12
+msgid "_Automatically connect to network"
+msgstr "Automatikoki konektatu sare hontara abiaratzean"
+
+#: ../data/irc-network-editor.glade.h:13
+msgid "_Cycle until connected"
+msgstr "Ziklatu konektatu arte"
+
+#: ../data/irc-network-editor.glade.h:14
+msgid "_Name:"
+msgstr "Izena"
+
+#: ../data/irc-network-editor.glade.h:15
+msgid "_Nick name:"
+msgstr "_Ezizena:"
+
+#: ../data/irc-network-editor.glade.h:16
+msgid "_Real Name:"
+msgstr "Be_netazko izena:"
+
+#: ../data/irc-network-editor.glade.h:17
+msgid "_Use secure connection (SSL)"
+msgstr "Erabili SSL seguritatea"
+
+#: ../data/preferences-dialog.glade.h:1
+msgid "<span size=\"small\" style=\"italic\">Opaque</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:2
+msgid "<span size=\"small\" style=\"italic\">Transparent</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:3
+msgid "<span weight=\"bold\">Background</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:4
+msgid "<span weight=\"bold\">DCC Settings</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:5
+msgid "<span weight=\"bold\">Extra Colors</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:6
+msgid "<span weight=\"bold\">File Transfers</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:7
+msgid "<span weight=\"bold\">General</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:8
+msgid "<span weight=\"bold\">Highlighting</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:9
+msgid "<span weight=\"bold\">Text Colors</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:10
+msgid "<span weight=\"bold\">Throttling</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:11
+msgid "<span weight=\"bold\">User Interface</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:12
+msgid "<span weight=\"bold\">mIRC Colors</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:13
+msgid "A_way message:"
+msgstr "Mezu berria:"
+
+#: ../data/preferences-dialog.glade.h:14
+msgid "Auto-accept DCC Chat"
+msgstr "Automatikoki onartu elkarrizketa zuzenak"
+
+#: ../data/preferences-dialog.glade.h:15
+msgid "Auto-accept DCC File Transfers"
+msgstr "Automatikoki onartu fitxategiak"
+
+#: ../data/preferences-dialog.glade.h:16
+msgid "Background _image"
+msgstr "Atzeko planoko irudia:"
+
+#: ../data/preferences-dialog.glade.h:17
+msgid "Background mark:"
+msgstr "Atzeko planoko irudia:"
+
+#: ../data/preferences-dialog.glade.h:18
+msgid "Buil_t-in schemes:"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:19
+msgid "Choose languages to use for spellcheck:"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:20
+msgid "Convert spaces to underscores in filenames"
+msgstr "Hutsuneak behe-marratxora bihurtu bidali aurretik"
+
+#: ../data/preferences-dialog.glade.h:21
+msgid "Download files to:"
+msgstr "Hona jaitsi fitxategiak:"
+
+#: ../data/preferences-dialog.glade.h:22
+msgid "Enter extra words to trigger highlighting"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:23
+msgid "Foreground mark:"
+msgstr "Aurreko planoa:"
+
+#: ../data/preferences-dialog.glade.h:24
+msgid "Get IP Address From Server"
+msgstr "Hartu nire IPa IRC zerbitzaritik"
+
+#: ../data/preferences-dialog.glade.h:25
+msgid "Global receive KB/s: "
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:26
+msgid "Global send KB/s: "
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:27
+msgid "Image _file:"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:28
+msgid "Individual receive KB/s: "
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:29
+msgid "Individual send KB/s: "
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:30
+msgid "Move completed files to:"
+msgstr "Mugitu amaitutako fitxategiak hona:"
+
+#: ../data/preferences-dialog.glade.h:31
+msgid "Preferences"
+msgstr "Hobespenak..."
+
+#: ../data/preferences-dialog.glade.h:32
+msgid "Real na_me:"
+msgstr "Be_netazko izena:"
+
+#: ../data/preferences-dialog.glade.h:33
+msgid "Save sender nickname in filenames"
+msgstr "Gorde ezizenak fitxategietan"
+
+#: ../data/preferences-dialog.glade.h:34
+msgid "Select A File"
+msgstr "Aukeratu irudi fitxategi bat"
+
+#: ../data/preferences-dialog.glade.h:35
+msgid "Select Completed Files Directory"
+msgstr "Mugitu amaitutako fitxategiak hona:"
+
+#: ../data/preferences-dialog.glade.h:36
+msgid "Select Download Directory"
+msgstr "Hona jaitsi fitxategiak:"
+
+#: ../data/preferences-dialog.glade.h:37
+msgid "Show _timestamps"
+msgstr "Ordu arrastoak gaitu"
+
+#: ../data/preferences-dialog.glade.h:38
+msgid ""
+"To edit a shortcut key, click on the corresponding row and type a new "
+"accelerator, or press backspace to clear."
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:39
+msgid "Use System Terminal Font"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:40
+msgid "Use This IP Address:"
+msgstr "DCCaren IP helbidea:"
+
+#: ../data/preferences-dialog.glade.h:41
+msgid "Use this font:"
+msgstr "Erabiltzaile zerrenda"
+
+#: ../data/preferences-dialog.glade.h:42
+msgid "_Background color:"
+msgstr "Atzeko planoa:"
+
+#: ../data/preferences-dialog.glade.h:43
+msgid "_Check spelling"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:44 ../src/fe-gnome/main-window.c:98
+msgid "_Edit"
+msgstr "_Editatu"
+
+#: ../data/preferences-dialog.glade.h:45
+msgid "_Foreground color:"
+msgstr "Aurreko planoa:"
+
+#: ../data/preferences-dialog.glade.h:46
+msgid "_Nickname:"
+msgstr "_Ezizena:"
+
+#: ../data/preferences-dialog.glade.h:47
+msgid "_None (use solid color)"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:48
+msgid "_Part message:"
+msgstr "Mezu berria:"
+
+#: ../data/preferences-dialog.glade.h:49
+msgid "_Quit message:"
+msgstr "Eskuineko mezua"
+
+#: ../data/preferences-dialog.glade.h:50
+msgid "_Show colors"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:51
+msgid "_Transparent background"
+msgstr "Atzeko plano transparentea"
+
+#: ../data/preferences-dialog.glade.h:52
+msgid "spell checking"
+msgstr ""
+
+#: ../data/setup-dialog.glade.h:1
+msgid "Nick Name:"
+msgstr "Ezizenak:"
+
+#: ../data/setup-dialog.glade.h:2
+msgid "Real Name:"
+msgstr "Benetazko _izena:"
+
+#: ../data/setup-dialog.glade.h:3
+msgid ""
+"Welcome to xchat-gnome! Since this is your first time using this "
+"application, there are a couple things you'll need to configure before you "
+"can get started.\n"
+"\n"
+"These are the names by which you'll be recognized on IRC. Your nick name is "
+"the name by which you'll be known, whereas the real name is useful for "
+"things such as registering with services. You do not have to use your real "
+"name if you do not want to."
+msgstr ""
+
+#: ../data/setup-dialog.glade.h:6
+msgid "XChat-GNOME Setup"
+msgstr ""
+
+#: ../data/topic-change.glade.h:1
+msgid "Change"
+msgstr "Kanala"
+
+#: ../data/xchat-gnome.desktop.in.h:1
+msgid "Chat with people using IRC"
+msgstr ""
+
+#: ../data/xchat-gnome.desktop.in.h:2 ../src/fe-gnome/fe-gnome.c:93
+#: ../src/fe-gnome/fe-gnome.c:104
+msgid "IRC Chat"
+msgstr "Berriketa"
+
+#: ../data/xchat-gnome.desktop.in.h:3
+msgid "XChat-GNOME IRC Chat"
+msgstr ""
+
+#: ../data/xchat-gnome.glade.h:1
+msgid "Apply on a_ll servers"
+msgstr ""
+
+#: ../data/xchat-gnome.glade.h:2
+msgid "Change nickname to:"
+msgstr ""
+
+#: ../data/xchat-gnome.glade.h:3
+msgid "Close this discussion"
+msgstr "Fitxa/leiho hau itxitzen du"
+
+#: ../data/xchat-gnome.glade.h:4
+msgid "Mark as _away"
+msgstr ""
+
+#: ../data/xchat-gnome.glade.h:5 ../src/common/text.c:527
+#: ../src/common/text.c:533 ../src/common/text.c:540 ../src/common/text.c:607
+#: ../src/common/text.c:733 ../src/common/text.c:740 ../src/common/text.c:745
+#: ../src/common/text.c:750 ../src/common/text.c:755 ../src/common/text.c:761
+#: ../src/common/text.c:766 ../src/common/text.c:770 ../src/common/text.c:776
+#: ../src/common/text.c:782 ../src/common/text.c:828 ../src/common/text.c:838
+#: ../src/common/text.c:843 ../src/common/text.c:848 ../src/common/text.c:857
+#: ../src/common/text.c:868 ../src/common/text.c:875 ../src/common/text.c:881
+#: ../src/common/text.c:886 ../src/common/text.c:891 ../src/common/text.c:898
+#: ../src/common/text.c:904 ../src/common/text.c:910 ../src/common/text.c:915
+#: ../src/common/text.c:920 ../src/common/text.c:924 ../src/common/text.c:930
+#: ../src/common/text.c:938 ../src/common/text.c:972 ../src/common/text.c:977
+msgid "Nickname"
+msgstr "Ezizena"
+
+#: ../data/xchat-gnome.glade.h:6 ../src/common/text.c:805
+#: ../src/fe-gnome/channel-list.c:328 ../src/fe-gnome/userlist.c:325
+msgid "Users"
+msgstr "Erabiltzaileak"
+
+#: ../data/xchat-gnome.glade.h:7
+msgid "nickname"
+msgstr "Ezizena"
+
+#: ../plugins/autoaway/autoaway.c:164
+msgid "Screensaver activated, going away."
+msgstr ""
+
+#: ../plugins/autoaway/autoaway.c:172
+msgid "Screensaver is off, welcome back"
+msgstr ""
+
+#: ../plugins/autoaway/autoaway.c:212
+msgid "Auto Away"
+msgstr "Aldenduta"
+
+#: ../plugins/autoaway/autoaway.c:213
+msgid "Automatically go away / come back"
+msgstr "Automatikoki desmarkatu aldendu egoera"
+
+#: ../plugins/autoaway/autoaway.c:261
+msgid "Auto-away plugin unloaded\n"
+msgstr ""
+
+#: ../plugins/dbus/xchat_gnome_url_handler.schemas.in.h:1
+msgid "Run xchat-gnome in a terminal?"
+msgstr ""
+
+#: ../plugins/dbus/xchat_gnome_url_handler.schemas.in.h:2
+msgid "Set it at TRUE if you want it activated"
+msgstr ""
+
+#: ../plugins/dbus/xchat_gnome_url_handler.schemas.in.h:3
+msgid "The handler for \"irc://\" URLs"
+msgstr ""
+
+#: ../plugins/dbus/dbus-plugin.c:27
+msgid "XChat-GNOME remote access"
+msgstr ""
+
+#: ../plugins/dbus/dbus-plugin.c:28
+msgid "plugin for remote access using DBUS"
+msgstr ""
+
+#: ../plugins/dbus/dbus-plugin.c:333
+#, c-format
+msgid "Couldn't connect to session bus : %s\n"
+msgstr ""
+
+#: ../plugins/dbus/dbus-plugin.c:353
+#, c-format
+msgid "Failed to acquire %s: %s\n"
+msgstr ""
+
+#: ../plugins/dbus/dbus-plugin.c:401
+#, c-format
+msgid "%s loaded successfully!\n"
+msgstr ""
+
+#: ../plugins/dbus/xchat-gnome-remote.c:41 ../src/fe-gnome/fe-gnome.c:61
+msgid "Open an irc:// url"
+msgstr ""
+
+#: ../plugins/dbus/xchat-gnome-remote.c:41
+msgid "irc://server:port/channel"
+msgstr ""
+
+#: ../plugins/dbus/xchat-gnome-remote.c:42
+msgid "Execute a xchat command"
+msgstr "Exekutatu komandoa:"
+
+#: ../plugins/dbus/xchat-gnome-remote.c:42
+msgid "\"Command to execute\""
+msgstr ""
+
+#: ../plugins/dbus/xchat-gnome-remote.c:43
+msgid "Prints some text to the current tab/window"
+msgstr ""
+
+#: ../plugins/dbus/xchat-gnome-remote.c:43
+msgid "\"Text to print\""
+msgstr ""
+
+#: ../plugins/dbus/xchat-gnome-remote.c:44
+msgid "Change the context to the channel"
+msgstr ""
+
+#: ../plugins/dbus/xchat-gnome-remote.c:44
+msgid "channel"
+msgstr "Kanala"
+
+#: ../plugins/dbus/xchat-gnome-remote.c:45
+msgid "Change the context to the server"
+msgstr ""
+
+#: ../plugins/dbus/xchat-gnome-remote.c:45
+msgid "server"
+msgstr "Zerbitzaria"
+
+#: ../plugins/dbus/xchat-gnome-remote.c:46
+msgid "Get some informations from xchat"
+msgstr ""
+
+#: ../plugins/dbus/xchat-gnome-remote.c:46
+msgid "id"
+msgstr "Bilatu"
+
+#: ../plugins/dbus/xchat-gnome-remote.c:47
+msgid "Get settings from xchat"
+msgstr "Gorde ezarpenak irteterakoan"
+
+#: ../plugins/dbus/xchat-gnome-remote.c:47
+msgid "name"
+msgstr "Izena"
+
+#: ../plugins/dbus/xchat-gnome-remote.c:79
+#, c-format
+msgid ""
+"xchat-gnome-remote: %s\n"
+"Try `xchat-gnome-remote --help' for more information\n"
+msgstr ""
+
+#: ../plugins/dbus/xchat-gnome-remote.c:90
+msgid "Couldn't connect to session bus"
+msgstr ""
+
+#: ../plugins/dbus/xchat-gnome-remote.c:116
+#: ../plugins/dbus/xchat-gnome-remote.c:130
+msgid "Failed to complete command"
+msgstr ""
+"Huts egin da letra tipoa irekitzen:\n"
+"\n"
+"%s"
+
+#: ../plugins/dbus/xchat-gnome-remote.c:125
+msgid "Failed to complete SetContext"
+msgstr ""
+"Huts egin da letra tipoa irekitzen:\n"
+"\n"
+"%s"
+
+#: ../plugins/dbus/xchat-gnome-remote.c:135
+msgid "Failed to complete print"
+msgstr ""
+"Huts egin da letra tipoa irekitzen:\n"
+"\n"
+"%s"
+
+#: ../plugins/dbus/xchat-gnome-remote.c:142
+msgid "Failed to complete GetInfo"
+msgstr ""
+"Huts egin da letra tipoa irekitzen:\n"
+"\n"
+"%s"
+
+#: ../plugins/dbus/xchat-gnome-remote.c:155
+msgid "Failed to complete GetPrefs"
+msgstr ""
+"Huts egin da letra tipoa irekitzen:\n"
+"\n"
+"%s"
+
+#: ../plugins/dbus/xchat-gnome-remote.c:159
+#, c-format
+msgid "%s doesn't exist\n"
+msgstr ""
+
+#: ../plugins/net-monitor/net-monitor.c:36
+msgid "Network Monitor"
+msgstr "Sare konfigurazioa"
+
+#: ../plugins/net-monitor/net-monitor.c:37
+msgid "NetworkManager connection monitor"
+msgstr ""
+
+#: ../plugins/net-monitor/net-monitor.c:342
+#, c-format
+msgid "%s loaded successfully\n"
+msgstr ""
+
+#: ../plugins/notification/eggtrayicon.c:111
+msgid "Orientation"
+msgstr "Argentina"
+
+#: ../plugins/notification/eggtrayicon.c:111
+msgid "The orientation of the tray."
+msgstr "Pertsonaren ezizena"
+
+#: ../plugins/notification/notification.c:139
+msgid "Notification"
+msgstr "Posizioa"
+
+#: ../plugins/notification/notification.c:140
+msgid "A notification area plugin."
+msgstr ""
+
+#: ../plugins/notification/notification.c:219
+msgid "Notification plugin loaded.\n"
+msgstr "Ez da alako plugin-ik aurkitu.\n"
+
+#: ../plugins/notification/notification.c:269
+msgid "Notification plugin unloaded.\n"
+msgstr "Ez da alako plugin-ik aurkitu.\n"
+
+#: ../plugins/notification/notification.schemas.in.h:1
+msgid "Level of the messages that require a notification"
+msgstr ""
+
+#: ../plugins/notification/notification.schemas.in.h:2
+msgid ""
+"Messages are classified according to their importance. Select level of "
+"messages above which the notification icon will be displayed. Valid values "
+"are: \"0\" (always displayed), \"1\" (all messages including information), "
+"\"2\" (all channel messages), \"3\" (only private or highlighted messages)."
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:30
+msgid "On-screen display"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:32
+msgid ""
+"Pops up notification of important messages when XChat-GNOME doesn't have the "
+"focus"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:57
+#, c-format
+msgid "Error closing notification: %s\n"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:72
+#, c-format
+msgid "Failed to send notification: %s\n"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:113
+#: ../plugins/notify-osd/notify-osd.c:140
+#, c-format
+msgid "Message in %s"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:115
+#: ../plugins/notify-osd/notify-osd.c:142
+#, c-format
+msgid "Message from %s"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:161
+#, c-format
+msgid "Private Message from %s"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:209
+msgid "OSD loaded\n"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:213
+msgid "OSD initialization failed\n"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:45
+msgid "xchat URL scraper"
+msgstr "X-Chat: URL hartzailea"
+
+#: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:828
+msgid "Time"
+msgstr "Ordua"
+
+#: ../plugins/url_scraper/urlscraper.c:64 ../src/common/text.c:585
+msgid "Nick"
+msgstr "Ezizena"
+
+#: ../plugins/url_scraper/urlscraper.c:68 ../src/common/text.c:552
+#: ../src/common/text.c:556 ../src/common/text.c:992
+#: ../src/fe-gnome/irc-network-editor.c:273
+msgid "Channel"
+msgstr "Kanala"
+
+#: ../plugins/url_scraper/urlscraper.c:73
+msgid "URL"
+msgstr "URL"
+
+#: ../plugins/url_scraper/urlscraper.c:155
+msgid "URL Scraper"
+msgstr "URL hartzailea..."
+
+#: ../plugins/url_scraper/urlscraper.c:156
+msgid "Grabs URLs and puts them in a separate window for easy viewing."
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:196
+msgid "URL Scraper failed to load: couldn't compile URL regex.\n"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:202
+msgid "URL Scraper failed to load: couldn't compile e-mail regex.\n"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:217
+msgid "URL Scraper loaded.\n"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:229
+msgid "URL Scraper unloaded.\n"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.schemas.in.h:1
+msgid "URL Scraper history length"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.schemas.in.h:2
+msgid "URL Scraper show timestamps"
+msgstr "Ordu arrastoak gaitu"
+
+#: ../plugins/sound-notification/sound-notification.c:55
+msgid "Sound Notification"
+msgstr ""
+
+#: ../plugins/sound-notification/sound-notification.c:56
+msgid ""
+"Play a sound when you receive a private message or your nick is highlighted."
+msgstr ""
+
+#: ../plugins/sound-notification/sound-notification.c:87
+msgid "Sound-notification plugin loaded.\n"
+msgstr ""
+
+#: ../plugins/sound-notification/sound-notification.c:96
+msgid "Sound-notification plugin unloaded.\n"
+msgstr ""
+
+#: ../src/common/cfgfiles.c:350
+msgid "Cannot create ~/.xchat2"
+msgstr "Ezin da ~/.xchat2 sortu"
+
+#: ../src/common/cfgfiles.c:682
+msgid "I'm busy"
+msgstr "Lanpetuta nabil"
+
+#: ../src/common/cfgfiles.c:683
+msgid "Leaving"
+msgstr "Irteten"
+
+#: ../src/common/cfgfiles.c:729
+msgid ""
+"* Running IRC as root is stupid! You should\n"
+"  create a User Account and use that to login.\n"
+msgstr ""
+"* root bezala IRCa erabiltzia ez da ona! Erabiltzaile kontu\n"
+"  berri bat sortu beharko zenuke eta honekin sartu.\n"
+
+#: ../src/common/dcc.c:66
+msgid "Waiting"
+msgstr "Itxaroten"
+
+#: ../src/common/dcc.c:67
+msgid "Active"
+msgstr "Aktibo"
+
+#: ../src/common/dcc.c:68
+msgid "Failed"
+msgstr "Huts egin da"
+
+#: ../src/common/dcc.c:69
+msgid "Done"
+msgstr "Eginda"
+
+#: ../src/common/dcc.c:70 ../src/fe-gnome/connect-dialog.c:154
+msgid "Connect"
+msgstr "Konektatu"
+
+#: ../src/common/dcc.c:71
+msgid "Aborted"
+msgstr "Abortatua"
+
+#: ../src/common/dcc.c:1340
+#, c-format
+msgid "Cannot access %s\n"
+msgstr "Ezin da %s-ra sartu\n"
+
+#: ../src/common/dcc.c:2020
+msgid "No active DCCs\n"
+msgstr "Ez dago DCC aktiborik\n"
+
+#: ../src/common/ignore.c:120 ../src/common/ignore.c:124
+#: ../src/common/ignore.c:128 ../src/common/ignore.c:132
+#: ../src/common/ignore.c:136 ../src/common/ignore.c:140
+#: ../src/common/ignore.c:144
+msgid "YES  "
+msgstr "BAI  "
+
+#: ../src/common/ignore.c:122 ../src/common/ignore.c:126
+#: ../src/common/ignore.c:130 ../src/common/ignore.c:134
+#: ../src/common/ignore.c:138 ../src/common/ignore.c:142
+#: ../src/common/ignore.c:146
+msgid "NO   "
+msgstr "EZ   "
+
+#: ../src/common/ignore.c:370
+#, c-format
+msgid "You are being CTCP flooded from %s, ignoring %s\n"
+msgstr ""
+"CTCP ugariegi jasotzen hari zara %s(r)engandik, %s ignoratu egingo da.\n"
+
+#: ../src/common/ignore.c:395
+#, c-format
+msgid ""
+"You are being MSG flooded from %s, setting gui_auto_open_dialog OFF.\n"
+msgstr ""
+"MSG ugariegi jasotzen hari zara %s(r)engandik, auto-elkarrizeketa OFFen "
+"ezarri da.\n"
+
+#: ../src/common/notify.c:395
+#, c-format
+msgid "  %-20s online\n"
+msgstr "  %-20s online\n"
+
+#: ../src/common/notify.c:397
+#, c-format
+msgid "  %-20s offline\n"
+msgstr "  %-20s offline\n"
+
+#: ../src/common/outbound.c:72
+msgid "No channel joined. Try /join #<channel>\n"
+msgstr "Kanaletara sartu gabe. Saiatu /join #<kanala>-rekin\n"
+
+#: ../src/common/outbound.c:78
+msgid "Not connected. Try /server <host> [<port>]\n"
+msgstr "Konektatu gabe. Saiatu /server <ostalaria> [<ataka>]-rekin\n"
+
+#: ../src/common/outbound.c:1650
+msgid "I need /bin/sh to run!\n"
+msgstr "/bin/sh behar dut abiatzeko!\n"
+
+#: ../src/common/outbound.c:1983
+msgid "Commands Available:"
+msgstr "Erabilgarri dauden komandoak:"
+
+#: ../src/common/outbound.c:1997
+msgid "User defined commands:"
+msgstr "Erabiltzaileak definitutako komandoak:"
+
+#: ../src/common/outbound.c:2013
+msgid "Plugin defined commands:"
+msgstr "Erabiltzaileak definitutako komandoak:"
+
+#: ../src/common/outbound.c:2024
+msgid "Type /HELP <command> for more information, or /HELP -l"
+msgstr "Idatzi /HELP <komandoa> informazio gehiagorako, edo /HELP -l"
+
+#: ../src/common/outbound.c:2099
+#, c-format
+msgid "Unknown arg '%s' ignored."
+msgstr "Argumentu ezezaguna '%s', ezikusia."
+
+#: ../src/common/outbound.c:2948
+msgid "No such plugin found.\n"
+msgstr "Ez da alako plugin-ik aurkitu.\n"
+
+#: ../src/common/outbound.c:2953
+msgid "That plugin is refusing to unload.\n"
+msgstr "Plugin hori kargatzeari uko egiten ari da.\n"
+
+#: ../src/common/outbound.c:3188
+msgid "ADDBUTTON <name> <action>, adds a button under the user-list"
+msgstr ""
+"ADDBUTTON <izena> <ekintza>, botoi bat gehitzen du erabiltzaile zerrendaren "
+"azpian"
+
+#: ../src/common/outbound.c:3190
+msgid "ALLCHAN <cmd>, sends a command to all channels you're in"
+msgstr "ALLCHAN <komandoa>, zauden kanal guztietara komando bat bidaltzen du"
+
+#: ../src/common/outbound.c:3192
+msgid "ALLCHANL <cmd>, sends a command to all channels you're in"
+msgstr "ALLCHAN <komandoa>, zauden kanal guztietara komando bat bidaltzen du"
+
+#: ../src/common/outbound.c:3194
+msgid "ALLSERV <cmd>, sends a command to all servers you're in"
+msgstr "ALLSERV <cmd>, zauden zerbitzari guztietara komando bat bidaltzen du"
+
+#: ../src/common/outbound.c:3195
+msgid "AWAY [<reason>], sets you away"
+msgstr "AWAY [<arrazoia>], aldendua jartzen zaitu"
+
+#: ../src/common/outbound.c:3197
+msgid ""
+"BAN <mask> [<bantype>], bans everyone matching the mask from the current "
+"channel. If they are already on the channel this doesn't kick them (needs "
+"chanop)"
+msgstr ""
+
+#: ../src/common/outbound.c:3199
+msgid "CLEAR, Clears the current text window"
+msgstr "CLEAR, uneko testu leihoa garbitzen du"
+
+#: ../src/common/outbound.c:3200
+msgid "CLOSE, Closes the current window/tab"
+msgstr "CLOSE, uneko leiho/fitxa itxitzen du"
+
+#: ../src/common/outbound.c:3203
+msgid ""
+"COUNTRY [-s] <code|wildcard>, finds a country code, eg: au = australia"
+msgstr ""
+"COUNTRY <kodea>, herrialde kode bat aurkitzen du, adib.: au = australia"
+
+#: ../src/common/outbound.c:3205
+msgid ""
+"CTCP <nick> <message>, send the CTCP message to nick, common messages are "
+"VERSION and USERINFO"
+msgstr ""
+
+#: ../src/common/outbound.c:3207
+msgid "CYCLE, parts current channel and immediately rejoins"
+msgstr ""
+
+#: ../src/common/outbound.c:3209
+msgid ""
+"\n"
+"DCC GET <nick>                      - accept an offered file\n"
+"DCC SEND [-maxcps=#] <nick> [file]  - send a file to someone\n"
+"DCC PSEND [-maxcps=#] <nick> [file] - send a file using passive mode\n"
+"DCC LIST                            - show DCC list\n"
+"DCC CHAT <nick>                     - offer DCC CHAT to someone\n"
+"DCC PCHAT <nick>                    - offer DCC CHAT using passive mode\n"
+"DCC CLOSE <type> <nick> <file>         example:\n"
+"         /dcc close send johnsmith file.tar.gz"
+msgstr ""
+
+#: ../src/common/outbound.c:3221
+msgid ""
+"DEHOP <nick>, removes chanhalf-op status from the nick on the current "
+"channel (needs chanop)"
+msgstr ""
+
+#: ../src/common/outbound.c:3223
+msgid "DELBUTTON <name>, deletes a button from under the user-list"
+msgstr ""
+"DELBUTTON <izena>, erabiltzaile zerrendaren azpitik botoi bat ezabatzen du"
+
+#: ../src/common/outbound.c:3225
+msgid ""
+"DEOP <nick>, removes chanop status from the nick on the current channel "
+"(needs chanop)"
+msgstr ""
+"DEOP <ezizena>, uneko kanalean chanop egoera kentzen dio aukeratutako "
+"ezizenari (chanop egoera behar da)"
+
+#: ../src/common/outbound.c:3227
+msgid ""
+"DEVOICE <nick>, removes voice status from the nick on the current channel "
+"(needs chanop)"
+msgstr ""
+"DEVOICE <ezizena>, uneko kanalean voice egoera kentzen dio aukeratutako "
+"ezizenari <chanop egoera behar da>"
+
+#: ../src/common/outbound.c:3228
+msgid "DISCON, Disconnects from server"
+msgstr "DISCON, zerbitzaritik deskonektatzen da"
+
+#: ../src/common/outbound.c:3229
+msgid "DNS <nick|host|ip>, Finds a users IP number"
+msgstr "DNS <ezizena|ostalaria|ip-a>, erabiltzaile baten IPa aurkitzen du"
+
+#: ../src/common/outbound.c:3230
+msgid "ECHO <text>, Prints text locally"
+msgstr ""
+
+#: ../src/common/outbound.c:3233
+msgid ""
+"EXEC [-o] <command>, runs the command. If -o flag is used then output is "
+"sent to current channel, else is printed to current text box"
+msgstr ""
+
+#: ../src/common/outbound.c:3235
+msgid "EXECCONT, sends the process SIGCONT"
+msgstr ""
+
+#: ../src/common/outbound.c:3238
+msgid ""
+"EXECKILL [-9], kills a running exec in the current session. If -9 is given "
+"the process is SIGKILL'ed"
+msgstr ""
+
+#: ../src/common/outbound.c:3240
+msgid "EXECSTOP, sends the process SIGSTOP"
+msgstr ""
+
+#: ../src/common/outbound.c:3241
+msgid "EXECWRITE, sends data to the processes stdin"
+msgstr ""
+
+#: ../src/common/outbound.c:3245
+msgid "FLUSHQ, flushes the current server's send queue"
+msgstr ""
+
+#: ../src/common/outbound.c:3247
+msgid "GATE <host> [<port>], proxies through a host, port defaults to 23"
+msgstr ""
+
+#: ../src/common/outbound.c:3250
+msgid "GHOST <nick> <password>, Kills a ghosted nickname"
+msgstr ""
+
+#: ../src/common/outbound.c:3255
+msgid "HOP <nick>, gives chanhalf-op status to the nick (needs chanop)"
+msgstr ""
+
+#: ../src/common/outbound.c:3256
+msgid "ID <password>, identifies yourself to nickserv"
+msgstr ""
+
+#: ../src/common/outbound.c:3258
+msgid ""
+"IGNORE <mask> <types..> <options..>\n"
+"    mask - host mask to ignore, eg: *!*@*.aol.com\n"
+"    types - types of data to ignore, one or all of:\n"
+"            PRIV, CHAN, NOTI, CTCP, DCC, INVI, ALL\n"
+"    options - NOSAVE, QUIET"
+msgstr ""
+
+#: ../src/common/outbound.c:3265
+msgid ""
+"INVITE <nick> [<channel>], invites someone to a channel, by default the "
+"current channel (needs chanop)"
+msgstr ""
+
+#: ../src/common/outbound.c:3266
+msgid "JOIN <channel>, joins the channel"
+msgstr "JOIN <kanala>, kanalera sartzen da"
+
+#: ../src/common/outbound.c:3268
+msgid "KICK <nick>, kicks the nick from the current channel (needs chanop)"
+msgstr ""
+"KICK <ezizena>, uneko kanaletik aukeratutako ezizena kanporatzen du (kanalop-"
+"a behar da)"
+
+#: ../src/common/outbound.c:3270
+msgid ""
+"KICKBAN <nick>, bans then kicks the nick from the current channel (needs "
+"chanop)"
+msgstr ""
+
+#: ../src/common/outbound.c:3273
+msgid "LAGCHECK, forces a new lag check"
+msgstr ""
+
+#: ../src/common/outbound.c:3275
+msgid "LASTLOG <string>, searches for a string in the buffer"
+msgstr ""
+
+#: ../src/common/outbound.c:3277
+msgid "LOAD [-e] <file>, loads a plugin or script"
+msgstr "LOAD <fitxategia>, plugin edo skript bat kargatzen du"
+
+#: ../src/common/outbound.c:3280
+msgid ""
+"MDEHOP, Mass deop's all chanhalf-ops in the current channel (needs chanop)"
+msgstr ""
+
+#: ../src/common/outbound.c:3282
+msgid "MDEOP, Mass deop's all chanops in the current channel (needs chanop)"
+msgstr ""
+
+#: ../src/common/outbound.c:3284
+msgid ""
+"ME <action>, sends the action to the current channel (actions are written in "
+"the 3rd person, like /me jumps)"
+msgstr ""
+
+#: ../src/common/outbound.c:3287
+msgid ""
+"MKICK, Mass kicks everyone except you in the current channel (needs chanop)"
+msgstr ""
+
+#: ../src/common/outbound.c:3290
+msgid "MOP, Mass op's all users in the current channel (needs chanop)"
+msgstr ""
+
+#: ../src/common/outbound.c:3291
+msgid "MSG <nick> <message>, sends a private message"
+msgstr "MSG <nick> <mezua>, mezu pribatu bat bidaltzen du"
+
+#: ../src/common/outbound.c:3294
+msgid "NAMES, Lists the nicks on the current channel"
+msgstr ""
+
+#: ../src/common/outbound.c:3296
+msgid "NCTCP <nick> <message>, Sends a CTCP notice"
+msgstr "NCTCP <ezizena> <mezua>, CTCP mezua bidaltzen dio ezizenari"
+
+#: ../src/common/outbound.c:3297
+msgid "NEWSERVER [-noconnect] <hostname> [<port>]"
+msgstr "NEWSERVER <ostalaria> [<ataka>]"
+
+#: ../src/common/outbound.c:3298
+msgid "NICK <nickname>, sets your nick"
+msgstr "NICK <ezizena>, zure ezizena ezartzen du"
+
+#: ../src/common/outbound.c:3301
+msgid ""
+"NOTICE <nick/channel> <message>, sends a notice. Notices are a type of "
+"message that should be auto reacted to"
+msgstr ""
+
+#: ../src/common/outbound.c:3303
+msgid "NOTIFY [<nick>], lists your notify list or adds someone to it"
+msgstr ""
+
+#: ../src/common/outbound.c:3305
+msgid "OP <nick>, gives chanop status to the nick (needs chanop)"
+msgstr ""
+"OP <ezizena>, chanop egoera ematen dio erabiltzaileari (chanop behar da)"
+
+#: ../src/common/outbound.c:3307
+msgid ""
+"PART [<channel>] [<reason>], leaves the channel, by default the current one"
+msgstr ""
+"PART [<kanala>] [<arrazoia>], kanaletik irteten da, unekotik lehenetsita"
+
+#: ../src/common/outbound.c:3309
+msgid "PING <nick | channel>, CTCP pings nick or channel"
+msgstr "PING <ezizena | kanala>, CTCP ping egin ezizen edo kanalari"
+
+#: ../src/common/outbound.c:3311
+msgid "QUERY <nick>, opens up a new privmsg window to someone"
+msgstr ""
+
+#: ../src/common/outbound.c:3313
+msgid "QUIT [<reason>], disconnects from the current server"
+msgstr "QUIT [<arrazoia>], deskonektatu egiten da uneko zerbitzaritik"
+
+#: ../src/common/outbound.c:3315
+msgid "QUOTE <text>, sends the text in raw form to the server"
+msgstr "QUOTE <mezua>, mezua era lauean bidaltzen dio zerbitzariari"
+
+#: ../src/common/outbound.c:3318
+msgid ""
+"RECONNECT [-ssl] [<host>] [<port>] [<password>], Can be called just as "
+"/RECONNECT to reconnect to the current server or with /RECONNECT ALL to "
+"reconnect to all the open servers"
+msgstr ""
+
+#: ../src/common/outbound.c:3321
+msgid ""
+"RECONNECT [<host>] [<port>] [<password>], Can be called just as /RECONNECT "
+"to reconnect to the current server or with /RECONNECT ALL to reconnect to "
+"all the open servers"
+msgstr ""
+
+#: ../src/common/outbound.c:3323
+msgid ""
+"RECV <text>, send raw data to xchat, as if it was received from the irc "
+"server"
+msgstr ""
+
+#: ../src/common/outbound.c:3326
+msgid "SAY <text>, sends the text to the object in the current window"
+msgstr "SAY <testua>, uneko leihoko objektuari testua bidaltzen dio"
+
+#: ../src/common/outbound.c:3327
+msgid "SEND <nick> [<file>]"
+msgstr ""
+
+#: ../src/common/outbound.c:3330
+msgid "SERVCHAN [-ssl] <host> <port> <channel>, connects and joins a channel"
+msgstr ""
+
+#: ../src/common/outbound.c:3333
+msgid "SERVCHAN <host> <port> <channel>, connects and joins a channel"
+msgstr ""
+
+#: ../src/common/outbound.c:3337
+msgid ""
+"SERVER [-ssl] <host> [<port>] [<password>], connects to a server, the "
+"default port is 6667 for normal connections, and 9999 for ssl connections"
+msgstr ""
+
+#: ../src/common/outbound.c:3340
+msgid ""
+"SERVER <host> [<port>] [<password>], connects to a server, the default port "
+"is 6667"
+msgstr ""
+"SERVER <ostalaria> [<ataka>] [<pasahitza>], zerbitzari batera konektatzen "
+"da, lehenetsitako ataka 6667 da"
+
+#: ../src/common/outbound.c:3342
+msgid "SET [-quiet] <variable> [<value>]"
+msgstr "SET [-quiet] <bariablea> [<balorea>]"
+
+#: ../src/common/outbound.c:3343
+msgid "SETCURSOR [-|+]<position>"
+msgstr ""
+
+#: ../src/common/outbound.c:3347
+msgid ""
+"TOPIC [<topic>], sets the topic if one is given, else shows the current topic"
+msgstr ""
+"TOPIC [<gaia>], zerbait ematen bada gaia hori ezartzen du, bestela uneko "
+"gaia erakusten du"
+
+#: ../src/common/outbound.c:3349
+msgid "UNBAN <mask> [<mask>...], unbans the specified masks."
+msgstr ""
+"UNBAN <maskara> [<maskara>...], espezifikatutako maskarei debekua kentzen die"
+
+#: ../src/common/outbound.c:3350
+msgid "UNIGNORE <mask> [QUIET]"
+msgstr "UNIGNORE <maskara> [IXILIK]"
+
+#: ../src/common/outbound.c:3351
+msgid "UNLOAD <name>, unloads a plugin or script"
+msgstr "UNLOAD <izena>, plugin edo skript-a deskargatzen du"
+
+#: ../src/common/outbound.c:3352
+msgid "URL <url>, opens a URL in your browser"
+msgstr ""
+
+#: ../src/common/outbound.c:3354
+msgid ""
+"USELECT [-a] [-s] <nick1> <nick2> etc, highlights nick(s) in channel userlist"
+msgstr ""
+
+#: ../src/common/outbound.c:3357
+msgid "VOICE <nick>, gives voice status to someone (needs chanop)"
+msgstr ""
+"VOICE <ezizena>, ahots egoera ematen dio norbaiti (chanop-a behar da)"
+
+#: ../src/common/outbound.c:3359
+msgid "WALLCHAN <message>, writes the message to all channels"
+msgstr "WALLCHAN <mezua>, mezua kanal guztietan idazten du"
+
+#: ../src/common/outbound.c:3361
+msgid ""
+"WALLCHOP <message>, sends the message to all chanops on the current channel"
+msgstr "WALLCHOP <mezua>, uneko kanaleko chanop guztiei mezua bidaltzen die"
+
+#: ../src/common/outbound.c:3394
+#, c-format
+msgid "Usage: %s\n"
+msgstr "Erabilera: %s\n"
+
+#: ../src/common/outbound.c:3399
+msgid ""
+"\n"
+"No help available on that command.\n"
+msgstr ""
+"\n"
+"Ez dago laguntzarik eskuragarri komando horrentzat.\n"
+
+#: ../src/common/outbound.c:3405
+msgid "No such command.\n"
+msgstr "Ez dago honelako komandorik.\n"
+
+#: ../src/common/outbound.c:3732
+msgid "Bad arguments for user command.\n"
+msgstr "Argumentu akastunak erabiltzaile komandoentzat.\n"
+
+#: ../src/common/outbound.c:3888
+msgid "Too many recursive usercommands, aborting."
+msgstr ""
+
+#: ../src/common/outbound.c:3965
+msgid "Unknown Command. Try /help\n"
+msgstr "Komando ezezaguna. Saiatu /help ekin\n"
+
+#: ../src/common/plugin.c:372 ../src/common/plugin.c:413
+msgid "No xchat_plugin_init symbol; is this really an xchat plugin?"
+msgstr ""
+
+#: ../src/common/server.c:610
+msgid "Are you sure this is a SSL capable server and port?\n"
+msgstr "Ziur zaude SSL erabiltzeko gai den zerbitzari eta ataka dela?\n"
+
+#: ../src/common/server.c:962
+#, c-format
+msgid ""
+"Cannot resolve hostname %s\n"
+"Check your IP Settings!\n"
+msgstr ""
+"Ezin da ebatzi %s ostalari-izena\n"
+"Egiaztatu zure IP ezarpenak!\n"
+
+#: ../src/common/server.c:967
+msgid "Proxy traversal failed.\n"
+msgstr "Proxy trasbersalak huts egin du.\n"
+
+#: ../src/common/servlist.c:636
+#, c-format
+msgid "Cycling to next server in %s...\n"
+msgstr "Hurrengo zerbitzarira %s-n ziklatzen...\n"
+
+#: ../src/common/servlist.c:1059
+#, c-format
+msgid ""
+"Warning: \"%s\" character set is unknown. No conversion will be applied for "
+"network %s."
+msgstr ""
+"Oharra: \"%s\" karaktere-jokoa ezezaguna da. Ez da konbertsiorik aplikatu %s "
+"sarearentzat."
+
+#: ../src/common/text.c:61
+#, c-format
+msgid "**** ENDING LOGGING AT %s\n"
+msgstr ""
+
+#: ../src/common/text.c:263
+#, c-format
+msgid "**** BEGIN LOGGING AT %s\n"
+msgstr "**** %s-n SAIOA HASTEN\n"
+
+#: ../src/common/text.c:282
+#, c-format
+msgid ""
+"* Can't open log file(s) for writing. Check the\n"
+"  permissions on %s/xchatlogs"
+msgstr ""
+"* Ezin ireki log fitxategia(k) idazteko. Egiaztatu\n"
+"  baimenak %s/xchatlogs-en"
+
+#: ../src/common/text.c:516
+msgid "Left message"
+msgstr "Ezkerreko mezua"
+
+#: ../src/common/text.c:517
+msgid "Right message"
+msgstr "Eskuineko mezua"
+
+#: ../src/common/text.c:521
+msgid "The nick of the joining person"
+msgstr "Sartu den pertsonaren ezizena"
+
+#: ../src/common/text.c:522
+msgid "The channel being joined"
+msgstr "Sartzen hari den kanala"
+
+#: ../src/common/text.c:523 ../src/common/text.c:569 ../src/common/text.c:626
+msgid "The host of the person"
+msgstr "Pertsonaren ostalaria"
+
+#: ../src/common/text.c:528
+msgid "The action"
+msgstr "akzioa"
+
+#: ../src/common/text.c:529 ../src/common/text.c:535
+msgid "Mode char"
+msgstr ""
+
+#: ../src/common/text.c:534
+msgid "The text"
+msgstr "Testua"
+
+#: ../src/common/text.c:536 ../src/common/text.c:609
+msgid "Identified text"
+msgstr "Identifikatutako testua"
+
+#: ../src/common/text.c:541 ../src/common/text.c:597 ../src/common/text.c:603
+#: ../src/common/text.c:608
+msgid "The message"
+msgstr "Mezua"
+
+#: ../src/common/text.c:545 ../src/common/text.c:613
+msgid "Old nickname"
+msgstr "Ezizen zaharra"
+
+#: ../src/common/text.c:546 ../src/common/text.c:614
+msgid "New nickname"
+msgstr "Ezizen berria"
+
+#: ../src/common/text.c:550
+msgid "Nick of person who changed the topic"
+msgstr "Gaia aldatu duenaren ezizena"
+
+#: ../src/common/text.c:551 ../src/common/text.c:557
+#: ../src/fe-gnome/channel-list.c:333
+msgid "Topic"
+msgstr "Gaia"
+
+#: ../src/common/text.c:561 ../src/common/text.c:620
+msgid "The nickname of the kicker"
+msgstr "Bidaltzailearen ezizena"
+
+#: ../src/common/text.c:562 ../src/common/text.c:618
+msgid "The person being kicked"
+msgstr "Kaleratuko den pertsona"
+
+#: ../src/common/text.c:563 ../src/common/text.c:570 ../src/common/text.c:574
+#: ../src/common/text.c:579 ../src/common/text.c:619 ../src/common/text.c:627
+#: ../src/common/text.c:634
+msgid "The channel"
+msgstr "Kanala"
+
+#: ../src/common/text.c:564 ../src/common/text.c:621 ../src/common/text.c:628
+msgid "The reason"
+msgstr "Arrazoia"
+
+#: ../src/common/text.c:568 ../src/common/text.c:625
+msgid "The nick of the person leaving"
+msgstr "Irten den pertsonaren ezizena"
+
+#: ../src/common/text.c:575 ../src/common/text.c:581
+msgid "The time"
+msgstr "Ordua"
+
+#: ../src/common/text.c:580
+msgid "The creator"
+msgstr "Sortzailea"
+
+#: ../src/common/text.c:586 ../src/common/text.c:844
+msgid "Reason"
+msgstr "Arrazoia"
+
+#: ../src/common/text.c:587 ../src/common/text.c:735 ../src/common/text.c:818
+msgid "Host"
+msgstr "Ostalaria"
+
+#: ../src/common/text.c:591 ../src/common/text.c:596 ../src/common/text.c:601
+msgid "Who it's from"
+msgstr "Norengandik den"
+
+#: ../src/common/text.c:592
+msgid "The time in x.x format (see below)"
+msgstr "Ordua x.x formatuan (ikusi azpian)"
+
+#: ../src/common/text.c:602 ../src/common/text.c:645
+msgid "The Channel it's going to"
+msgstr "Kanalean hau gertatuko da"
+
+#: ../src/common/text.c:632
+msgid "The sound"
+msgstr "Soinua"
+
+#: ../src/common/text.c:633 ../src/common/text.c:639 ../src/common/text.c:644
+msgid "The nick of the person"
+msgstr "Pertsonaren ezizena"
+
+#: ../src/common/text.c:638 ../src/common/text.c:643
+msgid "The CTCP event"
+msgstr "CTCP gertaera"
+
+#: ../src/common/text.c:649
+msgid "The nick of the person who set the key"
+msgstr "Pasahitza jarri duenaren ezizena"
+
+#: ../src/common/text.c:650
+msgid "The key"
+msgstr "Giltza"
+
+#: ../src/common/text.c:654
+msgid "The nick of the person who set the limit"
+msgstr "Muga jarri duenaren ezizena"
+
+#: ../src/common/text.c:655
+msgid "The limit"
+msgstr "Muga"
+
+#: ../src/common/text.c:659
+msgid "The nick of the person who did the op'ing"
+msgstr "Op egoera eman duen pertsonaren ezizena"
+
+#: ../src/common/text.c:660
+msgid "The nick of the person who has been op'ed"
+msgstr "Op egoera eman zaion pertsonaren ezizena"
+
+#: ../src/common/text.c:664
+msgid "The nick of the person who has been halfop'ed"
+msgstr "Erdi-Op egoera eman zaion pertsonaren ezizena"
+
+#: ../src/common/text.c:665
+msgid "The nick of the person who did the halfop'ing"
+msgstr "Erdi-Op egoera eman duen pertsonaren ezizena"
+
+#: ../src/common/text.c:669
+msgid "The nick of the person who did the voice'ing"
+msgstr "Ahotsa eman duen pertsonaren ezizena"
+
+#: ../src/common/text.c:670
+msgid "The nick of the person who has been voice'ed"
+msgstr "Ahotsa eman zaion pertsonaren ezizena"
+
+#: ../src/common/text.c:674
+msgid "The nick of the person who did the banning"
+msgstr ""
+
+#: ../src/common/text.c:675 ../src/common/text.c:702
+msgid "The ban mask"
+msgstr "Debekuaren maskara"
+
+#: ../src/common/text.c:679
+msgid "The nick who removed the key"
+msgstr "Pasahitza kendu duenaren ezizena"
+
+#: ../src/common/text.c:683
+msgid "The nick who removed the limit"
+msgstr "Muga ezabatu duenaren ezizena"
+
+#: ../src/common/text.c:687
+msgid "The nick of the person of did the deop'ing"
+msgstr ""
+
+#: ../src/common/text.c:688
+msgid "The nick of the person who has been deop'ed"
+msgstr "Op egoera kendu zaion pertsonaren ezizena"
+
+#: ../src/common/text.c:691
+msgid "The nick of the person of did the dehalfop'ing"
+msgstr ""
+
+#: ../src/common/text.c:692
+msgid "The nick of the person who has been dehalfop'ed"
+msgstr "Erdi-Op egoera kendu zaion pertsonaren ezizena"
+
+#: ../src/common/text.c:696
+msgid "The nick of the person of did the devoice'ing"
+msgstr ""
+
+#: ../src/common/text.c:697
+msgid "The nick of the person who has been devoice'ed"
+msgstr "Ahotsa kendu zaion pertsonaren ezizena"
+
+#: ../src/common/text.c:701
+msgid "The nick of the person of did the unban'ing"
+msgstr ""
+
+#: ../src/common/text.c:706
+msgid "The nick of the person who did the exempt"
+msgstr ""
+
+#: ../src/common/text.c:707 ../src/common/text.c:712
+msgid "The exempt mask"
+msgstr ""
+
+#: ../src/common/text.c:711
+msgid "The nick of the person removed the exempt"
+msgstr ""
+
+#: ../src/common/text.c:716
+msgid "The nick of the person who did the invite"
+msgstr "Gonbidapena luzatu duen pertsonaren ezizena"
+
+#: ../src/common/text.c:717 ../src/common/text.c:722
+msgid "The invite mask"
+msgstr "Gonbidapenaren maskara"
+
+#: ../src/common/text.c:721
+msgid "The nick of the person removed the invite"
+msgstr ""
+
+#: ../src/common/text.c:726
+msgid "The nick of the person setting the mode"
+msgstr ""
+
+#: ../src/common/text.c:727
+msgid "The mode's sign (+/-)"
+msgstr "Egoeraren seinua (+/-)"
+
+#: ../src/common/text.c:728
+msgid "The mode letter"
+msgstr "Egoeraren letra"
+
+#: ../src/common/text.c:729
+msgid "The channel it's being set on"
+msgstr "Kanala honela ezarriko da"
+
+#: ../src/common/text.c:734
+msgid "Username"
+msgstr "Erabiltzaile izena"
+
+#: ../src/common/text.c:736
+msgid "Full name"
+msgstr "Izen osoa"
+
+#: ../src/common/text.c:741
+msgid "Channel Membership/\"is an IRC operator\""
+msgstr "Kanaleko kidea /\"IRC operatzaile bat da\""
+
+#: ../src/common/text.c:746
+msgid "Server Information"
+msgstr "Zerbitzariaren informazioa"
+
+#: ../src/common/text.c:751 ../src/common/text.c:756
+msgid "Idle time"
+msgstr "Inaktibitate denbora"
+
+#: ../src/common/text.c:757
+msgid "Signon time"
+msgstr "Konektatutako ordua"
+
+#: ../src/common/text.c:762
+msgid "Away reason"
+msgstr "Aldentzearen arrazoia"
+
+#: ../src/common/text.c:771 ../src/common/text.c:777 ../src/common/text.c:785
+#: ../src/common/text.c:964
+msgid "Message"
+msgstr "Mezua"
+
+#: ../src/common/text.c:778
+msgid "Account"
+msgstr "Kontua"
+
+#: ../src/common/text.c:783
+msgid "Real user@host"
+msgstr "Benetazko erabiltzaile@ostalaria"
+
+#: ../src/common/text.c:784
+msgid "Real IP"
+msgstr "Benetazko IPa"
+
+#: ../src/common/text.c:789 ../src/common/text.c:798 ../src/common/text.c:804
+#: ../src/common/text.c:833 ../src/common/text.c:987
+#: ../src/fe-gnome/channel-list.c:323
+msgid "Channel Name"
+msgstr "Kanalaren izena"
+
+#: ../src/common/text.c:793 ../src/common/text.c:950
+msgid "Text"
+msgstr "Testua"
+
+#: ../src/common/text.c:794 ../src/common/text.c:800 ../src/common/text.c:829
+#: ../src/common/text.c:946 ../src/common/text.c:988
+msgid "Server Name"
+msgstr "Zerbitzariaren izena"
+
+#: ../src/common/text.c:799
+msgid "Nick of person who invited you"
+msgstr "Gonbidatu zaituenaren ezizena"
+
+#: ../src/common/text.c:809
+msgid "Nickname in use"
+msgstr "Ezizena erabilita"
+
+#: ../src/common/text.c:810
+msgid "Nick being tried"
+msgstr "Saiatzen hari den ezizena"
+
+#. ! if (osvi.dwMajorVersion >= 5)
+#: ../src/common/text.c:814 ../src/common/text.c:851 ../src/common/text.c:862
+#: ../src/common/text.c:869 ../src/common/text.c:882 ../src/common/text.c:899
+#: ../src/common/text.c:999 ../src/common/util.c:352
+msgid "Error"
+msgstr "Errorea"
+
+#: ../src/common/text.c:819 ../src/common/text.c:954
+msgid "IP"
+msgstr "IP"
+
+#: ../src/common/text.c:820 ../src/common/text.c:850
+msgid "Port"
+msgstr "Ataka"
+
+#: ../src/common/text.c:824
+msgid "PID"
+msgstr "PID"
+
+#: ../src/common/text.c:834 ../src/common/text.c:839
+msgid "Modes string"
+msgstr ""
+
+#: ../src/common/text.c:849 ../src/common/text.c:887 ../src/common/text.c:892
+#: ../src/common/text.c:933
+msgid "IP address"
+msgstr "IP helbidea"
+
+#: ../src/common/text.c:855 ../src/common/text.c:880
+msgid "DCC Type"
+msgstr "DCC mota"
+
+#: ../src/common/text.c:856 ../src/common/text.c:861 ../src/common/text.c:866
+#: ../src/common/text.c:873 ../src/common/text.c:893 ../src/common/text.c:897
+#: ../src/common/text.c:903 ../src/common/text.c:909 ../src/common/text.c:916
+#: ../src/common/text.c:925 ../src/common/text.c:931
+msgid "Filename"
+msgstr "Fitxategi-izena"
+
+#: ../src/common/text.c:867 ../src/common/text.c:874
+msgid "Destination filename"
+msgstr "Helmuga fitxategia"
+
+#: ../src/common/text.c:876 ../src/common/text.c:905
+msgid "CPS"
+msgstr "CPS"
+
+#: ../src/common/text.c:911
+msgid "Pathname"
+msgstr "Bide-izena"
+
+#: ../src/common/text.c:926
+msgid "Position"
+msgstr "Posizioa"
+
+#: ../src/common/text.c:932
+msgid "Size"
+msgstr "Tamainua"
+
+#: ../src/common/text.c:937
+msgid "DCC String"
+msgstr "DCC katea"
+
+#: ../src/common/text.c:942
+msgid "Number of notify items"
+msgstr "Notifikazio kopurua"
+
+#: ../src/common/text.c:958
+msgid "Old Filename"
+msgstr "Fitxategi zaharra"
+
+#: ../src/common/text.c:959
+msgid "New Filename"
+msgstr "Fitxategi berria"
+
+#: ../src/common/text.c:963
+msgid "Receiver"
+msgstr "Jasotzailea"
+
+#: ../src/common/text.c:968
+msgid "Hostmask"
+msgstr "Ostalariaren maskara"
+
+#: ../src/common/text.c:973
+msgid "Hostname"
+msgstr "Ostalariaren izena"
+
+#: ../src/common/text.c:978
+msgid "The Packet"
+msgstr "Paketea"
+
+#: ../src/common/text.c:982
+msgid "Seconds"
+msgstr "Segunduak"
+
+#: ../src/common/text.c:986
+msgid "Nick of person who have been invited"
+msgstr "Gonbidatua izan denaren ezizena"
+
+#: ../src/common/text.c:993
+msgid "Banmask"
+msgstr "Debeku maskara"
+
+#: ../src/common/text.c:994
+msgid "Who set the ban"
+msgstr "Nork ezarri duen debekua"
+
+#: ../src/common/text.c:995
+msgid "Ban time"
+msgstr "Debekuaren denbora"
+
+#: ../src/common/text.c:1035
+#, c-format
+msgid ""
+"Error parsing event %s.\n"
+"Loading default."
+msgstr ""
+
+#: ../src/common/text.c:1712
+#, c-format
+msgid ""
+"Cannot read sound file:\n"
+"%s"
+msgstr ""
+"Ezin da soinu fitxategia irakurri:\n"
+"%s"
+
+#: ../src/common/textevents.h:6
+msgid "-%C10-%C11-%O$t$1 added to notify list."
+msgstr "%O%C11$1%O notifikazio zerrendara gehitua."
+
+#: ../src/common/textevents.h:9
+msgid "-%C10-%C11-%O$t$1 Banlist: %C3$4 %C4$2 %C5$3%O"
+msgstr "%C22*%O$t$1 Debekatu zerrenda:%C19 $4%C20 $2%C21 $3"
+
+#: ../src/common/textevents.h:12
+msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(You are banned)."
+msgstr ""
+
+#: ../src/common/textevents.h:18
+msgid "-%C10-%C11-%O$t$1 is now known as $2"
+msgstr "%C22*%O$t$1 orain $2 bezala ezaguna"
+
+#: ../src/common/textevents.h:21
+msgid "%C13*%O$t$1 $2%O"
+msgstr "%C16*%O$t$1%O"
+
+#: ../src/common/textevents.h:24
+msgid "%C13*%O$t%C8%B$1%B%O $2%O"
+msgstr "%C21*%O$t%C21%B$1%O%C21 $2"
+
+#: ../src/common/textevents.h:27
+msgid "-%C10-%C11-%O$t$1 sets ban on $2"
+msgstr "%C22*%O$t$1-k debekua kentzen dio honi $2"
+
+#: ../src/common/textevents.h:30
+msgid "-%C10-%C11-%O$tChannel $1 created on $2"
+msgstr ""
+
+#: ../src/common/textevents.h:33
+msgid "-%C10-%C11-%O$t$1 removes channel half-operator status from $2"
+msgstr ""
+
+#: ../src/common/textevents.h:36
+msgid "-%C10-%C11-%O$t$1 removes channel operator status from $2"
+msgstr ""
+
+#: ../src/common/textevents.h:39
+msgid "-%C10-%C11-%O$t$1 removes voice from $2"
+msgstr "%C22*%O$t$1-k gonbidapena kentzen dio $2(r)i"
+
+#: ../src/common/textevents.h:42
+msgid "-%C10-%C11-%O$t$1 sets exempt on $2"
+msgstr "-%C10-%C11-%O$t$1%O"
+
+#: ../src/common/textevents.h:45
+msgid "-%C10-%C11-%O$t$1 gives channel half-operator status to $2"
+msgstr ""
+
+#: ../src/common/textevents.h:48
+msgid "-%C10-%C11-%O$t$1 sets invite on $2"
+msgstr "%C22*%O$t$1-k gonbidapena kentzen dio $2(r)i"
+
+#: ../src/common/textevents.h:51
+msgid "%UChannel          Users   Topic%O"
+msgstr "%UKanala          Erabiltzaileak   Gaia"
+
+#: ../src/common/textevents.h:54 ../src/common/textevents.h:306
+msgid "%C2<%O$1%C2>%O$t$2%O"
+msgstr "%C6<%O$1%C6>%O$t$2%O"
+
+#: ../src/common/textevents.h:57
+msgid "-%C10-%C11-%O$t$1 sets mode $2$3 $4"
+msgstr "-%C10-%C11-%O$t$1%O"
+
+#: ../src/common/textevents.h:60
+msgid "-%C10-%C11-%O$tChannel $1 modes: $2"
+msgstr "-%C10-%C11-%O$t$1%O"
+
+#: ../src/common/textevents.h:63
+msgid "%C2<%C8%B$1%B%C2>%O$t$2%O"
+msgstr "%C6<%O$1%C6>%O$t$2%O"
+
+#: ../src/common/textevents.h:66
+msgid "%C12-%C13$1/$2%C12-%O$t$3%O"
+msgstr "%C28-%C29$1/$2%C28-%O$t$3"
+
+#: ../src/common/textevents.h:69
+msgid "-%C10-%C11-%O$t$1 gives channel operator status to $2"
+msgstr ""
+
+#: ../src/common/textevents.h:72
+msgid "-%C10-%C11-%O$t$1 removes exempt on $2"
+msgstr "%C22*%O$t$1-k debekua kentzen dio honi $2"
+
+#: ../src/common/textevents.h:75
+msgid "-%C10-%C11-%O$t$1 removes invite on $2"
+msgstr "%C22*%O$t$1-k gonbidapena kentzen dio $2(r)i"
+
+#: ../src/common/textevents.h:78
+msgid "-%C10-%C11-%O$t$1 removes channel keyword"
+msgstr "%C22*%O$t$1-k debekua kentzen dio honi $2"
+
+#: ../src/common/textevents.h:81
+msgid "-%C10-%C11-%O$t$1 removes user limit"
+msgstr "-%C10-%C11-%O$t$1%O"
+
+#: ../src/common/textevents.h:84
+msgid "-%C10-%C11-%O$t$1 sets channel keyword to $2"
+msgstr ""
+
+#: ../src/common/textevents.h:87
+msgid "-%C10-%C11-%O$t$1 sets channel limit to $2"
+msgstr ""
+
+#: ../src/common/textevents.h:90
+msgid "-%C10-%C11-%O$t$1 removes ban on $2"
+msgstr "%C22*%O$t$1-k debekua kentzen dio honi $2"
+
+#: ../src/common/textevents.h:93
+msgid "-%C10-%C11-%O$t$1 gives voice to $2"
+msgstr "-%C10-%C11-%O$t$1%O"
+
+#: ../src/common/textevents.h:96
+msgid "-%C10-%C11-%O$tConnected. Now logging in.."
+msgstr "%C22*%O$t%C22Konektatua. Orain saioa hasten..."
+
+#: ../src/common/textevents.h:99
+msgid ""
+"-%C10-%C11-%O$tConnecting to %C11$1 %C14(%C11$2%C14)%C port %C11$3%C.."
+msgstr "%C22*%O$t%C22Hona konektatzen $1 ($2) ataka $3%O..."
+
+#: ../src/common/textevents.h:102
+msgid "-%C10-%C11-%O$tConnection failed. Error: $1"
+msgstr "%C21*%O$t%C21Konexioak huts egin du. Errorea: $1"
+
+#: ../src/common/textevents.h:105
+msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2"
+msgstr ""
+
+#: ../src/common/textevents.h:108
+msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2 (to $3)"
+msgstr ""
+
+#: ../src/common/textevents.h:111
+msgid "%C3>%O$1%C3<%O$tCTCP $2%O"
+msgstr "%C19>%O$1%C19<%O$tCTCP $2"
+
+#: ../src/common/textevents.h:114
+msgid "-%C10-%C11-%O$tReceived a CTCP Sound $1 from $2"
+msgstr ""
+
+#: ../src/common/textevents.h:117
+msgid "%C22*%O$tReceived a CTCP Sound $1 from $2 (to $3)"
+msgstr ""
+
+#: ../src/common/textevents.h:120
+msgid "-%C10-%C11-%O$tDCC CHAT to %C11$1%O aborted."
+msgstr "-%C10-%C11-%O$t$1%O"
+
+#: ../src/common/textevents.h:123
+msgid ""
+"-%C10-%C11-%O$tDCC CHAT connection established to %C11$1 %C14[%O$2%C14]%O"
+msgstr ""
+
+#: ../src/common/textevents.h:126
+msgid ""
+"-%C10-%C11-%O$tDCC CHAT failed. Connection to $1 %C14[%O$2:$3%C14]%O lost."
+msgstr ""
+
+#: ../src/common/textevents.h:129
+msgid "-%C10-%C11-%O$tReceived a DCC CHAT offer from $1"
+msgstr ""
+
+#: ../src/common/textevents.h:132
+msgid "-%C10-%C11-%O$tOffering DCC CHAT to $1"
+msgstr ""
+
+#: ../src/common/textevents.h:135
+msgid "-%C10-%C11-%O$tAlready offering CHAT to $1"
+msgstr ""
+
+#: ../src/common/textevents.h:138
+msgid "-%C10-%C11-%O$tDCC $1 connect attempt to %C11$2%O failed (err=$3)."
+msgstr ""
+
+#: ../src/common/textevents.h:141
+msgid "-%C10-%C11-%O$tReceived '$1%O' from $2"
+msgstr "-%C10-%C11-%O$t$1%O"
+
+#: ../src/common/textevents.h:144
+#, c-format
+msgid "%C24,18 Type  To/From    Status  Size    Pos     File         "
+msgstr ""
+
+#: ../src/common/textevents.h:147
+msgid ""
+"-%C10-%C11-%O$tReceived a malformed DCC request from %C11$1%O.%010-%C10-%C11-"
+"%O$tContents of packet: $2"
+msgstr ""
+
+#: ../src/common/textevents.h:150
+msgid "-%C10-%C11-%O$tOffering %C11$1 %Cto %C11$2%O"
+msgstr "-%C10-%C11-%O$t$1%O"
+
+#: ../src/common/textevents.h:153
+msgid "-%C10-%C11-%O$tNo such DCC offer."
+msgstr ""
+
+#: ../src/common/textevents.h:156
+msgid "-%C10-%C11-%O$tDCC RECV %C11$2%O to %C11$1%O aborted."
+msgstr ""
+
+#: ../src/common/textevents.h:159
+msgid ""
+"-%C10-%C11-%O$tDCC RECV %C11$1%O from %C11$3%O complete %C14[%C11$4%O "
+"cps%C14]%O."
+msgstr ""
+
+#: ../src/common/textevents.h:162
+msgid ""
+"-%C10-%C11-%O$tDCC RECV connection established to %C11$1 %C14[%O$2%C14]%O"
+msgstr ""
+
+#: ../src/common/textevents.h:165
+msgid "-%C10-%C11-%O$tDCC RECV $1 ($2) failed. Connection to $3 lost."
+msgstr ""
+
+#: ../src/common/textevents.h:168
+msgid "-%C10-%C11-%O$tDCC RECV: Cannot open $1 for writing ($2)."
+msgstr ""
+
+#: ../src/common/textevents.h:171
+msgid ""
+"-%C10-%C11-%O$tThe file %C11$1%C already exists, saving it as %C11$2%O "
+"instead."
+msgstr ""
+
+#: ../src/common/textevents.h:174
+msgid ""
+"-%C10-%C11-%O$t%C11$1 %Chas requested to resume %C11$2 %Cfrom %C11$3%C."
+msgstr ""
+
+#: ../src/common/textevents.h:177
+msgid "-%C10-%C11-%O$tDCC SEND %C11$2%O to %C11$1%O aborted."
+msgstr ""
+
+#: ../src/common/textevents.h:180
+msgid ""
+"-%C10-%C11-%O$tDCC SEND %C11$1%O to %C11$2%O complete %C14[%C11$3%O "
+"cps%C14]%O."
+msgstr ""
+
+#: ../src/common/textevents.h:183
+msgid ""
+"-%C10-%C11-%O$tDCC SEND connection established to %C11$1 %C14[%O$2%C14]%O"
+msgstr ""
+
+#: ../src/common/textevents.h:186
+msgid "-%C10-%C11-%O$tDCC SEND %C11$1%O failed. Connection to %C11$2%O lost."
+msgstr ""
+
+#: ../src/common/textevents.h:189
+msgid "-%C10-%C11-%O$t%C11$1 %Chas offered %C11$2 %C(%C11$3 %Cbytes)"
+msgstr ""
+
+#: ../src/common/textevents.h:192
+msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Cstalled - aborting."
+msgstr ""
+
+#: ../src/common/textevents.h:195
+msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Ctimed out - aborting."
+msgstr ""
+
+#: ../src/common/textevents.h:198
+msgid "-%C10-%C11-%O$t$1 deleted from notify list."
+msgstr "%O%C11$1%O notifikazio zerrendatik kendua."
+
+#: ../src/common/textevents.h:201
+msgid "-%C10-%C11-%O$tDisconnected ($1)."
+msgstr "%C22*%O$tDeskonektatua ($1)."
+
+#: ../src/common/textevents.h:204
+msgid "-%C10-%C11-%O$tFound your IP: [$1]"
+msgstr "%C22*%O$tZure IPa aurkitu da: [$1]"
+
+#: ../src/common/textevents.h:207
+msgid "$1$t$2"
+msgstr "$1$t$2"
+
+#: ../src/common/textevents.h:210
+msgid "%O%C11$1%O added to ignore list."
+msgstr "%O%C26$1%O ezikusien zerrendara gehitua."
+
+#: ../src/common/textevents.h:213
+msgid "Ignore on %C11$1%O changed."
+msgstr "%C26$1%O -ri ignoraketa egoera aldatu da."
+
+#: ../src/common/textevents.h:216
+#, c-format
+msgid "%C24,18                                                              "
+msgstr ""
+"%C24,18                                                              "
+
+#: ../src/common/textevents.h:219
+#, c-format
+msgid "%C24,18 Hostmask                  PRIV NOTI CHAN CTCP DCC  INVI UNIG "
+msgstr ""
+"%C24,18 ostalariaren maskara          PRIV NOTI CHAN CTCP DCC  INVI UNIG "
+
+#: ../src/common/textevents.h:222
+msgid "%O%C11$1%O removed from ignore list."
+msgstr "%O%C11$1%O notifikazio zerrendatik kendua."
+
+#: ../src/common/textevents.h:225
+msgid "  Ignore list is empty."
+msgstr "  Ezikuzien zerrenda hutsik dago."
+
+#: ../src/common/textevents.h:228
+msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Channel is invite only)."
+msgstr ""
+
+#: ../src/common/textevents.h:231
+msgid ""
+"-%C10-%C11-%O$tYou have been invited to %C11$1%C by %C11$2%C (%C11$3%C)"
+msgstr "%C22*%O$tHau gonbidatu duzu%C26 $1%O hona%C26 $2%O (%C26$3%O)"
+
+#: ../src/common/textevents.h:234
+msgid "-%C10-%C11>%O$t%B$1%B %C14(%C10$3%C14)%C has joined $2"
+msgstr "%C19*%O$t%C19%B$1 %B($3) gehitu da $2"
+
+#: ../src/common/textevents.h:237
+msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Requires keyword)."
+msgstr ""
+
+#: ../src/common/textevents.h:240
+msgid "<%C10-%C11-%O$t$1 has kicked $2 from $3 ($4%O)"
+msgstr "%C21*%O$t%C21$1 -(e)k $2 kaleratu du hemendik $3 ($4%O%C21)"
+
+#: ../src/common/textevents.h:243
+msgid "-%C10-%C11-%O$tYou have been killed by $1 ($2%O)"
+msgstr "%C22*%O$tHonek hil zaitu $1 ($2%O%C22)"
+
+#: ../src/common/textevents.h:246 ../src/common/textevents.h:270
+msgid "%C3>%O$1%C3<%O$t$2%O"
+msgstr "%C19>%O$1%C19<%O$t$2%O"
+
+#: ../src/common/textevents.h:249 ../src/common/textevents.h:327
+#: ../src/common/textevents.h:333 ../src/common/textevents.h:336
+msgid "-%C10-%C11-%O$t$1%O"
+msgstr "-%C10-%C11-%O$t$1%O"
+
+#: ../src/common/textevents.h:252
+msgid "-%C10-%C11-%O$tMOTD Skipped."
+msgstr "%C22*%O$t%C22MOTD saltatua."
+
+#: ../src/common/textevents.h:255
+msgid "-%C10-%C11-%O$t$1 already in use. Retrying with $2.."
+msgstr "%C22*%O$t$1 une hontan erabilia. $2-(r)ekin saiatzen..."
+
+#: ../src/common/textevents.h:258
+msgid "-%C10-%C11-%O$tNickname already in use. Use /NICK to try another."
+msgstr ""
+
+#: ../src/common/textevents.h:261
+msgid "-%C10-%C11-%O$tNo such DCC."
+msgstr "-%C10-%C11-%O$t$1%O"
+
+#: ../src/common/textevents.h:264
+msgid "-%C10-%C11-%O$tNo process is currently running"
+msgstr ""
+
+#: ../src/common/textevents.h:267
+msgid "%C12-%C13$1%C12-%O$t$2%O"
+msgstr "%C28-%C29$1%C28-%O$t$2"
+
+#: ../src/common/textevents.h:273
+msgid "-%C10-%C11-%O$tNotify list is empty."
+msgstr "$tNotifikazio zerrenda hutsik dago."
+
+#: ../src/common/textevents.h:276
+msgid "%C24,18 %B  Notify List                           "
+msgstr ""
+
+#: ../src/common/textevents.h:279
+msgid "-%C10-%C11-%O$t$1 users in notify list."
+msgstr "%O%C11$1%O notifikazio zerrendara gehitua."
+
+#: ../src/common/textevents.h:282
+msgid "-%C10-%C11-%O$tNotify: $1 is offline ($2)."
+msgstr ""
+
+#: ../src/common/textevents.h:285
+msgid "-%C10-%C11-%O$tNotify: $1 is online ($2)."
+msgstr ""
+
+#: ../src/common/textevents.h:291
+msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3"
+msgstr ""
+
+#: ../src/common/textevents.h:294
+msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3 %C14(%O$4%C14)%O"
+msgstr ""
+
+#: ../src/common/textevents.h:297
+msgid "-%C10-%C11-%O$tPing reply from $1 : $2 second(s)"
+msgstr ""
+
+#: ../src/common/textevents.h:300
+msgid "-%C10-%C11-%O$tNo ping reply for $1 seconds, disconnecting."
+msgstr ""
+
+#: ../src/common/textevents.h:303
+msgid "%C12*%C13$1%C12*$t%O$2%O"
+msgstr "%C28*%C29$3$1%C28*$t%O$2"
+
+#: ../src/common/textevents.h:309
+msgid "-%C10-%C11-%O$tA process is already running"
+msgstr ""
+
+#: ../src/common/textevents.h:312
+msgid "<%C10-%C11-%O$t$1 has quit %C14(%O$2%O%C14)%O"
+msgstr ""
+
+#: ../src/common/textevents.h:315
+msgid "-%C10-%C11-%O$t$1 sets modes%B %C14[%O$2%B%C14]%O"
+msgstr ""
+
+#: ../src/common/textevents.h:318
+msgid "%C12-%C13$1/Wallops%C12-%O$t$2%O"
+msgstr "%C28-%C29$1/Wallops%C28-%O$t$2"
+
+#: ../src/common/textevents.h:321
+msgid "-%C10-%C11-%O$tLooking up IP number for%C11 $1%O.."
+msgstr ""
+
+#: ../src/common/textevents.h:324
+msgid "-%C10-%C11-%O$tConnected."
+msgstr "-%C10-%C11-%O$t$1%O"
+
+#: ../src/common/textevents.h:330
+msgid "-%C10-%C11-%O$tLooking up %C11$1%C.."
+msgstr "-%C10-%C11-%O$t$1%O"
+
+#: ../src/common/textevents.h:339
+msgid "-%C10-%C11-%O$tStopped previous connection attempt (pid=$1)"
+msgstr ""
+
+#: ../src/common/textevents.h:342
+msgid "-%C10-%C11-%O$tTopic for %C11$1%C is %C11$2%O"
+msgstr ""
+
+#: ../src/common/textevents.h:345
+msgid "-%C10-%C11-%O$t$1 has changed the topic to: $2%O"
+msgstr "%C22*%O$t$1-k gaia honakora aldatu du: $2"
+
+#: ../src/common/textevents.h:348
+msgid "-%C10-%C11-%O$tTopic for %C11$1%C set by %C11$2%C at %C11$3%O"
+msgstr ""
+
+#: ../src/common/textevents.h:351
+msgid "-%C10-%C11-%O$tUnknown host. Maybe you misspelled it?"
+msgstr ""
+
+#: ../src/common/textevents.h:354
+msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(User limit reached)."
+msgstr ""
+
+#: ../src/common/textevents.h:357
+msgid "-%C10-%C11-%O$t%C11Users on $1:%C $2"
+msgstr "-%C10-%C11-%O$t$1%O"
+
+#: ../src/common/textevents.h:360
+msgid "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
+msgstr "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
+
+#: ../src/common/textevents.h:363
+msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %Cis away %C14(%O$2%O%C14)"
+msgstr ""
+
+#: ../src/common/textevents.h:366
+msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
+msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
+
+#: ../src/common/textevents.h:369
+msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %CEnd of WHOIS list."
+msgstr ""
+
+#: ../src/common/textevents.h:372
+msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C$2"
+msgstr "%C22*%O$t%C28[%O$1%C28] %O$2"
+
+#: ../src/common/textevents.h:375
+msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O"
+msgstr "%C22*%O$t%C28[%O$1%C28]%O idle%C26 $2"
+
+#: ../src/common/textevents.h:378
+msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O, signon: %C11$3%O"
+msgstr "%C22*%O$t%C28[%O$1%C28]%O idle%C26 $2"
+
+#: ../src/common/textevents.h:381
+msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C14(%O$2@$3%C14) %O: $4%O"
+msgstr "%C22*%O$t%C28[%O$1%C28] %C30(%O$2@$3%C30)%O: $4"
+
+#: ../src/common/textevents.h:384
+msgid ""
+"-%C10-%C11-%O$t%C12[%O$1%C12] %Oreal user@host %C11$2%O, real IP %C11$3%O"
+msgstr ""
+
+#: ../src/common/textevents.h:387
+msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O $2"
+msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
+
+#: ../src/common/textevents.h:390
+msgid "%C22*%O$t%C28[%O$1%C28]%O $2"
+msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
+
+#: ../src/common/textevents.h:393
+msgid "-%C10-%C11>%O$t%BYou%B are now talking on %C11$2%O"
+msgstr "%C19*%O$t%C19Orain hemen hitz egiten $2"
+
+#: ../src/common/textevents.h:396
+msgid "-%C10-%C11-%O$tYou have been kicked from $2 by $3 ($4%O)"
+msgstr "%C22*%O$tHonek hil zaitu $1 ($2%O%C22)"
+
+#: ../src/common/textevents.h:399
+msgid "-%C10-%C11-%O$tYou have left channel $3"
+msgstr ""
+
+#: ../src/common/textevents.h:402
+msgid "-%C10-%C11-%O$tYou have left channel $3 %C14(%O$4%C14)%O"
+msgstr ""
+
+#: ../src/common/textevents.h:405
+msgid "-%C10-%C11-%O$tYou're inviting %C11$1%C to %C11$2%C (%C11$3%C)"
+msgstr "%C22*%O$tHau gonbidatu duzu%C26 $1%O hona%C26 $2%O (%C26$3%O)"
+
+#: ../src/common/textevents.h:408
+msgid "%C6<%O$1%C6>%O$t$2%O"
+msgstr "%C6<%O$1%C6>%O$t$2%O"
+
+#: ../src/common/textevents.h:411
+msgid "-%C10-%C11-%O$tYou are now known as $2"
+msgstr "%C22*%O$t$1 orain $2 bezala ezaguna"
+
+#: ../src/common/util.c:296
+msgid "Remote host closed socket"
+msgstr "Ostalari urrunak socket-a itxi du"
+
+#: ../src/common/util.c:301
+msgid "Connection refused"
+msgstr "Konexio ukatua"
+
+#: ../src/common/util.c:304
+msgid "No route to host"
+msgstr "Ez dago biderik ostalariraino"
+
+#: ../src/common/util.c:306
+msgid "Connection timed out"
+msgstr "Konexioa denboraz kanpo"
+
+#: ../src/common/util.c:308
+msgid "Cannot assign that address"
+msgstr "Ezin da helbide hori eman"
+
+#: ../src/common/util.c:310
+msgid "Connection reset by peer"
+msgstr "Konexioa bikoteak berrezarria"
+
+#: ../src/common/util.c:837
+msgid "Andorra"
+msgstr "Andorra"
+
+#: ../src/common/util.c:838
+msgid "United Arab Emirates"
+msgstr "Arabiar Emirerri Batuak"
+
+#: ../src/common/util.c:839
+msgid "Afghanistan"
+msgstr "Afganistan"
+
+#: ../src/common/util.c:840
+msgid "Antigua and Barbuda"
+msgstr "Antigua eta Barbuda"
+
+#: ../src/common/util.c:841
+msgid "Anguilla"
+msgstr "Anguilla"
+
+#: ../src/common/util.c:842
+msgid "Albania"
+msgstr "Albania"
+
+#: ../src/common/util.c:843
+msgid "Armenia"
+msgstr "Armenia"
+
+#: ../src/common/util.c:844
+msgid "Netherlands Antilles"
+msgstr "Antilla Nederlandarrak"
+
+#: ../src/common/util.c:845
+msgid "Angola"
+msgstr "Angola"
+
+#: ../src/common/util.c:846
+msgid "Antarctica"
+msgstr "Antarktika"
+
+#: ../src/common/util.c:847
+msgid "Argentina"
+msgstr "Argentina"
+
+#: ../src/common/util.c:848
+msgid "Reverse DNS"
+msgstr "Alderantzizko DNSa"
+
+#: ../src/common/util.c:849
+msgid "American Samoa"
+msgstr "Samoa Estatubatuarra"
+
+#: ../src/common/util.c:850
+msgid "Austria"
+msgstr "Austria"
+
+#: ../src/common/util.c:851
+msgid "Nato Fiel"
+msgstr ""
+
+#: ../src/common/util.c:852
+msgid "Australia"
+msgstr "Australia"
+
+#: ../src/common/util.c:853
+msgid "Aruba"
+msgstr "Aruba"
+
+#: ../src/common/util.c:854
+msgid "Azerbaijan"
+msgstr "Azerbaijan"
+
+#: ../src/common/util.c:855
+msgid "Bosnia and Herzegovina"
+msgstr "Bosnia-Herzegovina"
+
+#: ../src/common/util.c:856
+msgid "Barbados"
+msgstr "Barbados"
+
+#: ../src/common/util.c:857
+msgid "Bangladesh"
+msgstr "Bangladesh"
+
+#: ../src/common/util.c:858
+msgid "Belgium"
+msgstr "Belgika"
+
+#: ../src/common/util.c:859
+msgid "Burkina Faso"
+msgstr "Burkina Faso"
+
+#: ../src/common/util.c:860
+msgid "Bulgaria"
+msgstr "Bulgaria"
+
+#: ../src/common/util.c:861
+msgid "Bahrain"
+msgstr "Bahrein"
+
+#: ../src/common/util.c:862
+msgid "Burundi"
+msgstr "Burundi"
+
+#: ../src/common/util.c:863
+msgid "Businesses"
+msgstr "Negozioak"
+
+#: ../src/common/util.c:864
+msgid "Benin"
+msgstr "Benin"
+
+#: ../src/common/util.c:865
+msgid "Bermuda"
+msgstr "Bermudak"
+
+#: ../src/common/util.c:866
+msgid "Brunei Darussalam"
+msgstr "Brunei Darussalam"
+
+#: ../src/common/util.c:867
+msgid "Bolivia"
+msgstr "Bolivia"
+
+#: ../src/common/util.c:868
+msgid "Brazil"
+msgstr "Brasil"
+
+#: ../src/common/util.c:869
+msgid "Bahamas"
+msgstr "Bahamak"
+
+#: ../src/common/util.c:870
+msgid "Bhutan"
+msgstr "Bhutan"
+
+#: ../src/common/util.c:871
+msgid "Bouvet Island"
+msgstr "Bouvet Uhartea"
+
+#: ../src/common/util.c:872
+msgid "Botswana"
+msgstr "Botswana"
+
+#: ../src/common/util.c:873
+msgid "Belarus"
+msgstr "Bielorrusia"
+
+#: ../src/common/util.c:874
+msgid "Belize"
+msgstr "Belize"
+
+#: ../src/common/util.c:875
+msgid "Canada"
+msgstr "Kanada"
+
+#: ../src/common/util.c:876
+msgid "Cocos Islands"
+msgstr "Cocos Uharteak"
+
+#: ../src/common/util.c:877
+msgid "Democratic Republic of Congo"
+msgstr ""
+
+#: ../src/common/util.c:878
+msgid "Central African Republic"
+msgstr "Ertafrikar Errepublika"
+
+#: ../src/common/util.c:879
+msgid "Congo"
+msgstr "Kongo"
+
+#: ../src/common/util.c:880
+msgid "Switzerland"
+msgstr "Suitza"
+
+#: ../src/common/util.c:881
+msgid "Cote d'Ivoire"
+msgstr "Bolikosta"
+
+#: ../src/common/util.c:882
+msgid "Cook Islands"
+msgstr "Cook Uharteak"
+
+#: ../src/common/util.c:883
+msgid "Chile"
+msgstr "Txile"
+
+#: ../src/common/util.c:884
+msgid "Cameroon"
+msgstr "Kamerun"
+
+#: ../src/common/util.c:885
+msgid "China"
+msgstr "Txina"
+
+#: ../src/common/util.c:886
+msgid "Colombia"
+msgstr "Kolombia"
+
+#: ../src/common/util.c:887
+msgid "Internic Commercial"
+msgstr "Internic Komertziala"
+
+#: ../src/common/util.c:888
+msgid "Costa Rica"
+msgstr "Costa Rica"
+
+#: ../src/common/util.c:889
+msgid "Serbia and Montenegro"
+msgstr ""
+
+#: ../src/common/util.c:890
+msgid "Cuba"
+msgstr "Kuba"
+
+#: ../src/common/util.c:891
+msgid "Cape Verde"
+msgstr "Cabo Verde"
+
+#: ../src/common/util.c:892
+msgid "Christmas Island"
+msgstr "Christmas Uhartea"
+
+#: ../src/common/util.c:893
+msgid "Cyprus"
+msgstr "Txipre"
+
+#: ../src/common/util.c:894
+msgid "Czech Republic"
+msgstr "Txekiar Errepublika"
+
+#: ../src/common/util.c:895
+msgid "Germany"
+msgstr "Alemania"
+
+#: ../src/common/util.c:896
+msgid "Djibouti"
+msgstr "Djituti"
+
+#: ../src/common/util.c:897
+msgid "Denmark"
+msgstr "Danimarka"
+
+#: ../src/common/util.c:898
+msgid "Dominica"
+msgstr "Dominika"
+
+#: ../src/common/util.c:899
+msgid "Dominican Republic"
+msgstr "Dominikar Errepublika"
+
+#: ../src/common/util.c:900
+msgid "Algeria"
+msgstr "Algeria"
+
+#: ../src/common/util.c:901
+msgid "Ecuador"
+msgstr "Ekuador"
+
+#: ../src/common/util.c:902
+msgid "Educational Institution"
+msgstr "Instituzio Edukatiboa"
+
+#: ../src/common/util.c:903
+msgid "Estonia"
+msgstr "Estonia"
+
+#: ../src/common/util.c:904
+msgid "Egypt"
+msgstr "Egipto"
+
+#: ../src/common/util.c:905
+msgid "Western Sahara"
+msgstr "Mendebaldeko Sahara"
+
+#: ../src/common/util.c:906
+msgid "Eritrea"
+msgstr "Eritrea"
+
+#: ../src/common/util.c:907
+msgid "Spain"
+msgstr "Espainia"
+
+#: ../src/common/util.c:908
+msgid "Ethiopia"
+msgstr "Etiopia"
+
+#: ../src/common/util.c:909
+msgid "Finland"
+msgstr "Finlandia"
+
+#: ../src/common/util.c:910
+msgid "Fiji"
+msgstr "Fiji"
+
+#: ../src/common/util.c:911
+msgid "Falkland Islands"
+msgstr "Malvina Uharteak (Falkland)"
+
+#: ../src/common/util.c:912
+msgid "Micronesia"
+msgstr "Maine"
+
+#: ../src/common/util.c:913
+msgid "Faroe Islands"
+msgstr "Faroe Uharteak"
+
+#: ../src/common/util.c:914
+msgid "France"
+msgstr "Frantzia"
+
+#: ../src/common/util.c:915
+msgid "France, Metropolitan"
+msgstr "Frantzia, Metropolitanoa"
+
+#: ../src/common/util.c:916
+msgid "Gabon"
+msgstr "Gabon"
+
+#: ../src/common/util.c:917
+msgid "Great Britain"
+msgstr "Britania Handia"
+
+#: ../src/common/util.c:918
+msgid "Grenada"
+msgstr "Granada"
+
+#: ../src/common/util.c:919
+msgid "Georgia"
+msgstr "Georgia"
+
+#: ../src/common/util.c:920
+msgid "French Guiana"
+msgstr "Guyana Frantsesa"
+
+#: ../src/common/util.c:921
+msgid "British Channel Isles"
+msgstr "Channel Uharte Britaniarrak"
+
+#: ../src/common/util.c:922
+msgid "Ghana"
+msgstr "Ghana"
+
+#: ../src/common/util.c:923
+msgid "Gibraltar"
+msgstr "Gibraltar"
+
+#: ../src/common/util.c:924
+msgid "Greenland"
+msgstr "Groenlandia"
+
+#: ../src/common/util.c:925
+msgid "Gambia"
+msgstr "Gambia"
+
+#: ../src/common/util.c:926
+msgid "Guinea"
+msgstr "Ginea"
+
+#: ../src/common/util.c:927
+msgid "Government"
+msgstr "Gobernua"
+
+#: ../src/common/util.c:928
+msgid "Guadeloupe"
+msgstr "Guadelupe"
+
+#: ../src/common/util.c:929
+msgid "Equatorial Guinea"
+msgstr "Ekuatore-Ginea"
+
+#: ../src/common/util.c:930
+msgid "Greece"
+msgstr "Grezia"
+
+#: ../src/common/util.c:931
+msgid "S. Georgia and S. Sandwich Isles"
+msgstr "Hegoaldeko Georgia eta Hegoaldeko Sandwich Uharteak"
+
+#: ../src/common/util.c:932
+msgid "Guatemala"
+msgstr "Guatemala"
+
+#: ../src/common/util.c:933
+msgid "Guam"
+msgstr "Guam"
+
+#: ../src/common/util.c:934
+msgid "Guinea-Bissau"
+msgstr "Ginea Bissau"
+
+#: ../src/common/util.c:935
+msgid "Guyana"
+msgstr "Guyana"
+
+#: ../src/common/util.c:936
+msgid "Hong Kong"
+msgstr "Hong Kong"
+
+#: ../src/common/util.c:937
+msgid "Heard and McDonald Islands"
+msgstr "Heard Uhartea eta McDonald Uharteak"
+
+#: ../src/common/util.c:938
+msgid "Honduras"
+msgstr "Honduras"
+
+#: ../src/common/util.c:939
+msgid "Croatia"
+msgstr "Kroazia"
+
+#: ../src/common/util.c:940
+msgid "Haiti"
+msgstr "Haiti"
+
+#: ../src/common/util.c:941
+msgid "Hungary"
+msgstr "Hungaria"
+
+#: ../src/common/util.c:942
+msgid "Indonesia"
+msgstr "Indonesia"
+
+#: ../src/common/util.c:943
+msgid "Ireland"
+msgstr "Irlanda"
+
+#: ../src/common/util.c:944
+msgid "Israel"
+msgstr "Israel"
+
+#: ../src/common/util.c:945
+msgid "India"
+msgstr "India"
+
+#: ../src/common/util.c:946
+msgid "Informational"
+msgstr "Informatiboa"
+
+#: ../src/common/util.c:947
+msgid "International"
+msgstr "Internazionala"
+
+#: ../src/common/util.c:948
+msgid "British Indian Ocean Territory"
+msgstr "Indiar Ozeanoko Lurralde Britainiarra"
+
+#: ../src/common/util.c:949
+msgid "Iraq"
+msgstr "Irak"
+
+#: ../src/common/util.c:950
+msgid "Iran"
+msgstr "Iran"
+
+#: ../src/common/util.c:951
+msgid "Iceland"
+msgstr "Islandia"
+
+#: ../src/common/util.c:952
+msgid "Italy"
+msgstr "Italia"
+
+#: ../src/common/util.c:953
+msgid "Jamaica"
+msgstr "Jamaika"
+
+#: ../src/common/util.c:954
+msgid "Jordan"
+msgstr "Jordania"
+
+#: ../src/common/util.c:955
+msgid "Japan"
+msgstr "Japonia"
+
+#: ../src/common/util.c:956
+msgid "Kenya"
+msgstr "Kenya"
+
+#: ../src/common/util.c:957
+msgid "Kyrgyzstan"
+msgstr "Kirgizstan"
+
+#: ../src/common/util.c:958
+msgid "Cambodia"
+msgstr "Kanbodia"
+
+#: ../src/common/util.c:959
+msgid "Kiribati"
+msgstr "Kiribati"
+
+#: ../src/common/util.c:960
+msgid "Comoros"
+msgstr "Komoreak"
+
+#: ../src/common/util.c:961
+msgid "St. Kitts and Nevis"
+msgstr "Saint Kitts eta Nevis"
+
+#: ../src/common/util.c:962
+msgid "North Korea"
+msgstr "Korea, Herri-Errepublika Demokratikoa (Ipar Korea)"
+
+#: ../src/common/util.c:963
+msgid "South Korea"
+msgstr "Korea Errepublika (Hego Korea)"
+
+#: ../src/common/util.c:964
+msgid "Kuwait"
+msgstr "Kuwait"
+
+#: ../src/common/util.c:965
+msgid "Cayman Islands"
+msgstr "Cayman Uharteak"
+
+#: ../src/common/util.c:966
+msgid "Kazakhstan"
+msgstr "Kazakhstan"
+
+#: ../src/common/util.c:967
+msgid "Laos"
+msgstr "Laos"
+
+#: ../src/common/util.c:968
+msgid "Lebanon"
+msgstr "Libano"
+
+#: ../src/common/util.c:969
+msgid "Saint Lucia"
+msgstr "Santa Luzia"
+
+#: ../src/common/util.c:970
+msgid "Liechtenstein"
+msgstr "Liechtenstein"
+
+#: ../src/common/util.c:971
+msgid "Sri Lanka"
+msgstr "Sri Lanka"
+
+#: ../src/common/util.c:972
+msgid "Liberia"
+msgstr "Liberia"
+
+#: ../src/common/util.c:973
+msgid "Lesotho"
+msgstr "Lesotho"
+
+#: ../src/common/util.c:974
+msgid "Lithuania"
+msgstr "Lituania"
+
+#: ../src/common/util.c:975
+msgid "Luxembourg"
+msgstr "Luxemburgo"
+
+#: ../src/common/util.c:976
+msgid "Latvia"
+msgstr "Letonia"
+
+#: ../src/common/util.c:977
+msgid "Libya"
+msgstr "Liberia"
+
+#: ../src/common/util.c:978
+msgid "Morocco"
+msgstr "Maroko"
+
+#: ../src/common/util.c:979
+msgid "Monaco"
+msgstr "Monako"
+
+#: ../src/common/util.c:980
+msgid "Moldova"
+msgstr "Moldavia"
+
+#: ../src/common/util.c:981
+msgid "United States Medical"
+msgstr "Estatu Batuak Medizinala"
+
+#: ../src/common/util.c:982
+msgid "Madagascar"
+msgstr "Madagaskar"
+
+#: ../src/common/util.c:983
+msgid "Marshall Islands"
+msgstr "Marshall Uharteak"
+
+#: ../src/common/util.c:984
+msgid "Military"
+msgstr "Militarra"
+
+#: ../src/common/util.c:985
+msgid "Macedonia"
+msgstr "Macedonia"
+
+#: ../src/common/util.c:986
+msgid "Mali"
+msgstr "Mali"
+
+#: ../src/common/util.c:987
+msgid "Myanmar"
+msgstr "Birmania"
+
+#: ../src/common/util.c:988
+msgid "Mongolia"
+msgstr "Mongolia"
+
+#: ../src/common/util.c:989
+msgid "Macau"
+msgstr "Macau"
+
+#: ../src/common/util.c:990
+msgid "Northern Mariana Islands"
+msgstr "Iparraldeko Mariana Uharteak"
+
+#: ../src/common/util.c:991
+msgid "Martinique"
+msgstr "Martinika"
+
+#: ../src/common/util.c:992
+msgid "Mauritania"
+msgstr "Mauritania"
+
+#: ../src/common/util.c:993
+msgid "Montserrat"
+msgstr "Montserrat"
+
+#: ../src/common/util.c:994
+msgid "Malta"
+msgstr "Malta"
+
+#: ../src/common/util.c:995
+msgid "Mauritius"
+msgstr "Maurizio"
+
+#: ../src/common/util.c:996
+msgid "Maldives"
+msgstr "Mali"
+
+#: ../src/common/util.c:997
+msgid "Malawi"
+msgstr "Malawi"
+
+#: ../src/common/util.c:998
+msgid "Mexico"
+msgstr "Mexiko"
+
+#: ../src/common/util.c:999
+msgid "Malaysia"
+msgstr "Malaysia"
+
+#: ../src/common/util.c:1000
+msgid "Mozambique"
+msgstr "Mozambike"
+
+#: ../src/common/util.c:1001
+msgid "Namibia"
+msgstr "Namibia"
+
+#: ../src/common/util.c:1002
+msgid "New Caledonia"
+msgstr "Kaledonia Berria"
+
+#: ../src/common/util.c:1003
+msgid "Niger"
+msgstr "Niger"
+
+#: ../src/common/util.c:1004
+msgid "Internic Network"
+msgstr "Internic Sarea"
+
+#: ../src/common/util.c:1005
+msgid "Norfolk Island"
+msgstr "Norfolk Uhartea"
+
+#: ../src/common/util.c:1006
+msgid "Nigeria"
+msgstr "Nigeria"
+
+#: ../src/common/util.c:1007
+msgid "Nicaragua"
+msgstr "Nikaragua"
+
+#: ../src/common/util.c:1008
+msgid "Netherlands"
+msgstr "Herbereak"
+
+#: ../src/common/util.c:1009
+msgid "Norway"
+msgstr "Norvegia"
+
+#: ../src/common/util.c:1010
+msgid "Nepal"
+msgstr "Nepal"
+
+#: ../src/common/util.c:1011
+msgid "Nauru"
+msgstr "Nauru"
+
+#: ../src/common/util.c:1012
+msgid "Neutral Zone"
+msgstr "Eremu neutrala"
+
+#: ../src/common/util.c:1013
+msgid "Niue"
+msgstr "Niue"
+
+#: ../src/common/util.c:1014
+msgid "New Zealand"
+msgstr "Zeelanda Berria"
+
+#: ../src/common/util.c:1015
+msgid "Oman"
+msgstr "Oman"
+
+#: ../src/common/util.c:1016
+msgid "Internic Non-Profit Organization"
+msgstr "Papua Ginea Berria"
+
+#: ../src/common/util.c:1017
+msgid "Panama"
+msgstr "Panama"
+
+#: ../src/common/util.c:1018
+msgid "Peru"
+msgstr "Peru"
+
+#: ../src/common/util.c:1019
+msgid "French Polynesia"
+msgstr "Polinesia Frantsesa"
+
+#: ../src/common/util.c:1020
+msgid "Papua New Guinea"
+msgstr "Papua Ginea Berria"
+
+#: ../src/common/util.c:1021
+msgid "Philippines"
+msgstr "Filipinak"
+
+#: ../src/common/util.c:1022
+msgid "Pakistan"
+msgstr "Pakistan"
+
+#: ../src/common/util.c:1023
+msgid "Poland"
+msgstr "Polonia"
+
+#: ../src/common/util.c:1024
+msgid "St. Pierre and Miquelon"
+msgstr "Saint Pierre eta Miquelon"
+
+#: ../src/common/util.c:1025
+msgid "Pitcairn"
+msgstr "Pitcairn"
+
+#: ../src/common/util.c:1026
+msgid "Puerto Rico"
+msgstr "Puerto Rico"
+
+#: ../src/common/util.c:1027
+msgid "Palestinian Territory"
+msgstr "Indiar Ozeanoko Lurralde Britainiarra"
+
+#: ../src/common/util.c:1028
+msgid "Portugal"
+msgstr "Portugal"
+
+#: ../src/common/util.c:1029
+msgid "Palau"
+msgstr "Belau (lehen Palaos)"
+
+#: ../src/common/util.c:1030
+msgid "Paraguay"
+msgstr "Paraguay"
+
+#: ../src/common/util.c:1031
+msgid "Qatar"
+msgstr "Katar"
+
+#: ../src/common/util.c:1032
+msgid "Reunion"
+msgstr "Reunion"
+
+#: ../src/common/util.c:1033
+msgid "Romania"
+msgstr "Errumania"
+
+#: ../src/common/util.c:1034
+msgid "Old School ARPAnet"
+msgstr "ARPAnet zaharra"
+
+#: ../src/common/util.c:1035
+msgid "Russian Federation"
+msgstr "Errusiako Federazioa"
+
+#: ../src/common/util.c:1036
+msgid "Rwanda"
+msgstr "Ruanda"
+
+#: ../src/common/util.c:1037
+msgid "Saudi Arabia"
+msgstr "Saudi Arabia"
+
+#: ../src/common/util.c:1038
+msgid "Solomon Islands"
+msgstr "Salomon Uharteak"
+
+#: ../src/common/util.c:1039
+msgid "Seychelles"
+msgstr "Seychelleak"
+
+#: ../src/common/util.c:1040
+msgid "Sudan"
+msgstr "Sudan"
+
+#: ../src/common/util.c:1041
+msgid "Sweden"
+msgstr "Suedia"
+
+#: ../src/common/util.c:1042
+msgid "Singapore"
+msgstr "Singapur"
+
+#: ../src/common/util.c:1043
+msgid "St. Helena"
+msgstr "Santa Elena"
+
+#: ../src/common/util.c:1044
+msgid "Slovenia"
+msgstr "Eslovenia"
+
+#: ../src/common/util.c:1045
+msgid "Svalbard and Jan Mayen Islands"
+msgstr "Svalbard eta Jan Mayen Uharteak"
+
+#: ../src/common/util.c:1046
+msgid "Slovak Republic"
+msgstr "Eslovakia"
+
+#: ../src/common/util.c:1047
+msgid "Sierra Leone"
+msgstr "Sierra Leona"
+
+#: ../src/common/util.c:1048
+msgid "San Marino"
+msgstr "San Marino"
+
+#: ../src/common/util.c:1049
+msgid "Senegal"
+msgstr "Senegal"
+
+#: ../src/common/util.c:1050
+msgid "Somalia"
+msgstr "Somalia"
+
+#: ../src/common/util.c:1051
+msgid "Suriname"
+msgstr "Surinam"
+
+#: ../src/common/util.c:1052
+msgid "Sao Tome and Principe"
+msgstr "Sao Tome eta Printze"
+
+#: ../src/common/util.c:1053
+msgid "Former USSR"
+msgstr "Lehenago USSR"
+
+#: ../src/common/util.c:1054
+msgid "El Salvador"
+msgstr "El Salvador"
+
+#: ../src/common/util.c:1055
+msgid "Syria"
+msgstr "Siria"
+
+#: ../src/common/util.c:1056
+msgid "Swaziland"
+msgstr "Swazilandia"
+
+#: ../src/common/util.c:1057
+msgid "Turks and Caicos Islands"
+msgstr "Turk eta Caicoak Uharteak"
+
+#: ../src/common/util.c:1058
+msgid "Chad"
+msgstr "Txad"
+
+#: ../src/common/util.c:1059
+msgid "French Southern Territories"
+msgstr "Hegoaldeko Lurralde Frantsesak"
+
+#: ../src/common/util.c:1060
+msgid "Togo"
+msgstr "Togo"
+
+#: ../src/common/util.c:1061
+msgid "Thailand"
+msgstr "Tailandia"
+
+#: ../src/common/util.c:1062
+msgid "Tajikistan"
+msgstr "Tadjikistan"
+
+#: ../src/common/util.c:1063
+msgid "Tokelau"
+msgstr "Tokelau"
+
+#: ../src/common/util.c:1064
+msgid "Turkmenistan"
+msgstr "Turkmenistan"
+
+#: ../src/common/util.c:1065
+msgid "Tunisia"
+msgstr "Tunisia"
+
+#: ../src/common/util.c:1066
+msgid "Tonga"
+msgstr "Tonga"
+
+#: ../src/common/util.c:1067
+msgid "East Timor"
+msgstr "Ekialdeko Timor"
+
+#: ../src/common/util.c:1068
+msgid "Turkey"
+msgstr "Turkia"
+
+#: ../src/common/util.c:1069
+msgid "Trinidad and Tobago"
+msgstr "Trinidad eta Tobago"
+
+#: ../src/common/util.c:1070
+msgid "Tuvalu"
+msgstr "Tuvalu"
+
+#: ../src/common/util.c:1071
+msgid "Taiwan"
+msgstr "Taiwan"
+
+#: ../src/common/util.c:1072
+msgid "Tanzania"
+msgstr "Tanzania"
+
+#: ../src/common/util.c:1073
+msgid "Ukraine"
+msgstr "Ukraina"
+
+#: ../src/common/util.c:1074
+msgid "Uganda"
+msgstr "Uganda"
+
+#: ../src/common/util.c:1075
+msgid "United Kingdom"
+msgstr "Erresuma Batua"
+
+#: ../src/common/util.c:1076
+msgid "US Minor Outlying Islands"
+msgstr "United States Minor Outlying Islands"
+
+#: ../src/common/util.c:1077
+msgid "United States of America"
+msgstr "Amerikako Estatu Batuak"
+
+#: ../src/common/util.c:1078
+msgid "Uruguay"
+msgstr "Uruguay"
+
+#: ../src/common/util.c:1079
+msgid "Uzbekistan"
+msgstr "Uzbekistan"
+
+#: ../src/common/util.c:1080
+msgid "Vatican City State"
+msgstr "Vatikanoko Hiria"
+
+#: ../src/common/util.c:1081
+msgid "St. Vincent and the Grenadines"
+msgstr "San Bizente eta Grenadinak"
+
+#: ../src/common/util.c:1082
+msgid "Venezuela"
+msgstr "Venezuela"
+
+#: ../src/common/util.c:1083
+msgid "British Virgin Islands"
+msgstr "Birjina Uharteak (Err. Ba.)"
+
+#: ../src/common/util.c:1084
+msgid "US Virgin Islands"
+msgstr "Birjina Uharteak (EEBB)"
+
+#: ../src/common/util.c:1085
+msgid "Vietnam"
+msgstr "Vietnam"
+
+#: ../src/common/util.c:1086
+msgid "Vanuatu"
+msgstr "Vanuatu"
+
+#: ../src/common/util.c:1087
+msgid "Wallis and Futuna Islands"
+msgstr "Wallis and Futuna Uharteak"
+
+#: ../src/common/util.c:1088
+msgid "Samoa"
+msgstr "Samoa"
+
+#: ../src/common/util.c:1089
+msgid "Yemen"
+msgstr "Jemen"
+
+#: ../src/common/util.c:1090
+msgid "Mayotte"
+msgstr "Mayotte"
+
+#: ../src/common/util.c:1091
+msgid "Yugoslavia"
+msgstr "Jugoslavia"
+
+#: ../src/common/util.c:1092
+msgid "South Africa"
+msgstr "Hegoafrikar Errepublika"
+
+#: ../src/common/util.c:1093
+msgid "Zambia"
+msgstr "Zambia"
+
+#: ../src/common/util.c:1094
+msgid "Zimbabwe"
+msgstr "Zimbabwe"
+
+#: ../src/common/util.c:1104 ../src/common/util.c:1114
+#: ../src/fe-gnome/userlist-gui.c:398
+msgid "Unknown"
+msgstr "Ezezaguna"
+
+#: ../src/common/xchat.c:737 ../src/common/xchat.c:863
+msgid "Open Dialog Window"
+msgstr "Ireki elkarrizketa leihoa"
+
+#: ../src/common/xchat.c:738
+msgid "Send a File"
+msgstr "Bidali fitxategia"
+
+#: ../src/common/xchat.c:739
+msgid "User Info (WHOIS)"
+msgstr ""
+
+#: ../src/common/xchat.c:740
+msgid "Operator Actions"
+msgstr "Aukerak"
+
+#: ../src/common/xchat.c:742 ../src/common/xchat.c:833
+msgid "Give Ops"
+msgstr "Eman Opak"
+
+#: ../src/common/xchat.c:743 ../src/common/xchat.c:834
+msgid "Take Ops"
+msgstr "Hartu Op"
+
+#: ../src/common/xchat.c:744 ../src/common/xchat.c:837
+msgid "Give Voice"
+msgstr "Eman ahotsa"
+
+#: ../src/common/xchat.c:745 ../src/common/xchat.c:838
+msgid "Take Voice"
+msgstr "Hartu ahotsa"
+
+#: ../src/common/xchat.c:747 ../src/common/xchat.c:842
+msgid "Kick/Ban"
+msgstr "Kanporatu/debekatu"
+
+#: ../src/common/xchat.c:748 ../src/common/xchat.c:843
+#: ../src/common/xchat.c:892
+msgid "Kick"
+msgstr "Kanporatu"
+
+#: ../src/common/xchat.c:749 ../src/common/xchat.c:750
+#: ../src/common/xchat.c:751 ../src/common/xchat.c:752
+#: ../src/common/xchat.c:753 ../src/common/xchat.c:844
+#: ../src/common/xchat.c:845 ../src/common/xchat.c:846
+#: ../src/common/xchat.c:847 ../src/common/xchat.c:848
+#: ../src/common/xchat.c:891
+msgid "Ban"
+msgstr "Debekatu"
+
+#: ../src/common/xchat.c:754 ../src/common/xchat.c:755
+#: ../src/common/xchat.c:756 ../src/common/xchat.c:757
+#: ../src/common/xchat.c:849 ../src/common/xchat.c:850
+#: ../src/common/xchat.c:851 ../src/common/xchat.c:852
+msgid "KickBan"
+msgstr "Kanporatu-debekatu"
+
+#: ../src/common/xchat.c:820
+msgid "Direct client-to-client"
+msgstr "Bezerotik-bezerora zuzenean"
+
+#: ../src/common/xchat.c:821
+msgid "Send File"
+msgstr "Bidali fitxategia"
+
+#: ../src/common/xchat.c:822
+msgid "Offer Chat"
+msgstr "Eskeini berriketa"
+
+#: ../src/common/xchat.c:823
+msgid "Abort Chat"
+msgstr "Abortatu berriketa"
+
+#: ../src/common/xchat.c:824
+msgid "Version"
+msgstr "Bertsioa"
+
+#: ../src/common/xchat.c:825
+msgid "Userinfo"
+msgstr "Erabiltzailearen Informazioa"
+
+#: ../src/common/xchat.c:826
+msgid "Clientinfo"
+msgstr "Bezeroaren informazioa"
+
+#: ../src/common/xchat.c:827 ../src/common/xchat.c:861
+#: ../src/common/xchat.c:909
+msgid "Ping"
+msgstr "Ping"
+
+#: ../src/common/xchat.c:829
+msgid "Finger"
+msgstr "Finger"
+
+#: ../src/common/xchat.c:830
+msgid "Oper"
+msgstr "Operatzailea"
+
+#: ../src/common/xchat.c:831
+msgid "Kill this user"
+msgstr "Hil erabiltzaile hau"
+
+#: ../src/common/xchat.c:832
+msgid "Mode"
+msgstr "Modua"
+
+#: ../src/common/xchat.c:835
+msgid "Give Half-Ops"
+msgstr "Eman erdi-Op-ak"
+
+#: ../src/common/xchat.c:836
+msgid "Take Half-Ops"
+msgstr "Hartu erdi-Op-ak"
+
+#: ../src/common/xchat.c:839 ../src/fe-gnome/userlist-gui.c:64
+msgid "Ignore"
+msgstr "Ezikusi"
+
+#: ../src/common/xchat.c:840
+msgid "Ignore User"
+msgstr "Ezikusi erabiltzailea"
+
+#: ../src/common/xchat.c:841
+msgid "UnIgnore User"
+msgstr "Ez-ignoratu erabiltzailea"
+
+#: ../src/common/xchat.c:853
+msgid "Info"
+msgstr "Informazioa"
+
+#: ../src/common/xchat.c:854
+msgid "Who"
+msgstr "Who"
+
+#: ../src/common/xchat.c:855 ../src/common/xchat.c:905
+msgid "WhoIs"
+msgstr "WhoIs"
+
+#: ../src/common/xchat.c:856
+msgid "DNS Lookup"
+msgstr "DNS bilaketa"
+
+#: ../src/common/xchat.c:857
+msgid "Trace"
+msgstr "Trace"
+
+#: ../src/common/xchat.c:858
+msgid "UserHost"
+msgstr "Erabiltzaile-ostalaria"
+
+#: ../src/common/xchat.c:859
+msgid "External"
+msgstr "Kanpoko"
+
+#: ../src/common/xchat.c:860
+msgid "Traceroute"
+msgstr "Traceroute"
+
+#: ../src/common/xchat.c:862
+msgid "Telnet"
+msgstr "Telnet"
+
+#: ../src/common/xchat.c:874
+msgid "Leave Channel"
+msgstr "Irten kanaletik"
+
+#: ../src/common/xchat.c:875
+msgid "Join Channel..."
+msgstr "Sartu kanalera..."
+
+#: ../src/common/xchat.c:876
+msgid "Enter Channel to Join:"
+msgstr "Sartu elkartu nahi duzun kanalaren izena:"
+
+#: ../src/common/xchat.c:877
+msgid "Server Links"
+msgstr "Zerbitzari estekak"
+
+#: ../src/common/xchat.c:878
+msgid "Ping Server"
+msgstr "Ping egin zerbitzariari"
+
+#: ../src/common/xchat.c:879
+msgid "Hide Version"
+msgstr "Ezkutatu bertsioa"
+
+#: ../src/common/xchat.c:889
+msgid "Op"
+msgstr "Op"
+
+#: ../src/common/xchat.c:890
+msgid "DeOp"
+msgstr "OP kendu"
+
+#: ../src/common/xchat.c:893
+msgid "bye"
+msgstr "agur"
+
+#: ../src/common/xchat.c:894
+#, c-format
+msgid "Enter reason to kick %s:"
+msgstr "Sartu %s botatzeko arrazoia:"
+
+#: ../src/common/xchat.c:895
+msgid "Sendfile"
+msgstr "Bidali fitxategia"
+
+#: ../src/common/xchat.c:896
+msgid "Dialog"
+msgstr "Elkarrizketa"
+
+#: ../src/common/xchat.c:906
+msgid "Send"
+msgstr "Bidali"
+
+#: ../src/common/xchat.c:907
+msgid "Chat"
+msgstr "Berriketa"
+
+#: ../src/common/xchat.c:908
+msgid "Clear"
+msgstr "Garbitu"
+
+#: ../src/fe-gnome/about.c:64
+msgid ""
+"X-Chat GNOME is free software; you can redistribute it and/or modify it "
+"under the terms of the GNU General Public License as published by the Free "
+"Software Foundation; either version 2 of the License, or (at your option) "
+"any later version."
+msgstr ""
+
+#: ../src/fe-gnome/about.c:68
+msgid ""
+"X-Chat GNOME is distributed in the hope that it will be useful, but WITHOUT "
+"ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
+"FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for "
+"more details."
+msgstr ""
+
+#: ../src/fe-gnome/about.c:72
+msgid ""
+"You should have received a copy of the GNU General Public License along with "
+"X-Chat GNOME; if not, write to the Free Software Foundation, Inc., 59 Temple "
+"Place, Suite 330, Boston, MA  02111-1307  USA"
+msgstr ""
+
+#: ../src/fe-gnome/about.c:85
+msgid "Copyright © 2004-2006"
+msgstr ""
+
+#. Translators: This is a random, mostly-meaningless
+#. * quotation from Jeeves & Wooster.  Either leave it
+#. * be or replace it with something funny (but inoffensive)
+#: ../src/fe-gnome/about.c:91
+msgid ""
+"It has been well observed that a trombone is not a suitable instrument for a "
+"gentleman"
+msgstr ""
+
+#: ../src/fe-gnome/about.c:95
+msgid "XChat-GNOME Web Site"
+msgstr ""
+
+#. Translators: This is a special message that shouldn't
+#. * be translated literally. It is used in the about box
+#. * to give credits to the translators. Thus, you should
+#. * translate it to your name and email address. You
+#. * should also include other translators who have
+#. * contributed to this translation; in that case, please
+#. * write each of them on a separated line seperated by
+#: ../src/fe-gnome/about.c:109
+msgid "translator-credits"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:1
+msgid "Background image filename"
+msgstr "Atzeko planoko irudia:"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:2
+msgid "Background transparency"
+msgstr "Atzeko planoko irudia:"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:3
+msgid "Default nickname used by servers without special options set"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:4
+msgid "Default real name used by servers without special options set"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:5
+msgid "Display redundant nickstamps"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:6
+msgid "Enable spellchecking"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:7
+msgid "Font for the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:8
+msgid "Height of the channel list"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:9
+msgid "Height of the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:10
+msgid "Languages to use for spellchecking"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:11
+msgid "List of enabled plugins"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:12
+msgid "Message sent on away"
+msgstr "Mezua"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:13
+msgid "Message sent on channel part"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:14
+msgid "Message sent on quit"
+msgstr "Mezua"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:15
+msgid "Position of the horizontal pane in the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:16
+msgid "Selected background type"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:17
+msgid "Selected color scheme"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:18
+msgid "Show colors in the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:19
+msgid "Show timestamps in the main window"
+msgstr "Ordu arrastoak gaitu"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:20
+msgid "Use system fonts"
+msgstr "Erabiltzaile zerrenda"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:21
+msgid "Width of the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:22
+msgid "X position of the main window on the screen"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:23
+msgid "Y position of the main window on the screen"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:24
+msgid "xchat configuration version"
+msgstr ""
+
+#: ../src/fe-gnome/channel-list.c:296
+#, c-format
+msgid "%s Channel List"
+msgstr ""
+
+#: ../src/fe-gnome/connect-dialog.c:132 ../src/fe-gnome/main-window.c:107
+msgid "_Connect"
+msgstr "Konektatu"
+
+#: ../src/fe-gnome/conversation-panel.c:164
+msgid "_Open Link in Browser"
+msgstr ""
+
+#: ../src/fe-gnome/conversation-panel.c:165
+msgid "_Copy Link Location"
+msgstr ""
+
+#: ../src/fe-gnome/conversation-panel.c:169
+msgid "Se_nd Message To..."
+msgstr ""
+
+#: ../src/fe-gnome/conversation-panel.c:170
+msgid "_Copy Address"
+msgstr "Zure helbidea"
+
+#: ../src/fe-gnome/conversation-panel.c:174
+msgid "_Send File"
+msgstr "Bidali fitxategia"
+
+#: ../src/fe-gnome/conversation-panel.c:175
+msgid "Paste File _Contents"
+msgstr "_Edukia"
+
+#: ../src/fe-gnome/conversation-panel.c:176
+msgid "Paste File_name"
+msgstr "Fitxategi berria"
+
+#: ../src/fe-gnome/conversation-panel.c:177
+msgid "_Cancel"
+msgstr "Utzi"
+
+#: ../src/fe-gnome/conversation-panel.c:181 ../src/fe-gnome/main-window.c:113
+msgid "_Copy"
+msgstr "Kopiatu"
+
+#: ../src/fe-gnome/conversation-panel.c:772
+#, c-format
+msgid ""
+"URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"
+msgstr ""
+
+#: ../src/fe-gnome/conversation-panel.c:864
+#, c-format
+msgid "Error reading file \"%s\": %s\n"
+msgstr ""
+
+#: ../src/fe-gnome/conversation-panel.c:879
+#, c-format
+msgid "Error converting URI \"%s\" into filename: %s\n"
+msgstr ""
+
+#: ../src/fe-gnome/conversation-panel.c:922
+#, c-format
+msgid "Error retrieving file information for \"%s\": %s\n"
+msgstr ""
+
+#: ../src/fe-gnome/conversation-panel.c:999
+msgid "Save Transcript"
+msgstr ""
+
+#: ../src/fe-gnome/conversation-panel.c:1025
+#: ../src/fe-gnome/conversation-panel.c:1035
+#, c-format
+msgid "Error saving %s"
+msgstr ""
+
+#: ../src/fe-gnome/conversation-panel.c:1165
+msgid "Search buffer is empty.\n"
+msgstr "Bilaketa bufferra hutsik dago.\n"
+
+#: ../src/fe-gnome/dcc-window.c:143
+msgid "%"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:144
+msgid "File"
+msgstr "Fitxategia"
+
+#: ../src/fe-gnome/dcc-window.c:145
+msgid "Remaining"
+msgstr "Irteten"
+
+#: ../src/fe-gnome/dcc-window.c:228
+#, fuzzy
+msgid "Incoming File Transfer"
+msgstr "Fitxategi transferentziak"
+
+#: ../src/fe-gnome/dcc-window.c:229
+msgid "_Accept"
+msgstr "Onartu"
+
+#: ../src/fe-gnome/dcc-window.c:230
+#, c-format
+msgid ""
+"%s is attempting to send you a file named \"%s\". Do you wish to accept the "
+"transfer?"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:250
+#, c-format
+msgid ""
+"<b>%s</b>\n"
+"<small>from %s</small>\n"
+"%s of %s"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:261
+msgid "starting"
+msgstr "Itxaroten"
+
+#: ../src/fe-gnome/dcc-window.c:291
+#, c-format
+msgid ""
+"<b>%s</b>\n"
+"<small>from %s</small>\n"
+"%s of %s at %s/s"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:298
+msgid "queued"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:303
+#, c-format
+msgid "Transfer of %s to %s failed"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:305
+#, c-format
+msgid "Transfer of %s from %s failed"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:306
+msgid "Transfer failed"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:315
+msgid "stalled"
+msgstr "Huts egin da"
+
+#: ../src/fe-gnome/dcc-window.c:319
+#, c-format
+msgid "%.2d:%.2d:%.2d"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:321
+#, c-format
+msgid "%.2d:%.2d"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:434
+msgid "Send File..."
+msgstr "Bidali fitxategia"
+
+#: ../src/fe-gnome/fe-gnome.c:58
+msgid "Use directory instead of the default config dir"
+msgstr ""
+
+#: ../src/fe-gnome/fe-gnome.c:59
+msgid "Don't auto-connect to servers"
+msgstr "Automatikoki birkonektatu zerbitzarira"
+
+#: ../src/fe-gnome/fe-gnome.c:60
+msgid "Don't auto-load plugins"
+msgstr "ez kargatu automatikoki plugin-ak"
+
+#: ../src/fe-gnome/fe-gnome.c:62
+msgid "Show version information"
+msgstr "erakutsi bertsioari buruzko informazioa"
+
+#: ../src/fe-gnome/fe-gnome.c:110
+#, c-format
+msgid ""
+"xchat-gnome: %s\n"
+"Try `xchat-gnome --help' for more information\n"
+msgstr ""
+
+#: ../src/fe-gnome/fe-gnome.c:862
+#, c-format
+msgid "Unable to show '%s'"
+msgstr ""
+
+#: ../src/fe-gnome/find-bar.c:95
+msgid "Find:"
+msgstr "Bilatu:"
+
+#: ../src/fe-gnome/find-bar.c:97
+msgid "_Previous"
+msgstr ""
+
+#: ../src/fe-gnome/find-bar.c:99
+msgid "_Next"
+msgstr "Testua"
+
+#: ../src/fe-gnome/find-bar.c:218
+msgid ""
+"<span foreground=\"dark grey\">Reached end, continuing from top</span>"
+msgstr ""
+
+#: ../src/fe-gnome/find-bar.c:225
+msgid ""
+"<span foreground=\"dark grey\">Reached beginning, continuing from "
+"bottom</span>"
+msgstr ""
+
+#: ../src/fe-gnome/find-bar.c:232
+msgid "<span foreground=\"red\">Search string not found</span>"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network-editor.c:268
+msgid "Server"
+msgstr "Zerbitzaria"
+
+#: ../src/fe-gnome/irc-network-editor.c:380
+msgid "New Network"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network-editor.c:388
+#, c-format
+msgid "%s Network Properties"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network-editor.c:511
+#: ../src/fe-gnome/irc-network-editor.c:518
+#: ../src/fe-gnome/irc-network-editor.c:524
+msgid "Invalid input"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network-editor.c:511
+msgid "You must enter a network name"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network-editor.c:518
+msgid "You must enter a nick name"
+msgstr "Sartu ezizen berria:"
+
+#: ../src/fe-gnome/irc-network-editor.c:524
+msgid "You must enter a real name"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network-editor.c:531
+msgid "No Servers"
+msgstr "Zerbitzariak"
+
+#: ../src/fe-gnome/irc-network-editor.c:531
+msgid "You must add at least one server for this network"
+msgstr "Erabili SSL sare hontako zerbitzari guztietan"
+
+#: ../src/fe-gnome/irc-network.c:31
+msgid "UTF-8 (Unicode)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:32
+msgid "ISO-8859-15 (Western Europe)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:33
+msgid "ISO-8859-2 (Central Europe)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:34
+msgid "ISO-8859-7 (Greek)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:35
+msgid "ISO-8859-8 (Hebrew)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:36
+msgid "ISO-8859-9 (Turkish)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:37
+msgid "ISO-2022-JP (Japanese)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:38
+msgid "SJIS (Japanese)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:39
+msgid "CP949 (Korean)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:40
+msgid "KOI8-R (Cyrillic)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:41
+msgid "CP1251 (Cyrillic)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:42
+msgid "CP1256 (Arabic)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:43
+msgid "CP1257 (Baltic)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:44
+msgid "GB18030 (Chinese)"
+msgstr ""
+
+#: ../src/fe-gnome/main-window.c:97
+msgid "_IRC"
+msgstr "_IRC"
+
+#: ../src/fe-gnome/main-window.c:99
+msgid "In_sert"
+msgstr ""
+
+#: ../src/fe-gnome/main-window.c:100
+msgid "_Network"
+msgstr "Sarea"
+
+#: ../src/fe-gnome/main-window.c:101
+msgid "_Discussion"
+msgstr ""
+
+#: ../src/fe-gnome/main-window.c:102
+msgid "_Go"
+msgstr ""
+
+#: ../src/fe-gnome/main-window.c:103
+msgid "_Help"
+msgstr "_Laguntza"
+
+#: ../src/fe-gnome/main-window.c:108
+msgid "_File Transfers"
+msgstr "Fitxategi transferentziak"
+
+#: ../src/fe-gnome/main-window.c:109
+msgid "_Quit"
+msgstr "Irten"
+
+#: ../src/fe-gnome/main-window.c:112
+msgid "Cu_t"
+msgstr ""
+
+#: ../src/fe-gnome/main-window.c:114
+msgid "_Paste"
+msgstr "Pribatua"
+
+#: ../src/fe-gnome/main-window.c:115
+msgid "Prefere_nces"
+msgstr "Hobespenak..."
+
+#. Network menu
+#: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:81
+msgid "_Information"
+msgstr "Informatiboa"
+
+#: ../src/fe-gnome/main-window.c:119 ../src/fe-gnome/navigation-tree.c:82
+msgid "_Reconnect"
+msgstr "Berriz konektatu"
+
+#: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:83
+msgid "_Disconnect"
+msgstr "Deskonektatu"
+
+#: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:84
+#: ../src/fe-gnome/navigation-tree.c:90 ../src/fe-gnome/navigation-tree.c:96
+msgid "_Close"
+msgstr "_Itxi"
+
+#: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:85
+msgid "_Channels..."
+msgstr "Kanal zerrenda..."
+
+#. Discussion menu
+#. Channel context menu
+#: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:88
+#: ../src/fe-gnome/navigation-tree.c:95
+msgid "_Save Transcript"
+msgstr ""
+
+#: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:89
+msgid "_Leave"
+msgstr "Irteten"
+
+#: ../src/fe-gnome/main-window.c:127
+msgid "Cl_ose"
+msgstr "Itxi"
+
+#: ../src/fe-gnome/main-window.c:128
+msgid "_Find"
+msgstr "Bilatu"
+
+#: ../src/fe-gnome/main-window.c:129
+msgid "Change _Topic"
+msgstr ""
+
+#: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:92
+msgid "_Bans..."
+msgstr "Debekatuen zerrenda..."
+
+#: ../src/fe-gnome/main-window.c:131
+msgid "_Users"
+msgstr "Erabiltzaileak"
+
+#: ../src/fe-gnome/main-window.c:134
+msgid "Pre_vious Network"
+msgstr "Sare berria"
+
+#: ../src/fe-gnome/main-window.c:135
+msgid "Nex_t Network"
+msgstr "Sare berria"
+
+#: ../src/fe-gnome/main-window.c:136
+msgid "_Previous Discussion"
+msgstr ""
+
+#: ../src/fe-gnome/main-window.c:137
+msgid "_Next Discussion"
+msgstr ""
+
+#: ../src/fe-gnome/main-window.c:140
+msgid "_Contents"
+msgstr "_Edukia"
+
+#: ../src/fe-gnome/main-window.c:141
+msgid "_About"
+msgstr "_Honi buruz"
+
+#: ../src/fe-gnome/main-window.c:509 ../src/fe-gnome/navigation-tree.c:1667
+msgid "Ex-Chat"
+msgstr "Berriketa"
+
+#: ../src/fe-gnome/main-window.c:590
+msgid "Error showing help"
+msgstr ""
+
+#: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:97
+msgid "_Find..."
+msgstr "Bidali fitxategiak..."
+
+#: ../src/fe-gnome/navigation-tree.c:102
+#, fuzzy
+msgid "_Auto-connect on startup"
+msgstr "K_onektatu"
+
+#: ../src/fe-gnome/navigation-tree.c:105
+#, fuzzy
+msgid "_Auto-join on connect"
+msgstr "K_onektatu"
+
+#: ../src/fe-gnome/navigation-tree.c:357
+#: ../src/fe-gnome/navigation-tree.c:1296
+msgid "<none>"
+msgstr "<bat ere ez>"
+
+#: ../src/fe-gnome/preferences-page-colors.c:223
+msgid "Colors"
+msgstr "Koloreak"
+
+#: ../src/fe-gnome/preferences-page-colors.c:226
+msgid "Black on White"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-colors.c:227
+msgid "White on Black"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-colors.c:228
+msgid "Custom"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-colors.c:229
+msgid "System Theme Colors"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-dcc.c:184
+msgid "File Transfers & DCC"
+msgstr "Fitxategi transferentziak"
+
+#: ../src/fe-gnome/preferences-page-effects.c:176
+msgid "Effects"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-irc.c:256
+msgid "IRC Preferences"
+msgstr "X-Chat: Hobespenak"
+
+#: ../src/fe-gnome/preferences-page-networks.c:118
+#, c-format
+msgid "Really remove network \"%s\" and all of its servers?"
+msgstr "Benetan ezabatu nahi duzu \"%s\" eta honen zerbitzari guztiak?"
+
+#: ../src/fe-gnome/preferences-page-networks.c:171
+msgid "Networks"
+msgstr "Sareak"
+
+#: ../src/fe-gnome/preferences-page-networks.c:179
+msgid "Name"
+msgstr "Izena"
+
+#: ../src/fe-gnome/preferences-page-plugins.c:90
+#: ../src/fe-gnome/preferences-page-plugins.c:91
+msgid "unknown"
+msgstr "Ezezaguna"
+
+#: ../src/fe-gnome/preferences-page-plugins.c:131
+#, c-format
+msgid "An error occured unloading %s"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-plugins.c:132
+msgid "Plugin Unload Failed"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-plugins.c:143
+msgid "Plugin Load Failed"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-plugins.c:182
+msgid "Open Plugin"
+msgstr "Ireki elkarrizketak hemen:"
+
+#: ../src/fe-gnome/preferences-page-plugins.c:314
+msgid "Scripts and Plugins"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-plugins.c:327
+#: ../src/fe-gnome/preferences-page-spellcheck.c:199
+msgid "Enable"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-plugins.c:329
+msgid "Plugin"
+msgstr "Ping"
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:101
+#, c-format
+msgid "Error in language %s activation: %s\n"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:140
+#, c-format
+msgid "Error in spell checking configuration: %s\n"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:190
+msgid "Spell checking"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:204
+msgid "Language"
+msgstr ""
+
+#: ../src/fe-gnome/status-bar.c:92
+#, c-format
+msgid "%s%.1fs lag"
+msgstr ""
+
+#: ../src/fe-gnome/status-bar.c:106
+#, c-format
+msgid "%d bytes buffered"
+msgstr "%d byte"
+
+#: ../src/fe-gnome/text-entry.c:145 ../src/fe-gnome/text-entry.c:710
+#, c-format
+msgid "Error in spellchecking configuration: %s\n"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:342
+msgid "I_nsert Color Code"
+msgstr "Txertatu kolore kodea"
+
+#: ../src/fe-gnome/text-entry.c:349
+msgid "Black"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:353
+msgid "Dark Blue"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:357
+msgid "Dark Green"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:361
+msgid "Red"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:365
+msgid "Brown"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:369
+msgid "Purple"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:373
+msgid "Orange"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:377
+msgid "Yellow"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:381
+msgid "Light Green"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:385
+msgid "Aqua"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:389
+msgid "Light Blue"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:393
+msgid "Blue"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:397
+msgid "Violet"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:401
+msgid "Grey"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:405
+msgid "Light Grey"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:409
+msgid "White"
+msgstr ""
+
+#: ../src/fe-gnome/topic-label.c:250
+#, c-format
+msgid "Changing topic for %s"
+msgstr ""
+
+#: ../src/fe-gnome/userlist-gui.c:60
+msgid "_Send File..."
+msgstr "Bidali fitxategia"
+
+#: ../src/fe-gnome/userlist-gui.c:61
+msgid "Private _Chat"
+msgstr "Pribatua"
+
+#: ../src/fe-gnome/userlist-gui.c:62
+msgid "_Kick"
+msgstr "Kanporatu"
+
+#: ../src/fe-gnome/userlist-gui.c:63
+msgid "_Ban"
+msgstr "Debekatu"
+
+#: ../src/fe-gnome/userlist-gui.c:393
+#, c-format
+msgid ""
+"%s\n"
+"<span weight=\"bold\">Name:</span> %s"
+msgstr ""
+
+#: ../src/fe-gnome/userlist-gui.c:400
+#, c-format
+msgid ""
+"%s\n"
+"<span weight=\"bold\">Country:</span> %s"
+msgstr ""
+
+#: ../src/fe-gnome/userlist-gui.c:410
+#, c-format
+msgid ""
+"%s\n"
+"<span weight=\"bold\">Last message:</span> %d minute ago"
+msgid_plural ""
+"%s\n"
+"<span weight=\"bold\">Last message:</span> %d minutes ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/fe-gnome/userlist-gui.c:421
+#, c-format
+msgid ""
+"%s\n"
+"<span weight=\"bold\">Away message:</span> %s"
+msgstr ""
+
+#: ../src/fe-gnome/userlist.c:320
+#, c-format
+msgid "%d User"
+msgid_plural "%d Users"
+msgstr[0] ""
+msgstr[1] ""
+
+#~ msgid "Enter a new nickname"
+#~ msgstr "Sartu ezizen berria:"
+
+#~ msgid "Disconnected"
+#~ msgstr "Deskonektatu"
+
+#~ msgid "Connected"
+#~ msgstr "Konektatu"
+
+#~ msgid "C_lear"
+#~ msgstr "Garbitu"
+
+#~ msgid "_Clear Window"
+#~ msgstr "_Leihoa"
+
+#~ msgid "_Auto-join"
+#~ msgstr "_Automatikoa"
