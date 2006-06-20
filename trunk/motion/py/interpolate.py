@@ -25,7 +25,8 @@ usage: interpolate.py <asf file> <graph> <bayes net> <input amc> <output amc> <s
 """
 
 from Graph import algorithms_c, Combinatoric, MotionGraph
-from Graph.Data import Graph, VertexMap, AdjacencyList
+from Graph.Combinatoric import BayesAdjacency, VertexMap
+from Graph.Data import Graph
 from Graph.Algorithms import Heuristic
 from Motion import AMC, ASFReader, Interpolate
 from optparse import OptionParser
@@ -74,15 +75,15 @@ print 'loading asf'
 asf = ASFReader()
 asf.parse(args[0])
 
+print 'loading bayes net'
+bayes_net = pickle.load(open(args[2]))
+
 print 'loading graphs'
 graphs = pickle.load(open(args[1]))
 cgraph = Graph ()
-cAdj = Combinatoric.AdjacencyList (cgraph)
-cVMap = Combinatoric.VertexMap (cgraph)
+cAdj = BayesAdjacency (cgraph, bayes_net)
+cVMap = VertexMap (cgraph)
 cgraph.addList ([(name, graph) for name, graph in graphs.iteritems ()])
-
-print 'loading bayes net'
-bayes_net = pickle.load(open(args[2]))
 
 start = {}
 end = {}
