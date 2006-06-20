@@ -20,9 +20,9 @@ Functions:
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-from Graph import algorithms_c
+from Graph import algorithms_c, Data
 from Graph.Algorithms import Algorithm, Heuristic
-from Graph.Data import AdjacencyList, VertexMap
+from Graph.Combinatoric import BayesAdjacency, VertexMap
 from Graph.MotionGraph import fix360, fixnegative
 from LinearAlgebra import inverse
 from Motion import AMC
@@ -151,7 +151,9 @@ class GraphSearch (Algorithm):
         Algorithm.__init__ (self, graph)
         self.search = Heuristic (graph, self.f, fixNode (source),
                 fixNode (goal))
-        self.adjacency = dict (graph.representations[AdjacencyList].data) 
+        self.source = source
+        self.goal = goal
+        self.adjacency = dict (graph.representations[BayesAdjacency].data) 
         self.run ()
 
     def invalidate (self):
@@ -175,7 +177,7 @@ class GraphSearch (Algorithm):
 
         # Construct a list of dictionaries to return. Each dictionary is a
         # frame in the animation.
-        for i in range(len(path)):
+        for i in range(len(self.path)):
             frame = {}
             for bone in self.path[i].keys():
                 node = self.path[i][bone]
@@ -183,8 +185,8 @@ class GraphSearch (Algorithm):
 
                 # Linearly interpolate the position of the root at each frame
                 if bone == "root":
-                    rootstart = list(start["root"][0:3])
-                    rootend = list(end["root"][0:3])
+                    rootstart = list(self.source["root"][0:3])
+                    rootend = list(self.goal["root"][0:3])
                     pos = self.linear_interp(rootstart, rootend, i, len(self.path))
                     center = pos + center
 
@@ -207,7 +209,7 @@ class GraphSearch (Algorithm):
         Returns:
             A `MotionGraphNode` from ``self.graph`` containing ``pos``
         """
-        vertex_map = self.graph.representations[VertexMap]
+        vertex_map = self.graph.representations[Data.VertexMap]
         for vertex in vertex_map:
             for bone, node in vertex.iteritems ():
                 if node.inside (pos[bone]):
@@ -244,24 +246,31 @@ class GraphSearch (Algorithm):
         Returns:
             A number representing the cost of ``path`` in relation to ``goal``
         """
+        print "f"
         end = path[-1]
         g = len (path)
         h = 0
 
         for bone in end.iterkeys():
+            print "  starting on", bone
             if bone not in self.adjacency:
+                print "    %s not in adjacency" % bone
                 continue
             adj = self.adjacency[bone]
             endb = end.get(bone)
             goalb = goal.get(bone)
 
             if bone not in self.cached_costs:
+                print "    %s not cached" % bone
                 self.cached_costs[bone] = {}
             if (endb, goalb) in self.cached_costs[bone]:
+                print "    %s not cached" % (endb, goalb)
                 h += self.cached_costs[bone][(endb, goalb)]
                 continue
 
+            print "Dijkstra..."
             path = algorithms_c.dijkstraSearch(adj, endb, goalb)
+            print "done."
             h += len(path)
 
             for i in range(1, len(path)):
