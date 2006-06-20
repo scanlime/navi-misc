@@ -1,4 +1,4 @@
-0.12
+0.12 "All roads lead to Sean Connery" (20 June 2006)
 	* A new sheme for theme-based foreground and backgrond colors, with
 	  automatic palette optimization for mIRC color codes.
 	* Remove redundant nicknames (with a gconf key to re-enable them)
