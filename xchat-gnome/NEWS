@@ -1,3 +1,10 @@
+0.12
+	* A new sheme for theme-based foreground and backgrond colors, with
+	  automatic palette optimization for mIRC color codes.
+	* Remove redundant nicknames (with a gconf key to re-enable them)
+	* Show a whois tooltip on users in the conversation panel
+	* A large number of bug fixes and smaller improvements
+
 0.11 "I have plenty of better things to do, I just aren't doing them" (04 April 2006)
 	* Show whois info in a tooltip on the userlist
 	* Add a preferences page for controlling spell-checking (enabling it,
