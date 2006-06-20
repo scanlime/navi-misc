@@ -48,7 +48,7 @@ chanlist_filter (GtkTreeModel *model, GtkTreeIter *iter, channel_list_window *wi
 
 	/* text filtering */
 	if (window->filter_topic && window->text_filter != NULL && strlen (window->text_filter) != 0)
-		/* We have something to filtre */
+		/* We have something to filter */
 		if (strcasestr (topic, window->text_filter) == NULL)
 			return FALSE;
 
@@ -151,11 +151,6 @@ chanlist_refresh (GtkWidget *button, channel_list_window *win)
 	 */
 	win->refresh_calls = 0;
 	win->refresh_timeout = g_timeout_add (2000, (GSourceFunc) resensitize, (gpointer) win);
-}
-
-static void
-chanlist_save (GtkWidget *button, channel_list_window *win)
-{
 }
 
 static void
@@ -304,8 +299,6 @@ create_channel_list (session *sess)
 
 	refresh_button = glade_xml_get_widget (win->xml, "refresh button");
 	g_signal_connect (G_OBJECT (refresh_button), "clicked", G_CALLBACK (chanlist_refresh), win);
-	widget = glade_xml_get_widget (win->xml, "save button");
-	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (chanlist_save), win);
 	widget = glade_xml_get_widget (win->xml, "join button");
 	gtk_widget_set_sensitive (widget, FALSE);
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (chanlist_join), win);

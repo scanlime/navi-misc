@@ -17,8 +17,6 @@
 		</menu>
 
 		<menu name="NetworkMenu" action="Network">
-			<menuitem name="NetworkInformationItem" action="NetworkInformation"/>
-			<separator name="NetworkSep0"/>
 			<menuitem name="NetworkReconnectItem" action="NetworkReconnect"/>
 			<menuitem name="NetworkDisconnectItem" action="NetworkDisconnect"/>
 			<menuitem name="NetworkCloseItem" action="NetworkClose"/>

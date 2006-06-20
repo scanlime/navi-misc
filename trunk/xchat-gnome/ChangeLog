@@ -1,3 +1,13 @@
+Tue Jun 20 17:47:04 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/main-window.c:
+	* src/fe-gnome/channel-list.c:
+	* data/xchat-gnome-ui.xml:
+	* data/channel-list.glade:
+	  - Remove the "Save List As" button from the channel list window and
+	    the "Information" entry from the network menu.  They can be added
+	    back when/if they're implemented.
+
 Tue Jun 20 17:31:10 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* configure.ac:
