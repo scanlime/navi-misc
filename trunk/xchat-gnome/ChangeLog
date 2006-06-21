@@ -1,3 +1,9 @@
+Wed Jun 21 15:29:49 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/userlist-gui.c:
+	  - Maybe fix a race condition that could cause a crash if a tooltip
+	    tries to pop up after the window is closed. (#343356)
+
 Wed Jun 21 03:50:41 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* plugins/autoaway/xscreensaver.c:
