@@ -5,18 +5,18 @@ by Micah Dowty's code for space-grant's PyMCK system, so you should love him.
 *Originally Copyright (C) 2004-2005 the Python Mission Control Kit team*
 """
 
-import Observable
+import Observable, string
 
 class Edge (object):
     """This object represents a graph edge.  It is immutable and
        usable as a dictionary key.
        """
-    __slots__ = ['u', 'v', 'dot_label']
+    __slots__ = ['u', 'v', 'dotAttrs']
 
     def __init__ (self, u, v, dot_label=None):
         self.u = u
         self.v = v
-        self.dot_label = dot_label
+        self.dotAttrs = {'label': dot_label}
 
     def __repr__ (self):
         return '<%s from %r to %r>' % (self.__class__.__name__, self.u, self.v)
@@ -29,8 +29,10 @@ class Edge (object):
             A string suitable for writing to a .dot file for generating a graph
             using dot(1)
         """
-        return '%s -> %s [label="%s"];' % (hash (self.u), hash (self.v),
-                self.dot_label)
+        id = '%s -> %s' % (hash (self.u), hash (self.v))
+        attrs = ['%s="%s"' % (key, value) for key, value in \
+                self.dotAttrs.iteritems ()]
+        return '%s [%s];' % (id, string.join (attrs, ','))
 
     def __hash__ (self):
         return hash ((self.u, self.v))
@@ -42,10 +44,10 @@ class Edge (object):
         return self.__class__ (self.u, self.v)
 
     def __getstate__ (self):
-        return self.u, self.v, self.dot_label
+        return self.u, self.v, self.dotAttrs
 
     def __setstate__ (self, state):
-        self.u, self.v, self.dot_label = state
+        self.u, self.v, self.dotAttrs = state
 
 class Graph (object):
     """A generic graph. This object does not specify how the graph is stored

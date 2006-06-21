@@ -48,10 +48,10 @@ class ProbabilityEdge (Edge):
         self.dot_label = '%.2f' % self.weight
 
     def __getstate__ (self):
-        return self.u, self.v, self.dot_label, self.count, self.weight
+        return self.u, self.v, self.dotAttrs, self.count, self.weight
 
     def __setstate__ (self, state):
-        self.u, self.v, self.dot_label, self.count, self.weight = state
+        self.u, self.v, self.dotAttrs, self.count, self.weight = state
 
 class MotionGraph (Graph):
     """Represent a graph of motion.

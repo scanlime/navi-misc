@@ -456,6 +456,8 @@ class HeuristicPrint (Heuristic):
         visited = []
         path = None
         step = 0
+        adj = self.graph.representations[Data.AdjacencyList]
+        eList = self.graph.representations[Data.EdgeList]
 
         while len(agenda) > 0:
             # Get the next node and test for the goal
@@ -468,6 +470,10 @@ class HeuristicPrint (Heuristic):
                     n.dotAttrs.update ([('style', 'filled'),
                             ('fillcolor', 'blue')])
 
+            for i in range (len (path) - 1):
+                edge = eList.query (path[i], path[i+1])
+                edge.dotAttrs['color'] = 'blue'
+
             print "printing step %i" % step
             f = file ('graphs/%s.dot' % step, 'w')
             DotPrint (self.graph, f)
@@ -478,6 +484,10 @@ class HeuristicPrint (Heuristic):
                     del n.dotAttrs['style']
                     del n.dotAttrs['fillcolor']
 
+            for i in range (len (path) - 1):
+                edge = eList.query (path[i], path[i+1])
+                del edge.dotAttrs['color']
+
             if node == self.goal:
                 # Reconstruct the path to the goal
                 self.path = path
@@ -486,7 +496,6 @@ class HeuristicPrint (Heuristic):
             # Add the successors of this node to the agenda and record the node
             # that generated these successors.
             numSucc = numAdded = 0
-            adj = self.graph.representations[Data.AdjacencyList]
             for edge in adj.query (node):
                 numSucc += 1
                 if edge.v not in visited:
