@@ -7,14 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-06-16 19:21-0600\n"
-"PO-Revision-Date: 2006-06-17 01:54+0000\n"
-"Last-Translator: David Trowbridge <trowbrds@gmail.com>\n"
+"POT-Creation-Date: 2006-06-21 02:02-0600\n"
+"PO-Revision-Date: 2006-03-09 16:29+0000\n"
+"Last-Translator: Rosetta Administrators <rosetta@launchpad.net>\n"
 "Language-Team: English <en@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0\n"
 
 #: ../data/channel-list.glade.h:1
 msgid "<span weight=\"bold\">List Filtering</span>"
@@ -45,10 +44,6 @@ msgid "Minimum Users:"
 msgstr "Sá» nguá»i tá»i thiá»u:"
 
 #: ../data/channel-list.glade.h:8
-msgid "Save List _As"
-msgstr "Lưu là"
-
-#: ../data/channel-list.glade.h:9
 msgid "Text Filter:"
 msgstr "In tập tin văn bản"
 
@@ -56,7 +51,7 @@ msgstr "In tập tin văn bản"
 msgid "C_onnect"
 msgstr "_Káº¿t ná»i"
 
-#: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
+#: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:119
 msgid "File Transfers"
 msgstr "Việc chuyển giao tập tin"
 
@@ -201,140 +196,132 @@ msgid "Buil_t-in schemes:"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:19
-msgid "Choose languages to use for spellcheck:"
-msgstr ""
-
-#: ../data/preferences-dialog.glade.h:20
 msgid "Convert spaces to underscores in filenames"
 msgstr "Chuyển đổi mọi chữ cach thành dấu gạch dưới trước khi gởi"
 
-#: ../data/preferences-dialog.glade.h:21
+#: ../data/preferences-dialog.glade.h:20
 msgid "Download files to:"
 msgstr "Táº£i táº­p tin vá»:"
 
-#: ../data/preferences-dialog.glade.h:22
+#: ../data/preferences-dialog.glade.h:21
 msgid "Enter extra words to trigger highlighting"
 msgstr "Từ thêm cần nổi bật:"
 
-#: ../data/preferences-dialog.glade.h:23
+#: ../data/preferences-dialog.glade.h:22
 msgid "Foreground mark:"
 msgstr "Tiền cảnh:"
 
-#: ../data/preferences-dialog.glade.h:24
+#: ../data/preferences-dialog.glade.h:23
 msgid "Get IP Address From Server"
 msgstr "Gọi địa chỉ tôi từ máy phục vụ IRC"
 
-#: ../data/preferences-dialog.glade.h:25
+#: ../data/preferences-dialog.glade.h:24
 msgid "Global receive KB/s: "
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:26
+#: ../data/preferences-dialog.glade.h:25
 msgid "Global send KB/s: "
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:27
+#: ../data/preferences-dialog.glade.h:26
 msgid "Image _file:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:28
+#: ../data/preferences-dialog.glade.h:27
 msgid "Individual receive KB/s: "
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:29
+#: ../data/preferences-dialog.glade.h:28
 msgid "Individual send KB/s: "
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:30
+#: ../data/preferences-dialog.glade.h:29
 msgid "Move completed files to:"
 msgstr "Di Äá»ng táº­p tin táº£i xong vÃ o:"
 
-#: ../data/preferences-dialog.glade.h:31
+#: ../data/preferences-dialog.glade.h:30
 msgid "Preferences"
 msgstr "Sở thích..."
 
-#: ../data/preferences-dialog.glade.h:32
+#: ../data/preferences-dialog.glade.h:31
 msgid "Real na_me:"
 msgstr "Tên _thật:"
 
-#: ../data/preferences-dialog.glade.h:33
+#: ../data/preferences-dialog.glade.h:32
 msgid "Save sender nickname in filenames"
 msgstr "Lưu tên hiệu trong tên tập tin"
 
-#: ../data/preferences-dialog.glade.h:34
+#: ../data/preferences-dialog.glade.h:33
 msgid "Select A File"
 msgstr "Chọn tập tin ảnh"
 
-#: ../data/preferences-dialog.glade.h:35
+#: ../data/preferences-dialog.glade.h:34
 msgid "Select Completed Files Directory"
 msgstr "Di động tập tin tải xong vào:"
 
-#: ../data/preferences-dialog.glade.h:36
+#: ../data/preferences-dialog.glade.h:35
 msgid "Select Download Directory"
 msgstr "Tập tin và Thư mục"
 
-#: ../data/preferences-dialog.glade.h:37
+#: ../data/preferences-dialog.glade.h:36
 msgid "Show _timestamps"
 msgstr "Hiệu lực nhãn thời gian"
 
-#: ../data/preferences-dialog.glade.h:38
+#: ../data/preferences-dialog.glade.h:37
 msgid ""
 "To edit a shortcut key, click on the corresponding row and type a new "
 "accelerator, or press backspace to clear."
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:39
+#: ../data/preferences-dialog.glade.h:38
 msgid "Use System Terminal Font"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:40
+#: ../data/preferences-dialog.glade.h:39
 msgid "Use This IP Address:"
 msgstr "Địa chỉ IP DCC:"
 
-#: ../data/preferences-dialog.glade.h:41
+#: ../data/preferences-dialog.glade.h:40
 msgid "Use this font:"
 msgstr "Danh sách người dùng"
 
-#: ../data/preferences-dialog.glade.h:42
+#: ../data/preferences-dialog.glade.h:41
 msgid "_Background color:"
 msgstr "Nền:"
 
-#: ../data/preferences-dialog.glade.h:43
-msgid "_Check spelling"
-msgstr ""
-
-#: ../data/preferences-dialog.glade.h:44 ../src/fe-gnome/main-window.c:98
+#: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:98
 msgid "_Edit"
 msgstr "_Hiá»u chá»nh"
 
-#: ../data/preferences-dialog.glade.h:45
+#: ../data/preferences-dialog.glade.h:43
 msgid "_Foreground color:"
 msgstr "Tiền cảnh:"
 
-#: ../data/preferences-dialog.glade.h:46
+#: ../data/preferences-dialog.glade.h:44
 msgid "_Nickname:"
 msgstr "Tên _hiệu:"
 
-#: ../data/preferences-dialog.glade.h:47
+#: ../data/preferences-dialog.glade.h:45
 msgid "_None (use solid color)"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:48
+#: ../data/preferences-dialog.glade.h:46
 msgid "_Part message:"
 msgstr "Tin nhẳn mới:"
 
-#: ../data/preferences-dialog.glade.h:49
+#: ../data/preferences-dialog.glade.h:47
 msgid "_Quit message:"
 msgstr "Tin nhẳn bên phải"
 
-#: ../data/preferences-dialog.glade.h:50
+#: ../data/preferences-dialog.glade.h:48
 msgid "_Show colors"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:51
+#: ../data/preferences-dialog.glade.h:49
 msgid "_Transparent background"
 msgstr "Nền trong suốt"
 
-#: ../data/preferences-dialog.glade.h:52
+#: ../data/preferences-dialog.glade.h:50
 msgid "spell checking"
 msgstr ""
 
@@ -370,8 +357,8 @@ msgstr "Kênh"
 msgid "Chat with people using IRC"
 msgstr ""
 
-#: ../data/xchat-gnome.desktop.in.h:2 ../src/fe-gnome/fe-gnome.c:93
-#: ../src/fe-gnome/fe-gnome.c:104
+#: ../data/xchat-gnome.desktop.in.h:2 ../src/fe-gnome/fe-gnome.c:94
+#: ../src/fe-gnome/fe-gnome.c:105
 msgid "IRC Chat"
 msgstr "Trò chuyện"
 
@@ -411,7 +398,7 @@ msgid "Nickname"
 msgstr "TÃªn hiá»u"
 
 #: ../data/xchat-gnome.glade.h:6 ../src/common/text.c:805
-#: ../src/fe-gnome/channel-list.c:328 ../src/fe-gnome/userlist.c:325
+#: ../src/fe-gnome/channel-list.c:321 ../src/fe-gnome/userlist.c:325
 msgid "Users"
 msgstr "NgÆ°á»i dÃ¹ng"
 
@@ -474,7 +461,7 @@ msgstr ""
 msgid "%s loaded successfully!\n"
 msgstr ""
 
-#: ../plugins/dbus/xchat-gnome-remote.c:41 ../src/fe-gnome/fe-gnome.c:61
+#: ../plugins/dbus/xchat-gnome-remote.c:41 ../src/fe-gnome/fe-gnome.c:62
 msgid "Open an irc:// url"
 msgstr ""
 
@@ -680,7 +667,7 @@ msgstr ""
 msgid "xchat URL scraper"
 msgstr "X-Chat: Lấy địa chỉ Mạng"
 
-#: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:828
+#: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:844
 msgid "Time"
 msgstr "Thòi gian"
 
@@ -751,54 +738,64 @@ msgstr ""
 msgid "Cannot create ~/.xchat2"
 msgstr "KhÃ´ng táº¡o ÄÆ°á»£c thÆ° má»¥c Â« ~/.xchat2 Â»."
 
-#: ../src/common/cfgfiles.c:682
+#: ../src/common/cfgfiles.c:683
 msgid "I'm busy"
 msgstr "TÃ´i Äang báº­n"
 
-#: ../src/common/cfgfiles.c:683
+#: ../src/common/cfgfiles.c:684
 msgid "Leaving"
 msgstr "TÃ´i Äi"
 
-#: ../src/common/cfgfiles.c:729
+#: ../src/common/cfgfiles.c:730
 msgid ""
 "* Running IRC as root is stupid! You should\n"
 "  create a User Account and use that to login.\n"
 msgstr ""
-"* KhÃ´ng lÃ  Ã½ kiáº¿n tá»t Äá» cháº¡y IRC vá»Ã­ tÆ° cÃ¡ch lÃ  ngÆ°á»i "
-"chá»§ (root).\n"
-"HÃ£y táº¡o má»t tÃ i khoáº£n ngÆ°á»i dÃ¹ng vÃ  sá»­ dá»¥ng nÃ³ Äá» "
-"ÄÄng nháº­p.\n"
+"* KhÃ´ng lÃ  Ã½ kiáº¿n tá»t Äá» cháº¡y IRC vá»Ã­ tÆ° cÃ¡ch lÃ  ngÆ°á»i chá»§ "
+"(root).\n"
+"HÃ£y táº¡o má»t tÃ i khoáº£n ngÆ°á»i dÃ¹ng vÃ  sá»­ dá»¥ng nÃ³ Äá» ÄÄng nháº­"
+"p.\n"
 
-#: ../src/common/dcc.c:66
+#: ../src/common/dcc.c:67
 msgid "Waiting"
 msgstr "Äang Äá»i"
 
-#: ../src/common/dcc.c:67
+#. black
+#: ../src/common/dcc.c:68
 msgid "Active"
 msgstr "Hoáº·t Äá»ng"
 
-#: ../src/common/dcc.c:68
+#. cyan
+#: ../src/common/dcc.c:69
 msgid "Failed"
 msgstr "Tháº¥y báº¡i"
 
-#: ../src/common/dcc.c:69
+#. red
+#: ../src/common/dcc.c:70
 msgid "Done"
 msgstr "Xong rá»i"
 
-#: ../src/common/dcc.c:70 ../src/fe-gnome/connect-dialog.c:154
+#. green
+#: ../src/common/dcc.c:71 ../src/fe-gnome/connect-dialog.c:154
 msgid "Connect"
 msgstr "Káº¿t ná»i"
 
-#: ../src/common/dcc.c:71
+#. black
+#: ../src/common/dcc.c:72
 msgid "Aborted"
 msgstr "Bá» há»§y bá»"
 
-#: ../src/common/dcc.c:1340
+#: ../src/common/dcc.c:1875 ../src/common/outbound.c:2246
 #, c-format
 msgid "Cannot access %s\n"
 msgstr "KhÃ´ng truy cáº­p ÄÆ°á»£c Â« %s Â».\n"
 
-#: ../src/common/dcc.c:2020
+#: ../src/common/dcc.c:2362
+#, c-format
+msgid "%s is offering \"%s\". Do you want to accept?"
+msgstr ""
+
+#: ../src/common/dcc.c:2573
 msgid "No active DCCs\n"
 msgstr "KhÃ´ng cÃ³ DCC (trÃ² chuyá»n trá»±c tiáº¿p) hoáº·t Äá»ng nÃ o\n"
 
@@ -816,26 +813,25 @@ msgstr "Có  "
 msgid "NO   "
 msgstr "Không   "
 
-#: ../src/common/ignore.c:370
+#: ../src/common/ignore.c:377
 #, c-format
 msgid "You are being CTCP flooded from %s, ignoring %s\n"
 msgstr ""
 "BÃ¢y giá» báº¡n trÃ n ngáº­p CTCP tá»« Â« %s Â» nÃªn bá» qua Â« %s Â».\n"
 
-#: ../src/common/ignore.c:395
+#: ../src/common/ignore.c:402
 #, c-format
-msgid ""
-"You are being MSG flooded from %s, setting gui_auto_open_dialog OFF.\n"
+msgid "You are being MSG flooded from %s, setting gui_auto_open_dialog OFF.\n"
 msgstr ""
 "BÃ¢y giá» báº¡n trÃ n ngáº­p MSG tá»« Â« %s Â» nÃªn Táº®T tÃ¹y chá»n tá»± "
 "Äá»ng má» Äá»i thoáº¡i giao diá»n  (gui_auto_open_dialog).\n"
 
-#: ../src/common/notify.c:395
+#: ../src/common/notify.c:396
 #, c-format
 msgid "  %-20s online\n"
 msgstr "  %-20s trá»±c tuyáº¿n\n"
 
-#: ../src/common/notify.c:397
+#: ../src/common/notify.c:398
 #, c-format
 msgid "  %-20s offline\n"
 msgstr "  %-20s ngoáº¡á» tuyáº¿n\n"
@@ -877,85 +873,84 @@ msgstr ""
 msgid "Unknown arg '%s' ignored."
 msgstr "KhÃ´ng biáº¿t Äá»i sá» Â« %s Â» nÃªn bá» qua nÃ³."
 
-#: ../src/common/outbound.c:2948
+#: ../src/common/outbound.c:2960
 msgid "No such plugin found.\n"
 msgstr "KhÃ´ng tÃ¬m tháº¥y bá» cáº§m phÃ­t nhÆ° váº­y.\n"
 
-#: ../src/common/outbound.c:2953
+#: ../src/common/outbound.c:2965
 msgid "That plugin is refusing to unload.\n"
 msgstr "Bá» cáº§m phÃ­t áº¥y khÃ´ng bá» táº£i ÄÆ°Æ¡c.\n"
 
-#: ../src/common/outbound.c:3188
+#: ../src/common/outbound.c:3200
 msgid "ADDBUTTON <name> <action>, adds a button under the user-list"
 msgstr ""
-"Lá»nh Â« ADDBUTTON <tÃªn> <hÃ nh_Äá»ng> Â» thÃ¬ _thÃªm_ má»t _cÃ¡i nÃºt_ "
-"á» dÆ°á»i danh sÃ¡ch ngÆ°á»i dÃ¹ng"
+"Lá»nh Â« ADDBUTTON <tÃªn> <hÃ nh_Äá»ng> Â» thÃ¬ _thÃªm_ má»t _cÃ¡i nÃºt_ á» "
+"dÆ°á»i danh sÃ¡ch ngÆ°á»i dÃ¹ng"
 
-#: ../src/common/outbound.c:3190
+#: ../src/common/outbound.c:3202
 msgid "ALLCHAN <cmd>, sends a command to all channels you're in"
 msgstr ""
-"Lá»nh Â« ALLCHAN <lá»nh> Â» thÃ¬ gá»i lá»nh áº¥y cho _má»i kÃªnh_ "
-"hiá»n cÃ³ cá»§a báº¡n"
+"Lá»nh Â« ALLCHAN <lá»nh> Â» thÃ¬ gá»i lá»nh áº¥y cho _má»i kÃªnh_ hiá»n cÃ³ "
+"cá»§a báº¡n"
 
-#: ../src/common/outbound.c:3192
+#: ../src/common/outbound.c:3204
 msgid "ALLCHANL <cmd>, sends a command to all channels you're in"
 msgstr ""
-"Lá»nh Â« ALLCHAN <lá»nh> Â» thÃ¬ gá»i lá»nh áº¥y cho _má»i kÃªnh_ "
-"hiá»n cÃ³ cá»§a báº¡n"
+"Lá»nh Â« ALLCHAN <lá»nh> Â» thÃ¬ gá»i lá»nh áº¥y cho _má»i kÃªnh_ hiá»n cÃ³ "
+"cá»§a báº¡n"
 
-#: ../src/common/outbound.c:3194
+#: ../src/common/outbound.c:3206
 msgid "ALLSERV <cmd>, sends a command to all servers you're in"
 msgstr ""
-"Lá»nh Â« ALLSERV <lá»nh> Â» thÃ¬ gá»i lá»nh áº¥y cho _má»i mÃ¡y phá»¥c "
-"vá»¥_ hiá»n cÃ³ cá»§a báº¡n"
+"Lá»nh Â« ALLSERV <lá»nh> Â» thÃ¬ gá»i lá»nh áº¥y cho _má»i mÃ¡y phá»¥c vá»¥_ "
+"hiá»n cÃ³ cá»§a báº¡n"
 
-#: ../src/common/outbound.c:3195
+#: ../src/common/outbound.c:3207
 msgid "AWAY [<reason>], sets you away"
 msgstr ""
 "Lá»nh Â« AWAY [<lÃ½ do>] Â» láº­p trang thÃ¡i cá»§a báº¡n thÃ nh _Váº¯ng "
 "máº·t_"
 
-#: ../src/common/outbound.c:3197
+#: ../src/common/outbound.c:3209
 msgid ""
 "BAN <mask> [<bantype>], bans everyone matching the mask from the current "
 "channel. If they are already on the channel this doesn't kick them (needs "
 "chanop)"
 msgstr ""
-"Lá»nh Â« BAN <máº·t_náº¡> [<cÃ¡ch_Äuá»i>] Â» thÃ¬ _Äuá»i_ má»i "
-"ngÆ°á»i khá»p vá»i máº·t náº¡ áº¥y ra kÃªnh hiá»n cÃ³. Cáº§n Äáº¿n "
-"quyá»n Thao tÃ¡c (chanop) Äá» Äuá»i ra ngÆ°á»i nÃ o trÃªn kÃªnh rá»i."
+"Lá»nh Â« BAN <máº·t_náº¡> [<cÃ¡ch_Äuá»i>] Â» thÃ¬ _Äuá»i_ má»i ngÆ°á»i khá»p "
+"vá»i máº·t náº¡ áº¥y ra kÃªnh hiá»n cÃ³. Cáº§n Äáº¿n quyá»n Thao tÃ¡c "
+"(chanop) Äá» Äuá»i ra ngÆ°á»i nÃ o trÃªn kÃªnh rá»i."
 
-#: ../src/common/outbound.c:3199
+#: ../src/common/outbound.c:3211
 msgid "CLEAR, Clears the current text window"
 msgstr "Lá»nh Â« CLEAR Â» thÃ¬ _xÃ³a_ cá»­a sá» vÄn báº£n hiá»n cÃ³."
 
-#: ../src/common/outbound.c:3200
+#: ../src/common/outbound.c:3212
 msgid "CLOSE, Closes the current window/tab"
 msgstr "Lá»nh Â« CLOSE Â» thi _ÄÃ³ng_ cá»­a sá»/thanh hiá»n cÃ³."
 
-#: ../src/common/outbound.c:3203
-msgid ""
-"COUNTRY [-s] <code|wildcard>, finds a country code, eg: au = australia"
+#: ../src/common/outbound.c:3215
+msgid "COUNTRY [-s] <code|wildcard>, finds a country code, eg: au = australia"
 msgstr ""
-"Lá»nh Â« COUNTRY  [-s] <mÃ£|Äáº¡i_diá»n> Â» thÃ¬ tÃ¬m tháº¥y _quá»c "
-"gia_, v.d. mÃ£ au = Ãc"
+"Lá»nh Â« COUNTRY  [-s] <mÃ£|Äáº¡i_diá»n> Â» thÃ¬ tÃ¬m tháº¥y _quá»c gia_, v."
+"d. mÃ£ au = Ãc"
 
-#: ../src/common/outbound.c:3205
+#: ../src/common/outbound.c:3217
 msgid ""
 "CTCP <nick> <message>, send the CTCP message to nick, common messages are "
 "VERSION and USERINFO"
 msgstr ""
-"Lá»nh Â« CTCP <tÃªn_hiá»u> <tin_nháº³n> Â» thÃ¬ gá»i cho tÃªn hiá»u áº¥y "
-"tin nháº³n CTCP: hai tin nháº³n thÆ°á»ng lÃ  Â« VERSION Â» (phiÃªn báº£n) "
-"vÃ  Â« USERINFO Â» (thÃ´ng tin ngÆ°á»i dÃ¹ng)."
+"Lá»nh Â« CTCP <tÃªn_hiá»u> <tin_nháº³n> Â» thÃ¬ gá»i cho tÃªn hiá»u áº¥y tin "
+"nháº³n CTCP: hai tin nháº³n thÆ°á»ng lÃ  Â« VERSION Â» (phiÃªn báº£n) vÃ  Â« "
+"USERINFO Â» (thÃ´ng tin ngÆ°á»i dÃ¹ng)."
 
-#: ../src/common/outbound.c:3207
+#: ../src/common/outbound.c:3219
 msgid "CYCLE, parts current channel and immediately rejoins"
 msgstr ""
 "Lá»nh Â« CYCLE Â» thÃ¬ rá»i kÃªnh hiá»n Äi rá»i vÃ o láº¡i ngay (_quay "
 "láº¡i_)."
 
-#: ../src/common/outbound.c:3209
+#: ../src/common/outbound.c:3221
 msgid ""
 "\n"
 "DCC GET <nick>                      - accept an offered file\n"
@@ -970,136 +965,134 @@ msgstr ""
 "\n"
 "Lá»nh DCC GET <tÃªn_hiá»u> \t\tthÃ¬ cháº¥p nháº­n táº­p tin ÄÃ£ ÄÆ°a ra "
 "(_gá»i_)\n"
-"Lá»nh DCC SEND [-maxcps=#] <tÃªn_hiá»u> [táº­p_tin]      thÃ¬ _gá»i_ "
-"táº­p tin áº¥y cho ngÆ°á»i áº¥y\n"
-"Lá»nh DCC PSEND [-maxcps=#] <tÃªn_hiá»u> [táº­p_tin]\t\tthÃ¬ _gá»i_ táº­p "
-"tin áº¥y dÃ¹ng cháº¿ Äá» _bá» Äá»ng_\n"
+"Lá»nh DCC SEND [-maxcps=#] <tÃªn_hiá»u> [táº­p_tin]      thÃ¬ _gá»i_ táº­p tin "
+"áº¥y cho ngÆ°á»i áº¥y\n"
+"Lá»nh DCC PSEND [-maxcps=#] <tÃªn_hiá»u> [táº­p_tin]\t\tthÃ¬ _gá»i_ táº­p tin "
+"áº¥y dÃ¹ng cháº¿ Äá» _bá» Äá»ng_\n"
 "Lá»nh DCC LIST   \t\t\t\tthÃ¬ hiá»n thá» _danh sÃ¡ch_ DCC\n"
-"Lá»nh DCC CHAT <tÃªn_hiá»u> \tthÃ¬ ÄÆ°a ra _trÃ² chuyá»n_ DCC vá»i "
-"ngÆ°á»i áº¥y\n"
-"Lá»nh DCC PCHAT <tÃªn_hiá»u>\t\tÄÆ°a ra _trá» chuyá»n_ DCC dÃ¹ng cháº¿ "
-"Äá» _bá» Äá»ng_\n"
-"Lá»nh DCC CLOSE <loáº¡i> <tÃªn_hiá»u> <táº­p_tin>   (_ÄÃ³ng_)      thÃ­ "
-"dá»¥:\n"
-"         Â« /dcc close send nguyenvan táº­p_tin.tar.gz Â» (gá»i cho "
-"ngÆ°á»i nguyenvan táº­p_tin.tar.gz)"
+"Lá»nh DCC CHAT <tÃªn_hiá»u> \tthÃ¬ ÄÆ°a ra _trÃ² chuyá»n_ DCC vá»i ngÆ°á»i áº"
+"¥y\n"
+"Lá»nh DCC PCHAT <tÃªn_hiá»u>\t\tÄÆ°a ra _trá» chuyá»n_ DCC dÃ¹ng cháº¿ Äá» "
+"_bá» Äá»ng_\n"
+"Lá»nh DCC CLOSE <loáº¡i> <tÃªn_hiá»u> <táº­p_tin>   (_ÄÃ³ng_)      thÃ­ dá»¥:\n"
+"         Â« /dcc close send nguyenvan táº­p_tin.tar.gz Â» (gá»i cho ngÆ°á»i "
+"nguyenvan táº­p_tin.tar.gz)"
 
-#: ../src/common/outbound.c:3221
+#: ../src/common/outbound.c:3233
 msgid ""
 "DEHOP <nick>, removes chanhalf-op status from the nick on the current "
 "channel (needs chanop)"
 msgstr ""
 "Lá»nh Â« DEHOP <tÃªn_hiá»u> Â» thÃ¬ bá» ra tÃªn hiá»u áº¥y tráº¡ng thÃ¡i "
 "Thao tÃ¡c kÃªnh ná»­a (chanhalf-op) trÃªn kÃªnh hiá»n cÃ³ (cáº§n Äáº¿n "
-"tráº¡ng thÃ¡i Thao tÃ¡c kÃªnh) â DE (bá» ra) Half (ná»­a) OPerator (Thao "
-"tÃ¡c viÃªn)."
+"tráº¡ng thÃ¡i Thao tÃ¡c kÃªnh) â DE (bá» ra) Half (ná»­a) OPerator (Thao tÃ¡c "
+"viÃªn)."
 
-#: ../src/common/outbound.c:3223
+#: ../src/common/outbound.c:3235
 msgid "DELBUTTON <name>, deletes a button from under the user-list"
 msgstr ""
 "Lá»nh Â« DELBUTTON <tÃªn> Â» thi _xÃ³a bá» cÃ¡i nÃºt_ áº¥y ra dÆ°á»i danh "
 "sÃ¡ch ngÆ°á»i dÃ¹ng (DELete â xÃ³a bá»)."
 
-#: ../src/common/outbound.c:3225
+#: ../src/common/outbound.c:3237
 msgid ""
 "DEOP <nick>, removes chanop status from the nick on the current channel "
 "(needs chanop)"
 msgstr ""
-"Lá»nh Â« DEOP <tÃªn_hiá»u> Â» thÃ¬ bá» ra tÃªn hiá»u áº¥y tráº¡ng thÃ¡i "
-"Thao tÃ¡c kÃªnh (chanop) trÃªn kÃªnh hiá»n cÃ³ (cáº§n Äáº¿n tráº¡ng thÃ¡i "
-"Thao tÃ¡c kÃªnh (chanop)) â DE (bá») OPerator (Thao tÃ¡c viÃªn)."
+"Lá»nh Â« DEOP <tÃªn_hiá»u> Â» thÃ¬ bá» ra tÃªn hiá»u áº¥y tráº¡ng thÃ¡i Thao "
+"tÃ¡c kÃªnh (chanop) trÃªn kÃªnh hiá»n cÃ³ (cáº§n Äáº¿n tráº¡ng thÃ¡i Thao "
+"tÃ¡c kÃªnh (chanop)) â DE (bá») OPerator (Thao tÃ¡c viÃªn)."
 
-#: ../src/common/outbound.c:3227
+#: ../src/common/outbound.c:3239
 msgid ""
 "DEVOICE <nick>, removes voice status from the nick on the current channel "
 "(needs chanop)"
 msgstr ""
-"Lá»nh Â« DEVOICE <tÃªn_hiá»u> Â» thÃ¬ _bá» ra_ tÃªn hiá»u áº¥y tráº¡ng "
-"thÃ¡i _tiáº¿ng nÃ³i_ trÃªn kÃªnh hiá»n cÃ³ (cáº§n Äáº¿n tráº¡ng thÃ¡i Thao "
-"tÃ¡c kÃªnh [chanop])."
+"Lá»nh Â« DEVOICE <tÃªn_hiá»u> Â» thÃ¬ _bá» ra_ tÃªn hiá»u áº¥y tráº¡ng thÃ¡i "
+"_tiáº¿ng nÃ³i_ trÃªn kÃªnh hiá»n cÃ³ (cáº§n Äáº¿n tráº¡ng thÃ¡i Thao tÃ¡c "
+"kÃªnh [chanop])."
 
-#: ../src/common/outbound.c:3228
+#: ../src/common/outbound.c:3240
 msgid "DISCON, Disconnects from server"
 msgstr ""
-"Lá»nh Â« DISCON Â» thÃ¬ ngáº¯t káº¿t ná»i ra mÃ¡y phá»¥c vá»¥ â "
-"DISCONnect (ngáº¯t káº¿t ná»i)."
+"Lá»nh Â« DISCON Â» thÃ¬ ngáº¯t káº¿t ná»i ra mÃ¡y phá»¥c vá»¥ â DISCONnect "
+"(ngáº¯t káº¿t ná»i)."
 
-#: ../src/common/outbound.c:3229
+#: ../src/common/outbound.c:3241
 msgid "DNS <nick|host|ip>, Finds a users IP number"
 msgstr ""
-"Lá»nh Â« DNS <tÃªn_hiá»u|mÃ¡y_phá»¥c_vá»¥|ip> Â» thÃ¬ tÃ¬m tháº¥y Äá»a "
-"chá» IP cá»§a ngÆ°á»i dÃ¹ng áº¥y â Domain Name System (Há» thá»ng tÃªn "
-"miá»n)."
+"Lá»nh Â« DNS <tÃªn_hiá»u|mÃ¡y_phá»¥c_vá»¥|ip> Â» thÃ¬ tÃ¬m tháº¥y Äá»a chá» "
+"IP cá»§a ngÆ°á»i dÃ¹ng áº¥y â Domain Name System (Há» thá»ng tÃªn miá»n)."
 
-#: ../src/common/outbound.c:3230
+#: ../src/common/outbound.c:3242
 msgid "ECHO <text>, Prints text locally"
 msgstr ""
-"Lá»nh Â« ECHO <Äoáº¡n> Â» thÃ¬ in ra Äoáº¡n áº¥y má»t cÃ¡ch Äá»a "
-"phÆ°Æ¡ng (_vá»ng_)."
+"Lá»nh Â« ECHO <Äoáº¡n> Â» thÃ¬ in ra Äoáº¡n áº¥y má»t cÃ¡ch Äá»a phÆ°Æ¡ng "
+"(_vá»ng_)."
 
-#: ../src/common/outbound.c:3233
+#: ../src/common/outbound.c:3245
 msgid ""
 "EXEC [-o] <command>, runs the command. If -o flag is used then output is "
 "sent to current channel, else is printed to current text box"
 msgstr ""
 "Lá»nh Â« EXEC [-o] <lá»nh> Â» thÃ¬ _thá»±c hiá»n_ lá»nh áº¥y. Náº¿u cÃ³ "
-"dÃ¹ng cá» -o thÃ¬ gá»i dá»¯ liá»u xuáº¥t cho kÃªnh hiá»n cÃ³, náº¿u "
-"khÃ´ng thÃ¬ in ra dá»¯ liá»u xuáº¥t vÃ o há»p vÄn báº£n hiá»n cÃ³ â "
-"EXECute (thá»±c hiá»n)."
+"dÃ¹ng cá» -o thÃ¬ gá»i dá»¯ liá»u xuáº¥t cho kÃªnh hiá»n cÃ³, náº¿u khÃ´ng "
+"thÃ¬ in ra dá»¯ liá»u xuáº¥t vÃ o há»p vÄn báº£n hiá»n cÃ³ â EXECute (thá»±c "
+"hiá»n)."
 
-#: ../src/common/outbound.c:3235
+#: ../src/common/outbound.c:3247
 msgid "EXECCONT, sends the process SIGCONT"
 msgstr "Lá»nh Â« EXECCONT Â» thÃ¬ gá»i tiáº¿n trÃ¬nh Â« SIGCONT Â»."
 
-#: ../src/common/outbound.c:3238
+#: ../src/common/outbound.c:3250
 msgid ""
 "EXECKILL [-9], kills a running exec in the current session. If -9 is given "
 "the process is SIGKILL'ed"
 msgstr ""
 "Lá»nh Â« EXECKILL [-9] Â» thÃ¬ buá»c káº¿t thá»©c tiáº¿n trÃ¬nh Â« exec Â» "
-"Äang cháº¡y trong phiÃªn lÃ m viá»c hiá»n cÃ³. Náº¿u cÃ³ dÃ¹ng cá» -9 "
-"thÃ¬ Â« SIGKILL Â» tiáº¿n trÃ¬nh áº¥y."
+"Äang cháº¡y trong phiÃªn lÃ m viá»c hiá»n cÃ³. Náº¿u cÃ³ dÃ¹ng cá» -9 thÃ¬ "
+"Â« SIGKILL Â» tiáº¿n trÃ¬nh áº¥y."
 
-#: ../src/common/outbound.c:3240
+#: ../src/common/outbound.c:3252
 msgid "EXECSTOP, sends the process SIGSTOP"
 msgstr "Lá»nh Â« EXECSTOP Â» thÃ¬ gá»i tiáº¿n trÃ¬nh Â« SIGSTOP Â»."
 
-#: ../src/common/outbound.c:3241
+#: ../src/common/outbound.c:3253
 msgid "EXECWRITE, sends data to the processes stdin"
 msgstr ""
-"Lá»nh Â« EXECWRITE Â» thi gá»i dá»¯ liá»u cho thiáº¿t bá» gÃµ chuáº©n "
-"cá»§a tiáº¿n trÃ¬nh Â» EXECute (thi hÃ nh) WRITE (ghi)."
+"Lá»nh Â« EXECWRITE Â» thi gá»i dá»¯ liá»u cho thiáº¿t bá» gÃµ chuáº©n cá»§a "
+"tiáº¿n trÃ¬nh Â» EXECute (thi hÃ nh) WRITE (ghi)."
 
-#: ../src/common/outbound.c:3245
+#: ../src/common/outbound.c:3257
 msgid "FLUSHQ, flushes the current server's send queue"
 msgstr ""
 "Lá»nh Â« FLUSHQ Â» thÃ¬ _xÃ³a sáº¡ch hÃ ng Äá»£i_ gá»i cá»§a mÃ¡y phá»¥c "
 "vá»¥ hiá»n cÃ³ â Queue (hÃ ng Äá»i)."
 
-#: ../src/common/outbound.c:3247
+#: ../src/common/outbound.c:3259
 msgid "GATE <host> [<port>], proxies through a host, port defaults to 23"
 msgstr ""
 "Lá»nh GATE <mÃ¡y_phá»¥c_vá»¥> [<cá»ng>] thÃ¬ sá»­ dá»¥ng mÃ¡y phá»¥c vá»¥ "
 "á»§y nhiá»m; _cá»ng_ máº·c Äá»nh lÃ  23"
 
-#: ../src/common/outbound.c:3250
+#: ../src/common/outbound.c:3262
 msgid "GHOST <nick> <password>, Kills a ghosted nickname"
 msgstr ""
 
-#: ../src/common/outbound.c:3255
+#: ../src/common/outbound.c:3267
 msgid "HOP <nick>, gives chanhalf-op status to the nick (needs chanop)"
 msgstr ""
-"Lá»nh Â« HOP <tÃªn_hiá»u> Â» thÃ¬ ÄÆ°a ra tÃªn hiá»u áº¥y tráº¡ng thÃ¡i "
-"Thao tÃ¡c kÃªnh ná»­a (cáº§n Äáº¿n tráº¡ng thÃ¡i Thao tÃ¡c kÃªnh [chanop]) "
-"â Half (ná»­a) OPerator (Thao tac viÃªn)."
+"Lá»nh Â« HOP <tÃªn_hiá»u> Â» thÃ¬ ÄÆ°a ra tÃªn hiá»u áº¥y tráº¡ng thÃ¡i Thao "
+"tÃ¡c kÃªnh ná»­a (cáº§n Äáº¿n tráº¡ng thÃ¡i Thao tÃ¡c kÃªnh [chanop]) â Half "
+"(ná»­a) OPerator (Thao tac viÃªn)."
 
-#: ../src/common/outbound.c:3256
+#: ../src/common/outbound.c:3268
 msgid "ID <password>, identifies yourself to nickserv"
 msgstr ""
 "Lá»nh Â« <password> Â» thÃ¬ nháº­n diá»n báº¡n vá»i mÃ¡y phá»¥c vá»¥ tÃªn "
 "hiá»u â (_máº­t kháº©u_)."
 
-#: ../src/common/outbound.c:3258
+#: ../src/common/outbound.c:3270
 msgid ""
 "IGNORE <mask> <types..> <options..>\n"
 "    mask - host mask to ignore, eg: *!*@*.aol.com\n"
@@ -1109,333 +1102,325 @@ msgid ""
 msgstr ""
 "Lá»nh Â« IGNORE <máº·t_náº¡> <loáº¡i..> <tÃ¹y_chá»n..> Â»\n"
 "    IGNORE â bá» qua\n"
-"    máº·t náº¡ â máº·t náº¡ mÃ¡y phá»¥c vá»¥ cáº§n bá» qua, v.d.: "
-"*!*@*.aol.com\n"
-"    loáº¡i â loáº¡i dá»¯ liá»u cáº§n bá» qua, giÃ¡ trá» lÃ  má»t hay "
-"táº¥t cáº£ cá»§a:\n"
+"    máº·t náº¡ â máº·t náº¡ mÃ¡y phá»¥c vá»¥ cáº§n bá» qua, v.d.: *!*@*.aol."
+"com\n"
+"    loáº¡i â loáº¡i dá»¯ liá»u cáº§n bá» qua, giÃ¡ trá» lÃ  má»t hay táº¥t "
+"cáº£ cá»§a:\n"
 "            PRIV (riÃªng), CHAN (kÃªnh), NOTI (thÃ´ng bÃ¡o), CTCP, DCC (trÃ² "
 "chuyá»n trá»±c tiáº¿p), INVI (má»i), ALL (táº¥t cáº£)\n"
 "    tÃ¹y chá»n â NOSAVE (khÃ´ng lÆ°u), QUIET (im)"
 
-#: ../src/common/outbound.c:3265
+#: ../src/common/outbound.c:3277
 msgid ""
 "INVITE <nick> [<channel>], invites someone to a channel, by default the "
 "current channel (needs chanop)"
 msgstr ""
 "Lá»nh Â« INVITE <tÃªn_hiá»u> [<kÃªnh>] Â» thÃ¬ _má»i_ ngÆ°á»i áº¥y vÃ o "
-"kÃªnh áº¥y; máº·c Äá»nh lÃ  kÃªnh hiá»n cÃ³ (cáº§n Äáº¿n tráº¡ng thÃ¡i "
-"Thao tÃ¡c kÃªnh [chanop])."
+"kÃªnh áº¥y; máº·c Äá»nh lÃ  kÃªnh hiá»n cÃ³ (cáº§n Äáº¿n tráº¡ng thÃ¡i Thao "
+"tÃ¡c kÃªnh [chanop])."
 
-#: ../src/common/outbound.c:3266
+#: ../src/common/outbound.c:3278
 msgid "JOIN <channel>, joins the channel"
 msgstr "Lá»nh Â« JOIN <kÃªnh> Â» thi _vÃ o_ kÃªnh áº¥y."
 
-#: ../src/common/outbound.c:3268
+#: ../src/common/outbound.c:3280
 msgid "KICK <nick>, kicks the nick from the current channel (needs chanop)"
 msgstr ""
 "Lá»nh Â« KICK <tÃªn_hiá»u> Â» thi _ÄÃ¡_ ngÆ°á»i áº¥y ra kÃªnh hiá»n cÃ³ "
 "(cáº§n Äáº¿n tráº¡ng thÃ¡i Thao tÃ¡c kÃªnh [chanop])."
 
-#: ../src/common/outbound.c:3270
+#: ../src/common/outbound.c:3282
 msgid ""
 "KICKBAN <nick>, bans then kicks the nick from the current channel (needs "
 "chanop)"
 msgstr ""
-"Lá»nh Â« KICKBAN <tÃªn_hiá»u> Â» thÃ¬ _Äuá»i_ rá»i _ÄÃ¡_ ngÆ°á»i áº¥y "
-"ra kÃªnh hiá»n cÃ³ (cáº§n Äáº¿n tráº¡ng thÃ¡i Thao tÃ¡c kÃªnh [chanop])."
+"Lá»nh Â« KICKBAN <tÃªn_hiá»u> Â» thÃ¬ _Äuá»i_ rá»i _ÄÃ¡_ ngÆ°á»i áº¥y ra "
+"kÃªnh hiá»n cÃ³ (cáº§n Äáº¿n tráº¡ng thÃ¡i Thao tÃ¡c kÃªnh [chanop])."
 
-#: ../src/common/outbound.c:3273
+#: ../src/common/outbound.c:3285
 msgid "LAGCHECK, forces a new lag check"
-msgstr ""
-"Lá»nh Â« LAGCHECK Â» buá»c _kiá»m tra sá»± trá»_ káº¿t ná»i má»t láº§n "
-"ná»¯a."
+msgstr "Lá»nh Â« LAGCHECK Â» buá»c _kiá»m tra sá»± trá»_ káº¿t ná»i má»t láº§n ná»¯a."
 
-#: ../src/common/outbound.c:3275
+#: ../src/common/outbound.c:3287
 msgid "LASTLOG <string>, searches for a string in the buffer"
 msgstr ""
-"Lá»nh Â« LASTLOG <chuá»i> Â» tÃ¬m kiáº¿m chuá»i áº¥y trong bá» Äá»m "
-"(_báº£n ghi cuá»i cÃ¹ng_)."
+"Lá»nh Â« LASTLOG <chuá»i> Â» tÃ¬m kiáº¿m chuá»i áº¥y trong bá» Äá»m (_báº£n "
+"ghi cuá»i cÃ¹ng_)."
 
-#: ../src/common/outbound.c:3277
+#: ../src/common/outbound.c:3289
 msgid "LOAD [-e] <file>, loads a plugin or script"
 msgstr ""
-"Lá»nh Â« LOAD [-e] <táº­p_tin> Â» thÃ¬ _táº£i_ bá» má»t cáº§m phÃ­t hay "
-"táº­p lá»nh nÃ o ÄÃ³."
+"Lá»nh Â« LOAD [-e] <táº­p_tin> Â» thÃ¬ _táº£i_ bá» má»t cáº§m phÃ­t hay táº­p "
+"lá»nh nÃ o ÄÃ³."
 
-#: ../src/common/outbound.c:3280
+#: ../src/common/outbound.c:3292
 msgid ""
 "MDEHOP, Mass deop's all chanhalf-ops in the current channel (needs chanop)"
 msgstr ""
-"Lá»nh Â« MDEHOP Â» thÃ¬ bá» tráº¡ng thÃ¡i Thao tÃ¡c kÃªnh ná»­a (chanhalf-"
-"op) ra má»i ngÆ°á»i trÃªn kÃªnh hiá»n cÃ³ (cáº§n Äáº¿n tráº¡ng thÃ¡i "
-"Thao tÃ¡c kÃªnh [chanop]) â Mass (sá» nhiá»u) DE (bá») Half (ná»­a) "
-"OPerator (Thao tÃ¡c viÃªn)."
+"Lá»nh Â« MDEHOP Â» thÃ¬ bá» tráº¡ng thÃ¡i Thao tÃ¡c kÃªnh ná»­a (chanhalf-op) "
+"ra má»i ngÆ°á»i trÃªn kÃªnh hiá»n cÃ³ (cáº§n Äáº¿n tráº¡ng thÃ¡i Thao tÃ¡c "
+"kÃªnh [chanop]) â Mass (sá» nhiá»u) DE (bá») Half (ná»­a) OPerator (Thao tÃ¡c "
+"viÃªn)."
 
-#: ../src/common/outbound.c:3282
+#: ../src/common/outbound.c:3294
 msgid "MDEOP, Mass deop's all chanops in the current channel (needs chanop)"
 msgstr ""
-"Lá»nh Â« MDEOP Â» thÃ¬ bá» tráº¡ng thÃ¡i Thao tÃ¡c kÃªnh (chanop) ra má»i "
-"ngÆ°á»i trÃªn kÃªnh hiá»n cÃ³ (cáº§n Äáº¿n tráº¡ng thÃ¡i Thao tÃ¡c kÃªnh "
+"Lá»nh Â« MDEOP Â» thÃ¬ bá» tráº¡ng thÃ¡i Thao tÃ¡c kÃªnh (chanop) ra má»i ngÆ"
+"°á»i trÃªn kÃªnh hiá»n cÃ³ (cáº§n Äáº¿n tráº¡ng thÃ¡i Thao tÃ¡c kÃªnh "
 "[chanop]) â Mass (sá» nhiá»u) DE (bá») OPerator (Thao tÃ¡c viÃªn)"
 
-#: ../src/common/outbound.c:3284
+#: ../src/common/outbound.c:3296
 msgid ""
 "ME <action>, sends the action to the current channel (actions are written in "
 "the 3rd person, like /me jumps)"
 msgstr ""
-"Lá»nh Â« ME <hÃ nh_Äá»ng> Â» thÃ¬ gá»i hÃ nh Äá»ng áº¥y cho kÃªnh "
-"hiá»n cÃ³ (v.d. Â« ME jumps Â» cÃ³ nghÄ©a lÃ  Â« TÃ´i nháº£y Â») â ME "
-"(tÃ´i, mÃ¬nh)."
+"Lá»nh Â« ME <hÃ nh_Äá»ng> Â» thÃ¬ gá»i hÃ nh Äá»ng áº¥y cho kÃªnh hiá»n cÃ³ "
+"(v.d. Â« ME jumps Â» cÃ³ nghÄ©a lÃ  Â« TÃ´i nháº£y Â») â ME (tÃ´i, mÃ¬nh)."
 
-#: ../src/common/outbound.c:3287
+#: ../src/common/outbound.c:3299
 msgid ""
 "MKICK, Mass kicks everyone except you in the current channel (needs chanop)"
 msgstr ""
-"Lá»nh Â« MKICK Â» thÃ¬ _ÄÃ¡_ má»i ngÆ°á»i (trá»« báº¡n) ra kÃªnh hiá»n "
-"cÃ³ (cáº§n Äáº¿n tráº¡ng thÃ¡i Thao tÃ¡c kÃªnh [chanop]) â Mass (sá» "
-"nhiá»u)."
+"Lá»nh Â« MKICK Â» thÃ¬ _ÄÃ¡_ má»i ngÆ°á»i (trá»« báº¡n) ra kÃªnh hiá»n cÃ³ "
+"(cáº§n Äáº¿n tráº¡ng thÃ¡i Thao tÃ¡c kÃªnh [chanop]) â Mass (sá» nhiá»u)."
 
-#: ../src/common/outbound.c:3290
+#: ../src/common/outbound.c:3302
 msgid "MOP, Mass op's all users in the current channel (needs chanop)"
 msgstr ""
-"Lá»nh Â« MOP Â» thÃ¬ ÄÆ°a ra má»i ngÆ°á»i dÃ¹ng cÃ³ tráº¡ng thÃ¡i Thao "
-"tÃ¡c kÃªnh (chanop) trÃªn kÃªnh hiá»n cÃ³ (cáº§n Äáº¿n tráº¡ng thÃ¡i Thao "
-"tÃ¡c kÃªnh [chanop]) â Mass (sá» nhiá»u) OPerator (Thao tÃ¡c viÃªn)."
+"Lá»nh Â« MOP Â» thÃ¬ ÄÆ°a ra má»i ngÆ°á»i dÃ¹ng cÃ³ tráº¡ng thÃ¡i Thao tÃ¡c "
+"kÃªnh (chanop) trÃªn kÃªnh hiá»n cÃ³ (cáº§n Äáº¿n tráº¡ng thÃ¡i Thao tÃ¡c "
+"kÃªnh [chanop]) â Mass (sá» nhiá»u) OPerator (Thao tÃ¡c viÃªn)."
 
-#: ../src/common/outbound.c:3291
+#: ../src/common/outbound.c:3303
 msgid "MSG <nick> <message>, sends a private message"
 msgstr ""
-"Lá»nh Â« MSG <tÃªn_hiá»u> <tin_nháº³n> Â» thÃ¬ gá»i _tin nháº³n_ riÃªng "
-"â MeSsaGe (tin nháº³n)."
+"Lá»nh Â« MSG <tÃªn_hiá»u> <tin_nháº³n> Â» thÃ¬ gá»i _tin nháº³n_ riÃªng â "
+"MeSsaGe (tin nháº³n)."
 
-#: ../src/common/outbound.c:3294
+#: ../src/common/outbound.c:3306
 msgid "NAMES, Lists the nicks on the current channel"
 msgstr ""
-"Lá»nh Â« NAMES Â» thÃ¬ liá»t kÃª má»i _tÃªn_ hiá»u trÃªn kÃªnh hiá»n "
-"cÃ³."
+"Lá»nh Â« NAMES Â» thÃ¬ liá»t kÃª má»i _tÃªn_ hiá»u trÃªn kÃªnh hiá»n cÃ³."
 
-#: ../src/common/outbound.c:3296
+#: ../src/common/outbound.c:3308
 msgid "NCTCP <nick> <message>, Sends a CTCP notice"
 msgstr ""
-"Lá»nh Â« NCTCP <tÃªn_hiá»u> <tin_nháº³n> Â» thÃ¬ gá»i thÃ´ng bÃ¡o CTCP "
-"â Notice (thÃ´ng bÃ¡o)."
+"Lá»nh Â« NCTCP <tÃªn_hiá»u> <tin_nháº³n> Â» thÃ¬ gá»i thÃ´ng bÃ¡o CTCP â "
+"Notice (thÃ´ng bÃ¡o)."
 
-#: ../src/common/outbound.c:3297
+#: ../src/common/outbound.c:3309
 msgid "NEWSERVER [-noconnect] <hostname> [<port>]"
 msgstr ""
 "Lệnh « NEWSERVER <tên_máy_phục_vụ> [<cổng>] » thì lập _máy phục vụ mới_."
 
-#: ../src/common/outbound.c:3298
+#: ../src/common/outbound.c:3310
 msgid "NICK <nickname>, sets your nick"
 msgstr ""
-"Lá»nh Â« NICK <tÃªn_hiá»u> Â» thÃ¬ láº­p _tÃªn hiá»u_ cá»§a báº¡n â "
-"NICKname (tÃªn hiá»u: viáº¿t táº¯t)."
+"Lá»nh Â« NICK <tÃªn_hiá»u> Â» thÃ¬ láº­p _tÃªn hiá»u_ cá»§a báº¡n â NICKname "
+"(tÃªn hiá»u: viáº¿t táº¯t)."
 
-#: ../src/common/outbound.c:3301
+#: ../src/common/outbound.c:3313
 msgid ""
 "NOTICE <nick/channel> <message>, sends a notice. Notices are a type of "
 "message that should be auto reacted to"
 msgstr ""
-"Lá»nh Â« NOTICE <tÃªn_hiá»u/kÃªnh> <tin_nháº£n> Â» thÃ¬ gá»i _thÃ´ng "
-"bÃ¡o_: thÃ´ng bÃ¡o lÃ  loáº¡i tin nháº³n nÃªn nháº­n tráº£ lá»i tá»± "
-"Äá»ng."
+"Lá»nh Â« NOTICE <tÃªn_hiá»u/kÃªnh> <tin_nháº£n> Â» thÃ¬ gá»i _thÃ´ng bÃ¡o_: "
+"thÃ´ng bÃ¡o lÃ  loáº¡i tin nháº³n nÃªn nháº­n tráº£ lá»i tá»± Äá»ng."
 
-#: ../src/common/outbound.c:3303
+#: ../src/common/outbound.c:3315
 msgid "NOTIFY [<nick>], lists your notify list or adds someone to it"
 msgstr ""
 "Lá»nh Â« NOTIFY [<tÃªn_hiá»u>] Â» thÃ¬ liá»t kÃª danh sÃ¡ch _thÃ´ng bÃ¡o_ "
 "cá»§a báº¡n, hay thÃªm ngÆ°á»i nÃ o vÃ o nÃ³."
 
-#: ../src/common/outbound.c:3305
+#: ../src/common/outbound.c:3317
 msgid "OP <nick>, gives chanop status to the nick (needs chanop)"
 msgstr ""
-"Lá»nh Â« OP <tÃªn_hiá»u> Â» thÃ¬ ÄÆ°a ra tÃªn hiá»u áº¥y cÃ³ tráº¡ng "
-"thÃ¡i Thao tÃ¡c kÃªnh (chanop) (cáº§n Äáº¿n tráº¡ng thÃ¡i Thao tÃ¡c kÃªnh "
+"Lá»nh Â« OP <tÃªn_hiá»u> Â» thÃ¬ ÄÆ°a ra tÃªn hiá»u áº¥y cÃ³ tráº¡ng thÃ¡i "
+"Thao tÃ¡c kÃªnh (chanop) (cáº§n Äáº¿n tráº¡ng thÃ¡i Thao tÃ¡c kÃªnh "
 "[chanop]) â OPerator (Thao tÃ¡c viÃªn)."
 
-#: ../src/common/outbound.c:3307
+#: ../src/common/outbound.c:3319
 msgid ""
 "PART [<channel>] [<reason>], leaves the channel, by default the current one"
 msgstr ""
-"Lá»nh Â« PART [<kÃªnh>] [<lÃ½_do>] Â» thÃ¬ rá»i kÃªnh áº¥y Äi; máº·c "
-"Äá»nh lÃ  kÃªnh hiá»n cÃ³ â dePART (rá»i Äi)."
-
-#: ../src/common/outbound.c:3309
-msgid "PING <nick | channel>, CTCP pings nick or channel"
-msgstr ""
-"Lá»nh Â« PING <tÃªn_hiá»u | kÃªnh> Â» thÃ¬ thi hÃ nh tiáº¿n trÃ¬nh ping "
-"CTCP vá»i tÃªn hiÃªu hay kÃªnh áº¥y."
-
-#: ../src/common/outbound.c:3311
-msgid "QUERY <nick>, opens up a new privmsg window to someone"
-msgstr ""
-"Lá»nh Â« QUERY <tÃªn_hiá»u> Â» thÃ¬ má» má»t cá»­a sá» tin nháº³n "
-"riÃªng má»i cho ngÆ°á»i áº¥y (_truy_váº¥n_)."
-
-#: ../src/common/outbound.c:3313
-msgid "QUIT [<reason>], disconnects from the current server"
-msgstr ""
-"Lá»nh Â« QUIT [<lÃ½_do>] Â» thÃ¬ ngáº¯t káº¿t ná»i ra mÃ¡y phá»¥c vá»¥ "
-"hiá»n cÃ³ (_thoÃ¡t_)."
-
-#: ../src/common/outbound.c:3315
-msgid "QUOTE <text>, sends the text in raw form to the server"
-msgstr ""
-"Lá»nh Â« QUOTE <Äoáº¡n> Â» thÃ¬ gá»i Äoáº¡n áº¥y dáº¡ng thÃ´ cho mÃ¡y "
-"phá»¥c vá»¥ (_trÃ­ch dáº«n_)."
-
-#: ../src/common/outbound.c:3318
-msgid ""
-"RECONNECT [-ssl] [<host>] [<port>] [<password>], Can be called just as "
-"/RECONNECT to reconnect to the current server or with /RECONNECT ALL to "
-"reconnect to all the open servers"
-msgstr ""
-"Lá»nh Â« RECONNECT [-ssl] [<mÃ¡y_phá»¥c_cá»¥>] [<cá»ng>] [<máº­t_kháº©u>] "
-"Â»\n"
-"cÃ³ thá» káº¿t ná»i láº¡i Äáº¿n máº¥y phá»¥c vá»¥ hiá»n cÃ³ khi chá» "
-"ÄÆ¡n giáº£n sá»­ dá»¥ng Â« /RECONNECT Â», hay káº¿t ná»i láº¡i Äáº¿n "
-"má»i mÃ¡y phá»¥c vá»¥ Äang má» vá»i Â« /RECONNECT ALL Â» (phÆ°Æ¡ng phÃ¡p "
-"SSL báº£o vá» dá»¯ liá»u sáº½ chuyá»n giao)."
+"Lá»nh Â« PART [<kÃªnh>] [<lÃ½_do>] Â» thÃ¬ rá»i kÃªnh áº¥y Äi; máº·c Äá»nh "
+"lÃ  kÃªnh hiá»n cÃ³ â dePART (rá»i Äi)."
 
 #: ../src/common/outbound.c:3321
+msgid "PING <nick | channel>, CTCP pings nick or channel"
+msgstr ""
+"Lá»nh Â« PING <tÃªn_hiá»u | kÃªnh> Â» thÃ¬ thi hÃ nh tiáº¿n trÃ¬nh ping CTCP "
+"vá»i tÃªn hiÃªu hay kÃªnh áº¥y."
+
+#: ../src/common/outbound.c:3323
+msgid "QUERY <nick>, opens up a new privmsg window to someone"
+msgstr ""
+"Lá»nh Â« QUERY <tÃªn_hiá»u> Â» thÃ¬ má» má»t cá»­a sá» tin nháº³n riÃªng má»i "
+"cho ngÆ°á»i áº¥y (_truy_váº¥n_)."
+
+#: ../src/common/outbound.c:3325
+msgid "QUIT [<reason>], disconnects from the current server"
+msgstr ""
+"Lá»nh Â« QUIT [<lÃ½_do>] Â» thÃ¬ ngáº¯t káº¿t ná»i ra mÃ¡y phá»¥c vá»¥ hiá»n "
+"cÃ³ (_thoÃ¡t_)."
+
+#: ../src/common/outbound.c:3327
+msgid "QUOTE <text>, sends the text in raw form to the server"
+msgstr ""
+"Lá»nh Â« QUOTE <Äoáº¡n> Â» thÃ¬ gá»i Äoáº¡n áº¥y dáº¡ng thÃ´ cho mÃ¡y phá»¥c "
+"vá»¥ (_trÃ­ch dáº«n_)."
+
+#: ../src/common/outbound.c:3330
+msgid ""
+"RECONNECT [-ssl] [<host>] [<port>] [<password>], Can be called just as /"
+"RECONNECT to reconnect to the current server or with /RECONNECT ALL to "
+"reconnect to all the open servers"
+msgstr ""
+"Lá»nh Â« RECONNECT [-ssl] [<mÃ¡y_phá»¥c_cá»¥>] [<cá»ng>] [<máº­t_kháº©u>] Â»\n"
+"cÃ³ thá» káº¿t ná»i láº¡i Äáº¿n máº¥y phá»¥c vá»¥ hiá»n cÃ³ khi chá» ÄÆ¡n "
+"giáº£n sá»­ dá»¥ng Â« /RECONNECT Â», hay káº¿t ná»i láº¡i Äáº¿n má»i mÃ¡y "
+"phá»¥c vá»¥ Äang má» vá»i Â« /RECONNECT ALL Â» (phÆ°Æ¡ng phÃ¡p SSL báº£o vá» "
+"dá»¯ liá»u sáº½ chuyá»n giao)."
+
+#: ../src/common/outbound.c:3333
 msgid ""
 "RECONNECT [<host>] [<port>] [<password>], Can be called just as /RECONNECT "
 "to reconnect to the current server or with /RECONNECT ALL to reconnect to "
 "all the open servers"
 msgstr ""
 "Lá»nh Â« RECONNECT [<mÃ¡y_phá»¥c_vá»¥>] [<cá»ng>] [<máº­t_kháº©u>] Â»\n"
-"cÃ³ thá» káº¿t ná»i láº¡i Äáº¿n máº¥y phá»¥c vá»¥ hiá»n khi chá» ÄÆ¡n "
-"giáº£n sá»­ dá»¥ng Â« /RECONNECT Â», hay káº¿t ná»i láº¡i Äáº¿n má»i mÃ¡y "
-"phá»¥c vá»¥ má» vá»i Â« /RECONNECT ALL Â» (khÃ´ng cÃ³ báº£o vá» dá»¯ "
-"liá»u vá»i SSL)."
+"cÃ³ thá» káº¿t ná»i láº¡i Äáº¿n máº¥y phá»¥c vá»¥ hiá»n khi chá» ÄÆ¡n giáº£n "
+"sá»­ dá»¥ng Â« /RECONNECT Â», hay káº¿t ná»i láº¡i Äáº¿n má»i mÃ¡y phá»¥c "
+"vá»¥ má» vá»i Â« /RECONNECT ALL Â» (khÃ´ng cÃ³ báº£o vá» dá»¯ liá»u vá»i "
+"SSL)."
 
-#: ../src/common/outbound.c:3323
+#: ../src/common/outbound.c:3335
 msgid ""
 "RECV <text>, send raw data to xchat, as if it was received from the irc "
 "server"
 msgstr ""
-"Lá»nh Â« RECV <Äoáº¡n> Â» thÃ¬ gá»i dá»¯ liá»u thÃ´ vÃ o trÃ¬nh xchat, "
-"nhÆ° mÃ¡y phá»¥c vá»¥ irc cÃ³ thá» gá»i â RECeiVe (nháº­n)."
+"Lá»nh Â« RECV <Äoáº¡n> Â» thÃ¬ gá»i dá»¯ liá»u thÃ´ vÃ o trÃ¬nh xchat, nhÆ° "
+"mÃ¡y phá»¥c vá»¥ irc cÃ³ thá» gá»i â RECeiVe (nháº­n)."
 
-#: ../src/common/outbound.c:3326
+#: ../src/common/outbound.c:3338
 msgid "SAY <text>, sends the text to the object in the current window"
 msgstr ""
-"Lá»nh Â« SAY <Äoáº¡n> Â» thÃ¬ gá»i Äoáº¡n áº¥y cho Äá»i tÆ°á»£ng trong "
-"cá»­a sá» hiá»n cÃ³ (_nÃ³i_)."
+"Lá»nh Â« SAY <Äoáº¡n> Â» thÃ¬ gá»i Äoáº¡n áº¥y cho Äá»i tÆ°á»£ng trong cá»­a "
+"sá» hiá»n cÃ³ (_nÃ³i_)."
 
-#: ../src/common/outbound.c:3327
+#: ../src/common/outbound.c:3339
 msgid "SEND <nick> [<file>]"
 msgstr ""
 
-#: ../src/common/outbound.c:3330
+#: ../src/common/outbound.c:3342
 msgid "SERVCHAN [-ssl] <host> <port> <channel>, connects and joins a channel"
 msgstr ""
 "Lá»nh Â« SERVCHAN [-ssl] <mÃ¡y_phá»¥c_vá»¥> <cá»ng> <kÃªnh> Â» thÃ¬ káº¿t "
-"ná»i Äáº¿n kÃªnh áº¥y rá»i vÃ o nÃ³ (phÆ°Æ¡ng phÃ¡p SSL báº£o vá» dá»¯ "
-"liá»u sáº½ chuyá»n giao) â SERVer (mÃ¡y phá»¥c vá»¥) CHANnel (kÃªnh)."
+"ná»i Äáº¿n kÃªnh áº¥y rá»i vÃ o nÃ³ (phÆ°Æ¡ng phÃ¡p SSL báº£o vá» dá»¯ liá»u "
+"sáº½ chuyá»n giao) â SERVer (mÃ¡y phá»¥c vá»¥) CHANnel (kÃªnh)."
 
-#: ../src/common/outbound.c:3333
+#: ../src/common/outbound.c:3345
 msgid "SERVCHAN <host> <port> <channel>, connects and joins a channel"
 msgstr ""
 "Lá»nh Â« SERVCHAN <mÃ¡y_phá»¥c_vá»¥> <cá»ng> <kÃªnh> Â» thÃ¬ káº¿t ná»i "
-"Äáº¿n kÃªnh áº¥y rá»i vÃ o nÃ³ (khÃ´ng cÃ³ báº£o vá» dá»¯ liá»u vá»i "
-"SSL) â SERVer (mÃ¡y phá»¥c vá»¥) CHANnel (kÃªnh)."
+"Äáº¿n kÃªnh áº¥y rá»i vÃ o nÃ³ (khÃ´ng cÃ³ báº£o vá» dá»¯ liá»u vá»i SSL) â "
+"SERVer (mÃ¡y phá»¥c vá»¥) CHANnel (kÃªnh)."
 
-#: ../src/common/outbound.c:3337
+#: ../src/common/outbound.c:3349
 msgid ""
 "SERVER [-ssl] <host> [<port>] [<password>], connects to a server, the "
 "default port is 6667 for normal connections, and 9999 for ssl connections"
 msgstr ""
-"Lá»nh Â« SERVER [-ssl] <mÃ¡y_phá»¥c_vá»¥> [<cá»ng>] [<máº­t_kháº©u>] Â» "
-"thÃ¬ káº¿t ná»i Äáº¿n _mÃ¡y phá»¥c vá»¥_ áº¥y: cá»ng máº·c Äá»nh lÃ  "
-"sá» 6667 cho káº¿t ná»i thÆ°á»ng, vÃ  sá» 9999 cho káº¿t ná»i loáº¡i "
-"SSL (phÆ°Æ¡ng phÃ¡p SSL báº£o vá» dá»¯ liá»u sáº½ chuyá»n giao)."
+"Lá»nh Â« SERVER [-ssl] <mÃ¡y_phá»¥c_vá»¥> [<cá»ng>] [<máº­t_kháº©u>] Â» thÃ¬ "
+"káº¿t ná»i Äáº¿n _mÃ¡y phá»¥c vá»¥_ áº¥y: cá»ng máº·c Äá»nh lÃ  sá» 6667 cho "
+"káº¿t ná»i thÆ°á»ng, vÃ  sá» 9999 cho káº¿t ná»i loáº¡i SSL (phÆ°Æ¡ng phÃ¡p "
+"SSL báº£o vá» dá»¯ liá»u sáº½ chuyá»n giao)."
 
-#: ../src/common/outbound.c:3340
+#: ../src/common/outbound.c:3352
 msgid ""
 "SERVER <host> [<port>] [<password>], connects to a server, the default port "
 "is 6667"
 msgstr ""
-"Lá»nh Â« SERVER <mÃ¡y_phá»¥c_vá»¥> [<cá»ng>] [<máº­t_kháº©u>] Â» thÃ¬ "
-"káº¿t ná»i Äáº¿n _máº¥y phá»¥c vá»¥_ áº¥y; cá»ng máº·c Äá»nh lÃ  sá» "
-"6667 (khÃ´ng cÃ³ báº£o vá» dá»¯ liá»u vá»i SSL)."
+"Lá»nh Â« SERVER <mÃ¡y_phá»¥c_vá»¥> [<cá»ng>] [<máº­t_kháº©u>] Â» thÃ¬ káº¿t "
+"ná»i Äáº¿n _máº¥y phá»¥c vá»¥_ áº¥y; cá»ng máº·c Äá»nh lÃ  sá» 6667 (khÃ´ng "
+"cÃ³ báº£o vá» dá»¯ liá»u vá»i SSL)."
 
-#: ../src/common/outbound.c:3342
+#: ../src/common/outbound.c:3354
 msgid "SET [-quiet] <variable> [<value>]"
 msgstr ""
-"Lá»nh Â« SET [-quiet] <biáº¿n> [<giÃ¡_trá»>] Â» thÃ¬ _láº­p_ giÃ¡ trá» "
-"cho biáº¿n áº¥y; tÃ¹y chá»n Â« -quiet Â» (im) cÃ³ nghÄ©a lÃ  khÃ´ng in ra "
-"chi tiáº¿t."
+"Lá»nh Â« SET [-quiet] <biáº¿n> [<giÃ¡_trá»>] Â» thÃ¬ _láº­p_ giÃ¡ trá» cho "
+"biáº¿n áº¥y; tÃ¹y chá»n Â« -quiet Â» (im) cÃ³ nghÄ©a lÃ  khÃ´ng in ra chi "
+"tiáº¿t."
 
-#: ../src/common/outbound.c:3343
+#: ../src/common/outbound.c:3355
 msgid "SETCURSOR [-|+]<position>"
 msgstr ""
-"Lá»nh Â« SETCURSOR [-|+]<vá»_trÃ­> Â» thi _láº­p_ vá» trÃ­ cho _con "
-"trá»_."
+"Lá»nh Â« SETCURSOR [-|+]<vá»_trÃ­> Â» thi _láº­p_ vá» trÃ­ cho _con trá»_."
 
-#: ../src/common/outbound.c:3347
+#: ../src/common/outbound.c:3359
 msgid ""
 "TOPIC [<topic>], sets the topic if one is given, else shows the current topic"
 msgstr ""
-"Lá»nh Â« TOPIC [<chá»§_ÄÃ¨>] Â» thÃ¬ láº­p _chá»§ Äá»_ náº¿u ÄÆ°a ra "
-"nÃ³, náº¿u khÃ´ng thÃ¬ hiá»n thá» chá»§ Äá» hiá»n cÃ³."
+"Lá»nh Â« TOPIC [<chá»§_ÄÃ¨>] Â» thÃ¬ láº­p _chá»§ Äá»_ náº¿u ÄÆ°a ra nÃ³, "
+"náº¿u khÃ´ng thÃ¬ hiá»n thá» chá»§ Äá» hiá»n cÃ³."
 
-#: ../src/common/outbound.c:3349
+#: ../src/common/outbound.c:3361
 msgid "UNBAN <mask> [<mask>...], unbans the specified masks."
 msgstr ""
 "Lá»nh Â« UNBAN <máº·t_náº¡> [<máº·t_náº¡>...] Â» thÃ¬ _bá»_ tráº¡ng thÃ¡i "
 "_bá» Äuá»i ra_ nhá»¯ng máº·t náº¡ ÄÆ°á»£c ghi rÃµ."
 
-#: ../src/common/outbound.c:3350
+#: ../src/common/outbound.c:3362
 msgid "UNIGNORE <mask> [QUIET]"
 msgstr ""
-"Lá»nh Â« UNIGNORE <máº·t_náº¡> [QUIET] Â» thÃ¬ _bá»_ tráº¡ng thÃ¡i _bá» "
-"bá» qua ra_ máº·t náº¡ áº¥y (tÃ¹y chá»n Â« QUIET Â» (im) cÃ³ nghÄ©a lÃ  "
-"khÃ´ng in ra chi tiáº¿t)."
+"Lá»nh Â« UNIGNORE <máº·t_náº¡> [QUIET] Â» thÃ¬ _bá»_ tráº¡ng thÃ¡i _bá» bá» "
+"qua ra_ máº·t náº¡ áº¥y (tÃ¹y chá»n Â« QUIET Â» (im) cÃ³ nghÄ©a lÃ  khÃ´ng "
+"in ra chi tiáº¿t)."
 
-#: ../src/common/outbound.c:3351
+#: ../src/common/outbound.c:3363
 msgid "UNLOAD <name>, unloads a plugin or script"
 msgstr ""
-"Lá»nh Â« UNLOAD <tÃªn> Â» thi _bá» táº£i_ má»t bá» cáº§m phÃ­t hay táº­p "
-"lá»nh nÃ o ÄÃ³."
+"Lá»nh Â« UNLOAD <tÃªn> Â» thi _bá» táº£i_ má»t bá» cáº§m phÃ­t hay táº­p lá»nh "
+"nÃ o ÄÃ³."
 
-#: ../src/common/outbound.c:3352
+#: ../src/common/outbound.c:3364
 msgid "URL <url>, opens a URL in your browser"
 msgstr ""
-"URL <Äá»a_chá»_Máº¡ng> thÃ¬  má» _Äá»a chá» Máº¡ng_ áº¥y trong trÃ¬nh "
-"duyá»t Máº¡ng cá»§a báº¡n."
+"URL <Äá»a_chá»_Máº¡ng> thÃ¬  má» _Äá»a chá» Máº¡ng_ áº¥y trong trÃ¬nh duyá»t "
+"Máº¡ng cá»§a báº¡n."
 
-#: ../src/common/outbound.c:3354
+#: ../src/common/outbound.c:3366
 msgid ""
 "USELECT [-a] [-s] <nick1> <nick2> etc, highlights nick(s) in channel userlist"
 msgstr ""
 
-#: ../src/common/outbound.c:3357
+#: ../src/common/outbound.c:3369
 msgid "VOICE <nick>, gives voice status to someone (needs chanop)"
 msgstr ""
 "Lá»nh Â« VOICE <tÃªn_hiá»u> Â» thÃ¬ ÄÆ°a ra ngÆ°á»i áº¥y tráº¡ng thÃ¡i "
 "_tiáº¿ng nÃ³i_ (cáº§n Äáº¿n tráº¡ng thÃ¡i Thao tÃ¡c kÃªnh [chanop])."
 
-#: ../src/common/outbound.c:3359
+#: ../src/common/outbound.c:3371
 msgid "WALLCHAN <message>, writes the message to all channels"
 msgstr ""
-"Lá»nh Â« WALLCHAN <tin_nháº³n> Â» thÃ¬ ghi tin nháº³n áº¥y vÃ o má»i kÃªnh "
-"â Write (ghi) ALL (má»á») CHANnel (kÃªnh)."
+"Lá»nh Â« WALLCHAN <tin_nháº³n> Â» thÃ¬ ghi tin nháº³n áº¥y vÃ o má»i kÃªnh â "
+"Write (ghi) ALL (má»á») CHANnel (kÃªnh)."
 
-#: ../src/common/outbound.c:3361
+#: ../src/common/outbound.c:3373
 msgid ""
 "WALLCHOP <message>, sends the message to all chanops on the current channel"
 msgstr ""
-"Lá»nh Â« WALLCHOP <tin_nháº³n> Â» thÃ¬ gá»i tin nháº³n áº¥y cho _má»i "
-"ngÆ°á»i Thao tÃ¡c kÃªnh [chanop]_ trÃªn kÃªnh hiá»n cÃ³ â Write (ghi) "
-"ALL (má»i) CHannel (kÃªnh) OPerator (Thao tÃ¡c viÃªn)."
+"Lá»nh Â« WALLCHOP <tin_nháº³n> Â» thÃ¬ gá»i tin nháº³n áº¥y cho _má»i ngÆ°"
+"á»i Thao tÃ¡c kÃªnh [chanop]_ trÃªn kÃªnh hiá»n cÃ³ â Write (ghi) ALL (má»i) "
+"CHannel (kÃªnh) OPerator (Thao tÃ¡c viÃªn)."
 
-#: ../src/common/outbound.c:3394
+#: ../src/common/outbound.c:3406
 #, c-format
 msgid "Usage: %s\n"
 msgstr "CÃ¡ch sá»­ dá»¥ng: %s\n"
 
-#: ../src/common/outbound.c:3399
+#: ../src/common/outbound.c:3411
 msgid ""
 "\n"
 "No help available on that command.\n"
@@ -1443,37 +1428,36 @@ msgstr ""
 "\n"
 "Tiáº¿c lÃ  khÃ´ng cÃ³ trá»£ giÃºp sáºµn sÃ ng vá» lá»nh áº¥y.\n"
 
-#: ../src/common/outbound.c:3405
+#: ../src/common/outbound.c:3417
 msgid "No such command.\n"
 msgstr "KhÃ´ng cÃ³ lá»nh nhÆ° váº­y.\n"
 
-#: ../src/common/outbound.c:3732
+#: ../src/common/outbound.c:3744
 msgid "Bad arguments for user command.\n"
 msgstr "Lá»nh ngÆ°á»i dÃ¹ng cÃ³ Äá»i sá» sai.\n"
 
-#: ../src/common/outbound.c:3888
+#: ../src/common/outbound.c:3900
 msgid "Too many recursive usercommands, aborting."
 msgstr "QuÃ¡ nhiá»u lá»nh Äá» qui cá»§a ngÆ°á»i dÃ¹ng nÃªn há»§y bá»."
 
-#: ../src/common/outbound.c:3965
+#: ../src/common/outbound.c:3977
 msgid "Unknown Command. Try /help\n"
 msgstr ""
-"KhÃ´ng biáº¿t lá»nh áº¥y: báº¡n hÃ£y thá»­ lá»nh Â« /help Â» (trá»£ "
-"giÃºp).\n"
+"KhÃ´ng biáº¿t lá»nh áº¥y: báº¡n hÃ£y thá»­ lá»nh Â« /help Â» (trá»£ giÃºp).\n"
 
 #: ../src/common/plugin.c:372 ../src/common/plugin.c:413
 msgid "No xchat_plugin_init symbol; is this really an xchat plugin?"
 msgstr ""
-"KhÃ´ng cÃ³ kÃ½ hiá»u Â« xchat_plugin_init Â» (khá»i Äá»ng bá» cáº§m "
-"phÃ­t xchat): ÄÃ¢y tháº­t lÃ  bá» cáº§m phÃ­t xchat khÃ´ng?"
+"KhÃ´ng cÃ³ kÃ½ hiá»u Â« xchat_plugin_init Â» (khá»i Äá»ng bá» cáº§m phÃ­t "
+"xchat): ÄÃ¢y tháº­t lÃ  bá» cáº§m phÃ­t xchat khÃ´ng?"
 
-#: ../src/common/server.c:610
+#: ../src/common/server.c:621
 msgid "Are you sure this is a SSL capable server and port?\n"
 msgstr ""
-"Báº¡n cÃ³ cháº¯c ÄÃ¢y lÃ  mÃ¡y phá»¥c vá»¥ vÃ  cá»ng cÃ³ kháº£ nÄng SSL "
-"khÃ´ng?\n"
+"Báº¡n cÃ³ cháº¯c ÄÃ¢y lÃ  mÃ¡y phá»¥c vá»¥ vÃ  cá»ng cÃ³ kháº£ nÄng SSL khÃ"
+"´ng?\n"
 
-#: ../src/common/server.c:962
+#: ../src/common/server.c:1005
 #, c-format
 msgid ""
 "Cannot resolve hostname %s\n"
@@ -1482,23 +1466,23 @@ msgstr ""
 "KhÃ´ng quyáº¿t Äá»nh ÄÆ°á»£c tÃªn mÃ¡y Â« %s Â».\n"
 "HÃ£y kiá»m tra thiáº¿t láº­p IP cá»§a báº¡n.\n"
 
-#: ../src/common/server.c:967
+#: ../src/common/server.c:1010
 msgid "Proxy traversal failed.\n"
 msgstr "KhÃ´ng Äi qua mÃ¡y phá»¥c vá»¥ á»§y nhiá»m ÄÆ°á»£c.\n"
 
-#: ../src/common/servlist.c:636
+#: ../src/common/servlist.c:644
 #, c-format
 msgid "Cycling to next server in %s...\n"
 msgstr "Sáº½ quay láº¡i Äáº¿n máº¥y phá»¥c vá»¥ tá»i sau %s...\n"
 
-#: ../src/common/servlist.c:1059
+#: ../src/common/servlist.c:1068
 #, c-format
 msgid ""
 "Warning: \"%s\" character set is unknown. No conversion will be applied for "
 "network %s."
 msgstr ""
-"Cáº£nh bÃ¡o: khÃ´ng biáº¿t bá» kÃ½ tá»± Â« %s Â» nÃªn sáº½ khÃ´ng Ã¡p "
-"dá»¥ng chuyá»n Äá»i vÃ o máº¡ng Â« %s Â»."
+"Cáº£nh bÃ¡o: khÃ´ng biáº¿t bá» kÃ½ tá»± Â« %s Â» nÃªn sáº½ khÃ´ng Ã¡p dá»¥ng "
+"chuyá»n Äá»i vÃ o máº¡ng Â« %s Â»."
 
 #: ../src/common/text.c:61
 #, c-format
@@ -1573,7 +1557,7 @@ msgid "Nick of person who changed the topic"
 msgstr "TÃªn hiá»u cá»§a ngÆ°á»i ÄÃ£ thay Äá»i chá»§ Äá»"
 
 #: ../src/common/text.c:551 ../src/common/text.c:557
-#: ../src/fe-gnome/channel-list.c:333
+#: ../src/fe-gnome/channel-list.c:326
 msgid "Topic"
 msgstr "Chá»§ Äá»"
 
@@ -1657,13 +1641,11 @@ msgstr "Giá»i háº¡n"
 
 #: ../src/common/text.c:659
 msgid "The nick of the person who did the op'ing"
-msgstr ""
-"TÃªn hiá»u cá»§a ngÆ°á»i ÄÃ£ láº­p tráº¡ng thÃ¡i Thao tÃ¡c (OPerator)"
+msgstr "TÃªn hiá»u cá»§a ngÆ°á»i ÄÃ£ láº­p tráº¡ng thÃ¡i Thao tÃ¡c (OPerator)"
 
 #: ../src/common/text.c:660
 msgid "The nick of the person who has been op'ed"
-msgstr ""
-"TÃªn hiá»u cá»§a ngÆ°á»i ÄÃ£ nháº­n tráº¡ng thÃ¡i Thao tÃ¡c (OPerator)"
+msgstr "TÃªn hiá»u cá»§a ngÆ°á»i ÄÃ£ nháº­n tráº¡ng thÃ¡i Thao tÃ¡c (OPerator)"
 
 #: ../src/common/text.c:664
 msgid "The nick of the person who has been halfop'ed"
@@ -1674,18 +1656,15 @@ msgstr ""
 #: ../src/common/text.c:665
 msgid "The nick of the person who did the halfop'ing"
 msgstr ""
-"TÃªn hiá»u cá»§a ngÆ°á»i ÄÃ£ láº­p tráº¡ng thÃ¡i Thao tÃ¡c ná»­a "
-"(HalfOPerator)"
+"TÃªn hiá»u cá»§a ngÆ°á»i ÄÃ£ láº­p tráº¡ng thÃ¡i Thao tÃ¡c ná»­a (HalfOPerator)"
 
 #: ../src/common/text.c:669
 msgid "The nick of the person who did the voice'ing"
-msgstr ""
-"TÃªn hiá»u cá»§a ngÆ°á»i ÄÃ£ láº­p tráº¡ng thÃ¡i Tiáº¿ng NÃ³i (Voice)"
+msgstr "TÃªn hiá»u cá»§a ngÆ°á»i ÄÃ£ láº­p tráº¡ng thÃ¡i Tiáº¿ng NÃ³i (Voice)"
 
 #: ../src/common/text.c:670
 msgid "The nick of the person who has been voice'ed"
-msgstr ""
-"TÃªn hiá»u cá»§a ngÆ°á»i ÄÃ£ nháº­n tráº¡ng thÃ¡i Tiáº¿ng NÃ³i (Voice)"
+msgstr "TÃªn hiá»u cá»§a ngÆ°á»i ÄÃ£ nháº­n tráº¡ng thÃ¡i Tiáº¿ng NÃ³i (Voice)"
 
 #: ../src/common/text.c:674
 msgid "The nick of the person who did the banning"
@@ -1706,26 +1685,26 @@ msgstr "TÃªn hiá»u ÄÃ£ loáº¡i bá» giá»i háº¡n ra"
 #: ../src/common/text.c:687
 msgid "The nick of the person of did the deop'ing"
 msgstr ""
-"TÃªn hiá»u cá»§a ngÆ°á»i ÄÃ£ bá» tráº¡ng thÃ¡i Thao tÃ¡c â DE (bá») "
-"OPerator (Thao tÃ¡c viÃªn)"
+"TÃªn hiá»u cá»§a ngÆ°á»i ÄÃ£ bá» tráº¡ng thÃ¡i Thao tÃ¡c â DE (bá») OPerator "
+"(Thao tÃ¡c viÃªn)"
 
 #: ../src/common/text.c:688
 msgid "The nick of the person who has been deop'ed"
 msgstr ""
-"TÃªn hiá»u cá»§a ngÆ°á»i máº¥t tráº¡ng thÃ¡i Thao tÃ¡c â DE (bá») "
-"OPerator (Thao tÃ¡c viÃªn)"
+"TÃªn hiá»u cá»§a ngÆ°á»i máº¥t tráº¡ng thÃ¡i Thao tÃ¡c â DE (bá») OPerator "
+"(Thao tÃ¡c viÃªn)"
 
 #: ../src/common/text.c:691
 msgid "The nick of the person of did the dehalfop'ing"
 msgstr ""
-"TÃªn hiá»u cá»§a ngÆ°á»i ÄÃ£ bá» tráº¡ng thÃ¡i Thao tÃ¡c ná»­a â DE "
-"(bá») Half (ná»­a) OPerator (Thao tÃ¡c viÃªn)"
+"TÃªn hiá»u cá»§a ngÆ°á»i ÄÃ£ bá» tráº¡ng thÃ¡i Thao tÃ¡c ná»­a â DE (bá») "
+"Half (ná»­a) OPerator (Thao tÃ¡c viÃªn)"
 
 #: ../src/common/text.c:692
 msgid "The nick of the person who has been dehalfop'ed"
 msgstr ""
-"TÃªn hiá»u cá»§a ngÆ°á»i máº¥t tráº¡ng thÃ¡i Thao tÃ¡c ná»­a â DE (bá») "
-"Half (ná»­a) OPerator (Thao tÃ¡c viÃªn)"
+"TÃªn hiá»u cá»§a ngÆ°á»i máº¥t tráº¡ng thÃ¡i Thao tÃ¡c ná»­a â DE (bá») Half "
+"(ná»­a) OPerator (Thao tÃ¡c viÃªn)"
 
 #: ../src/common/text.c:696
 msgid "The nick of the person of did the devoice'ing"
@@ -1738,8 +1717,8 @@ msgstr "TÃªn hiá»u cá»§a ngÆ°á»i máº¥t tráº¡ng thÃ¡i NÃ�
 #: ../src/common/text.c:701
 msgid "The nick of the person of did the unban'ing"
 msgstr ""
-"TÃªn hiá»u cá»§a ngÆ°á»i ÄÃ£ bá» tráº¡ng thÃ¡i Bá» Äuá»á» ra â UN "
-"(bá») BAN (Äuá»i ra)"
+"TÃªn hiá»u cá»§a ngÆ°á»i ÄÃ£ bá» tráº¡ng thÃ¡i Bá» Äuá»á» ra â UN (bá») BAN "
+"(Äuá»i ra)"
 
 #: ../src/common/text.c:706
 msgid "The nick of the person who did the exempt"
@@ -1828,7 +1807,7 @@ msgstr "Äá»a chá» IP"
 
 #: ../src/common/text.c:789 ../src/common/text.c:798 ../src/common/text.c:804
 #: ../src/common/text.c:833 ../src/common/text.c:987
-#: ../src/fe-gnome/channel-list.c:323
+#: ../src/fe-gnome/channel-list.c:316
 msgid "Channel Name"
 msgstr "Tên kênh"
 
@@ -1854,6 +1833,7 @@ msgid "Nick being tried"
 msgstr "TÃªn hiá»u Äang ÄÆ°á»£c thá»­ ra"
 
 #. ! if (osvi.dwMajorVersion >= 5)
+#. fallback to error number
 #: ../src/common/text.c:814 ../src/common/text.c:851 ../src/common/text.c:862
 #: ../src/common/text.c:869 ../src/common/text.c:882 ../src/common/text.c:899
 #: ../src/common/text.c:999 ../src/common/util.c:352
@@ -2103,8 +2083,7 @@ msgid "-%C10-%C11-%O$tConnected. Now logging in.."
 msgstr "%C22*%O$t%C22Kết nối rồì. Đang đăng nhập..."
 
 #: ../src/common/textevents.h:99
-msgid ""
-"-%C10-%C11-%O$tConnecting to %C11$1 %C14(%C11$2%C14)%C port %C11$3%C.."
+msgid "-%C10-%C11-%O$tConnecting to %C11$1 %C14(%C11$2%C14)%C port %C11$3%C.."
 msgstr "%C22*%O$t%C22Đang kết nối đến $1 ($2) trên cổng $3%O..."
 
 #: ../src/common/textevents.h:102
@@ -2139,8 +2118,8 @@ msgstr "%C22*%O$tTrò chuyện trực tiếp (DCC) với %C26$1%O bị hủy b�
 msgid ""
 "-%C10-%C11-%O$tDCC CHAT connection established to %C11$1 %C14[%O$2%C14]%O"
 msgstr ""
-"%C22*%O$tMới kết nối được để trò chuyện trực tiếp (DCC) với %C26$1 "
-"%C30[%O$2%C30]."
+"%C22*%O$tMới kết nối được để trò chuyện trực tiếp (DCC) với %C26$1 %C30[%O$2%"
+"C30]."
 
 #: ../src/common/textevents.h:126
 msgid ""
@@ -2179,8 +2158,8 @@ msgid ""
 "-%C10-%C11-%O$tReceived a malformed DCC request from %C11$1%O.%010-%C10-%C11-"
 "%O$tContents of packet: $2"
 msgstr ""
-"%C22*%O$tMới nhận yêu cầu dạng sai trò chuyện trực tiếp (DCC) từ "
-"%C26$1%O.%010%C22*%O$tNội dung gói: $2"
+"%C22*%O$tMới nhận yêu cầu dạng sai trò chuyện trực tiếp (DCC) từ %C26$1%O.%"
+"010%C22*%O$tNội dung gói: $2"
 
 #: ../src/common/textevents.h:150
 msgid "-%C10-%C11-%O$tOffering %C11$1 %Cto %C11$2%O"
@@ -2196,8 +2175,8 @@ msgstr "%C22*%O$tNHẬN DCC%C26 $2%O cho%C26 $1%O bị hủy bỏ."
 
 #: ../src/common/textevents.h:159
 msgid ""
-"-%C10-%C11-%O$tDCC RECV %C11$1%O from %C11$3%O complete %C14[%C11$4%O "
-"cps%C14]%O."
+"-%C10-%C11-%O$tDCC RECV %C11$1%O from %C11$3%O complete %C14[%C11$4%O cps%"
+"C14]%O."
 msgstr ""
 "%C22*%O$tNHẬN DCC%C26 $1%O từ%C26 $3%O hoàn thành %C30[%C26$4%O cps%C30]%O."
 
@@ -2221,8 +2200,7 @@ msgid ""
 msgstr "%C22*%O$tTập tin%C26 $1%C đã có: sẽ lưu nó là %C26 $2%O thay thế."
 
 #: ../src/common/textevents.h:174
-msgid ""
-"-%C10-%C11-%O$t%C11$1 %Chas requested to resume %C11$2 %Cfrom %C11$3%C."
+msgid "-%C10-%C11-%O$t%C11$1 %Chas requested to resume %C11$2 %Cfrom %C11$3%C."
 msgstr "%C22*%O$t%C26$1 %Ođã yêu cầu tiếp tục%C26 $2 %Ctừ%C26 $3%C."
 
 #: ../src/common/textevents.h:177
@@ -2231,8 +2209,8 @@ msgstr "%C22*%O$tGỞI DCC%C26 $2%O cho%C26 $1%O bị hủy bỏ."
 
 #: ../src/common/textevents.h:180
 msgid ""
-"-%C10-%C11-%O$tDCC SEND %C11$1%O to %C11$2%O complete %C14[%C11$3%O "
-"cps%C14]%O."
+"-%C10-%C11-%O$tDCC SEND %C11$1%O to %C11$2%O complete %C14[%C11$3%O cps%C14]%"
+"O."
 msgstr ""
 "%C22*%O$tGỞI DCC%C26 $1%O cho%C26 $2%O hoàn thành %C30[%C26$3%O cps%C30]%O."
 
@@ -2284,14 +2262,12 @@ msgstr "Đã thay đổi trang thái bỏ qua về %C26$1%O."
 #: ../src/common/textevents.h:216
 #, c-format
 msgid "%C24,18                                                              "
-msgstr ""
-"%C24,18                                                              "
+msgstr "%C24,18                                                              "
 
 #: ../src/common/textevents.h:219
 #, c-format
 msgid "%C24,18 Hostmask                  PRIV NOTI CHAN CTCP DCC  INVI UNIG "
-msgstr ""
-"%C24,18 Máº·t náº¡ mÃ¡y         RIÃN TBÃO KÃNH  CTCP DCC  Má»I Bá»Bá» "
+msgstr "%C24,18 Máº·t náº¡ mÃ¡y         RIÃN TBÃO KÃNH  CTCP DCC  Má»I Bá»Bá» "
 
 #: ../src/common/textevents.h:222
 msgid "%O%C11$1%O removed from ignore list."
@@ -2306,8 +2282,7 @@ msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Channel is invite only)."
 msgstr "%C22*%O$tKhông vào được%C26 %B$1 %O(Phải có lời mời)."
 
 #: ../src/common/textevents.h:231
-msgid ""
-"-%C10-%C11-%O$tYou have been invited to %C11$1%C by %C11$2%C (%C11$3%C)"
+msgid "-%C10-%C11-%O$tYou have been invited to %C11$1%C by %C11$2%C (%C11$3%C)"
 msgstr "%C22*%O$tBạn được mời vào%C26 $1%O bởi%C26 $2%C (%C26$3%C)."
 
 #: ../src/common/textevents.h:234
@@ -2557,1263 +2532,1277 @@ msgstr "KhÃ´ng gÃ¡n ÄÆ°á»£c Äá»a chá» áº¥y."
 msgid "Connection reset by peer"
 msgstr "Káº¿t ná»i bá» ngáº¯t do ngang hÃ ng."
 
-#: ../src/common/util.c:837
+#: ../src/common/util.c:839
+#, fuzzy
+msgid "Ascension Island"
+msgstr "Quáº§n Äáº£o CÃ´-cÃ´c-x"
+
+#: ../src/common/util.c:840
 msgid "Andorra"
 msgstr "Än-Äoa-rÃ¢"
 
-#: ../src/common/util.c:838
+#: ../src/common/util.c:841
 msgid "United Arab Emirates"
 msgstr "CÃ¡c Tiá»u VÆ°Æ¡ng quá»c A-ráº­p Thá»ng nháº¥t"
 
-#: ../src/common/util.c:839
+#: ../src/common/util.c:842
 msgid "Afghanistan"
 msgstr "Quá»c gia Há»i giÃ¡o Chuyá»n tiáº¿p"
 
-#: ../src/common/util.c:840
+#: ../src/common/util.c:843
 msgid "Antigua and Barbuda"
 msgstr "Änh-thÃ­-gá»¥-a vÃ  Ba-bu-Äa"
 
-#: ../src/common/util.c:841
+#: ../src/common/util.c:844
 msgid "Anguilla"
 msgstr "Äng-ouÃ­-la"
 
-#: ../src/common/util.c:842
+#: ../src/common/util.c:845
 msgid "Albania"
 msgstr "An-ba-ni"
 
-#: ../src/common/util.c:843
+#: ../src/common/util.c:846
 msgid "Armenia"
 msgstr "Ac-mê-ni"
 
-#: ../src/common/util.c:844
+#: ../src/common/util.c:847
 msgid "Netherlands Antilles"
 msgstr "An-thi-li Hoà-lan"
 
-#: ../src/common/util.c:845
+#: ../src/common/util.c:848
 msgid "Angola"
 msgstr "Äng-gÃ´-la"
 
-#: ../src/common/util.c:846
+#: ../src/common/util.c:849
 msgid "Antarctica"
 msgstr "Nam cá»±c"
 
-#: ../src/common/util.c:847
+#: ../src/common/util.c:850
 msgid "Argentina"
 msgstr "Ác-hen-ti-na"
 
-#: ../src/common/util.c:848
+#: ../src/common/util.c:851
 msgid "Reverse DNS"
 msgstr "DNS ngÆ°á»£c"
 
-#: ../src/common/util.c:849
+#: ../src/common/util.c:852
 msgid "American Samoa"
 msgstr "Xa-mÃ´-a Má»¹"
 
-#: ../src/common/util.c:850
+#: ../src/common/util.c:853
 msgid "Austria"
 msgstr "Ao"
 
-#: ../src/common/util.c:851
+#: ../src/common/util.c:854
 msgid "Nato Fiel"
 msgstr "Nato Fiel"
 
-#: ../src/common/util.c:852
+#: ../src/common/util.c:855
 msgid "Australia"
 msgstr "Úc"
 
-#: ../src/common/util.c:853
+#: ../src/common/util.c:856
 msgid "Aruba"
 msgstr "Ä-ru-ba"
 
-#: ../src/common/util.c:854
+#: ../src/common/util.c:857
+#, fuzzy
+msgid "Aland Islands"
+msgstr "Quáº§n Äáº£o Phoa-kh-láº­n-Ä (Mal-vi-na)"
+
+#: ../src/common/util.c:858
 msgid "Azerbaijan"
 msgstr "Ai-déc-bai-gian"
 
-#: ../src/common/util.c:855
+#: ../src/common/util.c:859
 msgid "Bosnia and Herzegovina"
 msgstr "Bô-xni-a và Héc-xê-gô-vi-na"
 
-#: ../src/common/util.c:856
+#: ../src/common/util.c:860
 msgid "Barbados"
 msgstr "BÃ¡c-ba-Äá»t"
 
-#: ../src/common/util.c:857
+#: ../src/common/util.c:861
 msgid "Bangladesh"
 msgstr "Bang-la-Äexá»£"
 
-#: ../src/common/util.c:858
+#: ../src/common/util.c:862
 msgid "Belgium"
 msgstr "Bá»"
 
-#: ../src/common/util.c:859
+#: ../src/common/util.c:863
 msgid "Burkina Faso"
 msgstr "Buá»c-khi-na Pha-xÃ´"
 
-#: ../src/common/util.c:860
+#: ../src/common/util.c:864
 msgid "Bulgaria"
 msgstr "Bun-ga-ri"
 
-#: ../src/common/util.c:861
+#: ../src/common/util.c:865
 msgid "Bahrain"
 msgstr "Ba-ren"
 
-#: ../src/common/util.c:862
+#: ../src/common/util.c:866
 msgid "Burundi"
 msgstr "Bu-run-Äi"
 
-#: ../src/common/util.c:863
+#: ../src/common/util.c:867
 msgid "Businesses"
 msgstr "Kinh doanh"
 
-#: ../src/common/util.c:864
+#: ../src/common/util.c:868
 msgid "Benin"
 msgstr "Bê-ninh"
 
-#: ../src/common/util.c:865
+#: ../src/common/util.c:869
 msgid "Bermuda"
 msgstr "Be-mÆ°-Äa"
 
-#: ../src/common/util.c:866
+#: ../src/common/util.c:870
 msgid "Brunei Darussalam"
 msgstr "Bá»£ru-nÃ y Äa-ru-xa-lÃ m"
 
-#: ../src/common/util.c:867
+#: ../src/common/util.c:871
 msgid "Bolivia"
 msgstr "Bô-li-vi-a"
 
-#: ../src/common/util.c:868
+#: ../src/common/util.c:872
 msgid "Brazil"
 msgstr "Bra-xin"
 
-#: ../src/common/util.c:869
+#: ../src/common/util.c:873
 msgid "Bahamas"
 msgstr "Ba-ha-ma"
 
-#: ../src/common/util.c:870
+#: ../src/common/util.c:874
 msgid "Bhutan"
 msgstr "Bu-thÄn"
 
-#: ../src/common/util.c:871
+#: ../src/common/util.c:875
 msgid "Bouvet Island"
 msgstr "Quáº§n Äáº£o Bu-vÃª"
 
-#: ../src/common/util.c:872
+#: ../src/common/util.c:876
 msgid "Botswana"
 msgstr "Bá»t-xoa-na"
 
-#: ../src/common/util.c:873
+#: ../src/common/util.c:877
 msgid "Belarus"
 msgstr "Be-la-ruxá»£"
 
-#: ../src/common/util.c:874
+#: ../src/common/util.c:878
 msgid "Belize"
 msgstr "Bê-li-xê"
 
-#: ../src/common/util.c:875
+#: ../src/common/util.c:879
 msgid "Canada"
 msgstr "Ca-na-Äa"
 
-#: ../src/common/util.c:876
+#: ../src/common/util.c:880
 msgid "Cocos Islands"
 msgstr "Quáº§n Äáº£o CÃ´-cÃ´c-x"
 
-#: ../src/common/util.c:877
+#: ../src/common/util.c:881
 msgid "Democratic Republic of Congo"
 msgstr "Cá»ng hoÃ  DÃ¢n chá»§ CÃ´ng-gÃ´"
 
-#: ../src/common/util.c:878
+#: ../src/common/util.c:882
 msgid "Central African Republic"
 msgstr "Cá»ng hoÃ  ChÃ¢u phi Trung Æ°Æ¡ng"
 
-#: ../src/common/util.c:879
+#: ../src/common/util.c:883
 msgid "Congo"
 msgstr "Công-gô"
 
-#: ../src/common/util.c:880
+#: ../src/common/util.c:884
 msgid "Switzerland"
 msgstr "Thá»¥y SÄ©"
 
-#: ../src/common/util.c:881
+#: ../src/common/util.c:885
 msgid "Cote d'Ivoire"
 msgstr "Cá»ng hoÃ  Cá»t Äi-vouÄ"
 
-#: ../src/common/util.c:882
+#: ../src/common/util.c:886
 msgid "Cook Islands"
 msgstr "Quáº§n Äáº£o Khu-kh"
 
-#: ../src/common/util.c:883
+#: ../src/common/util.c:887
 msgid "Chile"
 msgstr "Chi lê"
 
-#: ../src/common/util.c:884
+#: ../src/common/util.c:888
 msgid "Cameroon"
 msgstr "Ca-mÆ¡-run"
 
-#: ../src/common/util.c:885
+#: ../src/common/util.c:889
 msgid "China"
 msgstr "Trung Quá»c"
 
-#: ../src/common/util.c:886
+#: ../src/common/util.c:890
 msgid "Colombia"
 msgstr "Cô-lôm-bi-a"
 
-#: ../src/common/util.c:887
+#: ../src/common/util.c:891
 msgid "Internic Commercial"
 msgstr "ThÆ°Æ¡ng nghiá»p Internic"
 
-#: ../src/common/util.c:888
+#: ../src/common/util.c:892
 msgid "Costa Rica"
 msgstr "Cá»t-x-tha Ri-ca"
 
-#: ../src/common/util.c:889
+#: ../src/common/util.c:893
 msgid "Serbia and Montenegro"
 msgstr "XÃ©c-bi vÃ  Mon-te-ne-gá»£-rÃ´"
 
-#: ../src/common/util.c:890
+#: ../src/common/util.c:894
 msgid "Cuba"
 msgstr "Cu-ba"
 
-#: ../src/common/util.c:891
+#: ../src/common/util.c:895
 msgid "Cape Verde"
 msgstr "CÃ¡p-ve-Äe"
 
-#: ../src/common/util.c:892
+#: ../src/common/util.c:896
 msgid "Christmas Island"
 msgstr "Äáº£o Kh-ri-x-máº¡-x"
 
-#: ../src/common/util.c:893
+#: ../src/common/util.c:897
 msgid "Cyprus"
 msgstr "Síp"
 
-#: ../src/common/util.c:894
+#: ../src/common/util.c:898
 msgid "Czech Republic"
 msgstr "Cá»ng hoÃ  SÃ©c"
 
-#: ../src/common/util.c:895
+#: ../src/common/util.c:899
 msgid "Germany"
 msgstr "Äá»©c"
 
-#: ../src/common/util.c:896
+#: ../src/common/util.c:900
 msgid "Djibouti"
 msgstr "Gi-bu-ti"
 
-#: ../src/common/util.c:897
+#: ../src/common/util.c:901
 msgid "Denmark"
 msgstr "Äan máº¡ch"
 
-#: ../src/common/util.c:898
+#: ../src/common/util.c:902
 msgid "Dominica"
 msgstr "ÄÃ´-mi-ni-cáº¡"
 
-#: ../src/common/util.c:899
+#: ../src/common/util.c:903
 msgid "Dominican Republic"
 msgstr "Cá»ng hoÃ  ÄÃ´-mi-ni-cáº¡"
 
-#: ../src/common/util.c:900
+#: ../src/common/util.c:904
 msgid "Algeria"
 msgstr "An-giê-ri"
 
-#: ../src/common/util.c:901
+#: ../src/common/util.c:905
 msgid "Ecuador"
 msgstr "Ã-cu-a-Äoa"
 
-#: ../src/common/util.c:902
+#: ../src/common/util.c:906
 msgid "Educational Institution"
 msgstr "Tá» chá»©c giÃ¡o dá»¥c"
 
-#: ../src/common/util.c:903
+#: ../src/common/util.c:907
 msgid "Estonia"
 msgstr "E-xtô-ni-a"
 
-#: ../src/common/util.c:904
+#: ../src/common/util.c:908
 msgid "Egypt"
 msgstr "Ai-cáº­p"
 
-#: ../src/common/util.c:905
+#: ../src/common/util.c:909
 msgid "Western Sahara"
 msgstr "Sa-ha-ra Tây"
 
-#: ../src/common/util.c:906
+#: ../src/common/util.c:910
 msgid "Eritrea"
 msgstr "Ã-ri-tÆ¡-rÃª-a"
 
-#: ../src/common/util.c:907
+#: ../src/common/util.c:911
 msgid "Spain"
 msgstr "Tây-ban-nha"
 
-#: ../src/common/util.c:908
+#: ../src/common/util.c:912
 msgid "Ethiopia"
 msgstr "Ê-ti-ô-pi"
 
-#: ../src/common/util.c:909
+#: ../src/common/util.c:913
+msgid "European Union"
+msgstr ""
+
+#: ../src/common/util.c:914
 msgid "Finland"
 msgstr "Pháº§n lan"
 
-#: ../src/common/util.c:910
+#: ../src/common/util.c:915
 msgid "Fiji"
 msgstr "Phi-gi"
 
-#: ../src/common/util.c:911
+#: ../src/common/util.c:916
 msgid "Falkland Islands"
 msgstr "Quáº§n Äáº£o Phoa-kh-láº­n-Ä (Mal-vi-na)"
 
-#: ../src/common/util.c:912
+#: ../src/common/util.c:917
 msgid "Micronesia"
 msgstr "Mi-kh-rô-nê-xi-a"
 
-#: ../src/common/util.c:913
+#: ../src/common/util.c:918
 msgid "Faroe Islands"
 msgstr "Quáº§n Äáº£o Pha-rÃ´"
 
-#: ../src/common/util.c:914
+#: ../src/common/util.c:919
 msgid "France"
 msgstr "Pháp"
 
-#: ../src/common/util.c:915
-msgid "France, Metropolitan"
-msgstr "PhÃ¡p, thÃ nh phá»"
-
-#: ../src/common/util.c:916
+#: ../src/common/util.c:920
 msgid "Gabon"
 msgstr "Ga-bông"
 
-#: ../src/common/util.c:917
+#: ../src/common/util.c:921
 msgid "Great Britain"
 msgstr "VÆ°Æ¡ng quá»c Thá»ng nháº¥t Anh va Ai-len Báº¯c"
 
-#: ../src/common/util.c:918
+#: ../src/common/util.c:922
 msgid "Grenada"
 msgstr "GrÃª-na-Äa"
 
-#: ../src/common/util.c:919
+#: ../src/common/util.c:923
 msgid "Georgia"
 msgstr "Gi-oa-gi-a"
 
-#: ../src/common/util.c:920
+#: ../src/common/util.c:924
 msgid "French Guiana"
 msgstr "Ghi-a-na Pháp"
 
-#: ../src/common/util.c:921
+#: ../src/common/util.c:925
 msgid "British Channel Isles"
 msgstr "Quáº§n Äáº£o kÃªnh Anh"
 
-#: ../src/common/util.c:922
+#: ../src/common/util.c:926
 msgid "Ghana"
 msgstr "Ga-na"
 
-#: ../src/common/util.c:923
+#: ../src/common/util.c:927
 msgid "Gibraltar"
 msgstr "Gi-boa-tha"
 
-#: ../src/common/util.c:924
+#: ../src/common/util.c:928
 msgid "Greenland"
 msgstr "Äáº£o bÄng"
 
-#: ../src/common/util.c:925
+#: ../src/common/util.c:929
 msgid "Gambia"
 msgstr "GÄm-bi-a"
 
-#: ../src/common/util.c:926
+#: ../src/common/util.c:930
 msgid "Guinea"
 msgstr "Ghi-nê"
 
-#: ../src/common/util.c:927
+#: ../src/common/util.c:931
 msgid "Government"
 msgstr "ChÃ­nh phá»§"
 
-#: ../src/common/util.c:928
+#: ../src/common/util.c:932
 msgid "Guadeloupe"
 msgstr "Gu-a-Äe-luc"
 
-#: ../src/common/util.c:929
+#: ../src/common/util.c:933
 msgid "Equatorial Guinea"
 msgstr "Ghi-nÃª XÃ­ch-Äáº¡o"
 
-#: ../src/common/util.c:930
+#: ../src/common/util.c:934
 msgid "Greece"
 msgstr "Hy-láº¡p"
 
-#: ../src/common/util.c:931
+#: ../src/common/util.c:935
 msgid "S. Georgia and S. Sandwich Isles"
 msgstr "Quáº§n Äáº£o xan Gi-oa-gi-a vÃ  xan Xan-oui-giá»£"
 
-#: ../src/common/util.c:932
+#: ../src/common/util.c:936
 msgid "Guatemala"
 msgstr "Gua-tê-ma-la"
 
-#: ../src/common/util.c:933
+#: ../src/common/util.c:937
 msgid "Guam"
 msgstr "Gu-Äm"
 
-#: ../src/common/util.c:934
+#: ../src/common/util.c:938
 msgid "Guinea-Bissau"
 msgstr "Ghi-nê Bít-xao"
 
-#: ../src/common/util.c:935
+#: ../src/common/util.c:939
 msgid "Guyana"
 msgstr "Guy-a-na"
 
-#: ../src/common/util.c:936
+#: ../src/common/util.c:940
 msgid "Hong Kong"
 msgstr "Hông Kông"
 
-#: ../src/common/util.c:937
+#: ../src/common/util.c:941
 msgid "Heard and McDonald Islands"
 msgstr "Quáº§n Äáº£o HÆ¡Ä vÃ  MÆ¡c-Äo-ná»±n"
 
-#: ../src/common/util.c:938
+#: ../src/common/util.c:942
 msgid "Honduras"
 msgstr "HÃ´n-Äu-rÃ¡t"
 
-#: ../src/common/util.c:939
+#: ../src/common/util.c:943
 msgid "Croatia"
 msgstr "Crô-a-ti-a"
 
-#: ../src/common/util.c:940
+#: ../src/common/util.c:944
 msgid "Haiti"
 msgstr "Ha-i-ti"
 
-#: ../src/common/util.c:941
+#: ../src/common/util.c:945
 msgid "Hungary"
 msgstr "Hung-ga-ri"
 
-#: ../src/common/util.c:942
+#: ../src/common/util.c:946
 msgid "Indonesia"
 msgstr "Nam DÆ°Æ¡ng"
 
-#: ../src/common/util.c:943
+#: ../src/common/util.c:947
 msgid "Ireland"
 msgstr "Ai-len"
 
-#: ../src/common/util.c:944
+#: ../src/common/util.c:948
 msgid "Israel"
 msgstr "Do thái"
 
-#: ../src/common/util.c:945
+#: ../src/common/util.c:949
+msgid "Isle of Man"
+msgstr ""
+
+#: ../src/common/util.c:950
 msgid "India"
 msgstr "áº¤n-Äá»"
 
-#: ../src/common/util.c:946
+#: ../src/common/util.c:951
 msgid "Informational"
 msgstr "Loáº¡i thÃ´ng tin"
 
-#: ../src/common/util.c:947
+#: ../src/common/util.c:952
 msgid "International"
 msgstr "Quá»c táº¿"
 
-#: ../src/common/util.c:948
+#: ../src/common/util.c:953
 msgid "British Indian Ocean Territory"
 msgstr "Miá»n Äáº¡i dÆ°Æ¡ng áº¤n-Äá» Anh"
 
-#: ../src/common/util.c:949
+#: ../src/common/util.c:954
 msgid "Iraq"
 msgstr "I-ráº¯c"
 
-#: ../src/common/util.c:950
+#: ../src/common/util.c:955
 msgid "Iran"
 msgstr "I-ran"
 
-#: ../src/common/util.c:951
+#: ../src/common/util.c:956
 msgid "Iceland"
 msgstr "BÄng Äáº£o"
 
-#: ../src/common/util.c:952
+#: ../src/common/util.c:957
 msgid "Italy"
 msgstr "Ý"
 
-#: ../src/common/util.c:953
+#: ../src/common/util.c:958
+msgid "Jersey"
+msgstr ""
+
+#: ../src/common/util.c:959
 msgid "Jamaica"
 msgstr "Gia-mê-ca"
 
-#: ../src/common/util.c:954
+#: ../src/common/util.c:960
 msgid "Jordan"
 msgstr "Gi-oa-Äan"
 
-#: ../src/common/util.c:955
+#: ../src/common/util.c:961
 msgid "Japan"
 msgstr "Nháº­t báº£n"
 
-#: ../src/common/util.c:956
+#: ../src/common/util.c:962
 msgid "Kenya"
 msgstr "Khi-nia"
 
-#: ../src/common/util.c:957
+#: ../src/common/util.c:963
 msgid "Kyrgyzstan"
 msgstr "CÆ°-rÆ¡-gÆ°-xtan"
 
-#: ../src/common/util.c:958
+#: ../src/common/util.c:964
 msgid "Cambodia"
 msgstr "CÄm bá»t"
 
-#: ../src/common/util.c:959
+#: ../src/common/util.c:965
 msgid "Kiribati"
 msgstr "Ki-ri-ba-ti"
 
-#: ../src/common/util.c:960
+#: ../src/common/util.c:966
 msgid "Comoros"
 msgstr "Cô-mô-rô-x"
 
-#: ../src/common/util.c:961
+#: ../src/common/util.c:967
 msgid "St. Kitts and Nevis"
 msgstr "Xan Kith-x vÃ  Ne-vá»t"
 
-#: ../src/common/util.c:962
+#: ../src/common/util.c:968
 msgid "North Korea"
 msgstr "Báº¯c HÃ n"
 
-#: ../src/common/util.c:963
+#: ../src/common/util.c:969
 msgid "South Korea"
 msgstr "Nam Hàn"
 
-#: ../src/common/util.c:964
+#: ../src/common/util.c:970
 msgid "Kuwait"
 msgstr "Cu-ouai-th"
 
-#: ../src/common/util.c:965
+#: ../src/common/util.c:971
 msgid "Cayman Islands"
 msgstr "Quáº§n Äáº£o Cay-man"
 
-#: ../src/common/util.c:966
+#: ../src/common/util.c:972
 msgid "Kazakhstan"
 msgstr "Ca-da-kh-x-than"
 
-#: ../src/common/util.c:967
+#: ../src/common/util.c:973
 msgid "Laos"
 msgstr "Lào"
 
-#: ../src/common/util.c:968
+#: ../src/common/util.c:974
 msgid "Lebanon"
 msgstr "Le-ba-non"
 
-#: ../src/common/util.c:969
+#: ../src/common/util.c:975
 msgid "Saint Lucia"
 msgstr "Xan Lu-xia"
 
-#: ../src/common/util.c:970
+#: ../src/common/util.c:976
 msgid "Liechtenstein"
 msgstr "Lich-ten-xtên"
 
-#: ../src/common/util.c:971
+#: ../src/common/util.c:977
 msgid "Sri Lanka"
 msgstr "Xri-lan-ca"
 
-#: ../src/common/util.c:972
+#: ../src/common/util.c:978
 msgid "Liberia"
 msgstr "Li-bê-ri-a"
 
-#: ../src/common/util.c:973
+#: ../src/common/util.c:979
 msgid "Lesotho"
 msgstr "Lê-xô-thô"
 
-#: ../src/common/util.c:974
+#: ../src/common/util.c:980
 msgid "Lithuania"
 msgstr "Li-tu-a-ni-a"
 
-#: ../src/common/util.c:975
+#: ../src/common/util.c:981
 msgid "Luxembourg"
 msgstr "LÃºc-xÄm-buac"
 
-#: ../src/common/util.c:976
+#: ../src/common/util.c:982
 msgid "Latvia"
 msgstr "Lát-vi-a"
 
-#: ../src/common/util.c:977
+#: ../src/common/util.c:983
 msgid "Libya"
 msgstr "Li-bi-a"
 
-#: ../src/common/util.c:978
+#: ../src/common/util.c:984
 msgid "Morocco"
 msgstr "Ma-rá»c"
 
-#: ../src/common/util.c:979
+#: ../src/common/util.c:985
 msgid "Monaco"
 msgstr "Mô-na-cô"
 
-#: ../src/common/util.c:980
+#: ../src/common/util.c:986
 msgid "Moldova"
 msgstr "Moa-ÄÃ´-va"
 
-#: ../src/common/util.c:981
+#: ../src/common/util.c:987
 msgid "United States Medical"
 msgstr "Y Má»¹"
 
-#: ../src/common/util.c:982
+#: ../src/common/util.c:988
 msgid "Madagascar"
 msgstr "Ma-Äa-gÃ¡t-xca"
 
-#: ../src/common/util.c:983
+#: ../src/common/util.c:989
 msgid "Marshall Islands"
 msgstr "Quáº§n Äáº£o MÃ¡c-san"
 
-#: ../src/common/util.c:984
+#: ../src/common/util.c:990
 msgid "Military"
 msgstr "QuÃ¢n Äá»i"
 
-#: ../src/common/util.c:985
+#: ../src/common/util.c:991
 msgid "Macedonia"
 msgstr "MaxÃªÄÃ´ni"
 
-#: ../src/common/util.c:986
+#: ../src/common/util.c:992
 msgid "Mali"
 msgstr "Ma-li"
 
-#: ../src/common/util.c:987
+#: ../src/common/util.c:993
 msgid "Myanmar"
 msgstr "Miáº¿n Äiá»n"
 
-#: ../src/common/util.c:988
+#: ../src/common/util.c:994
 msgid "Mongolia"
 msgstr "MÃ´ng Cá»"
 
-#: ../src/common/util.c:989
+#: ../src/common/util.c:995
 msgid "Macau"
 msgstr "Ma-cau"
 
-#: ../src/common/util.c:990
+#: ../src/common/util.c:996
 msgid "Northern Mariana Islands"
 msgstr "Quáº§n Äáº£o Ma-ri-a-na Báº¯c"
 
-#: ../src/common/util.c:991
+#: ../src/common/util.c:997
 msgid "Martinique"
 msgstr "Mác-thi-ni-kh"
 
-#: ../src/common/util.c:992
+#: ../src/common/util.c:998
 msgid "Mauritania"
 msgstr "Mô-ri-ta-ni-a"
 
-#: ../src/common/util.c:993
+#: ../src/common/util.c:999
 msgid "Montserrat"
 msgstr "Mon-xe-ráº¡c"
 
-#: ../src/common/util.c:994
+#: ../src/common/util.c:1000
 msgid "Malta"
 msgstr "MantÆ¡"
 
-#: ../src/common/util.c:995
+#: ../src/common/util.c:1001
 msgid "Mauritius"
 msgstr "MÃ´-ri-xÆ¡"
 
-#: ../src/common/util.c:996
+#: ../src/common/util.c:1002
 msgid "Maldives"
 msgstr "Mal-Äi-vá»£x"
 
-#: ../src/common/util.c:997
+#: ../src/common/util.c:1003
 msgid "Malawi"
 msgstr "Ma-la-uy"
 
-#: ../src/common/util.c:998
+#: ../src/common/util.c:1004
 msgid "Mexico"
 msgstr "Mê-hi-cô"
 
-#: ../src/common/util.c:999
+#: ../src/common/util.c:1005
 msgid "Malaysia"
 msgstr "Ma-lay-xi-a"
 
-#: ../src/common/util.c:1000
+#: ../src/common/util.c:1006
 msgid "Mozambique"
 msgstr "MÃ´-dÄm-bÃ­ch"
 
-#: ../src/common/util.c:1001
+#: ../src/common/util.c:1007
 msgid "Namibia"
 msgstr "Na-mi-bi-a"
 
-#: ../src/common/util.c:1002
+#: ../src/common/util.c:1008
 msgid "New Caledonia"
 msgstr "Niu Ca-lÃª-ÄÃ´-ni-a"
 
-#: ../src/common/util.c:1003
+#: ../src/common/util.c:1009
 msgid "Niger"
 msgstr "Ni-giê"
 
-#: ../src/common/util.c:1004
+#: ../src/common/util.c:1010
 msgid "Internic Network"
 msgstr "máº¡ng Internic"
 
-#: ../src/common/util.c:1005
+#: ../src/common/util.c:1011
 msgid "Norfolk Island"
 msgstr "Äáº£o Noa-phá»±c"
 
-#: ../src/common/util.c:1006
+#: ../src/common/util.c:1012
 msgid "Nigeria"
 msgstr "Ni-giê-ri-a"
 
-#: ../src/common/util.c:1007
+#: ../src/common/util.c:1013
 msgid "Nicaragua"
 msgstr "Ni-ca-ra-gua"
 
-#: ../src/common/util.c:1008
+#: ../src/common/util.c:1014
 msgid "Netherlands"
 msgstr "Hoà-lan"
 
-#: ../src/common/util.c:1009
+#: ../src/common/util.c:1015
 msgid "Norway"
 msgstr "Na-uy"
 
-#: ../src/common/util.c:1010
+#: ../src/common/util.c:1016
 msgid "Nepal"
 msgstr "Nê-pan"
 
-#: ../src/common/util.c:1011
+#: ../src/common/util.c:1017
 msgid "Nauru"
 msgstr "Nau-ru"
 
-#: ../src/common/util.c:1012
-msgid "Neutral Zone"
-msgstr "Khu vá»±c Trung láº­p"
-
-#: ../src/common/util.c:1013
+#: ../src/common/util.c:1018
 msgid "Niue"
 msgstr "Ni-u-e"
 
-#: ../src/common/util.c:1014
+#: ../src/common/util.c:1019
 msgid "New Zealand"
 msgstr "Niu Di-lân"
 
-#: ../src/common/util.c:1015
+#: ../src/common/util.c:1020
 msgid "Oman"
 msgstr "Ô-man"
 
-#: ../src/common/util.c:1016
+#: ../src/common/util.c:1021
 msgid "Internic Non-Profit Organization"
 msgstr "Tá» chá»©c Phi lá»£i nhuáº­n Internic"
 
-#: ../src/common/util.c:1017
+#: ../src/common/util.c:1022
 msgid "Panama"
 msgstr "Ba-na-ma"
 
-#: ../src/common/util.c:1018
+#: ../src/common/util.c:1023
 msgid "Peru"
 msgstr "Pê-ru"
 
-#: ../src/common/util.c:1019
+#: ../src/common/util.c:1024
 msgid "French Polynesia"
 msgstr "Pô-li-nê-di Pháp"
 
-#: ../src/common/util.c:1020
+#: ../src/common/util.c:1025
 msgid "Papua New Guinea"
 msgstr "Ba-bu-a Niu Ghi-nê"
 
-#: ../src/common/util.c:1021
+#: ../src/common/util.c:1026
 msgid "Philippines"
 msgstr "Phi-li-pin"
 
-#: ../src/common/util.c:1022
+#: ../src/common/util.c:1027
 msgid "Pakistan"
 msgstr "Ba-ki-x-thÄn"
 
-#: ../src/common/util.c:1023
+#: ../src/common/util.c:1028
 msgid "Poland"
 msgstr "Ba-lan"
 
-#: ../src/common/util.c:1024
+#: ../src/common/util.c:1029
 msgid "St. Pierre and Miquelon"
 msgstr "Xan Pi-e và Mi-kê-lon"
 
-#: ../src/common/util.c:1025
+#: ../src/common/util.c:1030
 msgid "Pitcairn"
 msgstr "Bi-th-khenh"
 
-#: ../src/common/util.c:1026
+#: ../src/common/util.c:1031
 msgid "Puerto Rico"
 msgstr "Bu-éc-thô Ri-cô"
 
-#: ../src/common/util.c:1027
+#: ../src/common/util.c:1032
 msgid "Palestinian Territory"
 msgstr "Háº¡t Pa-le-xtin"
 
-#: ../src/common/util.c:1028
+#: ../src/common/util.c:1033
 msgid "Portugal"
 msgstr "Bá»-ÄÃ o-nha"
 
-#: ../src/common/util.c:1029
+#: ../src/common/util.c:1034
 msgid "Palau"
 msgstr "Ba-lau"
 
-#: ../src/common/util.c:1030
+#: ../src/common/util.c:1035
 msgid "Paraguay"
 msgstr "Ba-ra-guay"
 
-#: ../src/common/util.c:1031
+#: ../src/common/util.c:1036
 msgid "Qatar"
 msgstr "Ca-tÄ"
 
-#: ../src/common/util.c:1032
+#: ../src/common/util.c:1037
 msgid "Reunion"
 msgstr "RÃª-u-ni-á»£nh"
 
-#: ../src/common/util.c:1033
+#: ../src/common/util.c:1038
 msgid "Romania"
 msgstr "Ru-ma-ni"
 
-#: ../src/common/util.c:1034
+#: ../src/common/util.c:1039
 msgid "Old School ARPAnet"
 msgstr "ARPAnet theo kiá»u cÅ©"
 
-#: ../src/common/util.c:1035
+#: ../src/common/util.c:1040
 msgid "Russian Federation"
 msgstr "Liên bang Nga"
 
-#: ../src/common/util.c:1036
+#: ../src/common/util.c:1041
 msgid "Rwanda"
 msgstr "Ru-oanh-Äa"
 
-#: ../src/common/util.c:1037
+#: ../src/common/util.c:1042
 msgid "Saudi Arabia"
 msgstr "A-ráº­p Xau-Äi"
 
-#: ../src/common/util.c:1038
+#: ../src/common/util.c:1043
 msgid "Solomon Islands"
 msgstr "ÄÃ´-la Quáº§n Äáº£o So-lo-mon"
 
-#: ../src/common/util.c:1039
+#: ../src/common/util.c:1044
 msgid "Seychelles"
 msgstr "Xây-sen"
 
-#: ../src/common/util.c:1040
+#: ../src/common/util.c:1045
 msgid "Sudan"
 msgstr "Su-Äan"
 
-#: ../src/common/util.c:1041
+#: ../src/common/util.c:1046
 msgid "Sweden"
 msgstr "Thuá»µ Äiá»n"
 
-#: ../src/common/util.c:1042
+#: ../src/common/util.c:1047
 msgid "Singapore"
 msgstr "Xin-ga-po"
 
-#: ../src/common/util.c:1043
+#: ../src/common/util.c:1048
 msgid "St. Helena"
 msgstr "Xan He-le-na"
 
-#: ../src/common/util.c:1044
+#: ../src/common/util.c:1049
 msgid "Slovenia"
 msgstr "Xlô-ven"
 
-#: ../src/common/util.c:1045
+#: ../src/common/util.c:1050
 msgid "Svalbard and Jan Mayen Islands"
 msgstr "Quáº§n Äáº£o X-van-bÄt vÃ  Dan May-en"
 
-#: ../src/common/util.c:1046
+#: ../src/common/util.c:1051
 msgid "Slovak Republic"
 msgstr "Cá»ng hoÃ  XlÃ´-vÃ¡c"
 
-#: ../src/common/util.c:1047
+#: ../src/common/util.c:1052
 msgid "Sierra Leone"
 msgstr "Xi-ê-ra Lê-ôn"
 
-#: ../src/common/util.c:1048
+#: ../src/common/util.c:1053
 msgid "San Marino"
 msgstr "Xan Ma-ri-nô"
 
-#: ../src/common/util.c:1049
+#: ../src/common/util.c:1054
 msgid "Senegal"
 msgstr "Xê-nê-gan"
 
-#: ../src/common/util.c:1050
+#: ../src/common/util.c:1055
 msgid "Somalia"
 msgstr "So-ma-li"
 
-#: ../src/common/util.c:1051
+#: ../src/common/util.c:1056
 msgid "Suriname"
 msgstr "Xu-ri-nam"
 
-#: ../src/common/util.c:1052
+#: ../src/common/util.c:1057
 msgid "Sao Tome and Principe"
 msgstr "Xao Tô-mê và Prin-xi-pê"
 
-#: ../src/common/util.c:1053
+#: ../src/common/util.c:1058
 msgid "Former USSR"
 msgstr "LiÃªn xÃ´ trÆ°á»c"
 
-#: ../src/common/util.c:1054
+#: ../src/common/util.c:1059
 msgid "El Salvador"
 msgstr "En-san-va-Äoa"
 
-#: ../src/common/util.c:1055
+#: ../src/common/util.c:1060
 msgid "Syria"
 msgstr "Xi-ri"
 
-#: ../src/common/util.c:1056
+#: ../src/common/util.c:1061
 msgid "Swaziland"
 msgstr "Xoua-di-lan"
 
-#: ../src/common/util.c:1057
+#: ../src/common/util.c:1062
 msgid "Turks and Caicos Islands"
 msgstr "Quáº§n Äáº£o Tuá»c vÃ  Cai-cox"
 
-#: ../src/common/util.c:1058
+#: ../src/common/util.c:1063
 msgid "Chad"
 msgstr "ChÃª-Ä"
 
-#: ../src/common/util.c:1059
+#: ../src/common/util.c:1064
 msgid "French Southern Territories"
 msgstr "Miá»n Nam PhÃ¡p"
 
-#: ../src/common/util.c:1060
+#: ../src/common/util.c:1065
 msgid "Togo"
 msgstr "Tô-gô"
 
-#: ../src/common/util.c:1061
+#: ../src/common/util.c:1066
 msgid "Thailand"
 msgstr "Thái lan"
 
-#: ../src/common/util.c:1062
+#: ../src/common/util.c:1067
 msgid "Tajikistan"
 msgstr "Tha-gi-ki-xthan"
 
-#: ../src/common/util.c:1063
+#: ../src/common/util.c:1068
 msgid "Tokelau"
 msgstr "To-ke-lau"
 
-#: ../src/common/util.c:1064
-msgid "Turkmenistan"
-msgstr "Tuá»c-mÃª-ni-xtan"
-
-#: ../src/common/util.c:1065
-msgid "Tunisia"
-msgstr "Tu-ni-xi-a"
-
-#: ../src/common/util.c:1066
-msgid "Tonga"
-msgstr "Tông-ga"
-
-#: ../src/common/util.c:1067
+#: ../src/common/util.c:1069 ../src/common/util.c:1073
 msgid "East Timor"
 msgstr "Thi-má»a ÄÃ´ng"
 
-#: ../src/common/util.c:1068
+#: ../src/common/util.c:1070
+msgid "Turkmenistan"
+msgstr "Tuá»c-mÃª-ni-xtan"
+
+#: ../src/common/util.c:1071
+msgid "Tunisia"
+msgstr "Tu-ni-xi-a"
+
+#: ../src/common/util.c:1072
+msgid "Tonga"
+msgstr "Tông-ga"
+
+#: ../src/common/util.c:1074
 msgid "Turkey"
 msgstr "Thá» nhÄ© ká»³"
 
-#: ../src/common/util.c:1069
+#: ../src/common/util.c:1075
 msgid "Trinidad and Tobago"
 msgstr "Trinh-i-Äat vÃ  To-ba-gÃ´"
 
-#: ../src/common/util.c:1070
+#: ../src/common/util.c:1076
 msgid "Tuvalu"
 msgstr "Tu-va-lu"
 
-#: ../src/common/util.c:1071
+#: ../src/common/util.c:1077
 msgid "Taiwan"
 msgstr "ÄÃ i Loan"
 
-#: ../src/common/util.c:1072
+#: ../src/common/util.c:1078
 msgid "Tanzania"
 msgstr "Thanh-da-ni-a"
 
-#: ../src/common/util.c:1073
+#: ../src/common/util.c:1079
 msgid "Ukraine"
 msgstr "Ukraina"
 
-#: ../src/common/util.c:1074
+#: ../src/common/util.c:1080
 msgid "Uganda"
 msgstr "U-gan-Äa"
 
-#: ../src/common/util.c:1075
+#: ../src/common/util.c:1081
 msgid "United Kingdom"
 msgstr "VÆ°Æ¡ng quá»c Anh Thá»ng nháº¥t"
 
-#: ../src/common/util.c:1076
+#: ../src/common/util.c:1082
 msgid "US Minor Outlying Islands"
 msgstr "Quáº§n Äáº£o á» xa nhá» Má»¹"
 
-#: ../src/common/util.c:1077
+#: ../src/common/util.c:1083
 msgid "United States of America"
 msgstr "Má»¹"
 
-#: ../src/common/util.c:1078
+#: ../src/common/util.c:1084
 msgid "Uruguay"
 msgstr "U-ru-guay"
 
-#: ../src/common/util.c:1079
+#: ../src/common/util.c:1085
 msgid "Uzbekistan"
 msgstr "U-dÆ¡-bÃª-ki-xtan"
 
-#: ../src/common/util.c:1080
+#: ../src/common/util.c:1086
 msgid "Vatican City State"
 msgstr "Bang ThÃ nh phá» Va-ti-can)"
 
-#: ../src/common/util.c:1081
+#: ../src/common/util.c:1087
 msgid "St. Vincent and the Grenadines"
 msgstr "Xan Vin-xen vÃ  Gá»£-re-na-Äinh"
 
-#: ../src/common/util.c:1082
+#: ../src/common/util.c:1088
 msgid "Venezuela"
 msgstr "Vê-nê-du-ê-la"
 
-#: ../src/common/util.c:1083
+#: ../src/common/util.c:1089
 msgid "British Virgin Islands"
 msgstr "Quáº§n Äáº£o VÆ¡-ginh Anh"
 
-#: ../src/common/util.c:1084
+#: ../src/common/util.c:1090
 msgid "US Virgin Islands"
 msgstr "Quáº§n Äáº£o VÆ¡-ginh Má»¹"
 
-#: ../src/common/util.c:1085
+#: ../src/common/util.c:1091
 msgid "Vietnam"
 msgstr "Viá»t Nam"
 
-#: ../src/common/util.c:1086
+#: ../src/common/util.c:1092
 msgid "Vanuatu"
 msgstr "Va-nu-a-tu"
 
-#: ../src/common/util.c:1087
+#: ../src/common/util.c:1093
 msgid "Wallis and Futuna Islands"
 msgstr "Quáº§n Äáº£o Oua-lit vÃ  Phu-tu-na"
 
-#: ../src/common/util.c:1088
+#: ../src/common/util.c:1094
 msgid "Samoa"
 msgstr "Xa-moa"
 
-#: ../src/common/util.c:1089
+#: ../src/common/util.c:1095
 msgid "Yemen"
 msgstr "Y-ê-men"
 
-#: ../src/common/util.c:1090
+#: ../src/common/util.c:1096
 msgid "Mayotte"
 msgstr "May-oth"
 
-#: ../src/common/util.c:1091
+#: ../src/common/util.c:1097
 msgid "Yugoslavia"
 msgstr "Nam TÆ°"
 
-#: ../src/common/util.c:1092
+#: ../src/common/util.c:1098
 msgid "South Africa"
 msgstr "Nam Phi"
 
-#: ../src/common/util.c:1093
+#: ../src/common/util.c:1099
 msgid "Zambia"
 msgstr "DÄm-bi-a"
 
-#: ../src/common/util.c:1094
+#: ../src/common/util.c:1100
 msgid "Zimbabwe"
 msgstr "Dim-ba-bu-ê"
 
-#: ../src/common/util.c:1104 ../src/common/util.c:1114
+#: ../src/common/util.c:1110 ../src/common/util.c:1120
 #: ../src/fe-gnome/userlist-gui.c:398
 msgid "Unknown"
 msgstr "ChÆ°a biáº¿t"
 
-#: ../src/common/xchat.c:737 ../src/common/xchat.c:863
+#: ../src/common/xchat.c:753 ../src/common/xchat.c:879
 msgid "Open Dialog Window"
 msgstr "Má» cá»­a sá» Äá»i thoáº¡i"
 
-#: ../src/common/xchat.c:738
+#: ../src/common/xchat.c:754
 msgid "Send a File"
 msgstr "Gởi tập tin"
 
-#: ../src/common/xchat.c:739
+#: ../src/common/xchat.c:755
 msgid "User Info (WHOIS)"
 msgstr ""
 
-#: ../src/common/xchat.c:740
+#: ../src/common/xchat.c:756
 msgid "Operator Actions"
 msgstr "Tùy chọn"
 
-#: ../src/common/xchat.c:742 ../src/common/xchat.c:833
+#: ../src/common/xchat.c:758 ../src/common/xchat.c:849
 msgid "Give Ops"
 msgstr "Cho Tháo tác"
 
-#: ../src/common/xchat.c:743 ../src/common/xchat.c:834
+#: ../src/common/xchat.c:759 ../src/common/xchat.c:850
 msgid "Take Ops"
 msgstr "Bá» ThÃ¡o tÃ¡c"
 
-#: ../src/common/xchat.c:744 ../src/common/xchat.c:837
+#: ../src/common/xchat.c:760 ../src/common/xchat.c:853
 msgid "Give Voice"
 msgstr "Cho Tiáº¿ng nÃ³i"
 
-#: ../src/common/xchat.c:745 ../src/common/xchat.c:838
+#: ../src/common/xchat.c:761 ../src/common/xchat.c:854
 msgid "Take Voice"
 msgstr "Bá» Tiáº¿ng nÃ³i"
 
-#: ../src/common/xchat.c:747 ../src/common/xchat.c:842
+#: ../src/common/xchat.c:763 ../src/common/xchat.c:858
 msgid "Kick/Ban"
 msgstr "ÄÃ¡/Äuá»i"
 
-#: ../src/common/xchat.c:748 ../src/common/xchat.c:843
-#: ../src/common/xchat.c:892
+#: ../src/common/xchat.c:764 ../src/common/xchat.c:859
+#: ../src/common/xchat.c:908
 msgid "Kick"
 msgstr "ÄÃ¡"
 
-#: ../src/common/xchat.c:749 ../src/common/xchat.c:750
-#: ../src/common/xchat.c:751 ../src/common/xchat.c:752
-#: ../src/common/xchat.c:753 ../src/common/xchat.c:844
-#: ../src/common/xchat.c:845 ../src/common/xchat.c:846
-#: ../src/common/xchat.c:847 ../src/common/xchat.c:848
-#: ../src/common/xchat.c:891
+#: ../src/common/xchat.c:765 ../src/common/xchat.c:766
+#: ../src/common/xchat.c:767 ../src/common/xchat.c:768
+#: ../src/common/xchat.c:769 ../src/common/xchat.c:860
+#: ../src/common/xchat.c:861 ../src/common/xchat.c:862
+#: ../src/common/xchat.c:863 ../src/common/xchat.c:864
+#: ../src/common/xchat.c:907
 msgid "Ban"
 msgstr "Äuá»i"
 
-#: ../src/common/xchat.c:754 ../src/common/xchat.c:755
-#: ../src/common/xchat.c:756 ../src/common/xchat.c:757
-#: ../src/common/xchat.c:849 ../src/common/xchat.c:850
-#: ../src/common/xchat.c:851 ../src/common/xchat.c:852
+#: ../src/common/xchat.c:770 ../src/common/xchat.c:771
+#: ../src/common/xchat.c:772 ../src/common/xchat.c:773
+#: ../src/common/xchat.c:865 ../src/common/xchat.c:866
+#: ../src/common/xchat.c:867 ../src/common/xchat.c:868
 msgid "KickBan"
 msgstr "ÄÃ¡ Äuá»i"
 
-#: ../src/common/xchat.c:820
+#: ../src/common/xchat.c:836
 msgid "Direct client-to-client"
 msgstr "Trá»±c tiáº¿p khÃ¡ch-Äáº¿n-khÃ¡ch"
 
-#: ../src/common/xchat.c:821
+#: ../src/common/xchat.c:837
 msgid "Send File"
 msgstr "Gá»i táº­p tin"
 
-#: ../src/common/xchat.c:822
+#: ../src/common/xchat.c:838
 msgid "Offer Chat"
 msgstr "Má»i trÃ² chuyá»n"
 
-#: ../src/common/xchat.c:823
+#: ../src/common/xchat.c:839
 msgid "Abort Chat"
 msgstr "Há»§y bá» trÃ² chuyá»n"
 
-#: ../src/common/xchat.c:824
+#: ../src/common/xchat.c:840
 msgid "Version"
 msgstr "PhiÃªn báº£n"
 
-#: ../src/common/xchat.c:825
+#: ../src/common/xchat.c:841
 msgid "Userinfo"
 msgstr "ThÃ´ng tin ngÆ°á»i dÃ¹ng"
 
-#: ../src/common/xchat.c:826
+#: ../src/common/xchat.c:842
 msgid "Clientinfo"
 msgstr "Thông tin khách"
 
-#: ../src/common/xchat.c:827 ../src/common/xchat.c:861
-#: ../src/common/xchat.c:909
+#: ../src/common/xchat.c:843 ../src/common/xchat.c:877
+#: ../src/common/xchat.c:925
 msgid "Ping"
 msgstr "Ping"
 
-#: ../src/common/xchat.c:829
+#: ../src/common/xchat.c:845
 msgid "Finger"
 msgstr "Finger"
 
-#: ../src/common/xchat.c:830
+#: ../src/common/xchat.c:846
 msgid "Oper"
 msgstr "Tháo tác"
 
-#: ../src/common/xchat.c:831
+#: ../src/common/xchat.c:847
 msgid "Kill this user"
 msgstr "Â«Giáº¿tÂ» ngÆ°á»i nÃ y"
 
-#: ../src/common/xchat.c:832
+#: ../src/common/xchat.c:848
 msgid "Mode"
 msgstr "Cháº¿ Äá»"
 
-#: ../src/common/xchat.c:835
+#: ../src/common/xchat.c:851
 msgid "Give Half-Ops"
 msgstr "Cho ThÃ¡o tÃ¡c ná»­a"
 
-#: ../src/common/xchat.c:836
+#: ../src/common/xchat.c:852
 msgid "Take Half-Ops"
 msgstr "Bá» Thao tÃ¡c ná»­a"
 
-#: ../src/common/xchat.c:839 ../src/fe-gnome/userlist-gui.c:64
+#: ../src/common/xchat.c:855 ../src/fe-gnome/userlist-gui.c:64
 msgid "Ignore"
 msgstr "Bá» qua"
 
-#: ../src/common/xchat.c:840
+#: ../src/common/xchat.c:856
 msgid "Ignore User"
 msgstr "Bá» qua ngÆ°á»i"
 
-#: ../src/common/xchat.c:841
+#: ../src/common/xchat.c:857
 msgid "UnIgnore User"
 msgstr "ThÃ´i bá» qua ngÆ°á»i"
 
-#: ../src/common/xchat.c:853
+#: ../src/common/xchat.c:869
 msgid "Info"
 msgstr "Thông tin"
 
-#: ../src/common/xchat.c:854
+#: ../src/common/xchat.c:870
 msgid "Who"
 msgstr "Ai"
 
-#: ../src/common/xchat.c:855 ../src/common/xchat.c:905
+#: ../src/common/xchat.c:871 ../src/common/xchat.c:921
 msgid "WhoIs"
 msgstr "Whois (là ai?)"
 
-#: ../src/common/xchat.c:856
+#: ../src/common/xchat.c:872
 msgid "DNS Lookup"
 msgstr "Tra cá»©u DNS"
 
-#: ../src/common/xchat.c:857
+#: ../src/common/xchat.c:873
 msgid "Trace"
 msgstr "Dáº¥u váº¿t"
 
-#: ../src/common/xchat.c:858
+#: ../src/common/xchat.c:874
 msgid "UserHost"
 msgstr "NgÆ°á»i/mÃ¡y"
 
-#: ../src/common/xchat.c:859
+#: ../src/common/xchat.c:875
 msgid "External"
 msgstr "Bên ngoài"
 
-#: ../src/common/xchat.c:860
+#: ../src/common/xchat.c:876
 msgid "Traceroute"
 msgstr "TÃ¬m tháº¥y dáº¥u váº¿t ÄÆ°á»ng"
 
-#: ../src/common/xchat.c:862
+#: ../src/common/xchat.c:878
 msgid "Telnet"
 msgstr "Telnet"
 
-#: ../src/common/xchat.c:874
+#: ../src/common/xchat.c:890
 msgid "Leave Channel"
 msgstr "Rá»i kÃªnh Äi"
 
-#: ../src/common/xchat.c:875
+#: ../src/common/xchat.c:891
 msgid "Join Channel..."
 msgstr "Vào kênh..."
 
-#: ../src/common/xchat.c:876
+#: ../src/common/xchat.c:892
 msgid "Enter Channel to Join:"
 msgstr "GÃµ kÃªnh cáº§n vÃ o:"
 
-#: ../src/common/xchat.c:877
+#: ../src/common/xchat.c:893
 msgid "Server Links"
 msgstr "LiÃªn káº¿t mÃ¡y phá»¥c vá»¥"
 
-#: ../src/common/xchat.c:878
+#: ../src/common/xchat.c:894
 msgid "Ping Server"
 msgstr "MÃ¡y phá»¥c vá»¥ ping"
 
-#: ../src/common/xchat.c:879
+#: ../src/common/xchat.c:895
 msgid "Hide Version"
 msgstr "áº¨n phiÃªn báº£n"
 
-#: ../src/common/xchat.c:889
+#: ../src/common/xchat.c:905
 msgid "Op"
 msgstr "Tháo tác"
 
-#: ../src/common/xchat.c:890
+#: ../src/common/xchat.c:906
 msgid "DeOp"
 msgstr "Bá» thao tÃ¡c"
 
-#: ../src/common/xchat.c:893
+#: ../src/common/xchat.c:909
 msgid "bye"
 msgstr "táº¡m biá»t"
 
-#: ../src/common/xchat.c:894
+#: ../src/common/xchat.c:910
 #, c-format
 msgid "Enter reason to kick %s:"
 msgstr "GÃµ lÃ½ do ÄÃ¡: %s"
 
-#: ../src/common/xchat.c:895
+#: ../src/common/xchat.c:911
 msgid "Sendfile"
 msgstr "Gá»i táº­p tin"
 
-#: ../src/common/xchat.c:896
+#: ../src/common/xchat.c:912
 msgid "Dialog"
 msgstr "ÄÃ´i thoáº¡i"
 
-#: ../src/common/xchat.c:906
+#: ../src/common/xchat.c:922
 msgid "Send"
 msgstr "Gá»i"
 
-#: ../src/common/xchat.c:907
+#: ../src/common/xchat.c:923
 msgid "Chat"
 msgstr "TrÃ² chuyá»n"
 
-#: ../src/common/xchat.c:908
+#: ../src/common/xchat.c:924
 msgid "Clear"
 msgstr "Xóa"
 
@@ -3847,6 +3836,8 @@ msgstr ""
 #. Translators: This is a random, mostly-meaningless
 #. * quotation from Jeeves & Wooster.  Either leave it
 #. * be or replace it with something funny (but inoffensive)
+#. * in your own language, but don't translate it literally.
+#.
 #: ../src/fe-gnome/about.c:91
 msgid ""
 "It has been well observed that a trombone is not a suitable instrument for a "
@@ -3864,6 +3855,8 @@ msgstr ""
 #. * should also include other translators who have
 #. * contributed to this translation; in that case, please
 #. * write each of them on a separated line seperated by
+#. * newlines (\n).
+#.
 #: ../src/fe-gnome/about.c:109
 msgid "translator-credits"
 msgstr ""
@@ -3964,115 +3957,115 @@ msgstr ""
 msgid "xchat configuration version"
 msgstr ""
 
-#: ../src/fe-gnome/channel-list.c:296
+#: ../src/fe-gnome/channel-list.c:291
 #, c-format
 msgid "%s Channel List"
 msgstr ""
 
+#. IRC menu
 #: ../src/fe-gnome/connect-dialog.c:132 ../src/fe-gnome/main-window.c:107
 msgid "_Connect"
 msgstr "Kết nối"
 
-#: ../src/fe-gnome/conversation-panel.c:164
+#: ../src/fe-gnome/conversation-panel.c:170
 msgid "_Open Link in Browser"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:165
+#: ../src/fe-gnome/conversation-panel.c:171
 msgid "_Copy Link Location"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:169
+#: ../src/fe-gnome/conversation-panel.c:175
 msgid "Se_nd Message To..."
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:170
+#: ../src/fe-gnome/conversation-panel.c:176
 msgid "_Copy Address"
 msgstr "Địa chỉ của bạn"
 
-#: ../src/fe-gnome/conversation-panel.c:174
+#: ../src/fe-gnome/conversation-panel.c:180
 msgid "_Send File"
 msgstr "Gởi tập tin"
 
-#: ../src/fe-gnome/conversation-panel.c:175
+#: ../src/fe-gnome/conversation-panel.c:181
 msgid "Paste File _Contents"
 msgstr "_Nội dụng"
 
-#: ../src/fe-gnome/conversation-panel.c:176
+#: ../src/fe-gnome/conversation-panel.c:182
 msgid "Paste File_name"
 msgstr "Tên tập tin mới"
 
-#: ../src/fe-gnome/conversation-panel.c:177
+#: ../src/fe-gnome/conversation-panel.c:183
 msgid "_Cancel"
 msgstr "Thôi"
 
-#: ../src/fe-gnome/conversation-panel.c:181 ../src/fe-gnome/main-window.c:113
+#: ../src/fe-gnome/conversation-panel.c:187 ../src/fe-gnome/main-window.c:113
 msgid "_Copy"
 msgstr "Chép"
 
-#: ../src/fe-gnome/conversation-panel.c:772
+#: ../src/fe-gnome/conversation-panel.c:782
 #, c-format
-msgid ""
-"URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"
+msgid "URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:864
+#: ../src/fe-gnome/conversation-panel.c:874
 #, c-format
 msgid "Error reading file \"%s\": %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:879
+#: ../src/fe-gnome/conversation-panel.c:889
 #, c-format
 msgid "Error converting URI \"%s\" into filename: %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:922
+#: ../src/fe-gnome/conversation-panel.c:932
 #, c-format
 msgid "Error retrieving file information for \"%s\": %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:999
+#: ../src/fe-gnome/conversation-panel.c:1009
 msgid "Save Transcript"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:1025
 #: ../src/fe-gnome/conversation-panel.c:1035
+#: ../src/fe-gnome/conversation-panel.c:1045
 #, c-format
 msgid "Error saving %s"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:1165
+#: ../src/fe-gnome/conversation-panel.c:1175
 msgid "Search buffer is empty.\n"
 msgstr "Bá» Äá»m tÃ¬m kiáº¿m lÃ  trá»ng khÃ´ng.\n"
 
-#: ../src/fe-gnome/dcc-window.c:143
+#. File completion percent
+#: ../src/fe-gnome/dcc-window.c:144
 msgid "%"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:144
+#: ../src/fe-gnome/dcc-window.c:145
 msgid "File"
 msgstr "Táº­p tin"
 
-#: ../src/fe-gnome/dcc-window.c:145
+#: ../src/fe-gnome/dcc-window.c:146
 msgid "Remaining"
 msgstr "Tôi đi"
 
-#: ../src/fe-gnome/dcc-window.c:228
-#, fuzzy
+#: ../src/fe-gnome/dcc-window.c:225
 msgid "Incoming File Transfer"
-msgstr "Việc chuyển giao tập tin"
+msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:229
+#: ../src/fe-gnome/dcc-window.c:226 ../src/fe-gnome/fe-gnome.c:482
 msgid "_Accept"
 msgstr "Chấp nhận"
 
-#: ../src/fe-gnome/dcc-window.c:230
+#: ../src/fe-gnome/dcc-window.c:227
 #, c-format
 msgid ""
 "%s is attempting to send you a file named \"%s\". Do you wish to accept the "
 "transfer?"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:250
+#: ../src/fe-gnome/dcc-window.c:247
 #, c-format
 msgid ""
 "<b>%s</b>\n"
@@ -4080,11 +4073,11 @@ msgid ""
 "%s of %s"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:261
+#: ../src/fe-gnome/dcc-window.c:258
 msgid "starting"
 msgstr "Đang đời"
 
-#: ../src/fe-gnome/dcc-window.c:291
+#: ../src/fe-gnome/dcc-window.c:288
 #, c-format
 msgid ""
 "<b>%s</b>\n"
@@ -4092,66 +4085,77 @@ msgid ""
 "%s of %s at %s/s"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:298
+#: ../src/fe-gnome/dcc-window.c:295
 msgid "queued"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:303
+#: ../src/fe-gnome/dcc-window.c:300
 #, c-format
 msgid "Transfer of %s to %s failed"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:305
+#: ../src/fe-gnome/dcc-window.c:302
 #, c-format
 msgid "Transfer of %s from %s failed"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:306
+#: ../src/fe-gnome/dcc-window.c:303
 msgid "Transfer failed"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:315
+#: ../src/fe-gnome/dcc-window.c:312
 msgid "stalled"
 msgstr "Thấy bại"
 
-#: ../src/fe-gnome/dcc-window.c:319
+#: ../src/fe-gnome/dcc-window.c:316
 #, c-format
 msgid "%.2d:%.2d:%.2d"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:321
+#: ../src/fe-gnome/dcc-window.c:318
 #, c-format
 msgid "%.2d:%.2d"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:434
+#: ../src/fe-gnome/dcc-window.c:431
 msgid "Send File..."
 msgstr "Gởi tập tin"
 
-#: ../src/fe-gnome/fe-gnome.c:58
+#: ../src/fe-gnome/fe-gnome.c:59
 msgid "Use directory instead of the default config dir"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:59
+#: ../src/fe-gnome/fe-gnome.c:60
 msgid "Don't auto-connect to servers"
 msgstr "Tự động kết nối lại đến máy phục vụ"
 
-#: ../src/fe-gnome/fe-gnome.c:60
+#: ../src/fe-gnome/fe-gnome.c:61
 msgid "Don't auto-load plugins"
 msgstr "đừng tự động tải bộ cầm phít nào"
 
-#: ../src/fe-gnome/fe-gnome.c:62
+#: ../src/fe-gnome/fe-gnome.c:63
 msgid "Show version information"
 msgstr "hiển thị thông tin phiên bản"
 
-#: ../src/fe-gnome/fe-gnome.c:110
+#: ../src/fe-gnome/fe-gnome.c:111
 #, c-format
 msgid ""
 "xchat-gnome: %s\n"
 "Try `xchat-gnome --help' for more information\n"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:862
+#: ../src/fe-gnome/fe-gnome.c:480
+msgid "Incoming DCC Chat"
+msgstr ""
+
+#: ../src/fe-gnome/fe-gnome.c:485
+#, c-format
+msgid ""
+"%s is attempting to create a direct chat. Do you wish to accept the "
+"connection?"
+msgstr ""
+
+#: ../src/fe-gnome/fe-gnome.c:899
 #, c-format
 msgid "Unable to show '%s'"
 msgstr ""
@@ -4169,14 +4173,13 @@ msgid "_Next"
 msgstr "Đoạn"
 
 #: ../src/fe-gnome/find-bar.c:218
-msgid ""
-"<span foreground=\"dark grey\">Reached end, continuing from top</span>"
+msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
 msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:225
 msgid ""
-"<span foreground=\"dark grey\">Reached beginning, continuing from "
-"bottom</span>"
+"<span foreground=\"dark grey\">Reached beginning, continuing from bottom</"
+"span>"
 msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:232
@@ -4187,9 +4190,11 @@ msgstr ""
 msgid "Server"
 msgstr "MÃ¡y phá»¥c vá»¥"
 
+#. We're creating a new network. Don't populate things from the structure
 #: ../src/fe-gnome/irc-network-editor.c:380
+#, fuzzy
 msgid "New Network"
-msgstr ""
+msgstr "mạng mới"
 
 #: ../src/fe-gnome/irc-network-editor.c:388
 #, c-format
@@ -4278,6 +4283,7 @@ msgstr ""
 msgid "GB18030 (Chinese)"
 msgstr ""
 
+#. Toplevel
 #: ../src/fe-gnome/main-window.c:97
 msgid "_IRC"
 msgstr "_IRC"
@@ -4310,6 +4316,7 @@ msgstr "Việc chuyển giao tập tin"
 msgid "_Quit"
 msgstr "Thoát"
 
+#. Edit menu
 #: ../src/fe-gnome/main-window.c:112
 msgid "Cu_t"
 msgstr ""
@@ -4323,104 +4330,110 @@ msgid "Prefere_nces"
 msgstr "Sở thích..."
 
 #. Network menu
-#: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:81
-msgid "_Information"
-msgstr "Loại thông tin"
-
-#: ../src/fe-gnome/main-window.c:119 ../src/fe-gnome/navigation-tree.c:82
+#: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:82
 msgid "_Reconnect"
 msgstr "Kết nối lại"
 
-#: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:83
+#: ../src/fe-gnome/main-window.c:119 ../src/fe-gnome/navigation-tree.c:83
 msgid "_Disconnect"
 msgstr "Ngắt kết nối"
 
-#: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:84
+#: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:84
 #: ../src/fe-gnome/navigation-tree.c:90 ../src/fe-gnome/navigation-tree.c:96
 msgid "_Close"
 msgstr "_ÄÃ³ng"
 
-#: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:85
+#: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:85
 msgid "_Channels..."
 msgstr "Danh sách kênh..."
 
 #. Discussion menu
 #. Channel context menu
-#: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:88
+#. Dialog context menu
+#: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:88
 #: ../src/fe-gnome/navigation-tree.c:95
 msgid "_Save Transcript"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:89
+#: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:89
 msgid "_Leave"
 msgstr "Tôi đi"
 
-#: ../src/fe-gnome/main-window.c:127
+#: ../src/fe-gnome/main-window.c:126
 msgid "Cl_ose"
 msgstr "Đóng"
 
-#: ../src/fe-gnome/main-window.c:128
+#: ../src/fe-gnome/main-window.c:127
 msgid "_Find"
 msgstr "Tìm"
 
-#: ../src/fe-gnome/main-window.c:129
+#: ../src/fe-gnome/main-window.c:128
 msgid "Change _Topic"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:92
+#: ../src/fe-gnome/main-window.c:129 ../src/fe-gnome/navigation-tree.c:92
 msgid "_Bans..."
 msgstr "Danh sách đuổi ra..."
 
-#: ../src/fe-gnome/main-window.c:131
+#: ../src/fe-gnome/main-window.c:130
 msgid "_Users"
 msgstr "Người dùng"
 
-#: ../src/fe-gnome/main-window.c:134
+#. Go menu
+#: ../src/fe-gnome/main-window.c:133
 msgid "Pre_vious Network"
 msgstr "mạng mới"
 
-#: ../src/fe-gnome/main-window.c:135
+#: ../src/fe-gnome/main-window.c:134
 msgid "Nex_t Network"
 msgstr "mạng mới"
 
-#: ../src/fe-gnome/main-window.c:136
+#: ../src/fe-gnome/main-window.c:135
 msgid "_Previous Discussion"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:137
+#: ../src/fe-gnome/main-window.c:136
 msgid "_Next Discussion"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:140
+#. Help menu
+#: ../src/fe-gnome/main-window.c:139
 msgid "_Contents"
 msgstr "_Ná»i dá»¥ng"
 
-#: ../src/fe-gnome/main-window.c:141
+#: ../src/fe-gnome/main-window.c:140
 msgid "_About"
 msgstr "_Giá»i thiá»u"
 
-#: ../src/fe-gnome/main-window.c:509 ../src/fe-gnome/navigation-tree.c:1667
+#: ../src/fe-gnome/main-window.c:502 ../src/fe-gnome/navigation-tree.c:1667
 msgid "Ex-Chat"
 msgstr "Trò chuyện"
 
-#: ../src/fe-gnome/main-window.c:590
+#: ../src/fe-gnome/main-window.c:583
 msgid "Error showing help"
 msgstr ""
+
+#. Server context menu
+#: ../src/fe-gnome/navigation-tree.c:81
+msgid "_Information"
+msgstr "Loại thông tin"
 
 #: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:97
 msgid "_Find..."
 msgstr "Gởi tâp tin..."
 
+#. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:102
-#, fuzzy
 msgid "_Auto-connect on startup"
-msgstr "_Kết nối"
+msgstr ""
 
+#. Channel context menu
 #: ../src/fe-gnome/navigation-tree.c:105
 #, fuzzy
 msgid "_Auto-join on connect"
 msgstr "_Kết nối"
 
+#. Add the new server to the model. By default connected is false.
 #: ../src/fe-gnome/navigation-tree.c:357
 #: ../src/fe-gnome/navigation-tree.c:1296
 msgid "<none>"
@@ -4498,7 +4511,7 @@ msgid "Scripts and Plugins"
 msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:327
-#: ../src/fe-gnome/preferences-page-spellcheck.c:199
+#: ../src/fe-gnome/preferences-page-spellcheck.c:223
 msgid "Enable"
 msgstr ""
 
@@ -4516,11 +4529,25 @@ msgstr ""
 msgid "Error in spell checking configuration: %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:190
+#: ../src/fe-gnome/preferences-page-spellcheck.c:186
 msgid "Spell checking"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:204
+#: ../src/fe-gnome/preferences-page-spellcheck.c:190
+msgid ""
+"In order to get spell-checking, you need to have libenchant installed with "
+"at least one dictionary."
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:201
+msgid "_Check spelling"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:202
+msgid "Choose languages to use for spellcheck:"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:228
 msgid "Language"
 msgstr ""
 
@@ -4607,7 +4634,7 @@ msgstr ""
 msgid "White"
 msgstr ""
 
-#: ../src/fe-gnome/topic-label.c:250
+#: ../src/fe-gnome/topic-label.c:264
 #, c-format
 msgid "Changing topic for %s"
 msgstr ""
@@ -4651,6 +4678,7 @@ msgid_plural ""
 "%s\n"
 "<span weight=\"bold\">Last message:</span> %d minutes ago"
 msgstr[0] ""
+msgstr[1] ""
 
 #: ../src/fe-gnome/userlist-gui.c:421
 #, c-format
@@ -4660,19 +4688,29 @@ msgid ""
 msgstr ""
 
 #: ../src/fe-gnome/userlist.c:320
-#, c-format
+#, fuzzy, c-format
 msgid "%d User"
 msgid_plural "%d Users"
-msgstr[0] ""
+msgstr[0] "NgÆ°á»i dÃ¹ng"
+msgstr[1] "NgÆ°á»i dÃ¹ng"
 
-#~ msgid "Enter a new nickname"
-#~ msgstr "Hãy gõ tên hiệu mới"
+#~ msgid "Save List _As"
+#~ msgstr "Lưu là"
 
 #~ msgid "Disconnected"
 #~ msgstr "Ngắt kết nối"
 
 #~ msgid "Connected"
 #~ msgstr "Kết nối"
+
+#~ msgid "France, Metropolitan"
+#~ msgstr "PhÃ¡p, thÃ nh phá»"
+
+#~ msgid "Neutral Zone"
+#~ msgstr "Khu vá»±c Trung láº­p"
+
+#~ msgid "Enter a new nickname"
+#~ msgstr "Hãy gõ tên hiệu mới"
 
 #~ msgid "C_lear"
 #~ msgstr "Xóa"

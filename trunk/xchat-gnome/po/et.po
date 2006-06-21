@@ -8,14 +8,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-06-16 19:21-0600\n"
-"PO-Revision-Date: 2006-06-17 01:43+0000\n"
+"POT-Creation-Date: 2006-06-21 02:02-0600\n"
+"PO-Revision-Date: 2006-03-09 16:15+0000\n"
 "Last-Translator: Ilmar Kerm <ikerm@hot.ee>\n"
 "Language-Team: Estonian <gnome-et@linux.ee>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1\n"
 
 #: ../data/channel-list.glade.h:1
 msgid "<span weight=\"bold\">List Filtering</span>"
@@ -46,10 +45,6 @@ msgid "Minimum Users:"
 msgstr "Minimaalselt kasutajaid:"
 
 #: ../data/channel-list.glade.h:8
-msgid "Save List _As"
-msgstr "Salvesta kui"
-
-#: ../data/channel-list.glade.h:9
 msgid "Text Filter:"
 msgstr ""
 
@@ -57,7 +52,7 @@ msgstr ""
 msgid "C_onnect"
 msgstr "Ü_henda"
 
-#: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
+#: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:119
 msgid "File Transfers"
 msgstr "Failide edastus"
 
@@ -202,140 +197,132 @@ msgid "Buil_t-in schemes:"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:19
-msgid "Choose languages to use for spellcheck:"
-msgstr ""
-
-#: ../data/preferences-dialog.glade.h:20
 msgid "Convert spaces to underscores in filenames"
 msgstr "Asenda tühikud alakriipsuga"
 
-#: ../data/preferences-dialog.glade.h:21
+#: ../data/preferences-dialog.glade.h:20
 msgid "Download files to:"
 msgstr "Allalaetud failid pane:"
 
-#: ../data/preferences-dialog.glade.h:22
+#: ../data/preferences-dialog.glade.h:21
 msgid "Enter extra words to trigger highlighting"
 msgstr "Esiletõstetavad sõnad:"
 
-#: ../data/preferences-dialog.glade.h:23
+#: ../data/preferences-dialog.glade.h:22
 msgid "Foreground mark:"
 msgstr "Tekst:"
 
-#: ../data/preferences-dialog.glade.h:24
+#: ../data/preferences-dialog.glade.h:23
 msgid "Get IP Address From Server"
 msgstr "Võta mu IP aadress IRC serverilt"
 
-#: ../data/preferences-dialog.glade.h:25
+#: ../data/preferences-dialog.glade.h:24
 msgid "Global receive KB/s: "
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:26
+#: ../data/preferences-dialog.glade.h:25
 msgid "Global send KB/s: "
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:27
+#: ../data/preferences-dialog.glade.h:26
 msgid "Image _file:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:28
+#: ../data/preferences-dialog.glade.h:27
 msgid "Individual receive KB/s: "
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:29
+#: ../data/preferences-dialog.glade.h:28
 msgid "Individual send KB/s: "
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:30
+#: ../data/preferences-dialog.glade.h:29
 msgid "Move completed files to:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:31
+#: ../data/preferences-dialog.glade.h:30
 msgid "Preferences"
 msgstr "Häälestus..."
 
-#: ../data/preferences-dialog.glade.h:32
+#: ../data/preferences-dialog.glade.h:31
 msgid "Real na_me:"
 msgstr "Pärisnimi:"
 
-#: ../data/preferences-dialog.glade.h:33
+#: ../data/preferences-dialog.glade.h:32
 msgid "Save sender nickname in filenames"
 msgstr "Salvesta hüüdnimi failinimedesse"
 
-#: ../data/preferences-dialog.glade.h:34
+#: ../data/preferences-dialog.glade.h:33
 msgid "Select A File"
 msgstr "Vali väljundfaili nimi"
 
-#: ../data/preferences-dialog.glade.h:35
+#: ../data/preferences-dialog.glade.h:34
 msgid "Select Completed Files Directory"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:36
+#: ../data/preferences-dialog.glade.h:35
 msgid "Select Download Directory"
 msgstr "Allalaetud failid pane:"
 
-#: ../data/preferences-dialog.glade.h:37
+#: ../data/preferences-dialog.glade.h:36
 msgid "Show _timestamps"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:38
+#: ../data/preferences-dialog.glade.h:37
 msgid ""
 "To edit a shortcut key, click on the corresponding row and type a new "
 "accelerator, or press backspace to clear."
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:39
+#: ../data/preferences-dialog.glade.h:38
 msgid "Use System Terminal Font"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:40
+#: ../data/preferences-dialog.glade.h:39
 msgid "Use This IP Address:"
 msgstr "IP aadress"
 
-#: ../data/preferences-dialog.glade.h:41
+#: ../data/preferences-dialog.glade.h:40
 msgid "Use this font:"
 msgstr "Kasuta fondisetti"
 
-#: ../data/preferences-dialog.glade.h:42
+#: ../data/preferences-dialog.glade.h:41
 msgid "_Background color:"
 msgstr "Taust:"
 
-#: ../data/preferences-dialog.glade.h:43
-msgid "_Check spelling"
-msgstr ""
-
-#: ../data/preferences-dialog.glade.h:44 ../src/fe-gnome/main-window.c:98
+#: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:98
 msgid "_Edit"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:45
+#: ../data/preferences-dialog.glade.h:43
 msgid "_Foreground color:"
 msgstr "Tekst:"
 
-#: ../data/preferences-dialog.glade.h:46
+#: ../data/preferences-dialog.glade.h:44
 msgid "_Nickname:"
 msgstr "Kasutajanimi"
 
-#: ../data/preferences-dialog.glade.h:47
+#: ../data/preferences-dialog.glade.h:45
 msgid "_None (use solid color)"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:48
+#: ../data/preferences-dialog.glade.h:46
 msgid "_Part message:"
 msgstr "Teade"
 
-#: ../data/preferences-dialog.glade.h:49
+#: ../data/preferences-dialog.glade.h:47
 msgid "_Quit message:"
 msgstr "Teade"
 
-#: ../data/preferences-dialog.glade.h:50
+#: ../data/preferences-dialog.glade.h:48
 msgid "_Show colors"
 msgstr "Näita kanaleid"
 
-#: ../data/preferences-dialog.glade.h:51
+#: ../data/preferences-dialog.glade.h:49
 msgid "_Transparent background"
 msgstr "Läbipaistev taust"
 
-#: ../data/preferences-dialog.glade.h:52
+#: ../data/preferences-dialog.glade.h:50
 msgid "spell checking"
 msgstr ""
 
@@ -371,8 +358,8 @@ msgstr "Kanalil"
 msgid "Chat with people using IRC"
 msgstr ""
 
-#: ../data/xchat-gnome.desktop.in.h:2 ../src/fe-gnome/fe-gnome.c:93
-#: ../src/fe-gnome/fe-gnome.c:104
+#: ../data/xchat-gnome.desktop.in.h:2 ../src/fe-gnome/fe-gnome.c:94
+#: ../src/fe-gnome/fe-gnome.c:105
 msgid "IRC Chat"
 msgstr "Vestlus"
 
@@ -412,7 +399,7 @@ msgid "Nickname"
 msgstr "Kasutajanimi"
 
 #: ../data/xchat-gnome.glade.h:6 ../src/common/text.c:805
-#: ../src/fe-gnome/channel-list.c:328 ../src/fe-gnome/userlist.c:325
+#: ../src/fe-gnome/channel-list.c:321 ../src/fe-gnome/userlist.c:325
 msgid "Users"
 msgstr "Kasutajad"
 
@@ -475,7 +462,7 @@ msgstr ""
 msgid "%s loaded successfully!\n"
 msgstr ""
 
-#: ../plugins/dbus/xchat-gnome-remote.c:41 ../src/fe-gnome/fe-gnome.c:61
+#: ../plugins/dbus/xchat-gnome-remote.c:41 ../src/fe-gnome/fe-gnome.c:62
 msgid "Open an irc:// url"
 msgstr ""
 
@@ -484,12 +471,14 @@ msgid "irc://server:port/channel"
 msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:42
+#, fuzzy
 msgid "Execute a xchat command"
-msgstr ""
+msgstr "Käivita xchat'i käsk"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:42
+#, fuzzy
 msgid "\"Command to execute\""
-msgstr ""
+msgstr "''Käsk mida käivitada''"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "Prints some text to the current tab/window"
@@ -517,15 +506,16 @@ msgstr "Server"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "Get some informations from xchat"
-msgstr ""
+msgstr "Informatsioon xchat'i kohta"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "id"
 msgstr "Peida"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
+#, fuzzy
 msgid "Get settings from xchat"
-msgstr "Salvesta sätted väljumisel"
+msgstr "Xchat'i sätted"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "name"
@@ -544,23 +534,23 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:116
 #: ../plugins/dbus/xchat-gnome-remote.c:130
+#, fuzzy
 msgid "Failed to complete command"
 msgstr ""
-"Ei suuda avada fonti:\n"
+"Ei saanud käsku lõpetada\n"
 "\n"
 "%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:125
+#, fuzzy
 msgid "Failed to complete SetContext"
-msgstr ""
-"Ei suuda avada fonti:\n"
-"\n"
-"%s"
+msgstr "%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:135
+#, fuzzy
 msgid "Failed to complete print"
 msgstr ""
-"Ei suuda avada fonti:\n"
+"Ei saanud printimist lõpetada\n"
 "\n"
 "%s"
 
@@ -579,9 +569,9 @@ msgstr ""
 "%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:159
-#, c-format
+#, fuzzy, c-format
 msgid "%s doesn't exist\n"
-msgstr ""
+msgstr "%s puudub\n"
 
 #: ../plugins/net-monitor/net-monitor.c:36
 msgid "Network Monitor"
@@ -681,7 +671,7 @@ msgstr ""
 msgid "xchat URL scraper"
 msgstr "X-Chat: URLipüüdja"
 
-#: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:828
+#: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:844
 msgid "Time"
 msgstr "Aeg"
 
@@ -752,15 +742,15 @@ msgstr ""
 msgid "Cannot create ~/.xchat2"
 msgstr "Ei suuda luua kataloogi ~/.xchat2"
 
-#: ../src/common/cfgfiles.c:682
+#: ../src/common/cfgfiles.c:683
 msgid "I'm busy"
 msgstr "On tegemist"
 
-#: ../src/common/cfgfiles.c:683
+#: ../src/common/cfgfiles.c:684
 msgid "Leaving"
 msgstr "Läti"
 
-#: ../src/common/cfgfiles.c:729
+#: ../src/common/cfgfiles.c:730
 msgid ""
 "* Running IRC as root is stupid! You should\n"
 "  create a User Account and use that to login.\n"
@@ -768,36 +758,46 @@ msgstr ""
 "* root-kasutajana IRCus istuda on lollus! Sa peaks\n"
 "  looma tavakasutaja konto ja sellega sisse logima.\n"
 
-#: ../src/common/dcc.c:66
+#: ../src/common/dcc.c:67
 msgid "Waiting"
 msgstr "Ootamine"
 
-#: ../src/common/dcc.c:67
+#. black
+#: ../src/common/dcc.c:68
 msgid "Active"
 msgstr "Aktiivne"
 
-#: ../src/common/dcc.c:68
+#. cyan
+#: ../src/common/dcc.c:69
 msgid "Failed"
 msgstr "Ei õnnestunud"
 
-#: ../src/common/dcc.c:69
+#. red
+#: ../src/common/dcc.c:70
 msgid "Done"
 msgstr "Valmis"
 
-#: ../src/common/dcc.c:70 ../src/fe-gnome/connect-dialog.c:154
+#. green
+#: ../src/common/dcc.c:71 ../src/fe-gnome/connect-dialog.c:154
 msgid "Connect"
 msgstr "Ühenda"
 
-#: ../src/common/dcc.c:71
+#. black
+#: ../src/common/dcc.c:72
 msgid "Aborted"
 msgstr "Katkestatud"
 
-#: ../src/common/dcc.c:1340
+#: ../src/common/dcc.c:1875 ../src/common/outbound.c:2246
 #, c-format
 msgid "Cannot access %s\n"
 msgstr "Puudub ligipääs failile %s\n"
 
-#: ../src/common/dcc.c:2020
+#: ../src/common/dcc.c:2362
+#, c-format
+msgid "%s is offering \"%s\". Do you want to accept?"
+msgstr ""
+
+#: ../src/common/dcc.c:2573
 msgid "No active DCCs\n"
 msgstr "Ei ole ühtegi aktiivset DCCd\n"
 
@@ -815,23 +815,22 @@ msgstr "JAH  "
 msgid "NO   "
 msgstr "EI   "
 
-#: ../src/common/ignore.c:370
+#: ../src/common/ignore.c:377
 #, c-format
 msgid "You are being CTCP flooded from %s, ignoring %s\n"
 msgstr ""
 
-#: ../src/common/ignore.c:395
+#: ../src/common/ignore.c:402
 #, c-format
-msgid ""
-"You are being MSG flooded from %s, setting gui_auto_open_dialog OFF.\n"
+msgid "You are being MSG flooded from %s, setting gui_auto_open_dialog OFF.\n"
 msgstr ""
 
-#: ../src/common/notify.c:395
+#: ../src/common/notify.c:396
 #, c-format
 msgid "  %-20s online\n"
 msgstr "  %-20s onlain\n"
 
-#: ../src/common/notify.c:397
+#: ../src/common/notify.c:398
 #, c-format
 msgid "  %-20s offline\n"
 msgstr "  %-20s offlain\n"
@@ -869,35 +868,35 @@ msgstr "Rohkem infot saad käsuga /HELP <käsk>, või proovi /HELP -l"
 msgid "Unknown arg '%s' ignored."
 msgstr "Tundmatut parameetrit '%s' ignoreeriti."
 
-#: ../src/common/outbound.c:2948
+#: ../src/common/outbound.c:2960
 msgid "No such plugin found.\n"
 msgstr "Sellist pluginat ei leitud.\n"
 
-#: ../src/common/outbound.c:2953
+#: ../src/common/outbound.c:2965
 msgid "That plugin is refusing to unload.\n"
 msgstr "See plugin ei taha end eemaldada.\n"
 
-#: ../src/common/outbound.c:3188
+#: ../src/common/outbound.c:3200
 msgid "ADDBUTTON <name> <action>, adds a button under the user-list"
 msgstr "ADDBUTTON <nimi> <tegevus>, lisab kasutajate nimekirja alla uue nupu"
 
-#: ../src/common/outbound.c:3190
+#: ../src/common/outbound.c:3202
 msgid "ALLCHAN <cmd>, sends a command to all channels you're in"
 msgstr "ALLCHAN <käsk>, saadab käsu kõikidele kanalitele, kus oled"
 
-#: ../src/common/outbound.c:3192
+#: ../src/common/outbound.c:3204
 msgid "ALLCHANL <cmd>, sends a command to all channels you're in"
 msgstr "ALLCHAN <käsk>, saadab käsu kõikidele kanalitele, kus oled"
 
-#: ../src/common/outbound.c:3194
+#: ../src/common/outbound.c:3206
 msgid "ALLSERV <cmd>, sends a command to all servers you're in"
 msgstr "ALLSERV <käsk>, saadab käsu kõikidele serverite, kus oled"
 
-#: ../src/common/outbound.c:3195
+#: ../src/common/outbound.c:3207
 msgid "AWAY [<reason>], sets you away"
 msgstr "AWAY [<põhjus>], märgib sinu eemal olevaks"
 
-#: ../src/common/outbound.c:3197
+#: ../src/common/outbound.c:3209
 msgid ""
 "BAN <mask> [<bantype>], bans everyone matching the mask from the current "
 "channel. If they are already on the channel this doesn't kick them (needs "
@@ -907,20 +906,19 @@ msgstr ""
 "kanaliga liitumise. Kui mõni selline kasutaja on kanalil, see käsk ei viska "
 "neid automaatselt välja (selleks vajad chanop-õigusi)"
 
-#: ../src/common/outbound.c:3199
+#: ../src/common/outbound.c:3211
 msgid "CLEAR, Clears the current text window"
 msgstr "CLEAR, Puhastab aktiivse tekstiakna"
 
-#: ../src/common/outbound.c:3200
+#: ../src/common/outbound.c:3212
 msgid "CLOSE, Closes the current window/tab"
 msgstr "CLOSE, Sulgeb aktiivse tekstiakna"
 
-#: ../src/common/outbound.c:3203
-msgid ""
-"COUNTRY [-s] <code|wildcard>, finds a country code, eg: au = australia"
+#: ../src/common/outbound.c:3215
+msgid "COUNTRY [-s] <code|wildcard>, finds a country code, eg: au = australia"
 msgstr "COUNTRY <kood>, leiab koodi järgi riigi nime, näiteks ee = eesti"
 
-#: ../src/common/outbound.c:3205
+#: ../src/common/outbound.c:3217
 msgid ""
 "CTCP <nick> <message>, send the CTCP message to nick, common messages are "
 "VERSION and USERINFO"
@@ -928,11 +926,11 @@ msgstr ""
 "CTCP <kasutaja> <teade>, saadab kasutajale CTCP teate. Levinud teateid on "
 "näiteks VERSION ja USERINFO"
 
-#: ../src/common/outbound.c:3207
+#: ../src/common/outbound.c:3219
 msgid "CYCLE, parts current channel and immediately rejoins"
 msgstr "CYCLE, Lahkub aktiivsest kanalist ja naaseb kohe"
 
-#: ../src/common/outbound.c:3209
+#: ../src/common/outbound.c:3221
 msgid ""
 "\n"
 "DCC GET <nick>                      - accept an offered file\n"
@@ -952,7 +950,7 @@ msgstr ""
 "DCC CLOSE <tüüp> <kasutaja> <fail>        näide:\n"
 "         /dcc close send toomas fail.tar.gz"
 
-#: ../src/common/outbound.c:3221
+#: ../src/common/outbound.c:3233
 msgid ""
 "DEHOP <nick>, removes chanhalf-op status from the nick on the current "
 "channel (needs chanop)"
@@ -960,11 +958,11 @@ msgstr ""
 "DEHOP <kasutaja>, eemaldab aktiivse kanali kasutajalt chanhalf-op õiguse "
 "(vajab chanop õigust)"
 
-#: ../src/common/outbound.c:3223
+#: ../src/common/outbound.c:3235
 msgid "DELBUTTON <name>, deletes a button from under the user-list"
 msgstr "DELBUTTON <nimi>, kustutab kasutajate nimekirja aluse nupu"
 
-#: ../src/common/outbound.c:3225
+#: ../src/common/outbound.c:3237
 msgid ""
 "DEOP <nick>, removes chanop status from the nick on the current channel "
 "(needs chanop)"
@@ -972,70 +970,73 @@ msgstr ""
 "DEOP <kasutaja>, eemaldab aktiivse kanali kasutajalt chanop õiguse (vajab "
 "chanop õigust)"
 
-#: ../src/common/outbound.c:3227
+#: ../src/common/outbound.c:3239
+#, fuzzy
 msgid ""
 "DEVOICE <nick>, removes voice status from the nick on the current channel "
 "(needs chanop)"
 msgstr ""
+"DEVOICE <nimi>, eemaldab häälestaatuse kasutajalt lahtiolevas kanalis (vajab "
+"kanali operaatori õiguseid)"
 
-#: ../src/common/outbound.c:3228
+#: ../src/common/outbound.c:3240
 msgid "DISCON, Disconnects from server"
 msgstr "DISCON, katkestab ühenduse serveriga"
 
-#: ../src/common/outbound.c:3229
+#: ../src/common/outbound.c:3241
 msgid "DNS <nick|host|ip>, Finds a users IP number"
 msgstr "DNS <kasutaja|host|ip>, leiab kasutaja ip aadressi"
 
-#: ../src/common/outbound.c:3230
+#: ../src/common/outbound.c:3242
 msgid "ECHO <text>, Prints text locally"
 msgstr "ECHO <tekst>, väljastab teksti samas masinas"
 
-#: ../src/common/outbound.c:3233
+#: ../src/common/outbound.c:3245
 msgid ""
 "EXEC [-o] <command>, runs the command. If -o flag is used then output is "
 "sent to current channel, else is printed to current text box"
 msgstr ""
 
-#: ../src/common/outbound.c:3235
+#: ../src/common/outbound.c:3247
 msgid "EXECCONT, sends the process SIGCONT"
 msgstr "EXECCONT, saadab protsessile SIGCONT signaali"
 
-#: ../src/common/outbound.c:3238
+#: ../src/common/outbound.c:3250
 msgid ""
 "EXECKILL [-9], kills a running exec in the current session. If -9 is given "
 "the process is SIGKILL'ed"
 msgstr ""
 
-#: ../src/common/outbound.c:3240
+#: ../src/common/outbound.c:3252
 msgid "EXECSTOP, sends the process SIGSTOP"
 msgstr "EXECSTOP, saadab protsessile SIGSTOP signaali"
 
-#: ../src/common/outbound.c:3241
+#: ../src/common/outbound.c:3253
 msgid "EXECWRITE, sends data to the processes stdin"
 msgstr ""
 
-#: ../src/common/outbound.c:3245
+#: ../src/common/outbound.c:3257
 msgid "FLUSHQ, flushes the current server's send queue"
 msgstr ""
 
-#: ../src/common/outbound.c:3247
+#: ../src/common/outbound.c:3259
 msgid "GATE <host> [<port>], proxies through a host, port defaults to 23"
 msgstr ""
 
-#: ../src/common/outbound.c:3250
+#: ../src/common/outbound.c:3262
 msgid "GHOST <nick> <password>, Kills a ghosted nickname"
 msgstr ""
 
-#: ../src/common/outbound.c:3255
+#: ../src/common/outbound.c:3267
 msgid "HOP <nick>, gives chanhalf-op status to the nick (needs chanop)"
 msgstr ""
 "HOP <kasutaja>, annab kasutajale chanhalf-op õiguse (vajab chanop õigust)"
 
-#: ../src/common/outbound.c:3256
+#: ../src/common/outbound.c:3268
 msgid "ID <password>, identifies yourself to nickserv"
 msgstr ""
 
-#: ../src/common/outbound.c:3258
+#: ../src/common/outbound.c:3270
 msgid ""
 "IGNORE <mask> <types..> <options..>\n"
 "    mask - host mask to ignore, eg: *!*@*.aol.com\n"
@@ -1044,7 +1045,7 @@ msgid ""
 "    options - NOSAVE, QUIET"
 msgstr ""
 
-#: ../src/common/outbound.c:3265
+#: ../src/common/outbound.c:3277
 msgid ""
 "INVITE <nick> [<channel>], invites someone to a channel, by default the "
 "current channel (needs chanop)"
@@ -1052,43 +1053,46 @@ msgstr ""
 "INVITE <kasutaja> [<kanal>], kutsub kasutaja kanalisse, vaikimisi "
 "aktiivsesse kanalisse (vajab chanop õigust)"
 
-#: ../src/common/outbound.c:3266
+#: ../src/common/outbound.c:3278
 msgid "JOIN <channel>, joins the channel"
 msgstr "JOIN <kanal>, ühineb kanaliga"
 
-#: ../src/common/outbound.c:3268
+#: ../src/common/outbound.c:3280
 msgid "KICK <nick>, kicks the nick from the current channel (needs chanop)"
 msgstr ""
 "KICK <kasutaja>, viskab selle kasutaja kanalist välja (vajab chanop õigust)"
 
-#: ../src/common/outbound.c:3270
+#: ../src/common/outbound.c:3282
+#, fuzzy
 msgid ""
 "KICKBAN <nick>, bans then kicks the nick from the current channel (needs "
 "chanop)"
 msgstr ""
+"KICKBAN <nimi>, blokeerib ja seejärel eemaldab kasutaja kanalist (vajab "
+"kanali operaatori õiguseid)"
 
-#: ../src/common/outbound.c:3273
+#: ../src/common/outbound.c:3285
 msgid "LAGCHECK, forces a new lag check"
 msgstr ""
 
-#: ../src/common/outbound.c:3275
+#: ../src/common/outbound.c:3287
 msgid "LASTLOG <string>, searches for a string in the buffer"
 msgstr "LASTLOG <string>, otsib puhvrist stringi"
 
-#: ../src/common/outbound.c:3277
+#: ../src/common/outbound.c:3289
 msgid "LOAD [-e] <file>, loads a plugin or script"
 msgstr "LOAD <fail>, laeb plugina või skripti"
 
-#: ../src/common/outbound.c:3280
+#: ../src/common/outbound.c:3292
 msgid ""
 "MDEHOP, Mass deop's all chanhalf-ops in the current channel (needs chanop)"
 msgstr ""
 
-#: ../src/common/outbound.c:3282
+#: ../src/common/outbound.c:3294
 msgid "MDEOP, Mass deop's all chanops in the current channel (needs chanop)"
 msgstr ""
 
-#: ../src/common/outbound.c:3284
+#: ../src/common/outbound.c:3296
 msgid ""
 "ME <action>, sends the action to the current channel (actions are written in "
 "the 3rd person, like /me jumps)"
@@ -1096,107 +1100,116 @@ msgstr ""
 "ME <tegevus>, saadab tegevuse aktiivsesse kanalisse (tegevused kirjutatakse "
 "kolmandas isikus, näiteks /me hüppab)"
 
-#: ../src/common/outbound.c:3287
+#: ../src/common/outbound.c:3299
 msgid ""
 "MKICK, Mass kicks everyone except you in the current channel (needs chanop)"
 msgstr "MKICK, viskab kanalist välja kõik peale sinu (vajab chanop õigust)"
 
-#: ../src/common/outbound.c:3290
+#: ../src/common/outbound.c:3302
 msgid "MOP, Mass op's all users in the current channel (needs chanop)"
 msgstr "MKICK, viskab kanalist välja kõik peale sinu (vajab chanop õigust)"
 
-#: ../src/common/outbound.c:3291
+#: ../src/common/outbound.c:3303
 msgid "MSG <nick> <message>, sends a private message"
 msgstr "MSG <kasutaja> <sõnum>, saadab kasutajale privaatsõnumi"
 
-#: ../src/common/outbound.c:3294
+#: ../src/common/outbound.c:3306
 msgid "NAMES, Lists the nicks on the current channel"
 msgstr "NAMES, näitab aktiivse kanali kasutajate nimekirja"
 
-#: ../src/common/outbound.c:3296
+#: ../src/common/outbound.c:3308
 msgid "NCTCP <nick> <message>, Sends a CTCP notice"
 msgstr "NCTCP <kasutaja> <sõnum>, saadab CTCP teate"
 
-#: ../src/common/outbound.c:3297
+#: ../src/common/outbound.c:3309
 msgid "NEWSERVER [-noconnect] <hostname> [<port>]"
 msgstr "NEWSERVER <hostinimi> [<port>]"
 
-#: ../src/common/outbound.c:3298
+#: ../src/common/outbound.c:3310
+#, fuzzy
 msgid "NICK <nickname>, sets your nick"
-msgstr ""
+msgstr "NICK <nimi>, muudab sinu nime"
 
-#: ../src/common/outbound.c:3301
+#: ../src/common/outbound.c:3313
+#, fuzzy
 msgid ""
 "NOTICE <nick/channel> <message>, sends a notice. Notices are a type of "
 "message that should be auto reacted to"
 msgstr ""
+"NOTICE <nimi/kanal> <teade>, saadab teate. Teatele tuleks seada "
+"automaatvastus"
 
-#: ../src/common/outbound.c:3303
+#: ../src/common/outbound.c:3315
+#, fuzzy
 msgid "NOTIFY [<nick>], lists your notify list or adds someone to it"
-msgstr ""
+msgstr "NOTIFY [<nick>], esitab tähelepanunimekirja või lisab kellegi sinna"
 
-#: ../src/common/outbound.c:3305
+#: ../src/common/outbound.c:3317
 msgid "OP <nick>, gives chanop status to the nick (needs chanop)"
 msgstr "OP <kasutaja>, annab kasutajale chanop üigused (vajab chanop'i)"
 
-#: ../src/common/outbound.c:3307
+#: ../src/common/outbound.c:3319
+#, fuzzy
 msgid ""
 "PART [<channel>] [<reason>], leaves the channel, by default the current one"
-msgstr ""
+msgstr "PART [<kanal>] [<põhjus>], lahkub lahtiolevast kanalist"
 
-#: ../src/common/outbound.c:3309
+#: ../src/common/outbound.c:3321
 msgid "PING <nick | channel>, CTCP pings nick or channel"
 msgstr ""
 
-#: ../src/common/outbound.c:3311
+#: ../src/common/outbound.c:3323
+#, fuzzy
 msgid "QUERY <nick>, opens up a new privmsg window to someone"
-msgstr ""
+msgstr "QUERY <nimi>, avab uue privaatvestluse"
 
-#: ../src/common/outbound.c:3313
+#: ../src/common/outbound.c:3325
 msgid "QUIT [<reason>], disconnects from the current server"
 msgstr "QUIT [<põhjus>], katkestab ühenduse serveriga"
 
-#: ../src/common/outbound.c:3315
+#: ../src/common/outbound.c:3327
 msgid "QUOTE <text>, sends the text in raw form to the server"
 msgstr ""
 
-#: ../src/common/outbound.c:3318
+#: ../src/common/outbound.c:3330
 msgid ""
-"RECONNECT [-ssl] [<host>] [<port>] [<password>], Can be called just as "
-"/RECONNECT to reconnect to the current server or with /RECONNECT ALL to "
+"RECONNECT [-ssl] [<host>] [<port>] [<password>], Can be called just as /"
+"RECONNECT to reconnect to the current server or with /RECONNECT ALL to "
 "reconnect to all the open servers"
 msgstr ""
 
-#: ../src/common/outbound.c:3321
+#: ../src/common/outbound.c:3333
 msgid ""
 "RECONNECT [<host>] [<port>] [<password>], Can be called just as /RECONNECT "
 "to reconnect to the current server or with /RECONNECT ALL to reconnect to "
 "all the open servers"
 msgstr ""
 
-#: ../src/common/outbound.c:3323
+#: ../src/common/outbound.c:3335
 msgid ""
 "RECV <text>, send raw data to xchat, as if it was received from the irc "
 "server"
 msgstr ""
 
-#: ../src/common/outbound.c:3326
+#: ../src/common/outbound.c:3338
+#, fuzzy
 msgid "SAY <text>, sends the text to the object in the current window"
-msgstr ""
+msgstr "SAY <tekst>, saadab teksti lahtiolevasse aknasse"
 
-#: ../src/common/outbound.c:3327
+#: ../src/common/outbound.c:3339
+#, fuzzy
 msgid "SEND <nick> [<file>]"
-msgstr ""
+msgstr "SEND <nimi> [<fail>]"
 
-#: ../src/common/outbound.c:3330
+#: ../src/common/outbound.c:3342
 msgid "SERVCHAN [-ssl] <host> <port> <channel>, connects and joins a channel"
 msgstr ""
 
-#: ../src/common/outbound.c:3333
+#: ../src/common/outbound.c:3345
 msgid "SERVCHAN <host> <port> <channel>, connects and joins a channel"
 msgstr ""
 
-#: ../src/common/outbound.c:3337
+#: ../src/common/outbound.c:3349
 msgid ""
 "SERVER [-ssl] <host> [<port>] [<password>], connects to a server, the "
 "default port is 6667 for normal connections, and 9999 for ssl connections"
@@ -1204,7 +1217,7 @@ msgstr ""
 "SERVER [-ssl] <host> [<port>] [<salasõna>], loob serveriga ühenduse, "
 "vaikimisi port tavaliste ühenduste jaoks on 6667 ja 9999 ssl ühenduste jaoks"
 
-#: ../src/common/outbound.c:3340
+#: ../src/common/outbound.c:3352
 msgid ""
 "SERVER <host> [<port>] [<password>], connects to a server, the default port "
 "is 6667"
@@ -1212,60 +1225,60 @@ msgstr ""
 "SERVER <host> [<port>] [<salasõna>], loob serveriga ühenduse, vaikimisi port "
 "on 6667"
 
-#: ../src/common/outbound.c:3342
+#: ../src/common/outbound.c:3354
 msgid "SET [-quiet] <variable> [<value>]"
 msgstr "SET <muutuja> [<väärtus>]"
 
-#: ../src/common/outbound.c:3343
+#: ../src/common/outbound.c:3355
 msgid "SETCURSOR [-|+]<position>"
 msgstr ""
 
-#: ../src/common/outbound.c:3347
+#: ../src/common/outbound.c:3359
 msgid ""
 "TOPIC [<topic>], sets the topic if one is given, else shows the current topic"
 msgstr "TOPIC [<teema>]. määrab uue teema või näitab praegust"
 
-#: ../src/common/outbound.c:3349
+#: ../src/common/outbound.c:3361
 msgid "UNBAN <mask> [<mask>...], unbans the specified masks."
 msgstr "UNBAN <mask> [<mask>...], võtab määratud maskidelt keelu maha."
 
-#: ../src/common/outbound.c:3350
+#: ../src/common/outbound.c:3362
 msgid "UNIGNORE <mask> [QUIET]"
 msgstr "UNIGNORE <mask> [QUIET]"
 
-#: ../src/common/outbound.c:3351
+#: ../src/common/outbound.c:3363
 msgid "UNLOAD <name>, unloads a plugin or script"
 msgstr "UNLOAD <nimi>, eemaldab plugina või skripti"
 
-#: ../src/common/outbound.c:3352
+#: ../src/common/outbound.c:3364
 msgid "URL <url>, opens a URL in your browser"
 msgstr ""
 
-#: ../src/common/outbound.c:3354
+#: ../src/common/outbound.c:3366
 msgid ""
 "USELECT [-a] [-s] <nick1> <nick2> etc, highlights nick(s) in channel userlist"
 msgstr ""
 
-#: ../src/common/outbound.c:3357
+#: ../src/common/outbound.c:3369
 msgid "VOICE <nick>, gives voice status to someone (needs chanop)"
 msgstr ""
 "VOICE <kasutaja>, annab kasutajale voice staatuse (vajab chanop õigust)"
 
-#: ../src/common/outbound.c:3359
+#: ../src/common/outbound.c:3371
 msgid "WALLCHAN <message>, writes the message to all channels"
 msgstr "WALLCHAN <sõnum>, saadab sõnumi kõikidele kanalitele, kus oled"
 
-#: ../src/common/outbound.c:3361
+#: ../src/common/outbound.c:3373
 msgid ""
 "WALLCHOP <message>, sends the message to all chanops on the current channel"
 msgstr "WALLCHOP <sõnum>, saadab sõnumi kõigile aktiivse kanali chanop-idele"
 
-#: ../src/common/outbound.c:3394
+#: ../src/common/outbound.c:3406
 #, c-format
 msgid "Usage: %s\n"
 msgstr "Kasutus: %s\n"
 
-#: ../src/common/outbound.c:3399
+#: ../src/common/outbound.c:3411
 msgid ""
 "\n"
 "No help available on that command.\n"
@@ -1273,19 +1286,20 @@ msgstr ""
 "\n"
 "Selle käsu kohta pole abimaterjale.\n"
 
-#: ../src/common/outbound.c:3405
+#: ../src/common/outbound.c:3417
 msgid "No such command.\n"
 msgstr "Sellist käsku pole olemas\n"
 
-#: ../src/common/outbound.c:3732
+#: ../src/common/outbound.c:3744
+#, fuzzy
 msgid "Bad arguments for user command.\n"
-msgstr ""
+msgstr "Vigane käsk.\n"
 
-#: ../src/common/outbound.c:3888
+#: ../src/common/outbound.c:3900
 msgid "Too many recursive usercommands, aborting."
 msgstr ""
 
-#: ../src/common/outbound.c:3965
+#: ../src/common/outbound.c:3977
 msgid "Unknown Command. Try /help\n"
 msgstr "Tundmatu käsk. Proovi /help\n"
 
@@ -1295,11 +1309,12 @@ msgstr ""
 "Ei leitud xchat_plugin_init sümbolit; oled sa ikka kindel, et see on xchati "
 "plugin?"
 
-#: ../src/common/server.c:610
+#: ../src/common/server.c:621
+#, fuzzy
 msgid "Are you sure this is a SSL capable server and port?\n"
-msgstr ""
+msgstr "Kas sa oled kindel, et see server ja port toetab SSL'i?\n"
 
-#: ../src/common/server.c:962
+#: ../src/common/server.c:1005
 #, c-format
 msgid ""
 "Cannot resolve hostname %s\n"
@@ -1308,16 +1323,16 @@ msgstr ""
 "Ei saa lahendada hostinime %s\n"
 "Palun kontrolli oma IP sätteid!\n"
 
-#: ../src/common/server.c:967
+#: ../src/common/server.c:1010
 msgid "Proxy traversal failed.\n"
 msgstr ""
 
-#: ../src/common/servlist.c:636
+#: ../src/common/servlist.c:644
 #, c-format
 msgid "Cycling to next server in %s...\n"
 msgstr ""
 
-#: ../src/common/servlist.c:1059
+#: ../src/common/servlist.c:1068
 #, c-format
 msgid ""
 "Warning: \"%s\" character set is unknown. No conversion will be applied for "
@@ -1335,11 +1350,11 @@ msgid "**** BEGIN LOGGING AT %s\n"
 msgstr "**** ALUSTAN LOGIMIST %s\n"
 
 #: ../src/common/text.c:282
-#, c-format
+#, fuzzy, c-format
 msgid ""
 "* Can't open log file(s) for writing. Check the\n"
 "  permissions on %s/xchatlogs"
-msgstr ""
+msgstr "Ei saa avada logi faili/faile. Kontrolli õiguseid %s/xchatlogs."
 
 #: ../src/common/text.c:516
 msgid "Left message"
@@ -1395,7 +1410,7 @@ msgid "Nick of person who changed the topic"
 msgstr "Kasutaja, kes muutis teemat"
 
 #: ../src/common/text.c:551 ../src/common/text.c:557
-#: ../src/fe-gnome/channel-list.c:333
+#: ../src/fe-gnome/channel-list.c:326
 msgid "Topic"
 msgstr "Teema"
 
@@ -1502,8 +1517,9 @@ msgid "The nick of the person who has been voice'ed"
 msgstr "Voice saanud kasutaja nimi"
 
 #: ../src/common/text.c:674
+#, fuzzy
 msgid "The nick of the person who did the banning"
-msgstr ""
+msgstr "Blokeeritud kasutaja nimi"
 
 #: ../src/common/text.c:675 ../src/common/text.c:702
 msgid "The ban mask"
@@ -1558,8 +1574,9 @@ msgid "The nick of the person removed the exempt"
 msgstr ""
 
 #: ../src/common/text.c:716
+#, fuzzy
 msgid "The nick of the person who did the invite"
-msgstr ""
+msgstr "Kutsuja nimi"
 
 #: ../src/common/text.c:717 ../src/common/text.c:722
 msgid "The invite mask"
@@ -1632,7 +1649,7 @@ msgstr ""
 
 #: ../src/common/text.c:789 ../src/common/text.c:798 ../src/common/text.c:804
 #: ../src/common/text.c:833 ../src/common/text.c:987
-#: ../src/fe-gnome/channel-list.c:323
+#: ../src/fe-gnome/channel-list.c:316
 msgid "Channel Name"
 msgstr "kanali nimi"
 
@@ -1658,6 +1675,7 @@ msgid "Nick being tried"
 msgstr ""
 
 #. ! if (osvi.dwMajorVersion >= 5)
+#. fallback to error number
 #: ../src/common/text.c:814 ../src/common/text.c:851 ../src/common/text.c:862
 #: ../src/common/text.c:869 ../src/common/text.c:882 ../src/common/text.c:899
 #: ../src/common/text.c:999 ../src/common/util.c:352
@@ -1697,16 +1715,18 @@ msgid "Filename"
 msgstr "Faili nimi"
 
 #: ../src/common/text.c:867 ../src/common/text.c:874
+#, fuzzy
 msgid "Destination filename"
-msgstr ""
+msgstr "Asukoha failinimi"
 
 #: ../src/common/text.c:876 ../src/common/text.c:905
 msgid "CPS"
 msgstr ""
 
 #: ../src/common/text.c:911
+#, fuzzy
 msgid "Pathname"
-msgstr ""
+msgstr "Asukoha nimi"
 
 #: ../src/common/text.c:926
 msgid "Position"
@@ -1721,8 +1741,9 @@ msgid "DCC String"
 msgstr "DCC string"
 
 #: ../src/common/text.c:942
+#, fuzzy
 msgid "Number of notify items"
-msgstr ""
+msgstr "Teadete arv"
 
 #: ../src/common/text.c:958
 msgid "Old Filename"
@@ -1754,19 +1775,21 @@ msgstr "Sekundit"
 
 #: ../src/common/text.c:986
 msgid "Nick of person who have been invited"
-msgstr ""
+msgstr "Kutsutud kasutaja nimi"
 
 #: ../src/common/text.c:993
 msgid "Banmask"
 msgstr ""
 
 #: ../src/common/text.c:994
+#, fuzzy
 msgid "Who set the ban"
-msgstr ""
+msgstr "Kes blokeeris"
 
 #: ../src/common/text.c:995
+#, fuzzy
 msgid "Ban time"
-msgstr ""
+msgstr "Blokeeringu aeg"
 
 #: ../src/common/text.c:1035
 #, c-format
@@ -1905,8 +1928,7 @@ msgid "-%C10-%C11-%O$tConnected. Now logging in.."
 msgstr "-%C10-%C11-%O$tÜhendatud. Login sisse.."
 
 #: ../src/common/textevents.h:99
-msgid ""
-"-%C10-%C11-%O$tConnecting to %C11$1 %C14(%C11$2%C14)%C port %C11$3%C.."
+msgid "-%C10-%C11-%O$tConnecting to %C11$1 %C14(%C11$2%C14)%C port %C11$3%C.."
 msgstr ""
 "-%C10-%C11-%O$tÜhendan serveri %C11$1 %C14(%C11$2%C14)%C porti %C11$3%C.."
 
@@ -1936,22 +1958,21 @@ msgstr "-%C10-%C11-%O$tVõtsin vastu CTCP $1 kasutajalt $2 ($3-le)"
 
 #: ../src/common/textevents.h:120
 msgid "-%C10-%C11-%O$tDCC CHAT to %C11$1%O aborted."
-msgstr ""
-"-%C10-%C11-%O$tDCC $1 %C11$2 %Ckasutajale %C11$3 %Caegus - katkestan."
+msgstr "-%C10-%C11-%O$tDCC $1 %C11$2 %Ckasutajale %C11$3 %Caegus - katkestan."
 
 #: ../src/common/textevents.h:123
 msgid ""
 "-%C10-%C11-%O$tDCC CHAT connection established to %C11$1 %C14[%O$2%C14]%O"
 msgstr ""
-"-%C10-%C11-%O$tDCC CHAT ebaõnnestus. Ühendus kastuajaga $1 "
-"%C14[%O$2:$3%C14]%O katkestati."
+"-%C10-%C11-%O$tDCC CHAT ebaõnnestus. Ühendus kastuajaga $1 %C14[%O$2:$3%C14]%"
+"O katkestati."
 
 #: ../src/common/textevents.h:126
 msgid ""
 "-%C10-%C11-%O$tDCC CHAT failed. Connection to $1 %C14[%O$2:$3%C14]%O lost."
 msgstr ""
-"-%C10-%C11-%O$tDCC CHAT ebaõnnestus. Ühendus kastuajaga $1 "
-"%C14[%O$2:$3%C14]%O katkestati."
+"-%C10-%C11-%O$tDCC CHAT ebaõnnestus. Ühendus kastuajaga $1 %C14[%O$2:$3%C14]%"
+"O katkestati."
 
 #: ../src/common/textevents.h:129
 msgid "-%C10-%C11-%O$tReceived a DCC CHAT offer from $1"
@@ -1994,26 +2015,24 @@ msgstr "-%C10-%C11-%O$tTundmatu DCC."
 
 #: ../src/common/textevents.h:156
 msgid "-%C10-%C11-%O$tDCC RECV %C11$2%O to %C11$1%O aborted."
-msgstr ""
-"-%C10-%C11-%O$tDCC $1 %C11$2 %Ckasutajale %C11$3 %Caegus - katkestan."
+msgstr "-%C10-%C11-%O$tDCC $1 %C11$2 %Ckasutajale %C11$3 %Caegus - katkestan."
 
 #: ../src/common/textevents.h:159
 msgid ""
-"-%C10-%C11-%O$tDCC RECV %C11$1%O from %C11$3%O complete %C14[%C11$4%O "
-"cps%C14]%O."
+"-%C10-%C11-%O$tDCC RECV %C11$1%O from %C11$3%O complete %C14[%C11$4%O cps%"
+"C14]%O."
 msgstr ""
 
 #: ../src/common/textevents.h:162
 msgid ""
 "-%C10-%C11-%O$tDCC RECV connection established to %C11$1 %C14[%O$2%C14]%O"
 msgstr ""
-"-%C10-%C11-%O$tDCC CHAT ebaõnnestus. Ühendus kastuajaga $1 "
-"%C14[%O$2:$3%C14]%O katkestati."
+"-%C10-%C11-%O$tDCC CHAT ebaõnnestus. Ühendus kastuajaga $1 %C14[%O$2:$3%C14]%"
+"O katkestati."
 
 #: ../src/common/textevents.h:165
 msgid "-%C10-%C11-%O$tDCC RECV $1 ($2) failed. Connection to $3 lost."
-msgstr ""
-"-%C10-%C11-%O$tDCC $1 %C11$2 %Ckasutajale %C11$3 %Caegus - katkestan."
+msgstr "-%C10-%C11-%O$tDCC $1 %C11$2 %Ckasutajale %C11$3 %Caegus - katkestan."
 
 #: ../src/common/textevents.h:168
 msgid "-%C10-%C11-%O$tDCC RECV: Cannot open $1 for writing ($2)."
@@ -2028,27 +2047,25 @@ msgid ""
 msgstr "-%C10-%C11-%O$tKanali %C11$1%C teema on %C11$2%O"
 
 #: ../src/common/textevents.h:174
-msgid ""
-"-%C10-%C11-%O$t%C11$1 %Chas requested to resume %C11$2 %Cfrom %C11$3%C."
+msgid "-%C10-%C11-%O$t%C11$1 %Chas requested to resume %C11$2 %Cfrom %C11$3%C."
 msgstr "-%C10-%C11-%O$tKanali %C11$1%C teema pani %C11$2%C  %C11$3%O paiku"
 
 #: ../src/common/textevents.h:177
 msgid "-%C10-%C11-%O$tDCC SEND %C11$2%O to %C11$1%O aborted."
-msgstr ""
-"-%C10-%C11-%O$tDCC $1 %C11$2 %Ckasutajale %C11$3 %Caegus - katkestan."
+msgstr "-%C10-%C11-%O$tDCC $1 %C11$2 %Ckasutajale %C11$3 %Caegus - katkestan."
 
 #: ../src/common/textevents.h:180
 msgid ""
-"-%C10-%C11-%O$tDCC SEND %C11$1%O to %C11$2%O complete %C14[%C11$3%O "
-"cps%C14]%O."
+"-%C10-%C11-%O$tDCC SEND %C11$1%O to %C11$2%O complete %C14[%C11$3%O cps%C14]%"
+"O."
 msgstr "-%C10-%C11-%O$tKanali %C11$1%C teema pani %C11$2%C  %C11$3%O paiku"
 
 #: ../src/common/textevents.h:183
 msgid ""
 "-%C10-%C11-%O$tDCC SEND connection established to %C11$1 %C14[%O$2%C14]%O"
 msgstr ""
-"-%C10-%C11-%O$tDCC CHAT ebaõnnestus. Ühendus kastuajaga $1 "
-"%C14[%O$2:$3%C14]%O katkestati."
+"-%C10-%C11-%O$tDCC CHAT ebaõnnestus. Ühendus kastuajaga $1 %C14[%O$2:$3%C14]%"
+"O katkestati."
 
 #: ../src/common/textevents.h:186
 msgid "-%C10-%C11-%O$tDCC SEND %C11$1%O failed. Connection to %C11$2%O lost."
@@ -2060,13 +2077,11 @@ msgstr "-%C10-%C11-%O$tKanali %C11$1%C teema pani %C11$2%C  %C11$3%O paiku"
 
 #: ../src/common/textevents.h:192
 msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Cstalled - aborting."
-msgstr ""
-"-%C10-%C11-%O$tDCC $1 %C11$2 %Ckasutajale %C11$3 %Caegus - katkestan."
+msgstr "-%C10-%C11-%O$tDCC $1 %C11$2 %Ckasutajale %C11$3 %Caegus - katkestan."
 
 #: ../src/common/textevents.h:195
 msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Ctimed out - aborting."
-msgstr ""
-"-%C10-%C11-%O$tDCC $1 %C11$2 %Ckasutajale %C11$3 %Caegus - katkestan."
+msgstr "-%C10-%C11-%O$tDCC $1 %C11$2 %Ckasutajale %C11$3 %Caegus - katkestan."
 
 #: ../src/common/textevents.h:198
 msgid "-%C10-%C11-%O$t$1 deleted from notify list."
@@ -2107,8 +2122,9 @@ msgid "%O%C11$1%O removed from ignore list."
 msgstr "%O%C11$1%O eemaldatud ignoreeritavate nimekirjast."
 
 #: ../src/common/textevents.h:225
+#, fuzzy
 msgid "  Ignore list is empty."
-msgstr ""
+msgstr "  Blokeeritud kasutajate nimekiri on tühi."
 
 #: ../src/common/textevents.h:228
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Channel is invite only)."
@@ -2117,8 +2133,7 @@ msgstr ""
 "kutsetega)."
 
 #: ../src/common/textevents.h:231
-msgid ""
-"-%C10-%C11-%O$tYou have been invited to %C11$1%C by %C11$2%C (%C11$3%C)"
+msgid "-%C10-%C11-%O$tYou have been invited to %C11$1%C by %C11$2%C (%C11$3%C)"
 msgstr "-%C10-%C11-%O$t%C11$2%C kutsus sind kanalisse %C11$1%C (%C11$3%C)"
 
 #: ../src/common/textevents.h:234
@@ -2160,8 +2175,8 @@ msgstr "-%C10-%C11-%O$t$1 on juba kasutuses. Proovin nime $2.."
 #: ../src/common/textevents.h:258
 msgid "-%C10-%C11-%O$tNickname already in use. Use /NICK to try another."
 msgstr ""
-"-%C10-%C11-%O$tSinu hüüdnimi on juba kasutuses. Proovi teist nime käsuga "
-"/NICK."
+"-%C10-%C11-%O$tSinu hüüdnimi on juba kasutuses. Proovi teist nime käsuga /"
+"NICK."
 
 #: ../src/common/textevents.h:261
 msgid "-%C10-%C11-%O$tNo such DCC."
@@ -2370,1263 +2385,1280 @@ msgstr ""
 msgid "Connection reset by peer"
 msgstr ""
 
-#: ../src/common/util.c:837
+#: ../src/common/util.c:839
+#, fuzzy
+msgid "Ascension Island"
+msgstr "Kookossaared"
+
+#: ../src/common/util.c:840
 msgid "Andorra"
 msgstr "Andorra"
 
-#: ../src/common/util.c:838
+#: ../src/common/util.c:841
 msgid "United Arab Emirates"
 msgstr "Araabia Ühendemiraadid"
 
-#: ../src/common/util.c:839
+#: ../src/common/util.c:842
 msgid "Afghanistan"
 msgstr "Afganistaan"
 
-#: ../src/common/util.c:840
+#: ../src/common/util.c:843
 msgid "Antigua and Barbuda"
 msgstr "Antigua ja Barbuda"
 
-#: ../src/common/util.c:841
+#: ../src/common/util.c:844
 msgid "Anguilla"
 msgstr "Anguilla"
 
-#: ../src/common/util.c:842
+#: ../src/common/util.c:845
 msgid "Albania"
 msgstr "Albaania"
 
-#: ../src/common/util.c:843
+#: ../src/common/util.c:846
 msgid "Armenia"
 msgstr "Armeenia"
 
-#: ../src/common/util.c:844
+#: ../src/common/util.c:847
 msgid "Netherlands Antilles"
 msgstr "Hollandi antillid"
 
-#: ../src/common/util.c:845
+#: ../src/common/util.c:848
 msgid "Angola"
 msgstr "Angola"
 
-#: ../src/common/util.c:846
+#: ../src/common/util.c:849
 msgid "Antarctica"
 msgstr "Antarktika"
 
-#: ../src/common/util.c:847
+#: ../src/common/util.c:850
 msgid "Argentina"
 msgstr "Argentina"
 
-#: ../src/common/util.c:848
+#: ../src/common/util.c:851
 msgid "Reverse DNS"
 msgstr ""
 
-#: ../src/common/util.c:849
+#: ../src/common/util.c:852
 msgid "American Samoa"
 msgstr "Ameerika samoa"
 
-#: ../src/common/util.c:850
+#: ../src/common/util.c:853
 msgid "Austria"
 msgstr "Austria"
 
-#: ../src/common/util.c:851
+#: ../src/common/util.c:854
 msgid "Nato Fiel"
 msgstr ""
 
-#: ../src/common/util.c:852
+#: ../src/common/util.c:855
 msgid "Australia"
 msgstr "Austraalia"
 
-#: ../src/common/util.c:853
+#: ../src/common/util.c:856
 msgid "Aruba"
 msgstr "Aruba"
 
-#: ../src/common/util.c:854
+#: ../src/common/util.c:857
+#, fuzzy
+msgid "Aland Islands"
+msgstr "Falklandi saared"
+
+#: ../src/common/util.c:858
 msgid "Azerbaijan"
 msgstr "Aserbaidžaan"
 
-#: ../src/common/util.c:855
+#: ../src/common/util.c:859
 msgid "Bosnia and Herzegovina"
 msgstr "Bosnia ja Hertsegoviina"
 
-#: ../src/common/util.c:856
+#: ../src/common/util.c:860
 msgid "Barbados"
 msgstr "Barbados"
 
-#: ../src/common/util.c:857
+#: ../src/common/util.c:861
 msgid "Bangladesh"
 msgstr "Bangladesh"
 
-#: ../src/common/util.c:858
+#: ../src/common/util.c:862
 msgid "Belgium"
 msgstr "Belgia"
 
-#: ../src/common/util.c:859
+#: ../src/common/util.c:863
 msgid "Burkina Faso"
 msgstr "Burkina Faso"
 
-#: ../src/common/util.c:860
+#: ../src/common/util.c:864
 msgid "Bulgaria"
 msgstr "Bulgaaria"
 
-#: ../src/common/util.c:861
+#: ../src/common/util.c:865
 msgid "Bahrain"
 msgstr "Bahrein"
 
-#: ../src/common/util.c:862
+#: ../src/common/util.c:866
 msgid "Burundi"
 msgstr "Burundi"
 
-#: ../src/common/util.c:863
+#: ../src/common/util.c:867
 msgid "Businesses"
 msgstr ""
 
-#: ../src/common/util.c:864
+#: ../src/common/util.c:868
 msgid "Benin"
 msgstr "Benin"
 
-#: ../src/common/util.c:865
+#: ../src/common/util.c:869
 msgid "Bermuda"
 msgstr "Bermuda"
 
-#: ../src/common/util.c:866
+#: ../src/common/util.c:870
 msgid "Brunei Darussalam"
 msgstr "Brunei Darussalam"
 
-#: ../src/common/util.c:867
+#: ../src/common/util.c:871
 msgid "Bolivia"
 msgstr "Boliivia"
 
-#: ../src/common/util.c:868
+#: ../src/common/util.c:872
 msgid "Brazil"
 msgstr "Brasiilia"
 
-#: ../src/common/util.c:869
+#: ../src/common/util.c:873
 msgid "Bahamas"
 msgstr "Bahama"
 
-#: ../src/common/util.c:870
+#: ../src/common/util.c:874
 msgid "Bhutan"
 msgstr "Bhutan"
 
-#: ../src/common/util.c:871
+#: ../src/common/util.c:875
 msgid "Bouvet Island"
 msgstr "Bouvet' saar"
 
-#: ../src/common/util.c:872
+#: ../src/common/util.c:876
 msgid "Botswana"
 msgstr "Botswana"
 
-#: ../src/common/util.c:873
+#: ../src/common/util.c:877
 msgid "Belarus"
 msgstr "Valgevene"
 
-#: ../src/common/util.c:874
+#: ../src/common/util.c:878
 msgid "Belize"
 msgstr "Belize"
 
-#: ../src/common/util.c:875
+#: ../src/common/util.c:879
 msgid "Canada"
 msgstr "Kanada"
 
-#: ../src/common/util.c:876
+#: ../src/common/util.c:880
 msgid "Cocos Islands"
 msgstr "Kookossaared"
 
-#: ../src/common/util.c:877
+#: ../src/common/util.c:881
 msgid "Democratic Republic of Congo"
 msgstr ""
 
-#: ../src/common/util.c:878
+#: ../src/common/util.c:882
 msgid "Central African Republic"
 msgstr "Kesk-Aafrika vabariik"
 
-#: ../src/common/util.c:879
+#: ../src/common/util.c:883
 msgid "Congo"
 msgstr "Kongo"
 
-#: ../src/common/util.c:880
+#: ../src/common/util.c:884
 msgid "Switzerland"
 msgstr "Šveits"
 
-#: ../src/common/util.c:881
+#: ../src/common/util.c:885
+#, fuzzy
 msgid "Cote d'Ivoire"
-msgstr "Elevandriluu rannik"
+msgstr "Elevandiluu rannik"
 
-#: ../src/common/util.c:882
+#: ../src/common/util.c:886
 msgid "Cook Islands"
 msgstr "Cooki saared"
 
-#: ../src/common/util.c:883
+#: ../src/common/util.c:887
 msgid "Chile"
 msgstr "Tšiili"
 
-#: ../src/common/util.c:884
+#: ../src/common/util.c:888
 msgid "Cameroon"
 msgstr "Kamerun"
 
-#: ../src/common/util.c:885
+#: ../src/common/util.c:889
 msgid "China"
 msgstr "Hiina"
 
-#: ../src/common/util.c:886
+#: ../src/common/util.c:890
 msgid "Colombia"
 msgstr "Kolumbia"
 
-#: ../src/common/util.c:887
+#: ../src/common/util.c:891
 msgid "Internic Commercial"
 msgstr ""
 
-#: ../src/common/util.c:888
+#: ../src/common/util.c:892
 msgid "Costa Rica"
 msgstr "Costa Rica"
 
-#: ../src/common/util.c:889
+#: ../src/common/util.c:893
+#, fuzzy
 msgid "Serbia and Montenegro"
-msgstr ""
+msgstr "Serbia ja Montenegro"
 
-#: ../src/common/util.c:890
+#: ../src/common/util.c:894
 msgid "Cuba"
 msgstr "Kuuba"
 
-#: ../src/common/util.c:891
+#: ../src/common/util.c:895
 msgid "Cape Verde"
 msgstr "Cabo verde"
 
-#: ../src/common/util.c:892
+#: ../src/common/util.c:896
 msgid "Christmas Island"
 msgstr "Jõulusaar"
 
-#: ../src/common/util.c:893
+#: ../src/common/util.c:897
 msgid "Cyprus"
 msgstr "Küpros"
 
-#: ../src/common/util.c:894
+#: ../src/common/util.c:898
 msgid "Czech Republic"
 msgstr "Tšehhi"
 
-#: ../src/common/util.c:895
+#: ../src/common/util.c:899
 msgid "Germany"
 msgstr "Saksamaa"
 
-#: ../src/common/util.c:896
+#: ../src/common/util.c:900
 msgid "Djibouti"
 msgstr "Djibouti"
 
-#: ../src/common/util.c:897
+#: ../src/common/util.c:901
 msgid "Denmark"
 msgstr "Taani"
 
-#: ../src/common/util.c:898
+#: ../src/common/util.c:902
 msgid "Dominica"
 msgstr "Dominica"
 
-#: ../src/common/util.c:899
+#: ../src/common/util.c:903
 msgid "Dominican Republic"
 msgstr "Dominikaani vabariik"
 
-#: ../src/common/util.c:900
+#: ../src/common/util.c:904
 msgid "Algeria"
 msgstr "Alžeeria"
 
-#: ../src/common/util.c:901
+#: ../src/common/util.c:905
 msgid "Ecuador"
 msgstr "Ecuador"
 
-#: ../src/common/util.c:902
+#: ../src/common/util.c:906
 msgid "Educational Institution"
 msgstr "Haridusasutus"
 
-#: ../src/common/util.c:903
+#: ../src/common/util.c:907
 msgid "Estonia"
 msgstr "Eesti"
 
-#: ../src/common/util.c:904
+#: ../src/common/util.c:908
 msgid "Egypt"
 msgstr "Egiptus"
 
-#: ../src/common/util.c:905
+#: ../src/common/util.c:909
 msgid "Western Sahara"
 msgstr "Lääne-Sahara"
 
-#: ../src/common/util.c:906
+#: ../src/common/util.c:910
 msgid "Eritrea"
 msgstr "Eritrea"
 
-#: ../src/common/util.c:907
+#: ../src/common/util.c:911
 msgid "Spain"
 msgstr "Hispaania"
 
-#: ../src/common/util.c:908
+#: ../src/common/util.c:912
 msgid "Ethiopia"
 msgstr "Etioopia"
 
-#: ../src/common/util.c:909
+#: ../src/common/util.c:913
+msgid "European Union"
+msgstr ""
+
+#: ../src/common/util.c:914
 msgid "Finland"
 msgstr "Soome"
 
-#: ../src/common/util.c:910
+#: ../src/common/util.c:915
 msgid "Fiji"
 msgstr "Fidži"
 
-#: ../src/common/util.c:911
+#: ../src/common/util.c:916
 msgid "Falkland Islands"
 msgstr "Falklandi saared"
 
-#: ../src/common/util.c:912
+#: ../src/common/util.c:917
 msgid "Micronesia"
 msgstr "Mikroneesia"
 
-#: ../src/common/util.c:913
+#: ../src/common/util.c:918
 msgid "Faroe Islands"
 msgstr "Fääri saared"
 
-#: ../src/common/util.c:914
+#: ../src/common/util.c:919
 msgid "France"
 msgstr "Prantsusmaa"
 
-#: ../src/common/util.c:915
-msgid "France, Metropolitan"
-msgstr "Prantsusmaa, Metropolitan"
-
-#: ../src/common/util.c:916
+#: ../src/common/util.c:920
 msgid "Gabon"
 msgstr "Gabon"
 
-#: ../src/common/util.c:917
+#: ../src/common/util.c:921
 msgid "Great Britain"
 msgstr "Suurbritannia"
 
-#: ../src/common/util.c:918
+#: ../src/common/util.c:922
 msgid "Grenada"
 msgstr "Grenada"
 
-#: ../src/common/util.c:919
+#: ../src/common/util.c:923
 msgid "Georgia"
 msgstr "Gruusia"
 
-#: ../src/common/util.c:920
+#: ../src/common/util.c:924
 msgid "French Guiana"
 msgstr "Prantsuse Guajaana"
 
-#: ../src/common/util.c:921
+#: ../src/common/util.c:925
 msgid "British Channel Isles"
 msgstr "Briti Kanali Saared"
 
-#: ../src/common/util.c:922
+#: ../src/common/util.c:926
 msgid "Ghana"
 msgstr "Ghana"
 
-#: ../src/common/util.c:923
+#: ../src/common/util.c:927
 msgid "Gibraltar"
 msgstr "Gibraltar"
 
-#: ../src/common/util.c:924
+#: ../src/common/util.c:928
 msgid "Greenland"
 msgstr "Gröönimaa"
 
-#: ../src/common/util.c:925
+#: ../src/common/util.c:929
 msgid "Gambia"
 msgstr "Gambia"
 
-#: ../src/common/util.c:926
+#: ../src/common/util.c:930
 msgid "Guinea"
 msgstr "Guinea"
 
-#: ../src/common/util.c:927
+#: ../src/common/util.c:931
 msgid "Government"
 msgstr "Valitsus"
 
-#: ../src/common/util.c:928
+#: ../src/common/util.c:932
 msgid "Guadeloupe"
 msgstr "Guadeloupe"
 
-#: ../src/common/util.c:929
+#: ../src/common/util.c:933
 msgid "Equatorial Guinea"
 msgstr "Ekvatoriaal-Guinea"
 
-#: ../src/common/util.c:930
+#: ../src/common/util.c:934
 msgid "Greece"
 msgstr "Kreeka"
 
-#: ../src/common/util.c:931
+#: ../src/common/util.c:935
 msgid "S. Georgia and S. Sandwich Isles"
 msgstr "L. Gruusia ja L. Sandwichi saared"
 
-#: ../src/common/util.c:932
+#: ../src/common/util.c:936
 msgid "Guatemala"
 msgstr "Guatemala"
 
-#: ../src/common/util.c:933
+#: ../src/common/util.c:937
 msgid "Guam"
 msgstr "Guam"
 
-#: ../src/common/util.c:934
+#: ../src/common/util.c:938
 msgid "Guinea-Bissau"
 msgstr "Guinea-Bissau"
 
-#: ../src/common/util.c:935
+#: ../src/common/util.c:939
 msgid "Guyana"
 msgstr "Guyana"
 
-#: ../src/common/util.c:936
+#: ../src/common/util.c:940
 msgid "Hong Kong"
 msgstr "Hong-Kong"
 
-#: ../src/common/util.c:937
+#: ../src/common/util.c:941
 msgid "Heard and McDonald Islands"
 msgstr "Heard ja McDonald"
 
-#: ../src/common/util.c:938
+#: ../src/common/util.c:942
 msgid "Honduras"
 msgstr "Honduras"
 
-#: ../src/common/util.c:939
+#: ../src/common/util.c:943
 msgid "Croatia"
 msgstr "Horvaatia"
 
-#: ../src/common/util.c:940
+#: ../src/common/util.c:944
 msgid "Haiti"
 msgstr "Haiti"
 
-#: ../src/common/util.c:941
+#: ../src/common/util.c:945
 msgid "Hungary"
 msgstr "Ungari"
 
-#: ../src/common/util.c:942
+#: ../src/common/util.c:946
 msgid "Indonesia"
 msgstr "Indoneesia"
 
-#: ../src/common/util.c:943
+#: ../src/common/util.c:947
 msgid "Ireland"
 msgstr "Iirimaa"
 
-#: ../src/common/util.c:944
+#: ../src/common/util.c:948
 msgid "Israel"
 msgstr "Iisrael"
 
-#: ../src/common/util.c:945
+#: ../src/common/util.c:949
+msgid "Isle of Man"
+msgstr ""
+
+#: ../src/common/util.c:950
 msgid "India"
 msgstr "India"
 
-#: ../src/common/util.c:946
+#: ../src/common/util.c:951
 msgid "Informational"
 msgstr "Ülemaailmne"
 
-#: ../src/common/util.c:947
+#: ../src/common/util.c:952
 msgid "International"
 msgstr "Ülemaailmne"
 
-#: ../src/common/util.c:948
+#: ../src/common/util.c:953
 msgid "British Indian Ocean Territory"
 msgstr "Briti India ookeani ala"
 
-#: ../src/common/util.c:949
+#: ../src/common/util.c:954
 msgid "Iraq"
 msgstr "Iraak"
 
-#: ../src/common/util.c:950
+#: ../src/common/util.c:955
 msgid "Iran"
 msgstr "Iraan"
 
-#: ../src/common/util.c:951
+#: ../src/common/util.c:956
 msgid "Iceland"
 msgstr "Island"
 
-#: ../src/common/util.c:952
+#: ../src/common/util.c:957
 msgid "Italy"
 msgstr "Itaalia"
 
-#: ../src/common/util.c:953
+#: ../src/common/util.c:958
+msgid "Jersey"
+msgstr ""
+
+#: ../src/common/util.c:959
 msgid "Jamaica"
 msgstr "Jamaica"
 
-#: ../src/common/util.c:954
+#: ../src/common/util.c:960
 msgid "Jordan"
 msgstr "Jordaania"
 
-#: ../src/common/util.c:955
+#: ../src/common/util.c:961
 msgid "Japan"
 msgstr "Jaapan"
 
-#: ../src/common/util.c:956
+#: ../src/common/util.c:962
 msgid "Kenya"
 msgstr "Kenya"
 
-#: ../src/common/util.c:957
+#: ../src/common/util.c:963
 msgid "Kyrgyzstan"
 msgstr "Kõrgõzstan"
 
-#: ../src/common/util.c:958
+#: ../src/common/util.c:964
 msgid "Cambodia"
 msgstr "Kambodža"
 
-#: ../src/common/util.c:959
+#: ../src/common/util.c:965
 msgid "Kiribati"
 msgstr "Kiribati"
 
-#: ../src/common/util.c:960
+#: ../src/common/util.c:966
 msgid "Comoros"
 msgstr "Komoorid"
 
-#: ../src/common/util.c:961
+#: ../src/common/util.c:967
 msgid "St. Kitts and Nevis"
 msgstr "Saint Kitts ja Nevis"
 
-#: ../src/common/util.c:962
+#: ../src/common/util.c:968
 msgid "North Korea"
 msgstr "Põhja-Korea"
 
-#: ../src/common/util.c:963
+#: ../src/common/util.c:969
 msgid "South Korea"
 msgstr "Lõunda-Korea"
 
-#: ../src/common/util.c:964
+#: ../src/common/util.c:970
 msgid "Kuwait"
 msgstr "Kuveit"
 
-#: ../src/common/util.c:965
+#: ../src/common/util.c:971
 msgid "Cayman Islands"
 msgstr "Kaimanisaared"
 
-#: ../src/common/util.c:966
+#: ../src/common/util.c:972
 msgid "Kazakhstan"
 msgstr "Kasahstan"
 
-#: ../src/common/util.c:967
+#: ../src/common/util.c:973
 msgid "Laos"
 msgstr "Laos"
 
-#: ../src/common/util.c:968
+#: ../src/common/util.c:974
 msgid "Lebanon"
 msgstr "Liibanon"
 
-#: ../src/common/util.c:969
+#: ../src/common/util.c:975
 msgid "Saint Lucia"
 msgstr "Saint Lucia"
 
-#: ../src/common/util.c:970
+#: ../src/common/util.c:976
 msgid "Liechtenstein"
 msgstr "Liechtenstein"
 
-#: ../src/common/util.c:971
+#: ../src/common/util.c:977
 msgid "Sri Lanka"
 msgstr "Sri Lanka"
 
-#: ../src/common/util.c:972
+#: ../src/common/util.c:978
 msgid "Liberia"
 msgstr "Libeeria"
 
-#: ../src/common/util.c:973
+#: ../src/common/util.c:979
 msgid "Lesotho"
 msgstr "Lesotho"
 
-#: ../src/common/util.c:974
+#: ../src/common/util.c:980
 msgid "Lithuania"
 msgstr "Leedu"
 
-#: ../src/common/util.c:975
+#: ../src/common/util.c:981
 msgid "Luxembourg"
 msgstr "Luksemburg"
 
-#: ../src/common/util.c:976
+#: ../src/common/util.c:982
 msgid "Latvia"
 msgstr "Läti"
 
-#: ../src/common/util.c:977
+#: ../src/common/util.c:983
 msgid "Libya"
 msgstr "Liibüa"
 
-#: ../src/common/util.c:978
+#: ../src/common/util.c:984
 msgid "Morocco"
 msgstr "Morocco"
 
-#: ../src/common/util.c:979
+#: ../src/common/util.c:985
 msgid "Monaco"
 msgstr "Monaco"
 
-#: ../src/common/util.c:980
+#: ../src/common/util.c:986
 msgid "Moldova"
 msgstr "Moldova"
 
-#: ../src/common/util.c:981
+#: ../src/common/util.c:987
 msgid "United States Medical"
 msgstr ""
 
-#: ../src/common/util.c:982
+#: ../src/common/util.c:988
 msgid "Madagascar"
 msgstr "Madagaskar"
 
-#: ../src/common/util.c:983
+#: ../src/common/util.c:989
 msgid "Marshall Islands"
 msgstr "Marshalli saared"
 
-#: ../src/common/util.c:984
+#: ../src/common/util.c:990
 msgid "Military"
 msgstr "Sõjaväeline"
 
-#: ../src/common/util.c:985
+#: ../src/common/util.c:991
 msgid "Macedonia"
 msgstr "Makedoonia"
 
-#: ../src/common/util.c:986
+#: ../src/common/util.c:992
 msgid "Mali"
 msgstr "Mali"
 
-#: ../src/common/util.c:987
+#: ../src/common/util.c:993
 msgid "Myanmar"
 msgstr "Myanmar"
 
-#: ../src/common/util.c:988
+#: ../src/common/util.c:994
 msgid "Mongolia"
 msgstr "Mongoolia"
 
-#: ../src/common/util.c:989
+#: ../src/common/util.c:995
 msgid "Macau"
 msgstr "Macau"
 
-#: ../src/common/util.c:990
+#: ../src/common/util.c:996
 msgid "Northern Mariana Islands"
 msgstr "Põhja-Mariaanid"
 
-#: ../src/common/util.c:991
+#: ../src/common/util.c:997
 msgid "Martinique"
 msgstr "Martinique"
 
-#: ../src/common/util.c:992
+#: ../src/common/util.c:998
 msgid "Mauritania"
 msgstr "Marutaania"
 
-#: ../src/common/util.c:993
+#: ../src/common/util.c:999
 msgid "Montserrat"
 msgstr "Montserrat"
 
-#: ../src/common/util.c:994
+#: ../src/common/util.c:1000
 msgid "Malta"
 msgstr "Malta"
 
-#: ../src/common/util.c:995
+#: ../src/common/util.c:1001
 msgid "Mauritius"
 msgstr "Mauritius"
 
-#: ../src/common/util.c:996
+#: ../src/common/util.c:1002
 msgid "Maldives"
 msgstr "Maldiivid"
 
-#: ../src/common/util.c:997
+#: ../src/common/util.c:1003
 msgid "Malawi"
 msgstr "Malawi"
 
-#: ../src/common/util.c:998
+#: ../src/common/util.c:1004
 msgid "Mexico"
 msgstr "Mehhiko"
 
-#: ../src/common/util.c:999
+#: ../src/common/util.c:1005
 msgid "Malaysia"
 msgstr "Malaisia"
 
-#: ../src/common/util.c:1000
+#: ../src/common/util.c:1006
 msgid "Mozambique"
 msgstr "Mosambiik"
 
-#: ../src/common/util.c:1001
+#: ../src/common/util.c:1007
 msgid "Namibia"
 msgstr "Namiibia"
 
-#: ../src/common/util.c:1002
+#: ../src/common/util.c:1008
 msgid "New Caledonia"
 msgstr "Uus-Kaledoonia"
 
-#: ../src/common/util.c:1003
+#: ../src/common/util.c:1009
 msgid "Niger"
 msgstr "Niger"
 
-#: ../src/common/util.c:1004
+#: ../src/common/util.c:1010
 msgid "Internic Network"
 msgstr ""
 
-#: ../src/common/util.c:1005
+#: ../src/common/util.c:1011
 msgid "Norfolk Island"
 msgstr "Norfolk"
 
-#: ../src/common/util.c:1006
+#: ../src/common/util.c:1012
 msgid "Nigeria"
 msgstr "Nigeeria"
 
-#: ../src/common/util.c:1007
+#: ../src/common/util.c:1013
 msgid "Nicaragua"
 msgstr "Nicaragua"
 
-#: ../src/common/util.c:1008
+#: ../src/common/util.c:1014
 msgid "Netherlands"
 msgstr "Holland"
 
-#: ../src/common/util.c:1009
+#: ../src/common/util.c:1015
 msgid "Norway"
 msgstr "Norra"
 
-#: ../src/common/util.c:1010
+#: ../src/common/util.c:1016
 msgid "Nepal"
 msgstr "Nepal"
 
-#: ../src/common/util.c:1011
+#: ../src/common/util.c:1017
 msgid "Nauru"
 msgstr "Nauru"
 
-#: ../src/common/util.c:1012
-msgid "Neutral Zone"
-msgstr "Neutraalne tsoon"
-
-#: ../src/common/util.c:1013
+#: ../src/common/util.c:1018
 msgid "Niue"
 msgstr "Niue"
 
-#: ../src/common/util.c:1014
+#: ../src/common/util.c:1019
 msgid "New Zealand"
 msgstr "Uus-Meremaa"
 
-#: ../src/common/util.c:1015
+#: ../src/common/util.c:1020
 msgid "Oman"
 msgstr "Omaan"
 
-#: ../src/common/util.c:1016
+#: ../src/common/util.c:1021
 msgid "Internic Non-Profit Organization"
 msgstr ""
 
-#: ../src/common/util.c:1017
+#: ../src/common/util.c:1022
 msgid "Panama"
 msgstr "Panama"
 
-#: ../src/common/util.c:1018
+#: ../src/common/util.c:1023
 msgid "Peru"
 msgstr "Peruu"
 
-#: ../src/common/util.c:1019
+#: ../src/common/util.c:1024
 msgid "French Polynesia"
 msgstr "Prantsuse Polüneesia"
 
-#: ../src/common/util.c:1020
+#: ../src/common/util.c:1025
 msgid "Papua New Guinea"
 msgstr "Paapua Uus-Guinea"
 
-#: ../src/common/util.c:1021
+#: ../src/common/util.c:1026
 msgid "Philippines"
 msgstr "Filipiinid"
 
-#: ../src/common/util.c:1022
+#: ../src/common/util.c:1027
 msgid "Pakistan"
 msgstr "Pakistan"
 
-#: ../src/common/util.c:1023
+#: ../src/common/util.c:1028
 msgid "Poland"
 msgstr "Poola"
 
-#: ../src/common/util.c:1024
+#: ../src/common/util.c:1029
 msgid "St. Pierre and Miquelon"
 msgstr "saint-Pierre ja Miquelon"
 
-#: ../src/common/util.c:1025
+#: ../src/common/util.c:1030
 msgid "Pitcairn"
 msgstr "Pitcairn"
 
-#: ../src/common/util.c:1026
+#: ../src/common/util.c:1031
 msgid "Puerto Rico"
 msgstr "Puerto Rico"
 
-#: ../src/common/util.c:1027
+#: ../src/common/util.c:1032
 msgid "Palestinian Territory"
 msgstr "Briti India ookeani ala"
 
-#: ../src/common/util.c:1028
+#: ../src/common/util.c:1033
 msgid "Portugal"
 msgstr "Portugal"
 
-#: ../src/common/util.c:1029
+#: ../src/common/util.c:1034
 msgid "Palau"
 msgstr "Palau"
 
-#: ../src/common/util.c:1030
+#: ../src/common/util.c:1035
 msgid "Paraguay"
 msgstr "Paraguay"
 
-#: ../src/common/util.c:1031
+#: ../src/common/util.c:1036
 msgid "Qatar"
 msgstr "Katar"
 
-#: ../src/common/util.c:1032
+#: ../src/common/util.c:1037
 msgid "Reunion"
 msgstr "Reunion"
 
-#: ../src/common/util.c:1033
+#: ../src/common/util.c:1038
 msgid "Romania"
 msgstr "Rumeenia"
 
-#: ../src/common/util.c:1034
+#: ../src/common/util.c:1039
 msgid "Old School ARPAnet"
 msgstr ""
 
-#: ../src/common/util.c:1035
+#: ../src/common/util.c:1040
 msgid "Russian Federation"
 msgstr "Venemaa"
 
-#: ../src/common/util.c:1036
+#: ../src/common/util.c:1041
 msgid "Rwanda"
 msgstr "Ruanda"
 
-#: ../src/common/util.c:1037
+#: ../src/common/util.c:1042
 msgid "Saudi Arabia"
 msgstr "Saudi Araabia"
 
-#: ../src/common/util.c:1038
+#: ../src/common/util.c:1043
 msgid "Solomon Islands"
 msgstr "Saalomoni Saared"
 
-#: ../src/common/util.c:1039
+#: ../src/common/util.c:1044
 msgid "Seychelles"
 msgstr "Seišellid"
 
-#: ../src/common/util.c:1040
+#: ../src/common/util.c:1045
 msgid "Sudan"
 msgstr "Sudaan"
 
-#: ../src/common/util.c:1041
+#: ../src/common/util.c:1046
 msgid "Sweden"
 msgstr "Rootsi"
 
-#: ../src/common/util.c:1042
+#: ../src/common/util.c:1047
 msgid "Singapore"
 msgstr "Singapur"
 
-#: ../src/common/util.c:1043
+#: ../src/common/util.c:1048
 msgid "St. Helena"
 msgstr "Saint Helena"
 
-#: ../src/common/util.c:1044
+#: ../src/common/util.c:1049
 msgid "Slovenia"
 msgstr "Sloveenia"
 
-#: ../src/common/util.c:1045
+#: ../src/common/util.c:1050
 msgid "Svalbard and Jan Mayen Islands"
 msgstr "Teravmäed"
 
-#: ../src/common/util.c:1046
+#: ../src/common/util.c:1051
 msgid "Slovak Republic"
 msgstr "Slovakkia Vabariik"
 
-#: ../src/common/util.c:1047
+#: ../src/common/util.c:1052
 msgid "Sierra Leone"
 msgstr "Sierra Leone"
 
-#: ../src/common/util.c:1048
+#: ../src/common/util.c:1053
 msgid "San Marino"
 msgstr "San Marino"
 
-#: ../src/common/util.c:1049
+#: ../src/common/util.c:1054
 msgid "Senegal"
 msgstr "Senegal"
 
-#: ../src/common/util.c:1050
+#: ../src/common/util.c:1055
 msgid "Somalia"
 msgstr "Somaalia"
 
-#: ../src/common/util.c:1051
+#: ../src/common/util.c:1056
 msgid "Suriname"
 msgstr "Surinam"
 
-#: ../src/common/util.c:1052
+#: ../src/common/util.c:1057
 msgid "Sao Tome and Principe"
 msgstr "São Tomé ja Príncipe"
 
-#: ../src/common/util.c:1053
+#: ../src/common/util.c:1058
 msgid "Former USSR"
 msgstr "Endine SSSR"
 
-#: ../src/common/util.c:1054
+#: ../src/common/util.c:1059
 msgid "El Salvador"
 msgstr "El Salvador"
 
-#: ../src/common/util.c:1055
+#: ../src/common/util.c:1060
 msgid "Syria"
 msgstr "Süüria"
 
-#: ../src/common/util.c:1056
+#: ../src/common/util.c:1061
 msgid "Swaziland"
 msgstr "Svaasimaa"
 
-#: ../src/common/util.c:1057
+#: ../src/common/util.c:1062
 msgid "Turks and Caicos Islands"
 msgstr "Turks ja Caicos"
 
-#: ../src/common/util.c:1058
+#: ../src/common/util.c:1063
 msgid "Chad"
 msgstr "Tšaad"
 
-#: ../src/common/util.c:1059
+#: ../src/common/util.c:1064
 msgid "French Southern Territories"
 msgstr "Prantsuse Lõunaalad"
 
-#: ../src/common/util.c:1060
+#: ../src/common/util.c:1065
 msgid "Togo"
 msgstr "Togo"
 
-#: ../src/common/util.c:1061
+#: ../src/common/util.c:1066
 msgid "Thailand"
 msgstr "Tai"
 
-#: ../src/common/util.c:1062
+#: ../src/common/util.c:1067
 msgid "Tajikistan"
 msgstr "Tadžikistan"
 
-#: ../src/common/util.c:1063
+#: ../src/common/util.c:1068
 msgid "Tokelau"
 msgstr "Tokelau"
 
-#: ../src/common/util.c:1064
-msgid "Turkmenistan"
-msgstr "Türkmenistan"
-
-#: ../src/common/util.c:1065
-msgid "Tunisia"
-msgstr "Tuneesia"
-
-#: ../src/common/util.c:1066
-msgid "Tonga"
-msgstr "Tonga"
-
-#: ../src/common/util.c:1067
+#: ../src/common/util.c:1069 ../src/common/util.c:1073
 msgid "East Timor"
 msgstr "Ida-Timor"
 
-#: ../src/common/util.c:1068
+#: ../src/common/util.c:1070
+msgid "Turkmenistan"
+msgstr "Türkmenistan"
+
+#: ../src/common/util.c:1071
+msgid "Tunisia"
+msgstr "Tuneesia"
+
+#: ../src/common/util.c:1072
+msgid "Tonga"
+msgstr "Tonga"
+
+#: ../src/common/util.c:1074
 msgid "Turkey"
 msgstr "Türgi"
 
-#: ../src/common/util.c:1069
+#: ../src/common/util.c:1075
 msgid "Trinidad and Tobago"
 msgstr "Trinidad ja Tobago"
 
-#: ../src/common/util.c:1070
+#: ../src/common/util.c:1076
 msgid "Tuvalu"
 msgstr "Tuvalu"
 
-#: ../src/common/util.c:1071
+#: ../src/common/util.c:1077
 msgid "Taiwan"
 msgstr "Taiwan"
 
-#: ../src/common/util.c:1072
+#: ../src/common/util.c:1078
 msgid "Tanzania"
 msgstr "Tansaania"
 
-#: ../src/common/util.c:1073
+#: ../src/common/util.c:1079
 msgid "Ukraine"
 msgstr "Ukraina"
 
-#: ../src/common/util.c:1074
+#: ../src/common/util.c:1080
 msgid "Uganda"
 msgstr "Uganda"
 
-#: ../src/common/util.c:1075
+#: ../src/common/util.c:1081
 msgid "United Kingdom"
 msgstr "Ühendkuningriik"
 
-#: ../src/common/util.c:1076
+#: ../src/common/util.c:1082
 msgid "US Minor Outlying Islands"
 msgstr ""
 
-#: ../src/common/util.c:1077
+#: ../src/common/util.c:1083
 msgid "United States of America"
 msgstr "Ameerika Ühendriigid"
 
-#: ../src/common/util.c:1078
+#: ../src/common/util.c:1084
 msgid "Uruguay"
 msgstr "Uruguay"
 
-#: ../src/common/util.c:1079
+#: ../src/common/util.c:1085
 msgid "Uzbekistan"
 msgstr "Usbekistan"
 
-#: ../src/common/util.c:1080
+#: ../src/common/util.c:1086
 msgid "Vatican City State"
 msgstr ""
 
-#: ../src/common/util.c:1081
+#: ../src/common/util.c:1087
 msgid "St. Vincent and the Grenadines"
 msgstr "Saint Vincent ja Grenadiinid"
 
-#: ../src/common/util.c:1082
+#: ../src/common/util.c:1088
 msgid "Venezuela"
 msgstr "Venetsueela"
 
-#: ../src/common/util.c:1083
+#: ../src/common/util.c:1089
 msgid "British Virgin Islands"
 msgstr "Briti Neitsisaared"
 
-#: ../src/common/util.c:1084
+#: ../src/common/util.c:1090
 msgid "US Virgin Islands"
 msgstr "Neitsisaared, USA"
 
-#: ../src/common/util.c:1085
+#: ../src/common/util.c:1091
 msgid "Vietnam"
 msgstr "Vietnam"
 
-#: ../src/common/util.c:1086
+#: ../src/common/util.c:1092
 msgid "Vanuatu"
 msgstr "Vanuatu"
 
-#: ../src/common/util.c:1087
+#: ../src/common/util.c:1093
 msgid "Wallis and Futuna Islands"
 msgstr "Wallis ja Futuna"
 
-#: ../src/common/util.c:1088
+#: ../src/common/util.c:1094
 msgid "Samoa"
 msgstr "Samoa"
 
-#: ../src/common/util.c:1089
+#: ../src/common/util.c:1095
 msgid "Yemen"
 msgstr "Jeemen"
 
-#: ../src/common/util.c:1090
+#: ../src/common/util.c:1096
 msgid "Mayotte"
 msgstr "Mayotte"
 
-#: ../src/common/util.c:1091
+#: ../src/common/util.c:1097
 msgid "Yugoslavia"
 msgstr "Jugoslaavia"
 
-#: ../src/common/util.c:1092
+#: ../src/common/util.c:1098
 msgid "South Africa"
 msgstr "Lõuna-Aafrika Vabariik"
 
-#: ../src/common/util.c:1093
+#: ../src/common/util.c:1099
 msgid "Zambia"
 msgstr "Sambia"
 
-#: ../src/common/util.c:1094
+#: ../src/common/util.c:1100
 msgid "Zimbabwe"
 msgstr "Zimbabwe"
 
-#: ../src/common/util.c:1104 ../src/common/util.c:1114
+#: ../src/common/util.c:1110 ../src/common/util.c:1120
 #: ../src/fe-gnome/userlist-gui.c:398
 msgid "Unknown"
 msgstr "Tundmatu"
 
-#: ../src/common/xchat.c:737 ../src/common/xchat.c:863
+#: ../src/common/xchat.c:753 ../src/common/xchat.c:879
 msgid "Open Dialog Window"
 msgstr "Ava dialoogiaknad automaatselt"
 
-#: ../src/common/xchat.c:738
+#: ../src/common/xchat.c:754
 msgid "Send a File"
 msgstr "Helifail:"
 
-#: ../src/common/xchat.c:739
+#: ../src/common/xchat.c:755
+#, fuzzy
 msgid "User Info (WHOIS)"
-msgstr ""
+msgstr "Info kasutajast (WHOIS)"
 
-#: ../src/common/xchat.c:740
+#: ../src/common/xchat.c:756
 msgid "Operator Actions"
 msgstr "Kanali häälestus"
 
-#: ../src/common/xchat.c:742 ../src/common/xchat.c:833
+#: ../src/common/xchat.c:758 ../src/common/xchat.c:849
 msgid "Give Ops"
 msgstr ""
 
-#: ../src/common/xchat.c:743 ../src/common/xchat.c:834
+#: ../src/common/xchat.c:759 ../src/common/xchat.c:850
 msgid "Take Ops"
 msgstr ""
 
-#: ../src/common/xchat.c:744 ../src/common/xchat.c:837
+#: ../src/common/xchat.c:760 ../src/common/xchat.c:853
 msgid "Give Voice"
 msgstr ""
 
-#: ../src/common/xchat.c:745 ../src/common/xchat.c:838
+#: ../src/common/xchat.c:761 ../src/common/xchat.c:854
 msgid "Take Voice"
 msgstr ""
 
-#: ../src/common/xchat.c:747 ../src/common/xchat.c:842
+#: ../src/common/xchat.c:763 ../src/common/xchat.c:858
 msgid "Kick/Ban"
 msgstr "Nimi"
 
-#: ../src/common/xchat.c:748 ../src/common/xchat.c:843
-#: ../src/common/xchat.c:892
+#: ../src/common/xchat.c:764 ../src/common/xchat.c:859
+#: ../src/common/xchat.c:908
 msgid "Kick"
 msgstr "Nimi"
 
-#: ../src/common/xchat.c:749 ../src/common/xchat.c:750
-#: ../src/common/xchat.c:751 ../src/common/xchat.c:752
-#: ../src/common/xchat.c:753 ../src/common/xchat.c:844
-#: ../src/common/xchat.c:845 ../src/common/xchat.c:846
-#: ../src/common/xchat.c:847 ../src/common/xchat.c:848
-#: ../src/common/xchat.c:891
+#: ../src/common/xchat.c:765 ../src/common/xchat.c:766
+#: ../src/common/xchat.c:767 ../src/common/xchat.c:768
+#: ../src/common/xchat.c:769 ../src/common/xchat.c:860
+#: ../src/common/xchat.c:861 ../src/common/xchat.c:862
+#: ../src/common/xchat.c:863 ../src/common/xchat.c:864
+#: ../src/common/xchat.c:907
 msgid "Ban"
 msgstr "Bhutan"
 
-#: ../src/common/xchat.c:754 ../src/common/xchat.c:755
-#: ../src/common/xchat.c:756 ../src/common/xchat.c:757
-#: ../src/common/xchat.c:849 ../src/common/xchat.c:850
-#: ../src/common/xchat.c:851 ../src/common/xchat.c:852
+#: ../src/common/xchat.c:770 ../src/common/xchat.c:771
+#: ../src/common/xchat.c:772 ../src/common/xchat.c:773
+#: ../src/common/xchat.c:865 ../src/common/xchat.c:866
+#: ../src/common/xchat.c:867 ../src/common/xchat.c:868
 msgid "KickBan"
 msgstr "Nimi"
 
-#: ../src/common/xchat.c:820
+#: ../src/common/xchat.c:836
 msgid "Direct client-to-client"
 msgstr ""
 
-#: ../src/common/xchat.c:821
+#: ../src/common/xchat.c:837
 msgid "Send File"
 msgstr "Helifail:"
 
-#: ../src/common/xchat.c:822
+#: ../src/common/xchat.c:838
 msgid "Offer Chat"
 msgstr ""
 
-#: ../src/common/xchat.c:823
+#: ../src/common/xchat.c:839
 msgid "Abort Chat"
 msgstr "X-Chati info"
 
-#: ../src/common/xchat.c:824
+#: ../src/common/xchat.c:840
 msgid "Version"
 msgstr "Versioon"
 
-#: ../src/common/xchat.c:825
+#: ../src/common/xchat.c:841
 msgid "Userinfo"
 msgstr "Kasutaja"
 
-#: ../src/common/xchat.c:826
+#: ../src/common/xchat.c:842
 msgid "Clientinfo"
 msgstr "Klient väljub"
 
-#: ../src/common/xchat.c:827 ../src/common/xchat.c:861
-#: ../src/common/xchat.c:909
+#: ../src/common/xchat.c:843 ../src/common/xchat.c:877
+#: ../src/common/xchat.c:925
 msgid "Ping"
 msgstr ""
 
-#: ../src/common/xchat.c:829
+#: ../src/common/xchat.c:845
 msgid "Finger"
 msgstr "Niger"
 
-#: ../src/common/xchat.c:830
+#: ../src/common/xchat.c:846
 msgid "Oper"
 msgstr "Ava"
 
-#: ../src/common/xchat.c:831
+#: ../src/common/xchat.c:847
 msgid "Kill this user"
 msgstr ""
 
-#: ../src/common/xchat.c:832
+#: ../src/common/xchat.c:848
 msgid "Mode"
 msgstr "Modereeritav"
 
-#: ../src/common/xchat.c:835
+#: ../src/common/xchat.c:851
 msgid "Give Half-Ops"
 msgstr ""
 
-#: ../src/common/xchat.c:836
+#: ../src/common/xchat.c:852
 msgid "Take Half-Ops"
 msgstr ""
 
-#: ../src/common/xchat.c:839 ../src/fe-gnome/userlist-gui.c:64
+#: ../src/common/xchat.c:855 ../src/fe-gnome/userlist-gui.c:64
 msgid "Ignore"
 msgstr "Ära ignoreeri"
 
-#: ../src/common/xchat.c:840
+#: ../src/common/xchat.c:856
 msgid "Ignore User"
 msgstr "Ignoreerimise mask:"
 
-#: ../src/common/xchat.c:841
+#: ../src/common/xchat.c:857
 msgid "UnIgnore User"
 msgstr "Ära ignoreeri"
 
-#: ../src/common/xchat.c:853
+#: ../src/common/xchat.c:869
 msgid "Info"
 msgstr "Info"
 
-#: ../src/common/xchat.c:854
+#: ../src/common/xchat.c:870
 msgid "Who"
 msgstr "KesOn"
 
-#: ../src/common/xchat.c:855 ../src/common/xchat.c:905
+#: ../src/common/xchat.c:871 ../src/common/xchat.c:921
 msgid "WhoIs"
 msgstr "KesOn"
 
-#: ../src/common/xchat.c:856
+#: ../src/common/xchat.c:872
 msgid "DNS Lookup"
 msgstr ""
 
-#: ../src/common/xchat.c:857
+#: ../src/common/xchat.c:873
 msgid "Trace"
 msgstr "Prantsusmaa"
 
-#: ../src/common/xchat.c:858
+#: ../src/common/xchat.c:874
 msgid "UserHost"
 msgstr "Kasutajad"
 
-#: ../src/common/xchat.c:859
+#: ../src/common/xchat.c:875
 msgid "External"
 msgstr ""
 
-#: ../src/common/xchat.c:860
+#: ../src/common/xchat.c:876
 msgid "Traceroute"
 msgstr ""
 
-#: ../src/common/xchat.c:862
+#: ../src/common/xchat.c:878
 msgid "Telnet"
 msgstr "Kustuta"
 
-#: ../src/common/xchat.c:874
+#: ../src/common/xchat.c:890
 msgid "Leave Channel"
 msgstr "Lahku kanalist"
 
-#: ../src/common/xchat.c:875
+#: ../src/common/xchat.c:891
 msgid "Join Channel..."
 msgstr "Liitu kanaliga"
 
-#: ../src/common/xchat.c:876
+#: ../src/common/xchat.c:892
 msgid "Enter Channel to Join:"
 msgstr "Sihtkanal"
 
-#: ../src/common/xchat.c:877
+#: ../src/common/xchat.c:893
 msgid "Server Links"
 msgstr "Serverite nimekiri..."
 
-#: ../src/common/xchat.c:878
+#: ../src/common/xchat.c:894
 msgid "Ping Server"
 msgstr "Server"
 
-#: ../src/common/xchat.c:879
+#: ../src/common/xchat.c:895
 msgid "Hide Version"
 msgstr "Versioon"
 
-#: ../src/common/xchat.c:889
+#: ../src/common/xchat.c:905
 msgid "Op"
 msgstr "Ava"
 
-#: ../src/common/xchat.c:890
+#: ../src/common/xchat.c:906
 msgid "DeOp"
 msgstr ""
 
-#: ../src/common/xchat.c:893
+#: ../src/common/xchat.c:909
 msgid "bye"
 msgstr ""
 
-#: ../src/common/xchat.c:894
+#: ../src/common/xchat.c:910
 #, c-format
 msgid "Enter reason to kick %s:"
 msgstr ""
 
-#: ../src/common/xchat.c:895
+#: ../src/common/xchat.c:911
 msgid "Sendfile"
 msgstr "Helifail:"
 
-#: ../src/common/xchat.c:896
+#: ../src/common/xchat.c:912
 msgid "Dialog"
 msgstr ""
 
-#: ../src/common/xchat.c:906
+#: ../src/common/xchat.c:922
 msgid "Send"
 msgstr "Saada"
 
-#: ../src/common/xchat.c:907
+#: ../src/common/xchat.c:923
 msgid "Chat"
 msgstr "Vestlus"
 
-#: ../src/common/xchat.c:908
+#: ../src/common/xchat.c:924
 msgid "Clear"
 msgstr "Puhasta"
 
@@ -3660,6 +3692,8 @@ msgstr ""
 #. Translators: This is a random, mostly-meaningless
 #. * quotation from Jeeves & Wooster.  Either leave it
 #. * be or replace it with something funny (but inoffensive)
+#. * in your own language, but don't translate it literally.
+#.
 #: ../src/fe-gnome/about.c:91
 msgid ""
 "It has been well observed that a trombone is not a suitable instrument for a "
@@ -3677,6 +3711,8 @@ msgstr ""
 #. * should also include other translators who have
 #. * contributed to this translation; in that case, please
 #. * write each of them on a separated line seperated by
+#. * newlines (\n).
+#.
 #: ../src/fe-gnome/about.c:109
 msgid "translator-credits"
 msgstr ""
@@ -3777,115 +3813,115 @@ msgstr ""
 msgid "xchat configuration version"
 msgstr ""
 
-#: ../src/fe-gnome/channel-list.c:296
+#: ../src/fe-gnome/channel-list.c:291
 #, c-format
 msgid "%s Channel List"
 msgstr ""
 
+#. IRC menu
 #: ../src/fe-gnome/connect-dialog.c:132 ../src/fe-gnome/main-window.c:107
 msgid "_Connect"
 msgstr "Ühenda"
 
-#: ../src/fe-gnome/conversation-panel.c:164
+#: ../src/fe-gnome/conversation-panel.c:170
 msgid "_Open Link in Browser"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:165
+#: ../src/fe-gnome/conversation-panel.c:171
 msgid "_Copy Link Location"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:169
+#: ../src/fe-gnome/conversation-panel.c:175
 msgid "Se_nd Message To..."
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:170
+#: ../src/fe-gnome/conversation-panel.c:176
 msgid "_Copy Address"
 msgstr "IP aadress"
 
-#: ../src/fe-gnome/conversation-panel.c:174
+#: ../src/fe-gnome/conversation-panel.c:180
 msgid "_Send File"
 msgstr "Helifail:"
 
-#: ../src/fe-gnome/conversation-panel.c:175
+#: ../src/fe-gnome/conversation-panel.c:181
 msgid "Paste File _Contents"
 msgstr "Ühenda"
 
-#: ../src/fe-gnome/conversation-panel.c:176
+#: ../src/fe-gnome/conversation-panel.c:182
 msgid "Paste File_name"
 msgstr "Uus failinimi"
 
-#: ../src/fe-gnome/conversation-panel.c:177
+#: ../src/fe-gnome/conversation-panel.c:183
 msgid "_Cancel"
 msgstr "Loobu"
 
-#: ../src/fe-gnome/conversation-panel.c:181 ../src/fe-gnome/main-window.c:113
+#: ../src/fe-gnome/conversation-panel.c:187 ../src/fe-gnome/main-window.c:113
 msgid "_Copy"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:772
+#: ../src/fe-gnome/conversation-panel.c:782
 #, c-format
-msgid ""
-"URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"
+msgid "URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:864
+#: ../src/fe-gnome/conversation-panel.c:874
 #, c-format
 msgid "Error reading file \"%s\": %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:879
+#: ../src/fe-gnome/conversation-panel.c:889
 #, c-format
 msgid "Error converting URI \"%s\" into filename: %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:922
+#: ../src/fe-gnome/conversation-panel.c:932
 #, c-format
 msgid "Error retrieving file information for \"%s\": %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:999
+#: ../src/fe-gnome/conversation-panel.c:1009
 msgid "Save Transcript"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:1025
 #: ../src/fe-gnome/conversation-panel.c:1035
+#: ../src/fe-gnome/conversation-panel.c:1045
 #, c-format
 msgid "Error saving %s"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:1165
+#: ../src/fe-gnome/conversation-panel.c:1175
 msgid "Search buffer is empty.\n"
 msgstr "Otsingu puhver on tühi.\n"
 
-#: ../src/fe-gnome/dcc-window.c:143
+#. File completion percent
+#: ../src/fe-gnome/dcc-window.c:144
 msgid "%"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:144
+#: ../src/fe-gnome/dcc-window.c:145
 msgid "File"
 msgstr "Fail"
 
-#: ../src/fe-gnome/dcc-window.c:145
+#: ../src/fe-gnome/dcc-window.c:146
 msgid "Remaining"
 msgstr "Läti"
 
-#: ../src/fe-gnome/dcc-window.c:228
-#, fuzzy
+#: ../src/fe-gnome/dcc-window.c:225
 msgid "Incoming File Transfer"
-msgstr "Failide edastus"
+msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:229
+#: ../src/fe-gnome/dcc-window.c:226 ../src/fe-gnome/fe-gnome.c:482
 msgid "_Accept"
 msgstr "Võta vastu"
 
-#: ../src/fe-gnome/dcc-window.c:230
+#: ../src/fe-gnome/dcc-window.c:227
 #, c-format
 msgid ""
 "%s is attempting to send you a file named \"%s\". Do you wish to accept the "
 "transfer?"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:250
+#: ../src/fe-gnome/dcc-window.c:247
 #, c-format
 msgid ""
 "<b>%s</b>\n"
@@ -3893,11 +3929,11 @@ msgid ""
 "%s of %s"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:261
+#: ../src/fe-gnome/dcc-window.c:258
 msgid "starting"
 msgstr "Ootamine"
 
-#: ../src/fe-gnome/dcc-window.c:291
+#: ../src/fe-gnome/dcc-window.c:288
 #, c-format
 msgid ""
 "<b>%s</b>\n"
@@ -3905,66 +3941,77 @@ msgid ""
 "%s of %s at %s/s"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:298
+#: ../src/fe-gnome/dcc-window.c:295
 msgid "queued"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:303
+#: ../src/fe-gnome/dcc-window.c:300
 #, c-format
 msgid "Transfer of %s to %s failed"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:305
+#: ../src/fe-gnome/dcc-window.c:302
 #, c-format
 msgid "Transfer of %s from %s failed"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:306
+#: ../src/fe-gnome/dcc-window.c:303
 msgid "Transfer failed"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:315
+#: ../src/fe-gnome/dcc-window.c:312
 msgid "stalled"
 msgstr "Ei õnnestunud"
 
-#: ../src/fe-gnome/dcc-window.c:319
+#: ../src/fe-gnome/dcc-window.c:316
 #, c-format
 msgid "%.2d:%.2d:%.2d"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:321
+#: ../src/fe-gnome/dcc-window.c:318
 #, c-format
 msgid "%.2d:%.2d"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:434
+#: ../src/fe-gnome/dcc-window.c:431
 msgid "Send File..."
 msgstr "Helifail:"
 
-#: ../src/fe-gnome/fe-gnome.c:58
+#: ../src/fe-gnome/fe-gnome.c:59
 msgid "Use directory instead of the default config dir"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:59
+#: ../src/fe-gnome/fe-gnome.c:60
 msgid "Don't auto-connect to servers"
 msgstr "Taasühenda serveriga automaatselt"
 
-#: ../src/fe-gnome/fe-gnome.c:60
+#: ../src/fe-gnome/fe-gnome.c:61
 msgid "Don't auto-load plugins"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:62
+#: ../src/fe-gnome/fe-gnome.c:63
 msgid "Show version information"
 msgstr "Serveri info"
 
-#: ../src/fe-gnome/fe-gnome.c:110
+#: ../src/fe-gnome/fe-gnome.c:111
 #, c-format
 msgid ""
 "xchat-gnome: %s\n"
 "Try `xchat-gnome --help' for more information\n"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:862
+#: ../src/fe-gnome/fe-gnome.c:480
+msgid "Incoming DCC Chat"
+msgstr ""
+
+#: ../src/fe-gnome/fe-gnome.c:485
+#, c-format
+msgid ""
+"%s is attempting to create a direct chat. Do you wish to accept the "
+"connection?"
+msgstr ""
+
+#: ../src/fe-gnome/fe-gnome.c:899
 #, c-format
 msgid "Unable to show '%s'"
 msgstr ""
@@ -3982,14 +4029,13 @@ msgid "_Next"
 msgstr "Tekst"
 
 #: ../src/fe-gnome/find-bar.c:218
-msgid ""
-"<span foreground=\"dark grey\">Reached end, continuing from top</span>"
+msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
 msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:225
 msgid ""
-"<span foreground=\"dark grey\">Reached beginning, continuing from "
-"bottom</span>"
+"<span foreground=\"dark grey\">Reached beginning, continuing from bottom</"
+"span>"
 msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:232
@@ -4000,9 +4046,11 @@ msgstr ""
 msgid "Server"
 msgstr "Server"
 
+#. We're creating a new network. Don't populate things from the structure
 #: ../src/fe-gnome/irc-network-editor.c:380
+#, fuzzy
 msgid "New Network"
-msgstr ""
+msgstr "Uus võrk"
 
 #: ../src/fe-gnome/irc-network-editor.c:388
 #, c-format
@@ -4091,6 +4139,7 @@ msgstr ""
 msgid "GB18030 (Chinese)"
 msgstr ""
 
+#. Toplevel
 #: ../src/fe-gnome/main-window.c:97
 msgid "_IRC"
 msgstr ""
@@ -4123,6 +4172,7 @@ msgstr "Failide edastus"
 msgid "_Quit"
 msgstr "Välju"
 
+#. Edit menu
 #: ../src/fe-gnome/main-window.c:112
 msgid "Cu_t"
 msgstr ""
@@ -4136,104 +4186,110 @@ msgid "Prefere_nces"
 msgstr "Häälestus..."
 
 #. Network menu
-#: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:81
-msgid "_Information"
-msgstr "Ülemaailmne"
-
-#: ../src/fe-gnome/main-window.c:119 ../src/fe-gnome/navigation-tree.c:82
+#: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:82
 msgid "_Reconnect"
 msgstr "Ühenda"
 
-#: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:83
+#: ../src/fe-gnome/main-window.c:119 ../src/fe-gnome/navigation-tree.c:83
 msgid "_Disconnect"
 msgstr "Ühenda"
 
-#: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:84
+#: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:84
 #: ../src/fe-gnome/navigation-tree.c:90 ../src/fe-gnome/navigation-tree.c:96
 msgid "_Close"
 msgstr "Sulge"
 
-#: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:85
+#: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:85
 msgid "_Channels..."
 msgstr "Kanalite nimekirja aken..."
 
 #. Discussion menu
 #. Channel context menu
-#: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:88
+#. Dialog context menu
+#: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:88
 #: ../src/fe-gnome/navigation-tree.c:95
 msgid "_Save Transcript"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:89
+#: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:89
 msgid "_Leave"
 msgstr "Läti"
 
-#: ../src/fe-gnome/main-window.c:127
+#: ../src/fe-gnome/main-window.c:126
 msgid "Cl_ose"
 msgstr "Sulge"
 
-#: ../src/fe-gnome/main-window.c:128
+#: ../src/fe-gnome/main-window.c:127
 msgid "_Find"
 msgstr "Otsi"
 
-#: ../src/fe-gnome/main-window.c:129
+#: ../src/fe-gnome/main-window.c:128
 msgid "Change _Topic"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:92
+#: ../src/fe-gnome/main-window.c:129 ../src/fe-gnome/navigation-tree.c:92
 msgid "_Bans..."
 msgstr "Keelatute nimekiri"
 
-#: ../src/fe-gnome/main-window.c:131
+#: ../src/fe-gnome/main-window.c:130
 msgid "_Users"
 msgstr "Kasutajad"
 
-#: ../src/fe-gnome/main-window.c:134
+#. Go menu
+#: ../src/fe-gnome/main-window.c:133
 msgid "Pre_vious Network"
 msgstr "Uus võrk"
 
-#: ../src/fe-gnome/main-window.c:135
+#: ../src/fe-gnome/main-window.c:134
 msgid "Nex_t Network"
 msgstr "Uus võrk"
 
-#: ../src/fe-gnome/main-window.c:136
+#: ../src/fe-gnome/main-window.c:135
 msgid "_Previous Discussion"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:137
+#: ../src/fe-gnome/main-window.c:136
 msgid "_Next Discussion"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:140
+#. Help menu
+#: ../src/fe-gnome/main-window.c:139
 msgid "_Contents"
 msgstr "Ühenda"
 
-#: ../src/fe-gnome/main-window.c:141
+#: ../src/fe-gnome/main-window.c:140
 msgid "_About"
 msgstr "Katkesta"
 
-#: ../src/fe-gnome/main-window.c:509 ../src/fe-gnome/navigation-tree.c:1667
+#: ../src/fe-gnome/main-window.c:502 ../src/fe-gnome/navigation-tree.c:1667
 msgid "Ex-Chat"
 msgstr "Vestlus"
 
-#: ../src/fe-gnome/main-window.c:590
+#: ../src/fe-gnome/main-window.c:583
 msgid "Error showing help"
 msgstr "Vea string"
+
+#. Server context menu
+#: ../src/fe-gnome/navigation-tree.c:81
+msgid "_Information"
+msgstr "Ülemaailmne"
 
 #: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:97
 msgid "_Find..."
 msgstr "Faili saatmise aken..."
 
+#. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:102
-#, fuzzy
 msgid "_Auto-connect on startup"
-msgstr "Ü_henda"
+msgstr ""
 
+#. Channel context menu
 #: ../src/fe-gnome/navigation-tree.c:105
 #, fuzzy
 msgid "_Auto-join on connect"
 msgstr "Ü_henda"
 
+#. Add the new server to the model. By default connected is false.
 #: ../src/fe-gnome/navigation-tree.c:357
 #: ../src/fe-gnome/navigation-tree.c:1296
 msgid "<none>"
@@ -4311,7 +4367,7 @@ msgid "Scripts and Plugins"
 msgstr "Skriptid & Pluginad"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:327
-#: ../src/fe-gnome/preferences-page-spellcheck.c:199
+#: ../src/fe-gnome/preferences-page-spellcheck.c:223
 msgid "Enable"
 msgstr ""
 
@@ -4329,11 +4385,25 @@ msgstr ""
 msgid "Error in spell checking configuration: %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:190
+#: ../src/fe-gnome/preferences-page-spellcheck.c:186
 msgid "Spell checking"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:204
+#: ../src/fe-gnome/preferences-page-spellcheck.c:190
+msgid ""
+"In order to get spell-checking, you need to have libenchant installed with "
+"at least one dictionary."
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:201
+msgid "_Check spelling"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:202
+msgid "Choose languages to use for spellcheck:"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:228
 msgid "Language"
 msgstr ""
 
@@ -4420,7 +4490,7 @@ msgstr ""
 msgid "White"
 msgstr ""
 
-#: ../src/fe-gnome/topic-label.c:250
+#: ../src/fe-gnome/topic-label.c:264
 #, c-format
 msgid "Changing topic for %s"
 msgstr ""
@@ -4474,20 +4544,29 @@ msgid ""
 msgstr ""
 
 #: ../src/fe-gnome/userlist.c:320
-#, c-format
+#, fuzzy, c-format
 msgid "%d User"
 msgid_plural "%d Users"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Kasutajad"
+msgstr[1] "Kasutajad"
 
-#~ msgid "Enter a new nickname"
-#~ msgstr "Sisesta uus hüüdnimi:"
+#~ msgid "Save List _As"
+#~ msgstr "Salvesta kui"
 
 #~ msgid "Disconnected"
 #~ msgstr "Ühenda"
 
 #~ msgid "Connected"
 #~ msgstr "Ühenda"
+
+#~ msgid "France, Metropolitan"
+#~ msgstr "Prantsusmaa, Metropolitan"
+
+#~ msgid "Neutral Zone"
+#~ msgstr "Neutraalne tsoon"
+
+#~ msgid "Enter a new nickname"
+#~ msgstr "Sisesta uus hüüdnimi:"
 
 #~ msgid "C_lear"
 #~ msgstr "Puhasta"
