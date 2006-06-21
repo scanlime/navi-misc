@@ -21,7 +21,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-from Dance import MotionGraph
+from Graph import MotionGraph
 from Motion import AMC
 import sys, pickle
 
