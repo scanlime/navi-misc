@@ -46,7 +46,7 @@ enabled_changed (GtkToggleButton *button, PreferencesSpellcheckPage *page)
 	enabled = gtk_toggle_button_get_active (button);
 	gconf_client_set_bool (client, "/apps/xchat/spellcheck/enabled", enabled, NULL);
 
-	gtk_widget_set_sensitive (page->vbox_langs, enabled);
+	gtk_widget_set_sensitive (page->spellcheck_list, enabled);
 
 	g_object_unref (client);
 }
@@ -175,12 +175,26 @@ preferences_page_spellcheck_new (gpointer prefs_dialog, GladeXML *xml)
 	gboolean enabled;
 	GtkTreeViewColumn *column;
 	GSList *languages, *l;
+	GtkWidget *contents_vbox, *page_vbox, *label, *swin;
 
-#define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
-	GW(enable_spellcheck);
-	GW(spellcheck_list);
-	GW(vbox_langs);
-#undef GW
+	contents_vbox = gtk_vbox_new (FALSE, 6);
+	page_vbox = glade_xml_get_widget (xml, "spell check");
+	gtk_box_pack_start (GTK_BOX (page_vbox), contents_vbox, TRUE, TRUE, 0);
+
+	page->enable_spellcheck = gtk_check_button_new_with_mnemonic (_("_Check spelling"));
+	label = gtk_label_new (_("Choose languages to use for spellcheck:"));
+	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+	swin = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (swin), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (swin), GTK_SHADOW_IN);
+	gtk_box_pack_start (GTK_BOX (contents_vbox), page->enable_spellcheck, FALSE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (contents_vbox), label, FALSE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (contents_vbox), swin, TRUE, TRUE, 0);
+
+	page->spellcheck_list = gtk_tree_view_new ();
+	gtk_container_add (GTK_CONTAINER (swin), page->spellcheck_list);
+
+	gtk_widget_show_all (contents_vbox);
 
 	if (g_file_test ("../../data/spellcheck.png", G_FILE_TEST_EXISTS))
 		page->icon = gdk_pixbuf_new_from_file ("../../data/spellcheck.png", NULL);
@@ -239,7 +253,7 @@ preferences_page_spellcheck_new (gpointer prefs_dialog, GladeXML *xml)
 
 	enabled = gconf_client_get_bool (p->gconf, "/apps/xchat/spellcheck/enabled", NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->enable_spellcheck), enabled);
-	gtk_widget_set_sensitive (page->vbox_langs, enabled);
+	gtk_widget_set_sensitive (page->spellcheck_list, enabled);
 
 	return page;
 }
