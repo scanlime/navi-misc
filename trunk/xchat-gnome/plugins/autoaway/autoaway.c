@@ -192,10 +192,16 @@ network_change_cb (gchar *word[], gpointer user_data)
 	GList *node = NULL;
 
 	servername = xchat_get_info (ph, "network");
+
+	if (servername == NULL)
+		return XCHAT_EAT_NONE;
+
 	if (new_conn) {
+		trace ("New connection on nw %s", servername);
 		networks = g_list_append (networks, g_strdup (servername));
 	} else {
-		node = g_list_find_custom (networks, servername, (GCompareFunc) strcmp);
+		trace ("Connection closed on nw %s", servername);
+		node = g_list_find_custom (networks, servername, (GCompareFunc) g_utf8_collate);
 		if (node) {
 			g_free (node->data);
 			networks = g_list_delete_link (networks, node);
