@@ -31,7 +31,6 @@ typedef struct
 
 	GtkWidget *enable_spellcheck;
 	GtkWidget *spellcheck_list;
-	GtkWidget *vbox_langs;
 	GtkCellRenderer *activated_renderer, *name_renderer;
 	GtkListStore *spellcheck_store;
 	GtkTreeViewColumn *spellcheck_column;
