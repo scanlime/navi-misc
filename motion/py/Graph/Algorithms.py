@@ -435,8 +435,10 @@ class HeuristicPrint (Heuristic):
     """A debugging search that prints each step of the search to a dot file."""
 
     def __init__ (self, graph, costf, source, goal):
-        source.color = "cyan"
-        goal.color = "red"
+        source.dotAttrs.update ([('style', 'filled'),
+                ('fillcolor', 'green')])
+        goal.dotAttrs.update ([('style', 'filled'),
+                ('fillcolor', 'red')])
         Heuristic.__init__ (self, graph, costf, source, goal)
 
     def run (self):
@@ -463,7 +465,8 @@ class HeuristicPrint (Heuristic):
             path = self.pathToNode (node)
             for n in path:
                 if n != self.source or n != self.goal:
-                    n.color = "blue"
+                    n.dotAttrs.update ([('style', 'filled'),
+                            ('fillcolor', 'blue')])
 
             print "printing step %i" % step
             f = file ('graphs/%s.dot' % step, 'w')
@@ -472,7 +475,8 @@ class HeuristicPrint (Heuristic):
 
             for n in path:
                 if n != self.source or n != self.goal:
-                    del n.color
+                    del n.dotAttrs['style']
+                    del n.dotAttrs['fillcolor']
 
             if node == self.goal:
                 # Reconstruct the path to the goal
