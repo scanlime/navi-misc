@@ -26,15 +26,15 @@
 # include <config.h>
 #endif
 #include <glib.h>
-#define AUTOAWAY_VERSION "0.3"
+#define AUTOAWAY_VERSION "0.4"
 
-//#define DEBUG
+#define AUTOAWAY_DEBUG 0
 
-#ifdef DEBUG
+#if AUTOAWAY_DEBUG == 1
 //# define trace(...) do{ if (xchat_get_context(ph)) xchat_printf(ph, __VA_ARGS__); }while(0);
-# define trace(...) do { g_print (__VA_ARGS__); g_print ("\n"); }while (0);
+#define trace(...) do { g_print (__VA_ARGS__); g_print ("\n"); }while (0);
 #else
-# define trace(...)
+#define trace(...)
 #endif /* DEBUG */
 
 

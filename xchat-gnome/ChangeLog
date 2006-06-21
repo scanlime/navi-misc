@@ -1,3 +1,9 @@
+Wed Jun 21 16:21:17 MDT 2006  Isak Savo <iso01001@student.mdh.se>
+
+	* plugins/autoaway/autoaway.h:
+	* plugins/autoaway/autoaway.c:
+	  - Fix a potential crasher in the autoaway plugin. (#342104)
+
 Wed Jun 21 15:29:49 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/userlist-gui.c:
