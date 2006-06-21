@@ -464,7 +464,7 @@ class HeuristicPrint (Heuristic):
 
             path = self.pathToNode (node)
             for n in path:
-                if n != self.source or n != self.goal:
+                if n != self.source and n != self.goal:
                     n.dotAttrs.update ([('style', 'filled'),
                             ('fillcolor', 'blue')])
 
@@ -474,7 +474,7 @@ class HeuristicPrint (Heuristic):
             f.close ()
 
             for n in path:
-                if n != self.source or n != self.goal:
+                if n != self.source and n != self.goal:
                     del n.dotAttrs['style']
                     del n.dotAttrs['fillcolor']
 
