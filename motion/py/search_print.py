@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-from Dance.MotionGraph import fix360, fixnegative
 from Graph import algorithms_c
 from Graph.Algorithms import HeuristicPrint
 from Graph.Data import AdjacencyList, VertexMap
+from Graph.MotionGraph import fix360, fixnegative
 from Motion import AMC
 from optparse import OptionParser
 import Numeric, pickle
@@ -22,11 +22,7 @@ def cost (path, goal):
     g = len (path)
     h = algorithms_c.dijkstraSearch (adj, path[-1], goal)
 
-    return (g + h)
-
-def succ (graph, node):
-    adj = graph.representations[AdjacencyList]
-    return adj.query (node)
+    return (g + len (h))
 
 # Create the option parser and parse the command
 options = OptionParser (usage="%prog <graph> <bayes net> <input amc> <output amc> <start frame> <end frame>")
@@ -47,7 +43,7 @@ end = int (args[-1])
 source = findNode (samc.bones["root"][start,3:6])
 goal = findNode (samc.bones["root"][end,3:6])
 
-path = HeuristicPrint (graph["root"], cost, succ, source, goal)
+path = HeuristicPrint (graph["root"], cost, source, goal)
 
 print path
 
