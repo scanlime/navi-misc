@@ -176,9 +176,26 @@ preferences_page_spellcheck_new (gpointer prefs_dialog, GladeXML *xml)
 	GtkTreeViewColumn *column;
 	GSList *languages, *l;
 	GtkWidget *contents_vbox, *page_vbox, *label, *swin;
+	page_vbox = glade_xml_get_widget (xml, "spell check");
+
+	if (g_file_test ("../../data/spellcheck.png", G_FILE_TEST_EXISTS))
+		page->icon = gdk_pixbuf_new_from_file ("../../data/spellcheck.png", NULL);
+	else
+		page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/spellcheck.png", NULL);
+	gtk_list_store_append (p->page_store, &iter);
+	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Spell checking"), 2, 7, -1);
+
+	languages = sexy_spell_entry_get_languages (SEXY_SPELL_ENTRY (gui.text_entry));
+	if (languages == NULL) {
+		label = gtk_label_new (_("In order to get spell-checking, you need to have libenchant installed with at least one dictionary."));
+		gtk_label_set_line_wrap (GTK_LABEL (label), TRUE);
+		gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+		gtk_widget_show (label);
+		gtk_box_pack_start (GTK_BOX (page_vbox), label, FALSE, TRUE, 0);
+		return page;
+	}
 
 	contents_vbox = gtk_vbox_new (FALSE, 6);
-	page_vbox = glade_xml_get_widget (xml, "spell check");
 	gtk_box_pack_start (GTK_BOX (page_vbox), contents_vbox, TRUE, TRUE, 0);
 
 	page->enable_spellcheck = gtk_check_button_new_with_mnemonic (_("_Check spelling"));
@@ -195,13 +212,6 @@ preferences_page_spellcheck_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_container_add (GTK_CONTAINER (swin), page->spellcheck_list);
 
 	gtk_widget_show_all (contents_vbox);
-
-	if (g_file_test ("../../data/spellcheck.png", G_FILE_TEST_EXISTS))
-		page->icon = gdk_pixbuf_new_from_file ("../../data/spellcheck.png", NULL);
-	else
-		page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/spellcheck.png", NULL);
-	gtk_list_store_append (p->page_store, &iter);
-	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Spell checking"), 2, 7, -1);
 
 	/* spellcheck languages list */
 	page->spellcheck_store = gtk_list_store_new (3, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING);
@@ -226,7 +236,6 @@ preferences_page_spellcheck_new (gpointer prefs_dialog, GladeXML *xml)
 	page->nh[1] = gconf_client_notify_add (p->gconf, "/apps/xchat/spellcheck/languages", (GConfClientNotifyFunc) gconf_languages_changed, page->spellcheck_store, NULL, NULL);
 
 	/* Populate the model */
-	languages = sexy_spell_entry_get_languages (SEXY_SPELL_ENTRY (gui.text_entry));
 	for (l = languages; l != NULL; l = l->next) {
 		gboolean active;
 
@@ -270,7 +279,8 @@ preferences_page_spellcheck_free (PreferencesSpellcheckPage *page)
 	g_object_unref (client);
 
 	g_object_unref (page->icon);
-	g_object_unref (page->spellcheck_store);
+	if (page->spellcheck_store)
+		g_object_unref (page->spellcheck_store);
 	g_free (page);
 }
 

@@ -1,3 +1,10 @@
+Tue Jun 20 18:37:48 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/preferences-page-spellcheck.c:
+	  - If libenchant is not installed, or there are no dictionaries, show
+	    a short message indicating how to get spell-checking working
+	    rather than an empty language-selector list. (#345199)
+
 Tue Jun 20 18:16:52 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/preferences-page-spellcheck.c:
