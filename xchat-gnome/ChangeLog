@@ -1,3 +1,9 @@
+Wed Jun 21 02:05:28 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* po/*:
+	  - Update translations from the rosetta dapper branch, since that
+	    seems to be where everyone is doing stuff.
+
 Tue Jun 20 18:37:48 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/preferences-page-spellcheck.c:
