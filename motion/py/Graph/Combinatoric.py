@@ -142,7 +142,7 @@ class AdjacencyList (CombinatoricRepresentation):
             """Recursively combine all the edges from the graphs going out from
                'u'.
                """
-            name, adj = self.adjacency[names[0]]
+            name, adj = graphs[0]
             for v in adj.query(u[name]):
                 if len(graphs) == 1:
                     yield {name: v}
@@ -152,7 +152,7 @@ class AdjacencyList (CombinatoricRepresentation):
                     node[name] = v
                     yield node
 
-        for v in combine (self.adjacency.keys ()):
+        for v in combine (self.data):
             yield self.graph.edgeClass (u, v)
 
 
