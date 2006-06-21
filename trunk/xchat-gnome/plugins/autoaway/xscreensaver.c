@@ -27,12 +27,12 @@ static gboolean
 get_screensaver_running_xprop (void)
 {
 	gchar *cmd = "xprop -f _SCREENSAVER_STATUS 32ac -root _SCREENSAVER_STATUS";
-	gchar *stdout = NULL, *ptr;
+	gchar *out = NULL, *ptr;
 	gboolean rv = FALSE;
 
-	if (g_spawn_command_line_sync (cmd, &stdout, NULL, NULL, NULL)) {
-		g_strchomp (stdout);
-		ptr = strstr (stdout, " = ");
+	if (g_spawn_command_line_sync (cmd, &out, NULL, NULL, NULL)) {
+		g_strchomp (out);
+		ptr = strstr (out, " = ");
 		if (ptr != NULL) {
 			ptr += 3;
 			if ((strncmp (ptr, "BLANK", 5) == 0 || strncmp (ptr, "LOCK", 4) == 0))
@@ -40,7 +40,7 @@ get_screensaver_running_xprop (void)
 		}
 	}
 	trace ("xprop_screensaver, returning %s", rv ? "TRUE" : "FALSE");
-	g_free (stdout);
+	g_free (out);
 	return rv;
 }
 
@@ -49,18 +49,18 @@ static gboolean
 get_screensaver_running_xs_cmd (void)
 {
 	gchar *cmd = "xscreensaver-command --time";
-	gchar *stdout = NULL, *ptr;
+	gchar *out = NULL, *ptr;
 	gboolean rv = FALSE;
 
-	if (g_spawn_command_line_sync (cmd, &stdout, NULL, NULL, NULL)) {
-		ptr = strstr (stdout, " screen ");
+	if (g_spawn_command_line_sync (cmd, &out, NULL, NULL, NULL)) {
+		ptr = strstr (out, " screen ");
 		if (ptr != NULL) {
 			ptr += 8;
 			if ((strncmp (ptr, "blanked", 7) == 0 || strncmp (ptr, "locked", 6) == 0))
 				rv = TRUE;
 		}
 	}
-	g_free (stdout);
+	g_free (out);
 
 	trace ("xscmd_screensaver, returning %s", rv ? "TRUE" : "FALSE");
 

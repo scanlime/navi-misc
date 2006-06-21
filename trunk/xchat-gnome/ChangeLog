@@ -1,3 +1,8 @@
+Wed Jun 21 03:50:41 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* plugins/autoaway/xscreensaver.c:
+	  - Rename "stdout" to "out" to be less confusing.
+
 Wed Jun 21 02:05:28 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* po/*:
