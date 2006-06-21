@@ -13,7 +13,7 @@ occured in the corpus of motion capture data.
 from Graph.Data import Graph, Edge, AdjacencyList, VertexMap, EdgeList
 from Graph.Algorithms import DotPrint
 from Graph import algorithms_c
-import Numeric, MLab, math, gc
+import Numeric, MLab, math, string, gc
 
 class ProbabilityEdge (Edge):
     """Represent an edge between nodes with a probability of following that edge.
@@ -76,7 +76,7 @@ class MotionGraphNode:
         - ``maxs``      Upper bound of this node
     """
 
-    __slots__ = ['mins', 'maxs']
+    __slots__ = ['mins', 'maxs', 'dotAttrs']
 
     def __init__ (self, mins, maxs):
         """Initialize the node with bounds `mins` and `maxs`."""
@@ -88,10 +88,10 @@ class MotionGraphNode:
         for i in range (len (mins)):
             extents.append ('[%.2f, %.2f]' % (mins[i], maxs[i]))
             self.center.append (mins[i] + (maxs[i] - mins[i]) / 2.0)
-        self.dot_label = '\\n'.join (extents)
+        self.dotAttrs = {'label': '\\n'.join (extents)}
 
     def __repr__ (self):
-        return '<MGNode: %s>' % self.dot_label
+        return '<MGNode: %s>' % self.dotAttrs['label']
 
     def __str__ (self):
         """Generate a string suitable for printing to a .dot file.
@@ -100,18 +100,10 @@ class MotionGraphNode:
             A string representing the node formatted for a .dot file for graph
             printing using dot(1)
         """
-        s = '%s [label=' % hash (self)
-
-        if hasattr (self, 'dot_label'):
-            s += '"%s"' % self.dot_label
-        else:
-            s += '"%r"' % self
-
-        if hasattr (self, 'color'):
-            s += ',color="%s"' % self.color
-
-        s += '];'
-        return s
+        id = str (hash (self))
+        attrs = ['%s="%s"' % (key, value) for key, value in \
+                self.dotAttrs.iteritems ()]
+        return '%s [%s];' % (id, string.join (attrs, ','))
 
     def inside (self, point):
         """Return `True` if `point` lies within the minimum and maximum bounds of
@@ -225,7 +217,7 @@ def build_graphs (key, datas):
     # degrees covered (angle-wise) within a single node.  Note that for some
     # bones, the number of nodes we have will be (360 / interval)^3, so be
     # sparing when decreasing this!
-    interval = 5
+    interval = 45
 
     graph          = MotionGraph   ()
     adjacency_list = AdjacencyList (graph)
