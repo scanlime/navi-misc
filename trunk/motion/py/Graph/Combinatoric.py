@@ -143,13 +143,13 @@ class AdjacencyList (CombinatoricRepresentation):
                'u'.
                """
             name, adj = graphs[0]
-            for v in adj.query(u[name]):
+            for edge in adj.query(u[name]):
                 if len(graphs) == 1:
-                    yield {name: v}
+                    yield {name: edge.v}
                     continue
 
                 for node in combine (graphs[1:]):
-                    node[name] = v
+                    node[name] = edge.v
                     yield node
 
         for v in combine (self.data):
