@@ -23,9 +23,27 @@ existed in memory.
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-import Data
+import Data, Dot
 
-__all__ = ["AdjacenceyList", "VertexMap", "EdgeList"]
+__all__ = ["Node", "AdjacenceyList", "VertexMap", "EdgeList"]
+
+class Node (Dot.Node):
+    def __init__ (self, data, **kwargs):
+        Dot.Node.__init__ (self, **kwargs)
+
+        if type (data) is Node:
+            return data
+
+        if type (data) is not dict:
+            raise TypeError ("Combinatoric.Node requires dictionary data")
+        self.data = data.copy ()
+
+    def __getitem__ (self, key):
+        return self.data[key]
+
+    def __hash__ (self):
+        return hash (repr (self.data))
+
 
 class CombinatoricRepresentation (Data.GraphRepresentation):
     """Base class for all combinatoric graph representations.
@@ -49,7 +67,6 @@ class CombinatoricRepresentation (Data.GraphRepresentation):
                     list or tuple, got: %s" % (data))
 
 
-
 class AdjacencyList (CombinatoricRepresentation):
     """Combinatoric adjacency list."""
 
@@ -64,16 +81,16 @@ class AdjacencyList (CombinatoricRepresentation):
                 if len(graphs) == 1:
                     u = {name: edge.u}
                     v = {name: edge.v}
-                    yield self.graph.edgeClass (u, v)
+                    yield (u, v)
                     continue
 
-                for e in combine(graphs[1:]):
-                    e.u[name] = edge.u
-                    e.v[name] = edge.v
-                    yield e
+                for u, v in combine(graphs[1:]):
+                    u[name] = edge.u
+                    v[name] = edge.v
+                    yield (u, v)
 
-        for edge in combine (self.data):
-            yield edge
+        for u, v in combine (self.data):
+            yield self.graph.edgeClass (Node (u), Node (v))
 
     def __contains__ (self, edge):
         """Returns true if edge exists in the adjacency list."""
@@ -83,7 +100,7 @@ class AdjacencyList (CombinatoricRepresentation):
             # KeyError here, 'edge' doesn't have data for one of our graphs so
             # return False.
             try:
-                e = self.edgeClass (edge.u[name], edge.v[name])
+                e = self.graph.edgeClass (edge.u[name], edge.v[name])
             except KeyError:
                 return False
 
@@ -134,7 +151,7 @@ class AdjacencyList (CombinatoricRepresentation):
                     yield dictU
 
         for u in combine (self.data):
-            yield u
+            yield Node (u)
 
     def query (self, u):
         """Iterate over all edges going out from vertex 'u'."""
@@ -153,7 +170,7 @@ class AdjacencyList (CombinatoricRepresentation):
                     yield node
 
         for v in combine (self.data):
-            yield self.graph.edgeClass (u, v)
+            yield self.graph.edgeClass (u, Node (v))
 
 
 class VertexMap (CombinatoricRepresentation):
@@ -183,7 +200,7 @@ class VertexMap (CombinatoricRepresentation):
                     yield v
 
         for v in combine (self.data):
-            yield v
+            yield Node (v)
 
     def onAdd (self, data):
         CombinatoricRepresentation.onAdd (self, data)
@@ -228,10 +245,10 @@ class VertexMap (CombinatoricRepresentation):
                         yield v
 
         for u in combineU (self.data):
-            yield self.graph.edgeClass (u, node)
+            yield self.graph.edgeClass (Node (u), node)
 
         for v in combineV (self.data):
-            yield self.graph.edgeClass (node, v)
+            yield self.graph.edgeClass (node, Node (v))
 
 
 class EdgeList (CombinatoricRepresentation):
@@ -246,16 +263,16 @@ class EdgeList (CombinatoricRepresentation):
                 if len (graphs) == 1:
                     u = {name: edge.u}
                     v = {name: edge.v}
-                    yield self.graph.edgeClass (u, v)
+                    yield (u, v)
                     continue
 
-                for e in combine (graphs[1:]):
-                    e.u[name] = edge.u
-                    e.v[name] = edge.v
-                    yield e
+                for u, v in combine (graphs[1:]):
+                    u[name] = edge.u
+                    v[name] = edge.v
+                    yield (u, v)
 
-        for edge in combine (self.edgeLists.keys ()):
-            yield edge
+        for u, v in combine (self.edgeLists.keys ()):
+            yield self.graph.edgeClass (Node (u), Node (v))
 
     def onAdd (self, data):
         CombinatoricRepresentation.onAdd (self, data)
@@ -274,14 +291,15 @@ class EdgeList (CombinatoricRepresentation):
 
     def query (self, u, v):
         """Return the edge from 'u' to 'v'."""
-        returnEdge = self.edgeClass ({}, {})
+        combU = {}
+        combV = {}
         for name in u.iterkeys ():
             edges = self.edgeLists[name]
             edge = edges.query (u[name], v[name])
-            returnEdge.u[name] = edge.u
-            returnEdge.v[name] = edge.v
+            combU[name] = edge.u
+            combV[name] = edge.v
 
-        return returnEdge
+        return self.graph.edgeClass (Node (combU), Node (combV))
 
 
 class BayesAdjacency (AdjacencyList):
@@ -373,7 +391,7 @@ class BayesAdjacency (AdjacencyList):
        
         # Yield edges with a high enough probability to warrant checking.
         for v in filter (self.order):
-            yield self.graph.edgeClass (u, v)
+            yield self.graph.edgeClass (Node (u), Node (v))
 
 
 # vim: ts=4:sw=4:et
