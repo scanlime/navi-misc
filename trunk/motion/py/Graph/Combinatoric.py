@@ -36,11 +36,15 @@ class Node (Dot.Node):
 
         if type (data) is not dict:
             raise TypeError ("Combinatoric.Node requires dictionary data")
+
         self.data = data.copy ()
-        self.dotAttrs['label'] = string.join (str (data.items ()), ',')
+        self.dotAttrs['label'] = string.join (map (repr, self.data.values ()), ',')
 
     def __getitem__ (self, key):
         return self.data[key]
+
+    def __repr__ (self):
+        return "Node(%r)" % self.data
 
     def __hash__ (self):
         return hash (repr (self.data))
@@ -272,7 +276,7 @@ class EdgeList (CombinatoricRepresentation):
                     v[name] = edge.v
                     yield (u, v)
 
-        for u, v in combine (self.edgeLists.keys ()):
+        for u, v in combine (self.data):
             yield self.graph.edgeClass (Node (u), Node (v))
 
     def onAdd (self, data):
