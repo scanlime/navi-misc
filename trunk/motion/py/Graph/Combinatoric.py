@@ -37,6 +37,7 @@ class Node (Dot.Node):
         if type (data) is not dict:
             raise TypeError ("Combinatoric.Node requires dictionary data")
         self.data = data.copy ()
+        self.dotAttrs['label'] = string.join (data.items (), ',')
 
     def __getitem__ (self, key):
         return self.data[key]

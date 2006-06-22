@@ -457,8 +457,8 @@ class HeuristicPrint (Heuristic):
         visited = []
         path = None
         step = 0
-        adj = self.graph.representations[Data.AdjacencyList]
-        eList = self.graph.representations[Data.EdgeList]
+        adj = self.graph.representations[Combinatoric.AdjacencyList]
+        eList = self.graph.representations[Combinatoric.EdgeList]
 
         while len(agenda) > 0:
             # Get the next node and test for the goal
