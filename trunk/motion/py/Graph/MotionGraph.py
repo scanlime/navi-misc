@@ -11,7 +11,7 @@ occured in the corpus of motion capture data.
 """
 
 from Graph.Data import Graph, Edge, AdjacencyList, VertexMap, EdgeList
-from Graph.Algorithms import DotPrint
+from Graph.Dot import DotPrint
 from Graph import algorithms_c
 import Numeric, MLab, math, string, gc
 

@@ -7,6 +7,7 @@ GraphRepresentations to make them fast(ish)
     *the Python Mission Control Kit team*
 """
 
+from Dot import DotPrint
 import Data, Combinatoric
 
 # Constants for graph coloring
