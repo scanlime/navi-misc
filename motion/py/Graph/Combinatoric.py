@@ -23,7 +23,7 @@ existed in memory.
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-import Data, Dot
+import Data, Dot, string
 
 __all__ = ["Node", "AdjacenceyList", "VertexMap", "EdgeList"]
 
@@ -37,7 +37,7 @@ class Node (Dot.Node):
         if type (data) is not dict:
             raise TypeError ("Combinatoric.Node requires dictionary data")
         self.data = data.copy ()
-        self.dotAttrs['label'] = string.join (data.items (), ',')
+        self.dotAttrs['label'] = string.join (str (data.items ()), ',')
 
     def __getitem__ (self, key):
         return self.data[key]

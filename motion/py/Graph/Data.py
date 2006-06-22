@@ -5,9 +5,9 @@ by Micah Dowty's code for space-grant's PyMCK system, so you should love him.
 *Originally Copyright (C) 2004-2005 the Python Mission Control Kit team*
 """
 
-import Observable, string
+import Dot, Observable, string
 
-class Edge (object):
+class Edge (Dot.Edge):
     """This object represents a graph edge.  It is immutable and
        usable as a dictionary key.
        """
