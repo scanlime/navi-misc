@@ -313,7 +313,7 @@ class DotPrint (Algorithm):
         for vertex in self.vertexMap:
             edges = self.vertexMap.query (vertex)
             for edge in edges:
-                if edge.u is vertex:
+                if edge.u == vertex:
                     self.results += '%s\n' % edge.dotString ()
 
         self.results += '}'
