@@ -91,10 +91,10 @@ class Edge (Printable):
 
     def dotString (self):
         """Return a string representation of the edge formatted for dot."""
-        id = "%s -> %s" % (hash (self.u), hash (self.v))
+        uid, vid = (hash (self.u), hash (self.v))
         attrs = ['%s="%s"' % (key, value) for key, value in \
                 self.dotAttrs.iteritems ()]
-        return "%s [%s];" % (id, string.join (attrs, ','))
+        return "%s -> %s [%s];" % (uid, vid, string.join (attrs, ','))
 
 # vim: ts=4:sw=4:et
 
