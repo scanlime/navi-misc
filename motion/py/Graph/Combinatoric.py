@@ -198,14 +198,13 @@ class VertexMap (CombinatoricRepresentation):
             for vertex in map:
                 if len(graphs) == 1:
                     yield {name: vertex}
-                    continue
+                else: 
+                    for v in combine (graphs[1:]):
+                        v[name] = vertex
+                        yield v
 
-                for v in combine (graphs[1:]):
-                    v[name] = vertex
-                    yield v
-
-        for v in combine (self.data):
-            yield Node (v)
+        for n in combine (self.data):
+            yield Node (n)
 
     def onAdd (self, data):
         CombinatoricRepresentation.onAdd (self, data)
