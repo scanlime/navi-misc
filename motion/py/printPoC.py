@@ -44,7 +44,10 @@ class Node (Dot.Node):
 
 def cost (path, goal):
     g = len (path)
-    h = len (algorithms_c.dijkstraSearch (adj, path[-1], goal))
+    h = 0
+    for name, a in adj.data:
+        h += len (algorithms_c.dijkstraSearch (a, path[-1][name], goal[name]))
+    return (g + h)
 
 def startGraph (match):
     graph = Graph ()
@@ -93,8 +96,10 @@ edges = Combinatoric.EdgeList (graph)
 graph.addList (graphs.items ())
 
 source = random.choice ([v for v in map])
-end = random.choice ([v for v in map])
+p = [source]
+for i in range (2):
+    p.append (random.choice ([v for v in adj.query (p[-1])]).v)
 
-HeuristicPrint (graph, cost, source, end)
+HeuristicPrint (graph, cost, source, p[-1])
             
 # vim: ts=4:sw=4:et
