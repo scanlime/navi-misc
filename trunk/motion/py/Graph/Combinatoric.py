@@ -40,6 +40,9 @@ class Node (Dot.Node):
         self.data = data.copy ()
         self.dotAttrs['label'] = string.join (map (repr, self.data.values ()), ',')
 
+    def iterkeys (self):
+        return self.data.iterkeys ()
+
     def __getitem__ (self, key):
         return self.data[key]
 
@@ -48,6 +51,12 @@ class Node (Dot.Node):
 
     def __hash__ (self):
         return hash (repr (self.data))
+
+    def __eq__ (self, other):
+        return (type (other) is Node and self.data == other.data)
+
+    def __ne__ (self, other):
+        return (type (other) is not Node or self.data != other.data)
 
 
 class CombinatoricRepresentation (Data.GraphRepresentation):
