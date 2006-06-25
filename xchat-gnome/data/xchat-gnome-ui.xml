@@ -76,7 +76,7 @@
                 <menuitem name="ServerChannels" action="ServerChannels"/>
         </popup>
 
-        <popup name="ChannelPopup" action="PopupAction">
+        <popup name="ChannelJoinedPopup" action="PopupAction">
                 <menuitem name="ChannelSave" action="ChannelSave"/>
                 <separator name="ChannelSep0"/>
                 <menuitem name="ChannelLeave" action="ChannelLeave"/>
@@ -87,6 +87,16 @@
                 <separator name="ChannelSep2"/>
                 <menuitem name="ChannelBans" action="ChannelBans"/>
         </popup>
+
+	<popup name="ChannelUnjoinedPopup" action="PopupAction">
+		<menuitem name="ChannelSave" action="ChannelSave"/>
+		<separator name="ChannelSep0"/>
+		<menuitem name="ChannelJoin" action="ChannelJoin"/>
+		<menuitem name="ChannelClose" action="ChannelClose"/>
+		<menuitem name="ChannelAutoJoin" action="ChannelAutoJoin"/>
+		<separator name="ChannelSep1"/>
+		<menuitem name="ChannelFind" action="ChannelFind"/>
+	</popup>
 
         <popup name="DialogPopup" action="PopupAction">
 		<menuitem name="DialogSendFile" action="UserlistSendFile"/>

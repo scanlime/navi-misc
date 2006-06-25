@@ -325,7 +325,7 @@ run_main_window ()
 	/* Temporarily disable menu items */
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionBansItem");
 	gtk_widget_set_sensitive (widget, FALSE);
-	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/ChannelPopup/ChannelBans");
+	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/ChannelJoinedPopup/ChannelBans");
 	gtk_widget_set_sensitive (widget, FALSE);
 }
 
