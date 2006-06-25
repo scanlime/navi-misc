@@ -73,6 +73,7 @@ static void      on_close (GtkAction *action, gpointer data);
 static void      on_find (GtkAction *action, gpointer data);
 static void      on_channel_leave (GtkAction *action, gpointer data);
 static void      on_channel_bans (GtkAction *action, gpointer data);
+static void      on_channel_join (GtkAction *action, gpointer data);
 static void      on_server_autoconnect (GtkAction *action, gpointer data);
 static void      on_channel_autojoin (GtkAction *action, gpointer data);
 
@@ -88,6 +89,7 @@ static GtkActionEntry action_entries[] = {
 	{"ChannelSave",       GTK_STOCK_SAVE,           N_("_Save Transcript"), "", NULL, G_CALLBACK (on_save)},
 	{"ChannelLeave",      GTK_STOCK_QUIT,           N_("_Leave"),           "", NULL, G_CALLBACK (on_channel_leave)},
 	{"ChannelClose",      GTK_STOCK_CLOSE,          N_("_Close"),           "", NULL, G_CALLBACK (on_close)},
+	{"ChannelJoin",       GTK_STOCK_JUMP_TO,        N_("_Join"),            "", NULL, G_CALLBACK (on_channel_join)},
 	{"ChannelFind",       GTK_STOCK_FIND,           N_("_Find..."),         "", NULL, G_CALLBACK (on_find)},
 	{"ChannelBans",       GTK_STOCK_DIALOG_WARNING, N_("_Bans..."),         "", NULL, G_CALLBACK (on_channel_bans)},
 
@@ -949,7 +951,11 @@ channel_context (GtkWidget *treeview, session *selected)
 	GtkAction *action;
 	ircnet *network;
 
-	menu = gtk_ui_manager_get_widget (gui.manager, "/ChannelPopup");
+	if (selected->total) {
+		menu = gtk_ui_manager_get_widget (gui.manager, "/ChannelJoinedPopup");
+	} else {
+		menu = gtk_ui_manager_get_widget (gui.manager, "/ChannelUnjoinedPopup");
+	}
 	g_return_val_if_fail (menu != NULL, NULL);
 
 	/* check if the channel is in the auto-join list */
@@ -1677,6 +1683,28 @@ on_channel_leave (GtkAction * action, gpointer data)
 static void
 on_channel_bans (GtkAction * action, gpointer data)
 {
+}
+
+static void
+on_channel_join (GtkAction *action, gpointer data)
+{
+	GtkTreeView *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model, *store;
+	GtkTreeIter iter;
+	gchar *channel;
+	session *s;
+
+	treeview = GTK_TREE_VIEW (gui.server_tree);
+	select = gtk_tree_view_get_selection (treeview);
+	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
+		gtk_tree_model_get (model, &iter, 1, &channel, 2, &s, -1);
+		store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
+		if ((s->type == SESS_CHANNEL)) {
+			s->server->p_join(s->server, channel, "");
+		}
+		g_free (channel);
+	}
 }
 
 static void

@@ -1,3 +1,13 @@
+Sun Jun 25 11:22:27 CEST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/main-window.c:
+	* src/fe-gnome/navigation-tree.c:
+	* data/xchat-gnome-ui.xml:
+	  - Show a different context menu for channels in the navigation tree
+	    based on whether or not the channel is joined.  This allows users
+	    to re-join a channel with the context menu. (#344980)
+
+
 Wed Jun 21 16:21:17 MDT 2006  Isak Savo <iso01001@student.mdh.se>
 
 	* plugins/autoaway/autoaway.h:
