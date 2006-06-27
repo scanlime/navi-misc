@@ -20,10 +20,19 @@ from Graph.Data import Graph, Edge, AdjacencyList, EdgeList, VertexMap
 from optparse import OptionParser
 import random, re
 
-class Node (Dot.Node):
+class Node (object, Dot.Node):
+    _cached = {}
+
+    def __new__ (cls, data, **kwargs):
+        if data not in Node._cached:
+            Node._cached[data] = object.__new__ (cls)
+
+        return Node._cached[data]
+
     def __init__ (self, data, **kwargs):
-        kwargs['label'] = str (data)
         Dot.Node.__init__ (self, **kwargs)
+        if 'label' not in self.dotAttrs:
+            self.dotAttrs['label'] = str (data)
         self.data = data
 
     def __eq__ (self, other):
@@ -45,8 +54,8 @@ class Node (Dot.Node):
 def cost (path, goal):
     g = len (path)
     h = 0
-    for name, a in adj.data:
-        h += len (algorithms_c.dijkstraSearch (a, path[-1][name], goal[name]))
+    print "dijkstra from %s to %s" % (path[-1], goal)
+    h += len (algorithms_c.dijkstraSearch (adj, path[-1], goal))
     return (g + h)
 
 def startGraph (match):
@@ -88,18 +97,38 @@ for line in f:
             break
 f.close ()
 
+cgraph = Graph ()
+#adj = Combinatoric.AdjacencyList (graph)
+cmap = Combinatoric.VertexMap (cgraph)
+cedges = Combinatoric.EdgeList (cgraph)
+
+cgraph.addList (graphs.items ())
+
 graph = Graph ()
-adj = Combinatoric.AdjacencyList (graph)
-map = Combinatoric.VertexMap (graph)
-edges = Combinatoric.EdgeList (graph)
+adj = AdjacencyList (graph)
+map = VertexMap (graph)
+edges = EdgeList (graph)
 
-graph.addList (graphs.items ())
+graph.addList ([e for e in cedges])
 
-source = random.choice ([v for v in map])
+for name, g in graphs.iteritems ():
+    print "saving", name
+    f = file ('graphs/%s.dot' % name, 'w')
+    DotPrint (g, f)
+    f.close ()
+
+print "saving combined"
+f = file ('graphs/all.dot', 'w')
+DotPrint (graph, f)
+f.close ()
+
+source = random.choice ([v for v in cmap])
 p = [source]
-for i in range (2):
-    p.append (random.choice ([v for v in adj.query (p[-1])]).v)
+p.append (random.choice ([v for v in adj.query (p[-1])]).v)
 
-HeuristicPrint (graph, cost, source, p[-1])
+print repr(source)
+print algorithms_c.dijkstraSearch (adj, source, p[-1])
+
+#HeuristicPrint (graph, cost, source, p[-1])
             
 # vim: ts=4:sw=4:et
