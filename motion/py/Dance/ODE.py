@@ -13,8 +13,8 @@ import Numeric, math
 class ODE:
     """Abstract ODE solver object.
 
-    This class is abstract. It's main purpose is to require all ODE solvers to
-    be callable by implementing the `__call__` method.
+    This class provides an interface impelemented by all ODE solvers so that
+    they can be interchanged.
    
     Members:
         - ``f``     The ODE for the solver to solve
