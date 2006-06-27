@@ -41,7 +41,8 @@ class Sequence:
         # that anything other than an AMC object will be useful here, but for
         # the purpose of testing, allow this class to work with any list of
         # data.
-        if isinstance(data, Motion.AMC): data = self._dataFromAMC(data)
+        if isinstance(data, Motion.AMC):
+            data = self._dataFromAMC(data)
 
         self.ode = RK4(system)
         self.n = n
