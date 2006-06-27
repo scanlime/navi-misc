@@ -47,16 +47,16 @@ class Node (Dot.Node):
         return self.data[key]
 
     def __repr__ (self):
-        return "Node(%r)" % self.data
+        return "Combinatoric.Node(%r)" % self.data
 
     def __hash__ (self):
         return hash (repr (self.data))
 
     def __eq__ (self, other):
-        return (type (other) is Node and self.data == other.data)
+        return (self.data == other.data)
 
     def __ne__ (self, other):
-        return (type (other) is not Node or self.data != other.data)
+        return (self.data != other.data)
 
 
 class CombinatoricRepresentation (Data.GraphRepresentation):
@@ -234,9 +234,10 @@ class VertexMap (CombinatoricRepresentation):
     def query (self, node):
         """Iterate over the edges containing the vertex 'u'."""
         def combineU (graphs):
+            """Yield all edges coming into this node except self-loops."""
             name, map = graphs[0]
             for edge in map.query (node[name]):
-                if edge.u == node[name]:
+                if edge.v == node[name] and edge.u != edge.v:
                     if len (graphs) == 1:
                         yield {name: edge.u}
                         continue
@@ -246,6 +247,7 @@ class VertexMap (CombinatoricRepresentation):
                         yield u
 
         def combineV (graphs):
+            """Yield all edges leaving this node including self-loops."""
             name, map = graphs[0]
             for edge in map.query (node[name]):
                 if edge.u == node[name]:
@@ -307,7 +309,7 @@ class EdgeList (CombinatoricRepresentation):
         combU = {}
         combV = {}
         for name in u.iterkeys ():
-            edges = self.edgeLists[name]
+            edges = dict (self.data)[name]
             edge = edges.query (u[name], v[name])
             combU[name] = edge.u
             combV[name] = edge.v
