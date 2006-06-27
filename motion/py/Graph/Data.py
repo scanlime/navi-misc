@@ -11,28 +11,10 @@ class Edge (Dot.Edge):
     """This object represents a graph edge.  It is immutable and
        usable as a dictionary key.
        """
-    __slots__ = ['u', 'v', 'dotAttrs']
-
-    def __init__ (self, u, v, dot_label=None):
-        self.u = u
-        self.v = v
-        self.dotAttrs = {'label': dot_label}
+    __slots__ = ['u', 'v']
 
     def __repr__ (self):
         return '<%s from %r to %r>' % (self.__class__.__name__, self.u, self.v)
-
-    def __str__ (self):
-        """String representation of an edge is the line for an edge in a .dot
-        file.
-
-        Returns:
-            A string suitable for writing to a .dot file for generating a graph
-            using dot(1)
-        """
-        id = '%s -> %s' % (hash (self.u), hash (self.v))
-        attrs = ['%s="%s"' % (key, value) for key, value in \
-                self.dotAttrs.iteritems ()]
-        return '%s [%s];' % (id, string.join (attrs, ','))
 
     def __hash__ (self):
         return hash ((self.u, self.v))
@@ -246,7 +228,7 @@ class VertexMap (GraphRepresentation):
         # if we have a self-loop, we only want to add this edge once, since
         # we'll get a dupe if we just add it the normal way
         vertices = None
-        if edge.u is edge.v:
+        if edge.u == edge.v:
             vertices = [edge.u]
         else:
             vertices = [edge.u, edge.v]
