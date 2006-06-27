@@ -85,7 +85,7 @@ class Edge (Printable):
             - ``v``         The node to which the edge goes
             - ``kwargs``    The attribute list
         """
-        Printable.__init__ (self, kwargs)
+        Printable.__init__ (self, **kwargs)
         self.u = u
         self.v = v
 
