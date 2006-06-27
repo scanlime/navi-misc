@@ -7,7 +7,8 @@ GraphRepresentations to make them fast(ish)
     *the Python Mission Control Kit team*
 """
 
-import Data, Combinatoric
+from Combinatoric import BayesAdjacency
+from Data import AdjacencyList, EdgeList, VertexMap
 
 # Constants for graph coloring
 WHITE, GRAY, BLACK = range(3)
@@ -67,7 +68,7 @@ class DFS (Algorithm):
        the vertex order can be overridden.
        """
 
-    desired_representation = Data.AdjacencyList
+    desired_representation = AdjacencyList
 
     def __init__ (self, graph, vertexOrder=None):
         Algorithm.__init__ (self, graph)
@@ -90,7 +91,7 @@ class DFS (Algorithm):
                              BLACK: []}
 
         try:
-            self.adjacency = graph.representations[Data.AdjacencyList]
+            self.adjacency = graph.representations[AdjacencyList]
         except KeyError:
             raise Exception ('Graph does not contain AdjacencyList representation')
 
@@ -214,7 +215,7 @@ class Dijkstra (Algorithm):
         self.predecessors = {}
 
         try:
-            self.vertexMap = self.graph.representations[Data.VertexMap]
+            self.vertexMap = self.graph.representations[VertexMap]
         except KeyError:
             raise Exception ('Graph does not contain VertexMap representation')
 
@@ -282,7 +283,7 @@ class DotPrint (Algorithm):
        <BLANKLINE>
        """
 
-    desired_representation = Data.VertexMap
+    desired_representation = VertexMap
 
     def __init__ (self, graph, file=None):
         Algorithm.__init__ (self, graph)
@@ -293,7 +294,7 @@ class DotPrint (Algorithm):
         Algorithm.invalidate (self)
         self.results = ''
         try:
-            self.vertexMap = self.graph.representations[Data.VertexMap]
+            self.vertexMap = self.graph.representations[VertexMap]
         except KeyError:
             raise Exception ('Graph does not contain VertexMap representation')
 
@@ -307,10 +308,12 @@ class DotPrint (Algorithm):
 
         # print vertices
         for vertex in self.vertexMap:
+            print "first time:", id (vertex)
             self.results += '%s\n' % vertex.dotString ()
 
         # print edges
         for vertex in self.vertexMap:
+            print "second time:", id (vertex)
             edges = self.vertexMap.query (vertex)
             for edge in edges:
                 if edge.u == vertex:
@@ -385,12 +388,10 @@ class Heuristic (Algorithm):
         agenda = [self.source]
         visited = []
         
-        if self.graph.representations.has_key (Combinatoric.BayesAdjacency):
-            adj = self.graph.representations[Combinatoric.BayesAdjacency]
-        elif self.graph.representations.has_key (Combinatoric.AdjacencyList):
-            adj = self.graph.representations[Combinatoric.AdjacencyList]
+        if self.graph.representations.has_key (BayesAdjacency):
+            adj = self.graph.representations[BayesAdjacency]
         else:
-            adj = self.graph.representations[Data.AdjacencyList]
+            adj = self.graph.representations[AdjacencyList]
 
         while len(agenda) > 0:
             # Get the next node and test for the goal
@@ -436,11 +437,15 @@ class HeuristicPrint (Heuristic):
     """A debugging search that prints each step of the search to a dot file."""
 
     def __init__ (self, graph, costf, source, goal):
+        Heuristic.__init__ (self, graph, costf, source, goal)
         source.dotAttrs.update ([('style', 'filled'),
                 ('fillcolor', 'green')])
         goal.dotAttrs.update ([('style', 'filled'),
                 ('fillcolor', 'red')])
-        Heuristic.__init__ (self, graph, costf, source, goal)
+        print "source:",id(source)
+        print "self.source:",id(self.source)
+        print "goal:",id(goal)
+        print "self.goal:",id(self.goal)
 
     def run (self):
         """Execute a heuristic search of a graph.
@@ -457,8 +462,8 @@ class HeuristicPrint (Heuristic):
         visited = []
         path = None
         step = 0
-        adj = self.graph.representations[Combinatoric.AdjacencyList]
-        eList = self.graph.representations[Combinatoric.EdgeList]
+        adj = self.graph.representations[AdjacencyList]
+        eList = self.graph.representations[EdgeList]
 
         while len(agenda) > 0:
             # Get the next node and test for the goal
@@ -468,6 +473,7 @@ class HeuristicPrint (Heuristic):
             path = self.pathToNode (node)
             for n in path:
                 if n != self.source and n != self.goal:
+                    print "coloring", id (n)
                     n.dotAttrs.update ([('style', 'filled'),
                             ('fillcolor', 'blue')])
 

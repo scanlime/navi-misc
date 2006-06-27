@@ -54,8 +54,10 @@ class Node (object, Dot.Node):
 def cost (path, goal):
     g = len (path)
     h = 0
-    print "dijkstra from %s to %s" % (path[-1], goal)
-    h += len (algorithms_c.dijkstraSearch (adj, path[-1], goal))
+    for name, x in graphs.iteritems ():
+        print "dijkstra from %s to %s" % (path[-1][name], goal[name])
+        a = x.representations[AdjacencyList]
+        h += len (algorithms_c.dijkstraSearch (a, path[-1][name], goal[name]))
     return (g + h)
 
 def startGraph (match):
@@ -126,9 +128,6 @@ source = random.choice ([v for v in cmap])
 p = [source]
 p.append (random.choice ([v for v in adj.query (p[-1])]).v)
 
-print repr(source)
-print algorithms_c.dijkstraSearch (adj, source, p[-1])
-
-#HeuristicPrint (graph, cost, source, p[-1])
+HeuristicPrint (graph, cost, source, p[-1])
             
 # vim: ts=4:sw=4:et
