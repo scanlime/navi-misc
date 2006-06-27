@@ -308,12 +308,10 @@ class DotPrint (Algorithm):
 
         # print vertices
         for vertex in self.vertexMap:
-            print "first time:", id (vertex)
             self.results += '%s\n' % vertex.dotString ()
 
         # print edges
         for vertex in self.vertexMap:
-            print "second time:", id (vertex)
             edges = self.vertexMap.query (vertex)
             for edge in edges:
                 if edge.u == vertex:
@@ -437,15 +435,11 @@ class HeuristicPrint (Heuristic):
     """A debugging search that prints each step of the search to a dot file."""
 
     def __init__ (self, graph, costf, source, goal):
-        Heuristic.__init__ (self, graph, costf, source, goal)
         source.dotAttrs.update ([('style', 'filled'),
                 ('fillcolor', 'green')])
         goal.dotAttrs.update ([('style', 'filled'),
                 ('fillcolor', 'red')])
-        print "source:",id(source)
-        print "self.source:",id(self.source)
-        print "goal:",id(goal)
-        print "self.goal:",id(self.goal)
+        Heuristic.__init__ (self, graph, costf, source, goal)
 
     def run (self):
         """Execute a heuristic search of a graph.
