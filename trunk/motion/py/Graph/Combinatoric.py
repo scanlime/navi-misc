@@ -27,14 +27,24 @@ import Data, Dot, string
 
 __all__ = ["Node", "AdjacenceyList", "VertexMap", "EdgeList"]
 
-class Node (Dot.Node):
+class Node (object, Dot.Node):
+    _cached = {}
+
+    def __new__ (cls, data, **kwargs):
+        r = repr (data)
+
+        if r not in Node._cached:
+            Node._cached[r] = object.__new__ (cls)
+
+        return Node._cached[r]
+
     def __init__ (self, data, **kwargs):
         Dot.Node.__init__ (self, **kwargs)
 
         if type (data) is Node:
             return data
 
-        if type (data) is not dict:
+        if not isinstance (data, dict):
             raise TypeError ("Combinatoric.Node requires dictionary data")
 
         self.data = data.copy ()
