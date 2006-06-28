@@ -186,68 +186,6 @@ class DFS (Algorithm):
         l.sort()
         return [i[2] for i in l]
 
-def Relax (edge, weightf, distance, precedessors):
-    """Relaxation of path constraint, used in numerous pathfinding
-       algorithms.  Tests whether we can improve the shortest path to v.
-       """
-    w = weightf (edge)
-
-    if distance[edge.v] > (distance[edge.u] + w):
-        distance[edge.v] = distance[edge.u] + w
-        predecessors[edge.v] = edge.u
-
-class Dijkstra (Algorithm):
-    """An implementation of Dijkstra's single-source shortest
-       path algorithm, described on page 521 of 'Introduction to
-       Algorithms'.
-       """
-
-    def __init__(self, graph, source, weightf):
-        Algorithm.__init__ (self, graph)
-        self.source = source
-        self.weightf = weightf
-
-        self.run ()
-
-    def invalidate (self):
-        Algorithm.invalidate (self)
-        self.estimates = {}
-        self.predecessors = {}
-
-        try:
-            self.vertexMap = self.graph.representations[VertexMap]
-        except KeyError:
-            raise Exception ('Graph does not contain VertexMap representation')
-
-        for vertex in self.vertexMap:
-            # Technically this should be Inf, but I'm not sure how to notate
-            # that in python.  2**30 should be sufficiently bigger than any
-            # path we might find (famous last words...)
-            self.estimates[vertex] = 2**30
-            self.predecessors[vertex] = None
-        self.estimates[self.source] = 0
-
-    def run (self):
-        if self.valid:
-            return self.results
-
-        queue = PriorityQueue ()
-        queue.enqueue_list (self.vertexMap)
-        found = []
-        while not queue.Empty ():
-            u = queue.extract ()
-            found.append (u)
-            # Iterate over all edges which have their origin at u
-            for edge in self.vertexMap.query (u):
-                if edge[0] is u:
-                    Relax (edge, self.weightf, self.estimates, self.predecessors)
-
-        self.valid = True
-        return self.results
-
-    def identity (self):
-        return hash (self.graph, self.source)
-
 
 class DotPrint (Algorithm):
     """Simple graph walker which prints the graph as a dot(1) file.
