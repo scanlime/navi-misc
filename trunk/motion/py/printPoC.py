@@ -100,6 +100,14 @@ def endGraph (match):
     graphs[match.group (1)].addList (edges)
     edges = set ([])
 
+def setStart (match):
+    global start
+    start = match.group (1)
+
+def setEnd (match):
+    global end
+    end = match.group (1)
+
 
 # Option parser in case this script gets more complicated
 options = OptionParser (usage="%prog <graphs>")
@@ -112,7 +120,11 @@ if len (args) != 1:
 # Set up the regexs and callbacks used for parsing the file of graphs
 callbacks = {re.compile (r'^\[(\w*)\]$'): startGraph, \
         re.compile (r'^(\w*) -> (\w*)$'): startEdge, \
-        re.compile (r'^\[/(\w*)\]$'): endGraph}
+        re.compile (r'^\[/(\w*)\]$'): endGraph, \
+        re.compile (r'^start\W+([\w,]*)$'): setStart, \
+        re.compile (r'^end\W+([\w,]*)$'): setEnd}
+
+start = end = None
 
 # Parse the file on the command line
 graphs = {}
@@ -127,26 +139,28 @@ for line in f:
             break
 f.close ()
 
-# Build a combinatoric graph from all the graphs found in the input file.
-cgraph = Graph ()
-#adj = Combinatoric.AdjacencyList (graph)
-cmap = Combinatoric.VertexMap (cgraph)
-cedges = Combinatoric.EdgeList (cgraph)
+if len (graphs) > 1:
+    # Build a combinatoric graph from all the graphs found in the input file.
+    cgraph = Graph ()
+    cedges = Combinatoric.EdgeList (cgraph)
 
-cgraph.addList (graphs.items ())
+    cgraph.addList (graphs.items ())
 
-# Create a non-combinatoric graph from the combinatoric graph.
-# FIXME: this is a hack because the combinatoric representations do not work
-# with the printing search.
-graph = Graph ()
-adj = AdjacencyList (graph)
-map = VertexMap (graph)
-edges = EdgeList (graph)
+    # Create a non-combinatoric graph from the combinatoric graph.
+    graph = Graph ()
+    adj = AdjacencyList (graph)
+    map = VertexMap (graph)
+    edges = EdgeList (graph)
 
-print "building single graph from combined"
-#graph.addList ([Edge (Node (repr (e.u)), Node (repr (e.v))) for e in cedges])
-graph.addList ([e for e in cedges])
-print "done"
+    graph.addList ([e for e in cedges])
+    
+    # Save a copy of the combinatoric graph
+    print "saving combined"
+    f = file ('graphs/all.dot', 'w')
+    DotPrint (graph, f)
+    f.close ()
+else:
+    graph = graphs.values ()[0]
 
 # Save a copy of each individual graph
 for name, g in graphs.iteritems ():
@@ -155,26 +169,4 @@ for name, g in graphs.iteritems ():
     DotPrint (g, f)
     f.close ()
 
-# Save a copy of the combinatoric graph
-print "saving combined"
-f = file ('graphs/all.dot', 'w')
-DotPrint (graph, f)
-f.close ()
-
-# Choose a random start and build a path from it
-source = random.choice ([v for v in map])
-p = [source]
-for i in range (3):
-    q = random.choice ([v for v in adj.query (p[-1])]).v
-    p.append (q)
-
-for v in map:
-    if v in p and id (v) != id (p[p.index (v)]):
-        print "2 copies of", repr (v)
-
-print p
-
-# Run the search to find a path from source to the end of the path
-HeuristicPrint (graph, cost, source, p[-1])
-            
 # vim: ts=4:sw=4:et
