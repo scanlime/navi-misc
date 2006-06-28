@@ -140,6 +140,7 @@ for line in f:
             break
 f.close ()
 
+# If more than one graph is specified in the input, build a combinatoric graph.
 if len (graphs) > 1:
     # Build a combinatoric graph from all the graphs found in the input file.
     cgraph = Graph ()
@@ -151,7 +152,6 @@ if len (graphs) > 1:
     graph = Graph ()
     adj = AdjacencyList (graph)
     map = VertexMap (graph)
-    edges = EdgeList (graph)
 
     graph.addList ([e for e in cedges])
     
@@ -169,5 +169,16 @@ for name, g in graphs.iteritems ():
     f = file ('graphs/%s.dot' % name, 'w')
     DotPrint (g, f)
     f.close ()
+
+if start and end:
+    source = goal = None
+    for v in graph.representations[VertexMap]:
+        if v.data == start:
+            source = v
+        elif v.data == end:
+            goal = v
+        if source and goal:
+            break
+    HeuristicPrint (graph, cost, source, goal)
 
 # vim: ts=4:sw=4:et
