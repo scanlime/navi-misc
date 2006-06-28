@@ -122,8 +122,8 @@ if len (args) != 1:
 callbacks = {re.compile (r'^\[(\w*)\]$'): startGraph, \
         re.compile (r'^(\w*) -> (\w*)$'): startEdge, \
         re.compile (r'^\[/(\w*)\]$'): endGraph, \
-        re.compile (r'^start\W+([\w,]*)$'): setStart, \
-        re.compile (r'^end\W+([\w,]*)$'): setEnd}
+        re.compile (r"^start:\s+(.*)$"): setStart, \
+        re.compile (r"^end:\s+(.*)$"): setEnd}
 
 start = end = None
 
@@ -152,9 +152,14 @@ if len (graphs) > 1:
     graph = Graph ()
     adj = AdjacencyList (graph)
     map = VertexMap (graph)
+    elist = EdgeList (graph)
 
     graph.addList ([e for e in cedges])
-    
+   
+    if start and end:
+        start = eval (start)
+        end = eval (end)
+
     # Save a copy of the combinatoric graph
     print "saving combined"
     f = file ('graphs/all.dot', 'w')
@@ -173,12 +178,14 @@ for name, g in graphs.iteritems ():
 if start and end:
     source = goal = None
     for v in graph.representations[VertexMap]:
+        print "%r == %r" % (v, start)
         if v.data == start:
             source = v
         elif v.data == end:
             goal = v
         if source and goal:
             break
+    print source, goal
     HeuristicPrint (graph, cost, source, goal)
 
 # vim: ts=4:sw=4:et
