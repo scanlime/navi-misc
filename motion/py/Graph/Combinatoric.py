@@ -28,9 +28,21 @@ import Data, Dot, string
 __all__ = ["Node", "AdjacenceyList", "VertexMap", "EdgeList"]
 
 class Node (object, Dot.Node):
+    """Represent a node built from nodes in multiple graphs.
+
+    This class is a flyweight to avoid creating duplicate nodes. It contains a
+    dictionary representing the data from each of its component graphs that
+    maps the graph name to a node in the graph. These objects can be treated
+    similarly to dictionaries: [] can be used to read data from individual
+    graphs, but they cannot be written to.
+    """
+
     _cached = {}
 
     def __new__ (cls, data, **kwargs):
+        """Return a Node; if one has already been created for this data, return
+        that, otherwise create a new one.
+        """
         r = repr (data)
 
         if r not in Node._cached:
@@ -39,6 +51,10 @@ class Node (object, Dot.Node):
         return Node._cached[r]
 
     def __init__ (self, data, **kwargs):
+        """Initialize the node.
+
+        Raise a TypeError if ``data`` is not a dictionary.
+        """
         Dot.Node.__init__ (self, **kwargs)
 
         if type (data) is Node:
