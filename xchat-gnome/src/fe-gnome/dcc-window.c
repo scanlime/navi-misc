@@ -71,9 +71,8 @@ transfer_stop_clicked (GtkButton *button, DccWindow *window)
 		return;
 
 	gtk_tree_model_get (model, &iter, DCC_COLUMN, &dcc, -1);
-	dcc_abort (dcc->serv->server_session, dcc);
-
 	gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+	dcc_abort (dcc->serv->server_session, dcc);
 }
 
 static void
@@ -291,12 +290,12 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 				g_free (pos);
 				g_free (speed);
 
-				if (dcc->dccstat == 0) {
+				if (dcc->dccstat == STAT_QUEUED) {
 					remaining_text = g_strdup (_("queued"));
-				} else if (dcc->dccstat == 2) {
+				} else if (dcc->dccstat == STAT_FAILED) {
 					gchar *message;
 
-					if (dcc->type == 0)
+					if (dcc->type == TYPE_SEND)
 						message = g_strdup_printf (_("Transfer of %s to %s failed"), dcc->file, dcc->nick);
 					else
 						message = g_strdup_printf (_("Transfer of %s from %s failed"), dcc->file, dcc->nick);
@@ -304,9 +303,11 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 					g_free (message);
 					gtk_list_store_remove (window->transfer_store, &iter);
 					return;
-				} else if (dcc->dccstat == 3) {
+				} else if (dcc->dccstat == STAT_DONE) {
 					gtk_list_store_remove (window->transfer_store, &iter);
 					return;
+				} else if (dcc->dccstat == STAT_ABORTED) {
+					remaining_text = g_strdup (_("aborted"));
 				} else {
 					if (dcc->cps == 0) {
 						remaining_text = g_strdup (_("stalled"));
@@ -332,7 +333,7 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 				/* We put off rendering the icon until we get at least one update,
 				 * to ensure that gnome-vfs can determine the MIME type
 				 */
-				if (icon == NULL) {
+				if (dcc->destfile != NULL && icon == NULL) {
 					GtkIconTheme *icon_theme;
 					char *icon;
 					char *mime;

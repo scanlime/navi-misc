@@ -1,3 +1,8 @@
+Thu Jun 29 11:02:22 BST 2006  Daniel Drake <dsd@gentoo.org>
+
+	* src/fe-gnome/dcc-window.c:
+	  - Fix DCC stop crasher and timeout handling bug.
+
 Sun Jun 25 11:22:27 CEST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/main-window.c:
