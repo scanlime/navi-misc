@@ -403,14 +403,16 @@ class HeuristicPrint (Heuristic):
             visited.append(node)
 
             path = self.pathToNode (node)
-            for n in path:
-                if n != self.source and n != self.goal:
-                    n.dotAttrs.update ([('style', 'filled'),
-                            ('fillcolor', 'blue')])
 
             for i in range (len (path) - 1):
                 edge = eList.query (path[i], path[i+1])
                 edge.dotAttrs['color'] = 'blue'
+
+                attrs = [('style', 'filled'), ('fillcolor', 'blue')]
+                if edge.u != self.source and edge.u != self.goal:
+                    edge.u.dotAttrs.update (attrs)
+                if edge.v != self.source and edge.v != self.goal:
+                    edge.v.dotAttrs.update (attrs)
 
             print "printing step %i" % step
             f = file ('graphs/%s.dot' % step, 'w')

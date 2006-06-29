@@ -57,7 +57,7 @@ class Node (Dot.Node):
         return self.data[key]
 
     def __repr__ (self):
-        return "Combinatoric.Node(%r)" % self.data
+        return "%s(%r)" % (self.__class__, self.data)
 
     def __hash__ (self):
         return hash (repr (self.data))

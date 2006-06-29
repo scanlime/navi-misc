@@ -184,6 +184,7 @@ if start and end:
             goal = v
         if source and goal:
             break
+
     HeuristicPrint (graph, cost, source, goal)
 
 # vim: ts=4:sw=4:et

@@ -14,7 +14,7 @@ class Edge (Dot.Edge):
     __slots__ = ['u', 'v']
 
     def __repr__ (self):
-        return '<%s from %r to %r>' % (self.__class__.__name__, self.u, self.v)
+        return '<%s from %r to %r>' % (self.__class__, self.u, self.v)
 
     def __hash__ (self):
         return hash ((self.u, self.v))
