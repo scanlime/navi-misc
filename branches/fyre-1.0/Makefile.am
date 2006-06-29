@@ -1,6 +1,6 @@
 SUBDIRS = data src contrib
 
-vXTRA_DIST =		\
+EXTRA_DIST =		\
 	AUTHORS		\
 	NEWS		\
 	INSTALL		\
