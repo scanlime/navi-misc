@@ -64,8 +64,10 @@ add_notify (char *summary, char *message)
 {
 	NotifyNotification *notify = NULL;
 	GError *error = NULL;
+	gchar *escaped;
 
-	notify = notify_notification_new (summary, message, NULL, NULL);
+	escaped = g_markup_escape_text (message, strlen(message));
+	notify = notify_notification_new (summary, escaped, NULL, NULL);
 	notify_notification_set_urgency (notify, NOTIFY_URGENCY_NORMAL);
 	notify_notification_set_icon_from_pixbuf (notify, notify_icon);
 	if (!notify_notification_show (notify, &error)) {
@@ -75,6 +77,8 @@ add_notify (char *summary, char *message)
 	}
 
 	notifications = g_slist_prepend (notifications, notify);
+	
+	g_free (escaped);
 }
 
 static gboolean
@@ -98,7 +102,7 @@ static int
 new_msg_cb (char *word[], gpointer data)
 {
 	const char *channel;
-	gchar *stripped, *escaped, *message, *summary;
+	gchar *stripped, *message, *summary;
 
 	if (focused)
 		return XCHAT_EAT_NONE;
@@ -107,19 +111,17 @@ new_msg_cb (char *word[], gpointer data)
 	stripped = xchat_strip (ph, word[2], -1, STRIP_COLORS | STRIP_ATTRS);
 
 	message = g_strdup_printf ("<%s> %s", word[1], stripped);
-	escaped = g_markup_escape_text(message, strlen(message));
 
 	if (channel[0] == '#')
 		summary = g_strdup_printf (_("Message in %s"), channel);
 	else
 		summary = g_strdup_printf (_("Message from %s"), channel);
 
-	add_notify (summary, escaped);
+	add_notify (summary, message);
 
 	xchat_free (ph, stripped);
 	g_free (message);
 	g_free (summary);
-	g_free (escaped);
 	return XCHAT_EAT_NONE;
 }
 
