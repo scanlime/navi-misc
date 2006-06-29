@@ -1,3 +1,11 @@
+1.0.1
+	* New scalable (and not-ugly) icon, drawn by Andreas Nilsson
+	* Fix a few crashes in pathological and corner cases
+	* Add +/- 1 subpixel of noise during oversampling, to avoid aliasing in
+	  certain conditions
+	* Implement the 'Polar' variant of the Box-Mueller transform, for a
+	  slight performance increase.
+
 1.0.0 (17 February 2005)
 	* Minor cluster autodetection bugfixes
 	* Fixed a hang on exit when running Fyre in console mode
