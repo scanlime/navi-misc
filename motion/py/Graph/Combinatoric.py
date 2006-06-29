@@ -113,8 +113,11 @@ class AdjacencyList (CombinatoricRepresentation):
                     v[name] = edge.v
                     yield (u, v)
 
+        cached = {}
         for u, v in combine (self.data):
-            yield self.graph.edgeClass (Node (u), Node (v))
+            nodeU = cached.setdefault (repr (u), Node (u))
+            nodeV = cached.setdefault (repr (v), Node (v)
+            yield self.graph.edgeClass (nodeU, nodeV)
 
     def __contains__ (self, edge):
         """Returns true if edge exists in the adjacency list."""
@@ -269,11 +272,14 @@ class VertexMap (CombinatoricRepresentation):
                         v[name] = edge.v
                         yield v
 
+        cached = {}
         for u in combineU (self.data):
-            yield self.graph.edgeClass (Node (u), node)
+            nodeU = cached.setdefault (repr(u), Node (u))
+            yield self.graph.edgeClass (nodeU, node)
 
         for v in combineV (self.data):
-            yield self.graph.edgeClass (node, Node (v))
+            nodeV = cached.setdefault (repr(v), Node (v))
+            yield self.graph.edgeClass (node, nodeV)
 
 
 class EdgeList (CombinatoricRepresentation):
