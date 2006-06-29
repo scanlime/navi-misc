@@ -281,7 +281,7 @@ class Heuristic (Algorithm):
         Algorithm.invalidate (self)
         self.path = None
         self.costs = {}
-        self.predecessors = {repr(self.source):None}
+        self.predecessors = {self.source:None}
 
     def compare(self, a, b):
         keyA = repr(a)
@@ -302,11 +302,11 @@ class Heuristic (Algorithm):
 
     def pathToNode(self, node):
         path = [node]
-        next = self.predecessors[repr(node)]
+        next = self.predecessors[node]
 
         while next:
             path.insert(0, next)
-            next = self.predecessors[repr(next)]
+            next = self.predecessors[next]
 
         return path
 
@@ -346,7 +346,7 @@ class Heuristic (Algorithm):
                 numSucc += 1
                 if s not in visited:
                     numAdded += 1
-                    self.predecessors[repr(s)] = node
+                    self.predecessors[s] = node
                     agenda.append(s)
 
             # Some debuggative statements
@@ -405,7 +405,6 @@ class HeuristicPrint (Heuristic):
             path = self.pathToNode (node)
             for n in path:
                 if n != self.source and n != self.goal:
-                    print "coloring", id (n)
                     n.dotAttrs.update ([('style', 'filled'),
                             ('fillcolor', 'blue')])
 
@@ -439,7 +438,7 @@ class HeuristicPrint (Heuristic):
                 numSucc += 1
                 if edge.v not in visited:
                     numAdded += 1
-                    self.predecessors[repr(edge.v)] = node
+                    self.predecessors[edge.v] = node
                     agenda.append(edge.v)
 
             # Some debuggative statements
