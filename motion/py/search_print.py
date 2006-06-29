@@ -178,14 +178,12 @@ for name, g in graphs.iteritems ():
 if start and end:
     source = goal = None
     for v in graph.representations[VertexMap]:
-        print "%r == %r" % (v, start)
         if v.data == start:
             source = v
         elif v.data == end:
             goal = v
         if source and goal:
             break
-    print source, goal
     HeuristicPrint (graph, cost, source, goal)
 
 # vim: ts=4:sw=4:et
