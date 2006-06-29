@@ -19,6 +19,7 @@ from Graph import algorithms_c, Combinatoric, Dot
 from Graph.Algorithms import HeuristicPrint, DotPrint
 from Graph.Data import Graph, Edge, AdjacencyList, EdgeList, VertexMap
 from optparse import OptionParser
+from pyparsing import *
 import random, re
 
 class Node (object, Dot.Node):
@@ -80,111 +81,47 @@ def cost (path, goal):
         h += len (algorithms_c.dijkstraSearch (a, path[-1][name], goal[name]))
     return (g + h)
 
-def startGraph (match):
-    """Create a new graph and add it to the dictionary of graphs using its name
-    as the key.
-    """
-    graph = Graph ()
-    adj = AdjacencyList (graph)
-    vMap = VertexMap (graph)
-    eList = EdgeList (graph)
-    graphs[match.group(1)] = graph
+def setGraph (s, loc, toks):
+    g = Graph ()
+    adj = AdjacencyList (g)
+    vMap = VertexMap (g)
+    edges = EdgeList (g)
+    g.addList ([Edge (Node (u), Node (v)) for u, v in toks[1:]])
+    graphs[toks[0]] = g
 
-def startEdge (match):
-    """Create an edge."""
-    u, v = match.groups ()
-    edges.add (Edge (Node (u), Node (v)))
-
-def endGraph (match):
-    """Add the ``edges`` set to the current graph and clear ``edges``."""
-    global edges
-    graphs[match.group (1)].addList (edges)
-    edges = set ([])
-
-def setStart (match):
-    global start
-    start = match.group (1)
-
-def setEnd (match):
-    global end
-    end = match.group (1)
+def setBayes (s, loc, toks):
+    print toks
 
 
 # Option parser in case this script gets more complicated
 options = OptionParser (usage="%prog <graphs>")
 opts, args = options.parse_args ()
 
+graphs = {}
+
 # Check the arguments
 if len (args) != 1:
     options.error ("Incorrect number of arguments")
 
-# Set up the regexs and callbacks used for parsing the file of graphs
-callbacks = {re.compile (r'^\[(\w*)\]$'): startGraph, \
-        re.compile (r'^(\w*) -> (\w*)$'): startEdge, \
-        re.compile (r'^\[/(\w*)\]$'): endGraph, \
-        re.compile (r"^start:\s+(.*)$"): setStart, \
-        re.compile (r"^end:\s+(.*)$"): setEnd}
+# Build the grammar for parsing the input file
+node = Word (alphanums)
+edge = Group (node + Suppress ("->") + node)
+edges = OneOrMore (edge)
+name = Word (alphanums)
+graph = Suppress ("[graph") + name + Suppress ("]") + edges + \
+        Suppress ("[/graph]")
+graph.setParseAction (setGraph)
 
-start = end = None
+probability = Optional ("01") + "." + nums
+bayesEntry = node + Suppress (",") + node + Suppress ("=") + probability
+bayes = Suppress ("[bayes") + name + Suppress ("]") + \
+        OneOrMore (bayesEntry) + Suppress ("[/bayes]")
+bayes.setParseAction (setBayes)
 
-# Parse the file on the command line
-graphs = {}
-edges = set ([])
-f = file (args[0], 'r')
-for line in f:
-    # When we find a matching regex, call the corresponding function
-    for regex, callback in callbacks.iteritems ():
-        m = regex.search (line)
-        if m:
-            callback (m)
-            break
-f.close ()
+comment = "#" + Optional (restOfLine)
 
-# If more than one graph is specified in the input, build a combinatoric graph.
-if len (graphs) > 1:
-    # Build a combinatoric graph from all the graphs found in the input file.
-    cgraph = Graph ()
-    cedges = Combinatoric.EdgeList (cgraph)
+grammar = OneOrMore (graph) | OneOrMore (bayes) | Suppress (comment)
 
-    cgraph.addList (graphs.items ())
-
-    # Create a non-combinatoric graph from the combinatoric graph.
-    graph = Graph ()
-    adj = AdjacencyList (graph)
-    map = VertexMap (graph)
-    elist = EdgeList (graph)
-
-    graph.addList ([e for e in cedges])
-   
-    if start and end:
-        start = eval (start)
-        end = eval (end)
-
-    # Save a copy of the combinatoric graph
-    print "saving combined"
-    f = file ('graphs/all.dot', 'w')
-    DotPrint (graph, f)
-    f.close ()
-else:
-    graph = graphs.values ()[0]
-
-# Save a copy of each individual graph
-for name, g in graphs.iteritems ():
-    print "saving", name
-    f = file ('graphs/%s.dot' % name, 'w')
-    DotPrint (g, f)
-    f.close ()
-
-if start and end:
-    source = goal = None
-    for v in graph.representations[VertexMap]:
-        if v.data == start:
-            source = v
-        elif v.data == end:
-            goal = v
-        if source and goal:
-            break
-
-    HeuristicPrint (graph, cost, source, goal)
+results = grammar.parseFile (args[0])
 
 # vim: ts=4:sw=4:et
