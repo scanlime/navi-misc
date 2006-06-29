@@ -41,31 +41,42 @@ class Node (Dot.Node):
         """
         Dot.Node.__init__ (self, **kwargs)
 
-        if type (data) is Node:
-            return data
-
+        # Combinatoric nodes only accept dictionaries as data
         if not isinstance (data, dict):
             raise TypeError ("Combinatoric.Node requires dictionary data")
 
+        # Copy the data so that modifications to the dictionary passed here do
+        # not affect the one stored. Nodes should be immutable because they're
+        # hashable.
         self.data = data.copy ()
+
+        # Set the label for dot(1) to a comma separated string of each value in
+        # the dictionary
         self.dotAttrs['label'] = string.join (map (repr, self.data.values ()), ',')
 
     def iterkeys (self):
+        """Return an iterator of the keys in data."""
         return self.data.iterkeys ()
 
     def __getitem__ (self, key):
+        """Access data from a single graph in the node."""
         return self.data[key]
 
     def __repr__ (self):
         return "%s(%r)" % (self.__class__, self.data)
 
     def __hash__ (self):
+        """The hash of an instance is the hash for the string representation of
+        its data.
+        """
         return hash (repr (self.data))
 
     def __eq__ (self, other):
+        """`Node`\s are equal when their data objects are equal."""
         return (self.data == other.data)
 
     def __ne__ (self, other):
+        """`Node`\s are not equal when their data is not equal."""
         return (self.data != other.data)
 
 
@@ -81,6 +92,14 @@ class CombinatoricRepresentation (Data.GraphRepresentation):
         self.data = []
 
     def onAdd (self, data):
+        """Add ``data`` to the data in the representation.
+
+        This class performs a check on ``data`` to be sure it is the correct
+        format. All combinatoric representations require the same type of data,
+        so this check works for all of them. Raises a `TypeError` if ``data``
+        is not a sequence. Raises a `ValueError` if ``data`` is not formed
+        correctly.
+        """
         try:
             if len (data) != 2:
                 raise ValueError ("Combinatoric graph representations expect \
@@ -102,21 +121,28 @@ class AdjacencyList (CombinatoricRepresentation):
                """
             name, adj = graphs[0]
             for edge in adj:
+                # Stop recursing when this is the last graph in the list
                 if len(graphs) == 1:
                     u = {name: edge.u}
                     v = {name: edge.v}
                     yield (u, v)
                     continue
 
+                # Add the data from this graph to the combined data
                 for u, v in combine(graphs[1:]):
                     u[name] = edge.u
                     v[name] = edge.v
                     yield (u, v)
 
+        # Cache generated nodes to prevent multiple instances of Node for
+        # identical data
         cached = {}
         for u, v in combine (self.data):
+            # Check for cached data. Add the node to the cache if it's not
+            # there.
             nodeU = cached.setdefault (repr (u), Node (u))
-            nodeV = cached.setdefault (repr (v), Node (v)
+            nodeV = cached.setdefault (repr (v), Node (v))
+
             yield self.graph.edgeClass (nodeU, nodeV)
 
     def __contains__ (self, edge):
@@ -145,6 +171,11 @@ class AdjacencyList (CombinatoricRepresentation):
         return True
 
     def onAdd (self, data):
+        """Add a graph to the representation.
+
+        Raises:
+            - `ValueError` if the graph is already in the representation.
+        """
         CombinatoricRepresentation.onAdd (self, data)
        
         name, graph = data
@@ -155,6 +186,7 @@ class AdjacencyList (CombinatoricRepresentation):
         self.data.append ((name, adj))
 
     def onRemove (self, data):
+        """Remove a graph from the data."""
         name, graph = data
         adj = graph.representations[Data.AdjacencyList]
         self.data.remove ((name, adj))
@@ -169,14 +201,17 @@ class AdjacencyList (CombinatoricRepresentation):
                """
             name, adj = graphs[0]
             for u in adj.iterU ():
+                # Stop recursing
                 if len(graphs) == 1:
                     yield {name: u}
                     continue
-                
+               
+                # Add data for this graph to the dictionary
                 for dictU in combine(graphs[1:]):
                     dictU[name] = u
                     yield dictU
 
+        # Combine data from all graphs and yield Nodes for each combination.
         for u in combine (self.data):
             yield Node (u)
 
@@ -188,14 +223,17 @@ class AdjacencyList (CombinatoricRepresentation):
                """
             name, adj = graphs[0]
             for edge in adj.query(u[name]):
+                # Stop recursing
                 if len(graphs) == 1:
                     yield {name: edge.v}
                     continue
 
+                # Add data for this graph
                 for node in combine (graphs[1:]):
                     node[name] = edge.v
                     yield node
 
+        # Combine nodes from each graph coming out of u and yield those edges
         for v in combine (self.data):
             yield self.graph.edgeClass (u, Node (v))
 
@@ -207,7 +245,12 @@ class VertexMap (CombinatoricRepresentation):
         self.graph = graph
         graph.add.observe (self.onAdd)
         graph.remove.observe (self.onRemove)
+
+        # Add the vertex map to the graph representations for the
+        # Data.VertexMap representation. This allows graphs with this
+        # representation to be used interchangeably with the other VertexMap.
         graph.representations[Data.VertexMap] = self
+
         self.data = []
 
     def __iter__ (self):
@@ -218,17 +261,26 @@ class VertexMap (CombinatoricRepresentation):
                """
             name, map = graphs[0]
             for vertex in map:
+                # Stop recursing
                 if len(graphs) == 1:
                     yield {name: vertex}
-                else: 
-                    for v in combine (graphs[1:]):
-                        v[name] = vertex
-                        yield v
+                    continue
 
+                # Add data for this graph to the dictionary
+                for v in combine (graphs[1:]):
+                    v[name] = vertex
+                    yield v
+
+        # Combine nodes in each graph and yield a Node for each one
         for n in combine (self.data):
             yield Node (n)
 
     def onAdd (self, data):
+        """Add a graph to the representation.
+
+        Raises:
+            - `ValueError` if the graph is already present
+        """
         CombinatoricRepresentation.onAdd (self, data)
 
         name, graph = data
@@ -240,6 +292,7 @@ class VertexMap (CombinatoricRepresentation):
         self.data.append ((name, map))
 
     def onRemove (self, data):
+        """Remove a graph from the data."""
         name, graph = data
         map = graph.representations[Data.VertexMap]
         self.data.remove ((name, map))
@@ -251,10 +304,12 @@ class VertexMap (CombinatoricRepresentation):
             name, map = graphs[0]
             for edge in map.query (node[name]):
                 if edge.v == node[name] and edge.u != edge.v:
+                    # Stop recursing
                     if len (graphs) == 1:
                         yield {name: edge.u}
                         continue
 
+                    # Add the data for this graph to the dictionary
                     for u in combineU (graphs[1:]):
                         u[name] = edge.u
                         yield u
@@ -264,19 +319,26 @@ class VertexMap (CombinatoricRepresentation):
             name, map = graphs[0]
             for edge in map.query (node[name]):
                 if edge.u == node[name]:
+                    # Stop recursing
                     if len (graphs) == 1:
                         yield {name: edge.v}
                         continue
 
+                    # Add the data for this graph to the dictionary
                     for v in combineV (graphs[1:]):
                         v[name] = edge.v
                         yield v
 
+        # Cache created nodes to avoid creating separate instances of Node for
+        # duplicate data
         cached = {}
+
+        # For all edges leaving this node, yield the edge
         for u in combineU (self.data):
             nodeU = cached.setdefault (repr(u), Node (u))
             yield self.graph.edgeClass (nodeU, node)
 
+        # For all edges entering this node, yield the edge
         for v in combineV (self.data):
             nodeV = cached.setdefault (repr(v), Node (v))
             yield self.graph.edgeClass (node, nodeV)
@@ -291,24 +353,39 @@ class EdgeList (CombinatoricRepresentation):
             name, edges = graphs[0]
 
             for edge in edges:
+                # Stop recursing
                 if len (graphs) == 1:
                     u = {name: edge.u}
                     v = {name: edge.v}
                     yield (u, v)
                     continue
 
+                # Add the data for this node to the dictionary of combined
+                # nodes
                 for u, v in combine (graphs[1:]):
                     u[name] = edge.u
                     v[name] = edge.v
                     yield (u, v)
 
+        # Cache created nodes to avoid creating multiple Node objects for the
+        # same data
         cached = {}
+
+        # Yield each edge
         for u, v in combine (self.data):
+            # Retrieve cached nodes, if they exist; otherwise, create the node
+            # and cache it.
             nodeU = cached.setdefault (repr(u), Node (u))
             nodeV = cached.setdefault (repr(v), Node (v))
+
             yield self.graph.edgeClass (nodeU, nodeV)
 
     def onAdd (self, data):
+        """Add a graph to the representation.
+
+        Raises:
+            - `ValueError` if the graph is already present.
+        """
         CombinatoricRepresentation.onAdd (self, data)
 
         name, graph = data
@@ -319,6 +396,7 @@ class EdgeList (CombinatoricRepresentation):
         self.data.append ((name, edges))
 
     def onRemove (self, data):
+        """Remove a graph from the representation."""
         name, graph = data
         edges = data.representations[Data.EdgeList]
         self.data.remove ((name, edges))
@@ -328,7 +406,9 @@ class EdgeList (CombinatoricRepresentation):
         combU = {}
         combV = {}
         for name in u.iterkeys ():
+            # FIXME: shouldn't be recreating the dictionary every time
             edges = dict (self.data)[name]
+            # FIXME: what if the edge isn't present?
             edge = edges.query (u[name], v[name])
             combU[name] = edge.u
             combV[name] = edge.v
