@@ -296,8 +296,11 @@ class EdgeList (CombinatoricRepresentation):
                     v[name] = edge.v
                     yield (u, v)
 
+        cached = {}
         for u, v in combine (self.data):
-            yield self.graph.edgeClass (Node (u), Node (v))
+            nodeU = cached.setdefault (repr(u), Node (u))
+            nodeV = cached.setdefault (repr(v), Node (v))
+            yield self.graph.edgeClass (nodeU, nodeV)
 
     def onAdd (self, data):
         CombinatoricRepresentation.onAdd (self, data)
