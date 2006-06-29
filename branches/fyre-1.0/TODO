@@ -7,3 +7,5 @@
   preferences thingydoo. It would be good to change, for example,
   the number of history items we record.
 
+- Display information on current frame progress (done/total) in the
+  animation render window.
