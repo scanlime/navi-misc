@@ -110,18 +110,27 @@ edges = OneOrMore (edge)
 name = Word (alphanums)
 graph = Suppress ("[graph") + name + Suppress ("]") + edges + \
         Suppress ("[/graph]")
+
+# Call setGraph when we encounter a graph in the input
 graph.setParseAction (setGraph)
 
-probability = Optional ("01") + "." + nums
-bayesEntry = node + Suppress (",") + node + Suppress ("=") + probability
+probability = Combine (Optional (Word ("01")) + "." + Word (nums))
+bayesEntry = Group (Group (Optional (node + Suppress (","), '') + node)
+        + Suppress ("=") + probability)
 bayes = Suppress ("[bayes") + name + Suppress ("]") + \
         OneOrMore (bayesEntry) + Suppress ("[/bayes]")
+
+# Call setBayes when we encounter a bayes net in the input
 bayes.setParseAction (setBayes)
 
+# Comments start with a '#'
 comment = "#" + Optional (restOfLine)
 
-grammar = OneOrMore (graph) | OneOrMore (bayes) | Suppress (comment)
+# Look for one or more graph or bayes section, ignore comments
+section = graph | bayes
+grammar = OneOrMore (section) | Suppress (comment)
 
+# Parse the file.
 results = grammar.parseFile (args[0])
 
 # vim: ts=4:sw=4:et
