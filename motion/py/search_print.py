@@ -67,6 +67,40 @@ class Node (object, Dot.Node):
         return "Node(%s)" % self.data
 
 
+class Input:
+    """Parser for the input files of the script."""
+
+    __slots__ = ['graphs', 'bayes']
+
+    # Define the grammar
+    node    = Word (alphanums)
+    name    = Word (alphanums)
+    edge    = Group (node + Suppress ('->') + node)
+    graph   = Suppress ('[graph') + name + Suppress (']') + OneOrMore (edge) + \
+              Suppress ('[/graph]')
+
+    prob    = Combine (Optional (Word ('01')) + '.' + Word (nums))
+    entry   = Group (Group (Optional (node + Suppress (','), '') + node) + \
+              Suppress ('=') + prob)
+    bayes   = Suppress ('[bayes') + name + Suppress (']') + OneOrMore (entry) + \
+              Suppress ('[/bayes]')
+
+    comment = '#' + Optional (restOfLine)
+
+    grammar = OneOrMore (graph | bayes) | Suppress (comment)
+
+    def __init__ (self, f):
+        self.graph.setParseAction (self.setGraph)
+        self.bayes.setParseAction (self.setBayes)
+        self.grammar.parseFile (f)
+
+    def setGraph (self, s, loc, toks):
+        pass
+
+    def setBayes (self, s, loc, toks):
+        pass
+
+
 def cost (path, goal):
     """Return the cost of ``path``.
     
@@ -81,17 +115,6 @@ def cost (path, goal):
         h += len (algorithms_c.dijkstraSearch (a, path[-1][name], goal[name]))
     return (g + h)
 
-def setGraph (s, loc, toks):
-    g = Graph ()
-    adj = AdjacencyList (g)
-    vMap = VertexMap (g)
-    edges = EdgeList (g)
-    g.addList ([Edge (Node (u), Node (v)) for u, v in toks[1:]])
-    graphs[toks[0]] = g
-
-def setBayes (s, loc, toks):
-    print toks
-
 
 # Option parser in case this script gets more complicated
 options = OptionParser (usage="%prog <graphs>")
@@ -103,34 +126,6 @@ graphs = {}
 if len (args) != 1:
     options.error ("Incorrect number of arguments")
 
-# Build the grammar for parsing the input file
-node = Word (alphanums)
-edge = Group (node + Suppress ("->") + node)
-edges = OneOrMore (edge)
-name = Word (alphanums)
-graph = Suppress ("[graph") + name + Suppress ("]") + edges + \
-        Suppress ("[/graph]")
-
-# Call setGraph when we encounter a graph in the input
-graph.setParseAction (setGraph)
-
-probability = Combine (Optional (Word ("01")) + "." + Word (nums))
-bayesEntry = Group (Group (Optional (node + Suppress (","), '') + node)
-        + Suppress ("=") + probability)
-bayes = Suppress ("[bayes") + name + Suppress ("]") + \
-        OneOrMore (bayesEntry) + Suppress ("[/bayes]")
-
-# Call setBayes when we encounter a bayes net in the input
-bayes.setParseAction (setBayes)
-
-# Comments start with a '#'
-comment = "#" + Optional (restOfLine)
-
-# Look for one or more graph or bayes section, ignore comments
-section = graph | bayes
-grammar = OneOrMore (section) | Suppress (comment)
-
-# Parse the file.
-results = grammar.parseFile (args[0])
+input = Input (args[0])
 
 # vim: ts=4:sw=4:et
