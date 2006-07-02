@@ -5,3 +5,7 @@
   or oversampled images, the render can terminate while
   partial buffers have been merged, leaving ugly horizontal
   banding on the resulting image.
+
+- When changing the size of the image, if a scrollbar is no
+  longer needed it can end up as an artifact on the image
+  drawing area.
