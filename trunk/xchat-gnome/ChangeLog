@@ -1,3 +1,10 @@
+Sun Jul  2 17:17:52 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* data/xchat-gnome.glade:
+	  - Change spacing and packing around a bit to get the scrollbar flush
+	    with the right of the screen when maximized.  Things aren't
+	    perfect yet, but it's better. (#346115)
+
 Sun Jul  2 13:31:10 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* plugins/url_scraper/Makefile.am:
