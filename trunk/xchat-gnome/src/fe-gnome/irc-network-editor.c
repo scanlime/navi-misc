@@ -28,6 +28,9 @@
 
 static GtkDialogClass *parent_class;
 
+static gboolean check_input   (IrcNetworkEditor *editor);
+static void     apply_changes (IrcNetworkEditor *editor);
+
 static void
 irc_network_editor_dispose (GObject *object)
 {
@@ -46,10 +49,30 @@ irc_network_editor_dispose (GObject *object)
 }
 
 static void
+irc_network_editor_response (GtkDialog *dialog, gint response)
+{
+	IrcNetworkEditor *editor = IRC_NETWORK_EDITOR (dialog);
+	if (response == GTK_RESPONSE_OK) {
+		if (check_input (editor)) {
+			apply_changes (editor);
+			gtk_widget_destroy (GTK_WIDGET (editor));
+		}
+	} else {
+		gtk_widget_destroy (GTK_WIDGET (editor));
+	}
+}
+
+static void
 irc_network_editor_class_init (IrcNetworkEditorClass *klass)
 {
-	GObjectClass *parent = (GObjectClass *) klass;
-	parent->dispose = irc_network_editor_dispose;
+	GObjectClass   *object_class;
+	GtkDialogClass *dialog_class;
+
+	object_class = (GObjectClass *) klass;
+	object_class->dispose = irc_network_editor_dispose;
+
+	dialog_class = (GtkDialogClass *) klass;
+	dialog_class->response = irc_network_editor_response;
 }
 
 static void
@@ -291,7 +314,6 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
 	gtk_container_add (GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), dialog->toplevel);
 	gtk_dialog_set_has_separator (GTK_DIALOG (dialog), FALSE);
-	gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
 
 	g_signal_connect (G_OBJECT (dialog->use_globals),       "toggled", G_CALLBACK (use_globals_set),            dialog);
 	g_signal_connect (G_OBJECT (dialog->use_custom),        "toggled", G_CALLBACK (use_custom_set),             dialog);
@@ -537,15 +559,5 @@ check_input (IrcNetworkEditor *editor)
 void
 irc_network_editor_run (IrcNetworkEditor *editor)
 {
-	gint response;
-
-	response = gtk_dialog_run (GTK_DIALOG (editor));
-	while (response == GTK_RESPONSE_OK) {
-		if (check_input (editor)) {
-			apply_changes (editor);
-			break;
-		}
-		response = gtk_dialog_run (GTK_DIALOG (editor));
-	}
-	gtk_widget_hide (GTK_WIDGET (editor));
+	gtk_window_present (GTK_WINDOW (editor));
 }
