@@ -1,3 +1,8 @@
+Sun Jul  2 11:25:21 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/irc-network.c:
+	  - Add TIS-620 character set. (#346396)
+
 Thu Jun 29 15:10:22 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* plugins/notify-osd/notify-osd.c:
