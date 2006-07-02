@@ -42,6 +42,7 @@ const char *encodings[] =
 	N_("CP1256 (Arabic)"),
 	N_("CP1257 (Baltic)"),
 	N_("GB18030 (Chinese)"),
+	N_("TIS-620 (Thai)"),
 	NULL
 };
 
