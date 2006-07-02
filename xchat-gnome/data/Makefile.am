@@ -57,7 +57,7 @@ desktop_in_files = xchat-gnome.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 @INTLTOOL_DESKTOP_RULE@
 
-CLEANFILES = $(desktop_DATA)
+DISTCLEANFILES = $(desktop_DATA)
 
 EXTRA_DIST = 				\
 	$(xchat_gnome_DATA)		\

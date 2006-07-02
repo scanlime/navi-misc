@@ -1,3 +1,13 @@
+Sun Jul  2 13:31:10 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* plugins/url_scraper/Makefile.am:
+	* plugins/notification/Makefile.am:
+	* plugins/dbus/Makefile.am:
+	* src/fe-gnome/Makefile.am:
+	* data/Makefile.am:
+	  - Make it build correctly after make clean by moving things to
+	    DISTCLEANFILES. (#346265)
+
 Sun Jul  2 12:58:20 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/preferences-page-networks.c:

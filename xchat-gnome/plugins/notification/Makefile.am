@@ -17,7 +17,7 @@ install-data-local:
 endif
 
 BUILT_SOURCES = notification.schemas
-CLEANFILES = $(BUILT_SOURCES)
+DISTCLEANFILES = $(BUILT_SOURCES)
 
 lib_LTLIBRARIES = notification.la
 notification_la_SOURCES =	\

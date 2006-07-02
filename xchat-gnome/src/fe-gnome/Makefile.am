@@ -106,10 +106,10 @@ INCLUDES =					\
 	-DXCHATSHAREDIR="\"$(XCHATSHAREDIR)\""
 
 BUILT_SOURCES =					\
-	apps_xchat.schemas			\
 	marshallers.h
 
 CLEANFILES = $(BUILT_SOURCES)
+DISTCLEANFILES = apps_xchat.schemas
 
 marshallers.h: marshallers.list
 	$(GLIB_GENMARSHAL)  --header --body $< > $@

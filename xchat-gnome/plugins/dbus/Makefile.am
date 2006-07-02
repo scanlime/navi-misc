@@ -50,8 +50,7 @@ endif
 
 BUILT_SOURCES =				\
 	marshallers.h			\
-	xchat_gnome_url_handler.schemas	\
 	dbus-plugin-glue.h
 
 CLEANFILES = $(BUILT_SOURCES)
-
+DISTCLEANFILES = xchat_gnome_url_handler.schemas
