@@ -8,7 +8,7 @@ schema_DATA	= $(schema_in_files:.schemas.in=.schemas)
 EXTRA_DIST = urlscraper.schemas.in
 
 BUILT_SOURCES = urlscraper.schemas
-CLEANFILES = $(BUILT_SOURCES)
+DISTCLEANFILES = $(BUILT_SOURCES)
 
 if GCONF_SCHEMAS_INSTALL
 install-data-local:
