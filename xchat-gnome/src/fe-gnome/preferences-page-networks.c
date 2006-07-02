@@ -63,7 +63,6 @@ add_clicked (GtkWidget *button, PreferencesNetworksPage *page)
 	e = irc_network_editor_new (n);
 
 	irc_network_editor_run (e);
-	gtk_widget_destroy (GTK_WIDGET (e));
 	g_object_unref (n);
 	populate (page);
 }
@@ -87,7 +86,6 @@ edit_clicked (GtkWidget *button, PreferencesNetworksPage *page)
 	e = irc_network_editor_new (n);
 
 	irc_network_editor_run (e);
-	gtk_widget_destroy (GTK_WIDGET (e));
 	g_object_unref (n);
 	populate (page);
 }
