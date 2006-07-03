@@ -166,6 +166,19 @@ EdgeList (graph)
 VertexMap (graph)
 graph.addList ([e for e in cEdges])
 
-results = HeuristicPrint (graph, cost, input.source, input.goal)
+# Find the start and end in the graph. If we just pass input.source and
+# input.goal, they won't be colored because they're different instances and not
+# contained in the graph.
+# FIXME: this is kind of a hack.
+s = e = None
+for node in graph.representations[VertexMap]:
+    if node == input.source:
+        s = node
+    if node == input.goal:
+        e = node
+    if s and e:
+        break
+
+results = HeuristicPrint (graph, cost, s, e)
 
 # vim: ts=4:sw=4:et
