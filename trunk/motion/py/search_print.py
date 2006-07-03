@@ -70,7 +70,7 @@ class Node (object, Dot.Node):
 class Input:
     """Parser for the input files of the script."""
 
-    __slots__ = ['graphs', 'bayes']
+    __slots__ = ['graphs', 'nets', 'source', 'goal']
 
     # Define the grammar
     node    = Word (alphanums)
@@ -85,20 +85,48 @@ class Input:
     bayes   = Suppress ('[bayes') + name + Suppress (']') + OneOrMore (entry) + \
               Suppress ('[/bayes]')
 
+    start   = Suppress ('[start]') + OneOrMore (Group (name + Suppress (':') + \
+              node)) + Suppress ('[/start]')
+    end     = Suppress ('[end]') + OneOrMore (Group (name + Suppress (':') + \
+              node)) + Suppress ('[/end]')
+
     comment = '#' + Optional (restOfLine)
 
-    grammar = OneOrMore (graph | bayes) | Suppress (comment)
+    grammar = OneOrMore (graph | bayes) | start | end |Suppress (comment)
 
     def __init__ (self, f):
+        self.graphs = {}
+        self.nets = {}
         self.graph.setParseAction (self.setGraph)
         self.bayes.setParseAction (self.setBayes)
+        self.start.setParseAction (self.setStart)
+        self.end.setParseAction (self.setEnd)
         self.grammar.parseFile (f)
 
     def setGraph (self, s, loc, toks):
-        pass
+        g = Graph ()
+        AdjacencyList (g)
+        VertexMap (g)
+        EdgeList (g)
+        
+        g.addList ([Edge (Node (u), Node (v)) for u, v in toks[1:]])
+
+        self.graphs[toks[0]] = g
+
 
     def setBayes (self, s, loc, toks):
-        pass
+        b = {}
+        
+        for entry in toks[1:]:
+            b[tuple (entry[0])] = entry[1]
+
+        self.nets[toks[0]] = b
+
+    def setStart (self, s, loc, toks):
+        print toks
+
+    def setEnd (self, s, loc, toks):
+        print toks
 
 
 def cost (path, goal):
@@ -120,12 +148,23 @@ def cost (path, goal):
 options = OptionParser (usage="%prog <graphs>")
 opts, args = options.parse_args ()
 
-graphs = {}
-
 # Check the arguments
 if len (args) != 1:
     options.error ("Incorrect number of arguments")
 
 input = Input (args[0])
+
+cgraph = Graph ()
+cEdges = Combinatoric.EdgeList (cgraph)
+cgraph.addList (input.graphs.items ())
+
+graph = Graph ()
+AdjacencyList (graph)
+EdgeList (graph)
+VertexMap (graph)
+graph.addList ([e for e in cEdges])
+
+for v in graph.representations[VertexMap]:
+    print repr (v)
 
 # vim: ts=4:sw=4:et
