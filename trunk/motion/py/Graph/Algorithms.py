@@ -298,7 +298,7 @@ class Heuristic (Algorithm):
         ac = self.costs[keyA]
         bc = self.costs[keyB]
 
-        return (bc - ac)
+        return (ac - bc)
 
     def pathToNode(self, node):
         path = [node]
@@ -404,6 +404,7 @@ class HeuristicPrint (Heuristic):
 
             path = self.pathToNode (node)
 
+            # Color nodes and edges in the current path
             for i in range (len (path) - 1):
                 edge = eList.query (path[i], path[i+1])
                 edge.dotAttrs['color'] = 'blue'
@@ -419,11 +420,13 @@ class HeuristicPrint (Heuristic):
             DotPrint (self.graph, f)
             f.close ()
 
+            # Uncolor nodes
             for n in path:
                 if n != self.source and n != self.goal:
                     del n.dotAttrs['style']
                     del n.dotAttrs['fillcolor']
 
+            # Uncolor edges
             for i in range (len (path) - 1):
                 edge = eList.query (path[i], path[i+1])
                 del edge.dotAttrs['color']

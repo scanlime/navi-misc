@@ -156,6 +156,12 @@ if len (args) != 1:
 
 input = Input (args[0])
 
+for name, g in input.graphs.iteritems ():
+    print "saving %s graph" % name
+    f = file ('graphs/%s.dot' % name, 'w')
+    DotPrint (g, f)
+    f.close ()
+
 cgraph = Graph ()
 cEdges = Combinatoric.EdgeList (cgraph)
 cgraph.addList (input.graphs.items ())
@@ -165,6 +171,11 @@ AdjacencyList (graph)
 EdgeList (graph)
 VertexMap (graph)
 graph.addList ([e for e in cEdges])
+
+print "saving combined graph"
+f = file ('graphs/combined.dot', 'w')
+DotPrint (graph, f)
+f.close ()
 
 # Find the start and end in the graph. If we just pass input.source and
 # input.goal, they won't be colored because they're different instances and not
