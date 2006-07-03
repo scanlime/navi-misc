@@ -91,12 +91,15 @@ class Input:
               node)) + Suppress ('[/end]')
 
     comment = '#' + Optional (restOfLine)
+    section = graph | bayes | start | end
 
-    grammar = OneOrMore (graph | bayes) | start | end |Suppress (comment)
+    grammar = OneOrMore (section) | Suppress (comment)
 
     def __init__ (self, f):
         self.graphs = {}
         self.nets = {}
+        self.source = None
+        self.goal = None
         self.graph.setParseAction (self.setGraph)
         self.bayes.setParseAction (self.setBayes)
         self.start.setParseAction (self.setStart)
@@ -113,7 +116,6 @@ class Input:
 
         self.graphs[toks[0]] = g
 
-
     def setBayes (self, s, loc, toks):
         b = {}
         
@@ -123,10 +125,10 @@ class Input:
         self.nets[toks[0]] = b
 
     def setStart (self, s, loc, toks):
-        print toks
+        self.source = Combinatoric.Node (dict ([(name, Node (u)) for name, u in toks]))
 
     def setEnd (self, s, loc, toks):
-        print toks
+        self.goal = Combinatoric.Node (dict ([(name, Node (u)) for name, u in toks]))
 
 
 def cost (path, goal):
@@ -137,7 +139,7 @@ def cost (path, goal):
     """
     g = len (path)
     h = 0
-    for name, x in graphs.iteritems ():
+    for name, x in input.graphs.iteritems ():
         print "dijkstra from %s to %s" % (path[-1][name], goal[name])
         a = x.representations[AdjacencyList]
         h += len (algorithms_c.dijkstraSearch (a, path[-1][name], goal[name]))
@@ -164,7 +166,6 @@ EdgeList (graph)
 VertexMap (graph)
 graph.addList ([e for e in cEdges])
 
-for v in graph.representations[VertexMap]:
-    print repr (v)
+results = HeuristicPrint (graph, cost, input.source, input.goal)
 
 # vim: ts=4:sw=4:et
