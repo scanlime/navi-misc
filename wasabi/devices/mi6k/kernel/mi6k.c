@@ -191,7 +191,6 @@ static struct lirc_plugin mi6k_lirc_plugin = {
 static struct usb_class_driver mi6k_class = {
 	.name       =  MI6K_DEV_NAMEFORMAT,
 	.fops       =  &mi6k_dev_fops,
-	.mode       =  S_IFCHR | S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP,
 	.minor_base =  MI6K_MINOR_BASE,
 };
 
