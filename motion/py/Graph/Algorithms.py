@@ -284,6 +284,7 @@ class Heuristic (Algorithm):
         self.predecessors = {self.source:None}
 
     def compare(self, a, b):
+        """Compare the costs of and b."""
         a_path = self.pathToNode(a)
         ac = self.costf(a_path, self.goal)
 
@@ -293,6 +294,11 @@ class Heuristic (Algorithm):
         return (bc - ac)
 
     def pathToNode(self, node):
+        """Return a path to ``node`` from ``self.source``.
+        
+        Follow the back pointers in ``self.predecessors`` to construct a path
+        from `self.source` to ``node``.
+        """
         path = [node]
         next = self.predecessors[node]
 
@@ -345,7 +351,7 @@ class Heuristic (Algorithm):
             print "%d likely successors" % (numSucc)
             print "    %d added to agenda" % (numAdded)
 
-            # Resort the queue
+            # Re-sort the queue
             agenda.sort(cmp=self.compare)
 
         return self.path
@@ -447,8 +453,12 @@ class HeuristicPrint (Heuristic):
                     if (edge.v not in self.predecessors or \
                             self.costf (self.pathToNode (node) + [edge.v], self.goal)
                             < self.costf (self.pathToNode (edge.v), self.goal)):
+                        # If edge.v has never been seen before, or the current
+                        # path to it is cheaper than the last one we found,
+                        # update the back pointers.
                         self.predecessors[edge.v] = node
                     if edge.v not in agenda:
+                        # If edge.v isn't in the agenda, add it
                         agenda.append(edge.v)
 
             # Some debuggative statements

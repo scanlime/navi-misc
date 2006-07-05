@@ -166,19 +166,24 @@ opts, args = options.parse_args ()
 if len (args) != 1:
     options.error ("Incorrect number of arguments")
 
+# Parse the input file
 input = Input (args[0])
 
 for name, g in input.graphs.iteritems ():
+    # Save a copy of each graph, unmolested
     print "saving %s graph" % name
     f = file ('graphs/%s.dot' % name, 'w')
     DotPrint (g, f)
     f.close ()
 
+    # Color the source and goal for the graph
     input.source[name].dotAttrs.update ([('style', 'filled'),
             ('fillcolor', 'green')])
     input.goal[name].dotAttrs.update ([('style', 'filled'),
             ('fillcolor', 'red')])
 
+    # Run Dijkstra on the graph and print it, to verify that Dijkstra is
+    # working
     p = algorithms_c.dijkstraSearch (g.representations[AdjacencyList], input.source[name], input.goal[name])
     for n in p:
         if n != input.source[name] and n != input.goal[name]:
@@ -188,16 +193,20 @@ for name, g in input.graphs.iteritems ():
     DotPrint (g, f)
     f.close ()
 
+# Build a combinatoric graph
 cgraph = Graph ()
 cEdges = Combinatoric.EdgeList (cgraph)
 cgraph.addList (input.graphs.items ())
 
+# Build a graph with regular representations because a combinatoric
+# representation generates new nodes each time it's accessed.
 graph = Graph ()
 AdjacencyList (graph)
 EdgeList (graph)
 VertexMap (graph)
 graph.addList ([e for e in cEdges])
 
+# Print the combined graph
 print "saving combined graph"
 f = file ('graphs/combined.dot', 'w')
 DotPrint (graph, f)
@@ -216,6 +225,7 @@ for node in graph.representations[VertexMap]:
     if s and e:
         break
 
+# Go!
 results = HeuristicPrint (graph, cost, s, e)
 
 # vim: ts=4:sw=4:et
