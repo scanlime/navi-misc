@@ -51,6 +51,8 @@ static void  topic_entry_activate         (GtkTextBuffer   *textbuffer,
                                            gint             len,
                                            GtkDialog       *dialog);
 
+#define TOPIC_LABEL_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TOPIC_LABEL_TYPE, TopicLabelPriv))
+
 struct _TopicLabelPriv
 {
 	GtkWidget      *expander;
@@ -61,8 +63,6 @@ struct _TopicLabelPriv
 	struct session *current;
 };
 
-static GtkHBoxClass *parent_class;
-
 G_DEFINE_TYPE (TopicLabel, topic_label, GTK_TYPE_HBOX);
 
 static void
@@ -71,66 +71,74 @@ topic_label_class_init (TopicLabelClass *klass)
 	GObjectClass   *gobject_class;
 	GtkWidgetClass *widget_class;
 
-	parent_class = g_type_class_peek_parent (klass);
-
 	gobject_class = G_OBJECT_CLASS (klass);
 	gobject_class->finalize = topic_label_finalize;
 
 	widget_class = GTK_WIDGET_CLASS (klass);
 	widget_class->size_allocate = topic_label_size_allocate;
+
+	g_type_class_add_private (gobject_class, sizeof (TopicLabelPriv));
 }
 
 static void
 topic_label_init (TopicLabel *label)
 {
-	label->priv = g_new0 (TopicLabelPriv, 1);
-	label->priv->expander = gtk_expander_new (NULL);
+	TopicLabelPriv *priv;
+
+	priv = label->priv = TOPIC_LABEL_GET_PRIVATE (label);
+	priv->expander = gtk_expander_new (NULL);
 #ifdef HAVE_LIBSEXY
-	label->priv->label = sexy_url_label_new ();
-	label->priv->sizing_label = sexy_url_label_new ();
+	priv->label = sexy_url_label_new ();
+	priv->sizing_label = sexy_url_label_new ();
 #else
-	label->priv->label = gtk_label_new (NULL);
-	label->priv->sizing_label = gtk_label_new (NULL);
+	priv->label = gtk_label_new (NULL);
+	priv->sizing_label = gtk_label_new (NULL);
 #endif
+	gtk_expander_set_expanded (GTK_EXPANDER (priv->expander), FALSE);
+	gtk_expander_set_use_markup (GTK_EXPANDER (priv->expander), TRUE);
+	gtk_label_set_ellipsize (GTK_LABEL (priv->label), PANGO_ELLIPSIZE_END);
+	gtk_label_set_selectable (GTK_LABEL (priv->label), TRUE);
 
-	gtk_expander_set_expanded (GTK_EXPANDER (label->priv->expander), FALSE);
-	gtk_expander_set_use_markup (GTK_EXPANDER (label->priv->expander), TRUE);
-	gtk_label_set_ellipsize (GTK_LABEL (label->priv->label), PANGO_ELLIPSIZE_END);
-
-	gtk_widget_show (label->priv->expander);
-	gtk_widget_show (label->priv->label);
+	gtk_widget_show (priv->expander);
+	gtk_widget_show (priv->label);
 	gtk_widget_show (GTK_WIDGET (label));
 
-	gtk_box_pack_start (GTK_BOX (label), label->priv->expander, FALSE, TRUE, 0);
-	gtk_box_pack_start (GTK_BOX (label), label->priv->label,    TRUE,  TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (label), priv->expander, FALSE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (label), priv->label,    TRUE,  TRUE, 0);
 	gtk_box_set_spacing (GTK_BOX (label), 6);
 
-	g_signal_connect (G_OBJECT (label->priv->expander), "activate",      G_CALLBACK (topic_label_expand_activate), (gpointer) label);
+	g_signal_connect (G_OBJECT (priv->expander), "activate",      G_CALLBACK (topic_label_expand_activate), (gpointer) label);
 #ifdef HAVE_LIBSEXY
-	g_signal_connect (G_OBJECT (label->priv->label),    "url_activated", G_CALLBACK (topic_label_url_activated),   (gpointer) label);
+	g_signal_connect (G_OBJECT (priv->label),    "url_activated", G_CALLBACK (topic_label_url_activated),   (gpointer) label);
 #endif
 
-	label->priv->topics = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_free);
+	priv->topics = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_free);
 }
 
 static void
 topic_label_finalize (GObject *object)
 {
-	if (G_OBJECT_CLASS (parent_class)->finalize)
-		G_OBJECT_CLASS (parent_class)->finalize (object);
+	TopicLabel *label = TOPIC_LABEL (object);
+	TopicLabelPriv *priv = label->priv;
+
+	g_hash_table_destroy (priv->topics);
+
+	G_OBJECT_CLASS (topic_label_parent_class)->finalize (object);
 }
 
 static void
 topic_label_expand_activate (GtkExpander *expander, TopicLabel *label)
 {
+	TopicLabelPriv *priv = label->priv;
+
 	if (gtk_expander_get_expanded (expander)) {
-		gtk_label_set_ellipsize (GTK_LABEL (label->priv->label), PANGO_ELLIPSIZE_END);
-		gtk_label_set_line_wrap (GTK_LABEL (label->priv->label), FALSE);
-		gtk_misc_set_alignment (GTK_MISC (label->priv->label), 0.5, 0.5);
+		gtk_label_set_ellipsize (GTK_LABEL (priv->label), PANGO_ELLIPSIZE_END);
+		gtk_label_set_line_wrap (GTK_LABEL (priv->label), FALSE);
+		gtk_misc_set_alignment (GTK_MISC (priv->label), 0.5, 0.5);
 	} else {
-		gtk_label_set_ellipsize (GTK_LABEL (label->priv->label), PANGO_ELLIPSIZE_NONE);
-		gtk_label_set_line_wrap (GTK_LABEL (label->priv->label), TRUE);
-		gtk_misc_set_alignment (GTK_MISC (label->priv->label), 0.0, 0.5);
+		gtk_label_set_ellipsize (GTK_LABEL (priv->label), PANGO_ELLIPSIZE_NONE);
+		gtk_label_set_line_wrap (GTK_LABEL (priv->label), TRUE);
+		gtk_misc_set_alignment (GTK_MISC (priv->label), 0.0, 0.5);
 	}
 }
 
@@ -138,9 +146,11 @@ topic_label_expand_activate (GtkExpander *expander, TopicLabel *label)
 static void
 topic_label_url_activated (GtkWidget *url_label, const char *url, TopicLabel *label)
 {
+	TopicLabelPriv *priv = label->priv;
+
 	char *command;
 	command = g_strdup_printf ("URL %s", url);
-	handle_command (label->priv->current, command, 1);
+	handle_command (priv->current, command, 1);
 	g_free (command);
 }
 #endif
@@ -148,50 +158,52 @@ topic_label_url_activated (GtkWidget *url_label, const char *url, TopicLabel *la
 GtkWidget *
 topic_label_new (void)
 {
-	TopicLabel *label = g_object_new (topic_label_get_type (), NULL);
-	gtk_label_set_selectable (GTK_LABEL (label->priv->label), TRUE);
-	return GTK_WIDGET (label);
+	return g_object_new (TOPIC_LABEL_TYPE, NULL);
 }
 
 void
 topic_label_set_topic (TopicLabel *label, struct session *sess, const char *topic)
 {
+	TopicLabelPriv *priv = label->priv;
 	gchar *escaped;
 
 	escaped = topic_label_get_topic_string (topic);
 
-	g_hash_table_insert (label->priv->topics, sess, escaped);
+	g_hash_table_insert (priv->topics, sess, escaped);
 
-	if (sess == label->priv->current)
+	if (sess == priv->current)
 		topic_label_set_current (label, sess);
 }
 
 void
 topic_label_remove_session (TopicLabel *label, struct session *sess)
 {
-	g_hash_table_remove (label->priv->topics, sess);
-	if (sess == label->priv->current)
-		gtk_label_set_text (GTK_LABEL (label->priv->label), "");
+	TopicLabelPriv *priv = label->priv;
+
+	g_hash_table_remove (priv->topics, sess);
+	if (sess == priv->current)
+		gtk_label_set_text (GTK_LABEL (priv->label), "");
 }
 
 void
 topic_label_set_current (TopicLabel *label, struct session *sess)
 {
+	TopicLabelPriv *priv = label->priv;
 	gchar *topic;
 
-	topic = g_hash_table_lookup (label->priv->topics, sess);
+	topic = g_hash_table_lookup (priv->topics, sess);
 #ifdef HAVE_LIBSEXY
-	if (topic) sexy_url_label_set_markup (SEXY_URL_LABEL (label->priv->label), topic);
-	else       gtk_label_set_text (GTK_LABEL (label->priv->label), "");
+	if (topic) sexy_url_label_set_markup (SEXY_URL_LABEL (priv->label), topic);
+	else       gtk_label_set_text (GTK_LABEL (priv->label), "");
 
-	if (topic) sexy_url_label_set_markup (SEXY_URL_LABEL (label->priv->sizing_label), topic);
-	else       gtk_label_set_text (GTK_LABEL (label->priv->sizing_label), "");
+	if (topic) sexy_url_label_set_markup (SEXY_URL_LABEL (priv->sizing_label), topic);
+	else       gtk_label_set_text (GTK_LABEL (priv->sizing_label), "");
 #else
-	if (topic) gtk_label_set_text (GTK_LABEL (label->priv->label), topic);
-	else       gtk_label_set_text (GTK_LABEL (label->priv->label), "");
+	if (topic) gtk_label_set_text (GTK_LABEL (priv->label), topic);
+	else       gtk_label_set_text (GTK_LABEL (priv->label), "");
 
-	if (topic) gtk_label_set_text (GTK_LABEL (label->priv->sizing_label), topic);
-	else       gtk_label_set_text (GTK_LABEL (label->priv->sizing_label), "");
+	if (topic) gtk_label_set_text (GTK_LABEL (priv->sizing_label), topic);
+	else       gtk_label_set_text (GTK_LABEL (priv->sizing_label), "");
 #endif
 
 	if (sess->type == SESS_SERVER)
@@ -199,7 +211,7 @@ topic_label_set_current (TopicLabel *label, struct session *sess)
 	else
 		gtk_widget_show (gui.topic_hbox);
 
-	label->priv->current = sess;
+	priv->current = sess;
 }
 
 static char *
@@ -245,12 +257,13 @@ topic_label_get_topic_string (const char *topic)
 void
 topic_label_change_current (TopicLabel *label)
 {
+	TopicLabelPriv *priv = label->priv;
 	GladeXML *xml = NULL;
 	GtkWidget *dialog, *entry;
 	GtkTextBuffer *buffer;
 	gchar *title, *topic;
 
-	if ((label->priv->current == NULL) || (label->priv->current->type != SESS_CHANNEL))
+	if ((priv->current == NULL) || (priv->current->type != SESS_CHANNEL))
 		return;
 
 	if (g_file_test ("../../data/topic-change.glade", G_FILE_TEST_EXISTS))
@@ -261,11 +274,11 @@ topic_label_change_current (TopicLabel *label)
 	dialog = glade_xml_get_widget (xml, "topic change");
         entry  = glade_xml_get_widget (xml, "topic entry box");
 
-	title = g_strdup_printf (_("Changing topic for %s"), label->priv->current->channel);
+	title = g_strdup_printf (_("Changing topic for %s"), priv->current->channel);
 	gtk_window_set_title (GTK_WINDOW (dialog), title);
 	g_free (title);
 
-	topic = label->priv->current->topic;
+	topic = priv->current->topic;
 	buffer = gtk_text_buffer_new (NULL);
         gtk_text_view_set_buffer (GTK_TEXT_VIEW (entry), buffer);
 	g_signal_connect (G_OBJECT (buffer), "insert-text", G_CALLBACK (topic_entry_activate), dialog);
@@ -281,7 +294,7 @@ topic_label_change_current (TopicLabel *label)
 		gtk_widget_hide (dialog);
 		gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (entry), GTK_WRAP_NONE);
 		newtopic = gtk_text_buffer_get_text (buffer, &start, &end, FALSE);
-		label->priv->current->server->p_topic (label->priv->current->server, label->priv->current->channel, newtopic);
+		priv->current->server->p_topic (priv->current->server, priv->current->channel, newtopic);
 		g_free (newtopic);
 	}
 
@@ -293,18 +306,20 @@ static void
 topic_label_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 {
 	TopicLabel     *label;
+	TopicLabelPriv *priv;
 	GtkRequisition  request;
 
-	if (GTK_WIDGET_CLASS (parent_class)->size_allocate)
-		GTK_WIDGET_CLASS (parent_class)->size_allocate (widget, allocation);
+	GTK_WIDGET_CLASS (topic_label_parent_class)->size_allocate (widget, allocation);
 
 	label = TOPIC_LABEL (widget);
-	gtk_widget_size_request (label->priv->sizing_label, &request);
+	priv = label->priv;
+
+	gtk_widget_size_request (priv->sizing_label, &request);
 
 	if (request.width < allocation->width - 6) {
-		gtk_widget_hide (label->priv->expander);
+		gtk_widget_hide (priv->expander);
 	} else {
-		gtk_widget_show (label->priv->expander);
+		gtk_widget_show (priv->expander);
 	}
 }
 
