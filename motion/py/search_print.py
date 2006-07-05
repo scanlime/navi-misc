@@ -162,6 +162,20 @@ for name, g in input.graphs.iteritems ():
     DotPrint (g, f)
     f.close ()
 
+    input.source[name].dotAttrs.update ([('style', 'filled'),
+            ('fillcolor', 'green')])
+    input.goal[name].dotAttrs.update ([('style', 'filled'),
+            ('fillcolor', 'red')])
+
+    p = algorithms_c.dijkstraSearch (g.representations[AdjacencyList], input.source[name], input.goal[name])
+    for n in p:
+        if n != input.source[name] and n != input.goal[name]:
+            n.dotAttrs.update ([('style', 'filled'),
+                    ('fillcolor', 'blue')])
+    f = file ('graphs/%s-dijkstra.dot' % name, 'w')
+    DotPrint (g, f)
+    f.close ()
+
 cgraph = Graph ()
 cEdges = Combinatoric.EdgeList (cgraph)
 cgraph.addList (input.graphs.items ())
