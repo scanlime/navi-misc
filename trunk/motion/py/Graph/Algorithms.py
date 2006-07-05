@@ -374,9 +374,11 @@ class HeuristicPrint (Heuristic):
 
     def __init__ (self, graph, costf, source, goal):
         source.dotAttrs.update ([('style', 'filled'),
-                ('fillcolor', 'green')])
+                ('fillcolor', 'green'),
+                ('color', 'green')])
         goal.dotAttrs.update ([('style', 'filled'),
-                ('fillcolor', 'red')])
+                ('fillcolor', 'red'),
+                ('color', 'red')])
         Heuristic.__init__ (self, graph, costf, source, goal)
 
     def run (self):
@@ -415,6 +417,9 @@ class HeuristicPrint (Heuristic):
                 if edge.v != self.source and edge.v != self.goal:
                     edge.v.dotAttrs.update (attrs)
 
+            for n in agenda:
+                n.dotAttrs.update ([('style', 'filled'), ('fillcolor', 'cyan')])
+
             print "printing step %i" % step
             f = file ('graphs/%s.dot' % step, 'w')
             DotPrint (self.graph, f)
@@ -431,6 +436,10 @@ class HeuristicPrint (Heuristic):
                 edge = eList.query (path[i], path[i+1])
                 del edge.dotAttrs['color']
 
+            #for n in agenda:
+                #del n.dotAttrs['style']
+                #del n.dotAttrs['fillcolor']
+
             if node == self.goal:
                 # Reconstruct the path to the goal
                 self.path = path
@@ -444,7 +453,8 @@ class HeuristicPrint (Heuristic):
                 if edge.v not in visited:
                     numAdded += 1
                     self.predecessors[edge.v] = node
-                    agenda.append(edge.v)
+                    if edge.v not in agenda:
+                        agenda.append(edge.v)
 
             # Some debuggative statements
             print "%d likely successors" % (numSucc)
