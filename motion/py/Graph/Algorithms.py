@@ -284,21 +284,13 @@ class Heuristic (Algorithm):
         self.predecessors = {self.source:None}
 
     def compare(self, a, b):
-        keyA = repr(a)
-        keyB = repr(b)
+        a_path = self.pathToNode(a)
+        ac = self.costf(a_path, self.goal)
 
-        if not self.costs.has_key(keyA):
-            a_path = self.pathToNode(a)
-            self.costs[keyA] = self.costf(a_path, self.goal)
+        b_path = self.pathToNode(b)
+        bc = self.costf(b_path, self.goal)
 
-        if not self.costs.has_key(keyB):
-            b_path = self.pathToNode(b)
-            self.costs[keyB] = self.costf(b_path, self.goal)
-
-        ac = self.costs[keyA]
-        bc = self.costs[keyB]
-
-        return (ac - bc)
+        return (bc - ac)
 
     def pathToNode(self, node):
         path = [node]
