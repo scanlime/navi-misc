@@ -444,7 +444,10 @@ class HeuristicPrint (Heuristic):
                 numSucc += 1
                 if edge.v not in visited:
                     numAdded += 1
-                    self.predecessors[edge.v] = node
+                    if (edge.v not in self.predecessors or \
+                            self.costf (self.pathToNode (node) + [edge.v], self.goal)
+                            < self.costf (self.pathToNode (edge.v), self.goal)):
+                        self.predecessors[edge.v] = node
                     if edge.v not in agenda:
                         agenda.append(edge.v)
 
