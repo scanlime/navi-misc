@@ -149,10 +149,10 @@ class GraphSearch (Algorithm):
             return self.find_node (n)
 
         Algorithm.__init__ (self, graph)
-        self.search = Heuristic (graph, self.f, fixNode (source),
-                fixNode (goal))
         self.source = source
         self.goal = goal
+        print 'searching from %r to %r' % (fixNode (source), fixNode (goal))
+        self.search = Heuristic (graph, self.f, self.source, self.goal)
         self.adjacency = dict (graph.representations[BayesAdjacency].data) 
         self.run ()
 
@@ -212,7 +212,7 @@ class GraphSearch (Algorithm):
         vertex_map = self.graph.representations[Data.VertexMap]
         for vertex in vertex_map:
             for bone, node in vertex.iteritems ():
-                if node.inside (pos[bone]):
+                if not node.inside (pos[bone]):
                     break
                 return vertex
 
