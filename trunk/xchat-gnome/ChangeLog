@@ -1,3 +1,9 @@
+Thu Jul  6 15:43:38 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/conversation-panel.c:
+	  - Close the tooltip in the conversation panel when changing
+	    sessions. (#346704)
+
 Thu Jul  6 15:09:59 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/common/xchat.c:

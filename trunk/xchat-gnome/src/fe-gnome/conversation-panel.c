@@ -1004,6 +1004,10 @@ conversation_panel_set_current (ConversationPanel *panel, struct session *sess)
 	panel->priv->current = sess;
 	buffer = g_hash_table_lookup (panel->priv->buffers, sess);
 	gtk_xtext_buffer_show (GTK_XTEXT (panel->priv->xtext), buffer, TRUE);
+
+#ifdef HAVE_LIBSEXY
+	conversation_panel_remove_tooltip (panel);
+#endif
 }
 
 void
