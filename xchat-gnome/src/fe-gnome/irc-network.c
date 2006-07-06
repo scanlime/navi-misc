@@ -21,6 +21,7 @@
 
 #include <config.h>
 #include <glib/gi18n.h>
+#include <string.h>
 #include "irc-network.h"
 #include "navigation-tree.h"
 #include "gui.h"
@@ -61,8 +62,9 @@ irc_network_finalize (GObject *object)
 	g_free (network->nick);
 	g_free (network->real);
 
-	for (s = network->servers; s; s = g_slist_next (s))
+	for (s = network->servers; s; s = g_slist_next (s)) {
 		g_free (((ircserver *) s->data)->hostname);
+	}
 	g_slist_foreach (network->servers, (GFunc) g_free, NULL);
 	g_slist_free (network->servers);
 
