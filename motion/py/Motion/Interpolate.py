@@ -151,9 +151,8 @@ class GraphSearch (Algorithm):
         Algorithm.__init__ (self, graph)
         self.source = fixNode (source)
         self.goal = fixNode (goal)
-        self.search = Heuristic (graph, self.f, self.source, self.goal)
         self.adjacency = dict (graph.representations[BayesAdjacency].data) 
-        self.run ()
+        self.search = Heuristic (graph, self.f, self.source, self.goal)
 
     def invalidate (self):
         """Invalidate the algorithm.
@@ -245,31 +244,25 @@ class GraphSearch (Algorithm):
         Returns:
             A number representing the cost of ``path`` in relation to ``goal``
         """
-        print "f"
         end = path[-1]
         g = len (path)
         h = 0
 
         for bone in end.iterkeys():
-            print "  starting on", bone
             if bone not in self.adjacency:
                 print "    %s not in adjacency" % bone
                 continue
             adj = self.adjacency[bone]
-            endb = end.get(bone)
-            goalb = goal.get(bone)
+            endb = end[bone]
+            goalb = goal[bone]
 
             if bone not in self.cached_costs:
-                print "    %s not cached" % bone
                 self.cached_costs[bone] = {}
             if (endb, goalb) in self.cached_costs[bone]:
-                print "    %s not cached" % (endb, goalb)
                 h += self.cached_costs[bone][(endb, goalb)]
                 continue
 
-            print "Dijkstra..."
             path = algorithms_c.dijkstraSearch(adj, endb, goalb)
-            print "done."
             h += len(path)
 
             for i in range(1, len(path)):
