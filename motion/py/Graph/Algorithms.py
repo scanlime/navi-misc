@@ -340,17 +340,17 @@ class Heuristic (Algorithm):
             # Add the successors of this node to the agenda and record the node
             # that generated these successors.
             numSucc = numAdded = 0
-            for s in adj.query (node):
+            for edge in adj.query (node):
                 numSucc += 1
-                if s not in visited:
+                if edge.v not in visited:
                     numAdded += 1
                     if (edge.v not in self.predecessors or \
                             self.costf (self.pathToNode (node) + [edge.v], self.goal)
                             < self.costf (self.pathToNode (edge.v), self.goal)): 
-                        self.predecessors[s] = node
+                        self.predecessors[edge.v] = node
 
-                    if s not in agenda:
-                        agenda.append(s)
+                    if edge.v not in agenda:
+                        agenda.append(edge.v)
 
             print agenda
 

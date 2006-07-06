@@ -81,7 +81,7 @@ bayes_net = pickle.load(open(args[2]))
 print 'loading graphs'
 graphs = pickle.load(open(args[1]))
 cgraph = Graph ()
-cAdj = BayesAdjacency (cgraph, bayes_net)
+cAdj = BayesAdjacency (cgraph, bayes_net, asf)
 cVMap = VertexMap (cgraph)
 cgraph.addList ([(name, graph) for name, graph in graphs.iteritems ()])
 
@@ -95,7 +95,7 @@ for bone, data in samc.bones.iteritems():
 print "searching..."
 
 search = Interpolate.GraphSearch(cgraph, start, end)
-
-save (search.path, args[-3])
+print search.path
+#save (search.path, args[-3])
 
 # vim: ts=4:sw=4:et

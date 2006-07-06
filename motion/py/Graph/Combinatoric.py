@@ -469,7 +469,7 @@ class BayesAdjacency (AdjacencyList):
             bone = order[0]
 
             # If the bone has no DOF, skip it
-            if not self.bones[bone].dof:
+            if not bone == "root" and not self.bones[bone].dof:
                 for child in filter (order[1:], current, prob):
                     yield child
 
@@ -479,8 +479,8 @@ class BayesAdjacency (AdjacencyList):
                 pbone = current.get(parent)
 
             # Iterate over all the nodes connected to this one
-            for node in self.adj[bone].query (u[bone]):
-                current[bone] = node
+            for edge in dict (self.data)[bone].query (u[bone]):
+                current[bone] = edge.v
 
                 # If the bone has no parent or the parent has no mocap data
                 # (i.e. the parent has no DOF), skip it
@@ -511,7 +511,7 @@ class BayesAdjacency (AdjacencyList):
        
         # Yield edges with a high enough probability to warrant checking.
         for v in filter (self.order):
-            yield self.graph.edgeClass (Node (u), Node (v))
+            yield self.graph.edgeClass (u, Node (v))
 
 
 # vim: ts=4:sw=4:et
