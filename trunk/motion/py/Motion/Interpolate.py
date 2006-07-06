@@ -149,9 +149,8 @@ class GraphSearch (Algorithm):
             return self.find_node (n)
 
         Algorithm.__init__ (self, graph)
-        self.source = source
-        self.goal = goal
-        print 'searching from %r to %r' % (fixNode (source), fixNode (goal))
+        self.source = fixNode (source)
+        self.goal = fixNode (goal)
         self.search = Heuristic (graph, self.f, self.source, self.goal)
         self.adjacency = dict (graph.representations[BayesAdjacency].data) 
         self.run ()
@@ -197,7 +196,7 @@ class GraphSearch (Algorithm):
         return self.path
 
     def find_node (self, pos):
-        """Finds the node in ``self.graph`` conataining the position ``pos``.
+        """Finds the node in ``self.graph`` containing the position ``pos``.
 
         The vertices in motion graphs are often discretized such that a single
         vertex represents a range of positions. This function finds a vertex in
