@@ -344,8 +344,15 @@ class Heuristic (Algorithm):
                 numSucc += 1
                 if s not in visited:
                     numAdded += 1
-                    self.predecessors[s] = node
-                    agenda.append(s)
+                    if (edge.v not in self.predecessors or \
+                            self.costf (self.pathToNode (node) + [edge.v], self.goal)
+                            < self.costf (self.pathToNode (edge.v), self.goal)): 
+                        self.predecessors[s] = node
+
+                    if s not in agenda:
+                        agenda.append(s)
+
+            print agenda
 
             # Some debuggative statements
             print "%d likely successors" % (numSucc)
@@ -433,10 +440,6 @@ class HeuristicPrint (Heuristic):
             for i in range (len (path) - 1):
                 edge = eList.query (path[i], path[i+1])
                 del edge.dotAttrs['color']
-
-            #for n in agenda:
-                #del n.dotAttrs['style']
-                #del n.dotAttrs['fillcolor']
 
             if node == self.goal:
                 # Reconstruct the path to the goal
