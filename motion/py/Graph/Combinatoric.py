@@ -58,6 +58,12 @@ class Node (Dot.Node):
         """Return an iterator of the keys in data."""
         return self.data.iterkeys ()
 
+    def iteritems (self):
+        return self.data.iteritems ()
+
+    def keys (self):
+        return self.data.keys ()
+
     def __getitem__ (self, key):
         """Access data from a single graph in the node."""
         return self.data[key]
