@@ -36,6 +36,7 @@
 #include "conversation-panel.h"
 #include "status-bar.h"
 #include "topic-label.h"
+#include "connect-dialog.h"
 
 #include "palette.h"
 #include "preferences-page-plugins.h"
@@ -50,10 +51,9 @@
 #include "../common/util.h"
 #include "../common/cfgfiles.h"
 
-static gboolean opt_version = FALSE;
-static gboolean opt_noauto = FALSE;
-static gboolean opt_noplugins = FALSE;
-static gchar *opt_cfgdir = NULL;
+static gboolean  opt_version   = FALSE;
+static gboolean  opt_noplugins = FALSE;
+static gchar    *opt_cfgdir    = NULL;
 
 static GOptionEntry entries[] = {
 	{"cfgdir",     'd', 0, G_OPTION_ARG_FILENAME, &opt_cfgdir,           N_("Use directory instead of the default config dir"), "directory"},
@@ -64,11 +64,18 @@ static GOptionEntry entries[] = {
 	{ NULL }
 };
 
-static void setup_sm (gint argc, gchar *argv[]);
-static gint save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
-                          gint is_shutdown, GnomeInteractStyle interact_style,
-                          gint is_fast, gpointer client_data);
-static void kill_session (GnomeClient* client, gpointer client_data);
+static void     setup_sm        (gint                argc,
+                                 gchar              *argv[]);
+static gint     save_session    (GnomeClient        *client,
+                                 gint                phase,
+                                 GnomeSaveStyle      save_style,
+                                 gint                is_shutdown,
+                                 GnomeInteractStyle  interact_style,
+                                 gint                is_fast,
+                                 gpointer            client_data);
+static void     kill_session    (GnomeClient        *client,
+                                 gpointer            client_data);
+static gboolean not_autoconnect (void);
 
 int
 fe_args (int argc, char *argv[])
@@ -169,6 +176,13 @@ fe_init (void)
 	if (g_file_test (accel_map, G_FILE_TEST_EXISTS))
 		gtk_accel_map_load (accel_map);
 	g_free (accel_map);
+
+	if (not_autoconnect ()) {
+		ConnectDialog *cd;
+
+		cd = connect_dialog_new ();
+		gtk_widget_show_all (GTK_WIDGET (cd));
+	}
 
 #ifdef USE_PLUGIN
 	plugins_initialize ();
@@ -987,4 +1001,21 @@ kill_session (GnomeClient* client, gpointer client_data)
 	userlist_gui_hide ();
 	gui.quit = TRUE;
 	xchat_exit ();
+}
+
+static gboolean
+not_autoconnect (void)
+{
+	GSList *i;
+
+	if (arg_dont_autoconnect)
+		return TRUE;
+
+	for (i = network_list; i; i = g_slist_next (i)) {
+		ircnet *net = (ircnet *) (i->data);
+		if (net->flags & FLAG_AUTO_CONNECT)
+			return FALSE;
+	}
+
+	return TRUE;
 }

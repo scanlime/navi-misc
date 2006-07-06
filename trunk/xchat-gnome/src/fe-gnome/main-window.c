@@ -320,13 +320,13 @@ run_main_window ()
 	g_signal_connect (G_OBJECT (pane), "notify::position", G_CALLBACK (on_hpane_move), NULL);
 	g_object_unref (client);
 
-	gtk_widget_show (gui.main_window);
-
 	/* Temporarily disable menu items */
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionBansItem");
 	gtk_widget_set_sensitive (widget, FALSE);
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/ChannelJoinedPopup/ChannelBans");
 	gtk_widget_set_sensitive (widget, FALSE);
+
+	gtk_widget_show (gui.main_window);
 }
 
 void
