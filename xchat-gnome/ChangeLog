@@ -1,3 +1,10 @@
+Thu Jul  6 13:01:34 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/main-window.c:
+	* src/fe-gnome/fe-gnome.c:
+	  - Pop up the connect dialog on startup if there are no servers set
+	    to auto-connect. (#345967)
+
 Wed Jul  5 10:28:42 MDT 2006  Christian Persch <chpe@gnome.org>
 
 	* src/fe-gnome/topic-label.c:
