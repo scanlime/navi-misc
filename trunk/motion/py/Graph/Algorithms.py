@@ -352,8 +352,6 @@ class Heuristic (Algorithm):
                     if edge.v not in agenda:
                         agenda.append(edge.v)
 
-            print agenda
-
             # Some debuggative statements
             print "%d likely successors" % (numSucc)
             print "    %d added to agenda" % (numAdded)
