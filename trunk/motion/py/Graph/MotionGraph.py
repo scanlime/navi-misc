@@ -12,7 +12,7 @@ occured in the corpus of motion capture data.
 
 from Graph.Algorithms import DotPrint
 from Graph.Data import Graph, Edge, AdjacencyList, VertexMap, EdgeList
-from Graph import algorithms_c
+from Graph import algorithms_c, Dot
 import Numeric, MLab, math, string, gc
 
 class ProbabilityEdge (Edge):
@@ -64,7 +64,7 @@ class MotionGraph (Graph):
         """Initialize the graph with a `DotPrint` algorithm."""
         Graph.__init__ (self, [DotPrint])
 
-class MotionGraphNode:
+class MotionGraphNode (Dot.Node):
     """Represent a node in a `MotionGraph`.
 
     A node in a `MotionGraphNode` represents a range of positions. Each node
@@ -217,7 +217,7 @@ def build_graphs (key, datas):
     # degrees covered (angle-wise) within a single node.  Note that for some
     # bones, the number of nodes we have will be (360 / interval)^3, so be
     # sparing when decreasing this!
-    interval = 45
+    interval = 5
 
     graph          = MotionGraph   ()
     adjacency_list = AdjacencyList (graph)
