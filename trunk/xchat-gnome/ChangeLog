@@ -1,3 +1,8 @@
+Thu Jul  6 15:09:59 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/common/xchat.c:
+	  - Don't quit when closing the last server. (#327455)
+
 Thu Jul  6 13:46:00 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/conversation-panel.c:
