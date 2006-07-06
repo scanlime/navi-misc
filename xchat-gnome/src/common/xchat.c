@@ -502,8 +502,10 @@ session_free (session *killsess)
 
 	free (killsess);
 
+#if 0
 	if (!sess_list && !in_xchat_exit)
 		xchat_exit ();						/* sess_list is empty, quit! */
+#endif
 
 	list = sess_list;
 	while (list)
