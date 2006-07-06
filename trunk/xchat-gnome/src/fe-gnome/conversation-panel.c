@@ -64,9 +64,9 @@ static void     conversation_panel_enter_word         (GtkWidget              *x
 static void     conversation_panel_leave_word         (GtkWidget              *xtext,
                                                        char                   *word,
                                                        ConversationPanel      *panel);
-static gboolean	conversation_panel_lost_focus	      (GtkWidget	      *widget,
-						       GdkEventFocus	      *event,
-						       ConversationPanel      *panel);
+static gboolean conversation_panel_lost_focus         (GtkWidget              *widget,
+                                                       GdkEventFocus          *event,
+                                                       ConversationPanel      *panel);
 #endif
 static void     conversation_panel_set_font           (ConversationPanel      *panel);
 static void     conversation_panel_font_changed       (GConfClient            *client,
@@ -87,7 +87,7 @@ static void     redundant_nickstamp_changed           (GConfClient            *c
                                                        GConfEntry             *entry,
                                                        ConversationPanel      *panel);
 static void     conversation_panel_print_line         (ConversationPanel      *panel,
-		                                       xtext_buffer           *buffer,
+                                                       xtext_buffer           *buffer,
                                                        guchar                  *text,
                                                        int                     len,
                                                        gboolean                indent);
@@ -109,7 +109,7 @@ static void     drop_paste_filename                   (GtkAction              *a
                                                        ConversationPanel      *panel);
 static void     drop_cancel                           (GtkAction              *action,
                                                        ConversationPanel      *panel);
-static void		style_set_callback                    (GtkWidget              *widget,
+static void     style_set_callback                    (GtkWidget              *widget,
                                                        GtkStyle               *previous_style,
                                                        void                   *data);
 static void     drag_data_received                    (GtkWidget              *widget,
@@ -130,7 +130,7 @@ static void     on_default_copy_activate              (GtkAction              *a
 static gboolean uri_is_text                           (gchar                  *uri);
 static gboolean check_file_size                       (gchar                  *uri);
 #ifdef HAVE_LIBSEXY
-GtkWidget* get_user_vbox_infos	    	    	      (struct User            *user);
+GtkWidget* get_user_vbox_infos                        (struct User            *user);
 #endif
 static void redraw_transparency                       (ConversationPanel      *panel);
 #ifdef USE_XLIB
@@ -160,10 +160,10 @@ struct _ConversationPanelPriv
 	GSList         *dropped_files;
 
 #ifdef HAVE_LIBSEXY
-	GtkWidget	*current_tooltip;
-	guint		tooltip_timeout;
+	GtkWidget      *current_tooltip;
+	guint           tooltip_timeout;
 #endif
-	gboolean	redundant_nickstamps;
+	gboolean        redundant_nickstamps;
 };
 
 static GtkActionEntry url_actions[] = {
@@ -323,11 +323,11 @@ conversation_panel_realize (GtkWidget *widget)
 	conversation_panel_set_font       (panel);
 	conversation_panel_set_background (panel);
 
-	g_signal_connect (G_OBJECT (panel->priv->xtext), "word_click", G_CALLBACK (conversation_panel_clicked_word), panel);
+	g_signal_connect (G_OBJECT (panel->priv->xtext), "word_click",      G_CALLBACK (conversation_panel_clicked_word), panel);
 #ifdef HAVE_LIBSEXY
-	g_signal_connect (G_OBJECT (panel->priv->xtext), "word_enter", G_CALLBACK (conversation_panel_enter_word), panel);
-	g_signal_connect (G_OBJECT (panel->priv->xtext), "word_leave", G_CALLBACK (conversation_panel_leave_word), panel);
-	g_signal_connect (G_OBJECT (gui.main_window), "focus-out-event", G_CALLBACK (conversation_panel_lost_focus), panel);
+	g_signal_connect (G_OBJECT (panel->priv->xtext), "word_enter",      G_CALLBACK (conversation_panel_enter_word),   panel);
+	g_signal_connect (G_OBJECT (panel->priv->xtext), "word_leave",      G_CALLBACK (conversation_panel_leave_word),   panel);
+	g_signal_connect (G_OBJECT (gui.main_window),    "focus-out-event", G_CALLBACK (conversation_panel_lost_focus),   panel);
 #endif
 	gconf_client_notify_add (client, "/apps/xchat/main_window/use_sys_fonts",
 	                         (GConfClientNotifyFunc) conversation_panel_font_changed,       panel, NULL, NULL);
@@ -504,11 +504,11 @@ show_user_tooltip (gchar *nick)
 	GdkScreen *screen;
 	GtkWidget *vbox;
 	GdkDisplay *display;
-	
+
 	panel = CONVERSATION_PANEL(gui.conversation_panel);
 
 	user = userlist_find (gui.current_session, nick);
-	
+
 	if (user) {
 		tooltip = sexy_tooltip_new ();
 
@@ -517,7 +517,7 @@ show_user_tooltip (gchar *nick)
 		rect.y += 10;
 		rect.width = 1;
 		rect.height = 1;
-		
+
 		vbox = get_user_vbox_infos (user);
 		gtk_container_add (GTK_CONTAINER (tooltip), vbox);
 		sexy_tooltip_position_to_rect (SEXY_TOOLTIP (tooltip), &rect, screen);
@@ -535,7 +535,7 @@ conversation_panel_enter_word (GtkWidget *xtext, char *word, ConversationPanel *
 	switch (conversation_panel_check_word (xtext, word, strlen (word))) {
 		case WORD_NICK:
 			{
-				panel->priv->tooltip_timeout =  
+				panel->priv->tooltip_timeout =
 					g_timeout_add (500, (GSourceFunc) show_user_tooltip, word);
 				break;
 			}
@@ -762,8 +762,9 @@ drag_data_received (GtkWidget *widget, GdkDragContext *context, gint x, gint y,
 		guchar *txt;
 
 		txt = gtk_selection_data_get_text (selection_data);
-		if (gui.current_session != NULL)
-		handle_multiline (gui.current_session, txt, TRUE, FALSE);
+		if (gui.current_session != NULL) {
+			handle_multiline (gui.current_session, txt, TRUE, FALSE);
+		}
 
 		g_free (txt);
 		break;
@@ -775,8 +776,9 @@ drag_data_received (GtkWidget *widget, GdkDragContext *context, gint x, gint y,
 		gint nb_uri;
 
 		if ((panel->priv->current->type != SESS_CHANNEL) &&
-		    (panel->priv->current->type != SESS_DIALOG))
+		    (panel->priv->current->type != SESS_DIALOG)) {
 			return;
+		}
 
 		if (selection_data->format != 8 || selection_data->length == 0) {
 			g_printerr (_("URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"),
@@ -790,8 +792,9 @@ drag_data_received (GtkWidget *widget, GdkDragContext *context, gint x, gint y,
 
 		free_dropped_files (panel);
 
-		for (nb_uri = 0; uris[nb_uri] && strlen (uris[nb_uri]) > 0; nb_uri++)
+		for (nb_uri = 0; uris[nb_uri] && strlen (uris[nb_uri]) > 0; nb_uri++) {
 			panel->priv->dropped_files = g_slist_prepend (panel->priv->dropped_files, uris[nb_uri]);
+		}
 		g_free (uris); /* String in uris will be freed in free_dropped_files */
 		panel->priv->dropped_files = g_slist_reverse (panel->priv->dropped_files);
 
@@ -803,17 +806,19 @@ drag_data_received (GtkWidget *widget, GdkDragContext *context, gint x, gint y,
 			entry = gtk_ui_manager_get_widget (gui.manager, "/DropFilePopup/DropPasteFile");
 			if (nb_uri > 1 ||
 			    (uri_is_text (panel->priv->dropped_files->data) == FALSE) ||
-			    (check_file_size (panel->priv->dropped_files->data) == FALSE))
+			    (check_file_size (panel->priv->dropped_files->data) == FALSE)) {
 				gtk_widget_set_sensitive (entry, FALSE);
-			else
+			} else {
 				gtk_widget_set_sensitive (entry, TRUE);
+			}
 
 			/* Enable/Disable send files */
 			entry = gtk_ui_manager_get_widget (gui.manager, "/DropFilePopup/DropSendFiles");
-			if (panel->priv->current->type == SESS_CHANNEL)
+			if (panel->priv->current->type == SESS_CHANNEL) {
 				gtk_widget_set_sensitive (entry, FALSE);
-			else
+			} else {
 				gtk_widget_set_sensitive (entry, TRUE);
+			}
 
 			gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 2, gtk_get_current_event_time ());
 		} else {
@@ -822,16 +827,18 @@ drag_data_received (GtkWidget *widget, GdkDragContext *context, gint x, gint y,
 				/* Dropped in a channel */
 				if (nb_uri == 1 &&
 				    uri_is_text (panel->priv->dropped_files->data) &&
-				    check_file_size (panel->priv->dropped_files->data))
+				    check_file_size (panel->priv->dropped_files->data)) {
 					drop_paste (panel);
+				}
 			} else {
 				/* Dropped in a query */
 				if (nb_uri == 1 &&
 				    uri_is_text (panel->priv->dropped_files->data) &&
-				    check_file_size (panel->priv->dropped_files->data))
+				    check_file_size (panel->priv->dropped_files->data)) {
 					drop_paste (panel);
-				else
+				} else {
 					drop_send (panel);
+				}
 			}
 		}
 	}
@@ -853,7 +860,7 @@ drop_send (ConversationPanel *panel)
 {
 	g_return_if_fail (panel->priv->dropped_files != NULL);
 	g_slist_foreach (panel->priv->dropped_files, send_file, NULL);
-        free_dropped_files (panel);
+	free_dropped_files (panel);
 }
 
 static void
@@ -867,8 +874,9 @@ drop_paste (ConversationPanel *panel)
 	uri = panel->priv->dropped_files->data;
 	result = gnome_vfs_read_entire_file (uri, NULL, &contents);
 	if (result == GNOME_VFS_OK) {
-		if (panel->priv->current != NULL)
+		if (panel->priv->current != NULL) {
 			handle_multiline (panel->priv->current, (char *) contents, TRUE, FALSE);
+		}
 		g_free (contents);
 	} else {
 		g_printerr (_("Error reading file \"%s\": %s\n"), uri, gnome_vfs_result_to_string (result));
@@ -983,8 +991,9 @@ conversation_panel_add_session (ConversationPanel *panel, struct session *sess, 
 	g_hash_table_insert (panel->priv->buffers,            sess, buffer);
 	g_hash_table_insert (panel->priv->timestamp_notifies, sess, GINT_TO_POINTER (notify));
 
-	if (focus)
+	if (focus) {
 		conversation_panel_set_current (panel, sess);
+	}
 }
 
 void
@@ -1069,8 +1078,9 @@ conversation_panel_print_line (ConversationPanel *panel, xtext_buffer *buffer, g
 	int            leftlen;
 	unsigned char *tab;
 
-	if (len == 0)
+	if (len == 0) {
 		len = 1;
+	}
 
 	if (indent == FALSE) {
 		int     stamp_size;
@@ -1159,8 +1169,9 @@ conversation_panel_remove_session (ConversationPanel *panel, struct session *ses
 static void
 conversation_panel_lastlog_foreach (GtkXText *xtext, guchar *text, fe_lastlog_info *info)
 {
-	if (nocasestrstr (text, info->sstr))
+	if (nocasestrstr (text, info->sstr)) {
 		conversation_panel_print (info->panel, info->sess, text, prefs.indent_nicks);
+	}
 }
 
 void
