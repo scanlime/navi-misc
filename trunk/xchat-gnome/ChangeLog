@@ -1,3 +1,8 @@
+Fri Jul  7 16:52:45 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/text-entry.c:
+	  - Remove some old, commented-out code.
+
 Fri Jul  7 16:25:02 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/irc-network-editor.c:
