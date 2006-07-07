@@ -44,12 +44,6 @@ static void       enable_spellcheck_changed (GConfClient *client,
 		                             guint cnxn_id,
 					     GConfEntry *gconf_entry,
 					     TextEntry *entry);
-/*
-static void       languages_changed 	    (GConfClient *client,
-		                             guint cnxn_id,
-					     GConfEntry *gconf_entry,
-					     TextEntry *entry);
-*/
 #endif
 static void       text_entry_activate       (GtkWidget      *widget,
                                              gpointer        data);
@@ -165,10 +159,6 @@ text_entry_init (TextEntry *entry)
 
 	gconf_client_notify_add (client, "/apps/xchat/spellcheck/enabled",
 	                         (GConfClientNotifyFunc) enable_spellcheck_changed, entry, NULL, NULL);
-	/*
-	gconf_client_notify_add (client, "/apps/xchat/spellcheck/languages",
-	                         (GConfClientNotifyFunc) languages_changed, entry, NULL, NULL);
-	*/
 
 	g_object_unref (client);
 #endif
@@ -686,42 +676,5 @@ enable_spellcheck_changed (GConfClient *client, guint cnxn_id, GConfEntry *gconf
 		g_slist_free (langs);
 	}
 }
-
-/*
- * FIXME : This is done in preferences-page-spellcheck because if we have 2
- * notifications change on the same gonf key, the one from
- * preferences-page-spellcheck is called before this one and so it doesn't
- * work.  That's suck because we can only change languages using gconf if the
- * preference window is opened.
- */
-#if 0
-static void
-languages_changed (GConfClient *client, guint cnxn_id, GConfEntry *gconf_entry, TextEntry *entry)
-{
-	GError *err = NULL;
-	GSList *new_languages, *old_languages;
-
-	new_languages = gconf_client_get_list (client, "/apps/xchat/spellcheck/languages", GCONF_VALUE_STRING, NULL);
-
-	if (new_languages != NULL)
-		sexy_spell_entry_set_active_languages (SEXY_SPELL_ENTRY (entry), new_languages, &err);
-
-	if (err) {
-		g_printerr (_("Error in spellchecking configuration: %s\n"), err->message);
-		g_error_free (err);
-
-		old_languages = sexy_spell_entry_get_active_languages (SEXY_SPELL_ENTRY (entry));
-		if (old_languages != NULL) {
-			gconf_client_set_list (client, "/apps/xchat/spellcheck/languages",
-					       GCONF_VALUE_STRING, old_languages, NULL);
-			g_slist_foreach (old_languages, (GFunc) g_free, NULL);
-			g_slist_free (old_languages);
-		}
-	}
-
-	g_slist_foreach (new_languages, (GFunc) g_free, NULL);
-	g_slist_free (new_languages);
-}
-#endif
 
 #endif
