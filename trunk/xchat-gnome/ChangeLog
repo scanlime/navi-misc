@@ -1,3 +1,9 @@
+Fri Jul  7 12:58:21 MDT 2006  Christian Persch <chpe@gnome.org>
+
+	* configure.ac:
+	* Makefile.am:
+	  - Eliminate unneeded AM_GLIB_DEFINE_LOCALEDIR. (#346936)
+
 Fri Jul  7 12:22:06 MDT 2006  Christian Persch <chpe@gnome.org>
 
 	* plugins/python/Makefile.am:

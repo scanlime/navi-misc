@@ -1,5 +1,7 @@
 SUBDIRS = data help plugins po src
 
+ACLOCAL_AMFLAGS = -I m4
+
 EXTRA_DIST =			\
 	gnome-doc-utils.make	\
 	intltool-extract.in	\
