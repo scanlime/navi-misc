@@ -230,6 +230,20 @@ autojoin_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *newtext, Irc
 }
 
 static void
+autojoin_key_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *newtext, IrcNetworkEditor *e)
+{
+	GtkTreeSelection *selection;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (e->autojoin_channels));
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		if (strlen (newtext))
+			gtk_list_store_set (GTK_LIST_STORE (model), &iter, 1, newtext, -1);
+	}
+}
+
+static void
 irc_network_editor_init (IrcNetworkEditor *dialog)
 {
 	gchar **enc;
@@ -283,9 +297,10 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	g_object_unref (xml);
 
 	dialog->server_store = gtk_list_store_new (1, G_TYPE_STRING);
-	dialog->autojoin_store = gtk_list_store_new (1, G_TYPE_STRING);
+	dialog->autojoin_store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_STRING);
 	dialog->server_renderer = gtk_cell_renderer_text_new ();
 	dialog->autojoin_renderer = gtk_cell_renderer_text_new ();
+	dialog->autojoin_key_renderer = gtk_cell_renderer_text_new ();
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->servers), GTK_TREE_MODEL (dialog->server_store));
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (dialog->servers), 0, _("Server"), dialog->server_renderer, "text", 0, NULL);
@@ -296,6 +311,9 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (dialog->autojoin_channels), 0, _("Channel"), dialog->autojoin_renderer, "text", 0, NULL);
 	g_object_set (G_OBJECT (dialog->autojoin_renderer), "editable", TRUE, NULL);
 	dialog->autojoin_column = gtk_tree_view_get_column (GTK_TREE_VIEW (dialog->autojoin_channels), 0);
+
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (dialog->autojoin_channels), 1, _("Key"), dialog->autojoin_key_renderer, "text", 1, NULL);
+	g_object_set (G_OBJECT (dialog->autojoin_key_renderer), "editable", TRUE, NULL);
 
 	dialog->encoding = gtk_combo_box_new_text ();
 	gtk_widget_show (dialog->encoding);
@@ -315,22 +333,24 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	gtk_container_add (GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), dialog->toplevel);
 	gtk_dialog_set_has_separator (GTK_DIALOG (dialog), FALSE);
 
-	g_signal_connect (G_OBJECT (dialog->use_globals),       "toggled", G_CALLBACK (use_globals_set),            dialog);
-	g_signal_connect (G_OBJECT (dialog->use_custom),        "toggled", G_CALLBACK (use_custom_set),             dialog);
-
-	server_selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (dialog->servers));
-	g_signal_connect (G_OBJECT (dialog->add_server),        "clicked", G_CALLBACK (add_server_clicked),         dialog);
-	g_signal_connect (G_OBJECT (dialog->edit_server),       "clicked", G_CALLBACK (edit_server_clicked),        dialog);
-	g_signal_connect (G_OBJECT (dialog->remove_server),     "clicked", G_CALLBACK (remove_server_clicked),      dialog);
-	g_signal_connect (G_OBJECT (server_selection),          "changed", G_CALLBACK (server_selection_changed),   dialog);
-	g_signal_connect (G_OBJECT (dialog->server_renderer),   "edited",  G_CALLBACK (server_edited),              dialog);
-
+	server_selection   = gtk_tree_view_get_selection (GTK_TREE_VIEW (dialog->servers));
 	autojoin_selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (dialog->autojoin_channels));
-	g_signal_connect (G_OBJECT (dialog->add_autojoin),      "clicked", G_CALLBACK (add_autojoin_clicked),       dialog);
-	g_signal_connect (G_OBJECT (dialog->edit_autojoin),     "clicked", G_CALLBACK (edit_autojoin_clicked),      dialog);
-	g_signal_connect (G_OBJECT (dialog->remove_autojoin),   "clicked", G_CALLBACK (remove_autojoin_clicked),    dialog);
-	g_signal_connect (G_OBJECT (autojoin_selection),        "changed", G_CALLBACK (autojoin_selection_changed), dialog);
-	g_signal_connect (G_OBJECT (dialog->autojoin_renderer), "edited",  G_CALLBACK (autojoin_edited),            dialog);
+
+	g_signal_connect (G_OBJECT (dialog->use_globals),           "toggled", G_CALLBACK (use_globals_set),            dialog);
+	g_signal_connect (G_OBJECT (dialog->use_custom),            "toggled", G_CALLBACK (use_custom_set),             dialog);
+
+	g_signal_connect (G_OBJECT (dialog->add_server),            "clicked", G_CALLBACK (add_server_clicked),         dialog);
+	g_signal_connect (G_OBJECT (dialog->edit_server),           "clicked", G_CALLBACK (edit_server_clicked),        dialog);
+	g_signal_connect (G_OBJECT (dialog->remove_server),         "clicked", G_CALLBACK (remove_server_clicked),      dialog);
+	g_signal_connect (G_OBJECT (server_selection),              "changed", G_CALLBACK (server_selection_changed),   dialog);
+	g_signal_connect (G_OBJECT (dialog->server_renderer),       "edited",  G_CALLBACK (server_edited),              dialog);
+
+	g_signal_connect (G_OBJECT (dialog->add_autojoin),          "clicked", G_CALLBACK (add_autojoin_clicked),       dialog);
+	g_signal_connect (G_OBJECT (dialog->edit_autojoin),         "clicked", G_CALLBACK (edit_autojoin_clicked),      dialog);
+	g_signal_connect (G_OBJECT (dialog->remove_autojoin),       "clicked", G_CALLBACK (remove_autojoin_clicked),    dialog);
+	g_signal_connect (G_OBJECT (autojoin_selection),            "changed", G_CALLBACK (autojoin_selection_changed), dialog);
+	g_signal_connect (G_OBJECT (dialog->autojoin_renderer),     "edited",  G_CALLBACK (autojoin_edited),            dialog);
+	g_signal_connect (G_OBJECT (dialog->autojoin_key_renderer), "edited",  G_CALLBACK (autojoin_key_edited),        dialog);
 }
 
 GType
@@ -375,19 +395,42 @@ static void
 populate_autojoin_list (IrcNetworkEditor *e)
 {
 	GtkTreeIter iter;
+	gchar **autojoin;
 	gchar **channels;
+	gchar **keys;
 	gint i;
+	gboolean keys_done;
 
 	if (!e->network->autojoin)
 		return;
 
-	channels = g_strsplit (e->network->autojoin, ",", 0);
+	autojoin = g_strsplit (e->network->autojoin, " ", 0);
+	channels = g_strsplit (autojoin[0], ",", 0);
+	if (autojoin[1]) {
+		keys = g_strsplit (autojoin[1], ",", 0);
+		keys_done = FALSE;
+	} else {
+		keys = NULL;
+		keys_done = TRUE;
+	}
+
 	for (i = 0; channels[i]; i++) {
 		gtk_list_store_append (e->autojoin_store, &iter);
 		gtk_list_store_set (e->autojoin_store, &iter, 0, channels[i], -1);
+
+		if (keys && (keys_done == FALSE)) {
+			if (keys[i]) {
+				gtk_list_store_set (e->autojoin_store, &iter, 1, keys[i], -1);
+			} else {
+				keys_done = TRUE;
+			}
+		}
 	}
 
+	if (keys)
+		g_strfreev (keys);
 	g_strfreev (channels);
+	g_strfreev (autojoin);
 }
 
 static void
@@ -467,6 +510,7 @@ apply_changes (IrcNetworkEditor *e)
 	GSList *s;
 	GtkTreeIter iter;
 	gchar *t1 = NULL, *t2, *t3;
+	gchar *channels;
 
 	net = e->network;
 
@@ -517,7 +561,28 @@ apply_changes (IrcNetworkEditor *e)
 			t1 = t3;
 		}
 	}
-	net->autojoin = t1;
+	channels = t1;
+
+	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (e->autojoin_store), &iter)) {
+		gtk_tree_model_get (GTK_TREE_MODEL (e->autojoin_store), &iter, 1, &t1, -1);
+
+		if (t1 == NULL) {
+			t1 = "";
+		}
+		t1 = g_strdup (t1);
+
+		while (gtk_tree_model_iter_next (GTK_TREE_MODEL (e->autojoin_store), &iter)) {
+			gtk_tree_model_get (GTK_TREE_MODEL (e->autojoin_store), &iter, 1, &t2, -1);
+			if (t2 == NULL) {
+				t2 = "";
+			}
+			t3 = g_strdup_printf ("%s,%s", t1, t2);
+			g_free (t1);
+			t1 = t3;
+		}
+	}
+	net->autojoin = g_strdup_printf ("%s %s", channels, t1);
+	g_free (channels);
 
 	irc_network_save (net);
 }
