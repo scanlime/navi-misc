@@ -1,4 +1,5 @@
-libdir = $(XCHATLIBDIR)/plugins
+plugindir = $(pkglibdir)/plugins
+plugin_LTLIBRARIES = dbus.la
 
 EXTRA_DIST =					\
 	dbus-plugin.xml				\
@@ -6,27 +7,69 @@ EXTRA_DIST =					\
 	marshallers.list			\
 	README
 
-lib_LTLIBRARIES = dbus.la
-dbus_la_SOURCES = dbus-plugin.c
-dbus_la_LDFLAGS = -avoid-version -module
+dbus_la_SOURCES = \
+	dbus-plugin.c
+
+dbus_la_CPPFLAGS = \
+	-DAPP="\"$(bindir)/$(PACKAGE)\""	\
+	-DPREFIX="\"$(prefix)\""		\
+	-I$(srcdir)/..				\
+	$(AM_CPPFLAGS)
+
+dbus_la_CFLAGS = \
+	$(DEPENDENCIES_CFLAGS)			\
+	$(DBUS_CFLAGS)				\
+	$(AM_CFLAGS)
+
+dbus_la_LDFLAGS = \
+	-avoid-version 	\
+	-module		\
+	$(AM_LDFLAGS)
+
 dbus_la_LIBADD = $(DBUS_LIBS)
 
 bin_PROGRAMS = xchat-gnome-remote
-xchat_gnome_remote_SOURCES = xchat-gnome-remote.c
+
+xchat_gnome_remote_SOURCES = \
+	xchat-gnome-remote.c
+
+xchat_gnome_remote_CPPFLAGS =\
+	-DLOCALEDIR="\"$(datadir)/locale\""	\
+	-DAPP="\"$(bindir)/$(PACKAGE)\""	\
+	-DPREFIX="\"$(prefix)\""		\
+	-I$(srcdir)/..				\
+	$(AM_CPPFLAGS)
+
+xchat_gnome_remote_CFLAGS = \
+	$(DEPENDENCIES_CFLAGS)			\
+	$(DBUS_CFLAGS)				\
+	$(AM_CFLAGS)
+
+xchat_gnome_remote_LDFLAGS = \
+	$(AM_LDFLAGS)
+
 xchat_gnome_remote_LDADD = $(DBUS_LIBS)
 
 noinst_PROGRAMS = example
-example_SOURCES = example.c
-example_LDADD = $(DBUS_LIBS)
 
-INCLUDES =					\
-	$(DEPENDENCIES_CFLAGS)			\
-	$(DBUS_CFLAGS)				\
-	-DLOCALEDIR="\"$(GNOMELOCALEDIR)\""	\
+example_SOURCES = \
+	example.c
+example_CPPFLAGS = \
+	-DLOCALEDIR="\"$(datadir)/locale\""	\
 	-DAPP="\"$(bindir)/$(PACKAGE)\""	\
 	-DPREFIX="\"$(prefix)\""		\
-	-I$(srcdir)/..
+	-I$(srcdir)/..				\
+	$(AM_CPPFLAGS)
 
+example_CFLAGS = \
+	$(DEPENDENCIES_CFLAGS)			\
+	$(DBUS_CFLAGS)				\
+	$(AM_CFLAGS)
+
+example_LDFLAGS = \
+	$(AM_LDFLAGS)
+
+example_LDADD = $(DBUS_LIBS)
 
 dbus-plugin-glue.h: dbus-plugin.xml
 	$(DBUS_BINDING_TOOL) --prefix=remote_object --mode=glib-server --output=$@ $<

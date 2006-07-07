@@ -9,11 +9,9 @@ AC_CONFIG_SRCDIR([configure.ac])
 AM_INIT_AUTOMAKE([1.9 dist-bzip2 check-news subdir-objects no-define])
 
 AM_MAINTAINER_MODE
-if test "x$enable_maintainer_mode" = xyes; then
+if test "$enable_maintainer_mode" = "yes"; then
 	AC_DEFINE([MAINTAINER_MODE],[1],[Define to enable 'maintainer-only' behaviour])
 	enable_debug=yes
-	MORE_WARN_FLAGS=
-	DEPRECATION_FLAGS="-DG_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED -DGCONF_DISABLE_DEPRECATED -DGNOME_VFS_DISABLE_DEPRECATED -DBONOBO_UI_DISABLE_DEPRECATED -DBONOBO_DISABLE_DEPRECATED -DLIBGLADE_DISABLE_DEPRECATED -DPANGO_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DGNOME_DISABLE_DEPRECATED"
 fi
 
 IT_PROG_INTLTOOL([0.35.0])
@@ -50,7 +48,7 @@ GNOME_MAINTAINER_MODE_DEFINES
 GNOME_DEBUG_CHECK
 GNOME_COMPILE_WARNINGS([maximum])
 
-AC_PATH_PROG([PKG_CONFIG], [pkg-config], [no])
+PKG_PROG_PKG_CONFIG
 
 # Set up gnome-doc-utils
 GNOME_DOC_INIT
@@ -181,6 +179,7 @@ if test "x$have_perl" != "xno"; then
 		AC_DEFINE([ENABLE_PERL],[1],[Define to compile with perl support])
 		enable_perl=yes
 	else
+		AC_MSG_RESULT([not found])
 		AC_MSG_WARN([Perl library not found, disabling perl support])
 	fi
 
@@ -245,7 +244,8 @@ AC_MSG_RESULT([$enable_tcl])
 
 if test "x$have_tcl" != "xno"; then
 	have_tcl=no
-	for dir in $tcl /lib /usr/lib /usr/tcl/lib /usr/local/lib /usr/local/tcl-8.4/lib /usr/local/tcl/lib /opt/lib; do
+	AC_MSG_CHECKING([for tclConfig.sh])
+	for dir in $tcl /lib /usr/lib /usr/lib/tcl8.4 /usr/tcl/lib /usr/local/lib /usr/local/tcl-8.4/lib /usr/local/tcl/lib /opt/lib; do
 		if test -f $dir/tclConfig.sh; then
 			. $dir/tclConfig.sh
 			TCL_LIBS="$TCL_LIB_SPEC $TCL_LIBS"
@@ -258,8 +258,12 @@ if test "x$have_tcl" != "xno"; then
 			break
 		fi
 	done
-	if test "x$have_tcl" == "xno"; then
-		AC_MSG_RESULT([tclConfig.sh not found.  Try --enable-tcl=/path/to/])
+	if test "$enable_tcl" = "autodetect" -a "$have_tcl" = "no"; then
+		AC_MSG_RESULT([not found])
+		AC_MSG_WARN([tclConfig.sh not found, disabling tcl support.  Try --enable-tcl=/path/to/])
+	elif test "$have_tcl" == "no"; then
+		AC_MSG_RESULT([not found])
+		AC_MSG_ERROR([tclConfig.sh not found. Try --enable-tcl=/path/to/])
 	fi
 fi
 
@@ -332,7 +336,6 @@ fi
 AM_CONDITIONAL(USE_MMX, test "x$mmx" = "xyes")
 
 # plugins
-AC_MSG_CHECKING([which plugins to build])
 ALL_PLUGINS="autoaway notification url_scraper sound-notification"
 DBUS_PLUGINS="dbus net-monitor"
 LIBNOTIFY_PLUGINS="notify-osd"
@@ -357,26 +360,27 @@ else
 fi
 
 # perl-specific plugins
-if test "x$enable_perl" = "xyes"; then
+if test "$enable_perl" = "yes" -a "$have_perl" = "yes"; then
 	ALL_PLUGINS="$ALL_PLUGINS $PERL_PLUGINS"
 else
 	AC_MSG_WARN([xchat-gnome compiled without perl support, plugins $PERL_PLUGINS will not be available])
 fi
 
 # python-specific plugins
-if test "x$enable_python" = "xyes"; then
+if test "$enable_python" = "yes" -a "$have_python" = "yes"; then
 	ALL_PLUGINS="$ALL_PLUGINS $PYTHON_PLUGINS"
 else
 	AC_MSG_WARN([xchat-gnome compiled without python support, plugins $PYTHON_PLUGINS will not be available])
 fi
 
 # tcl-specific plugins
-if test "x$enable_tcl" = "xyes"; then
+if test "$enable_tcl" = "yes" -a "$have_tcl" = "yes"; then
 	ALL_PLUGINS="$ALL_PLUGINS $TCL_PLUGINS"
 else
 	AC_MSG_WARN([xchat-gnome compiled without tcl support, plugins $TCL_PLUGINS will not be available])
 fi
 
+AC_MSG_CHECKING([which plugins to build])
 AC_ARG_WITH([plugins],
             [  --with-plugins=plugin1,plugin2,...
                           build the specified plugins.  Available:
@@ -406,17 +410,13 @@ AC_MSG_RESULT([$PLUGINS])
 AC_DEFINE(USE_PLUGIN, [], [Use plugins])
 AC_DEFINE(USE_GMODULE, [], [Use gmodule for loading plugins])
 
-# standard paths
-XCHATLIBDIR=${libdir}/$PACKAGE
-AC_SUBST([XCHATLIBDIR])
-XCHATSHAREDIR=${datadir}/$PACKAGE
-AC_SUBST([XCHATSHAREDIR])
-
 # warning flags
-AM_CPPFLAGS="$AM_CPPFLAGS $DEPRECATION_FLAGS"
-AM_CFLAGS="$AM_CFLAGS $WARN_CFLAGS $MORE_WARN_FLAGS"
+AM_CPPFLAGS="$AM_CPPFLAGS $DISABLE_DEPRECATED"
+AM_CFLAGS="$AM_CFLAGS $WARN_CFLAGS"
+
 AC_SUBST([AM_CPPFLAGS])
 AC_SUBST([AM_CFLAGS])
+AC_SUBST([AM_LDFLAGS])
 
 # various and sundry defines and flags
 AC_DEFINE(_GNU_SOURCE, [], [Use GNU source])

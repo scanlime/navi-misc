@@ -1,8 +1,5 @@
-if USE_OPENSSL
-ssl_sources = ssl.c ssl.h
-endif
-
 noinst_LTLIBRARIES = libxchatcommon.la
+
 libxchatcommon_la_SOURCES =		\
 	cfgfiles.c			\
 	cfgfiles.h			\
@@ -51,14 +48,26 @@ libxchatcommon_la_SOURCES =		\
 	xchat-plugin.h			\
 	xchat.c				\
 	xchat.h				\
-	xchatc.h			\
-	$(ssl_sources)
+	xchatc.h
 
-libxchatcommon_la_LDFLAGS = -static
-INCLUDES =		\
+if USE_OPENSSL
+libxchatcommon_la_SOURCES += \
+	ssl.c				\
+ 	ssl.h
+endif
+
+libxchatcommon_la_CPPFLAGS = \
+	-DXCHATLIBDIR="\"$(pkglibdir)\""	\
+	$(AM_CPPFLAGS)
+
+libxchatcommon_la_CFLAGS = \
 	$(DEPENDENCIES_CFLAGS)		\
 	$(OPENSSL_CFLAGS)		\
-	-DXCHATLIBDIR="\"$(XCHATLIBDIR)\""
+	$(AM_CFLAGS)
+
+libxchatcommon_la_LDFLAGS = \
+	-static				\
+	$(AM_LDFLAGS)
 
 textevents: make-te
 	./make-te < textevents.in > textevents.h 2> textenums.h
