@@ -1,3 +1,11 @@
+Fri Jul  7 16:25:02 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/irc-network-editor.c:
+	* src/fe-gnome/irc-network-editor.h:
+	* data/irc-network-editor.glade:
+	  - Add a "key" column to the channel autojoin list in the network
+	    configuration dialog. (#321981)
+
 Fri Jul  7 12:58:21 MDT 2006  Christian Persch <chpe@gnome.org>
 
 	* configure.ac:

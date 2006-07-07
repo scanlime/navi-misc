@@ -79,6 +79,7 @@ struct _IrcNetworkEditor
 	GtkWidget *edit_autojoin;
 	GtkWidget *remove_autojoin;
 	GtkCellRenderer *autojoin_renderer;
+	GtkCellRenderer *autojoin_key_renderer;
 	GtkListStore *autojoin_store;
 	GtkTreeViewColumn *autojoin_column;
 
