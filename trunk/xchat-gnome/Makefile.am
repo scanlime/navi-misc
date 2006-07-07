@@ -14,4 +14,6 @@ CLEANFILES =			\
 DISTCLEANFILES =		\
 	gnome-doc-utils.make
 
-DISTCHECK_CONFIGURE_FLAGS = --disable-scrollkeeper
+DISTCHECK_CONFIGURE_FLAGS = \
+	--disable-scrollkeeper	\
+	--disable-schemas-install

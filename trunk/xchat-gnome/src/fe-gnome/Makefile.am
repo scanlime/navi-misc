@@ -1,5 +1,3 @@
-xchat_gnomedir = $(datadir)/$(PACKAGE)
-
 if USE_MMX
 mmx_cmod_S = mmx_cmod.S
 mmx_cmod_h = mmx_cmod.h
@@ -20,12 +18,6 @@ install-data-local:
 endif
 
 bin_PROGRAMS = xchat-gnome
-xchat_gnome_LDFLAGS = -export-dynamic
-xchat_gnome_LDADD =					\
-	$(top_builddir)/src/common/libxchatcommon.la	\
-	$(DEPENDENCIES_LIBS)				\
-	$(OPENSSL_LIBS)					\
-	$(LIBSEXY_LIBS)
 
 xchat_gnome_SOURCES =				\
 	$(mmx_cmod_S)				\
@@ -95,17 +87,32 @@ xchat_gnome_SOURCES =				\
 	xtext.c					\
 	xtext.h
 
-INCLUDES =					\
+xchat_gnome_CPPFLAGS = \
+	-DSYSCONFDIR="\"$(sysconfdir)\""	\
+	-DDATADIR="\"$(pkgdatadir)\""		\
+	-DXCHATSHAREDIR="\"$(pkgdatadir)\""	\
+	-DLIBDIR="\"$(pkglibdir)\""		\
+	-DPREFIX="\"$(prefix)\""		\
+	-DXCHATLIBDIR="\"$(pkglibdir)\""	\
+	-DGNOMELOCALEDIR="\"$(datadir)/locale\""\
+	$(AM_CPPFLAGS)
+
+xchat_gnome_CFLAGS = \
 	$(DEPENDENCIES_CFLAGS)			\
 	$(LIBSEXY_CFLAGS)			\
-	-DSYSCONFDIR="\"$(sysconfdir)\""	\
-	-DDATADIR="\"$(xchat_gnomedir)\""	\
-	-DLIBDIR="\"$(libdir)\""		\
-	-DPREFIX="\"$(prefix)\""		\
-	-DXCHATLIBDIR="\"$(XCHATLIBDIR)\""	\
-	-DXCHATSHAREDIR="\"$(XCHATSHAREDIR)\""
+	$(AM_CFLAGS)
 
-BUILT_SOURCES =					\
+xchat_gnome_LDFLAGS = \
+	-export-dynamic	\
+	$(AM_LDFLAGS)
+
+xchat_gnome_LDADD = \
+	$(top_builddir)/src/common/libxchatcommon.la	\
+	$(DEPENDENCIES_LIBS)				\
+	$(OPENSSL_LIBS)					\
+	$(LIBSEXY_LIBS)
+
+BUILT_SOURCES =	\
 	marshallers.h
 
 CLEANFILES = $(BUILT_SOURCES)

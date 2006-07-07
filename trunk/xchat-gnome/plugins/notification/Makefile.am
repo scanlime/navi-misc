@@ -1,4 +1,29 @@
-libdir = $(XCHATLIBDIR)/plugins
+plugindir = $(pkglibdir)/plugins
+plugin_LTLIBRARIES = notification.la
+
+BUILT_SOURCES = notification.schemas
+DISTCLEANFILES = $(BUILT_SOURCES)
+
+notification_la_SOURCES =	\
+	eggtrayicon.c		\
+	eggtrayicon.h		\
+	notification.c
+
+notification_la_CPPFLAGS = \
+	-I$(top_srcdir)/src/fe-gnome		\
+	-I$(srcdir)/..				\
+	-DXCHATSHAREDIR="\"$(pkgdatadir)\""	\
+	-DEGG_COMPILATION			\
+	$(AM_CPPFLAGS)
+
+notification_la_CFLAGS = \
+	$(DEPENDENCIES_CFLAGS)	\
+	$(AM_CFLAGS)
+
+notification_la_LDFLAGS = \
+	-avoid-version	\
+	-module		\
+	$(AM_LDFLAGS)
 
 schemadir	= $(GCONF_SCHEMA_FILE_DIR)
 schema_in_files	= notification.schemas.in
@@ -15,19 +40,3 @@ install-data-local:
 		done \
 	fi
 endif
-
-BUILT_SOURCES = notification.schemas
-DISTCLEANFILES = $(BUILT_SOURCES)
-
-lib_LTLIBRARIES = notification.la
-notification_la_SOURCES =	\
-	eggtrayicon.h		\
-	eggtrayicon.c		\
-	notification.c
-notification_la_LDFLAGS = -avoid-version -module
-INCLUDES =		\
-	$(DEPENDENCIES_CFLAGS)		\
-	-I$(top_srcdir)/src/fe-gnome	\
-	-I$(srcdir)/..			\
-	-DEGG_COMPILATION		\
-	-DXCHATSHAREDIR="\"$(XCHATSHAREDIR)\""

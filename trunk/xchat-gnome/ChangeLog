@@ -1,3 +1,21 @@
+Fri Jul  7 12:22:06 MDT 2006  Christian Persch <chpe@gnome.org>
+
+	* plugins/python/Makefile.am:
+	* plugins/url_scraper/Makefile.am:
+	* plugins/perl/Makefile.am:
+	* plugins/tcl/Makefile.am:
+	* plugins/notification/Makefile.am:
+	* plugins/autoaway/Makefile.am:
+	* plugins/net-monitor/Makefile.am:
+	* plugins/notify-osd/Makefile.am:
+	* plugins/sound-notification/Makefile.am:
+	* plugins/dbus/Makefile.am:
+	* src/common/Makefile.am:
+	* src/fe-gnome/Makefile.am:
+	* configure.ac:
+	* Makefile.am:
+	  - Some minor improvements to the buildsystem. (#346877)
+
 Thu Jul  6 15:43:38 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/conversation-panel.c:
