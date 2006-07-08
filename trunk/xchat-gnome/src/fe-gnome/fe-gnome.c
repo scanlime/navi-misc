@@ -944,7 +944,22 @@ fe_uselect (session *sess, char *word[], int do_clear, int scroll_to)
 void
 fe_server_event (server *serv, int type, int arg)
 {
-	/* FIXME: implement? */
+	GSList *list = sess_list;
+	session *sess;
+
+	while (list) {
+		sess = list->data;
+		if (sess->server == serv) {
+			switch (type) {
+				case FE_SE_LOGGEDIN:
+					if (arg == 0)
+						/* No auto-join channels */
+						create_channel_list (sess);
+					break;
+			}
+		}
+		list = list->next;
+	}
 }
 
 void
