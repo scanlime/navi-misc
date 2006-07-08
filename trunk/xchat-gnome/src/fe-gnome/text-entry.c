@@ -30,37 +30,40 @@
 #include "userlist.h"
 #include "../common/outbound.h"
 
-static void       text_entry_class_init     (TextEntryClass *klass);
-static void       text_entry_init           (TextEntry      *entry);
-static void       text_entry_finalize       (GObject        *object);
-static gboolean   text_entry_key_press      (GtkWidget      *widget,
-                                             GdkEventKey    *event,
-                                             gpointer        data);
+static void       text_entry_class_init        (TextEntryClass *klass);
+static void       text_entry_init              (TextEntry      *entry);
+static void       text_entry_finalize          (GObject        *object);
+static gboolean   text_entry_key_press         (GtkWidget      *widget,
+                                                GdkEventKey    *event,
+                                                gpointer        data);
 #ifdef HAVE_LIBSEXY
-static gboolean   text_entry_spell_check    (TextEntry      *entry,
-                                             gchar          *text,
-                                             gpointer        data);
-static void       enable_spellcheck_changed (GConfClient *client,
-		                             guint cnxn_id,
-					     GConfEntry *gconf_entry,
-					     TextEntry *entry);
+static gboolean   text_entry_spell_check       (TextEntry      *entry,
+                                                gchar          *text,
+                                                gpointer        data);
+static void       enable_spellcheck_changed    (GConfClient    *client,
+		                                guint           cnxn_id,
+					        GConfEntry     *gconf_entry,
+					        TextEntry      *entry);
 #endif
-static void       text_entry_activate       (GtkWidget      *widget,
-                                             gpointer        data);
-static void       text_entry_history_up     (GtkEntry       *entry);
-static void       text_entry_history_down   (GtkEntry       *entry);
-static gboolean   text_entry_tab_complete   (GtkEntry       *entry);
-static void       text_entry_populate_popup (GtkEntry       *entry,
-                                             GtkMenu        *menu,
-                                             gpointer        data);
+static void       text_entry_activate          (GtkWidget      *widget,
+                                                gpointer        data);
+static void       text_entry_history_up        (GtkEntry       *entry);
+static void       text_entry_history_down      (GtkEntry       *entry);
+static gboolean   text_entry_tab_complete      (GtkEntry       *entry);
+static void       text_entry_populate_popup    (GtkEntry       *entry,
+                                                GtkMenu        *menu,
+                                                gpointer        data);
+static void       text_entry_selection_changed (GObject        *obj,
+                                                GParamSpec     *pspec,
+                                                gpointer        data);
 
-static gboolean   tab_complete_command      (GtkEntry       *entry);
-static gboolean   tab_complete_nickname     (GtkEntry       *entry,
-                                             int             start);
-static GtkWidget *get_color_icon            (int             c,
-                                             GtkStyle       *style);
-static void       color_code_activate       (GtkMenuItem    *item,
-                                             gpointer        data);
+static gboolean   tab_complete_command         (GtkEntry       *entry);
+static gboolean   tab_complete_nickname        (GtkEntry       *entry,
+                                                int             start);
+static GtkWidget *get_color_icon               (int             c,
+                                                GtkStyle       *style);
+static void       color_code_activate          (GtkMenuItem    *item,
+                                                gpointer        data);
 
 #ifdef HAVE_LIBSEXY
 static SexySpellEntryClass *parent_class = NULL;
@@ -69,6 +72,8 @@ G_DEFINE_TYPE (TextEntry, text_entry, SEXY_TYPE_SPELL_ENTRY);
 static GtkEntryClass       *parent_class = NULL;
 G_DEFINE_TYPE (TextEntry, text_entry, GTK_TYPE_ENTRY);
 #endif
+
+static gchar *selected_text = NULL;
 
 struct _TextEntryPriv
 {
@@ -102,11 +107,13 @@ text_entry_init (TextEntry *entry)
 	GError *err  = NULL;
 #endif
 
-	g_signal_connect_after (G_OBJECT (entry), "key_press_event", G_CALLBACK (text_entry_key_press),      NULL);
-	g_signal_connect       (G_OBJECT (entry), "activate",        G_CALLBACK (text_entry_activate),       NULL);
-	g_signal_connect       (G_OBJECT (entry), "populate-popup",  G_CALLBACK (text_entry_populate_popup), NULL);
+	g_signal_connect_after (G_OBJECT (entry), "key_press_event",         G_CALLBACK (text_entry_key_press),         NULL);
+	g_signal_connect       (G_OBJECT (entry), "activate",                G_CALLBACK (text_entry_activate),          NULL);
+	g_signal_connect       (G_OBJECT (entry), "populate-popup",          G_CALLBACK (text_entry_populate_popup),    NULL);
+	g_signal_connect       (G_OBJECT (entry), "notify::cursor-position", G_CALLBACK (text_entry_selection_changed), NULL);
+	g_signal_connect       (G_OBJECT (entry), "notify::selection-bound", G_CALLBACK (text_entry_selection_changed), NULL);
 #ifdef HAVE_LIBSEXY
-	g_signal_connect_after (G_OBJECT (entry), "word-check",      G_CALLBACK (text_entry_spell_check),    NULL);
+	g_signal_connect_after (G_OBJECT (entry), "word-check",              G_CALLBACK (text_entry_spell_check),       NULL);
 #endif
 
 	entry->priv = g_new0 (TextEntryPriv, 1);
@@ -642,6 +649,11 @@ text_entry_set_current (TextEntry *entry, struct session *sess)
 		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
 	}
 	entry->priv->current = sess;
+
+	if (selected_text) {
+		gtk_clipboard_set_text (gtk_clipboard_get (GDK_SELECTION_PRIMARY),
+		                        selected_text, strlen (selected_text));
+	}
 }
 
 void
@@ -676,5 +688,20 @@ enable_spellcheck_changed (GConfClient *client, guint cnxn_id, GConfEntry *gconf
 		g_slist_free (langs);
 	}
 }
-
 #endif
+
+static void
+text_entry_selection_changed (GObject *obj, GParamSpec *pspec, gpointer data)
+{
+	GtkEditable *editable;
+	gint start, end;
+
+	editable = GTK_EDITABLE (obj);
+	if (gtk_editable_get_selection_bounds (editable, &start, &end)) {
+		if (start != end) {
+			if (selected_text)
+				g_free (selected_text);
+			selected_text = gtk_editable_get_chars (editable, start, end);
+		}
+	}
+}
