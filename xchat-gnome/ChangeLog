@@ -1,3 +1,10 @@
+Fri Jul  7 19:02:56 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/text-entry.c:
+	  - Preserve the selected text and set it in the PRIMARY clipboard
+	    when switching sessions, so you can copy text from the text entry
+	    in one session and paste it into the entry for another. (#345356)
+
 Fri Jul  7 16:52:45 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/text-entry.c:
