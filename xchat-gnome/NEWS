@@ -1,3 +1,7 @@
+0.13 "How do they even make Broccoflower?" (8 July 2006)
+	* Add the ability to auto-join keyed channels
+	* Lots and lots of major bug fixes
+
 0.12 "All roads lead to Sean Connery" (20 June 2006)
 	* A new sheme for theme-based foreground and backgrond colors, with
 	  automatic palette optimization for mIRC color codes.
