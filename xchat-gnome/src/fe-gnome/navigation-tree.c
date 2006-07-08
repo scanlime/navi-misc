@@ -1737,8 +1737,10 @@ static void
 on_channel_autojoin (GtkAction *action, gpointer data)
 {
 	session *sess;
-	gboolean autojoin, active;
+	gboolean autojoin, active, keys_done;
 	ircnet *network;
+	gchar **autojoins, **channels, **keys;
+	gchar *tmp;
 
 	sess = navigation_tree_get_selected_session (NULL);
 	network = sess->server->network;
@@ -1746,45 +1748,89 @@ on_channel_autojoin (GtkAction *action, gpointer data)
 	active = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action) );
 
 	if (sess != NULL) {
+		autojoins = g_strsplit (network->autojoin, " ", 0);
+		channels = g_strsplit (autojoins[0], ",", 0);
+		
+		if (autojoins[1]) {
+			keys =  g_strsplit (autojoins[1], ",", 0);
+			keys_done = FALSE;
+		} else {
+			keys = NULL;
+			keys_done = TRUE;
+		}
+		
 		if (autojoin && !active) {
 			/* remove channel from autojoin list */
-			gchar **channels, *tmp;
+
+			gchar *new_channels, *new_keys;
 			gint i;
 
-			channels = g_strsplit (network->autojoin, ",", 0);
-
-			if (network->autojoin) g_free(network->autojoin);
+			if (network->autojoin) g_free (network->autojoin);
 			network->autojoin = NULL;
+
+			new_channels = new_keys = NULL;
 
 			for (i=0; channels[i]; i++) {
 				if (strcmp (channels[i], sess->channel) != 0) {
-					if ( network->autojoin == NULL)
-						network->autojoin = g_strdup (channels[i]);
+					if (new_channels == NULL)
+						new_channels = g_strdup (channels[i]);
 					else {
-						tmp = network->autojoin;
-						network->autojoin = g_strdup_printf ("%s,%s", network->autojoin, channels[i]);
+						tmp = new_channels;
+						new_channels = g_strdup_printf ("%s,%s", new_channels, channels[i]);
 						g_free (tmp);
 					}
+
+					if (!keys_done && keys[i]) {
+						if (new_keys == NULL)
+							new_keys = g_strdup (keys[i]);
+						else {
+							tmp = new_keys;
+							new_keys = g_strdup_printf ("%s,%s", new_keys, keys[i]);
+							g_free (tmp);
+						}
+					}
+					else
+						keys_done = TRUE;
 				}
+				else if (!keys_done && !keys[i])
+					keys_done = TRUE;
 			}
-			g_strfreev (channels);
+
+			if (new_keys) {
+				network->autojoin = g_strdup_printf ("%s %s", new_channels, new_keys);
+				g_free (new_channels);
+				g_free (new_keys);
+			}
+			else
+				network->autojoin = new_channels;
 
 			servlist_save ();
 		}
+
 		if (!autojoin && active) {
 			/* add channel to autojoin list */
+			/* FIXME: we should save the key of the channel is there is one */
+
 			if (network->autojoin == NULL) {
 				network->autojoin = g_strdup (sess->channel);
 			}
 			else {
-				gchar *tmp = network->autojoin;
+				tmp = network->autojoin;
 
-				network->autojoin = g_strdup_printf ("%s,%s", network->autojoin, sess->channel);
+				if (keys)
+					network->autojoin = g_strdup_printf ("%s,%s %s", autojoins[0], sess->channel, autojoins[1]);
+				else
+					network->autojoin = g_strdup_printf ("%s,%s", autojoins[0], sess->channel);
+
 				g_free (tmp);
 			}
 
 			servlist_save ();
 		}
+		
+		g_strfreev (autojoins);
+		g_strfreev (channels);
+		if (keys) g_strfreev (keys);
 	}
 
 }
@@ -1792,17 +1838,19 @@ on_channel_autojoin (GtkAction *action, gpointer data)
 static gboolean
 channel_is_autojoin (ircnet *network, gchar *chan)
 {
-	gchar **channels;
+	gchar **autojoin, **channels;
 	gint i;
 	gboolean find = FALSE;
 
 	if (network->autojoin == NULL) return FALSE;
 
-	channels = g_strsplit (network->autojoin, ",", 0);
+	autojoin = g_strsplit (network->autojoin, " ", 0);
+	channels = g_strsplit (autojoin[0], ",", 0);
 	for (i=0; channels[i] && !find; i++)
 		if (!strcmp (channels[i], chan))
 			find = TRUE;
 
+	g_strfreev (autojoin);
 	g_strfreev (channels);
 
 	return find;
