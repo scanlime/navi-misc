@@ -1,3 +1,9 @@
+Sat Jul  8 13:27:45 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* configure.ac:
+	* NEWS:
+	  - Update for 0.13
+
 Sat Jul  8 12:55:46 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/irc-network-editor.c:
