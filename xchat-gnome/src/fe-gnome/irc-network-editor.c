@@ -240,6 +240,8 @@ autojoin_key_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *newtext,
 	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
 		if (strlen (newtext))
 			gtk_list_store_set (GTK_LIST_STORE (model), &iter, 1, newtext, -1);
+		else
+			gtk_list_store_set (GTK_LIST_STORE (model), &iter, 1, NULL, -1);
 	}
 }
 
