@@ -741,6 +741,7 @@ set_nickname_color (struct server *serv)
 static gboolean
 on_main_window_focus_in (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 {
+	conversation_panel_check_marker_visibility (CONVERSATION_PANEL (gui.conversation_panel));
 	gtk_window_set_urgency_hint (GTK_WINDOW (widget), FALSE);
 	return FALSE;
 }

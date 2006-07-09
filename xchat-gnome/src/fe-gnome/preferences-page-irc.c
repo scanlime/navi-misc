@@ -25,6 +25,7 @@
 #include <gconf/gconf-client.h>
 #include "preferences-page-irc.h"
 #include "preferences-dialog.h"
+#include "conversation-panel.h"
 
 extern struct xchatprefs prefs;
 
@@ -215,6 +216,20 @@ highlight_canceled (GtkCellRendererText *renderer, PreferencesIrcPage *page)
 	}
 }
 
+static void
+show_marker_changed (GtkToggleButton *button, gpointer data)
+{
+	gboolean active;
+
+	active = gtk_toggle_button_get_active (button);
+	conversation_panel_set_show_marker (CONVERSATION_PANEL (gui.conversation_panel), active);
+	
+	if (active)
+		prefs.show_marker = 1;
+	else
+		prefs.show_marker = 0;
+}
+
 PreferencesIrcPage *
 preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 {
@@ -246,6 +261,7 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 
 	GW(show_colors);
 	GW(show_timestamps);
+	GW(show_marker);
 #undef GW
 
 	if (g_file_test ("../../data/irc.png", G_FILE_TEST_EXISTS))
@@ -265,6 +281,7 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	g_signal_connect (G_OBJECT (page->font_selection),   "font-set", G_CALLBACK (font_changed),     "/apps/xchat/main_window/font");
 	g_signal_connect (G_OBJECT (page->show_colors),      "toggled",  G_CALLBACK (bool_changed),     "/apps/xchat/irc/showcolors");
 	g_signal_connect (G_OBJECT (page->show_timestamps),  "toggled",  G_CALLBACK (bool_changed),     "/apps/xchat/irc/showtimestamps");
+	g_signal_connect (G_OBJECT (page->show_marker),      "toggled",  G_CALLBACK (show_marker_changed), NULL);
 	g_signal_connect (G_OBJECT (page->highlight_add),    "clicked",  G_CALLBACK (highlight_add),    page);
 	g_signal_connect (G_OBJECT (page->highlight_edit),   "clicked",  G_CALLBACK (highlight_edit),   page);
 	g_signal_connect (G_OBJECT (page->highlight_remove), "clicked",  G_CALLBACK (highlight_remove), page);
@@ -338,6 +355,7 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	toggle = gconf_client_get_bool (p->gconf, "/apps/xchat/irc/showtimestamps", NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->show_timestamps), toggle);
 
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->show_marker), prefs.show_marker);
 	/* highlight list */
 	page->highlight_store = gtk_list_store_new (1, G_TYPE_STRING);
 	gtk_tree_view_set_model (GTK_TREE_VIEW (page->highlight_list), GTK_TREE_MODEL (page->highlight_store));

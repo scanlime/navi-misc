@@ -1,3 +1,16 @@
+Sun Jul  9 22:38:36 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/conversation-panel.c:
+	* src/fe-gnome/conversation-panel.h:
+	* src/fe-gnome/main-window.c:
+	  - Display a red marker line showing messages since last
+	    focus. (#330150)
+	* src/fe-gnome/preferences-page-irc.c:
+	* src/fe-gnome/preferences-page-irc.h:
+	* data/preferences-dialog.glade:
+	  - Add a option in the preference dialog for the marker
+	    line.
+
 Sat Jul  8 23:44:57 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/navigation-tree.c:

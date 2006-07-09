@@ -44,6 +44,7 @@ typedef struct
 
 	GtkWidget *show_colors;
 	GtkWidget *show_timestamps;
+	GtkWidget *show_marker;
 
 	GdkPixbuf *icon;
 	GtkListStore *highlight_store;
