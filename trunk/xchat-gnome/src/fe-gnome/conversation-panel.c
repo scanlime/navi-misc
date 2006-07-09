@@ -281,6 +281,8 @@ conversation_panel_init (ConversationPanel *panel)
 	gdk_window_set_events (gdk_get_default_root_window (), GDK_PROPERTY_CHANGE_MASK);
 	gdk_window_add_filter (gdk_get_default_root_window (), (GdkFilterFunc)root_event_cb, panel);
 #endif
+
+	conversation_panel_set_show_marker (panel, prefs.show_marker);
 }
 
 static void
@@ -1282,3 +1284,15 @@ root_event_cb (GdkXEvent *xev, GdkEventProperty *event, ConversationPanel *panel
 	return GDK_FILTER_CONTINUE;
 }
 #endif
+
+void
+conversation_panel_check_marker_visibility (ConversationPanel *panel)
+{
+	gtk_xtext_check_marker_visibility (GTK_XTEXT (panel->priv->xtext));
+}
+
+void
+conversation_panel_set_show_marker (ConversationPanel *panel, gboolean show_marker)
+{
+	gtk_xtext_set_show_marker (GTK_XTEXT (panel->priv->xtext), show_marker);
+}

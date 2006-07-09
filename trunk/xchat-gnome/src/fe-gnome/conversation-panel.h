@@ -65,6 +65,8 @@ void       conversation_panel_page_up         (ConversationPanel *panel);
 void       conversation_panel_page_down       (ConversationPanel *panel);
 void	   conversation_panel_copy_selection  (ConversationPanel *panel);
 void       conversation_panel_queue_tdraw     (ConversationPanel *panel);
+void	   conversation_panel_check_marker_visibility (ConversationPanel *panel);
+void       conversation_panel_set_show_marker (ConversationPanel *panel, gboolean show_marker);
 
 G_END_DECLS
 
