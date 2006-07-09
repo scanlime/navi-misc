@@ -1737,9 +1737,9 @@ static void
 on_channel_autojoin (GtkAction *action, gpointer data)
 {
 	session *sess;
-	gboolean autojoin, active, keys_done;
+	gboolean autojoin, active;
 	ircnet *network;
-	gchar **autojoins, **channels, **keys;
+	gchar **autojoins = NULL;
 	gchar *tmp;
 
 	sess = navigation_tree_get_selected_session (NULL);
@@ -1748,27 +1748,27 @@ on_channel_autojoin (GtkAction *action, gpointer data)
 	active = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action) );
 
 	if (sess != NULL) {
-		autojoins = g_strsplit (network->autojoin, " ", 0);
-		channels = g_strsplit (autojoins[0], ",", 0);
-		
-		if (autojoins[1]) {
-			keys =  g_strsplit (autojoins[1], ",", 0);
-			keys_done = FALSE;
-		} else {
-			keys = NULL;
-			keys_done = TRUE;
-		}
-		
 		if (autojoin && !active) {
 			/* remove channel from autojoin list */
-
+			gchar **channels, **keys;
 			gchar *new_channels, *new_keys;
 			gint i;
-
-			if (network->autojoin) g_free (network->autojoin);
-			network->autojoin = NULL;
+			gboolean keys_done;
 
 			new_channels = new_keys = NULL;
+			autojoins = g_strsplit (network->autojoin, " ", 0);
+			channels = g_strsplit (autojoins[0], ",", 0);
+
+			if (autojoins[1]) {
+				keys =  g_strsplit (autojoins[1], ",", 0);
+				keys_done = FALSE;
+			} else {
+				keys = NULL;
+				keys_done = TRUE;
+			}
+
+			g_free (network->autojoin);
+			network->autojoin = NULL;
 
 			for (i=0; channels[i]; i++) {
 				if (strcmp (channels[i], sess->channel) != 0) {
@@ -1805,19 +1805,21 @@ on_channel_autojoin (GtkAction *action, gpointer data)
 				network->autojoin = new_channels;
 
 			servlist_save ();
+			g_strfreev (channels);
+			if (keys) g_strfreev (keys);
 		}
 
 		if (!autojoin && active) {
 			/* add channel to autojoin list */
 			/* FIXME: we should save the key of the channel is there is one */
-
 			if (network->autojoin == NULL) {
 				network->autojoin = g_strdup (sess->channel);
 			}
 			else {
+				autojoins = g_strsplit (network->autojoin, " ", 0);
 				tmp = network->autojoin;
 
-				if (keys)
+				if (autojoins[1])
 					network->autojoin = g_strdup_printf ("%s,%s %s", autojoins[0], sess->channel, autojoins[1]);
 				else
 					network->autojoin = g_strdup_printf ("%s,%s", autojoins[0], sess->channel);
@@ -1828,11 +1830,8 @@ on_channel_autojoin (GtkAction *action, gpointer data)
 			servlist_save ();
 		}
 		
-		g_strfreev (autojoins);
-		g_strfreev (channels);
-		if (keys) g_strfreev (keys);
+		if (autojoins) g_strfreev (autojoins);
 	}
-
 }
 
 static gboolean
