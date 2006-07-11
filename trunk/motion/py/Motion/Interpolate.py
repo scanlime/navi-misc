@@ -173,6 +173,9 @@ class GraphSearch (Algorithm):
 
         self.path = self.search.run ()
 
+        if not self.path:
+            return None
+
         # Construct a list of dictionaries to return. Each dictionary is a
         # frame in the animation.
         for i in range(len(self.path)):
