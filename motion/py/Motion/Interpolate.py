@@ -149,10 +149,10 @@ class GraphSearch (Algorithm):
             return self.find_node (n)
 
         Algorithm.__init__ (self, graph)
-        self.source = fixNode (source)
-        self.goal = fixNode (goal)
+        self.source = source
+        self.goal = goal
         self.adjacency = dict (graph.representations[BayesAdjacency].data) 
-        self.search = Heuristic (graph, self.f, self.source, self.goal)
+        self.search = Heuristic (graph, self.f, fixNode(source), fixNode(goal))
 
     def invalidate (self):
         """Invalidate the algorithm.
