@@ -160,7 +160,7 @@ else:
     asf = ASFReader()
     asf.parse(args[1])
 
-    nets = load(asf, args[2:], opts.interval)
+    nets = load(asf, args[2:], int(opts.interval))
 
     print 'writing pickle'
     file = open(args[0], 'w')
