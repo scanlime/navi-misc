@@ -23,9 +23,10 @@
 
 from Graph import MotionGraph
 from Motion import AMC
-import sys, pickle
+from optparse import OptionParser
+import pickle
 
-def load (files):
+def load (files, interval):
     amcs = []
     graphs = {}
 
@@ -42,18 +43,23 @@ def load (files):
     # one AMC file to use the bones listed in another.
     for key in amcs[0].bones.iterkeys ():
         print 'building graph for',key
-        g = MotionGraph.build_graphs (key, [amc.bones[key] for amc in amcs])
+        g = MotionGraph.build_graphs (key, [amc.bones[key] for amc in amcs], interval)
         graphs[key] = g
 
     return graphs
 
-if len (sys.argv) < 3:
-    print 'Usage: %s [output file] [AMC FILE]...' % sys.argv[0]
+options = OptionParser ('%prog [output file] [AMC FILE]...')
+options.add_option ('-d', dest='degrees', default='5',
+		help='Set the discretization size of graph nodes')
+
+opts, args = options.parse_args ()
+if len (args) < 2:
+    options.error ('incorrect number of arguments')
 else:
-    graphs = load (sys.argv[2:])
+    graphs = load (args[1:], int(opts.degrees))
 
     print 'writing pickle'
-    file = open (sys.argv[1], 'w')
+    file = open (args[0], 'w')
     pickle.dump (graphs, file)
     print 'flushing'
     file.flush ()

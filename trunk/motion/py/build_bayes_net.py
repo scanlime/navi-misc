@@ -22,8 +22,8 @@
 #
 
 from Motion import AMC, ASFReader
-import Numeric
-import sys, pickle
+from optparse import OptionParser
+import Numeric, pickle
 
 def fixnegative (x):
     while x < 0:
@@ -35,7 +35,7 @@ def fix360 (x):
         return 0
     return x
 
-def load(asf, files):
+def load(asf, files, interval):
     amcs = []
     nets = {}
 
@@ -52,10 +52,6 @@ def load(asf, files):
             for child in children:
                 if child in amcs[0].bones:
                     nets[child] = {}
-
-    # this *ought* to match the interval we use in the grap building, but I'm
-    # not sure it really matters
-    interval = 5
 
     print 'building bayes nets'
 
@@ -152,19 +148,26 @@ def load(asf, files):
 
     return nets
 
-if len(sys.argv) < 4:
-    print 'Usage: %s [output file] [ASF FILE] [AMC FILE]...' % sys.argv[0]
-else:
-    print 'loading %s' % sys.argv[2]
-    asf = ASFReader()
-    asf.parse(sys.argv[2])
+options = OptionParser ('%prog [output file] [ASF FILE] [AMC FILE]...')
+options.add_option ('-d', dest='degrees', default='5',
+		help='Set the discretization size of graph nodes')
 
-    nets = load(asf, sys.argv[3:])
+opts, args = options.parse_args()
+if len(args) < 3:
+    options.error ('missing arguments')
+else:
+    print 'loading %s' % argv[1]
+    asf = ASFReader()
+    asf.parse(args[1])
+
+    nets = load(asf, args[2:], opts.interval)
 
     print 'writing pickle'
-    file = open(sys.argv[1], 'w')
+    file = open(args[0], 'w')
     pickle.dump(nets, file)
     print 'flushing'
     file.flush()
     file.close()
     print 'done'
+
+# vim: ts=4:sw=4:et
