@@ -194,7 +194,7 @@ def fix360 (x):
         return 0
     return x
 
-def build_graphs (key, datas):
+def build_graphs (key, datas, interval):
     """Build a graph using the data arrays from any number of files.
    
     Arguments:
@@ -213,11 +213,6 @@ def build_graphs (key, datas):
 
     # This assumes the same DOF for each bone in each file!
     dof = datas[0].shape[1]
-
-    # degrees covered (angle-wise) within a single node.  Note that for some
-    # bones, the number of nodes we have will be (360 / interval)^3, so be
-    # sparing when decreasing this!
-    interval = 5
 
     graph          = MotionGraph   ()
     adjacency_list = AdjacencyList (graph)
