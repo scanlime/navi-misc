@@ -472,6 +472,7 @@ class BayesAdjacency (AdjacencyList):
             if not bone == "root" and not self.bones[bone].dof:
                 for child in filter (order[1:], current, prob):
                     yield child
+                    return
 
             # Get parent information
             if bone in self.parents:
