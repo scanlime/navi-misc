@@ -22,7 +22,7 @@ Functions:
 
 from Graph import algorithms_c, Data
 from Graph.Algorithms import Algorithm, Heuristic
-from Graph.Combinatoric import BayesAdjacency, VertexMap
+from Graph.Combinatoric import BayesAdjacency, VertexMap, AdjacencyList
 from Graph.MotionGraph import fix360, fixnegative
 from LinearAlgebra import inverse
 from Motion import AMC
@@ -151,7 +151,7 @@ class GraphSearch (Algorithm):
         Algorithm.__init__ (self, graph)
         self.source = source
         self.goal = goal
-        self.adjacency = dict (graph.representations[BayesAdjacency].data) 
+        self.adjacency = dict (graph.representations[AdjacencyList].data) 
         self.search = Heuristic (graph, self.f, fixNode(source), fixNode(goal))
 
     def invalidate (self):
@@ -250,6 +250,8 @@ class GraphSearch (Algorithm):
         end = path[-1]
         g = len (path)
         h = 0
+        done = []
+        notDone = []
 
         for bone in end.iterkeys():
             if bone not in self.adjacency:
@@ -263,10 +265,19 @@ class GraphSearch (Algorithm):
                 self.cached_costs[bone] = {}
             if (endb, goalb) in self.cached_costs[bone]:
                 h += self.cached_costs[bone][(endb, goalb)]
+                if endb == goalb:
+                    done.append(self.cached_costs[bone][(endb, goalb)])
+                else:
+                    notDone.append(self.cached_costs[bone][(endb, goalb)])
                 continue
 
             path = algorithms_c.dijkstraSearch(adj, endb, goalb)
             h += len(path)
+
+            if endb == goalb:
+                done.append(len(path))
+            else:
+                notDone.append(len(path))
 
             for i in range(1, len(path)):
                 x = path[i]
@@ -275,6 +286,13 @@ class GraphSearch (Algorithm):
             for i in range(0, len(path) - 1):
                 x = path[i]
                 self.cached_costs[bone][(x, goalb)] = i + 2
+
+        # For each pair of joints where one joint is at its goal and the other
+        # is not, add the difference from the not finished one to its goal to
+        # h.
+        for i in done:
+            for j in notDone:
+                h += (j - i)
 
         return (g + h)
 
