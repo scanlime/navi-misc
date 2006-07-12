@@ -503,12 +503,10 @@ class BayesAdjacency (AdjacencyList):
                     if spot in net:
                         p = net[spot]
                         newProb = prob * p
-                        # FIXME: What is this 0.1 and why is it hard-coded?
-                        # If the probability of this pose is above self.eps and
-                        # the probability of the pose without this joint is >
-                        # 0.1, accept the pose and recurse further down the
+                        # If the probability of this pose is greater than our
+                        # epsilon value, except the pose and recurse down the
                         # body.
-                        if newProb > self.eps and prob > 0.1:
+                        if newProb > self.eps:
                             for child in filter (order[1:], current, newProb):
                                 yield child
 

@@ -63,7 +63,8 @@ def save(sequence, file):
 
 
 options = OptionParser(usage="%prog <asf file> <graph> <bayes net> <input amc> <output amc> <start frame> <end frame>")
-
+options.add_option('-e', type=float, dest='epsilon', default=0.3**29, \
+        help='Set the threshold for the Bayes filter') 
 opts, args = options.parse_args()
 
 if len(args) < 7:
@@ -81,7 +82,7 @@ bayes_net = pickle.load(open(args[2]))
 print 'loading graphs'
 graphs = pickle.load(open(args[1]))
 cgraph = Graph ()
-cAdj = BayesAdjacency (cgraph, bayes_net, asf)
+cAdj = BayesAdjacency (cgraph, bayes_net, asf, opts.epsilon)
 cVMap = VertexMap (cgraph)
 cgraph.addList (graphs.items())
 
