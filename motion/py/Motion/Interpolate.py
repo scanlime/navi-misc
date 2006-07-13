@@ -22,7 +22,7 @@ Functions:
 
 from Graph import algorithms_c, Data
 from Graph.Algorithms import Algorithm, Heuristic
-from Graph.Combinatoric import BayesAdjacency, VertexMap, AdjacencyList
+from Graph.Combinatoric import BayesAdjacency, VertexMap
 from Graph.MotionGraph import fix360, fixnegative
 from LinearAlgebra import inverse
 from Motion import AMC
@@ -151,7 +151,7 @@ class GraphSearch (Algorithm):
         Algorithm.__init__ (self, graph)
         self.source = source
         self.goal = goal
-        self.adjacency = dict (graph.representations[AdjacencyList].data) 
+        self.adjacency = dict (graph.representations[BayesAdjacency].data) 
         self.search = Heuristic (graph, self.f, fixNode(source), fixNode(goal))
 
     def invalidate (self):
