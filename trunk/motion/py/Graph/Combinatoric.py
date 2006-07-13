@@ -86,7 +86,7 @@ class Node (Dot.Node):
         return (self.data != other.data)
 
 
-class CombinatoricRepresentation (Data.GraphRepresentation):
+class GraphRepresentation:
     """Base class for all combinatoric graph representations.
 
     This class handles some of the error checking required by all the
@@ -94,8 +94,9 @@ class CombinatoricRepresentation (Data.GraphRepresentation):
     """
 
     def __init__ (self, graph):
-        Data.GraphRepresentation.__init__ (self, graph)
         self.data = []
+        graph.add.observe (self.onAdd)
+        graph.remove.observe (self.onRemove)
 
     def onAdd (self, data):
         """Add ``data`` to the data in the representation.
@@ -116,8 +117,13 @@ class CombinatoricRepresentation (Data.GraphRepresentation):
                     list or tuple, got: %s" % (data))
 
 
-class AdjacencyList (CombinatoricRepresentation):
+class AdjacencyList (GraphRepresentation):
     """Combinatoric adjacency list."""
+    def __init__ (self, graph):
+        if graph.has_representation (Data.AdjacencyList):
+            return graph.representations[Data.AdjacencyList]
+        GraphRepresentation.__init__ (self, graph)
+        graph.representations[Data.AdjacencyList] = self
 
     def __iter__ (self):
         """Iterate over all the edges in the graph."""
@@ -182,7 +188,7 @@ class AdjacencyList (CombinatoricRepresentation):
         Raises:
             - `ValueError` if the graph is already in the representation.
         """
-        CombinatoricRepresentation.onAdd (self, data)
+        GraphRepresentation.onAdd (self, data)
        
         name, graph = data
         adj = graph.representations[Data.AdjacencyList]
@@ -244,20 +250,15 @@ class AdjacencyList (CombinatoricRepresentation):
             yield self.graph.edgeClass (u, Node (v))
 
 
-class VertexMap (CombinatoricRepresentation):
+class VertexMap (GraphRepresentation):
     """Maps each vertex to a hash of all the edges connected to that vertex."""
 
     def __init__ (self, graph):
-        self.graph = graph
-        graph.add.observe (self.onAdd)
-        graph.remove.observe (self.onRemove)
+        if graph.has_representation (Data.VertexMap):
+            return graph.representations[Data.VertexMap]
 
-        # Add the vertex map to the graph representations for the
-        # Data.VertexMap representation. This allows graphs with this
-        # representation to be used interchangeably with the other VertexMap.
+        GraphRepresentation.__init__ (self, graph)
         graph.representations[Data.VertexMap] = self
-
-        self.data = []
 
     def __iter__ (self):
         """Iterate over all the vertices in the graph."""
@@ -287,7 +288,7 @@ class VertexMap (CombinatoricRepresentation):
         Raises:
             - `ValueError` if the graph is already present
         """
-        CombinatoricRepresentation.onAdd (self, data)
+        GraphRepresentation.onAdd (self, data)
 
         name, graph = data
         map = graph.representations[Data.VertexMap]
@@ -350,8 +351,14 @@ class VertexMap (CombinatoricRepresentation):
             yield self.graph.edgeClass (node, nodeV)
 
 
-class EdgeList (CombinatoricRepresentation):
+class EdgeList (GraphRepresentation):
     """A simple graph representation that maps (u,v) pairs to edge objects."""
+    def __init__ (self, graph):
+        if graph.has_representation (Data.EdgeList):
+            return graph.representation[Data.EdgeList]
+
+        GraphRepresentation.__init__ (self, graph)
+        graph.representations[Data.EdgeList] = self
 
     def __iter__ (self):
         """Iterate over the edges of the graph."""
@@ -392,7 +399,7 @@ class EdgeList (CombinatoricRepresentation):
         Raises:
             - `ValueError` if the graph is already present.
         """
-        CombinatoricRepresentation.onAdd (self, data)
+        GraphRepresentation.onAdd (self, data)
 
         name, graph = data
         edges = graph.representations[Data.EdgeList]
