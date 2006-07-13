@@ -95,6 +95,7 @@ class GraphRepresentation:
 
     def __init__ (self, graph):
         self.data = []
+        self.graph = graph
         graph.add.observe (self.onAdd)
         graph.remove.observe (self.onRemove)
 
