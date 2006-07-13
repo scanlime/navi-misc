@@ -61,43 +61,61 @@ def save(sequence, file):
 
     f.close()
 
+options = OptionParser(usage="%prog <asf file> <graph> <bayes net> <input amc> <start frame> <end frame>")
 
-options = OptionParser(usage="%prog <asf file> <graph> <bayes net> <input amc> <output amc> <start frame> <end frame>")
 options.add_option('-e', type=float, dest='epsilon', default=0.3**29, \
         help='Set the threshold for the Bayes filter') 
-opts, args = options.parse_args()
+options.add_option('-b', '--benchmark', action='store_true', default=False, \
+        help='Run with a Timer and display benchmarks of the interpolation')
+options.add_option('-o', dest='file', \
+        help='Save the interpolated AMC data to a file')
 
-if len(args) < 7:
-    options.error("Missing %d arguments" % (7 - len(args)))
+opts, args = options.parse_args ()
 
-samc = AMC.from_file(args[3])
+if len(args) < 6:
+    options.error("Missing %d arguments" % (6 - len(args)))
+
+samc = AMC.from_file (args[3])
 
 print 'loading asf'
-asf = ASFReader()
-asf.parse(args[0])
+asf = ASFReader ()
+asf.parse (args[0])
 
 print 'loading bayes net'
-bayes_net = pickle.load(open(args[2]))
+bayes_net = pickle.load (open(args[2]))
 
 print 'loading graphs'
-graphs = pickle.load(open(args[1]))
+graphs = pickle.load (open(args[1]))
+
+# Build the combinatoric graph
 cgraph = Graph ()
 cAdj = BayesAdjacency (cgraph, bayes_net, asf, opts.epsilon)
 cVMap = VertexMap (cgraph)
 cgraph.addList (graphs.items())
 
+# Build the dictionaries for the starting and ending frames of the search
 start = {}
 end = {}
-
 for bone, data in samc.bones.iteritems():
     start[bone] = data[int(args[-2]) - 1]
     end[bone] = data[int(args[-1]) - 1]
 
 print "searching..."
+search = Interpolate.GraphSearch (cgraph, start, end)
 
-search = Interpolate.GraphSearch(cgraph, start, end)
-search.run()
-print search.path
-#save (search.path, args[-3])
+if opts.benchmark:
+    # Run the search in a Timer object to benchmark
+    from timeit import Timer
+    timer = Timer ('search.run()', 'gc.enable(); from __main__ import search')
+    print '\nTime:', timer.timeit (1), 'seconds\n'
+else:
+    search.run ()
+
+if opts.file:
+    # Save the interpolated data to a file
+    save (search.path, opts.file)
+else:
+    # Print the interpolated data to stdout
+    print search.path
 
 # vim: ts=4:sw=4:et
