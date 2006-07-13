@@ -25,12 +25,12 @@ usage: interpolate.py <asf file> <graph> <bayes net> <input amc> <output amc> <s
 """
 
 from Graph import algorithms_c, Combinatoric, MotionGraph
-from Graph.Combinatoric import BayesAdjacency, VertexMap
+from Graph.Combinatoric import BayesAdjacency, AdjacencyList, VertexMap
 from Graph.Data import Graph
 from Graph.Algorithms import Heuristic
 from Motion import AMC, ASFReader, Interpolate
 from optparse import OptionParser
-import Numeric, pickle
+import Numeric, pickle, string
 
 def save(sequence, file):
     """Save a sequence to a file.
@@ -61,35 +61,45 @@ def save(sequence, file):
 
     f.close()
 
-options = OptionParser(usage="%prog <asf file> <graph> <bayes net> <input amc> <start frame> <end frame>")
+arguments = ['asf file', 'graph', 'input amc', 'start frame', 'end frame']
+options = OptionParser(usage='%prog [options] ' + \
+        string.join (['<%s>' % x for x in arguments]))
 
 options.add_option('-e', type=float, dest='epsilon', default=0.3**29, \
         help='Set the threshold for the Bayes filter') 
 options.add_option('-b', '--benchmark', action='store_true', default=False, \
         help='Run with a Timer and display benchmarks of the interpolation')
+options.add_option('-B', '--bayes', help='Specify a bayes net to load')
 options.add_option('-o', dest='file', \
         help='Save the interpolated AMC data to a file')
 
 opts, args = options.parse_args ()
 
-if len(args) < 6:
-    options.error("Missing %d arguments" % (6 - len(args)))
+if len (args) < len (arguments):
+    options.error ('Missing %d arguments' % (len (arguments) - len(args)))
+elif len (args) > len (arguments):
+    options.error ('%d extra arguments' % (len (args) - len (arguments)))
 
-samc = AMC.from_file (args[3])
+samc = AMC.from_file (args[2])
 
 print 'loading asf'
 asf = ASFReader ()
 asf.parse (args[0])
 
-print 'loading bayes net'
-bayes_net = pickle.load (open(args[2]))
 
 print 'loading graphs'
 graphs = pickle.load (open(args[1]))
 
 # Build the combinatoric graph
 cgraph = Graph ()
-cAdj = BayesAdjacency (cgraph, bayes_net, asf, opts.epsilon)
+
+if opts.bayes:
+    print 'loading bayes net'
+    bayes_net = pickle.load (open(opts.bayes))
+    cAdj = BayesAdjacency (cgraph, bayes_net, asf, opts.epsilon)
+else:
+    cAdj = AdjacencyList (cgraph)
+
 cVMap = VertexMap (cgraph)
 cgraph.addList (graphs.items())
 
