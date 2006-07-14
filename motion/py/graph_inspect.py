@@ -36,33 +36,34 @@ branching = {}
 
 for name, graph in graphs.iteritems ():
     nodes[name] = 0
-    branching[name] = 0
+    factor = 0.0
     vMap = graph.representations[VertexMap]
     adj = graph.representations[AdjacencyList]
 
     for v in vMap:
         nodes[name] += 1
-        branching[name] += len ([e for e in adj.query (v)])
+        factor += len ([e for e in adj.query (v)])
 
-    branching[name] /= nodes[name]
+    branching[name] = (factor / nodes[name])
 
-avgNodes = avgBranch = 0
+avgNodes = 0.0
+avgBranch = 0.0
 
 for name, count in nodes.iteritems ():
     avgNodes += count
-avgNodes /= len (nodes)
+avgNodes = avgNodes / len (nodes)
 
 for name, count in branching.iteritems ():
     avgBranch += count
-avgBranch /= len (nodes)
+avgBranch = avgBranch / len (branching)
 
 output = 'Graph data\n\nNodes\n'
 for name, count in nodes.iteritems ():
-    output += '  %s: %f\n' % (name, count)
+    output += '  %s: %d\n' % (name, count)
 
 output += '\nBranching factor\n'
 for name, factor in branching.iteritems ():
-    output += '  %s: %f\n' % (name, count)
+    output += '  %s: %f\n' % (name, factor)
 
 output += '\nAverages\n'
 output += '  Nodes: %f\n' % avgNodes
