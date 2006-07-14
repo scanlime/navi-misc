@@ -30,7 +30,7 @@ from Graph.Data import Graph
 from Graph.Algorithms import Heuristic
 from Motion import AMC, ASFReader, Interpolate
 from optparse import OptionParser
-import Numeric, pickle, string
+import Numeric, pickle, string, time
 
 def save(sequence, file):
     """Save a sequence to a file.
@@ -114,10 +114,10 @@ print "searching..."
 search = Interpolate.GraphSearch (cgraph, start, end)
 
 if opts.benchmark:
-    # Run the search in a Timer object to benchmark
-    from timeit import Timer
-    timer = Timer ('search.run()', 'gc.enable(); from __main__ import search')
-    print '\nTime:', timer.timeit (1), 'seconds\n'
+    startTime = time.clock ()
+    search.run ()
+    endTime = time.clock ()
+    print 'Time:', (endTime - startTime)
 else:
     search.run ()
 
