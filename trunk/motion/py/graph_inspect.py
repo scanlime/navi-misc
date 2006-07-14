@@ -59,15 +59,16 @@ avgBranch = avgBranch / len (branching)
 
 output = 'Graph data\n\nNodes\n'
 for name, count in nodes.iteritems ():
-    output += '  %s: %d\n' % (name, count)
+    output += '  %-10s %5d\n' % (name + ':', count)
 
 output += '\nBranching factor\n'
 for name, factor in branching.iteritems ():
-    output += '  %s: %f\n' % (name, factor)
+    output += '  %-10s %10f\n' % (name + ':', factor)
 
 output += '\nAverages\n'
-output += '  Nodes: %f\n' % avgNodes
-output += '  Branching Factor: %f\n' % avgBranch
+output += '  %-15s %5d\n' % ('Graphs:', len (nodes))
+output += '  %-15s %5f\n' % ('Nodes:', avgNodes)
+output += '  %-15s %5f\n' % ('Branching Factor:', avgBranch)
 
 print output
 
