@@ -492,7 +492,7 @@ static void
 on_discussion_leave_activate (GtkAction *action, gpointer data)
 {
 	session *s = gui.current_session;
-	if ((s->type == SESS_CHANNEL) && (s->channel[0] != '\0')) {
+	if ((s != NULL) && (s->type == SESS_CHANNEL) && (s->channel[0] != '\0')) {
 		gchar *text;
 		GConfClient *client;
 
