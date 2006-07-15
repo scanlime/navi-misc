@@ -1021,6 +1021,9 @@ conversation_panel_save_current (ConversationPanel *panel)
 	struct tm  date;
 	time_t     dtime;
 
+	if (!panel->priv->current)
+		return;
+
 	file_chooser = gtk_file_chooser_dialog_new (_("Save Transcript"),
 	                                            GTK_WINDOW (gui.main_window),
 	                                            GTK_FILE_CHOOSER_ACTION_SAVE,
