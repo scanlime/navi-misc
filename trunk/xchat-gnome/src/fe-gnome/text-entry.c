@@ -452,6 +452,7 @@ tab_complete_command (GtkEntry *entry)
 		gtk_editable_set_position (GTK_EDITABLE (entry), pos);
 		g_free (npt);
 		g_free (prefix);
+		g_free (new_prefix);
 		return TRUE;
 	} else {
 		/* more than one match - print a list of options
@@ -473,10 +474,11 @@ tab_complete_command (GtkEntry *entry)
 			npt = g_strdup_printf ("/%s%s", new_prefix, &text[cursor]);
 			gtk_entry_set_text (entry, npt);
 			g_free (npt);
-			gtk_editable_set_position (GTK_EDITABLE (entry), strlen (new_prefix));
+			gtk_editable_set_position (GTK_EDITABLE (entry), strlen (new_prefix) + 1);
 		}
 		g_free (prefix);
 		g_free (npt);
+		g_free (new_prefix);
 		return TRUE;
 	}
 

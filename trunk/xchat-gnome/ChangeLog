@@ -1,3 +1,9 @@
+Sat Jul 15 22:33:49 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/text-entry.c:
+	  - Fix a leak with new_prefix.
+	  - Set the cursor at the end of the longest common prefix.
+
 Sat Jul 15 21:42:52 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/conversation-panel.c:
