@@ -468,7 +468,6 @@ tab_complete_command (GtkEntry *entry)
 		conversation_panel_print (CONVERSATION_PANEL (gui.conversation_panel), text_entry->priv->current, (guchar *) printtext, TRUE);
 		g_free (printtext);
 
-		npt = NULL;
 		if (new_prefix && strcasecmp (prefix, new_prefix) != 0) {
 			/* insert the new prefix into the entry */
 			npt = g_strdup_printf ("/%s%s", new_prefix, &text[cursor]);
@@ -477,7 +476,6 @@ tab_complete_command (GtkEntry *entry)
 			gtk_editable_set_position (GTK_EDITABLE (entry), strlen (new_prefix) + 1);
 		}
 		g_free (prefix);
-		g_free (npt);
 		g_free (new_prefix);
 		return TRUE;
 	}
