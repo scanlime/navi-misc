@@ -1,3 +1,9 @@
+Sun Jul 16 22:15:14 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/text-entry.c:
+	  - Remove double g_free. Fix a crash in IRC command
+	    completion. (#333482)
+
 Sat Jul 15 22:33:49 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/text-entry.c:
