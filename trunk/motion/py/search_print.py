@@ -158,8 +158,18 @@ def cost (path, goal):
     return (g + h)
 
 
-# Option parser in case this script gets more complicated
+# Set up and parse the command-line options for this script
 options = OptionParser (usage="%prog <graphs>")
+options.add_option ('-s', dest='searchPrint', action='store_true', default=False,
+        help='Print each step of the search to a .dot file')
+options.add_option ('-p', dest='graphPrint', action='store_true', default=False,
+        help='Print each graph unmolested to a .dot file')
+options.add_option ('-c', '--csv',
+        help='Store benchmark data in a comma separated value file')
+options.add_option ('-l', '--length', type=int, default=5,
+        help='Specify a path length for the searches (default 5)')
+options.add_option ('-i', '--iterations', type=int, default=5,
+        help='Specify the number of searches to run')
 opts, args = options.parse_args ()
 
 # Check the arguments
