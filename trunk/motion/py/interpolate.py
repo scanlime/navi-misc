@@ -112,6 +112,7 @@ for bone, data in samc.bones.iteritems():
 
 print "searching..."
 if opts.benchmark:
+    # Time the search
     startTime = time.clock ()
     search = Interpolate.GraphSearch (cgraph, start, end)
     endTime = time.clock ()
@@ -124,6 +125,7 @@ if opts.file:
     save (search.path, opts.file)
 else:
     # Print the interpolated data to stdout
+    print
     print search.path
 
 # vim: ts=4:sw=4:et
