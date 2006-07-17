@@ -208,14 +208,18 @@ if opts.graphPrint:
     DotPrint (graph, f)
     f.close ()
 
-results = []
-runned = []
+results = {}
 for i in range (opts.iterations):
-    runned.append (build_path (graph, opts.length))
+    s, e = build_path (graph, opts.length)
     # Go!
+    startTime = time.clock ()
     if opts.searchPrint:
-        results.append (HeuristicPrint (graph, cost, s, e))
+        res = HeuristicPrint (graph, cost, s, e)
     else:
-        results.append (Heuristic (graph, cost, s, e))
+        res = Heuristic (graph, cost, s, e)
+    endTime = time.clock ()
+
+    results[res] = (endTime - startTime)
+
 
 # vim: ts=4:sw=4:et
