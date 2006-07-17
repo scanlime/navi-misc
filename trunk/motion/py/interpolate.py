@@ -114,10 +114,13 @@ print "searching..."
 search = Interpolate.GraphSearch (cgraph, start, end)
 
 if opts.benchmark:
-    startTime = time.clock ()
+    startTime = time.time ()
     search.run ()
-    endTime = time.clock ()
-    print 'Time:', (endTime - startTime)
+    endTime = time.time ()
+    print 'start:', startTime
+    print 'end:', endTime
+    runTime = endTime - startTime
+    print 'Time:', runTime
 else:
     search.run ()
 
