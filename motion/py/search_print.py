@@ -145,6 +145,20 @@ def cost (path, goal):
     return (g + h)
 
 
+def build_path (graph, length):
+    nodes = [n for n in graph.representations[VertexMap]]
+    start = random.choice (nodes)
+    if not length:
+        end = random.choice (nodes)
+    else:
+        adj = graph.representations[AdjacencyList]
+        end = start
+        for i in range (length):
+            end = random.choice ([e for e in adj.query (end)]).v
+
+    return (start, end)
+
+
 # Set up and parse the command-line options for this script
 options = OptionParser (usage="%prog <graphs>")
 options.add_option ('-s', dest='searchPrint', action='store_true', default=False,
@@ -153,8 +167,8 @@ options.add_option ('-p', dest='graphPrint', action='store_true', default=False,
         help='Print each graph unmolested to a .dot file')
 options.add_option ('-c', '--csv',
         help='Store benchmark data in a comma separated value file')
-options.add_option ('-l', '--length', type=int, default=5,
-        help='Specify a path length for the searches (default 5)')
+options.add_option ('-l', '--length', type=int,
+        help='Specify a path length for the searches')
 options.add_option ('-i', '--iterations', type=int, default=5,
         help='Specify the number of searches to run (default 5)')
 opts, args = options.parse_args ()
@@ -194,10 +208,14 @@ if opts.graphPrint:
     DotPrint (graph, f)
     f.close ()
 
-# Go!
-if opts.searchPrint:
-    results = HeuristicPrint (graph, cost, s, e)
-else:
-    results = Heuristic (graph, cost, s, e)
+results = []
+runned = []
+for i in range (opts.iterations):
+    runned.append (build_path (graph, opts.length))
+    # Go!
+    if opts.searchPrint:
+        results = HeuristicPrint (graph, cost, s, e)
+    else:
+        results = Heuristic (graph, cost, s, e)
 
 # vim: ts=4:sw=4:et
