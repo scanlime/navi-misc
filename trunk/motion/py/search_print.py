@@ -16,7 +16,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 from Graph import algorithms_c, Combinatoric, Dot
-from Graph.Algorithms import HeuristicPrint, DotPrint
+from Graph.Algorithms import HeuristicPrint, DotPrint, Heuristic
 from Graph.Data import Graph, Edge, AdjacencyList, EdgeList, VertexMap
 from optparse import OptionParser
 from pyparsing import *
@@ -85,13 +85,8 @@ class Input:
     bayes   = Suppress ('[bayes') + name + Suppress (']') + OneOrMore (entry) + \
               Suppress ('[/bayes]')
 
-    start   = Suppress ('[start]') + OneOrMore (Group (name + Suppress (':') + \
-              node)) + Suppress ('[/start]')
-    end     = Suppress ('[end]') + OneOrMore (Group (name + Suppress (':') + \
-              node)) + Suppress ('[/end]')
-
     comment = '#' + Optional (restOfLine)
-    section = graph | bayes | start | end
+    section = graph | bayes
 
     grammar = OneOrMore (section) | Suppress (comment)
 
@@ -102,8 +97,6 @@ class Input:
         self.goal = None
         self.graph.setParseAction (self.setGraph)
         self.bayes.setParseAction (self.setBayes)
-        self.start.setParseAction (self.setStart)
-        self.end.setParseAction (self.setEnd)
         self.grammar.parseFile (f)
 
     def setGraph (self, s, loc, toks):
@@ -123,12 +116,6 @@ class Input:
             b[tuple (entry[0])] = entry[1]
 
         self.nets[toks[0]] = b
-
-    def setStart (self, s, loc, toks):
-        self.source = Combinatoric.Node (dict ([(name, Node (u)) for name, u in toks]))
-
-    def setEnd (self, s, loc, toks):
-        self.goal = Combinatoric.Node (dict ([(name, Node (u)) for name, u in toks]))
 
 
 def cost (path, goal):
@@ -169,7 +156,7 @@ options.add_option ('-c', '--csv',
 options.add_option ('-l', '--length', type=int, default=5,
         help='Specify a path length for the searches (default 5)')
 options.add_option ('-i', '--iterations', type=int, default=5,
-        help='Specify the number of searches to run')
+        help='Specify the number of searches to run (default 5)')
 opts, args = options.parse_args ()
 
 # Check the arguments
@@ -179,29 +166,13 @@ if len (args) != 1:
 # Parse the input file
 input = Input (args[0])
 
-for name, g in input.graphs.iteritems ():
-    # Save a copy of each graph, unmolested
-    print "saving %s graph" % name
-    f = file ('graphs/%s.dot' % name, 'w')
-    DotPrint (g, f)
-    f.close ()
-
-    # Color the source and goal for the graph
-    input.source[name].dotAttrs.update ([('style', 'filled'),
-            ('fillcolor', 'green')])
-    input.goal[name].dotAttrs.update ([('style', 'filled'),
-            ('fillcolor', 'red')])
-
-    # Run Dijkstra on the graph and print it, to verify that Dijkstra is
-    # working
-    p = algorithms_c.dijkstraSearch (g.representations[AdjacencyList], input.source[name], input.goal[name])
-    for n in p:
-        if n != input.source[name] and n != input.goal[name]:
-            n.dotAttrs.update ([('style', 'filled'),
-                    ('fillcolor', 'blue')])
-    f = file ('graphs/%s-dijkstra.dot' % name, 'w')
-    DotPrint (g, f)
-    f.close ()
+if opts.graphPrint:
+    for name, g in input.graphs.iteritems ():
+        # Save a copy of each graph, unmolested
+        print "saving %s graph" % name
+        f = file ('graphs/%s.dot' % name, 'w')
+        DotPrint (g, f)
+        f.close ()
 
 # Build a combinatoric graph
 cgraph = Graph ()
@@ -216,26 +187,17 @@ EdgeList (graph)
 VertexMap (graph)
 graph.addList ([e for e in cEdges])
 
-# Print the combined graph
-print "saving combined graph"
-f = file ('graphs/combined.dot', 'w')
-DotPrint (graph, f)
-f.close ()
-
-# Find the start and end in the graph. If we just pass input.source and
-# input.goal, they won't be colored because they're different instances and not
-# contained in the graph.
-# FIXME: this is kind of a hack.
-s = e = None
-for node in graph.representations[VertexMap]:
-    if node == input.source:
-        s = node
-    if node == input.goal:
-        e = node
-    if s and e:
-        break
+if opts.graphPrint:
+    # Print the combined graph
+    print "saving combined graph"
+    f = file ('graphs/combined.dot', 'w')
+    DotPrint (graph, f)
+    f.close ()
 
 # Go!
-results = HeuristicPrint (graph, cost, s, e)
+if opts.searchPrint:
+    results = HeuristicPrint (graph, cost, s, e)
+else:
+    results = Heuristic (graph, cost, s, e)
 
 # vim: ts=4:sw=4:et
