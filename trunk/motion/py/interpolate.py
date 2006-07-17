@@ -111,18 +111,13 @@ for bone, data in samc.bones.iteritems():
     end[bone] = data[int(args[-1]) - 1]
 
 print "searching..."
-search = Interpolate.GraphSearch (cgraph, start, end)
-
 if opts.benchmark:
-    startTime = time.time ()
-    search.run ()
-    endTime = time.time ()
-    print 'start:', startTime
-    print 'end:', endTime
-    runTime = endTime - startTime
-    print 'Time:', runTime
+    startTime = time.clock ()
+    search = Interpolate.GraphSearch (cgraph, start, end)
+    endTime = time.clock ()
+    print 'Time:', (endTime - startTime)
 else:
-    search.run ()
+    search = Interpolate.GraphSearch (cgraph, start, end)
 
 if opts.file:
     # Save the interpolated data to a file
