@@ -214,8 +214,8 @@ for i in range (opts.iterations):
     runned.append (build_path (graph, opts.length))
     # Go!
     if opts.searchPrint:
-        results = HeuristicPrint (graph, cost, s, e)
+        results.append (HeuristicPrint (graph, cost, s, e))
     else:
-        results = Heuristic (graph, cost, s, e)
+        results.append (Heuristic (graph, cost, s, e))
 
 # vim: ts=4:sw=4:et
