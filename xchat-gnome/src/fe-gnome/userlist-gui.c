@@ -55,6 +55,7 @@ static void user_open_dialog_activate (GtkAction *action, gpointer data);
 static void user_kick_activate        (GtkAction *action, gpointer data);
 static void user_ban_activate         (GtkAction *action, gpointer data);
 static void user_ignore_activate      (GtkAction *action, gpointer data);
+static void user_op_activate          (GtkAction *action, gpointer data);
 
 static GtkActionEntry popup_action_entries[] = {
 	{ "UserlistSendFile",   NULL, N_("_Send File..."), "",   NULL, G_CALLBACK (user_send_file_activate) },
@@ -62,6 +63,7 @@ static GtkActionEntry popup_action_entries[] = {
 	{ "UserlistKick",       NULL, N_("_Kick"),         "",   NULL, G_CALLBACK (user_kick_activate) },
 	{ "UserlistBan",        NULL, N_("_Ban"),          "",   NULL, G_CALLBACK (user_ban_activate) },
 	{ "UserlistIgnore",     NULL, N_("Ignore"),        "",   NULL, G_CALLBACK (user_ignore_activate) },
+	{ "UserlistOp",	        NULL, N_("_Op"),           "",   NULL, G_CALLBACK (user_op_activate) },
 };
 
 struct User     *current_user;
@@ -230,6 +232,14 @@ user_ignore_activate (GtkAction *action, gpointer data)
 	command = g_strdup_printf ("ignore %s!*@* ALL", current_user->nick);
 	handle_command (gui.current_session, command, 1);
 	g_free (command);
+
+	userlist_gui_hide ();
+}
+
+static void
+user_op_activate (GtkAction *action, gpointer data)
+{
+	user_cmd ("op", current_user->nick);
 
 	userlist_gui_hide ();
 }

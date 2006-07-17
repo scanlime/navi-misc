@@ -58,6 +58,7 @@
 		<menuitem name="UserlistKickItem" action="UserlistKick"/>
 		<menuitem name="UserlistBanItem" action="UserlistBan"/>
 		<menuitem name="UserlistIgnoreItem" action="UserlistIgnore"/>
+		<menuitem name="UserlistOpItem" action="UserlistOp"/>
 	</popup>
 
 	<popup name="UserDialogPopup" action="PopupAction">
