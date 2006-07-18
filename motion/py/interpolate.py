@@ -116,7 +116,7 @@ if opts.benchmark:
     startTime = time.clock ()
     search = Interpolate.GraphSearch (cgraph, start, end)
     endTime = time.clock ()
-    print 'Time:', (endTime - startTime)
+    print '\nTime:', (endTime - startTime)
 else:
     search = Interpolate.GraphSearch (cgraph, start, end)
 
