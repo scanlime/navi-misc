@@ -173,76 +173,73 @@ options.add_option ('-i', '--iterations', type=int, default=5,
 opts, args = options.parse_args ()
 
 # Check the arguments
-if len (args) != 1:
-    options.error ("Incorrect number of arguments")
+if len (args) < 1:
+    options.error ("At least one graph file required")
+
+output = 'Nodes'.center (15) + 'Branch'.center (15) + 'Run Time'.center (15) + '\n'
 
 # Parse the input file
-input = Input (args[0])
+for inputFile in args:
+    input = Input (inputFile)
 
-if opts.graphPrint:
-    for name, g in input.graphs.iteritems ():
-        # Save a copy of each graph, unmolested
-        print "saving %s graph" % name
-        f = file ('graphs/%s.dot' % name, 'w')
-        DotPrint (g, f)
+    if opts.graphPrint:
+        for name, g in input.graphs.iteritems ():
+            # Save a copy of each graph, unmolested
+            print "saving %s graph" % name
+            f = file ('graphs/%s.dot' % name, 'w')
+            DotPrint (g, f)
+            f.close ()
+
+    # Build a combinatoric graph
+    cgraph = Graph ()
+    cEdges = Combinatoric.EdgeList (cgraph)
+    cgraph.addList (input.graphs.items ())
+
+    # Build a graph with regular representations because a combinatoric
+    # representation generates new nodes each time it's accessed.
+    graph = Graph ()
+    AdjacencyList (graph)
+    EdgeList (graph)
+    VertexMap (graph)
+    graph.addList ([e for e in cEdges])
+
+    if opts.graphPrint:
+        # Print the combined graph
+        print "saving combined graph"
+        f = file ('graphs/combined.dot', 'w')
+        DotPrint (graph, f)
         f.close ()
 
-# Build a combinatoric graph
-cgraph = Graph ()
-cEdges = Combinatoric.EdgeList (cgraph)
-cgraph.addList (input.graphs.items ())
+    avgNodes = avgBranch = 0.0
 
-# Build a graph with regular representations because a combinatoric
-# representation generates new nodes each time it's accessed.
-graph = Graph ()
-AdjacencyList (graph)
-EdgeList (graph)
-VertexMap (graph)
-graph.addList ([e for e in cEdges])
+    for v in graph.representations[VertexMap]:
+        avgNodes += 1
+        for e in graph.representations[AdjacencyList].query (v):
+            avgBranch += 1
+    avgBranch /= avgNodes
 
-if opts.graphPrint:
-    # Print the combined graph
-    print "saving combined graph"
-    f = file ('graphs/combined.dot', 'w')
-    DotPrint (graph, f)
-    f.close ()
+    results = 0.0
+    for i in range (opts.iterations):
+        s, e = build_path (graph, opts.length)
+        # Go!
+        startTime = time.clock ()
+        if opts.searchPrint:
+            HeuristicPrint (graph, cost, s, e)
+        else:
+            Heuristic (graph, cost, s, e)
+        endTime = time.clock ()
 
-avgNodes = avgBranch = 0.0
+        results += (endTime - startTime)
 
-for v in graph.representations[VertexMap]:
-    avgNodes += 1
-    for e in graph.representations[AdjacencyList].query (v):
-        avgBranch += 1
-avgBranch /= avgNodes
+    results /= opts.iterations
 
-results = {}
-for i in range (opts.iterations):
-    s, e = build_path (graph, opts.length)
-    # Go!
-    startTime = time.clock ()
-    if opts.searchPrint:
-        res = HeuristicPrint (graph, cost, s, e)
+    output += '%15d %15f %15f\n' % (avgNodes, avgBranch, results)
+
+    if opts.output:
+        f = file (opts.output, 'w')
+        f.write ('#' + output)
     else:
-        res = Heuristic (graph, cost, s, e)
-    endTime = time.clock ()
-
-    results[res] = (endTime - startTime)
-
-output = 'Nodes'.center (15) + 'Branch'.center (15) + 'Length'.center (15) \
-        + 'Run Time'.center (15) + '\n'
-
-for search, runTime in results.iteritems ():
-    if search.path:
-        length = len (search.path)
-    else:
-        length = 0
-    output += '%15d %15f %15d %15f\n' % \
-            (avgNodes, avgBranch, length, runTime)
-
-if opts.output:
-    f = file (opts.output, 'w')
-    f.write ('#' + output)
-else:
-    print output
+        print
+        print output
     
 # vim: ts=4:sw=4:et
