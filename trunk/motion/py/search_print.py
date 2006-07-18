@@ -20,7 +20,7 @@ from Graph.Algorithms import HeuristicPrint, DotPrint, Heuristic
 from Graph.Data import Graph, Edge, AdjacencyList, EdgeList, VertexMap
 from optparse import OptionParser
 from pyparsing import *
-import random, re
+import random, re, time
 
 class Node (object, Dot.Node):
     """Basic node class for printing faked data.
@@ -165,7 +165,7 @@ options.add_option ('-s', dest='searchPrint', action='store_true', default=False
         help='Print each step of the search to a .dot file')
 options.add_option ('-p', dest='graphPrint', action='store_true', default=False,
         help='Print each graph unmolested to a .dot file')
-options.add_option ('-c', '--csv',
+options.add_option ('-o', '--output',
         help='Store benchmark data in a comma separated value file')
 options.add_option ('-l', '--length', type=int,
         help='Specify a path length for the searches')
@@ -208,6 +208,14 @@ if opts.graphPrint:
     DotPrint (graph, f)
     f.close ()
 
+avgNodes = avgBranch = 0.0
+
+for v in graph.representations[VertexMap]:
+    avgNodes += 1
+    for e in graph.representations[AdjacencyList].query (v):
+        avgBranch += 1
+avgBranch /= avgNodes
+
 results = {}
 for i in range (opts.iterations):
     s, e = build_path (graph, opts.length)
@@ -221,5 +229,21 @@ for i in range (opts.iterations):
 
     results[res] = (endTime - startTime)
 
+output = 'Nodes'.center (15) + 'Branch'.center (15) + 'Length'.center (15) \
+        + 'Run Time'.center (15) + '\n'
 
+for search, runTime in results.iteritems ():
+    if search.path:
+        length = len (search.path)
+    else:
+        length = 0
+    output += '%15d %15f %15d %15f\n' % \
+            (avgNodes, avgBranch, length, runTime)
+
+if opts.output:
+    f = file (opts.output, 'w')
+    f.write ('#' + output)
+else:
+    print output
+    
 # vim: ts=4:sw=4:et
