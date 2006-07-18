@@ -129,7 +129,6 @@ def cost (path, goal):
     done = []
     undone = []
     for name, x in input.graphs.iteritems ():
-        print "dijkstra from %s to %s" % (path[-1][name], goal[name])
         a = x.representations[AdjacencyList]
         l = len (algorithms_c.dijkstraSearch (a, path[-1][name], goal[name]))
         if path[-1][name] == goal[name]:
