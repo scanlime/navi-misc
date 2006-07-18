@@ -153,6 +153,7 @@ class GraphSearch (Algorithm):
         self.goal = goal
         self.adjacency = dict (graph.representations[AdjacencyList].data) 
         self.search = Heuristic (graph, self.f, fixNode(source), fixNode(goal))
+        self.path = self.search.path
 
     def invalidate (self):
         """Invalidate the algorithm.
