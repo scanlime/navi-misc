@@ -22,7 +22,9 @@
 #
 
 from Graph import MotionGraph
-from Motion import AMC
+from Graph.Data import Graph
+from Graph.Combinatoric import BayesAdjacency, VertexMap, EdgeList
+from Motion import AMC, ASFReader
 from optparse import OptionParser
 import pickle
 
@@ -48,10 +50,10 @@ def load (files, interval):
 
     return graphs
 
-options = OptionParser ('%prog [output file] [AMC FILE]...')
-options.add_option ('-d', dest='degrees', default='5',
+options = OptionParser ('%prog [options] -b <asf file> [output file] [AMC FILE]...')
+options.add_option ('-d', dest='degrees', type=int, default=5,
 		help='Set the discretization size of graph nodes')
-options.add_option ('-b', '--bayes', action='store_true', default=False,
+options.add_option ('-b', '--bayes', dest='asf',
 		help='Store the graph with a Bayesian filter')
 
 opts, args = options.parse_args ()
@@ -60,9 +62,26 @@ if len (args) < 2:
 else:
     graphs = load (args[1:], int(opts.degrees))
 
+    if opts.asf:
+        asf = ASFReader ()
+        asf.parse (opts.asf)
+        nets = MotionGraph.build_bayes (asf, args[1:], opts.degrees)
+
+        cgraph = Graph ()
+        adj = BayesAdjacency (cgraph, nets, asf)
+        vMap = VertexMap (cgraph)
+        eList = EdgeList (cgraph)
+
+        cgraph.addList (graphs.items ())
+
     print 'writing pickle'
     file = open (args[0], 'w')
-    pickle.dump (graphs, file)
+
+    if opts.asf:
+        pickle.dump (cgraph, file)
+    else:
+        pickle.dump (graphs, file)
+
     print 'flushing'
     file.flush ()
     file.close ()
