@@ -37,10 +37,11 @@ def cost (path, goal):
     done = []
     undone = []
 
-    for name, x in input.graphs.iteritems ():
+    adj = graph.representations[AdjacencyList]
+
+    for (name, a) in adj.data:
         # Calculate the length of the shortest path from the current vertex to
         # the goal for this graph.
-        a = x.representations[AdjacencyList]
         l = len (algorithms_c.dijkstraSearch (a, path[-1][name], goal[name]))
 
         # If this graph has reached its goal, append it to ``done``. Otherwise
@@ -106,7 +107,8 @@ output = 'Nodes'.center (15) + 'Branch'.center (15) + 'Run Time'.center (15) + '
 
 # Parse the input file
 for inputFile in args:
-    input = Input (inputFile)
+    global graph
+    graph = pickle.load (file (inputFile, 'r'))
 
     avgNodes = avgBranch = 0.0
 
