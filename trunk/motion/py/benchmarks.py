@@ -20,7 +20,7 @@ from Graph import algorithms_c
 from Graph.Algorithms import Heuristic
 from Graph.Data import AdjacencyList, VertexMap
 from optparse import OptionParser
-import random, re, time
+import pickle, random, re, time
 
 def cost (path, goal):
     """Return the cost of ``path``.
