@@ -24,10 +24,6 @@
 usage: interpolate.py <asf file> <graph> <bayes net> <input amc> <output amc> <start frame> <end frame>
 """
 
-from Graph import algorithms_c, Combinatoric, MotionGraph
-from Graph.Combinatoric import BayesAdjacency, AdjacencyList, VertexMap
-from Graph.Data import Graph
-from Graph.Algorithms import Heuristic
 from Motion import AMC, ASFReader, Interpolate
 from optparse import OptionParser
 import Numeric, pickle, string, time
@@ -61,18 +57,15 @@ def save(sequence, file):
 
     f.close()
 
-arguments = ['asf file', 'graph', 'input amc', 'start frame', 'end frame']
+arguments = ['graph', 'input amc', 'start frame', 'end frame']
 options = OptionParser(usage='%prog [options] ' + \
         string.join (['<%s>' % x for x in arguments]))
-
 options.add_option('-e', type=float, dest='epsilon', default=0.3**29, \
         help='Set the threshold for the Bayes filter') 
 options.add_option('-b', '--benchmark', action='store_true', default=False, \
         help='Run with a Timer and display benchmarks of the interpolation')
-options.add_option('-B', '--bayes', help='Specify a bayes net to load')
 options.add_option('-o', dest='file', \
         help='Save the interpolated AMC data to a file')
-
 opts, args = options.parse_args ()
 
 if len (args) < len (arguments):
@@ -80,28 +73,10 @@ if len (args) < len (arguments):
 elif len (args) > len (arguments):
     options.error ('%d extra arguments' % (len (args) - len (arguments)))
 
-samc = AMC.from_file (args[2])
-
-print 'loading asf'
-asf = ASFReader ()
-asf.parse (args[0])
-
+samc = AMC.from_file (args[1])
 
 print 'loading graphs'
-graphs = pickle.load (open(args[1]))
-
-# Build the combinatoric graph
-cgraph = Graph ()
-
-if opts.bayes:
-    print 'loading bayes net'
-    bayes_net = pickle.load (open(opts.bayes))
-    cAdj = BayesAdjacency (cgraph, bayes_net, asf, opts.epsilon)
-else:
-    cAdj = AdjacencyList (cgraph)
-
-cVMap = VertexMap (cgraph)
-cgraph.addList (graphs.items())
+graph = pickle.load (open(args[0]))
 
 # Build the dictionaries for the starting and ending frames of the search
 start = {}
@@ -114,17 +89,19 @@ print "searching..."
 if opts.benchmark:
     # Time the search
     startTime = time.clock ()
-    search = Interpolate.GraphSearch (cgraph, start, end)
+    search = Interpolate.GraphSearch (graph, start, end)
     endTime = time.clock ()
     print '\nTime:', (endTime - startTime)
 else:
-    search = Interpolate.GraphSearch (cgraph, start, end)
+    search = Interpolate.GraphSearch (graph, start, end)
 
 if opts.file:
     # Save the interpolated data to a file
     save (search.path, opts.file)
 else:
     # Print the interpolated data to stdout
+    print
+    print len(search.path)
     print
     print search.path
 
