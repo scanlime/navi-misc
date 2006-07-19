@@ -1,3 +1,5 @@
+==================== 0.13 ====================
+
 Mon Jul 17 23:34:37 CEST 2006  Christian Persch <chpe@gnome.org>
 
 	* src/fe-gnome/userlist-gui.c:
@@ -26,7 +28,7 @@ Sat Jul 15 21:42:52 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 	    session.
 
 Mon Jul 10 00:38:11 CEST 2006  Guillaume Desmottes <cass@skynet.be>
-	
+
 	* src/fe-gnome/navigation-tree.c:
 	  - Code cleaning to fix a crash when adding the first autojoin
 	    channel.
