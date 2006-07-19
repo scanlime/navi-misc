@@ -107,6 +107,7 @@ output = 'Nodes'.center (15) + 'Branch'.center (15) + 'Run Time'.center (15) + '
 
 # Parse the input file
 for inputFile in args:
+    print 'Searching', inputFile
     global graph
     graph = pickle.load (file (inputFile, 'r'))
 
@@ -123,10 +124,7 @@ for inputFile in args:
         s, e = build_path (graph, opts.length)
         # Go!
         startTime = time.clock ()
-        if opts.searchPrint:
-            HeuristicPrint (graph, cost, s, e)
-        else:
-            Heuristic (graph, cost, s, e)
+        Heuristic (graph, cost, s, e)
         endTime = time.clock ()
 
         results += (endTime - startTime)
@@ -135,11 +133,11 @@ for inputFile in args:
 
     output += '%15d %15f %15f\n' % (avgNodes, avgBranch, results)
 
-    if opts.output:
-        f = file (opts.output, 'w')
-        f.write ('#' + output)
-    else:
-        print
-        print output
+if opts.output:
+    f = file (opts.output, 'w')
+    f.write ('#' + output)
+else:
+    print
+    print output
     
 # vim: ts=4:sw=4:et

@@ -23,7 +23,7 @@
 
 from Graph import MotionGraph
 from Graph.Data import Graph
-from Graph.Combinatoric import BayesAdjacency, VertexMap, EdgeList
+from Graph.Combinatoric import AdjacencyList, BayesAdjacency, VertexMap, EdgeList
 from Motion import AMC, ASFReader
 from optparse import OptionParser
 import pickle
@@ -62,26 +62,24 @@ if len (args) < 2:
 else:
     graphs = load (args[1:], int(opts.degrees))
 
+    cgraph = Graph ()
+    vMap = VertexMap (cgraph)
+    eList = EdgeList (cgraph)
+
     if opts.asf:
         asf = ASFReader ()
         asf.parse (opts.asf)
         nets = MotionGraph.build_bayes (asf, args[1:], opts.degrees)
 
-        cgraph = Graph ()
         adj = BayesAdjacency (cgraph, nets, asf)
-        vMap = VertexMap (cgraph)
-        eList = EdgeList (cgraph)
+    else:
+        adj = AdjacencyList (cgraph)
 
-        cgraph.addList (graphs.items ())
+    cgraph.addList (graphs.items ())
 
     print 'writing pickle'
     file = open (args[0], 'w')
-
-    if opts.asf:
-        pickle.dump (cgraph, file)
-    else:
-        pickle.dump (graphs, file)
-
+    pickle.dump (cgraph, file)
     print 'flushing'
     file.flush ()
     file.close ()
