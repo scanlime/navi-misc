@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#
 # Copyright (C) 2006 W. Evan Sheehan
 #
 # This program is free software; you can redistribute it and/or
@@ -15,11 +16,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-from Graph import algorithms_c, Combinatoric, Dot
-from Graph.Algorithms import HeuristicPrint, DotPrint, Heuristic
-from Graph.Data import Graph, Edge, AdjacencyList, EdgeList, VertexMap
+from Graph import algorithms_c
+from Graph.Algorithms import Heuristic
+from Graph.Data import AdjacencyList, VertexMap
 from optparse import OptionParser
-from pyparsing import *
 import random, re, time
 
 def cost (path, goal):
@@ -28,10 +28,14 @@ def cost (path, goal):
     Cost of a given path is the length of the path, plus the sum of each
     shortest path from the end of it to the goal.
     """
+    # Cost is g + h
     g = len (path)
     h = 0
+    # List of all paths that are at their goal
     done = []
+    # List of all paths not at their goal
     undone = []
+
     for name, x in input.graphs.iteritems ():
         a = x.representations[AdjacencyList]
         l = len (algorithms_c.dijkstraSearch (a, path[-1][name], goal[name]))
@@ -64,10 +68,6 @@ def build_path (graph, length):
 
 # Set up and parse the command-line options for this script
 options = OptionParser (usage="%prog <graphs>")
-options.add_option ('-s', dest='searchPrint', action='store_true', default=False,
-        help='Print each step of the search to a .dot file')
-options.add_option ('-p', dest='graphPrint', action='store_true', default=False,
-        help='Print each graph unmolested to a .dot file')
 options.add_option ('-o', '--output',
         help='Store benchmark data in a comma separated value file')
 options.add_option ('-l', '--length', type=int,
@@ -85,34 +85,6 @@ output = 'Nodes'.center (15) + 'Branch'.center (15) + 'Run Time'.center (15) + '
 # Parse the input file
 for inputFile in args:
     input = Input (inputFile)
-
-    if opts.graphPrint:
-        for name, g in input.graphs.iteritems ():
-            # Save a copy of each graph, unmolested
-            print "saving %s graph" % name
-            f = file ('graphs/%s.dot' % name, 'w')
-            DotPrint (g, f)
-            f.close ()
-
-    # Build a combinatoric graph
-    cgraph = Graph ()
-    cEdges = Combinatoric.EdgeList (cgraph)
-    cgraph.addList (input.graphs.items ())
-
-    # Build a graph with regular representations because a combinatoric
-    # representation generates new nodes each time it's accessed.
-    graph = Graph ()
-    AdjacencyList (graph)
-    EdgeList (graph)
-    VertexMap (graph)
-    graph.addList ([e for e in cEdges])
-
-    if opts.graphPrint:
-        # Print the combined graph
-        print "saving combined graph"
-        f = file ('graphs/combined.dot', 'w')
-        DotPrint (graph, f)
-        f.close ()
 
     avgNodes = avgBranch = 0.0
 
