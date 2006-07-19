@@ -51,6 +51,8 @@ def load (files, interval):
 options = OptionParser ('%prog [output file] [AMC FILE]...')
 options.add_option ('-d', dest='degrees', default='5',
 		help='Set the discretization size of graph nodes')
+options.add_option ('-b', '--bayes', action='store_true', default=False,
+		help='Store the graph with a Bayesian filter')
 
 opts, args = options.parse_args ()
 if len (args) < 2:
