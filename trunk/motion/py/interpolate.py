@@ -24,6 +24,7 @@
 usage: interpolate.py <asf file> <graph> <bayes net> <input amc> <output amc> <start frame> <end frame>
 """
 
+from Graph.Data import AdjacencyList
 from Motion import AMC, ASFReader, Interpolate
 from optparse import OptionParser
 import Numeric, pickle, string, time
@@ -60,7 +61,7 @@ def save(sequence, file):
 arguments = ['graph', 'input amc', 'start frame', 'end frame']
 options = OptionParser(usage='%prog [options] ' + \
         string.join (['<%s>' % x for x in arguments]))
-options.add_option('-e', type=float, dest='epsilon', default=0.3**29, \
+options.add_option('-e', type=float, dest='epsilon', \
         help='Set the threshold for the Bayes filter') 
 options.add_option('-b', '--benchmark', action='store_true', default=False, \
         help='Run with a Timer and display benchmarks of the interpolation')
@@ -77,6 +78,9 @@ samc = AMC.from_file (args[1])
 
 print 'loading graphs'
 graph = pickle.load (open(args[0]))
+
+if opts.epsilon:
+    graph.representations[AdjacencyList].epsilon = opts.epsilon
 
 # Build the dictionaries for the starting and ending frames of the search
 start = {}
