@@ -322,10 +322,7 @@ class Heuristic (Algorithm):
         agenda = [self.source]
         visited = []
         
-        if self.graph.representations.has_key (BayesAdjacency):
-            adj = self.graph.representations[BayesAdjacency]
-        else:
-            adj = self.graph.representations[AdjacencyList]
+        adj = self.graph.representations[AdjacencyList]
 
         while len(agenda) > 0:
             # Get the next node and test for the goal
