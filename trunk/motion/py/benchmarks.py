@@ -31,20 +31,31 @@ def cost (path, goal):
     # Cost is g + h
     g = len (path)
     h = 0
-    # List of all paths that are at their goal
+   
+    # Lists for marking paths that have reached their goal, and paths that have
+    # not.
     done = []
-    # List of all paths not at their goal
     undone = []
 
     for name, x in input.graphs.iteritems ():
+        # Calculate the length of the shortest path from the current vertex to
+        # the goal for this graph.
         a = x.representations[AdjacencyList]
         l = len (algorithms_c.dijkstraSearch (a, path[-1][name], goal[name]))
+
+        # If this graph has reached its goal, append it to ``done``. Otherwise
+        # append it to ``undone``.
         if path[-1][name] == goal[name]:
             done.append (l)
         else:
             undone.append (l)
+
+        # Add the length of the shortest path to ``h``.
         h += l
 
+    # For every pair of done/not done paths, add the difference in path length
+    # to h. This penalizes a node where only some of its composite nodes have
+    # reached the goal.
     for i in done:
         for j in undone:
             h += j - i
@@ -53,11 +64,21 @@ def cost (path, goal):
 
 
 def build_path (graph, length):
+    # Build a list of nodes
     nodes = [n for n in graph.representations[VertexMap]]
+    # Choose a random starting place
     start = random.choice (nodes)
+
     if not length:
+        # If no length is specified, choose a random ending place. This may be
+        # the same as the starting place.
         end = random.choice (nodes)
     else:
+        # If a length was specified, build a path of that length.
+        #
+        # FIXME: there's no guarantee that the actual ending point is
+        # ``length`` nodes away from the start because there is no checking for
+        # loops here.
         adj = graph.representations[AdjacencyList]
         end = start
         for i in range (length):
@@ -80,6 +101,7 @@ opts, args = options.parse_args ()
 if len (args) < 1:
     options.error ("At least one graph file required")
 
+# Build the headers for the output
 output = 'Nodes'.center (15) + 'Branch'.center (15) + 'Run Time'.center (15) + '\n'
 
 # Parse the input file
