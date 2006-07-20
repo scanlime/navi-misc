@@ -474,26 +474,32 @@ class BayesAdjacency (AdjacencyList):
                 yield current.copy ()
                 return
 
+            # The bone we're currently examining
             bone = order[0]
 
-            # If the bone has no DOF, skip it
+            # If the bone is not the root (the root isn't in self.bones) and it
+            # has no DOF, skip it.
             if not bone == "root" and not self.bones[bone].dof:
                 for child in filter (order[1:], current, prob):
                     yield child
                     return
 
-            # Get parent information
+            # Get the name of the parent and the current position of the
+            # parent, if this bone has a parent.
             if bone in self.parents:
                 parent = self.parents[bone]
-                pbone = current.get(parent)
+                # ppos will be None if the parent has no DOF (hipjoints and
+                # clavicles).
+                ppos = current.get(parent)
 
             # Iterate over all the nodes connected to this one
             for edge in dict (self.data)[bone].query (u[bone]):
+                # Add this neighbor to the current successor pose
                 current[bone] = edge.v
 
                 # If the bone has no parent or the parent has no mocap data
-                # (i.e. the parent has no DOF), skip it
-                if (bone not in self.parents or not pbone):
+                # (i.e. the parent has no DOF), accept all neighbors
+                if (bone not in self.parents or ppos is None):
                     for child in filter (order[1:], current, prob):
                         yield child
                 # If the bone has a parent and the parent has a position in
@@ -502,7 +508,7 @@ class BayesAdjacency (AdjacencyList):
                 else:
                     net = self.bayes[bone]
                     # Generate the index used by the Bayes net
-                    spot = (tuple (pbone.mins), tuple (node.mins))
+                    spot = (tuple (ppos.mins), tuple (node.mins))
 
                     # If the Bayes net has an entry for this pair of positions,
                     # calculate the new probabilities. If they're high enough,
@@ -519,6 +525,9 @@ class BayesAdjacency (AdjacencyList):
                                 yield child
 
                     # FIXME: what if ``spot`` isn't in the Bayes net?
+                    else:
+                        raise KeyError ('(%f, %f) not in bayes net for %s' %
+                                (spot[0], spot[1], bone))
        
         # Yield edges with a high enough probability to warrant checking.
         for v in filter (self.order):
