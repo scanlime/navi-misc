@@ -309,18 +309,24 @@ def build_bayes (asf, files, interval):
     amcs = []
     nets = {}
 
+    # Load the AMCs
     for filename in files:
         print 'loading %s' % filename
         amcs.append(AMC.from_file(filename))
 
+    # Build a dictionary mapping parent bones to their list of children from
+    # the ASF file.
     relationships = {}
     for rel in asf.hierarchy:
         parent = rel[0]
         children = rel[1:]
         if len(parent):
             relationships[parent] = children
+            # Check each child bone to see if it's in the mocap data. If it is,
+            # it has DOF and moves, so it needs a Bayes net.
             for child in children:
                 if child in amcs[0].bones:
+                    # Set up an empty bayes net for the bone.
                     nets[child] = {}
 
     print 'building bayes nets'
@@ -348,6 +354,7 @@ def build_bayes (asf, files, interval):
                 # If the child has no DOF, we don't need to build a net at
                 # all, since we won't be interpolating that bone
                 continue
+
             if parent not in amcs[0].bones:
                 # If the parent has no DOF, the bayes net for this
                 # relationship simplifies to a simple histogram of the
