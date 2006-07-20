@@ -79,7 +79,7 @@ samc = AMC.from_file (args[1])
 print 'loading graphs'
 graph = pickle.load (open(args[0]))
 
-if opts.epsilon:
+if opts.epsilon is not None:
     graph.representations[AdjacencyList].epsilon = opts.epsilon
 
 # Build the dictionaries for the starting and ending frames of the search
