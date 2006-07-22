@@ -248,27 +248,33 @@ void
 userlist_gui_show (void)
 {
 	gint            desired_height;
-	gint            window_x;
-	gint            window_y;
-	gint            mouse_x;
-	gint            mouse_y;
+	gint            window_x, window_y;
+	gint            toggle_x, toggle_y;
 	gint            monitor;
 	GdkRectangle    monitor_rect;
-	GdkDisplay     *display;
-	GdkScreen      *mouse_screen;
+	GdkScreen      *screen;
 	GtkRequisition  request;
 
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gui.userlist_toggle), TRUE);
 
-	if (!GTK_WIDGET_REALIZED (gui.userlist_window))
+	if (!GTK_WIDGET_REALIZED (gui.userlist_window)) {
 		gtk_widget_realize (gui.userlist_window);
+	}
 	gtk_widget_size_request (gui.userlist, &request);
 
-	display = gdk_display_get_default ();
-	gdk_display_get_pointer (display, &mouse_screen, &mouse_x, &mouse_y, NULL);
+	gdk_window_get_origin (gui.userlist_toggle->window, &toggle_x, &toggle_y);
+	screen = gtk_widget_get_screen (gui.userlist_toggle);
+	monitor = gdk_screen_get_monitor_at_point (screen, toggle_x, toggle_y);
+	gdk_screen_get_monitor_geometry (screen, monitor, &monitor_rect);
 
-	monitor = gdk_screen_get_monitor_at_point (mouse_screen, mouse_x, mouse_y);
-	gdk_screen_get_monitor_geometry (mouse_screen, monitor, &monitor_rect);
+	if (gtk_widget_get_direction (gui.userlist_toggle) == GTK_TEXT_DIR_RTL) {
+		toggle_x += gui.userlist_toggle->allocation.x +
+		            gui.userlist_toggle->allocation.width - request.width;
+	} else {
+		toggle_x += gui.userlist_toggle->allocation.width;
+	}
+	toggle_y += gui.userlist_toggle->allocation.y +
+	            gui.userlist_toggle->allocation.height;
 
 	/* Buffer of 20 pixels.  Would be nice to know exactly how much space
 	 * the rest of the window's UI goop used up, but oh well.
@@ -277,8 +283,8 @@ userlist_gui_show (void)
 	if (desired_height > monitor_rect.height)
 		desired_height = monitor_rect.height;
 
-	window_x = mouse_x + 10;
-	window_y = mouse_y - (desired_height / 2);
+	window_x = toggle_x + 10;
+	window_y = toggle_y - (desired_height / 2);
 
 	if (window_x < monitor_rect.x)
 		window_x = monitor_rect.x;
