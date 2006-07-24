@@ -28,14 +28,8 @@ from Motion import AMC, ASFReader
 from optparse import OptionParser
 import pickle
 
-def load (files, interval):
-    amcs = []
+def load (amcs, interval):
     graphs = {}
-
-    # Open all the AMC files at once, so we can build entire graphs at once.
-    for filename in files:
-        print 'loading',filename
-        amcs.append (AMC.from_file (filename))
 
     # Build the actual graphs.  We iterate over bones, building graphs for each.
     # This assumes that we have the same bones with the same dof in each file!
@@ -55,12 +49,17 @@ options.add_option ('-d', dest='degrees', type=int, default=5,
 		help='Set the discretization size of graph nodes')
 options.add_option ('-b', '--bayes', dest='asf',
 		help='Store the graph with a Bayesian filter')
-
 opts, args = options.parse_args ()
+
 if len (args) < 2:
     options.error ('incorrect number of arguments')
 else:
-    graphs = load (args[1:], int(opts.degrees))
+    amcs = []
+    for f in args[1:]:
+        print 'loading', f
+        amcs.append (AMC.from_file (f))
+
+    graphs = load (amcs, int(opts.degrees))
 
     cgraph = Graph ()
     vMap = VertexMap (cgraph)
@@ -69,8 +68,7 @@ else:
     if opts.asf:
         asf = ASFReader ()
         asf.parse (opts.asf)
-        nets = MotionGraph.build_bayes (asf, args[1:], opts.degrees)
-
+        nets = MotionGraph.build_bayes (asf, amcs, opts.degrees)
         adj = BayesAdjacency (cgraph, nets, asf)
     else:
         adj = AdjacencyList (cgraph)

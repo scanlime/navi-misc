@@ -305,14 +305,8 @@ def build_graph (d, graph, nodes, edge_list, interval):
         node1 = node2
 
 
-def build_bayes (asf, files, interval):
-    amcs = []
+def build_bayes (asf, amcs, interval):
     nets = {}
-
-    # Load the AMCs
-    for filename in files:
-        print 'loading %s' % filename
-        amcs.append(AMC.from_file(filename))
 
     # Build a dictionary mapping parent bones to their list of children from
     # the ASF file.

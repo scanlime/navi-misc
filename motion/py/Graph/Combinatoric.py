@@ -500,12 +500,14 @@ class BayesAdjacency (AdjacencyList):
                 # If the bone has no parent or the parent has no mocap data
                 # (i.e. the parent has no DOF), accept all neighbors
                 if (bone not in self.parents or ppos is None):
+                    print 'accepting all neighbors'
                     for child in filter (order[1:], current, prob):
                         yield child
                 # If the bone has a parent and the parent has a position in
                 # ``current``, apply the Bayes net to this bone to filter
                 # unlikely positions
                 else:
+                    print 'filtering'
                     net = self.bayes[bone]
                     # Generate the index used by the Bayes net
                     spot = (tuple (ppos.mins), tuple (node.mins))
