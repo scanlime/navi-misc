@@ -1,3 +1,52 @@
+Sun Jul 23 17:59:55 PDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	D plugins/dbus:
+	D plugins/dbus/Makefile.am:
+	D plugins/dbus/README:
+	D plugins/dbus/dbus-plugin.c:
+	D plugins/dbus/dbus-plugin.xml:
+	D plugins/dbus/example.c:
+	D plugins/dbus/marshallers.list:
+	D plugins/dbus/xchat-gnome-remote.c:
+	D plugins/dbus/xchat_gnome_url_handler.schemas.in:
+	A src/common/CVS/Entries.Log:
+	A src/common/dbus:
+	A src/common/dbus/CVS:
+	A src/common/dbus/CVS/Entries:
+	A src/common/dbus/CVS/Repository:
+	A src/common/dbus/CVS/Root:
+	A src/common/dbus/Makefile.am:
+	A src/common/dbus/README:
+	A src/common/dbus/dbus-plugin.c:
+	A src/common/dbus/dbus-plugin.h:
+	A src/common/dbus/dbus-plugin.xml:
+	A src/common/dbus/example.c:
+	A src/common/dbus/example.py:
+	A src/common/dbus/marshallers.list:
+	A src/common/dbus/url_handler.schemas.in:
+	A src/common/dbus/xchat-remote.c:
+	* configure.ac:
+	* po/POTFILES.in:
+	* src/common/CVS/Entries:
+	* src/common/Makefile.am:
+	* src/common/cfgfiles.c:
+	* src/common/dcc.c:
+	* src/common/dcc.h:
+	* src/common/fe.h:
+	* src/common/inbound.c:
+	* src/common/outbound.c:
+	* src/common/outbound.h:
+	* src/common/plugin.c:
+	* src/common/proto-irc.c:
+	* src/common/server.c:
+	* src/common/text.c:
+	* src/common/util.c:
+	* src/common/util.h:
+	* src/common/xchat.c:
+	* src/common/xchat.h:
+	* src/fe-gnome/fe-gnome.c:
+	  - Sync from xchat CVS and update for new D-Bus linking mechanism.
+
 Fri Jul 21 21:12:43 PDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/userlist-gui.c:

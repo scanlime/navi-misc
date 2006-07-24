@@ -8,7 +8,8 @@
 typedef struct
 {
 	int pos;	/* position */
-	int state;	/* state of toggle items */
+	short state;	/* state of toggle items */
+	short markup;	/* use pango markup? */
 	short enable;	/* enabled? sensitivity */
 	short modifier;	/* keybinding */
 	int key;
@@ -32,7 +33,7 @@ void fe_add_rawlog (struct server *serv, char *text, int len, int outbound);
 #define FE_MSG_INFO 2
 #define FE_MSG_WARN 4
 #define FE_MSG_ERROR 8
-#define FE_MSG_HASTITLE 16
+#define FE_MSG_MARKUP 16
 void fe_message (char *msg, int flags);
 #define FIA_READ 1
 #define FIA_WRITE 2
@@ -92,6 +93,7 @@ void fe_lastlog (session *sess, session *lastlog_sess, char *sstr);
 void fe_set_lag (server *serv, int lag);
 void fe_set_throttle (server *serv);
 void fe_set_away (server *serv);
+void fe_set_color_paste (session *sess, int status);
 void fe_serverlist_open (session *sess);
 void fe_get_str (char *prompt, char *def, void *callback, void *ud);
 void fe_get_int (char *prompt, int def, void *callback, void *ud);
@@ -105,7 +107,7 @@ void fe_set_inputbox_contents (struct session *sess, char *text);
 void fe_set_inputbox_cursor (struct session *sess, int delta, int pos);
 void fe_open_url (const char *url);
 void fe_menu_del (menu_entry *);
-void fe_menu_add (menu_entry *);
+char *fe_menu_add (menu_entry *);
 void fe_menu_update (menu_entry *);
 #define FE_SE_CONNECT 0
 #define FE_SE_LOGGEDIN 1

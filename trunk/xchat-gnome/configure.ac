@@ -72,9 +72,9 @@ if test "x$newlibgnome" = xyes; then
 fi
 
 #D-Bus
-AC_MSG_CHECKING([whether dbus support is requested])
+AC_MSG_CHECKING([whether D-Bus support is requested])
 AC_ARG_ENABLE([dbus],
-	AS_HELP_STRING([--disable-dbus],[Disable dbus support]),
+	AS_HELP_STRING([--disable-dbus],[Disable D-Bus support]),
 	[enable_dbus=$enableval dbus=$enableval],
 	[enable_dbus=autodetect dbus=yes])
 AC_MSG_RESULT([$enable_dbus])
@@ -98,13 +98,17 @@ fi
 
 if test "x$dbus" != "xyes"; then
 	if test "x$enable_dbus" = "xyes"; then
-		AC_MSG_ERROR([DBus not found])
+		AC_MSG_ERROR([D-Bus not found])
 	elif test "x$enable_dbus" = "xautodetect"; then
-		AC_MSG_WARN([DBus not found, disabling dbus support])
+		AC_MSG_WARN([D-Bus not found, disabling dbus support])
 	fi
+else
+	AC_DEFINE(USE_DBUS, [], [Whether to use D-Bus])
 fi
 
+# FIXME: this is gross, but i don't want to take the time to fix it right now
 AM_CONDITIONAL([ENABLE_DBUS],[test "x$dbus" = "xyes"])
+AM_CONDITIONAL([USE_DBUS],[test "x$dbus" = "xyes"])
 
 # libsexy soft dependency
 PKG_CHECK_MODULES([LIBSEXY], [libsexy >= $LIBSEXY_REQUIRED], libsexy=yes, libsexy=no)
@@ -336,7 +340,7 @@ AM_CONDITIONAL(USE_MMX, test "x$mmx" = "xyes")
 
 # plugins
 ALL_PLUGINS="autoaway notification url_scraper sound-notification"
-DBUS_PLUGINS="dbus net-monitor"
+DBUS_PLUGINS="net-monitor"
 LIBNOTIFY_PLUGINS="notify-osd"
 PYTHON_PLUGINS="python"
 PERL_PLUGINS="perl"
@@ -428,7 +432,6 @@ data/Makefile
 help/Makefile
 plugins/Makefile
 plugins/autoaway/Makefile
-plugins/dbus/Makefile
 plugins/net-monitor/Makefile
 plugins/notification/Makefile
 plugins/notify-osd/Makefile
@@ -440,6 +443,7 @@ plugins/url_scraper/Makefile
 po/Makefile.in
 src/Makefile
 src/common/Makefile
+src/common/dbus/Makefile
 src/fe-gnome/Makefile
 data/xchat-gnome.desktop.in
 ])

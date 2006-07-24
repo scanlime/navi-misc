@@ -209,6 +209,19 @@ dcc_remove_from_sum (struct DCC *dcc)
 		dcc_getcpssum -= dcc->cps;
 }
 
+gboolean
+is_dcc (struct DCC *dcc)
+{
+	GSList *list = dcc_list;
+	while (list)
+	{
+		if (list->data == dcc)
+			return TRUE;
+		list = list->next;
+	}
+	return FALSE;
+}
+
 /* this is called from xchat.c:xchat_misc_checks() every 2 seconds. */
 
 void
@@ -286,6 +299,7 @@ dcc_lookup_proxy (char *host, struct sockaddr_in *addr)
 			return TRUE;
 		}
 		free (cache_host);
+		cache_host = NULL;
 	}
 
 	h = gethostbyname (host);
@@ -797,7 +811,7 @@ static void
 dcc_open_query (server *serv, char *nick)
 {
 	if (prefs.autodialog)
-		open_query (serv, nick);
+		open_query (serv, nick, FALSE);
 }
 
 static gboolean
@@ -1801,78 +1815,78 @@ dcc_send (struct session *sess, char *to, char *file, int maxcps, int passive)
 		if (sizeof (st.st_size) > 4 && st.st_size > 4294967295U)
 		{
 			PrintText (sess, "Cannot send files larger than 4 GB.\n");
-			g_free (file_fs);
-			dcc_close (dcc, 0, TRUE);
-			return;
+			goto xit;
 		}
 #endif
 
-		if (*file_part (file_fs) && !S_ISDIR (st.st_mode))
+		if (!(*file_part (file_fs)) || S_ISDIR (st.st_mode) || st.st_size < 1)
 		{
-			if (st.st_size > 0)
+			PrintText (sess, "Cannot send directories or empty files.\n");
+			goto xit;
+		}
+
+		dcc->starttime = dcc->offertime = time (0);
+		dcc->serv = sess->server;
+		dcc->dccstat = STAT_QUEUED;
+		dcc->size = st.st_size;
+		dcc->type = TYPE_SEND;
+		dcc->fp = open (file_fs, OFLAGS | O_RDONLY);
+		if (dcc->fp != -1)
+		{
+			g_free (file_fs);
+			if (passive || dcc_listen_init (dcc, sess))
 			{
-				dcc->starttime = dcc->offertime = time (0);
-				dcc->serv = sess->server;
-				dcc->dccstat = STAT_QUEUED;
-				dcc->size = st.st_size;
-				dcc->type = TYPE_SEND;
-				dcc->fp = open (file_fs, OFLAGS | O_RDONLY);
-				if (dcc->fp != -1)
+				char havespaces = 0;
+				file = dcc->file;
+				while (*file)
 				{
-					g_free (file_fs);
-					if (passive || dcc_listen_init (dcc, sess))
+					if (*file == ' ')
 					{
-						char havespaces = 0;
-						file = dcc->file;
-						while (*file)
-						{
-							if (*file == ' ')
-							{
-								if (prefs.dcc_send_fillspaces)
-						    		*file = '_';
-							  	else
-							   	havespaces = 1;
-							}
-							file++;
-						}
-						dcc->nick = strdup (to);
-						if (prefs.autoopendccsendwindow)
-						{
-							if (fe_dcc_open_send_win (TRUE))	/* already open? add */
-								fe_dcc_add (dcc);
-						} else
-							fe_dcc_add (dcc);
-
-						if (passive)
-						{
-							dcc->pasvid = new_id();
-							snprintf (outbuf, sizeof (outbuf), (havespaces) ?
-									"DCC SEND \"%s\" 199 %d %"DCC_SFMT" %d" :
-									"DCC SEND %s 199 %d %"DCC_SFMT" %d",
-									file_part (dcc->file),
-									0, dcc->size, dcc->pasvid);
-						} else
-						{
-							snprintf (outbuf, sizeof (outbuf), (havespaces) ?
-									"DCC SEND \"%s\" %u %d %"DCC_SFMT :
-									"DCC SEND %s %u %d %"DCC_SFMT,
-									file_part (dcc->file), dcc->addr,
-									dcc->port, dcc->size);
-						}
-						sess->server->p_ctcp (sess->server, to, outbuf);
-
-						EMIT_SIGNAL (XP_TE_DCCOFFER, sess, file_part (dcc->file),
-										 to, dcc->file, NULL, 0);
-					} else
-					{
-						dcc_close (dcc, 0, TRUE);
+						if (prefs.dcc_send_fillspaces)
+				    		*file = '_';
+					  	else
+					   	havespaces = 1;
 					}
-					return;
+					file++;
 				}
+				dcc->nick = strdup (to);
+				if (prefs.autoopendccsendwindow)
+				{
+					if (fe_dcc_open_send_win (TRUE))	/* already open? add */
+						fe_dcc_add (dcc);
+				} else
+					fe_dcc_add (dcc);
+
+				if (passive)
+				{
+					dcc->pasvid = new_id();
+					snprintf (outbuf, sizeof (outbuf), (havespaces) ?
+							"DCC SEND \"%s\" 199 0 %"DCC_SFMT" %d" :
+							"DCC SEND %s 199 0 %"DCC_SFMT" %d",
+							file_part (dcc->file),
+							dcc->size, dcc->pasvid);
+				} else
+				{
+					snprintf (outbuf, sizeof (outbuf), (havespaces) ?
+							"DCC SEND \"%s\" %u %d %"DCC_SFMT :
+							"DCC SEND %s %u %d %"DCC_SFMT,
+							file_part (dcc->file), dcc->addr,
+							dcc->port, dcc->size);
+				}
+				sess->server->p_ctcp (sess->server, to, outbuf);
+
+				EMIT_SIGNAL (XP_TE_DCCOFFER, sess, file_part (dcc->file),
+								 to, dcc->file, NULL, 0);
+			} else
+			{
+				dcc_close (dcc, 0, TRUE);
 			}
+			return;
 		}
 	}
 	PrintTextf (sess, _("Cannot access %s\n"), dcc->file);
+	PrintTextf (sess, "%s %d: %s\n", _("Error"), errno, errorstring (errno));
+xit:
 	g_free (file_fs);
 	dcc_close (dcc, 0, TRUE);
 }
@@ -1971,7 +1985,7 @@ is_same_file (struct DCC *dcc, struct DCC *new_dcc)
 
 	/* now handle case-insensitive Filesystems: HFS+, FAT */
 #ifdef WIN32
-#error implement me!
+#warning no win32 implementation - behaviour may be unreliable
 #else
 	/* this fstat() shouldn't really fail */
 	if ((dcc->fp == -1 ? stat (dcc->destfile_fs, &st_a) : fstat (dcc->fp, &st_a)) == -1)

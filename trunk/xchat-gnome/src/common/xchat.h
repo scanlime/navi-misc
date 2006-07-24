@@ -175,6 +175,7 @@ struct xchatprefs
 	int mainwindow_height;
 	int completion_sort;
 	int gui_win_state;
+	int gui_url_mod;
 	int gui_usermenu;
 	int gui_join_dialog;
 	int dialog_left;
@@ -338,9 +339,9 @@ typedef struct session
 	int end_of_names:1;
 	int doing_who:1;		/* /who sent on this channel */
 	/* these are in the bottom-right menu */
-	int hide_join_part:1;	/* hide join & part messages? */
-	int beep:1;				/* beep enabled? */
-	int color_paste:1;
+	unsigned int hide_join_part:1;	/* hide join & part messages? */
+	unsigned int beep:1;				/* beep enabled? */
+	unsigned int color_paste:1;
 	int done_away_check:1;	/* done checking for away status changes */
 } session;
 
@@ -491,7 +492,7 @@ struct commands
 	cmd_callback callback;
 	char needserver;
 	char needchannel;
-	char handle_quotes;
+	gint16 handle_quotes;
 	char *help;
 };
 
