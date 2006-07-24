@@ -923,8 +923,15 @@ fe_menu_del (menu_entry *entry)
 	/* FIXME: implement? */
 }
 
-void
+char *
 fe_menu_add (menu_entry *entry)
+{
+	/* FIXME: implement? */
+	return NULL;
+}
+
+void
+fe_set_color_paste (session *sess, int status)
 {
 	/* FIXME: implement? */
 }

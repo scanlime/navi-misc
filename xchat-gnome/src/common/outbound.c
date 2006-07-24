@@ -538,6 +538,45 @@ cmd_unban (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 }
 
 static int
+cmd_chanopt (struct session *sess, char *tbuf, char *word[], char *word_eol[])
+{
+	int state;
+	if (!strcasecmp (word[3], "ON"))
+	{
+		state = TRUE;
+	} else if (!strcasecmp (word[3], "OFF"))
+	{
+		state = FALSE;
+	} else
+	{
+		if (!strcasecmp (word[2], "CONFMODE"))
+			state = sess->hide_join_part;
+		else if (!strcasecmp (word[2], "COLORPASTE"))
+			state = sess->color_paste;
+		else if (!strcasecmp (word[2], "BEEP"))
+			state = sess->beep;
+		else
+			return FALSE;
+
+		PrintTextf (sess, "%s is %s\n", word[2], state ? "ON" : "OFF");
+		return TRUE;
+	}
+
+	if (!strcasecmp (word[2], "CONFMODE"))
+	{
+		sess->hide_join_part = state;
+	} else if (!strcasecmp (word[2], "COLORPASTE"))
+	{
+		fe_set_color_paste (sess, state);
+	} else if (!strcasecmp (word[2], "BEEP"))
+	{
+		sess->beep = state;
+	}
+
+	return TRUE;
+}
+
+static int
 cmd_charset (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 {
 	server *serv = sess->server;
@@ -574,6 +613,18 @@ cmd_clear (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 	GSList *list = sess_list;
 	char *reason = word_eol[2];
 
+	if (reason[0] == 0)
+	{
+		fe_text_clear (sess);
+		return TRUE;
+	}
+
+	if (strcasecmp (reason, "HISTORY") == 0)
+	{
+		history_free (&sess->history);
+		return TRUE;
+	}
+
 	if (strncasecmp (reason, "all", 3) == 0)
 	{
 		while (list)
@@ -583,12 +634,10 @@ cmd_clear (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 				fe_text_clear (list->data);
 			list = list->next;
 		}
-	} else
-	{
-		fe_text_clear (sess);
+		return TRUE;
 	}
 
-	return TRUE;
+	return FALSE;
 }
 
 static int
@@ -1088,7 +1137,7 @@ menu_del (char *path, char *label)
 }
 
 static void
-menu_add (char *path, char *label, char *cmd, char *ucmd, int pos, int state, int enable, int mod, int key)
+menu_add (char *path, char *label, char *cmd, char *ucmd, int pos, int state, int markup, int enable, int mod, int key)
 {
 	menu_entry *me;
 
@@ -1106,6 +1155,7 @@ menu_add (char *path, char *label, char *cmd, char *ucmd, int pos, int state, in
 	me = malloc (sizeof (menu_entry));
 	me->pos = pos;
 	me->state = state;
+	me->markup = markup;
 	me->enable = enable;
 	me->modifier = mod;
 	me->key = key;
@@ -1121,8 +1171,15 @@ menu_add (char *path, char *label, char *cmd, char *ucmd, int pos, int state, in
 	if (ucmd)
 		me->ucmd = strdup (ucmd);
 
-	fe_menu_add (me);
 	menu_list = g_slist_append (menu_list, me);
+	label = fe_menu_add (me);
+	if (label)
+	{
+		/* FE has given us a stripped label */
+		free (me->label);
+		me->label = strdup (label);
+		g_free (label); /* this is from pango */
+	}
 }
 
 static int
@@ -1134,6 +1191,7 @@ cmd_menu (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 	int state;
 	int toggle = FALSE;
 	int enable = TRUE;
+	int markup = FALSE;
 	int key = 0;
 	int mod = 0;
 	char *label;
@@ -1156,6 +1214,13 @@ cmd_menu (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 			return FALSE;
 		mod = atoi (word[idx] + 2);
 		key = atoi (comma + 1);
+		idx++;
+	}
+
+	/* -m to specify PangoMarkup language */
+	if (word[idx][0] == '-' && word[idx][1] == 'm')
+	{
+		markup = TRUE;
 		idx++;
 	}
 
@@ -1185,17 +1250,25 @@ cmd_menu (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 	if (label[0] == '-' && label[1] == 0)
 		label = NULL;	/* separator */
 
+	if (markup)
+	{
+		char *p;	/* to force pango closing tags through */
+		for (p = label; *p; p++)
+			if (*p == 3)
+				*p = '/';
+	}
+
 	if (!strcasecmp (word[idx], "ADD"))
 	{
 		if (toggle)
 		{
-			menu_add (tbuf, label, word[idx + 2], word[idx + 3], pos, state, enable, mod, key);
+			menu_add (tbuf, label, word[idx + 2], word[idx + 3], pos, state, markup, enable, mod, key);
 		} else
 		{
 			if (word[idx + 2][0])
-				menu_add (tbuf, label, word[idx + 2], NULL, pos, 0, enable, mod, key);
+				menu_add (tbuf, label, word[idx + 2], NULL, pos, 0, markup, enable, mod, key);
 			else
-				menu_add (tbuf, label, NULL, NULL, pos, 0, enable, mod, key);
+				menu_add (tbuf, label, NULL, NULL, pos, 0, markup, enable, mod, key);
 		}
 		return TRUE;
 	}
@@ -1856,41 +1929,24 @@ cmd_ghost (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 static int
 cmd_gui (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 {
-	if (!strcasecmp (word[2], "HIDE"))
+	switch (str_ihash (word[2]))
 	{
-		fe_ctrl_gui (sess, 0, 0);
-	} else if (!strcasecmp (word[2], "SHOW"))
-	{
-		fe_ctrl_gui (sess, 1, 0);
-	} else if (!strcasecmp (word[2], "FOCUS"))
-	{
-		fe_ctrl_gui (sess, 2, 0);
-	} else if (!strcasecmp (word[2], "FLASH"))
-	{
-		fe_ctrl_gui (sess, 3, 0);
-	} else if (!strcasecmp (word[2], "COLOR"))
-	{
-		fe_ctrl_gui (sess, 4, atoi (word[3]));
-	} else if (!strcasecmp (word[2], "ICONIFY"))
-	{
-		fe_ctrl_gui (sess, 5, 0);
-	} else if (!strcasecmp (word[2], "MENU"))
-	{
+	case 0xac1eee45: fe_ctrl_gui (sess, 7, 2); break; /* ATTACH */
+	case 0x05a72f63: fe_ctrl_gui (sess, 4, atoi (word[3])); break; /* COLOR */
+	case 0xb06a1793: fe_ctrl_gui (sess, 7, 1); break; /* DETACH */
+	case 0x05cfeff0: fe_ctrl_gui (sess, 3, 0); break; /* FLASH */
+	case 0x05d154d8: fe_ctrl_gui (sess, 2, 0); break; /* FOCUS */
+	case 0x0030dd42: fe_ctrl_gui (sess, 0, 0); break; /* HIDE */
+	case 0x61addbe3: fe_ctrl_gui (sess, 5, 0); break; /* ICONIFY */
+	case 0xc0851aaa: fe_message (word[3], FE_MSG_INFO|FE_MSG_MARKUP); break; /* MSGBOX */
+	case 0x0035dafd: fe_ctrl_gui (sess, 1, 0); break; /* SHOW */
+	case 0x0033155f: /* MENU */
 		if (!strcasecmp (word[3], "TOGGLE"))
 			fe_ctrl_gui (sess, 6, 0);
 		else
 			return FALSE;
-	} else if (!strcasecmp (word[2], "MSGBOX"))
-	{
-		fe_message (word[3], FE_MSG_INFO);
-	} else if (!strcasecmp (word[2], "ATTACH"))
-	{
-		fe_ctrl_gui (sess, 7, 2);
-	} else if (!strcasecmp (word[2], "DETACH"))
-	{
-		fe_ctrl_gui (sess, 7, 1);
-	} else
-	{
+		break;
+	default:
 		return FALSE;
 	}
 
@@ -2578,25 +2634,32 @@ cmd_ping (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 }
 
 void
-open_query (server *serv, char *nick)
+open_query (server *serv, char *nick, gboolean focus_existing)
 {
 	session *sess;
 
 	sess = find_dialog (serv, nick);
-	if (sess)
-		fe_ctrl_gui (sess, 2, 0);	/* bring-to-front */
-	else
+	if (!sess)
 		new_ircwindow (serv, nick, SESS_DIALOG, 1);
+	else if (focus_existing)
+		fe_ctrl_gui (sess, 2, 0);	/* bring-to-front */
 }
 
 static int
 cmd_query (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 {
 	char *nick = word[2];
+	gboolean focus = TRUE;
+
+	if (strcmp (word[2], "-nofocus") == 0)
+	{
+		nick = word[3];
+		focus = FALSE;
+	}
 
 	if (*nick && !is_channel (sess->server, nick))
 	{
-		open_query (sess->server, nick);
+		open_query (sess->server, nick, focus);
 		return TRUE;
 	}
 	return FALSE;
@@ -2756,6 +2819,18 @@ cmd_settext (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 	if (*word_eol[2])
 	{
 		fe_set_inputbox_contents (sess, word_eol[2]);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static int
+cmd_splay (struct session *sess, char *tbuf, char *word[], char *word_eol[])
+{
+	if (*word[2])
+	{
+		sound_play (word[2], FALSE);
 		return TRUE;
 	}
 
@@ -3207,8 +3282,14 @@ const struct commands xc_cmds[] = {
 	{"AWAY", cmd_away, 1, 0, 1, N_("AWAY [<reason>], sets you away")},
 	{"BAN", cmd_ban, 1, 1, 1,
 	 N_("BAN <mask> [<bantype>], bans everyone matching the mask from the current channel. If they are already on the channel this doesn't kick them (needs chanop)")},
+	{"CHANOPT", cmd_chanopt, 0, 0, 1,
+	 N_("Set per channel options\n"
+	 "CHANOPT CONFMODE ON|OFF - Toggle conf mode/showing of join and part messages\n"
+	 "CHANOPT COLORPASTE ON|OFF - Toggle color paste\n"
+	 "CHANOPT BEEP ON|OFF - Toggle beep on message"
+	)},
 	{"CHARSET", cmd_charset, 0, 0, 1, 0},
-	{"CLEAR", cmd_clear, 0, 0, 1, N_("CLEAR, Clears the current text window")},
+	{"CLEAR", cmd_clear, 0, 0, 1, N_("CLEAR [ALL|HISTORY], Clears the current text window or command history")},
 	{"CLOSE", cmd_close, 0, 0, 1, N_("CLOSE, Closes the current window/tab")},
 
 	{"COUNTRY", cmd_country, 0, 0, 1,
@@ -3294,7 +3375,7 @@ const struct commands xc_cmds[] = {
 	 N_("MDEOP, Mass deop's all chanops in the current channel (needs chanop)")},
 	{"ME", cmd_me, 0, 0, 1,
 	 N_("ME <action>, sends the action to the current channel (actions are written in the 3rd person, like /me jumps)")},
-	{"MENU", cmd_menu, 0, 0, 1, "MENU [-eX] [-k<mod>,<key>] [-pX] [-tX] {ADD|DEL} <path> [command] [unselect command]"},
+	{"MENU", cmd_menu, 0, 0, 1, "MENU [-eX] [-k<mod>,<key>] [-m] [-pX] [-tX] {ADD|DEL} <path> [command] [unselect command]"},
 	{"MKICK", cmd_mkick, 1, 1, 1,
 	 N_("MKICK, Mass kicks everyone except you in the current channel (needs chanop)")},
 	{"MODE", cmd_mode, 1, 0, 1, 0},
@@ -3320,7 +3401,7 @@ const struct commands xc_cmds[] = {
 	{"PING", cmd_ping, 1, 0, 1,
 	 N_("PING <nick | channel>, CTCP pings nick or channel")},
 	{"QUERY", cmd_query, 0, 0, 1,
-	 N_("QUERY <nick>, opens up a new privmsg window to someone")},
+	 N_("QUERY [-nofocus] <nick>, opens up a new privmsg window to someone")},
 	{"QUIT", cmd_quit, 0, 0, 1,
 	 N_("QUIT [<reason>], disconnects from the current server")},
 	{"QUOTE", cmd_quote, 1, 0, 1,
@@ -3355,6 +3436,7 @@ const struct commands xc_cmds[] = {
 	{"SETCURSOR", cmd_setcursor, 0, 0, 1, N_("SETCURSOR [-|+]<position>")},
 	{"SETTAB", cmd_settab, 0, 0, 1, 0},
 	{"SETTEXT", cmd_settext, 0, 0, 1, 0},
+	{"SPLAY", cmd_splay, 0, 0, 1, "SPLAY <soundfile>"},
 	{"TOPIC", cmd_topic, 1, 1, 1,
 	 N_("TOPIC [<topic>], sets the topic if one is given, else shows the current topic")},
 	{"UNBAN", cmd_unban, 1, 1, 1,

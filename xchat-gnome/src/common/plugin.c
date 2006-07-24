@@ -108,21 +108,6 @@ static GSList *hook_list = NULL;
 extern const struct prefs vars[];	/* cfgfiles.c */
 
 
-/* 31 bit string hash function */
-
-static guint32
-str_hash (const char *key)
-{
-	const char *p = key;
-	guint32 h = *p;
-
-	if (h)
-		for (p += 1; *p != '\0'; p++)
-			h = (h << 5) - h + *p;
-
-	return h;
-}
-
 /* unload a plugin and remove it from our linked list */
 
 static int
@@ -1288,9 +1273,17 @@ const char *
 xchat_list_str (xchat_plugin *ph, xchat_list *xlist, const char *name)
 {
 	guint32 hash = str_hash (name);
-	gpointer data = xlist->pos->data;
+	gpointer data = ph->context;
+	int type = LIST_CHANNELS;
 
-	switch (xlist->type)
+	/* a NULL xlist is a shortcut to current "channels" context */
+	if (xlist)
+	{
+		data = xlist->pos->data;
+		type = xlist->type;
+	}
+
+	switch (type)
 	{
 	case LIST_CHANNELS:
 		switch (hash)
@@ -1360,10 +1353,17 @@ int
 xchat_list_int (xchat_plugin *ph, xchat_list *xlist, const char *name)
 {
 	guint32 hash = str_hash (name);
-	gpointer data = xlist->pos->data;
-	int tmp;
+	gpointer data = ph->context;
+	int tmp, type = LIST_CHANNELS;
 
-	switch (xlist->type)
+	/* a NULL xlist is a shortcut to current "channels" context */
+	if (xlist)
+	{
+		data = xlist->pos->data;
+		type = xlist->type;
+	}
+
+	switch (type)
 	{
 	case LIST_DCC:
 		switch (hash)
@@ -1401,7 +1401,13 @@ xchat_list_int (xchat_plugin *ph, xchat_list *xlist, const char *name)
 		case 0xd1b:	/* id */
 			return ((struct session *)data)->server->id;
 		case 0x5cfee87:	/* flags */
-			tmp = ((struct session *)data)->server->have_idmsg;   /* bit 5 */
+			tmp = ((struct session *)data)->beep;            /* bit 8 */
+			tmp <<= 1;
+			tmp |= ((struct session *)data)->color_paste;        /* 7 */
+			tmp <<= 1;
+			tmp |= ((struct session *)data)->hide_join_part;     /* 6 */
+			tmp <<= 1;
+			tmp |= ((struct session *)data)->server->have_idmsg; /* 5 */
 			tmp <<= 1;
 			tmp |= ((struct session *)data)->server->have_whox;  /* 4 */
 			tmp <<= 1;
