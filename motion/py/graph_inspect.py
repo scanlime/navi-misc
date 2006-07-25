@@ -34,11 +34,12 @@ graphs = pickle.load (file (args[0], 'r'))
 nodes = {}
 branching = {}
 
-for name, graph in graphs.iteritems ():
+names = graphs.representations[AdjacencyList].data.keys ()
+for name in names:
     nodes[name] = 0
     factor = 0.0
-    vMap = graph.representations[VertexMap]
-    adj = graph.representations[AdjacencyList]
+    vMap = graphs.representations[VertexMap].data[name]
+    adj = graphs.representations[AdjacencyList].data[name]
 
     for v in vMap:
         nodes[name] += 1
