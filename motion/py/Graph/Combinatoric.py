@@ -500,7 +500,6 @@ class BayesAdjacency (AdjacencyList):
                 # If the bone has no parent or the parent has no mocap data
                 # (i.e. the parent has no DOF), accept all neighbors
                 if (bone not in self.parents or ppos is None):
-                    print 'accepting all neighbors'
                     for child in filter (order[1:], current, prob):
                         yield child
                 # If the bone has a parent and the parent has a position in
@@ -510,7 +509,7 @@ class BayesAdjacency (AdjacencyList):
                     print 'filtering'
                     net = self.bayes[bone]
                     # Generate the index used by the Bayes net
-                    spot = (tuple (ppos.mins), tuple (node.mins))
+                    spot = (tuple (ppos.mins), tuple (edge.v.mins))
 
                     # If the Bayes net has an entry for this pair of positions,
                     # calculate the new probabilities. If they're high enough,
@@ -522,13 +521,11 @@ class BayesAdjacency (AdjacencyList):
                         # If the probability of this pose is greater than our
                         # epsilon value, except the pose and recurse down the
                         # body.
-                        if newProb > self.eps:
+                        if newProb > self.epsilon:
                             for child in filter (order[1:], current, newProb):
                                 yield child
-
-                    # FIXME: what if ``spot`` isn't in the Bayes net?
                     else:
-                        raise KeyError ('(%f, %f) not in bayes net for %s' %
+                        raise KeyError ('(%s, %s) not in bayes net for %s' %
                                 (spot[0], spot[1], bone))
        
         # Yield edges with a high enough probability to warrant checking.
