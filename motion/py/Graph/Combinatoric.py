@@ -506,27 +506,22 @@ class BayesAdjacency (AdjacencyList):
                 # ``current``, apply the Bayes net to this bone to filter
                 # unlikely positions
                 else:
-                    print 'filtering'
                     net = self.bayes[bone]
                     # Generate the index used by the Bayes net
                     spot = (tuple (ppos.mins), tuple (edge.v.mins))
 
-                    # If the Bayes net has an entry for this pair of positions,
-                    # calculate the new probabilities. If they're high enough,
-                    # recurse further down the body. If they're too low, ignore
-                    # them.
-                    if spot in net:
-                        p = net[spot]
-                        newProb = prob * p
-                        # If the probability of this pose is greater than our
-                        # epsilon value, except the pose and recurse down the
-                        # body.
-                        if newProb > self.epsilon:
-                            for child in filter (order[1:], current, newProb):
-                                yield child
-                    else:
-                        raise KeyError ('(%s, %s) not in bayes net for %s' %
-                                (spot[0], spot[1], bone))
+                    # Get the probability of this node given the parent
+                    # position. If the entry is not in the bayes net, the
+                    # probability is 0.
+                    p = net.get (spot, 0.0)
+                    newProb = prob * p
+
+                    # If the probability of this pose is greater than our
+                    # epsilon value, except the pose and recurse down the
+                    # body.
+                    if newProb >= self.epsilon:
+                        for child in filter (order[1:], current, newProb):
+                            yield child
        
         # Yield edges with a high enough probability to warrant checking.
         for v in filter (self.order):
