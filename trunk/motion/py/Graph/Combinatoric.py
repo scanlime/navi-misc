@@ -94,7 +94,7 @@ class GraphRepresentation:
     """
 
     def __init__ (self, graph):
-        self.data = []
+        self.data = {}
         self.graph = graph
         graph.add.observe (self.onAdd)
         graph.remove.observe (self.onRemove)
@@ -150,7 +150,7 @@ class AdjacencyList (GraphRepresentation):
         # Cache generated nodes to prevent multiple instances of Node for
         # identical data
         cached = {}
-        for u, v in combine (self.data):
+        for u, v in combine (self.data.items ()):
             # Check for cached data. Add the node to the cache if it's not
             # there.
             nodeU = cached.setdefault (repr (u), Node (u))
@@ -161,7 +161,7 @@ class AdjacencyList (GraphRepresentation):
     def __contains__ (self, edge):
         """Returns true if edge exists in the adjacency list."""
         names = []
-        for (name, adj) in self.data:
+        for (name, adj) in self.data.iteritems():
             # Try to create an edge for this just this graph. If we get a
             # KeyError here, 'edge' doesn't have data for one of our graphs so
             # return False.
@@ -194,15 +194,14 @@ class AdjacencyList (GraphRepresentation):
         name, graph = data
         adj = graph.representations[Data.AdjacencyList]
 
-        if (name, adj) in self.data:
+        if name in self.data:
             raise ValueError ("Duplicate graph %s" % data)
-        self.data.append ((name, adj))
+        self.data[name] = adj
 
     def onRemove (self, data):
         """Remove a graph from the data."""
         name, graph = data
-        adj = graph.representations[Data.AdjacencyList]
-        self.data.remove ((name, adj))
+        del self.data[name]
 
     def iterU (self):
         """Iterate over all the 'u' vertices in the edges of the adjacency
@@ -225,7 +224,7 @@ class AdjacencyList (GraphRepresentation):
                     yield dictU
 
         # Combine data from all graphs and yield Nodes for each combination.
-        for u in combine (self.data):
+        for u in combine (self.data.items ()):
             yield Node (u)
 
     def query (self, u):
@@ -247,7 +246,7 @@ class AdjacencyList (GraphRepresentation):
                     yield node
 
         # Combine nodes from each graph coming out of u and yield those edges
-        for v in combine (self.data):
+        for v in combine (self.data.items ()):
             yield self.graph.edgeClass (u, Node (v))
 
 
@@ -280,7 +279,7 @@ class VertexMap (GraphRepresentation):
                     yield v
 
         # Combine nodes in each graph and yield a Node for each one
-        for n in combine (self.data):
+        for n in combine (self.data.items ()):
             yield Node (n)
 
     def onAdd (self, data):
@@ -294,16 +293,15 @@ class VertexMap (GraphRepresentation):
         name, graph = data
         map = graph.representations[Data.VertexMap]
 
-        if (name, map) in self.data:
+        if name in self.data:
             raise ValueError ("Duplicate graph %s" % (data))
 
-        self.data.append ((name, map))
+        self.data[name] = map
 
     def onRemove (self, data):
         """Remove a graph from the data."""
         name, graph = data
-        map = graph.representations[Data.VertexMap]
-        self.data.remove ((name, map))
+        del self.data[name]
 
     def query (self, node):
         """Iterate over the edges containing the vertex 'u'."""
@@ -340,14 +338,15 @@ class VertexMap (GraphRepresentation):
         # Cache created nodes to avoid creating separate instances of Node for
         # duplicate data
         cached = {}
+        items = self.data.items ()
 
         # For all edges leaving this node, yield the edge
-        for u in combineU (self.data):
+        for u in combineU (items):
             nodeU = cached.setdefault (repr(u), Node (u))
             yield self.graph.edgeClass (nodeU, node)
 
         # For all edges entering this node, yield the edge
-        for v in combineV (self.data):
+        for v in combineV (items):
             nodeV = cached.setdefault (repr(v), Node (v))
             yield self.graph.edgeClass (node, nodeV)
 
@@ -386,7 +385,7 @@ class EdgeList (GraphRepresentation):
         cached = {}
 
         # Yield each edge
-        for u, v in combine (self.data):
+        for u, v in combine (self.data.items ()):
             # Retrieve cached nodes, if they exist; otherwise, create the node
             # and cache it.
             nodeU = cached.setdefault (repr(u), Node (u))
@@ -405,15 +404,14 @@ class EdgeList (GraphRepresentation):
         name, graph = data
         edges = graph.representations[Data.EdgeList]
 
-        if (name, edges) in self.data:
+        if name in self.data:
             raise ValueError ("Duplicate graph %s", data)
-        self.data.append ((name, edges))
+        self.data[name] = edges
 
     def onRemove (self, data):
         """Remove a graph from the representation."""
         name, graph = data
-        edges = data.representations[Data.EdgeList]
-        self.data.remove ((name, edges))
+        del self.data[name]
 
     def query (self, u, v):
         """Return the edge from 'u' to 'v'."""
@@ -493,7 +491,7 @@ class BayesAdjacency (AdjacencyList):
                 ppos = current.get(parent)
 
             # Iterate over all the nodes connected to this one
-            for edge in dict (self.data)[bone].query (u[bone]):
+            for edge in self.data[bone].query (u[bone]):
                 # Add this neighbor to the current successor pose
                 current[bone] = edge.v
 
