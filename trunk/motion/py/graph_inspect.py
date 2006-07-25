@@ -22,6 +22,8 @@ from optparse import OptionParser
 import pickle
 
 options = OptionParser (usage='%prog [options] <graph>')
+options.add_option ('-b', '--bayes', action='store_true', default=False,
+        help='Display Bayes net data, if available')
 options.add_option ('-o', dest='file', help='Save results to a file')
 
 opts, args = options.parse_args ()
@@ -34,12 +36,14 @@ graphs = pickle.load (file (args[0], 'r'))
 nodes = {}
 branching = {}
 
-names = graphs.representations[AdjacencyList].data.keys ()
-for name in names:
+adjacency = graphs.representations[AdjacencyList]
+vertices = graphs.representations[VertexMap]
+
+for name in adjacency.data.keys ():
     nodes[name] = 0
     factor = 0.0
-    vMap = graphs.representations[VertexMap].data[name]
-    adj = graphs.representations[AdjacencyList].data[name]
+    vMap = vertices.data[name]
+    adj = adjacency.data[name]
 
     for v in vMap:
         nodes[name] += 1
@@ -66,6 +70,31 @@ output += '\nGraphs %5d\n' % len (nodes)
 output += '\nAverages\n'
 output += '  %-15s %5f\n' % ('Nodes:', avgNodes)
 output += '  %-15s %5f\n' % ('Branching Factor:', avgBranch)
+
+if opts.bayes:
+    avgProb = 0.0
+    avgEntries = 0.0
+    output += '\n\nBayes data\n  %-10s %10s %20s\n' % ('Graph', 'Entries', 'Avg. Probability')
+
+    for name, net in adjacency.bayes.iteritems ():
+        entries = 0
+        prob = 0.0
+
+        for p in net.itervalues ():
+            entries += 1
+            prob += p
+        prob /= entries
+        output += '  %-10s %10d %20f\n' % (name, entries, prob)
+
+        avgProb += prob
+        avgEntries += entries
+    avgEntries /= len (adjacency.bayes)
+    avgProb /= avgEntries
+
+    output += '\nBayes Nets %5d\n' % len (adjacency.bayes)
+    output += '\nAverages\n'
+    output += '  %-15s %5f\n' % ('Entries:', avgEntries)
+    output += '  %-15s %5f\n' % ('Probability:', avgProb)
 
 print output
 
