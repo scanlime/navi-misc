@@ -40,8 +40,8 @@
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
 #include <glib/gi18n.h>
+#include "xchat-plugin.h"
 #include "dbus-plugin.h"
-#include "../xchat-plugin.h"
 
 #define PNAME _("XChat-GNOME remote access")
 #define PDESC _("plugin for remote access using D-Bus")
