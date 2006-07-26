@@ -188,6 +188,10 @@ def fix360 (x):
         return 0
     return x
 
+def discretize (point, interval):
+    c = [int (n / interval) * interval for n in map (fixnegative, point)]
+    return tuple (map (fix360, c))
+
 def build_graphs (key, datas, interval):
     """Build a graph using the data arrays from any number of files.
    
@@ -298,9 +302,6 @@ def build_graph (d, graph, nodes, edge_list, interval):
         node1 = node2
 
 def build_bayes (asf, amcs, interval):
-    def discretize (point):
-        c = [int (n / interval) * interval for n in map (fixnegative, point)]
-        return tuple (map (fix360, c))
 
     nets = {}
 
@@ -329,7 +330,7 @@ def build_bayes (asf, amcs, interval):
         bone = amc.bones['root']
         total += len (bone)
         for frame in range(len(bone)):
-            c = discretize (bone[frame,3:6])
+            c = discretize (bone[frame,3:6], interval)
             spot = ((), c)
             if spot in net:
                 net[spot] += 1
@@ -361,7 +362,7 @@ def build_bayes (asf, amcs, interval):
 
                     # Chomp to within interval
                     for frame in range(len(cbone)):
-                        c = discretize (cbone[frame,:])
+                        c = discretize (cbone[frame,:], interval)
                         if ((), c) in net:
                             net[((), c)] = net[((), c)] + 1
                         else:
@@ -375,8 +376,8 @@ def build_bayes (asf, amcs, interval):
                     total += len (cbone)
 
                     for frame in range(len(pbone)):
-                        p = discretize (pbone[frame,-3:])
-                        c = discretize (cbone[frame,:])
+                        p = discretize (pbone[frame,-3:], interval)
+                        c = discretize (cbone[frame,:], interval)
 
                         if (p, c) in net:
                             net[(p, c)] = net[(p, c)] + 1
