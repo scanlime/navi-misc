@@ -217,7 +217,7 @@ def build_graphs (key, datas, interval):
     nodes = {}
     for angle in cp_range (dof, interval):
         node = MotionGraphNode ([n for n in angle], [n + interval for n in angle])
-        nodes[angle] = node
+        nodes[tuple(angle)] = node
 
     # Add edges for data from each file
     for d in datas:
@@ -297,8 +297,11 @@ def build_graph (d, graph, nodes, edge_list, interval):
         data1 = data2
         node1 = node2
 
-
 def build_bayes (asf, amcs, interval):
+    def discretize (point):
+        c = [int (n / interval) * interval for n in map (fixnegative, point)]
+        return tuple (map (fix360, c))
+
     nets = {}
 
     # Build a dictionary mapping parent bones to their list of children from
@@ -307,7 +310,7 @@ def build_bayes (asf, amcs, interval):
     for rel in asf.hierarchy:
         parent = rel[0]
         children = rel[1:]
-        if len(parent):
+        if len (parent):
             relationships[parent] = children
             # Check each child bone to see if it's in the mocap data. If it is,
             # it has DOF and moves, so it needs a Bayes net.
@@ -324,14 +327,13 @@ def build_bayes (asf, amcs, interval):
     for amc in amcs:
         bone = amc.bones['root']
         for frame in range(len(bone)):
-            c = bone[frame,3:6]
-            # Chomp to within interval
-            c = tuple (int (n / interval) * interval for n in tuple (map (fixnegative, c)))
-            c = tuple (map (fix360, c))
-            if ((), c) in net:
-                net[((), c)] = net[((), c)] + 1
+            c = discretize (bone[frame,3:6])
+            spot = ((), c)
+            if spot in net:
+                net[spot] += 1
             else:
-                net[((), c)] = 1
+                net[spot] = 1.0
+
     nets['root'] = net
 
     for parent, children in relationships.iteritems():
@@ -352,9 +354,7 @@ def build_bayes (asf, amcs, interval):
 
                     # Chomp to within interval
                     for frame in range(len(cbone)):
-                        c = cbone[frame,:]
-                        c = tuple (int (n / interval) * interval for n in tuple (map (fixnegative, c)))
-                        c = tuple (map (fix360, c))
+                        c = discretize (cbone[frame,:])
                         if ((), c) in net:
                             net[((), c)] = net[((), c)] + 1
                         else:
@@ -367,17 +367,8 @@ def build_bayes (asf, amcs, interval):
                     cbone = Numeric.remainder (amc.bones[child], 360.0)
 
                     for frame in range(len(pbone)):
-                        if parent == 'root':
-                            p = pbone[frame,3:6]
-                        else:
-                            p = pbone[frame,:]
-                        c = cbone[frame,:]
-
-                        # Chomp to within interval
-                        p = tuple (int (n / interval) * interval for n in tuple (map (fixnegative, p)))
-                        c = tuple (int (n / interval) * interval for n in tuple (map (fixnegative, c)))
-                        p = tuple (map (fix360, p))
-                        c = tuple (map (fix360, c))
+                        p = discretize (pbone[frame,-3:])
+                        c = discretize (cbone[frame,:])
 
                         if (p, c) in net:
                             net[(p, c)] = net[(p, c)] + 1
