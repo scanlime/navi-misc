@@ -70,12 +70,9 @@ for name in adjacency.data.keys ():
     # sum of every node's branching factor by the number of nodes in the graph.
     branching[name] = (factor / nodes[name])
 
-# Calculate the average branching factor for all graphs by dividing the sum of
-# all node's branching factors in every graph by the total number of nodes in
-# all graphs.
+# Calculate the average branching factor and average number of nodes for all
+# graphs.
 avgBranch /= avgNodes
-# Calculate the average number of nodes per graph by dividing the total number
-# of nodes in all graphs by the number of graphs.
 avgNodes /= len (nodes)
 
 # Assemble the output of the graph data
