@@ -31,32 +31,54 @@ opts, args = options.parse_args ()
 if len (args) < 1:
     options.error ('Graph file required')
 
-graphs = pickle.load (file (args[0], 'r'))
+# Load the graph
+graph = pickle.load (file (args[0], 'r'))
 
+# Initialize the variables for the graph data
 nodes = {}
 branching = {}
 avgNodes = avgBranch = 0.0
 
-adjacency = graphs.representations[AdjacencyList]
-vertices = graphs.representations[VertexMap]
+# Require the adjacency list and vertex map representations for inspecting the
+# graphs.
+adjacency = graph.representations[AdjacencyList]
+vertices = graph.representations[VertexMap]
 
+# For each graph in the combined graph...
 for name in adjacency.data.keys ():
+    # Initialize the number of nodes in the graph and the average branching
+    # factor of the graph.
     nodes[name] = 0
     factor = 0.0
+    # Get the adjacency list and vertex map for the single graph
     vMap = vertices.data[name]
     adj = adjacency.data[name]
 
     for v in vMap:
+        # Count the number of nodes
         nodes[name] += 1
+        # Add the branching factor of each node to the average
         factor += len ([e for e in adj.query (v)])
 
+    # Add the number of nodes in each graph to the average number of nodes in
+    # all graphs.
     avgNodes += nodes[name]
+    # Add the sum of each nodes branching factor to the average branching
+    # factor for all graphs
     avgBranch += factor
+    # Calculate the average branching factor of this graph by dividing the
+    # sum of every node's branching factor by the number of nodes in the graph.
     branching[name] = (factor / nodes[name])
 
+# Calculate the average branching factor for all graphs by dividing the sum of
+# all node's branching factors in every graph by the total number of nodes in
+# all graphs.
 avgBranch /= avgNodes
+# Calculate the average number of nodes per graph by dividing the total number
+# of nodes in all graphs by the number of graphs.
 avgNodes /= len (nodes)
 
+# Assemble the output of the graph data
 output = 'Graph data\n  %-10s %10s %20s\n' % ('Graph', 'Nodes', 'Branching Factor')
 output += '  ========== ========== ====================\n'
 for name in nodes.iterkeys ():
@@ -68,25 +90,35 @@ output += '  %-15s %5f\n' % ('Nodes:', avgNodes)
 output += '  %-15s %5f\n' % ('Branching Factor:', avgBranch)
 
 if opts.bayes and hasattr (adjacency, 'bayes'):
+    # Initialize the variables for the Bayes net data
     probs = {}
     entries = {}
     avgProb = avgEntries = 0.0
 
+    # For each Bayes net...
     for name, net in adjacency.bayes.iteritems ():
+        # Initialize the number of entries and avg. probability to 0
         entries[name] = 0
-        probs[name] = 0
+        probs[name] = 0.0
 
+        # Sum the number of entries and the probabilities
         for p in net.itervalues ():
             entries[name] += 1
             probs[name] += p
 
+        # Add the sum of the probabilities to the average probability, and the
+        # total entries to the average number of entries.
         avgProb += probs[name]
         avgEntries += entries[name]
+        # Calculate the average probability of this net
         probs[name] /= entries[name]
 
+    # Calculate the average probability and average number of entries for all
+    # Bayes nets.
     avgProb /= avgEntries
     avgEntries /= len (entries)
-        
+       
+    # Assemble the output of the Bayes net data
     output += '\n\nBayes data\n  %-10s %10s %20s\n' % ('Graph', 'Entries', 'Avg. Probability')
     output += '  ========== ========== ====================\n'
 
@@ -98,8 +130,10 @@ if opts.bayes and hasattr (adjacency, 'bayes'):
     output += '  %-15s %5f\n' % ('Entries:', avgEntries)
     output += '  %-15s %5f\n' % ('Probability:', avgProb)
 
+# Print to stdout
 print output
 
+# Print to a file if specified on the command line
 if opts.file:
     f = file (opts.file, 'w')
     f.write (output)
