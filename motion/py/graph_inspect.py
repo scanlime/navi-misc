@@ -76,7 +76,8 @@ avgBranch /= avgNodes
 avgNodes /= len (nodes)
 
 # Assemble the output of the graph data
-output = 'Graph data\n  %-10s %10s %20s\n' % ('Graph', 'Nodes', 'Branching Factor')
+output = 'Graph data'.center (44) + '\n\n  %s %s %s\n' % ('Graph'.center (10),
+        'Nodes'.center (10), 'Branching Factor'.center (20))
 output += '  ========== ========== ====================\n'
 for name in nodes.iterkeys ():
     output += '  %-10s %10d %20f\n' % (name, nodes[name], branching[name])
@@ -84,7 +85,7 @@ for name in nodes.iterkeys ():
 output += '\nGraphs %5d\n' % len (nodes)
 output += '\nAverages\n'
 output += '  %-15s %5f\n' % ('Nodes:', avgNodes)
-output += '  %-15s %5f\n' % ('Branching Factor:', avgBranch)
+output += '  %-15s %5f\n' % ('Branch Factor:', avgBranch)
 
 if opts.bayes and hasattr (adjacency, 'bayes'):
     # Initialize the variables for the Bayes net data
@@ -116,7 +117,9 @@ if opts.bayes and hasattr (adjacency, 'bayes'):
     avgEntries /= len (entries)
        
     # Assemble the output of the Bayes net data
-    output += '\n\nBayes data\n  %-10s %10s %20s\n' % ('Graph', 'Entries', 'Avg. Probability')
+    output += '\n\n' + 'Bayes data'.center (44) + '\n  %s %s %s\n' % \
+            ('Graph'.center (10), 'Entries'.center (10),
+                    'Avg.  Probability'.center (20))
     output += '  ========== ========== ====================\n'
 
     for name in probs.iterkeys ():
