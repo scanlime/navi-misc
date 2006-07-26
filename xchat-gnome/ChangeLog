@@ -1,3 +1,9 @@
+2006-07-26  Christian Persch  <chpe@cvs.gnome.org>
+
+	* src/common/dbus/Makefile.am:
+	* src/common/dbus/dbus-plugin.c:
+	- Fix the build in the builddir != srcdir case. Bug #348867.
+
 Sun Jul 23 17:59:55 PDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	D plugins/dbus:

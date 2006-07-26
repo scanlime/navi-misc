@@ -32,6 +32,7 @@ libxchatdbus_la_SOURCES =			\
 	dbus-plugin.c				\
 	dbus-plugin.h
 libxchatdbus_la_CPPFLAGS =			\
+	-I$(srcdir)/..				\
 	$(AM_CPPFLAGS)
 libxchatdbus_la_CFLAGS =			\
 	$(DBUS_CFLAGS)				\
