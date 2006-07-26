@@ -168,20 +168,13 @@ def cp_range (dof, angle):
        This is used to build our sea of nodes for building the graph.
        """
     if dof == 1:
-        return [(x,) for x in (range (0, 360, angle))]
-    if dof == 2:
-        nodes = []
         for x in range (0, 360, angle):
-            for y in range (0, 360, angle):
-                nodes.append ((x, y))
-        return nodes
-    if dof == 3:
-        nodes = []
-        for x in range (0, 360, angle):
-            for y in range (0, 360, angle):
-                for z in range (0, 360, angle):
-                    nodes.append ((x, y, z))
-        return nodes
+            yield [x]
+        return
+
+    for x in range (0, 360, angle):
+        for y in cp_range (dof - 1, angle):
+            yield y + [x]
 
 def fixnegative (x):
     """If `x` is negative, add 360 to it until it is positive and return it."""
