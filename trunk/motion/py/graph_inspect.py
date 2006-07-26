@@ -35,6 +35,7 @@ graphs = pickle.load (file (args[0], 'r'))
 
 nodes = {}
 branching = {}
+avgNodes = avgBranch = 0.0
 
 adjacency = graphs.representations[AdjacencyList]
 vertices = graphs.representations[VertexMap]
@@ -49,47 +50,48 @@ for name in adjacency.data.keys ():
         nodes[name] += 1
         factor += len ([e for e in adj.query (v)])
 
+    avgNodes += nodes[name]
+    avgBranch += factor
     branching[name] = (factor / nodes[name])
 
-avgNodes = 0.0
-avgBranch = 0.0
-
-for name, count in nodes.iteritems ():
-    avgNodes += count
-avgNodes = avgNodes / len (nodes)
-
-for name, count in branching.iteritems ():
-    avgBranch += count
-avgBranch = avgBranch / len (branching)
+avgBranch /= avgNodes
+avgNodes /= len (nodes)
 
 output = 'Graph data\n  %-10s %10s %20s\n' % ('Graph', 'Nodes', 'Branching Factor')
+output += '  ========== ========== ====================\n'
 for name in nodes.iterkeys ():
-    output += '  %-10s %10d %20f\n' % (name + ':', nodes[name], branching[name])
+    output += '  %-10s %10d %20f\n' % (name, nodes[name], branching[name])
 
 output += '\nGraphs %5d\n' % len (nodes)
 output += '\nAverages\n'
 output += '  %-15s %5f\n' % ('Nodes:', avgNodes)
 output += '  %-15s %5f\n' % ('Branching Factor:', avgBranch)
 
-if opts.bayes:
-    avgProb = 0.0
-    avgEntries = 0.0
-    output += '\n\nBayes data\n  %-10s %10s %20s\n' % ('Graph', 'Entries', 'Avg. Probability')
+if opts.bayes and hasattr (adjacency, 'bayes'):
+    probs = {}
+    entries = {}
+    avgProb = avgEntries = 0.0
 
     for name, net in adjacency.bayes.iteritems ():
-        entries = 0
-        prob = 0.0
+        entries[name] = 0
+        probs[name] = 0
 
         for p in net.itervalues ():
-            entries += 1
-            prob += p
-        prob /= entries
-        output += '  %-10s %10d %20f\n' % (name, entries, prob)
+            entries[name] += 1
+            probs[name] += p
 
-        avgProb += prob
-        avgEntries += entries
-    avgEntries /= len (adjacency.bayes)
+        avgProb += probs[name]
+        avgEntries += entries[name]
+        probs[name] /= entries[name]
+
     avgProb /= avgEntries
+    avgEntries /= len (entries)
+        
+    output += '\n\nBayes data\n  %-10s %10s %20s\n' % ('Graph', 'Entries', 'Avg. Probability')
+    output += '  ========== ========== ====================\n'
+
+    for name in probs.iterkeys ():
+        output += '  %-10s %10d %20f\n' % (name, entries[name], probs[name])
 
     output += '\nBayes Nets %5d\n' % len (adjacency.bayes)
     output += '\nAverages\n'
