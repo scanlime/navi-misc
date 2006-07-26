@@ -324,21 +324,27 @@ def build_bayes (asf, amcs, interval):
     # Handle root separately
     print 'building net for root'
     net = {}
+    total = 0
     for amc in amcs:
         bone = amc.bones['root']
+        total += len (bone)
         for frame in range(len(bone)):
             c = discretize (bone[frame,3:6])
             spot = ((), c)
             if spot in net:
                 net[spot] += 1
             else:
-                net[spot] = 1.0
+                net[spot] = 1
 
+    for spot, count in net.iteritems ():
+        net[spot] = float (count) / float (total)
     nets['root'] = net
 
-    for parent, children in relationships.iteritems():
+    for parent, children in relationships.iteritems ():
         for child in children:
             print 'building net for %s' % child
+
+            total = 0
             if child not in amcs[0].bones:
                 # If the child has no DOF, we don't need to build a net at
                 # all, since we won't be interpolating that bone
@@ -351,6 +357,7 @@ def build_bayes (asf, amcs, interval):
                 net = nets[child]
                 for amc in amcs:
                     cbone = amc.bones[child]
+                    total += len (cbone)
 
                     # Chomp to within interval
                     for frame in range(len(cbone)):
@@ -363,8 +370,9 @@ def build_bayes (asf, amcs, interval):
                 net = nets[child]
 
                 for amc in amcs:
-                    pbone = Numeric.remainder (amc.bones[parent], 360.0)
-                    cbone = Numeric.remainder (amc.bones[child], 360.0)
+                    pbone = amc.bones[parent]
+                    cbone = amc.bones[child]
+                    total += len (cbone)
 
                     for frame in range(len(pbone)):
                         p = discretize (pbone[frame,-3:])
@@ -375,31 +383,8 @@ def build_bayes (asf, amcs, interval):
                         else:
                             net[(p, c)] = 1
 
-    newnets = {}
-    for bone, net in nets.iteritems():
-        newnet = {}
-        parents = {}
-        for pose, count in net.iteritems():
-            ppose = pose[0]
-            cpose = pose[1]
-            if ppose not in parents:
-                parents[ppose] = {}
-            parents[ppose][cpose] = count
-        newnets[bone] = parents
-
-    del nets
-
-    nets = {}
-    for bone, parents in newnets.iteritems():
-        net = {}
-        for parent, children in parents.iteritems():
-            total = 0
-            for count in children.itervalues():
-                total += count
-            for child, count in children.iteritems():
-                net[(parent, child)] = float(count) / float(total)
-
-        nets[bone] = net
+            for spot, count in net.iteritems ():
+                net[spot] = float (count) / float (total)
 
     return nets
 
