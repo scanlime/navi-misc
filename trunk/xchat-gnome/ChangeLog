@@ -6,7 +6,8 @@ Thu Jul 27 21:21:54 CEST 2006  Xavier Claessens <xclaesse@gmail.com>
 	  - Set PVERSION to "" like that the dbus plugin doesn't appear in
 	    plugin list anymore.
 	* configure.ac:
-	  - DBus plugin depends on dbus and dbus-plugin >=0.60
+	  - DBus plugin depends on dbus and dbus-glib >=0.60.
+
 Thu Jul 27 20:29:49 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/text-entry.c:
