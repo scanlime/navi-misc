@@ -1,14 +1,20 @@
+Thu Jul 27 18:48:31 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+	
+	* data/preferences-dialog.glade:
+	  - HIG improvements: don't display preferences window in the
+	    windows list and make it transient.
+
 2006-07-27  Christian Persch  <chpe@cvs.gnome.org>
 
 	* src/fe-gnome/fe-gnome.c: (fe_args), (fe_init), (fe_cleanup):
-	- Drop unnecessary code to init gnome-vfs and load/store the accel
-	map. Bug #348868.
+	  - Drop unnecessary code to init gnome-vfs and load/store the accel
+	    map. Bug #348868.
 
 2006-07-26  Christian Persch  <chpe@cvs.gnome.org>
 
 	* src/common/dbus/Makefile.am:
 	* src/common/dbus/dbus-plugin.c:
-	- Fix the build in the builddir != srcdir case. Bug #348867.
+	  - Fix the build in the builddir != srcdir case. Bug #348867.
 
 Sun Jul 23 17:59:55 PDT 2006  David Trowbridge <trowbrds@gmail.com>
 
