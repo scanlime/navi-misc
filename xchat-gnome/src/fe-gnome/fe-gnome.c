@@ -91,14 +91,14 @@ fe_args (int argc, char *argv[])
 	textdomain (GETTEXT_PACKAGE);
 #endif
 
-	context = g_option_context_new ("");
+	context = g_option_context_new (NULL);
 
 #ifdef HAVE_LIBGNOME_214
 	g_option_context_add_main_entries (context, entries, GETTEXT_PACKAGE);
-	gui.program = gnome_program_init (PACKAGE_NAME, PACKAGE_VERSION,
+	gui.program = gnome_program_init (PACKAGE, VERSION,
 	                                  LIBGNOMEUI_MODULE, argc, argv,
 	                                  GNOME_PARAM_GOPTION_CONTEXT, context,
-	                                  GNOME_PARAM_HUMAN_READABLE_NAME, _("IRC Chat"),
+	                                  GNOME_PARAM_HUMAN_READABLE_NAME, "IRC Chat",
 	                                  GNOME_PROGRAM_STANDARD_PROPERTIES,
 	                                  NULL);
 #else
@@ -107,9 +107,9 @@ fe_args (int argc, char *argv[])
 	g_option_context_parse (context, &argc, &argv, &error);
 	g_option_context_free (context);
 
-	gui.program = gnome_program_init (PACKAGE_NAME, PACKAGE_VERSION,
+	gui.program = gnome_program_init (PACKAGE, VERSION,
 	                                  LIBGNOMEUI_MODULE, argc, argv,
-	                                  GNOME_PARAM_HUMAN_READABLE_NAME, _("IRC Chat"),
+	                                  GNOME_PARAM_HUMAN_READABLE_NAME, "IRC Chat",
 	                                  GNOME_PROGRAM_STANDARD_PROPERTIES,
 	                                  NULL);
 #endif

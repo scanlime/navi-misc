@@ -6,7 +6,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([configure.ac])
 
-AM_INIT_AUTOMAKE([1.9 dist-bzip2 check-news subdir-objects no-define])
+AM_INIT_AUTOMAKE([1.9 dist-bzip2 check-news subdir-objects])
 
 AM_MAINTAINER_MODE
 if test "$enable_maintainer_mode" = "yes"; then
