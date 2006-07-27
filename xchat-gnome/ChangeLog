@@ -1,3 +1,14 @@
+Fri Jul 28 01:15:13 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/preferences-page-irc.c:
+	* src/fe-gnome/preferences-page-irc.h:
+	* src/fe-gnome/preferences-page-colors.c:
+	* src/fe-gnome/preferences-page-colors.h:
+	* data/preferences-dialog.glade:
+	  - Move the "show color" options from IRC to the color
+	    preference page.
+	  - Add a option to enable logging of conversations. (#333493)
+
 2006-07-28  Christian Persch  <chpe@cvs.gnome.org>
 
 	* src/fe-gnome/main-window.c: (initialize_main_window),

@@ -32,6 +32,18 @@
 static int scheme;
 
 static void
+show_colors_changed (GtkToggleButton *button, const gchar *key)
+{
+	GConfClient *client;
+	gboolean value;
+
+	client = gconf_client_get_default ();
+	value = gtk_toggle_button_get_active (button);
+	gconf_client_set_bool (client, key, value, NULL);
+	g_object_unref (client);
+}
+
+static void
 color_button_changed (GtkColorButton *button, gpointer data)
 {
 	int index = GPOINTER_TO_INT (data);
@@ -126,6 +138,17 @@ colors_changed (GtkComboBox *combo_box, PreferencesColorsPage *page)
 }
 
 static void
+gconf_show_colors_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, GtkToggleButton *button)
+{
+	gboolean toggle;
+
+	g_signal_handlers_block_by_func (button, "toggled", show_colors_changed);
+	toggle = gconf_client_get_bool (client, entry->key, NULL);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), toggle);
+	g_signal_handlers_unblock_by_func (button, "toggled", show_colors_changed);
+}
+
+static void
 gconf_color_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, PreferencesColorsPage *page)
 {
 	int selection;
@@ -145,10 +168,12 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	GtkSizeGroup *group;
 	GtkTreeIter iter;
 	gint i, j;
+	gboolean toggle;
 
 	palette_init ();
 
 #define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
+	GW(show_colors);
 	GW(color_label_1);
 	GW(color_label_2);
 	GW(color_label_3);
@@ -210,6 +235,7 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_label_set_mnemonic_widget (GTK_LABEL (page->color_label_4), page->color_buttons[2]);
 	gtk_label_set_mnemonic_widget (GTK_LABEL (page->color_label_5), page->color_buttons[3]);
 
+	g_signal_connect (G_OBJECT (page->show_colors),      "toggled",   G_CALLBACK (show_colors_changed),  "/apps/xchat/irc/showcolors");
 	g_signal_connect (G_OBJECT (page->color_buttons[0]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32));
 	g_signal_connect (G_OBJECT (page->color_buttons[1]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (33));
 	g_signal_connect (G_OBJECT (page->color_buttons[2]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (34));
@@ -232,9 +258,14 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_box_pack_start (GTK_BOX (page->foreground_background_hbox), page->combo, FALSE, TRUE, 0);
 	scheme = gconf_client_get_int (p->gconf, "/apps/xchat/irc/color_scheme", NULL);
 
-	page->notify = gconf_client_notify_add (p->gconf, "/apps/xchat/irc/color_scheme",
+	page->nh[0] = gconf_client_notify_add (p->gconf, "/apps/xchat/irc/showcolors",
+						(GConfClientNotifyFunc) gconf_show_colors_changed, page->show_colors, NULL, NULL);
+	page->nh[1] = gconf_client_notify_add (p->gconf, "/apps/xchat/irc/color_scheme",
 	                                        (GConfClientNotifyFunc) gconf_color_changed, page, NULL, NULL);
 
+	toggle = gconf_client_get_bool (p->gconf, "/apps/xchat/irc/showcolors", NULL);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->show_colors), toggle);
+	
 	g_signal_connect (G_OBJECT (page->combo), "changed", G_CALLBACK (colors_changed), page);
 	gtk_combo_box_set_active (GTK_COMBO_BOX (page->combo), scheme);
 
@@ -244,10 +275,12 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 void
 preferences_page_colors_free (PreferencesColorsPage *page)
 {
+	gint i;
 	GConfClient *client;
 
 	client = gconf_client_get_default ();
-	gconf_client_notify_remove (client, page->notify);
+	for (i = 0; i < 2; i++)
+		gconf_client_notify_remove (client, page->nh[i]);
 	g_object_unref (client);
 	g_object_unref (page->icon);
 	g_free (page);

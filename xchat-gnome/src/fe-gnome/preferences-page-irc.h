@@ -42,7 +42,7 @@ typedef struct
 	GtkWidget *usethisfont;
 	GtkWidget *font_selection;
 
-	GtkWidget *show_colors;
+	GtkWidget *auto_logging;
 	GtkWidget *show_timestamps;
 	GtkWidget *show_marker;
 
@@ -51,7 +51,7 @@ typedef struct
 	GtkTreeViewColumn *highlight_column;
 
 	/* gconf notification handlers */
-	guint nh[9];
+	guint nh[8];
 } PreferencesIrcPage;
 
 PreferencesIrcPage *preferences_page_irc_new  (gpointer prefs_dialog, GladeXML *xml);

@@ -23,6 +23,9 @@
 #include <glib/gi18n.h>
 #include <string.h>
 #include <gconf/gconf-client.h>
+#include "../common/xchat.h"
+#include "../common/text.h"
+#include "../common/xchatc.h"
 #include "preferences-page-irc.h"
 #include "preferences-dialog.h"
 #include "conversation-panel.h"
@@ -217,6 +220,31 @@ highlight_canceled (GtkCellRendererText *renderer, PreferencesIrcPage *page)
 }
 
 static void
+auto_logging_changed (GtkToggleButton *button, gpointer data)
+{
+	gboolean active;
+	GSList *list;
+	session *sess;
+
+	active = gtk_toggle_button_get_active (button);
+	
+	if (active)
+		prefs.logging = 1;
+	else
+		prefs.logging = 0;
+
+	list = sess_list;
+	while (list) {
+		sess = list->data;
+		if (active)
+			log_open (sess);
+		else
+			log_close (sess);
+		list = list->next;
+	}
+}
+
+static void
 show_marker_changed (GtkToggleButton *button, gpointer data)
 {
 	gboolean active;
@@ -259,7 +287,7 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	GW(usethisfont);
 	GW(font_selection);
 
-	GW(show_colors);
+	GW(auto_logging);
 	GW(show_timestamps);
 	GW(show_marker);
 #undef GW
@@ -279,8 +307,8 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	g_signal_connect (G_OBJECT (page->usesysfonts),      "toggled",  G_CALLBACK (bool_changed),     "/apps/xchat/main_window/use_sys_fonts");
 	g_signal_connect (G_OBJECT (page->usesysfonts),      "toggled",  G_CALLBACK (sysfonts_changed), page);
 	g_signal_connect (G_OBJECT (page->font_selection),   "font-set", G_CALLBACK (font_changed),     "/apps/xchat/main_window/font");
-	g_signal_connect (G_OBJECT (page->show_colors),      "toggled",  G_CALLBACK (bool_changed),     "/apps/xchat/irc/showcolors");
 	g_signal_connect (G_OBJECT (page->show_timestamps),  "toggled",  G_CALLBACK (bool_changed),     "/apps/xchat/irc/showtimestamps");
+	g_signal_connect (G_OBJECT (page->auto_logging),     "toggled",  G_CALLBACK (auto_logging_changed), NULL);
 	g_signal_connect (G_OBJECT (page->show_marker),      "toggled",  G_CALLBACK (show_marker_changed), NULL);
 	g_signal_connect (G_OBJECT (page->highlight_add),    "clicked",  G_CALLBACK (highlight_add),    page);
 	g_signal_connect (G_OBJECT (page->highlight_edit),   "clicked",  G_CALLBACK (highlight_edit),   page);
@@ -293,8 +321,7 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	page->nh[4] = gconf_client_notify_add (p->gconf, "/apps/xchat/irc/awaymsg",               (GConfClientNotifyFunc) gconf_entry_changed, page->away_message,    NULL, NULL);
 	page->nh[5] = gconf_client_notify_add (p->gconf, "/apps/xchat/main_window/use_sys_fonts", (GConfClientNotifyFunc) gconf_bool_changed,  page->usesysfonts,     NULL, NULL);
 	page->nh[6] = gconf_client_notify_add (p->gconf, "/apps/xchat/main-window/font",          (GConfClientNotifyFunc) gconf_font_changed,  page->font_selection,  NULL, NULL);
-	page->nh[7] = gconf_client_notify_add (p->gconf, "/apps/xchat/irc/showcolors",            (GConfClientNotifyFunc) gconf_bool_changed,  page->show_colors,     NULL, NULL);
-	page->nh[8] = gconf_client_notify_add (p->gconf, "/apps/xchat/irc/showtimestamps",        (GConfClientNotifyFunc) gconf_bool_changed,  page->show_timestamps, NULL, NULL);
+	page->nh[7] = gconf_client_notify_add (p->gconf, "/apps/xchat/irc/showtimestamps",        (GConfClientNotifyFunc) gconf_bool_changed,  page->show_timestamps, NULL, NULL);
 
 	text = gconf_client_get_string (p->gconf, "/apps/xchat/irc/nickname", NULL);
 	if (text) {
@@ -349,12 +376,10 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 		g_free (text);
 	}
 
-	toggle = gconf_client_get_bool (p->gconf, "/apps/xchat/irc/showcolors", NULL);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->show_colors), toggle);
-
 	toggle = gconf_client_get_bool (p->gconf, "/apps/xchat/irc/showtimestamps", NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->show_timestamps), toggle);
 
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->auto_logging), prefs.logging);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->show_marker), prefs.show_marker);
 	/* highlight list */
 	page->highlight_store = gtk_list_store_new (1, G_TYPE_STRING);
@@ -387,7 +412,7 @@ preferences_page_irc_free (PreferencesIrcPage *page)
 	GConfClient *client;
 
 	client = gconf_client_get_default ();
-	for (i = 0; i < 9; i++)
+	for (i = 0; i < 8; i++)
 		gconf_client_notify_remove (client, page->nh[i]);
 	g_object_unref (client);
 

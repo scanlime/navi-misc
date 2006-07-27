@@ -29,6 +29,7 @@ typedef struct
 {
 	GtkWidget *combo;
 
+	GtkWidget *show_colors;
 	GtkWidget *color_buttons[4];
 	GtkWidget *palette_buttons[32];
 
@@ -51,7 +52,7 @@ typedef struct
 
 	GdkPixbuf *icon;
 
-	guint      notify;
+	guint      nh[2];
 } PreferencesColorsPage;
 
 PreferencesColorsPage *preferences_page_colors_new  (gpointer prefs_dialog, GladeXML *xml);
