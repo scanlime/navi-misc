@@ -1,3 +1,9 @@
+2006-07-28  Christian Persch  <chpe@cvs.gnome.org>
+
+	* configure.ac:
+	* src/fe-gnome/fe-gnome.c: (fe_args):
+	- Use PACKAGE as gnome app ID. Bug #348868.
+
 Thu Jul 27 21:21:54 CEST 2006  Xavier Claessens <xclaesse@gmail.com>
 
 	* src/common/dbus/example.py:
