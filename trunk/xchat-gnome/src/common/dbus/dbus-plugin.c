@@ -45,7 +45,7 @@
 
 #define PNAME _("XChat-GNOME remote access")
 #define PDESC _("plugin for remote access using D-Bus")
-#define PVERSION "0.6"
+#define PVERSION ""
 
 #define DBUS_SERVICE "org.xchatgnome.service"
 #define DBUS_OBJECT "/org/xchatgnome/RemoteObject"
