@@ -1,5 +1,17 @@
 2006-07-28  Christian Persch  <chpe@cvs.gnome.org>
 
+	* src/fe-gnome/main-window.c: (initialize_main_window),
+	(run_main_window):
+	* src/fe-gnome/navigation-tree.c: (navigation_tree_init),
+	(navigation_tree_create_new_network_entry),
+	(navigation_tree_create_new_channel_entry), (server_context),
+	(channel_context), (navigation_selection_changed):
+	* src/fe-gnome/navigation-tree.h:
+	- Set action sensitivity instead of messing with the proxy widgets
+	directly. Bug #348968.
+
+2006-07-28  Christian Persch  <chpe@cvs.gnome.org>
+
 	* configure.ac:
 	* src/fe-gnome/fe-gnome.c: (fe_args):
 	- Use PACKAGE as gnome app ID. Bug #348868.
