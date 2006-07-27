@@ -1,3 +1,8 @@
+Thu Jul 27 20:29:49 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/text-entry.c:
+	  - Make IRC command completion case unsensitive.
+	  
 Thu Jul 27 18:48:31 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 	
 	* data/preferences-dialog.glade:

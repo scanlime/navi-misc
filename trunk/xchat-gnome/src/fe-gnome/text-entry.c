@@ -425,7 +425,7 @@ tab_complete_command (GtkEntry *entry)
 	cursor = gtk_editable_get_position (GTK_EDITABLE (entry));
 	prefix = g_new0 (char, cursor);
 	text = gtk_entry_get_text (entry);
-	strncpy (prefix, &text[1], cursor - 1);
+	prefix = g_ascii_strup (&text[1], cursor - 1);
 	length = strlen (text);
 
 	options = g_completion_complete (text_entry->priv->command_completion, prefix, &new_prefix);
