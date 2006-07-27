@@ -1,3 +1,9 @@
+2006-07-27  Christian Persch  <chpe@cvs.gnome.org>
+
+	* src/fe-gnome/fe-gnome.c: (fe_args), (fe_init), (fe_cleanup):
+	- Drop unnecessary code to init gnome-vfs and load/store the accel
+	map. Bug #348868.
+
 2006-07-26  Christian Persch  <chpe@cvs.gnome.org>
 
 	* src/common/dbus/Makefile.am:
