@@ -288,6 +288,10 @@ initialize_main_window (void)
 	widget = glade_xml_get_widget (gui.xml, "nickname");
 	gtk_button_set_use_underline (GTK_BUTTON (widget), FALSE);
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (on_nickname_clicked), NULL);
+
+	/* Temporarily disable menu items */
+	action = gtk_action_group_get_action (gui.action_group, "DiscussionBans");
+	gtk_action_set_sensitive (action, FALSE);
 }
 
 void
@@ -319,12 +323,6 @@ run_main_window ()
 	pane = glade_xml_get_widget (gui.xml, "HPane");
 	g_signal_connect (G_OBJECT (pane), "notify::position", G_CALLBACK (on_hpane_move), NULL);
 	g_object_unref (client);
-
-	/* Temporarily disable menu items */
-	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionBansItem");
-	gtk_widget_set_sensitive (widget, FALSE);
-	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/ChannelJoinedPopup/ChannelBans");
-	gtk_widget_set_sensitive (widget, FALSE);
 
 	gtk_widget_show (gui.main_window);
 }

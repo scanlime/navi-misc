@@ -63,6 +63,8 @@ struct _NavTree
 	 */
 	GtkTreeRowReference *last_server;
 	GtkTreeRowReference *last_channel;
+
+	GtkActionGroup *action_group;
 };
 
 struct _NavTreeClass

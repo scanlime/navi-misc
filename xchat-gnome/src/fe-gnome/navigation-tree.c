@@ -61,7 +61,7 @@ static void      show_context_menu (GtkWidget *treeview, GdkEventButton *event);
 static gboolean  click (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 static gboolean  declick (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 static gboolean  popup_menu (GtkWidget *treeview, gpointer user_data);
-static void      navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_data);
+static void      navigation_selection_changed (GtkTreeSelection *treeselection, NavTree *navtree);
 static void      row_expanded (GtkTreeView *treeview, GtkTreeIter *iter, GtkTreePath *path, gpointer user_data);
 static void      row_collapsed (GtkTreeView *treeview, GtkTreeIter *iter, GtkTreePath *path, gpointer user_data);
 static void      on_server_information (GtkAction *action, gpointer data);
@@ -107,8 +107,6 @@ static GtkToggleActionEntry toggle_action_entries[] = {
 	{"ChannelAutoJoin",   NULL, N_("_Auto-join on connect"),    "", NULL, G_CALLBACK (on_channel_autojoin), FALSE},
 };
 
-static GtkActionGroup *action_group;
-
 GType
 navigation_tree_get_type (void)
 {
@@ -141,17 +139,19 @@ navigation_tree_init (NavTree *navtree)
 	GtkCellRenderer *icon_renderer, *text_renderer;
 	GtkTreeViewColumn *column;
 	GtkTreeSelection *select;
+	GtkActionGroup *action_group;
+	GtkAction *action;
 
 	g_object_set ((gpointer) navtree, "headers-visible", FALSE, NULL);
 	navtree->current_rowref = NULL;
 	navtree->model = NULL;
 	navtree->selection_changed_id = 0;
 
-	action_group = gtk_action_group_new ("NavigationContext");
+	navtree->action_group = action_group = gtk_action_group_new ("NavigationContext");
 	gtk_action_group_set_translation_domain (action_group, GETTEXT_PACKAGE);
 	gtk_action_group_add_actions (action_group, action_entries, G_N_ELEMENTS (action_entries), NULL);
 	gtk_action_group_add_toggle_actions (action_group, toggle_action_entries, G_N_ELEMENTS (toggle_action_entries), NULL);
-	gtk_ui_manager_insert_action_group (gui.manager, action_group, 0);
+	gtk_ui_manager_insert_action_group (gui.manager, action_group, -1);
 	g_object_unref (action_group);
 
 	/* This sets up all our columns. */
@@ -172,7 +172,7 @@ navigation_tree_init (NavTree *navtree)
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
 
 	/* Connect the callbacks. */
-	navtree->selection_changed_id = g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (navigation_selection_changed), NULL);
+	navtree->selection_changed_id = g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (navigation_selection_changed), navtree);
 	g_signal_connect (G_OBJECT (navtree), "row-expanded", G_CALLBACK (row_expanded), NULL);
 	g_signal_connect (G_OBJECT (navtree), "row-collapsed", G_CALLBACK (row_collapsed), NULL);
 	g_signal_connect (G_OBJECT (navtree), "button_press_event", G_CALLBACK (click), NULL);
@@ -182,6 +182,10 @@ navigation_tree_init (NavTree *navtree)
 	/* Initialize our row references. */
 	navtree->last_server = NULL;
 	navtree->last_channel = NULL;
+
+	/* Temporarily disable menu items */
+	action = gtk_action_group_get_action (action_group, "ChannelBans");
+	gtk_action_set_sensitive (action, FALSE);
 }
 
 static void
@@ -231,7 +235,8 @@ navigation_tree_new (NavModel *model)
 void
 navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess)
 {
-	GtkWidget *menuitem, *button;
+	GtkWidget *button;
+	GtkAction *action;
 
 	navigation_model_add_new_network (navtree->model, sess);
 
@@ -250,16 +255,15 @@ navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess
 	gtk_widget_set_sensitive (button, FALSE);
 
 	/* Make the topic button insensitive. */
-	menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionChangeTopicItem");
-	if (menuitem == NULL)
-		g_warning ("can't disable topic change menu item");
-	gtk_widget_set_sensitive (menuitem, FALSE);
+	action = gtk_action_group_get_action (gui.action_group, "DiscussionChangeTopic");
+	gtk_action_set_sensitive (action, FALSE);
 }
 
 void
 navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess, gboolean focus)
 {
-	GtkWidget *menuitem, *button;
+	GtkWidget *button;
+	GtkAction *action;
 	ircnet *net;
 
 	navigation_model_add_new_channel (navtree->model, sess);
@@ -286,11 +290,9 @@ navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess
 		button = glade_xml_get_widget (gui.xml, "close discussion");
 		if (sess->type == SESS_CHANNEL)
 			gtk_widget_set_sensitive (button, TRUE);
-		menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionChangeTopicItem");
-		if (menuitem == NULL)
-			g_warning ("can't access topic change menu item");
-		else
-			gtk_widget_set_sensitive (menuitem, sess->type == SESS_CHANNEL);
+
+		action = gtk_action_group_get_action (gui.action_group, "DiscussionChangeTopic");
+		gtk_action_set_sensitive (action, sess->type == SESS_CHANNEL);
 
 		/* Set our nick. */
 		set_nickname (sess->server, NULL);
@@ -919,6 +921,7 @@ navigation_context (GtkWidget *treeview, session *selected)
 static GtkWidget *
 server_context (GtkWidget *treeview, session *selected)
 {
+	NavTree *navtree = NAVTREE (treeview);
 	GtkWidget *menu;
 	GtkAction *action;
 
@@ -930,11 +933,11 @@ server_context (GtkWidget *treeview, session *selected)
 		 * FIXME: it would be really nice to be able to configure this server
 		 * as part of a network here.
 		 */
-		action = gtk_action_group_get_action (action_group, "ServerAutoConnect");
+		action = gtk_action_group_get_action (navtree->action_group, "ServerAutoConnect");
 		gtk_action_set_sensitive (action, FALSE);
 	} else if (selected != NULL) {
 		/* check if the network is in the auto-connect list */
-		action = gtk_action_group_get_action (action_group, "ServerAutoConnect");
+		action = gtk_action_group_get_action (navtree->action_group, "ServerAutoConnect");
 		gtk_action_set_sensitive (action, TRUE);
 		if (((ircnet *)selected->server->network)->flags & FLAG_AUTO_CONNECT)
 			gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), TRUE);
@@ -947,6 +950,7 @@ server_context (GtkWidget *treeview, session *selected)
 static GtkWidget *
 channel_context (GtkWidget *treeview, session *selected)
 {
+	NavTree *navtree = NAVTREE (treeview);
 	GtkWidget *menu;
 	GtkAction *action;
 	ircnet *network;
@@ -959,7 +963,7 @@ channel_context (GtkWidget *treeview, session *selected)
 	g_return_val_if_fail (menu != NULL, NULL);
 
 	/* check if the channel is in the auto-join list */
-	action = gtk_action_group_get_action (action_group, "ChannelAutoJoin");
+	action = gtk_action_group_get_action (navtree->action_group, "ChannelAutoJoin");
 	network = selected->server->network;
 
 	if (network == NULL) {
@@ -1071,13 +1075,14 @@ popup_menu (GtkWidget *treeview, gpointer user_data)
 }
 
 static void
-navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_data)
+navigation_selection_changed (GtkTreeSelection *treeselection, NavTree *navtree)
 {
 	GtkTreeIter   iter;
 	GtkTreeIter   newiter;
 	GtkTreeModel *model;
 	GtkTreeModel *store;
 	GtkWidget    *button;
+	GtkAction    *action;
 	gpointer     *s;
 	session      *sess;
 
@@ -1095,7 +1100,6 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 	 *      not a GtkTreeModel. The iter is for that ModelSort.
 	 */
 	if (gtk_tree_selection_get_selected (treeselection, &model, &iter) && gui.current_session) {
-		GtkWidget *menuitem;
 		GtkTreePath *path;
 
 		path = gtk_tree_model_get_path (model, &iter);
@@ -1137,20 +1141,20 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		}
 
 		/* Set widget sensitivity based on type of the current "tab" */
-		menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionChangeTopicItem");
-		if (menuitem == NULL)
-			g_warning ("can't disable topic change menu item");
-		else
-			gtk_widget_set_sensitive (menuitem, sess->type == SESS_CHANNEL);
+		action = gtk_action_group_get_action (gui.action_group, "DiscussionChangeTopic");
+		gtk_action_set_sensitive (action, sess->type == SESS_CHANNEL);
+
+		/* FIXME make this a proxy widget of DiscussionClose */
 		button = glade_xml_get_widget (gui.xml, "close discussion");
 		gtk_widget_set_sensitive (button, sess->type != SESS_SERVER);
 
-		menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionUsersItem");
-		gtk_widget_set_sensitive (menuitem, sess->type != SESS_SERVER);
-		menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionLeaveItem");
-		gtk_widget_set_sensitive (menuitem, sess->type != SESS_SERVER);
-		menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionCloseItem");
-		gtk_widget_set_sensitive (menuitem, sess->type != SESS_SERVER);
+		action = gtk_action_group_get_action (gui.action_group, "DiscussionUsers");
+		gtk_action_set_sensitive (action, sess->type != SESS_SERVER);
+		action = gtk_action_group_get_action (gui.action_group, "DiscussionLeave");
+		gtk_action_set_sensitive (action, sess->type != SESS_SERVER);
+		action = gtk_action_group_get_action (gui.action_group, "DiscussionClose");
+		gtk_action_set_sensitive (action, sess->type != SESS_SERVER);
+
 		gtk_widget_set_sensitive (gui.userlist_toggle, sess->type == SESS_CHANNEL);
 
 		/* remove any icon that exists */
