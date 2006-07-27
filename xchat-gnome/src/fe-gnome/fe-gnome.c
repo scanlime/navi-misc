@@ -136,10 +136,7 @@ fe_args (int argc, char *argv[])
 void
 fe_init (void)
 {
-	gchar *accel_map;
 	GConfClient *client;
-
-	gnome_vfs_init ();
 
 	client = gconf_client_get_default ();
 	gconf_client_add_dir (client, "/apps/xchat", GCONF_CLIENT_PRELOAD_NONE, NULL);
@@ -171,11 +168,6 @@ fe_init (void)
 	 * method for autoloading.
 	 */
 	arg_skip_plugins = 1;
-
-	accel_map = g_strdup_printf ("%s%c%s", get_xdir_fs (), G_DIR_SEPARATOR, "accelerator_map");
-	if (g_file_test (accel_map, G_FILE_TEST_EXISTS))
-		gtk_accel_map_load (accel_map);
-	g_free (accel_map);
 
 	if (not_autoconnect ()) {
 		ConnectDialog *cd;
@@ -211,11 +203,7 @@ fe_main (void)
 void
 fe_cleanup (void)
 {
-	gchar *accel_map;
-
-	accel_map = g_strdup_printf ("%s%c%s", get_xdir_fs (), G_DIR_SEPARATOR, "accelerator_map");
-	gtk_accel_map_save (accel_map);
-	g_free (accel_map);
+	gnome_accelerators_sync ();
 }
 
 void
