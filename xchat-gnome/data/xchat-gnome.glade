@@ -451,7 +451,7 @@
 		  <property name="spacing">6</property>
 
 		  <child>
-		    <widget class="GtkButton" id="nickname">
+		    <widget class="GtkButton" id="nick_button">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">nickname</property>

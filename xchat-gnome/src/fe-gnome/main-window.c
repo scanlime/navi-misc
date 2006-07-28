@@ -91,6 +91,8 @@ static gboolean on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointe
 static gboolean on_main_window_focus_in (GtkWidget *widget, GdkEventFocus *event, gpointer data);
 static gboolean on_main_window_configure (GtkWidget *widget, GdkEventConfigure *event, gpointer data);
 
+static void nickname_style_set (GtkWidget *button, GtkStyle *previous_style, gpointer data);
+
 static GtkActionEntry action_entries [] = {
 
 	/* Toplevel */
@@ -178,12 +180,15 @@ initialize_main_window (void)
 	close = glade_xml_get_widget (gui.xml, "close discussion");
 	g_signal_connect (G_OBJECT (close), "clicked", G_CALLBACK (on_discussion_close_activate), NULL);
 
-	gui.conversation_panel = glade_xml_get_widget (gui.xml, "conversation_panel");
-	gui.find_bar           = glade_xml_get_widget (gui.xml, "find_bar");
-	gui.status_bar         = glade_xml_get_widget (gui.xml, "status_bar");
-	gui.text_entry         = glade_xml_get_widget (gui.xml, "text_entry");
-	gui.topic_hbox         = glade_xml_get_widget (gui.xml, "topic_hbox");
-	gui.topic_label        = glade_xml_get_widget (gui.xml, "topic_label");
+#define GW(name) ((gui.name) = glade_xml_get_widget (gui.xml, #name))
+	GW(conversation_panel);
+	GW(find_bar);
+	GW(status_bar);
+	GW(text_entry);
+	GW(topic_hbox);
+	GW(topic_label);
+	GW(nick_button);
+#undef GW
 
 	/* Hook up accelerators for pgup/pgdn */
 	{
@@ -286,9 +291,9 @@ initialize_main_window (void)
 	g_object_unref (group);
 
 	/* connect nickname button */
-	widget = glade_xml_get_widget (gui.xml, "nickname");
-	gtk_button_set_use_underline (GTK_BUTTON (widget), FALSE);
-	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (on_nickname_clicked), NULL);
+	gtk_button_set_use_underline (GTK_BUTTON (gui.nick_button), FALSE);
+	g_signal_connect (G_OBJECT (gui.nick_button), "clicked",   G_CALLBACK (on_nickname_clicked), NULL);
+	g_signal_connect (G_OBJECT (gui.nick_button), "style-set", G_CALLBACK (nickname_style_set),  NULL);
 
 	/* Temporarily disable menu items */
 	action = gtk_action_group_get_action (gui.action_group, "DiscussionBans");
@@ -695,11 +700,10 @@ set_nickname (struct server *serv, char *newnick)
 		return;
 
 	if (serv == gui.current_session->server) {
-		GtkWidget *nick = glade_xml_get_widget (gui.xml, "nickname");
 		if (newnick == NULL)
-			gtk_button_set_label (GTK_BUTTON (nick), serv->nick);
+			gtk_button_set_label (GTK_BUTTON (gui.nick_button), serv->nick);
 		else
-			gtk_button_set_label (GTK_BUTTON (nick), newnick);
+			gtk_button_set_label (GTK_BUTTON (gui.nick_button), newnick);
 		set_nickname_color (serv);
 	}
 }
@@ -711,20 +715,18 @@ set_nickname_color (struct server *serv)
 		return;
 
 	if (serv == gui.current_session->server) {
-		GtkWidget *nick_button;
 		GtkLabel *label;
 		PangoAttribute *attr;
 		PangoAttrList *l;
 		GdkColor *color;
 
 		l = pango_attr_list_new ();
-		nick_button = glade_xml_get_widget (gui.xml, "nickname");
-		label = GTK_LABEL (GTK_BIN (nick_button)->child);
+		label = GTK_LABEL (GTK_BIN (gui.nick_button)->child);
 
 		if (serv->is_away) {
-			color = &(nick_button->style->fg[GTK_STATE_INSENSITIVE]);
+			color = &(gui.nick_button->style->fg[GTK_STATE_INSENSITIVE]);
 		} else {
-			color = &(nick_button->style->fg[GTK_STATE_NORMAL]);
+			color = &(gui.nick_button->style->fg[GTK_STATE_NORMAL]);
 		}
 		attr = pango_attr_foreground_new (color->red, color->green, color->blue);
 
@@ -750,4 +752,13 @@ on_main_window_configure (GtkWidget *widget, GdkEventConfigure *event, gpointer 
 {
 	conversation_panel_queue_tdraw (CONVERSATION_PANEL (gui.conversation_panel));
 	return FALSE;
+}
+
+static void
+nickname_style_set (GtkWidget *button, GtkStyle *previous_style, gpointer data)
+{
+	if (gui.current_session == NULL)
+		return;
+
+	set_nickname_color (gui.current_session->server);
 }

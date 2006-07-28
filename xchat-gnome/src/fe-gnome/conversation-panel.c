@@ -256,9 +256,9 @@ conversation_panel_init (ConversationPanel *panel)
 
 	action_group = gtk_action_group_new ("TextPopups");
 	gtk_action_group_set_translation_domain (action_group, GETTEXT_PACKAGE);
-	gtk_action_group_add_actions (action_group, url_actions,   G_N_ELEMENTS (url_actions),   panel);
-	gtk_action_group_add_actions (action_group, email_actions, G_N_ELEMENTS (email_actions), panel);
-	gtk_action_group_add_actions (action_group, dnd_actions,   G_N_ELEMENTS (dnd_actions),   panel);
+	gtk_action_group_add_actions (action_group, url_actions,     G_N_ELEMENTS (url_actions),   panel);
+	gtk_action_group_add_actions (action_group, email_actions,   G_N_ELEMENTS (email_actions), panel);
+	gtk_action_group_add_actions (action_group, dnd_actions,     G_N_ELEMENTS (dnd_actions),   panel);
 	gtk_action_group_add_actions (action_group, default_actions, G_N_ELEMENTS (default_actions),   panel);
 	gtk_ui_manager_insert_action_group (gui.manager, action_group, 0);
 	g_object_unref (action_group);
@@ -272,7 +272,7 @@ conversation_panel_init (ConversationPanel *panel)
 		gconf_client_get_bool (client, "/apps/xchat/main_window/redundant_nickstamps", NULL);
 	g_object_unref (client);
 
-	g_signal_connect (G_OBJECT (panel), "style_set", G_CALLBACK (style_set_callback), panel);
+	g_signal_connect (G_OBJECT (panel), "style-set", G_CALLBACK (style_set_callback), panel);
 	g_signal_connect (G_OBJECT (panel->priv->xtext), "drag_data_received", G_CALLBACK (drag_data_received), panel);
 	gtk_drag_dest_set (panel->priv->xtext, GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT | GTK_DEST_DEFAULT_DROP,
 	                   target_table, G_N_ELEMENTS (target_table), GDK_ACTION_COPY | GDK_ACTION_ASK);
