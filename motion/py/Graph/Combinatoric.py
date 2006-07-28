@@ -467,11 +467,6 @@ class BayesAdjacency (AdjacencyList):
             """Generator function used for creating filtered successors of
             ``u``.
             """
-            # If there are no bones left in ``order``, yield the current node
-            if len (order) == 0:
-                yield current.copy ()
-                return
-
             # The bone we're currently examining
             bone = order[0]
 
@@ -480,7 +475,7 @@ class BayesAdjacency (AdjacencyList):
             if not bone == "root" and not self.bones[bone].dof:
                 for child in filter (order[1:], current, prob):
                     yield child
-                    return
+                return
 
             # Get the name of the parent and the current position of the
             # parent, if this bone has a parent.
@@ -498,8 +493,11 @@ class BayesAdjacency (AdjacencyList):
                 # If the bone has no parent or the parent has no mocap data
                 # (i.e. the parent has no DOF), accept all neighbors
                 if (bone not in self.parents or ppos is None):
-                    for child in filter (order[1:], current, prob):
-                        yield child
+                    if len (order) > 1:
+                        for child in filter (order[1:], current, prob):
+                            yield child
+                    else:
+                        yield current
                 # If the bone has a parent and the parent has a position in
                 # ``current``, apply the Bayes net to this bone to filter
                 # unlikely positions
@@ -518,8 +516,14 @@ class BayesAdjacency (AdjacencyList):
                     # epsilon value, except the pose and recurse down the
                     # body.
                     if newProb >= self.epsilon:
-                        for child in filter (order[1:], current, newProb):
-                            yield child
+                        if len (order) > 1:
+                            for child in filter (order[1:], current, newProb):
+                                yield child
+                        else:
+                            yield current
+                    else:
+                        print 'Skipping successor of %s due to low prob: %f' \
+                                % (bone, newProb)
        
         # Yield edges with a high enough probability to warrant checking.
         for v in filter (self.order):
