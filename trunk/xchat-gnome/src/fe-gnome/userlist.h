@@ -50,17 +50,17 @@ struct _UserlistClass
 	GObjectClass parent_class;
 };
 
-GType         userlist_get_type       (void) G_GNUC_CONST;
-Userlist*     userlist_new            (void);
-void          userlist_insert         (Userlist *userlist, session *sess, struct User *newuser, int row, gboolean selected);
-gboolean      userlist_remove_user    (Userlist *userlist, session *sess, struct User *user);
-void          userlist_update         (Userlist *userlist, session *sess, struct User *user);
-void          userlist_move           (Userlist *userlist, session *sess, struct User *user, int new_row);
-void          userlist_clear_all      (Userlist *userlist, session *sess);
-void          userlist_erase          (Userlist *userlist, session *sess);
-GtkListStore* userlist_get_store      (Userlist *userlist, session *sess);
-GCompletion*  userlist_get_completion (Userlist *userlist, session *sess);
-void	      userlist_set_user_button(Userlist *userlist, session *sess);
+GType         userlist_get_type        (void) G_GNUC_CONST;
+Userlist*     userlist_new             (void);
+void          userlist_insert          (Userlist *userlist, session *sess, struct User *newuser, int row, gboolean selected);
+gboolean      userlist_remove_user     (Userlist *userlist, session *sess, struct User *user);
+void          userlist_update          (Userlist *userlist, session *sess, struct User *user);
+void          userlist_move            (Userlist *userlist, session *sess, struct User *user, int new_row);
+void          userlist_clear_all       (Userlist *userlist, session *sess);
+void          userlist_erase           (Userlist *userlist, session *sess);
+GtkListStore* userlist_get_store       (Userlist *userlist, session *sess);
+GCompletion*  userlist_get_completion  (Userlist *userlist, session *sess);
+void	      userlist_set_user_button (Userlist *userlist, session *sess);
 
 G_END_DECLS
 

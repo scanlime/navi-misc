@@ -1,5 +1,17 @@
+Fri Jul 28 13:04:10 PDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/conversation-panel.c:
+	* src/fe-gnome/conversation-panel.h:
+	  - Fix theme-change notification for the text colors. (#347956)
+	* src/fe-gnome/main-window.c:
+	* src/fe-gnome/gui.h:
+	* data/xchat-gnome.glade:
+	  - Fix theme-change notification for the nickname button. (#348870)
+	* src/fe-gnome/userlist.h:
+	  - Clean up spacing
+
 Fri Jul 28 16:25:59 CEST 2006  Guillaume Desmottes <cass@skynet.be>
-	
+
 	A data/xchat-gnome.1:
 	A data/xchat-gnome-remote.1:
 	* data/Makefile.am:
