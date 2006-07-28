@@ -1,3 +1,10 @@
+Fri Jul 28 16:25:59 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+	
+	A data/xchat-gnome.1:
+	A data/xchat-gnome-remote.1:
+	* data/Makefile.am:
+	  - Integrate manpages from Debian. Thanks to Marco Cabizza.
+
 Fri Jul 28 11:53:12 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/main-window.c:
