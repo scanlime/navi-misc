@@ -145,6 +145,7 @@ initialize_main_window (void)
 {
 	GtkWidget *close, *menu_vbox, *widget;
 	GtkSizeGroup *group;
+	GtkAction *action;
 
 	gui.main_window = glade_xml_get_widget (gui.xml, "xchat-gnome");
 	g_signal_connect (G_OBJECT (gui.main_window), "delete-event",
@@ -297,7 +298,7 @@ initialize_main_window (void)
 void
 run_main_window ()
 {
-	GtkWidget *pane, *widget;
+	GtkWidget *pane;
 	GConfClient *client;
 	int width, height;
 	int x, y;

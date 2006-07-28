@@ -1,3 +1,8 @@
+Fri Jul 28 11:53:12 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/main-window.c:
+	  - Fix compilation error. Add a missing variable declaration.
+
 Fri Jul 28 01:15:13 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/preferences-page-irc.c:
