@@ -34,7 +34,7 @@ xchat_gnome_DATA = 			\
 	xchat-gnome-ui.xml		\
 	xchat-gnome.glade		\
 	xchat-gnome.png			\
-	spellcheck.png
+	spellcheck.png			
 
 xchat_gnomedir = $(datadir)/xchat-gnome
 
@@ -55,6 +55,7 @@ install-data-hook:
 desktopdir = $(datadir)/applications
 desktop_in_files = xchat-gnome.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
+man_MANS = xchat-gnome.1 xchat-gnome-remote.1
 @INTLTOOL_DESKTOP_RULE@
 
 DISTCLEANFILES = $(desktop_DATA)
@@ -62,4 +63,5 @@ DISTCLEANFILES = $(desktop_DATA)
 EXTRA_DIST = 				\
 	$(xchat_gnome_DATA)		\
 	$(icon_DATA)			\
-	$(desktop_in_files)
+	$(desktop_in_files)		\
+	$(man_MANS)
