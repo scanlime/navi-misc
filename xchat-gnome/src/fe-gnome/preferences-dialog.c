@@ -110,15 +110,15 @@ preferences_dialog_init (PreferencesDialog *p)
 	GtkTreeViewColumn *column;
 	GtkTreeSelection *select;
 	GladeXML *xml;
+	gchar *path;
 
 	p->gconf = NULL;
 	p->dialog = NULL;
 
 	xml = NULL;
-	if (g_file_test ("../../data/preferences-dialog.glade", G_FILE_TEST_EXISTS))
-		xml = glade_xml_new ("../../data/preferences-dialog.glade", "dialog", NULL);
-	if (!xml)
-		xml = glade_xml_new (XCHATSHAREDIR "/preferences-dialog.glade", "dialog", NULL);
+	path = locate_data_file ("preferences-dialog.glade");
+	xml = glade_xml_new (path, "dialog", NULL);
+	g_free (path);
 	if (!xml)
 		return;
 

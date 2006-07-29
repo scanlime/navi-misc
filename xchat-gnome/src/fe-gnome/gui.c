@@ -38,12 +38,13 @@ Userlist *u;
 gboolean
 initialize_gui_1 (void)
 {
+	gchar *path;
+
 	gui.manager = gtk_ui_manager_new ();
 
-	if (g_file_test ("../../data/xchat-gnome.glade", G_FILE_TEST_EXISTS))
-		gui.xml = glade_xml_new ("../../data/xchat-gnome.glade", NULL, NULL);
-	if (!gui.xml)
-		gui.xml = glade_xml_new (XCHATSHAREDIR "/xchat-gnome.glade", NULL, NULL);
+	path = locate_data_file ("xchat-gnome.glade");
+	gui.xml = glade_xml_new (path, NULL, NULL);
+	g_free (path);
 	if (!gui.xml)
 		return FALSE;
 	return TRUE;

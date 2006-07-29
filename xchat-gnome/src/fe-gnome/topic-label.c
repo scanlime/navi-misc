@@ -26,6 +26,7 @@
 #include <libsexy/sexy-url-label.h>
 #endif
 #include "gui.h"
+#include "util.h"
 #include "text-entry.h"
 #include "topic-label.h"
 #include "../common/fe.h"
@@ -261,15 +262,14 @@ topic_label_change_current (TopicLabel *label)
 	GladeXML *xml = NULL;
 	GtkWidget *dialog, *entry;
 	GtkTextBuffer *buffer;
-	gchar *title, *topic;
+	gchar *title, *topic, *path;
 
 	if ((priv->current == NULL) || (priv->current->type != SESS_CHANNEL))
 		return;
 
-	if (g_file_test ("../../data/topic-change.glade", G_FILE_TEST_EXISTS))
-		xml = glade_xml_new ("../../data/topic-change.glade", NULL, NULL);
-	else
-		xml = glade_xml_new (XCHATSHAREDIR "/topic-change.glade", NULL, NULL);
+	path = locate_data_file ("topic-change.glade");
+	xml = glade_xml_new (path, NULL, NULL);
+	g_free (path);
 
 	dialog = glade_xml_get_widget (xml, "topic change");
         entry  = glade_xml_get_widget (xml, "topic entry box");

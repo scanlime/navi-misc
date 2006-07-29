@@ -88,6 +88,7 @@ xchat_gnome_SOURCES =				\
 	xtext.h
 
 xchat_gnome_CPPFLAGS = \
+	-DTOPSRCDIR="\"$(top_srcdir)\""		\
 	-DSYSCONFDIR="\"$(sysconfdir)\""	\
 	-DDATADIR="\"$(pkgdatadir)\""		\
 	-DXCHATSHAREDIR="\"$(pkgdatadir)\""	\

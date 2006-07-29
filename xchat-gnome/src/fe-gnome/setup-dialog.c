@@ -26,6 +26,7 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include "setup-dialog.h"
+#include "util.h"
 
 static GladeXML *xml = NULL;
 static gboolean done;
@@ -40,11 +41,11 @@ void run_setup_dialog (void)
 	GtkWidget *nick_entry;
 	GtkWidget *real_entry;
 	GtkWidget *button;
+	gchar *path;
 
-	if (g_file_test ("../../data/setup-dialog.glade", G_FILE_TEST_EXISTS))
-		xml = glade_xml_new ("../../data/setup-dialog.glade", NULL, NULL);
-	if (!xml)
-		xml = glade_xml_new (XCHATSHAREDIR "/setup-dialog.glade", NULL, NULL);
+	path = locate_data_file ("setup-dialog.glade");
+	xml = glade_xml_new (path, NULL, NULL);
+	g_free (path);
 	if (!xml)
 		/* FIXME - if we can't do this, we've got major problems */
 		return;

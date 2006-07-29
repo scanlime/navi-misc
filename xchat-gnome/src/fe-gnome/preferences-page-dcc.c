@@ -24,6 +24,7 @@
 #include <string.h>
 #include "preferences-page-dcc.h"
 #include "preferences-dialog.h"
+#include "util.h"
 #include "../common/xchat.h"
 #include "../common/xchatc.h"
 
@@ -119,6 +120,7 @@ preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 	GtkTreeIter iter;
 	PreferencesDCCPage *page = g_new0 (PreferencesDCCPage, 1);
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
+	gchar *path;
 
 #define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
 	GW(download_dir_button);
@@ -176,10 +178,10 @@ preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 	g_signal_connect (G_OBJECT (page->individual_receive_throttle), "value-changed",     G_CALLBACK (irt_changed),                page);
 	g_signal_connect (G_OBJECT (page->global_receive_throttle),     "value-changed",     G_CALLBACK (grt_changed),                page);
 
-	if (g_file_test ("../../data/dcc.png", G_FILE_TEST_EXISTS))
-		page->icon = gdk_pixbuf_new_from_file ("../../data/dcc.png", NULL);
-	else
-		page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/dcc.png", NULL);
+	path = locate_data_file ("dcc.png");
+	page->icon = gdk_pixbuf_new_from_file (path, NULL);
+	g_free (path);
+
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("File Transfers & DCC"), 2, 3, -1);
 

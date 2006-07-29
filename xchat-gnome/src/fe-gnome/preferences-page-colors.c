@@ -28,6 +28,7 @@
 #include "preferences-page-colors.h"
 #include "preferences-dialog.h"
 #include "xtext.h"
+#include "util.h"
 
 static int scheme;
 
@@ -168,6 +169,7 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	GtkSizeGroup *group;
 	GtkTreeIter iter;
 	gint i, j;
+	gchar *path;
 	gboolean toggle;
 
 	palette_init ();
@@ -241,10 +243,10 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	g_signal_connect (G_OBJECT (page->color_buttons[2]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (34));
 	g_signal_connect (G_OBJECT (page->color_buttons[3]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (35));
 
-	if (g_file_test ("../../data/color.png", G_FILE_TEST_EXISTS))
-		page->icon = gdk_pixbuf_new_from_file ("../../data/color.png", NULL);
-	else
-		page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/color.png", NULL);
+	path = locate_data_file ("color.png");
+	page->icon = gdk_pixbuf_new_from_file (path, NULL);
+	g_free (path);
+
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Colors"), 2, 1, -1);
 

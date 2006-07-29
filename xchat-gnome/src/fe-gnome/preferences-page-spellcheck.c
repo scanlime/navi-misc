@@ -27,6 +27,7 @@
 #include <libsexy/sexy-spell-entry.h>
 #include "preferences-page-spellcheck.h"
 #include "preferences-dialog.h"
+#include "util.h"
 #include "gui.h"
 
 enum
@@ -177,11 +178,12 @@ preferences_page_spellcheck_new (gpointer prefs_dialog, GladeXML *xml)
 	GSList *languages, *l;
 	GtkWidget *contents_vbox, *page_vbox, *label, *swin;
 	page_vbox = glade_xml_get_widget (xml, "spell check");
+	gchar *path;
 
-	if (g_file_test ("../../data/spellcheck.png", G_FILE_TEST_EXISTS))
-		page->icon = gdk_pixbuf_new_from_file ("../../data/spellcheck.png", NULL);
-	else
-		page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/spellcheck.png", NULL);
+	path = locate_data_file ("spellcheck.png");
+	page->icon = gdk_pixbuf_new_from_file (path, NULL);
+	g_free (path);
+
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Spell checking"), 2, 7, -1);
 

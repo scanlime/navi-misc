@@ -28,6 +28,7 @@
 #include "../common/xchatc.h"
 #include "preferences-page-irc.h"
 #include "preferences-dialog.h"
+#include "util.h"
 #include "conversation-panel.h"
 
 extern struct xchatprefs prefs;
@@ -265,7 +266,7 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
 	GtkTreeIter iter;
 	GtkCellRenderer *renderer;
-	gchar *text;
+	gchar *text, *path;
 	gboolean toggle;
 	GtkTreeSelection *select;
 	gchar **highlight_entries;
@@ -292,10 +293,10 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	GW(show_marker);
 #undef GW
 
-	if (g_file_test ("../../data/irc.png", G_FILE_TEST_EXISTS))
-		page->icon = gdk_pixbuf_new_from_file ("../../data/irc.png", NULL);
-	else
-		page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/irc.png", NULL);
+	path = locate_data_file ("irc.png");
+	page->icon = gdk_pixbuf_new_from_file (path, NULL);
+	g_free (path);
+
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("IRC Preferences"), 2, 0, -1);
 

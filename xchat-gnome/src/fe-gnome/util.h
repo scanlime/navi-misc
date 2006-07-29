@@ -21,8 +21,8 @@
 
 #include "gui.h"
 
-#ifndef XCHAT_GNOME_ERROR_DIALOG_H
-#define XCHAT_GNOME_ERROR_DIALOG_H
+#ifndef UTIL_H
+#define UTIL_H
 
 void error_dialog (const gchar *header, const gchar *message);
 gint gtk_tree_iter_sort_func_nocase (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer data);
@@ -30,5 +30,6 @@ gboolean dialog_escape_key_handler_destroy (GtkWidget *widget, GdkEventKey *even
 gboolean dialog_escape_key_handler_hide (GtkWidget *widget, GdkEventKey *event, gpointer data);
 void menu_position_under_widget (GtkMenu *menu, gint *x, gint *y, gboolean *push_in, gpointer user_data);
 void menu_position_under_tree_view (GtkMenu *menu, gint *x, gint *y, gboolean *push_in, gpointer user_data);
+gchar *locate_data_file (const gchar *file_name);
 
 #endif
