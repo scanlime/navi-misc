@@ -24,6 +24,7 @@
 #include <glib/gi18n.h>
 #include "conversation-panel.h"
 #include "find-bar.h"
+#include "util.h"
 #include "gui.h"
 
 static void     find_bar_class_init     (FindBarClass *klass);
@@ -87,6 +88,7 @@ find_bar_init (FindBar *bar)
 	GtkWidget *previous_image;
 	GtkWidget *next;
 	GtkWidget *next_image;
+	gchar *path;
 
 	bar->priv = g_new0 (FindBarPriv, 1);
 
@@ -98,10 +100,11 @@ find_bar_init (FindBar *bar)
 	previous_image   = gtk_image_new_from_stock (GTK_STOCK_GO_BACK, GTK_ICON_SIZE_BUTTON);
 	next             = gtk_button_new_with_mnemonic (_("_Next"));
 	next_image       = gtk_image_new_from_stock (GTK_STOCK_GO_FORWARD, GTK_ICON_SIZE_BUTTON);
-	if (g_file_test ("../../data/wrap.png", G_FILE_TEST_EXISTS))
-		bar->priv->status_wrapped = gtk_image_new_from_file ("../../data/wrap.png");
-	else
-		bar->priv->status_wrapped = gtk_image_new_from_file (XCHATSHAREDIR "/wrap.png");
+
+	path = locate_data_file ("wrap.png");
+	bar->priv->status_wrapped = gtk_image_new_from_file (path);
+	g_free (path);
+
 	bar->priv->status_notfound = gtk_image_new_from_stock (GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_BUTTON);
 	bar->priv->status_label = gtk_label_new (NULL);
 

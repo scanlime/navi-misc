@@ -23,6 +23,7 @@
 #include <glib/gi18n.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include "pixmaps.h"
+#include "util.h"
 
 GdkPixbuf *pix_purple;
 GdkPixbuf *pix_red;
@@ -34,28 +35,29 @@ GdkPixbuf *pix_newdata;
 GdkPixbuf *pix_nicksaid;
 GdkPixbuf *pix_msgsaid;
 
+static GdkPixbuf *
+pixbuf_new_from_file (const gchar *file_name)
+{
+	GdkPixbuf *pixbuf;
+	gchar *path;
+
+	path = locate_data_file (file_name);
+	pixbuf = gdk_pixbuf_new_from_file (path, NULL);
+	g_free (path);
+
+	return pixbuf;
+}
+
 void
 pixmaps_init (void)
 {
-	if (g_file_test ("../../data/purple.png", G_FILE_TEST_EXISTS)) {
-		pix_purple   = gdk_pixbuf_new_from_file ("../../data/purple.png",         NULL);
-		pix_red      = gdk_pixbuf_new_from_file ("../../data/red.png",            NULL);
-		pix_op       = gdk_pixbuf_new_from_file ("../../data/op.png",             NULL);
-		pix_hop      = gdk_pixbuf_new_from_file ("../../data/hop.png",            NULL);
-		pix_voice    = gdk_pixbuf_new_from_file ("../../data/voice.png",          NULL);
+	pix_purple   = pixbuf_new_from_file ("purple.png");
+	pix_red      = pixbuf_new_from_file ("red.png");
+	pix_op       = pixbuf_new_from_file ("op.png");
+	pix_hop      = pixbuf_new_from_file ("hop.png");
+	pix_voice    = pixbuf_new_from_file ("voice.png");
 
-		pix_newdata  = gdk_pixbuf_new_from_file ("../../data/newdata.png",        NULL);
-		pix_nicksaid = gdk_pixbuf_new_from_file ("../../data/nicksaid.png",       NULL);
-		pix_msgsaid  = gdk_pixbuf_new_from_file ("../../data/global-message.png", NULL);
-	} else {
-		pix_purple   = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/purple.png",         NULL);
-		pix_red      = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/red.png",            NULL);
-		pix_op       = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/op.png",             NULL);
-		pix_hop      = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/hop.png",            NULL);
-		pix_voice    = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/voice.png",          NULL);
-
-		pix_newdata  = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/newdata.png",        NULL);
-		pix_nicksaid = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/nicksaid.png",       NULL);
-		pix_msgsaid  = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/global-message.png", NULL);
-	}
+	pix_newdata  = pixbuf_new_from_file ("newdata.png");
+	pix_nicksaid = pixbuf_new_from_file ("nicksaid.png");
+	pix_msgsaid  = pixbuf_new_from_file ("global-message.png");
 }

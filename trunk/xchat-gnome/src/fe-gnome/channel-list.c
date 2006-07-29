@@ -26,6 +26,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <gconf/gconf-client.h>
 #include "channel-list.h"
+#include "util.h"
 #include "../common/xchat.h"
 #include "../common/xchatc.h"
 #include "../common/server.h"
@@ -252,7 +253,7 @@ create_channel_list (session *sess)
 	GtkTreeViewColumn *channel_c, *users_c, *topic_c;
 	GtkTreeSelection *select;
 	int width, height;
-	gchar *title;
+	gchar *title, *path;
 	GConfClient *client;
 
 	if (sess == NULL)
@@ -265,7 +266,7 @@ create_channel_list (session *sess)
 	if (g_slist_find_custom (chanlists, sess->server, (GCompareFunc) chanlist_compare_p) != NULL)
 		return;
 
-	win = g_malloc (sizeof (channel_list_window));
+	win = g_new (channel_list_window, 1);
 
 	win->server = sess->server;
 	win->xml = NULL;
@@ -278,10 +279,14 @@ create_channel_list (session *sess)
 
 	win->refresh_timeout = 0;
 
-	if (g_file_test ("../../data/channel-list.glade", G_FILE_TEST_EXISTS))
-		win->xml = glade_xml_new ("../../data/channel-list.glade", NULL, NULL);
-	if (!win->xml)
-		win->xml = glade_xml_new (XCHATSHAREDIR"/channel-list.glade", NULL, NULL);
+	path = locate_data_file ("channel-list.glade");
+	if (!path) {
+		g_free (win);
+		return;
+	}
+	
+	win->xml = glade_xml_new (path, NULL, NULL);
+	g_free (path);
 	if (!win->xml) {
 		g_free (win);
 		return;

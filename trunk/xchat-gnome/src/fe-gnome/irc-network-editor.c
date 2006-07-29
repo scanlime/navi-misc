@@ -251,16 +251,16 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	gchar **enc;
 	GtkTreeSelection *server_selection, *autojoin_selection;
 	GladeXML *xml;
+	gchar *path;
 
 	dialog->gconf = NULL;
 	dialog->network = NULL;
 	dialog->toplevel = NULL;
 
 	xml = NULL;
-	if (g_file_test ("../../data/irc-network-editor.glade", G_FILE_TEST_EXISTS))
-		xml = glade_xml_new ("../../data/irc-network-editor.glade", "toplevel", NULL);
-	if (!xml)
-		xml = glade_xml_new (XCHATSHAREDIR "/irc-network-editor.glade", "toplevel", NULL);
+	path = locate_data_file ("irc-network-editor.glade");
+	xml = glade_xml_new (path, "toplevel", NULL);
+	g_free (path);
 	if (!xml)
 		return;
 

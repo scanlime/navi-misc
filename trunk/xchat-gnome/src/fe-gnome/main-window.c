@@ -169,16 +169,15 @@ initialize_main_window (void)
 	g_signal_connect (gui.manager, "add-widget", G_CALLBACK (on_add_widget), menu_vbox);
 
 	/* load the menus */
-	if (g_file_test ("../../data/xchat-gnome-ui.xml", G_FILE_TEST_EXISTS))
-		gtk_ui_manager_add_ui_from_file (gui.manager, "../../data/xchat-gnome-ui.xml", NULL);
-	else
-		gtk_ui_manager_add_ui_from_file (gui.manager, XCHATSHAREDIR "/xchat-gnome-ui.xml", NULL);
+	path = locate_data_file ("xchat-gnome-ui.xml");
+	gtk_ui_manager_add_ui_from_file (gui.manager, path, NULL);
+	g_free (path);
 
 	/* hook up accelerators */
 	gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), gtk_ui_manager_get_accel_group (gui.manager));
 
 	close = glade_xml_get_widget (gui.xml, "close discussion");
-	g_signal_connect (G_OBJECT (close), "clicked", G_CALLBACK (on_discussion_close_activate), NULL);
+	g_signal_connect (close, "clicked", G_CALLBACK (on_discussion_close_activate), NULL);
 
 #define GW(name) ((gui.name) = glade_xml_get_widget (gui.xml, #name))
 	GW(conversation_panel);
@@ -281,10 +280,9 @@ initialize_main_window (void)
 	group = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL);
 	gui.userlist_toggle = glade_xml_get_widget (gui.xml, "userlist_toggle");
 	g_signal_connect (G_OBJECT (gui.userlist_toggle), "toggled", G_CALLBACK (on_users_toggled), NULL);
-	if (g_file_test ("../../data/users.png", G_FILE_TEST_EXISTS))
-		gtk_button_set_image (GTK_BUTTON (gui.userlist_toggle), gtk_image_new_from_file ("../../data/users.png"));
-	else
-		gtk_button_set_image (GTK_BUTTON (gui.userlist_toggle), gtk_image_new_from_file (XCHATSHAREDIR "/users.png"));
+	path = locate_data_file ("users.png");
+	gtk_button_set_image (GTK_BUTTON (gui.userlist_toggle), gtk_image_new_from_file (path));
+	g_free (path);
 	gtk_size_group_add_widget (group, gui.userlist_toggle);
 	widget = glade_xml_get_widget (gui.xml, "entry hbox");
 	gtk_size_group_add_widget (group, widget);

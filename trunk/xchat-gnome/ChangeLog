@@ -1,3 +1,29 @@
+2006-07-29  Christian Persch  <chpe@cvs.gnome.org>
+
+	* src/fe-gnome/Makefile.am:
+	* src/fe-gnome/channel-list.c: (create_channel_list):
+	* src/fe-gnome/connect-dialog.c: (connect_dialog_init):
+	* src/fe-gnome/dcc-window.c: (dcc_window_init):
+	* src/fe-gnome/find-bar.c: (find_bar_init):
+	* src/fe-gnome/gui.c: (initialize_gui_1):
+	* src/fe-gnome/irc-network-editor.c: (irc_network_editor_init):
+	* src/fe-gnome/main-window.c: (initialize_main_window):
+	* src/fe-gnome/pixmaps.c: (pixbuf_new_from_file), (pixmaps_init):
+	* src/fe-gnome/preferences-dialog.c: (preferences_dialog_init):
+	* src/fe-gnome/preferences-page-colors.c: (preferences_page_colors_new):
+	* src/fe-gnome/preferences-page-dcc.c: (preferences_page_dcc_new):
+	* src/fe-gnome/preferences-page-effects.c: (preferences_page_effects_new):
+	* src/fe-gnome/preferences-page-irc.c: (preferences_page_irc_new):
+	* src/fe-gnome/preferences-page-networks.c: (preferences_page_networks_new):
+	* src/fe-gnome/preferences-page-plugins.c: (preferences_page_plugins_new):
+	* src/fe-gnome/preferences-page-spellcheck.c: (preferences_page_spellcheck_new):
+	* src/fe-gnome/setup-dialog.c: (run_setup_dialog):
+	* src/fe-gnome/topic-label.c: (topic_label_change_current):
+	* src/fe-gnome/util.c: (locate_data_file):
+	* src/fe-gnome/util.h:
+	  - Look for uninstalled data files in the right place for builddir !=
+	    srcdir. Bug #348837.
+
 Fri Jul 28 13:04:10 PDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/conversation-panel.c:

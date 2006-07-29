@@ -104,14 +104,15 @@ connect_dialog_init (ConnectDialog *dialog)
 	GtkTreeIter iter;
 	GSList *netlist;
 	ircnet *net;
+	gchar *path;
 
 	dialog->toplevel = NULL;
 
 	xml = NULL;
-	if (g_file_test ("../../data/connect-dialog.glade", G_FILE_TEST_EXISTS))
-		xml = glade_xml_new ("../../data/connect-dialog.glade", "toplevel", NULL);
-	if (!xml)
-		xml = glade_xml_new (XCHATSHAREDIR "/connect-dialog.glade", "toplevel", NULL);
+	path = locate_data_file ("connect-dialog.glade");
+		
+	xml = glade_xml_new (path, "toplevel", NULL);
+	g_free (path);
 	if (!xml)
 		return;
 

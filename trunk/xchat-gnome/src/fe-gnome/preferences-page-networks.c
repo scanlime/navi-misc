@@ -150,6 +150,7 @@ preferences_page_networks_new (gpointer prefs_dialog, GladeXML *xml)
 	GtkCellRenderer *renderer;
 	GtkTreeViewColumn *column;
 	GtkTreeSelection *select;
+	gchar *path;
 
 #define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
 	GW(network_list);
@@ -161,10 +162,10 @@ preferences_page_networks_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_widget_set_sensitive (page->network_edit, FALSE);
 	gtk_widget_set_sensitive (page->network_remove, FALSE);
 
-	if (g_file_test ("../../data/servers.png", G_FILE_TEST_EXISTS))
-		page->icon = gdk_pixbuf_new_from_file ("../../data/servers.png", NULL);
-	else
-		page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/servers.png", NULL);
+	path = locate_data_file ("servers.png");
+	page->icon = gdk_pixbuf_new_from_file (path, NULL);
+	g_free (path);
+
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Networks"), 2, 4, -1);
 

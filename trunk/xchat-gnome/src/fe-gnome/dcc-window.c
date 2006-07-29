@@ -80,12 +80,12 @@ dcc_window_init (DccWindow *window)
 {
 	GladeXML *xml;
 	GtkTreeSelection *selection;
+	gchar *path;
 
 	xml = NULL;
-	if (g_file_test ("../../data/dcc-window.glade", G_FILE_TEST_EXISTS))
-		xml = glade_xml_new ("../../data/dcc-window.glade", "toplevel", NULL);
-	if (!xml)
-		xml = glade_xml_new (XCHATSHAREDIR "/dcc-window.glade", "toplevel", NULL);
+	path = locate_data_file ("dcc-window.glade");
+	xml = glade_xml_new (path, "toplevel", NULL);
+	g_free (path);
 	if (!xml)
 		return;
 
@@ -154,13 +154,14 @@ dcc_window_init (DccWindow *window)
 	gtk_tree_view_append_column (GTK_TREE_VIEW (window->transfer_list), window->info_column);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (window->transfer_list), window->remaining_column);
 
-	if (g_file_test ("../../data/stock_up.png", G_FILE_TEST_EXISTS)) {
-		window->up_icon   = gdk_pixbuf_new_from_file_at_size ("../../data/stock_up.png",   24, 24, NULL);
-		window->down_icon = gdk_pixbuf_new_from_file_at_size ("../../data/stock_down.png", 24, 24, NULL);
-	} else {
-		window->up_icon   = gdk_pixbuf_new_from_file_at_size (XCHATSHAREDIR "/stock_up.png",   24, 24, NULL);
-		window->down_icon = gdk_pixbuf_new_from_file_at_size (XCHATSHAREDIR "/stock_down.png", 24, 24, NULL);
-	}
+	/* FIXME: why do these not use the icon theme? */
+	path = locate_data_file ("stock_up.png");
+	window->up_icon = gdk_pixbuf_new_from_file_at_size (path, 24, 24, NULL);
+	g_free (path);
+		
+	path = locate_data_file ("stock_down.png");
+	window->down_icon = gdk_pixbuf_new_from_file_at_size (path, 24, 24, NULL);
+	g_free (path);
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (window->transfer_list));
 	g_signal_connect (G_OBJECT (selection), "changed", G_CALLBACK (transfer_selection_changed), window);

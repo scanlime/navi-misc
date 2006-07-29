@@ -160,3 +160,21 @@ menu_position_under_tree_view (GtkMenu *menu, gint *x, gint *y, gboolean *push_i
 		menu_position_under_widget (menu, x, y, push_in, tree);
 	}
 }
+
+gchar *
+locate_data_file (const gchar *file_name)
+{
+	gchar *uninstalled_path, *path;
+
+	uninstalled_path = g_build_filename (TOPSRCDIR, "data", file_name, NULL);
+	if (g_file_test (uninstalled_path, G_FILE_TEST_EXISTS)) {
+		path = uninstalled_path;
+	} else {
+		g_free (uninstalled_path);
+		path = gnome_program_locate_file (gnome_program_get (), GNOME_FILE_DOMAIN_APP_DATADIR, file_name, FALSE, NULL);
+	}
+
+	g_return_val_if_fail (path != NULL, NULL);
+
+	return path;
+}

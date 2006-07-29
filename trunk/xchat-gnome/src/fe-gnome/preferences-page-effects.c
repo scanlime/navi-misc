@@ -25,6 +25,7 @@
 
 #include "preferences-page-effects.h"
 #include "preferences-dialog.h"
+#include "util.h"
 
 static void
 type_changed (GtkToggleButton *button, PreferencesEffectsPage *page)
@@ -157,7 +158,7 @@ preferences_page_effects_new (gpointer prefs_dialog, GladeXML *xml)
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
 	GtkTreeIter iter;
 	int type;
-	char *filename;
+	gchar *filename, *path;
 	float transparency;
 
 #define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
@@ -168,10 +169,10 @@ preferences_page_effects_new (gpointer prefs_dialog, GladeXML *xml)
 	GW(background_transparency);
 #undef GW
 
-	if (g_file_test ("../../data/effects.png", G_FILE_TEST_EXISTS))
-		page->icon = gdk_pixbuf_new_from_file ("../../data/effects.png", NULL);
-	else
-		page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/effects.png", NULL);
+	path = locate_data_file ("effects.png");
+	page->icon = gdk_pixbuf_new_from_file (path, NULL);
+	g_free (path);
+
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Effects"), 2, 2, -1);
 
