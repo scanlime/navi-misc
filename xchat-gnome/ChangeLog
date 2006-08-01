@@ -1,3 +1,11 @@
+Tue Aug  1 11:05:51 PDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* po/en_GB.po:
+	* po/nb.po:
+	* po/el.po:
+	* po/de.po:
+	  - Update from rosetta
+
 Tue Aug  1 13:16:14 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/main-window.c:
