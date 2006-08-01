@@ -211,12 +211,17 @@ class GraphSearch (Algorithm):
         Returns:
             A `MotionGraphNode` from ``self.graph`` containing ``pos``
         """
+        found = True
         vertex_map = self.graph.representations[Data.VertexMap]
         for vertex in vertex_map:
             for bone, node in vertex.iteritems ():
                 if not node.inside (pos[bone]):
+                    found = False
                     break
+            if found:
                 return vertex
+            else:
+                found = True
 
     def linear_interp(self, start, end, pos, length):
         """Linearly interpolate from 'start' to 'end'.
