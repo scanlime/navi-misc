@@ -51,7 +51,7 @@ def save(sequence, file):
             # Line starts with the bone name
             line = bone
             # Add all the position data
-            for x in data:
+            for x in data.center:
                 line += " %f" % (x)
             line += "\n"
             f.write(line)
