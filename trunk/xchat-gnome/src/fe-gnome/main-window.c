@@ -148,6 +148,7 @@ initialize_main_window (void)
 	GtkWidget *close, *menu_vbox, *widget;
 	GtkSizeGroup *group;
 	GtkAction *action;
+	gchar *path;
 
 	gui.main_window = glade_xml_get_widget (gui.xml, "xchat-gnome");
 	g_signal_connect (G_OBJECT (gui.main_window), "delete-event",
