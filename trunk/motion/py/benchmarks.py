@@ -39,7 +39,7 @@ def cost (path, goal):
 
     adj = graph.representations[AdjacencyList]
 
-    for (name, a) in adj.data:
+    for (name, a) in adj.data.iteritems ():
         # Calculate the length of the shortest path from the current vertex to
         # the goal for this graph.
         l = len (algorithms_c.dijkstraSearch (a, path[-1][name], goal[name]))
