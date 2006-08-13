@@ -106,7 +106,7 @@ static GtkActionEntry action_entries [] = {
 	{ "PopupAction", NULL, "" },
 
 	/* IRC menu */
-	{ "IRCConnect",   NULL,           N_("_Connect"),        "<control>N", NULL, G_CALLBACK (on_irc_connect_activate) },
+	{ "IRCConnect",   NULL,           N_("_Connect..."),        "<control>N", NULL, G_CALLBACK (on_irc_connect_activate) },
 	{ "IRCDownloads", NULL,           N_("_File Transfers"), "<alt>F",     NULL, G_CALLBACK (on_irc_downloads_activate) },
 	{ "IRCQuit",      GTK_STOCK_QUIT, N_("_Quit"),           "<control>Q", NULL, G_CALLBACK (on_irc_quit_activate) },
 
