@@ -1,3 +1,8 @@
+Sun Aug 13 16:41:11 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/main-window.c:
+	   - Add a trailing ellipsis in the "Connect" menu entry (#350944)
+
 Tue Aug  1 11:05:51 PDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* po/en_GB.po:
