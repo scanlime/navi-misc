@@ -1,3 +1,8 @@
+2006-08-14  Christian Persch  <chpe@cvs.gnome.org>
+
+	* src/fe-gnome/main-window.c:
+	- Use HIG shortcut key for Help. Bug #350919.
+
 Sun Aug 13 19:14:03 PDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	A plugins/perl/CVS:

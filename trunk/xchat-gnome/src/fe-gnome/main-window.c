@@ -138,8 +138,8 @@ static GtkActionEntry action_entries [] = {
 	{ "GoNextDiscussion",     NULL, N_("_Next Discussion"),     "<alt>Down",     NULL, G_CALLBACK (on_go_next_discussion_activate) },
 
 	/* Help menu */
-	{ "HelpContents", GTK_STOCK_HELP,  N_("_Contents"), "", NULL, G_CALLBACK (on_help_contents_activate) },
-	{ "HelpAbout",    GTK_STOCK_ABOUT, N_("_About"),    "", NULL, G_CALLBACK (on_help_about_activate) },
+	{ "HelpContents", GTK_STOCK_HELP,  N_("_Contents"), "F1", NULL, G_CALLBACK (on_help_contents_activate) },
+	{ "HelpAbout",    GTK_STOCK_ABOUT, N_("_About"),    NULL, NULL, G_CALLBACK (on_help_about_activate) },
 };
 
 void
