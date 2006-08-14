@@ -1,3 +1,16 @@
+Sun Aug 13 19:14:03 PDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	A plugins/perl/CVS:
+	A plugins/perl/CVS/Repository:
+	A plugins/perl/CVS/Root:
+	A plugins/perl/CVS/Entries:
+	* plugins/perl/Xchat.pm:
+	* plugins/perl/generate_header:
+	* plugins/perl/perl.c:
+	* plugins/perl/xchat2-perl.html:
+	  - Update the perl plugin from xchat CVS, and add the CVS directory
+	    so we can update more easily in the future. (#349063)
+
 Sun Aug 13 16:41:11 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/main-window.c:
