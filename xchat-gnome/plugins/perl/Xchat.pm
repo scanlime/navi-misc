@@ -2,6 +2,22 @@ BEGIN {
 	$INC{'Xchat.pm'} = 'DUMMY';
 }
 
+BEGIN {
+	$SIG{__WARN__} = sub {
+		my $message = shift @_;
+		my ($package) = caller;
+		my $pkg_info = Xchat::Embed::pkg_info( $package );
+	
+		if( $pkg_info ) {
+			if( $message =~ /\(eval 1\)/ ) {
+				$message =~ s/\(eval 1\)/(PERL PLUGIN CODE)/;
+			} else {
+				$message =~ s/\(eval \d+\)/$pkg_info->{filename}/;
+			}
+		}
+		Xchat::print( $message );
+	};
+}
 use File::Spec();
 use File::Basename();
 use Symbol();
@@ -51,8 +67,9 @@ sub register {
 	my ($name, $version, $description, $callback) = @_;
 	$description = "" unless defined $description;
 	$pkg_info->{shutdown} = $callback;
+	
 	$pkg_info->{gui_entry} =
-	Xchat::Internal::register( $name, $version, $description, $filename );
+		Xchat::Internal::register( $name, $version, $description, $filename );
 	# keep with old behavior
 	return ();
 }
@@ -227,7 +244,7 @@ sub unhook {
 
 sub print {
 	my $text = shift @_;
-	return 1 unless $text;
+	return 1 unless defined $text;
 	if( ref( $text ) eq 'ARRAY' ) {
 		if( $, ) {
 			$text = join $, , @$text;
@@ -305,7 +322,7 @@ sub set_context {
 		my ($channel, $server) = @_;
 		$context = Xchat::find_context( $channel, $server );
 	} elsif( @_ == 1 ) {
-		if( $_[0] =~ /^\d+$/ ) {
+		if( defined $_[0] && $_[0] =~ /^\d+$/ ) {
 			$context = $_[0];
 		} else {
 			$context = Xchat::find_context( $_[0] );
@@ -319,7 +336,7 @@ sub get_info {
 	my $info;
 	
 	if( defined( $id ) ) {
-		if( grep { $id eq $_ } qw(state_cursor) ) {
+		if( grep { $id eq $_ } qw(state_cursor id) ) {
 			$info = Xchat::get_prefs( $id );
 		} else {
 			$info = Xchat::Internal::get_info( $id );
@@ -344,15 +361,20 @@ sub context_info {
 	my $ctx = shift @_ || Xchat::get_context;
 	my $old_ctx = Xchat::get_context;
 	my @fields = (
-		qw(away channel charset host inputbox libdirfs network nick nickserv),
-		qw(server topic version win_status xchatdir xchatdirfs state_cursor),
+		qw(away channel charset host id inputbox libdirfs network),
+		qw(nick nickserv server topic version win_status xchatdir xchatdirfs),
+		qw(state_cursor),
 	);
-	
+
 	if( Xchat::set_context( $ctx ) ) {
 		my %info;
 		for my $field ( @fields ) {
 			$info{$field} = Xchat::get_info( $field );
 		}
+		
+		my $ctx_info = Xchat::Internal::context_info;
+		@info{keys %$ctx_info} = values %$ctx_info;
+		
 		Xchat::set_context( $old_ctx );
 		return %info if wantarray;
 		return \%info;
@@ -364,7 +386,7 @@ sub context_info {
 sub strip_code {
 	my $pattern = qr[
 		\cB| #Bold
-		\cC\d{0,2}(?:,\d{0,2})?| #Color
+		\cC\d{0,2}(?:,\d{1,2})?| #Color
 		\cG| #Beep
 		\cO| #Reset
 		\cV| #Reverse
@@ -381,17 +403,6 @@ sub strip_code {
 }
 
 } # end of Xchat package
-
-$SIG{__WARN__} = sub {
-	my $message = shift @_;
-	my ($package) = caller;
-	my $pkg_info = Xchat::Embed::pkg_info( $package );
-	
-	if( $pkg_info ) {
-		$message =~ s/\(eval \d+\)/$pkg_info->{filename}/;
-	}
-	Xchat::print( $message );
-};
 
 {
 package Xchat::Embed;
@@ -451,6 +462,13 @@ sub load {
 		{
 			no strict; no warnings;
 			eval "package $package; $source;";
+
+			unless( exists $scripts{$package}{gui_entry} ) {
+				$scripts{$package}{gui_entry} =
+					Xchat::Internal::register(
+						"???", "???", "This script did not call register()", $file
+					);
+			}
 		}
 		
 		if( $@ ) {
@@ -464,6 +482,7 @@ sub load {
 		Xchat::print( "Error opening '$file': $!\n" );
 		return 2;
 	}
+
 	return 0;
 }
 
@@ -481,14 +500,15 @@ sub unload {
 		
 		# take care of the shutdown callback
 		if( exists $pkg_info->{shutdown} ) {
-			if( ref $pkg_info->{shutdown} eq 'CODE' ) {
-				$pkg_info->{shutdown}->();
-			} elsif ( $pkg_info->{shutdown} ) {
-				eval {
+			# allow incorrectly written scripts to be unloaded
+			eval {
+				if( ref $pkg_info->{shutdown} eq 'CODE' ) {
+					$pkg_info->{shutdown}->();
+				} elsif ( $pkg_info->{shutdown} ) {
 					no strict 'refs';
 					&{$pkg_info->{shutdown}};
-				};
-			}
+				}
+			};
 		}
 
 		if( exists $pkg_info->{gui_entry} ) {

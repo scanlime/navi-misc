@@ -16,7 +16,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 
-#include <config.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -31,7 +30,7 @@
 #include <windows.h>
 #endif
 
-#undef PACKAGE_NAME
+#undef PACKAGE
 #include "../../config.h"		  /* for #define OLD_PERL */
 #include "xchat-plugin.h"
 
@@ -158,6 +157,56 @@ execute_perl (SV * function, char *args)
 	return ret_value;
 }
 
+static char *
+get_filename (char *word[], char *word_eol[])
+{
+	int len;
+	char *file;
+
+	len = strlen (word[2]);
+
+	/* if called as /load "filename.pl" the only difference between word and
+	 * word_eol will be the two quotes
+	 */
+	
+	if (strchr (word[2], ' ') != NULL
+		|| (strlen (word_eol[2]) - strlen(word[2])) == 2 )
+	{
+		file = word[2];
+	} else {
+		file = word_eol[2];
+	}
+
+	len = strlen (file);
+
+	if (len > 3 && strncasecmp (".pl", file + len - 3, 3) == 0) {
+		return file;
+	}
+
+	return NULL;
+}
+
+static AV *
+array2av (char *array[])
+{
+	int count = 0;
+	SV *temp = NULL;
+	AV *av = newAV();
+	sv_2mortal ((SV *)av);
+
+	for (
+		count = 1;
+		count < 32 && array[count] != NULL && array[count][0] != 0;
+		count++
+	) {
+		temp = newSVpv (array[count], 0);
+		SvUTF8_on (temp);
+		av_push (av, temp);
+	}
+
+	return av;
+}
+
 static int
 fd_cb (int fd, int flags, void *userdata)
 {
@@ -216,7 +265,7 @@ timer_cb (void *userdata)
 			if (retVal == 0) {
 				/* if 0 is return the timer is going to get unhooked */
 				PUSHMARK (SP);
-				XPUSHs (sv_2mortal (newSVuv (PTR2UV (data->hook))));
+				XPUSHs (sv_2mortal (newSViv (PTR2IV (data->hook))));
 				PUTBACK;
 
 				call_pv ("Xchat::unhook", G_EVAL);
@@ -247,10 +296,6 @@ server_cb (char *word[], char *word_eol[], void *userdata)
 	int retVal = 0;
 	int count = 0;
 
-	/* these must be initialized after SAVETMPS */
-	AV *wd = NULL;
-	AV *wd_eol = NULL;
-
 	dSP;
 	ENTER;
 	SAVETMPS;
@@ -258,27 +303,11 @@ server_cb (char *word[], char *word_eol[], void *userdata)
 	if (data->depth)
 		return XCHAT_EAT_NONE;
 
-	wd = newAV ();
-	sv_2mortal ((SV *) wd);
-	wd_eol = newAV ();
-	sv_2mortal ((SV *) wd_eol);
-
-	for (count = 1;
-		  (count < 32) && (word[count] != NULL) && (word[count][0] != 0);
-		  count++) {
-		av_push (wd, newSVpv (word[count], 0));
-	}
-
-	for (count = 1; (count < 32) && (word_eol[count] != NULL)
-		  && (word_eol[count][0] != 0); count++) {
-		av_push (wd_eol, newSVpv (word_eol[count], 0));
-	}
-
 	/*               xchat_printf (ph, */
 	/*                               "Recieved %d words in server callback", av_len (wd)); */
 	PUSHMARK (SP);
-	XPUSHs (newRV_noinc ((SV *) wd));
-	XPUSHs (newRV_noinc ((SV *) wd_eol));
+	XPUSHs (newRV_noinc ((SV *) array2av (word)));
+	XPUSHs (newRV_noinc ((SV *) array2av (word_eol)));
 	XPUSHs (data->userdata);
 	PUTBACK;
 
@@ -314,39 +343,18 @@ command_cb (char *word[], char *word_eol[], void *userdata)
 	int retVal = 0;
 	int count = 0;
 
-	/* these must be initialized after SAVETMPS */
-	AV *wd = NULL;
-	AV *wd_eol = NULL;
-
 	dSP;
 	ENTER;
 	SAVETMPS;
-
+	
 	if (data->depth)
 		return XCHAT_EAT_NONE;
-
-	wd = newAV ();
-	sv_2mortal ((SV *) wd);
-	wd_eol = newAV ();
-	sv_2mortal ((SV *) wd_eol);
-
-	for (count = 1;
-		  (count < 32) && (word[count] != NULL) && (word[count][0] != 0);
-		  count++) {
-		av_push (wd, newSVpv (word[count], 0));
-	}
-
-	for (count = 1;
-		  (count < 32) && (word_eol[count] != NULL) &&
-		  (word_eol[count][0] != 0); count++) {
-		av_push (wd_eol, newSVpv (word_eol[count], 0));
-	}
 
 	/*               xchat_printf (ph, "Recieved %d words in command callback", */
 	/*                               av_len (wd)); */
 	PUSHMARK (SP);
-	XPUSHs (newRV_noinc ((SV *) wd));
-	XPUSHs (newRV_noinc ((SV *) wd_eol));
+	XPUSHs (newRV_noinc ((SV *) array2av (word)));
+	XPUSHs (newRV_noinc ((SV *) array2av (word_eol)));
 	XPUSHs (data->userdata);
 	PUTBACK;
 
@@ -380,6 +388,7 @@ print_cb (char *word[], void *userdata)
 {
 
 	HookData *data = (HookData *) userdata;
+	SV *temp = NULL;
 	int retVal = 0;
 	int count = 1;
 	int last_index = 31;
@@ -411,7 +420,9 @@ print_cb (char *word[], void *userdata)
 		} else if (word[count][0] == 0) {
 			av_push (wd, newSVpvn ("",0));	
 		} else {
-			av_push (wd, newSVpv (word[count], 0));
+			temp = newSVpv (word[count], 0);
+			SvUTF8_on (temp);
+			av_push (wd, temp);
 		}
 	}
 
@@ -470,7 +481,7 @@ XS (XS_Xchat_register)
 		gui_entry = xchat_plugingui_add (ph, filename, name,
 													desc, version, NULL);
 
-		XSRETURN_UV (PTR2UV (gui_entry));
+		XSRETURN_IV (PTR2IV (gui_entry));
 
 	}
 }
@@ -543,12 +554,13 @@ XS (XS_Xchat_emit_print)
 
 		}
 
-		XSRETURN_UV (RETVAL);
+		XSRETURN_IV (RETVAL);
 	}
 }
 static
 XS (XS_Xchat_get_info)
 {
+	SV *temp = NULL;
 	dXSARGS;
 	if (items != 1) {
 		xchat_print (ph, "Usage: Xchat::get_info(id)");
@@ -560,8 +572,69 @@ XS (XS_Xchat_get_info)
 		if (RETVAL == NULL) {
 			XSRETURN_UNDEF;
 		}
-		XSRETURN_PV (RETVAL);
+
+		if (!strncmp ("win_ptr", SvPV_nolen (id), 7)) {
+			XSRETURN_IV (PTR2IV (RETVAL));
+		} else {
+			
+			if (
+				!strncmp ("libdirfs", SvPV_nolen (id), 8) ||
+				!strncmp ("xchatdirfs", SvPV_nolen (id), 10)
+			) {
+				XSRETURN_PV (RETVAL);
+			} else {
+				temp = newSVpv (RETVAL, 0);
+				SvUTF8_on (temp);
+				PUSHMARK (SP);
+				XPUSHs (sv_2mortal (temp));
+				PUTBACK;
+			}
+		}
 	}
+}
+
+static
+XS (XS_Xchat_context_info)
+{
+	HV *hash;
+	const char *const *fields;
+	const char *field;
+	int i = 0;
+	dXSARGS;
+
+	fields = xchat_list_fields (ph, "channels" );
+	hash = newHV ();
+	sv_2mortal ((SV *) hash);
+	while (fields[i] != NULL) {
+		switch (fields[i][0]) {
+			case 's':
+				field = xchat_list_str (ph, NULL, fields[i] + 1);
+				if (field != NULL) {
+					hv_store (hash, fields[i] + 1, strlen (fields[i] + 1),
+						newSVpvn (field, strlen (field)), 0);
+				} else {
+					hv_store (hash, fields[i] + 1, strlen (fields[i] + 1),
+						&PL_sv_undef, 0);
+				}
+				break;
+			case 'p':
+				hv_store (hash, fields[i] + 1, strlen (fields[i] + 1),
+					newSViv (PTR2IV (xchat_list_str (ph, NULL, fields[i] + 1))), 0);
+				break;
+			case 'i':
+				hv_store (hash, fields[i] + 1, strlen (fields[i] + 1),
+					newSVuv (xchat_list_int (ph, NULL, fields[i] + 1)), 0);
+				break;
+			case 't':
+				hv_store (hash, fields[i] + 1, strlen (fields[i] + 1),
+					newSVnv (xchat_list_time (ph, NULL, fields[i] + 1)), 0);
+				break;
+		}
+			i++;
+	}
+
+	XPUSHs (newRV_noinc ((SV *) hash));
+	XSRETURN (1);
 }
 
 static
@@ -569,6 +642,7 @@ XS (XS_Xchat_get_prefs)
 {
 	const char *str;
 	int integer;
+	SV *temp = NULL;
 	dXSARGS;
 	if (items != 1) {
 		xchat_print (ph, "Usage: Xchat::get_prefs(name)");
@@ -580,10 +654,15 @@ XS (XS_Xchat_get_prefs)
 			XSRETURN_UNDEF;
 			break;
 		case 1:
-			XSRETURN_PV (str);
+			temp = newSVpv (str, 0);
+			SvUTF8_on (temp);
+			SP -= items;
+			sp = mark;
+			XPUSHs (sv_2mortal (temp));
+			PUTBACK;
 			break;
 		case 2:
-			XSRETURN_UV (integer);
+			XSRETURN_IV (integer);
 			break;
 		case 3:
 			if (integer) {
@@ -630,7 +709,7 @@ XS (XS_Xchat_hook_server)
 		data->depth = 0;
 		hook = xchat_hook_server (ph, name, pri, server_cb, data);
 
-		XSRETURN_UV (PTR2UV (hook));
+		XSRETURN_IV (PTR2IV (hook));
 	}
 }
 
@@ -671,7 +750,7 @@ XS (XS_Xchat_hook_command)
 		data->depth = 0;
 		hook = xchat_hook_command (ph, name, pri, command_cb, help_text, data);
 
-		XSRETURN_UV (PTR2UV (hook));
+		XSRETURN_IV (PTR2IV (hook));
 	}
 
 }
@@ -710,7 +789,7 @@ XS (XS_Xchat_hook_print)
 		data->depth = 0;
 		hook = xchat_hook_print (ph, name, pri, print_cb, data);
 
-		XSRETURN_UV (PTR2UV (hook));
+		XSRETURN_IV (PTR2IV (hook));
 	}
 }
 
@@ -747,7 +826,7 @@ XS (XS_Xchat_hook_timer)
 		hook = xchat_hook_timer (ph, timeout, timer_cb, data);
 		data->hook = hook;
 
-		XSRETURN_UV (PTR2UV (hook));
+		XSRETURN_IV (PTR2IV (hook));
 	}
 }
 
@@ -774,6 +853,19 @@ XS (XS_Xchat_hook_fd)
 		userdata = ST (3);
 		data = NULL;
 
+#ifdef WIN32
+		if ((flags & XCHAT_FD_NOTSOCKET) == 0) {
+			/* this _get_osfhandle if from win32iop.h in the perl distribution,
+			 *  not the one provided by Windows
+			 */ 
+			fd = _get_osfhandle(fd);
+			if (fd < 0) {
+				xchat_print(ph, "Invalid file descriptor");
+				XSRETURN_UNDEF;
+			}
+		}
+#endif
+
 		data = malloc (sizeof (HookData));
 		if (data == NULL) {
 			XSRETURN_UNDEF;
@@ -785,7 +877,7 @@ XS (XS_Xchat_hook_fd)
 		SvREFCNT_inc (data->userdata);
 		hook = xchat_hook_fd (ph, fd, flags, fd_cb, data);
 
-		XSRETURN_UV (PTR2UV (hook));
+		XSRETURN_IV (PTR2IV (hook));
 	}
 }
 
@@ -812,8 +904,8 @@ XS (XS_Xchat_unhook)
 				SvREFCNT_dec (userdata->userdata);
 				retCount = 1;
 			}
+			free (userdata);
 		}
-		free (userdata);
 		XSRETURN (retCount);
 	}
 	XSRETURN_EMPTY;
@@ -884,7 +976,7 @@ XS (XS_Xchat_find_context)
 		RETVAL = xchat_find_context (ph, server, chan);
 		if (RETVAL != NULL) {
 			/*                      xchat_print (ph, "XSUB - context found"); */
-			XSRETURN_UV (PTR2UV (RETVAL));
+			XSRETURN_IV (PTR2IV (RETVAL));
 		} else {
 			/*           xchat_print (ph, "XSUB - context not found"); */
 			XSRETURN_UNDEF;
@@ -899,7 +991,7 @@ XS (XS_Xchat_get_context)
 	if (items != 0) {
 		xchat_print (ph, "Usage: Xchat::get_context()");
 	} else {
-		XSRETURN_UV (PTR2UV (xchat_get_context (ph)));
+		XSRETURN_IV (PTR2IV (xchat_get_context (ph)));
 	}
 }
 
@@ -976,26 +1068,14 @@ XS (XS_Xchat_get_list)
 					if (field != NULL) {
 						hv_store (hash, fields[i] + 1, strlen (fields[i] + 1),
 									 newSVpvn (field, strlen (field)), 0);
-						/*                                              xchat_printf (ph, */
-						/*                                                      "string: %s - %d - %s",  */
-						/*                                                      fields[i]+1, */
-						/*                                                      strlen(fields[i]+1), */
-						/*                                                      field, strlen(field) */
-						/*                                                              ); */
 					} else {
 						hv_store (hash, fields[i] + 1, strlen (fields[i] + 1),
 									 &PL_sv_undef, 0);
-						/*                                              xchat_printf (ph, */
-						/*                                                      "string: %s - %d - undef",       */
-						/*                                                              fields[i]+1, */
-						/*                                                              strlen(fields[i]+1) */
-						/*                                                              ); */
 					}
 					break;
 				case 'p':
-					/*                                       xchat_printf (ph, "pointer: %s", fields[i]+1); */
 					hv_store (hash, fields[i] + 1, strlen (fields[i] + 1),
-								 newSVuv (PTR2UV (xchat_list_str (ph, list,
+								 newSViv (PTR2IV (xchat_list_str (ph, list,
 																			 fields[i] + 1)
 											 )), 0);
 					break;
@@ -1003,9 +1083,6 @@ XS (XS_Xchat_get_list)
 					hv_store (hash, fields[i] + 1, strlen (fields[i] + 1),
 								 newSVuv (xchat_list_int (ph, list, fields[i] + 1)),
 								 0);
-					/*                                       xchat_printf (ph, "int: %s - %d",fields[i]+1, */
-					/*                                                        xchat_list_int (ph, list, fields[i]+1) */
-					/*                                                       ); */
 					break;
 				case 't':
 					hv_store (hash, fields[i] + 1, strlen (fields[i] + 1),
@@ -1062,7 +1139,8 @@ xs_init (pTHX)
 	newXS ("Xchat::Internal::command", XS_Xchat_command, __FILE__);
 	newXS ("Xchat::Internal::set_context", XS_Xchat_set_context, __FILE__);
 	newXS ("Xchat::Internal::get_info", XS_Xchat_get_info, __FILE__);
-
+	newXS ("Xchat::Internal::context_info", XS_Xchat_context_info, __FILE__);
+	
 	newXS ("Xchat::find_context", XS_Xchat_find_context, __FILE__);
 	newXS ("Xchat::get_context", XS_Xchat_get_context, __FILE__);
 	newXS ("Xchat::get_prefs", XS_Xchat_get_prefs, __FILE__);
@@ -1213,17 +1291,10 @@ perl_command_reloadall (char *word[], char *word_eol[], void *userdata)
 static int
 perl_command_load (char *word[], char *word_eol[], void *userdata)
 {
-	int len;
-	char *file;
+	char *file = get_filename (word, word_eol);
 
-	if (strchr (word[2], ' ') != NULL) {
-		file = word[2];
-	} else {
-		file = word_eol[2];
-	}
-
-	len = strlen (file);
-	if (len > 3 && strcasecmp (".pl", file + len - 3) == 0) {
+	if (file != NULL )
+	{
 		perl_load_file (file);
 		return XCHAT_EAT_XCHAT;
 	}
@@ -1234,22 +1305,11 @@ perl_command_load (char *word[], char *word_eol[], void *userdata)
 static int
 perl_command_unload (char *word[], char *word_eol[], void *userdata)
 {
-	int len;
-	char *file;
-	if (my_perl != NULL) {
-		if (strchr (word[2], ' ') != NULL) {
-			file = word[2];
-		} else {
-			file = word_eol[2];
-		}
-
-		len = strlen (file);
-
-		if (len > 3 && strcasecmp (".pl", file + len - 3) == 0) {
-			execute_perl (sv_2mortal (newSVpv ("Xchat::Embed::unload", 0)),
-							  file);
-			return XCHAT_EAT_XCHAT;
-		}
+	char *file = get_filename (word, word_eol);
+	
+	if (my_perl != NULL && file != NULL) {
+		execute_perl (sv_2mortal (newSVpv ("Xchat::Embed::unload", 0)), file);
+		return XCHAT_EAT_XCHAT;
 	}
 
 	return XCHAT_EAT_NONE;
@@ -1258,23 +1318,13 @@ perl_command_unload (char *word[], char *word_eol[], void *userdata)
 static int
 perl_command_reload (char *word[], char *word_eol[], void *userdata)
 {
-	int len;
-	char *file;
-	if (my_perl != NULL) {
-		if (strchr (word[2], ' ') != NULL) {
-			file = word[2];
-		} else {
-			file = word_eol[2];
-		}
-
-		len = strlen (file);
-
-		if (len > 3 && strcasecmp (".pl", file + len - 3) == 0) {
-			execute_perl (sv_2mortal (newSVpv ("Xchat::Embed::reload", 0)),
-							  file);
-			return XCHAT_EAT_XCHAT;
-		}
+	char *file = get_filename (word, word_eol);
+	
+	if (my_perl != NULL && file != NULL) {
+		execute_perl (sv_2mortal (newSVpv ("Xchat::Embed::reload", 0)), file);
+		return XCHAT_EAT_XCHAT;
 	}
+	
 	return XCHAT_EAT_XCHAT;
 }
 
