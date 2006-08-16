@@ -50,8 +50,19 @@ static GSList *loaded_plugins = NULL;
 static void
 autoload_plugin_cb (gchar * filename, gpointer data)
 {
+	GConfClient *client;
+
+	gchar *err;
+
 	gboolean script = GPOINTER_TO_INT (data);
-	load_plugin (gui.current_session, filename, NULL, script, TRUE);
+	err = load_plugin (gui.current_session, filename, NULL, script, TRUE);
+	if (err != NULL) {
+		client = gconf_client_get_default ();
+		enabled_plugins = g_slist_remove (enabled_plugins, filename);
+		gconf_client_set_list (client, "/apps/xchat/plugins/loaded", GCONF_VALUE_STRING,
+				enabled_plugins, NULL);
+		g_object_unref (client);
+	}
 }
 
 void
@@ -72,6 +83,7 @@ plugins_initialize (void)
 
 	client = gconf_client_get_default ();
 	enabled_plugins = gconf_client_get_list (client, "/apps/xchat/plugins/loaded", GCONF_VALUE_STRING, NULL);
+	g_object_unref (client);
 }
 
 int

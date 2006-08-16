@@ -1,3 +1,10 @@
+Wed Aug 16 20:06:00 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/plugins.c:
+	  - Fix a leak with gconf_client.
+	  - If a plugin is not found, it's removed from the autoload
+	    list. First part of the migration path for the dbus plugin.
+
 2006-08-14  Christian Persch  <chpe@cvs.gnome.org>
 
 	* src/fe-gnome/main-window.c:
