@@ -1,3 +1,8 @@
+Sat Aug 19 18:06:15 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/conversation-panel.c:
+	  - Remove tooltip when the mouse leaves the window. (#347046)
+
 Wed Aug 16 20:06:00 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/plugins.c:

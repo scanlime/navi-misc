@@ -330,6 +330,7 @@ conversation_panel_realize (GtkWidget *widget)
 	g_signal_connect (G_OBJECT (panel->priv->xtext), "word_enter",      G_CALLBACK (conversation_panel_enter_word),   panel);
 	g_signal_connect (G_OBJECT (panel->priv->xtext), "word_leave",      G_CALLBACK (conversation_panel_leave_word),   panel);
 	g_signal_connect (G_OBJECT (gui.main_window),    "focus-out-event", G_CALLBACK (conversation_panel_lost_focus),   panel);
+	g_signal_connect (G_OBJECT (gui.main_window),    "leave-notify-event", G_CALLBACK (conversation_panel_lost_focus),   panel);
 #endif
 	gconf_client_notify_add (client, "/apps/xchat/main_window/use_sys_fonts",
 	                         (GConfClientNotifyFunc) conversation_panel_font_changed,       panel, NULL, NULL);
