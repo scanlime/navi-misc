@@ -437,8 +437,9 @@ class MessageBuffer:
     indexSize = 4096
     contentSize = 256 * 1024
     
-    def __init__(self, path, filename="_msg"):
+    def __init__(self, path, filename="_msg", file=None):
         self.dirPath = path
+        self.file = file
         self.filePath = os.path.join(path, filename)
         self._initialized = False
 
@@ -467,7 +468,8 @@ class MessageBuffer:
            If the database is not already initialized, it will return
            False and change nothing.
            """
-        self.file = os.fdopen(os.open(self.filePath, os.O_RDWR | os.O_CREAT, 0666), 'w+')
+        if not self.file:
+            self.file = os.fdopen(os.open(self.filePath, os.O_RDWR | os.O_CREAT, 0666), 'w+')
         header = self.file.read(self.headerSize)
 
         if header:
