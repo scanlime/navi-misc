@@ -1,3 +1,10 @@
+Sun Aug 20 14:35:49 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* data/xchat-gnome-remote.1:
+	* data/Makefile.am:
+	  - Remove xchat-gnome-remote's manpage since this
+	    executable will not exist anymore after the next sync.
+
 Sat Aug 19 18:06:15 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/conversation-panel.c:
