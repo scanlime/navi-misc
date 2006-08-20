@@ -55,7 +55,7 @@ install-data-hook:
 desktopdir = $(datadir)/applications
 desktop_in_files = xchat-gnome.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
-man_MANS = xchat-gnome.1 xchat-gnome-remote.1
+man_MANS = xchat-gnome.1
 @INTLTOOL_DESKTOP_RULE@
 
 DISTCLEANFILES = $(desktop_DATA)
