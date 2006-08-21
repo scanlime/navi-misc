@@ -37,9 +37,11 @@ preferences_dialog_finalize (GObject *object)
 	preferences_page_effects_free  (p->effects_page);
 	preferences_page_dcc_free      (p->dcc_page);
 	preferences_page_networks_free (p->networks_page);
+/*
 #ifdef USE_PLUGIN
 	preferences_page_plugins_free  (p->plugins_page);
 #endif
+*/
 #ifdef HAVE_LIBSEXY
 	preferences_page_spellcheck_free (p->spellcheck_page);
 #endif
@@ -51,6 +53,13 @@ static void
 preferences_dialog_dispose (GObject *object)
 {
 	PreferencesDialog *p = (PreferencesDialog *) object;
+
+#ifdef USE_PLUGIN
+	if (p->plugins_page) {
+		g_object_unref (p->plugins_page);
+		p->plugins_page = NULL;
+	}
+#endif
 
 	if (p->gconf) {
 		g_object_unref (p->gconf);

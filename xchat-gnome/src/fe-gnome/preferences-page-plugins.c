@@ -46,9 +46,9 @@ extern GSList *plugin_list; 	// xchat's list of loaded plugins.
 extern GSList *enabled_plugins;	// Our list of loaded plugins.
 extern XChatGUI gui;
 
-static PreferencesPluginsPage *pageref;
+static PreferencesPagePlugins *pageref;
 #ifdef HAVE_LIBSEXY
-static GtkWidget* get_plugin_tooltip (SexyTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, PreferencesPluginsPage *page);
+static GtkWidget* get_plugin_tooltip (SexyTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, PreferencesPagePlugins *page);
 #endif
 
 enum
@@ -60,6 +60,8 @@ enum
 	COL_LOADED,
 	COL_DISPLAY
 };
+
+static GObjectClass *parent_class;
 
 static void
 fe_plugin_add (char *filename)
@@ -107,7 +109,7 @@ filename_test (gconstpointer a, gconstpointer b)
 }
 
 static void
-load_unload (char *filename, gboolean loaded, PreferencesPluginsPage *page, GtkTreeIter iter)
+load_unload (char *filename, gboolean loaded, PreferencesPagePlugins *page, GtkTreeIter iter)
 {
 	GConfClient *client;
 
@@ -151,7 +153,7 @@ load_unload (char *filename, gboolean loaded, PreferencesPluginsPage *page, GtkT
 }
 
 static void
-load_toggled (GtkCellRendererToggle *toggle, gchar *pathstr, PreferencesPluginsPage *page)
+load_toggled (GtkCellRendererToggle *toggle, gchar *pathstr, PreferencesPagePlugins *page)
 {
 	GtkTreePath *path;
 	GtkTreeIter iter;
@@ -171,7 +173,7 @@ load_toggled (GtkCellRendererToggle *toggle, gchar *pathstr, PreferencesPluginsP
 }
 
 static void
-open_plugin_clicked (GtkButton *button, PreferencesPluginsPage *page)
+open_plugin_clicked (GtkButton *button, PreferencesPagePlugins *page)
 {
 	GtkWidget *file_selector;
 	const gchar *homedir;
@@ -197,7 +199,7 @@ open_plugin_clicked (GtkButton *button, PreferencesPluginsPage *page)
 }
 
 static void
-remove_plugin_clicked (GtkButton *button, PreferencesPluginsPage *page)
+remove_plugin_clicked (GtkButton *button, PreferencesPagePlugins *page)
 {
 	GtkTreeSelection *select;
 	GtkTreeIter iter;
@@ -215,13 +217,13 @@ remove_plugin_clicked (GtkButton *button, PreferencesPluginsPage *page)
 }
 
 static void
-selection_changed (GtkTreeSelection *select, PreferencesPluginsPage *page)
+selection_changed (GtkTreeSelection *select, PreferencesPagePlugins *page)
 {
 	gtk_widget_set_sensitive (page->plugins_remove, gtk_tree_selection_get_selected (select, NULL, NULL));
 }
 
 static void
-row_activated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, PreferencesPluginsPage *page)
+row_activated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, PreferencesPagePlugins *page)
 {
 	GtkTreeSelection *select;
 	GtkTreeModel *model;
@@ -257,7 +259,7 @@ set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, 
 
 #ifdef HAVE_LIBSEXY
 static GtkWidget*
-get_plugin_tooltip (SexyTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, PreferencesPluginsPage *page)
+get_plugin_tooltip (SexyTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, PreferencesPagePlugins *page)
 {
 	GtkTreeIter iter;
 	GtkWidget *label;
@@ -277,10 +279,10 @@ get_plugin_tooltip (SexyTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn
 }
 #endif
 
-PreferencesPluginsPage *
+PreferencesPagePlugins*
 preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 {
-	PreferencesPluginsPage *page = g_new0 (PreferencesPluginsPage, 1);
+	PreferencesPagePlugins *page = g_object_new (preferences_page_plugins_get_type (), NULL);
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
 	GtkTreeIter iter;
 	GtkTreeSelection *select;
@@ -375,10 +377,50 @@ preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 	return page;
 }
 
-void
-preferences_page_plugins_free (PreferencesPluginsPage *page)
+static void
+preferences_page_plugins_dispose (GObject *object)
 {
-	g_object_unref (page->icon);
-	g_object_unref (page->plugin_store);
-	g_free (page);
+	PreferencesPagePlugins *page = (PreferencesPagePlugins *) object;
+
+	if (page->icon) {
+		g_object_unref (page->icon);
+		page->icon = NULL;
+	}
+
+	if (page->plugin_store) {
+		g_object_unref (page->plugin_store);
+		page->plugin_store = NULL;
+	}
+
+	parent_class->dispose (object);
+}
+
+static void
+preferences_page_plugins_class_init (PreferencesPagePluginsClass *klass)
+{
+	GObjectClass *object_class = (GObjectClass *) klass;
+
+	parent_class = g_type_class_peek_parent (klass);
+
+	object_class->dispose = preferences_page_plugins_dispose;
+}
+
+GType
+preferences_page_plugins_get_type (void)
+{
+	static GType preferences_page_plugins_type = 0;
+	if (G_UNLIKELY (preferences_page_plugins_type == 0)) {
+		static const GTypeInfo preferences_page_plugins_info = {
+			sizeof (PreferencesPagePluginsClass),
+			NULL, NULL,
+			(GClassInitFunc) preferences_page_plugins_class_init,
+			NULL, NULL,
+			sizeof (PreferencesPagePlugins),
+			0,
+			NULL,
+		};
+		preferences_page_plugins_type = g_type_register_static (G_TYPE_OBJECT, "PreferencesPagePlugins", &preferences_page_plugins_info, 0);
+	}
+
+	return preferences_page_plugins_type;
 }

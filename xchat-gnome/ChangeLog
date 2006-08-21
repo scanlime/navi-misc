@@ -1,3 +1,12 @@
+Mon Aug 21 15:58:19 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+	
+	* src/fe-gnome/preferences-page-plugins.h:
+	* src/fe-gnome/preferences-page-plugins.c:
+	* src/fe-gnome/preferences-dialog.h:
+	* src/fe-gnome/preferences-dialog.c:
+	  - Rename PreferencesPluginsPage to PreferencesPagePlugins.
+	  - "GObjectize" PreferencesPagePlugins.
+
 Sun Aug 20 14:35:49 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* data/xchat-gnome-remote.1:

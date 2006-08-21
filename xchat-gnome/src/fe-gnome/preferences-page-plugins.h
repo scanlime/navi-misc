@@ -24,8 +24,20 @@
 #ifndef XCHAT_GNOME_PREFERENCES_PAGE_PLUGINS_H
 #define XCHAT_GNOME_PREFERENCES_PAGE_PLUGINS_H
 
-typedef struct
+G_BEGIN_DECLS
+
+typedef struct _PreferencesPagePlugins      PreferencesPagePlugins;
+typedef struct _PreferencesPagePluginsClass PreferencesPagePluginsClass;
+#define PREFERENCES_PAGE_PLUGINS_TYPE            (preferences_plugins_page_get_type ());
+#define PREFERENCES_PAGE_PLUGINS(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), PREFERENCES_PAGE_PLUGINS_TYPE, PreferencesPagePlugins))
+#define PREFERENCES_PAGE_PLUGINS_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), PREFERENCES_PAGE_PLUGINS_TYPE, PreferencesPagePluginsClass))
+#define IS_PREFERENCES_PAGE_PLUGINS(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), PREFERENCES_PAGE_PLUGINS_TYPE))
+#define IS_PREFERENCES_PAGE_PLUGINS_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), PREFERENCES_PAGE_PLUGINS_TYPE))
+
+struct _PreferencesPagePlugins 
 {
+	GObject parent;
+
 	GtkWidget *plugins_list;
 	GtkWidget *plugins_open;
 	GtkWidget *plugins_remove;
@@ -35,13 +47,18 @@ typedef struct
 	GtkTreeViewColumn *text_column, *load_column;
 
 	GdkPixbuf *icon;
-} PreferencesPluginsPage;
+};
 
-PreferencesPluginsPage *preferences_page_plugins_new  (gpointer prefs_dialog, GladeXML *xml);
-void                    preferences_page_plugins_free (PreferencesPluginsPage *page);
+struct _PreferencesPagePluginsClass
+{
+	GObjectClass parent_class;
+};
 
-void initialize_preferences_plugins_page ();
-void preferences_plugins_page_update ();
+GType              	preferences_page_plugins_get_type (void) G_GNUC_CONST;
+PreferencesPagePlugins* preferences_page_plugins_new  (gpointer prefs_dialog, GladeXML *xml);
+
+G_END_DECLS
+
 /* This is a small helper function to autoload the plugins we had enabled
  * last session. We put this here instead of just doing from the initialize
  * function so that we can load the plugins after the window is created. It

@@ -59,7 +59,7 @@ struct _PreferencesDialog
 	PreferencesEffectsPage    *effects_page;
 	PreferencesDCCPage        *dcc_page;
 	PreferencesNetworksPage   *networks_page;
-	PreferencesPluginsPage    *plugins_page;
+	PreferencesPagePlugins    *plugins_page;
 	PreferencesSpellcheckPage *spellcheck_page;
 };
 
