@@ -37,7 +37,7 @@ error_dialog (const gchar *header, const gchar *message)
 					 GTK_BUTTONS_OK,
 					 "%s", header);
 
-	gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog), "%s", message);
+	gtk_message_dialog_format_secondary_markup (GTK_MESSAGE_DIALOG (dialog), "%s", message);
 
 	gtk_dialog_run (GTK_DIALOG (dialog));
 	gtk_widget_destroy (dialog);

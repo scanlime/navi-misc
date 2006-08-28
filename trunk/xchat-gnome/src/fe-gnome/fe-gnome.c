@@ -32,6 +32,7 @@
 #include "userlist-gui.h"
 #include "preferences.h"
 #include "setup-dialog.h"
+#include "migration.h"
 
 #include "conversation-panel.h"
 #include "status-bar.h"
@@ -146,6 +147,7 @@ fe_init (void)
 	gui.quit = FALSE;
 	servlist_init ();
 	palette_init ();
+	run_migrations ();
 	if (!preferences_exist ())
 		run_setup_dialog ();
 	else
