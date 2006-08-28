@@ -43,6 +43,7 @@ src/fe-gnome/find-bar.c
 src/fe-gnome/irc-network-editor.c
 src/fe-gnome/irc-network.c
 src/fe-gnome/main-window.c
+src/fe-gnome/migration.c
 src/fe-gnome/navigation-tree.c
 src/fe-gnome/preferences-page-colors.c
 src/fe-gnome/preferences-page-dcc.c

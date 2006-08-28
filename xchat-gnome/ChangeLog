@@ -1,3 +1,15 @@
+Mon Aug 28 21:07:09 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/util.c:
+	  - error_dialog (): Enable markups in the error message.
+	* src/fe-gnome/migration.h:
+	* src/fe-gnome/migration.c:
+	* src/fe-gnome/fe-gnome.c:
+	* src/fe-gnome/Makefile.am:
+	* po/POTFILES.in:
+	  - Add migration infrastructure.
+	  - Migration path for D-Bus plugin. (#349443)
+
 Mon Aug 21 15:58:19 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 	
 	* src/fe-gnome/preferences-page-plugins.h:

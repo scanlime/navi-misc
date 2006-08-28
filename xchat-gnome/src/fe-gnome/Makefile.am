@@ -43,6 +43,8 @@ xchat_gnome_SOURCES =				\
 	irc-network.h				\
 	main-window.c				\
 	main-window.h				\
+	migration.h				\
+	migration.c				\
 	navigation-tree.c			\
 	navigation-tree.h			\
 	palette.c				\
