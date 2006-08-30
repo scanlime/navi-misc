@@ -1,3 +1,32 @@
+Wed Aug 30 21:09:24 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/common/outbound.c:
+	* src/common/outbound.h:
+	* src/common/dbus/xchat-remote.c:
+	* src/common/dbus/example.py:
+	* src/common/dbus/marshallers.list:
+	* src/common/dbus/Makefile.am:
+	* src/common/dbus/dbus-plugin.c:
+	* src/common/dbus/CVS/Entries:
+	* src/common/dbus/example.c:
+	* src/common/dbus/README:
+	* src/common/util.c:
+	* src/common/proto-irc.c:
+	* src/common/xchatc.h:
+	* src/common/cfgfiles.c:
+	* src/common/text.c
+	* src/common/dcc.c:
+	* src/common/.cvsignore:
+	* src/common/plugin.c:
+	* src/common/inbound.c:
+	* src/common/server.c:
+	* src/common/xchat.c:
+	* src/common/CVS/Entries:
+	* src/common/xchat.h:
+	* src/common/make-te.c:
+	* acinclude.m4:
+	  - Sync from xchat CVS.
+
 Wed Aug 30 20:03:44 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/migration.h:

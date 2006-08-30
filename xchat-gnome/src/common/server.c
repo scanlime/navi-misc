@@ -806,6 +806,13 @@ auto_reconnect (server *serv, int send_quit, int err)
 #endif
 		serv->reconnect_away = serv->is_away;
 
+	/* is this server in a reconnect delay? remove it! */
+	if (serv->recondelay_tag)
+	{
+		fe_timeout_remove (serv->recondelay_tag);
+		serv->recondelay_tag = 0;
+	}
+
 	serv->recondelay_tag = fe_timeout_add (del, timeout_auto_reconnect, serv);
 	fe_server_event (serv, FE_SE_RECONDELAY, del);
 }
@@ -1633,7 +1640,9 @@ server_connect (server *serv, char *hostname, int port, int no_login)
 	EMIT_SIGNAL (XP_TE_SERVERLOOKUP, sess, hostname, NULL, NULL, NULL, 0);
 
 	safe_strcpy (serv->servername, hostname, sizeof (serv->servername));
-	safe_strcpy (serv->hostname, hostname, sizeof (serv->hostname));
+	/* overlap illegal in strncpy */
+	if (hostname != serv->hostname)
+		safe_strcpy (serv->hostname, hostname, sizeof (serv->hostname));
 
 #ifdef USE_OPENSSL
 	if (serv->use_ssl)
@@ -1796,7 +1805,7 @@ server_set_defaults (server *serv)
 	serv->nick_modes = strdup ("ohv");
 
 	serv->nickcount = 1;
-	serv->nickservtype = 0;
+	serv->nickservtype = 1;
 	serv->end_of_motd = FALSE;
 	serv->is_away = FALSE;
 	serv->supports_watch = FALSE;

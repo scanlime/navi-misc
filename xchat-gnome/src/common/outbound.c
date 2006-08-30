@@ -155,7 +155,8 @@ server_sendquit (session * sess)
 
 void
 process_data_init (char *buf, char *cmd, char *word[],
-						 char *word_eol[], int handle_quotes)
+						 char *word_eol[], gboolean handle_quotes,
+						 gboolean allow_escape_quotes)
 {
 	int wordcount = 2;
 	int space = FALSE;
@@ -184,6 +185,12 @@ process_data_init (char *buf, char *cmd, char *word[],
 		case '\042':
 			if (!handle_quotes)
 				goto def;
+			/* two quotes turn into 1 */
+			if (allow_escape_quotes && cmd[1] == '\042')
+			{
+				cmd++;
+				goto def;
+			}
 			if (quote)
 			{
 				quote = FALSE;
@@ -1227,7 +1234,7 @@ cmd_menu (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 	/* -pX to specify menu position */
 	if (word[idx][0] == '-' && word[idx][1] == 'p')
 	{
-		pos = atoi (word[2] + 2);
+		pos = atoi (word[idx] + 2);
 		idx++;
 	}
 
@@ -2960,6 +2967,13 @@ cmd_server (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 		/* -1 for default port */
 		serv->connect (serv, server_name, -1, FALSE);
 	}
+
+	/* try to associate this connection with a listed network */
+	if (!serv->network)
+		/* search for this hostname in the entire server list */
+		serv->network = servlist_net_find_from_server (server_name);
+		/* may return NULL, but that's OK */
+
 	return TRUE;
 }
 
@@ -3046,6 +3060,23 @@ cmd_unload (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 }
 
 static server *
+find_server_from_hostname (char *hostname)
+{
+	GSList *list = serv_list;
+	server *serv;
+
+	while (list)
+	{
+		serv = list->data;
+		if (!strcasecmp (hostname, serv->hostname) && serv->connected)
+			return serv;
+		list = list->next;
+	}
+
+	return NULL;
+}
+
+static server *
 find_server_from_net (void *net)
 {
 	GSList *list = serv_list;
@@ -3060,6 +3091,16 @@ find_server_from_net (void *net)
 	}
 
 	return NULL;
+}
+
+static void
+url_join_only (server *serv, char *tbuf, char *channel)
+{
+	/* already connected, JOIN only. FIXME: support keys? */
+	tbuf[0] = '#';
+	/* tbuf is 4kb */
+	safe_strcpy ((tbuf + 1), channel, 256);
+	serv->p_join (serv, tbuf, "");
 }
 
 static int
@@ -3091,11 +3132,18 @@ cmd_url (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 				serv = find_server_from_net (net);
 				if (serv)
 				{
-					/* already connected, JOIN only. FIXME: support keys? */
-					tbuf[0] = '#';
-					/* tbuf is 4kb */
-					safe_strcpy ((tbuf + 1), channel, 256);
-					serv->p_join (serv, tbuf, "");
+					url_join_only (serv, tbuf, channel);
+					g_free (url);
+					return TRUE;
+				}
+			}
+			else
+			{
+				/* an un-listed connection */
+				serv = find_server_from_hostname (server_name);
+				if (serv)
+				{
+					url_join_only (serv, tbuf, channel);
 					g_free (url);
 					return TRUE;
 				}
@@ -3862,7 +3910,7 @@ handle_say (session *sess, char *text, int check_spch)
 		check_special_chars (text, prefs.perc_ascii);
 
 	/* split the text into words and word_eol */
-	process_data_init (pdibuf, text, word, word_eol, TRUE);
+	process_data_init (pdibuf, text, word, word_eol, TRUE, FALSE);
 
 	/* a command of "" can be hooked for non-commands */
 	if (plugin_emit_command (sess, "", word, word_eol))
@@ -3997,11 +4045,11 @@ handle_command (session *sess, char *cmd, int check_spch)
 		tbuf = tbuf_static;
 
 	/* split the text into words and word_eol */
-	process_data_init (pdibuf, cmd, word, word_eol, TRUE);
+	process_data_init (pdibuf, cmd, word, word_eol, TRUE, TRUE);
 	int_cmd = find_internal_command (word[1]);
 	/* redo it without quotes processing, for some commands like /JOIN */
 	if (int_cmd && !int_cmd->handle_quotes)
-		process_data_init (pdibuf, cmd, word, word_eol, FALSE);
+		process_data_init (pdibuf, cmd, word, word_eol, FALSE, FALSE);
 
 	if (check_spch && prefs.perc_color)
 		check_special_chars (cmd, prefs.perc_ascii);

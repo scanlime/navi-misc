@@ -1,2 +1,6 @@
 Makefile
 .deps
+.libs
+.svn
+*.la
+*.lo
