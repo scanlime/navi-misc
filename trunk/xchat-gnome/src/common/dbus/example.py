@@ -3,10 +3,26 @@
 import dbus
 
 bus = dbus.SessionBus()
-proxy_obj = bus.get_object('org.xchatgnome.service', '/org/xchatgnome/RemoteObject')
-xchat = dbus.Interface(proxy_obj, 'org.xchatgnome.interface')
+proxy = bus.get_object('org.xchatgnome.service', '/org/xchatgnome/Remote')
+remote = dbus.Interface(proxy, 'org.xchatgnome.connection')
+path = remote.Connect ("example.py",
+		       "Python example",
+		       "Example of a D-Bus client written in python",
+		       "1.0")
+proxy = bus.get_object('org.xchatgnome.service', path)
+xchat = dbus.Interface(proxy, 'org.xchatgnome.plugin')
 
-lst = xchat.ListGet ("users")
-while xchat.ListNext (lst):
-	print xchat.ListStr (lst, "nick")
-xchat.ListFree (lst)
+channels = xchat.ListGet ("channels")
+while xchat.ListNext (channels):
+	name = xchat.ListStr (channels, "channel")
+	print "------- " + name + " -------"
+	xchat.SetContext (xchat.ListInt (channels, "context"))
+	xchat.EmitPrint ("Channel Message", ["John", "Hi there", "@"])
+	users = xchat.ListGet ("users")
+	while xchat.ListNext (users):
+		print "Nick: " + xchat.ListStr (users, "nick")
+	xchat.ListFree (users)
+xchat.ListFree (channels)
+
+print xchat.Strip ("\00312Blue\003 \002Bold!\002", -1, 1|2)
+

@@ -437,6 +437,7 @@ typedef struct server
 	time_t next_send;						/* cptr->since in ircu */
 	time_t prev_now;					/* previous now-time */
 	int sendq_len;						/* queue size */
+	int lag;								/* milliseconds */
 
 	struct session *front_session;	/* front-most window/tab */
 	struct session *server_session;	/* server window/tab */
@@ -514,5 +515,13 @@ struct popup
 
 /* CL: get a random int in the range [0..n-1]. DON'T use rand() % n, it gives terrible results. */
 #define RAND_INT(n) ((int)(rand() / (RAND_MAX + 1.0) * (n)))
+
+#if defined(WIN32) && GLIB_CHECK_VERSION(2,4,0)
+#define xchat_filename_from_utf8 g_locale_from_utf8
+#define xchat_filename_to_utf8 g_locale_to_utf8
+#else
+#define xchat_filename_from_utf8 g_filename_from_utf8
+#define xchat_filename_to_utf8 g_filename_to_utf8
+#endif
 
 #endif

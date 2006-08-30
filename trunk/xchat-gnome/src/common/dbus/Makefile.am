@@ -1,19 +1,3 @@
-bin_PROGRAMS = xchat-gnome-remote
-xchat_gnome_remote_SOURCES =			\
-	xchat-remote.c
-xchat_gnome_remote_LDADD =			\
-	$(DBUS_LIBS)				\
-	$(DEPENDENCIES_LIBS)
-xchat_gnome_remote_CPPFLAGS =			\
-	-DLOCALEDIR="\"$(datadir)/locale\""	\
-	-DPREFIX="\"$(prefix)\""		\
-	$(AM_CPPFLAGS)
-xchat_gnome_remote_CFLAGS =			\
-	$(DEPENDENCIES_CFLAGS)			\
-	$(DBUS_CFLAGS)				\
-	$(AM_CFLAGS)
-
-
 noinst_PROGRAMS = example
 example_SOURCES =				\
 	example.c
@@ -30,7 +14,9 @@ example_CFLAGS =				\
 noinst_LTLIBRARIES = libxchatdbus.la
 libxchatdbus_la_SOURCES =			\
 	dbus-plugin.c				\
-	dbus-plugin.h
+	dbus-plugin.h				\
+	dbus-client.c				\
+	dbus-client.h
 libxchatdbus_la_CPPFLAGS =			\
 	-I$(srcdir)/..				\
 	$(AM_CPPFLAGS)
@@ -40,7 +26,7 @@ libxchatdbus_la_CFLAGS =			\
 libxchatdbus_la_LIBADD =			\
 	$(DBUS_LIBS)
 
-dbus-plugin-glue.h: dbus-plugin.xml
+remote-object-glue.h: remote-object.xml
 	$(LIBTOOL) --mode=execute $(DBUS_BINDING_TOOL) --prefix=remote_object --mode=glib-server --output=$@ $<
 
 marshallers.h: marshallers.list
@@ -62,13 +48,13 @@ endif
 
 EXTRA_DIST =			\
 	url_handler.schemas.in	\
-	dbus-plugin.xml		\
+	remote-object.xml	\
 	marshallers.list	\
 	example.py		\
 	README
 
 BUILT_SOURCES =			\
-	dbus-plugin-glue.h	\
+	remote-object-glue.h	\
 	marshallers.h		\
 	url_handler.schemas
 
