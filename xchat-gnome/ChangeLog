@@ -1,3 +1,13 @@
+2006-08-31  Christian Persch  <chpe@cvs.gnome.org>
+
+	* configure.ac:
+	* src/fe-gnome/about.c: (about_email_hook), (about_url_hook),
+	(show_about_dialog):
+	  - Don't define the hook functions with recent libgnomeui,
+	    since it provides them for us.
+	* src/fe-gnome/fe-gnome.c: (fe_open_url):
+	  - Use gnome_url_show_on_screen, bug #353740.
+
 Thu Aug 31 21:58:23 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* data/xchat-gnome.1:

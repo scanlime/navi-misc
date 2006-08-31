@@ -66,9 +66,15 @@ PKG_CHECK_MODULES([DEPENDENCIES], [\
 # We can do better option parsing if we have libgnome >= 2.14
 # Once 2.14 is out and relatively common, we should probably eliminate this
 # and just force everyone to it.
-PKG_CHECK_MODULES([LIBGNOME], [libgnome-2.0 >= 2.13], newlibgnome=yes, newlibgnome=no)
-if test "x$newlibgnome" = xyes; then
-	AC_DEFINE(HAVE_LIBGNOME_214, 1, [Enable 2.14-specific code])
+PKG_CHECK_EXISTS([libgnome-2.0 >= 2.13],[newlibgnome=yes],[newlibgnome=no])
+if test "$newlibgnome" = "yes"; then
+	AC_DEFINE([HAVE_LIBGNOME_214],[1],[Enable 2.14-specific code])
+fi
+
+# Check libgnomeui version
+PKG_CHECK_EXISTS([libgnomeui-2.0 >= 2.15.2],[libgnomeui_2_16=yes],[libgnomeui_2_16=no])
+if test "$libgnomeui_2_16" = "yes"; then
+	AC_DEFINE([HAVE_LIBGNOMEUI_2_16],[1],[Libgnomeui 2.16 available])
 fi
 
 #D-Bus
