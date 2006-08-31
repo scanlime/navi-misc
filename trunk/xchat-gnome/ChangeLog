@@ -1,3 +1,10 @@
+Thu Aug 31 21:58:23 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* data/xchat-gnome.1:
+	* NEWS:
+	  - Manpage refactoring.
+	  - Add --existing documentation.
+
 Thu Aug 31 16:58:26 CEST 2006  Xavier Claessens <xclaesse@gmail.com>
 
 	* src/common/dbus/example.py:
