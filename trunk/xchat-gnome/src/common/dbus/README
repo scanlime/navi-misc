@@ -2,13 +2,13 @@ For more help you can see the xchat plugin interface documentation.
 http://www.xchat.org/docs/plugin20.html
 WARNING: The dbus interface may change in the future.
 
-You can use the "/org/xchat/Remote" object with interface "org.xchat.plugin",
+You can use the "/org/gnome/Xchat/Remote" object with interface "org.gnome.Xchat.Plugin",
 but his context can be changed by other clients at any moment and
 you may receive signal asked by other clients. So for more complex usage it's
 better to get your own remote object. Using "Connect" method on interface
-"org.xchat.connection"
+"org.gnome.Xchat.Connection"
 
-Available methods on org.xchat.connection interface:
+Available methods on org.gnome.Xchat.Connection interface:
 
 "Connect"
   - Parameters:
@@ -22,7 +22,7 @@ Available methods on org.xchat.connection interface:
 "Disconnect"
   No parameter, no return value. It frees your remote object.
 
-Available methods on org.xchat.plugin interface:
+Available methods on org.Xchat.Plugin interface:
 
 "Command"
   - Parameters:

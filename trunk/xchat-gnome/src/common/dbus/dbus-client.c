@@ -24,9 +24,9 @@
 #include "../xchat.h"
 #include "../xchatc.h"
 
-#define DBUS_SERVICE "org.xchat.service"
-#define DBUS_REMOTE "/org/xchat/Remote"
-#define DBUS_REMOTE_INTERFACE "org.xchat.plugin"
+#define DBUS_SERVICE "org.gnome.Xchat"
+#define DBUS_REMOTE "/org/gnome/Xchat/Remote"
+#define DBUS_REMOTE_INTERFACE "org.gnome.Xchat.Plugin"
 
 static void
 write_error (char *message,

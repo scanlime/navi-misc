@@ -57,11 +57,18 @@ static gboolean  opt_noplugins = FALSE;
 static gchar    *opt_cfgdir    = NULL;
 
 static GOptionEntry entries[] = {
-	{"cfgdir",     'd', 0, G_OPTION_ARG_FILENAME, &opt_cfgdir,           N_("Use directory instead of the default config dir"), "directory"},
-	{"no-auto",    'a', 0, G_OPTION_ARG_NONE,     &arg_dont_autoconnect, N_("Don't auto-connect to servers"),                   NULL},
-	{"no-plugins", 'n', 0, G_OPTION_ARG_NONE,     &opt_noplugins,        N_("Don't auto-load plugins"),                         NULL},
-	{"url",        'u', 0, G_OPTION_ARG_STRING,   &arg_url,              N_("Open an irc:// url"),                              "irc://server:port/channel"},
-	{"version",    'v', 0, G_OPTION_ARG_NONE,     &opt_version,          N_("Show version information"),                        NULL},
+	{"cfgdir",	'd', 0, G_OPTION_ARG_FILENAME,	&opt_cfgdir,
+	 N_("Use directory instead of the default config dir"), "directory"},
+	{"no-auto",	'a', 0, G_OPTION_ARG_NONE,	&arg_dont_autoconnect,
+	 N_("Don't auto-connect to servers"), NULL},
+	{"no-plugins",	'n', 0, G_OPTION_ARG_NONE,	&opt_noplugins,
+	 N_("Don't auto-load plugins"), NULL},
+	{"url",		'u', 0, G_OPTION_ARG_STRING,	&arg_url,
+	 N_("Open an irc:// url"), "irc://server:port/channel"},
+	{"existing",	'e', 0, G_OPTION_ARG_NONE,	&arg_existing,
+	 N_("Open URL in an existing XChat-gnome"), NULL},
+	{"version",	'v', 0, G_OPTION_ARG_NONE,	&opt_version,
+	 N_("Show version information"), NULL},
 	{ NULL }
 };
 

@@ -24,10 +24,10 @@
 #include <stdlib.h>
 #include "marshallers.h"
 
-#define DBUS_SERVICE "org.xchatgnome.service"
-#define DBUS_REMOTE "/org/xchatgnome/Remote"
-#define DBUS_REMOTE_CONNECTION_INTERFACE "org.xchatgnome.connection"
-#define DBUS_REMOTE_PLUGIN_INTERFACE "org.xchatgnome.plugin"
+#define DBUS_SERVICE "org.gnome.Xchat"
+#define DBUS_REMOTE "/org/gnome/Xchat/Remote"
+#define DBUS_REMOTE_CONNECTION_INTERFACE "org.gnome.Xchat.Connection"
+#define DBUS_REMOTE_PLUGIN_INTERFACE "org.gnome.Xchat.Plugin"
 
 guint command_id;
 guint server_id;

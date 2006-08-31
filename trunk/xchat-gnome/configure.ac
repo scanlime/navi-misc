@@ -84,9 +84,10 @@ if test "x$enable_dbus" != "xno"; then
 	PKG_CHECK_MODULES([DBUS], [\
 	                  dbus-1 >= $DBUS_REQUIRED \
 	                  dbus-glib-1 >= $DBUS_GLIB_REQUIRED \
+	                  gthread-2.0 \
 			  ], dbus=yes, dbus=no)
 	if test "x$dbus" = "xno"; then
-		AC_MSG_WARN([Library requirements (dbus-1 >= $DBUS_REQUIRED dbus-glib-1 >= $DBUS_GLIB_REQUIRED) not met; consider adjusting the PKG_CONFIG_PATH environment variable if your libraries are in a nonstandard prefix so pkg-config can find them.])
+		AC_MSG_WARN([Library requirements (dbus-1 >= $DBUS_REQUIRED dbus-glib-1 >= $DBUS_GLIB_REQUIRED gthread-2.0) not met; consider adjusting the PKG_CONFIG_PATH environment variable if your libraries are in a nonstandard prefix so pkg-config can find them.])
 	fi
 	AC_SUBST([DBUS_CFLAGS])
 	AC_SUBST([DBUS_LIBS])
@@ -104,6 +105,11 @@ if test "x$dbus" != "xyes"; then
 	fi
 else
 	AC_DEFINE(USE_DBUS, [], [Whether to use D-Bus])
+	AS_AC_EXPAND(DATADIR, $datadir)
+
+	DBUS_SERVICES_DIR="$DATADIR/dbus-1/services"
+	AC_SUBST(DBUS_SERVICES_DIR)
+	AC_DEFINE_UNQUOTED(DBUS_SERVICES_DIR, "$DBUS_SERVICES_DIR", [Where services dir for DBUS is])
 fi
 
 # FIXME: this is gross, but i don't want to take the time to fix it right now

@@ -32,6 +32,15 @@ remote-object-glue.h: remote-object.xml
 marshallers.h: marshallers.list
 	$(LIBTOOL) --mode=execute $(GLIB_GENMARSHAL)  --header --body $< > $@
 
+# Dbus service file
+servicedir = $(DBUS_SERVICES_DIR)
+service_in_files = org.gnome.Xchat.service.in
+service_DATA = $(service_in_files:.service.in=.service)
+
+# Rule to make the service file with bindir expanded
+$(service_DATA): $(service_in_files) Makefile
+	@sed -e "s|\@bindir\@|$(bindir)|" $< > $@
+
 schemadir = $(GCONF_SCHEMA_FILE_DIR)
 schema_in_files = url_handler.schemas.in
 schema_DATA = $(schema_in_files:.schemas.in=.schemas)
