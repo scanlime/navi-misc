@@ -1,3 +1,22 @@
+Thu Aug 31 16:58:26 CEST 2006  Xavier Claessens <xclaesse@gmail.com>
+
+	* src/common/dbus/example.py:
+	* src/common/dbus/Makefile.am:
+	* src/common/dbus/url_handler.schemas.in:
+	* src/common/dbus/dbus-plugin.c:
+	* src/common/dbus/dbus-client.c:
+	* src/common/dbus/example.c:
+	* src/common/dbus/README:
+	* src/common/dbus/remote-object.xml:
+	* src/fe-gnome/fe-gnome.c:
+	* configure.ac:
+	  - Rename D-Bus service to org.gnome.Xchat.
+	    object path is now /org/gnome/Xchat/Remote with interfaces
+	    org.gnome.Xchat.Plugin and org.gnome.Xchat.Connection.
+	  - Add --existing command line option to connect --url in a running
+	    XChat instance.
+	  - Install org.gnome.Xchat.service file.
+
 Wed Aug 30 21:35:39 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/common/dbus/dbus-client.h:

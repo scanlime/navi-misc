@@ -31,8 +31,8 @@
 #define PDESC _("plugin for remote access using DBUS")
 #define PVERSION ""
 
-#define DBUS_SERVICE "org.xchatgnome.service"
-#define DBUS_OBJECT_PATH "/org/xchatgnome"
+#define DBUS_SERVICE "org.gnome.Xchat"
+#define DBUS_OBJECT_PATH "/org/gnome/Xchat"
 
 static xchat_plugin *ph;
 static guint last_context_id = 0;
