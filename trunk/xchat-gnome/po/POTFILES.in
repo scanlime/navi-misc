@@ -6,11 +6,10 @@ data/irc-network-editor.glade
 data/preferences-dialog.glade
 data/setup-dialog.glade
 data/topic-change.glade
-data/xchat-gnome.desktop.in
+data/xchat-gnome.desktop.in.in
 data/xchat-gnome.glade
 plugins/autoaway/autoaway.c
 plugins/net-monitor/net-monitor.c
-plugins/notification/eggtrayicon.c
 plugins/notification/notification.c
 plugins/notification/notification.schemas.in
 plugins/notify-osd/notify-osd.c
