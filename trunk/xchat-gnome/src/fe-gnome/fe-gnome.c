@@ -896,14 +896,16 @@ fe_get_int (char *msg, int def, void *callback, void *userdata)
 void
 fe_open_url (const char *url)
 {
+	GdkScreen *screen;
 	GError *err = NULL;
 
+	screen = gtk_widget_get_screen (gui.main_window);
 	if (strstr (url, "://") == NULL) {
 		gchar *newword = g_strdup_printf ("http://%s", url);
-		gnome_url_show (newword, &err);
+		gnome_url_show_on_screen (screen, newword, &err);
 		g_free (newword);
 	} else {
-		gnome_url_show (url, &err);
+		gnome_url_show_on_screen (screen, url, &err);
 	}
 
 	if (err != NULL) {
