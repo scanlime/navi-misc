@@ -1,5 +1,10 @@
 2006-09-01  Christian Persch  <chpe@cvs.gnome.org>
 
+	* src/fe-gnome/fe-gnome.c: (fe_open_url):
+	  - Fix stupid argument transposition bug from patch from bug #353740.
+
+2006-09-01  Christian Persch  <chpe@cvs.gnome.org>
+
 	* src/common/dbus/dbus-client.c:
 	* src/common/xchat.h:
 	  - Fix builddir != srcdir build due to crappy xchat upstream build
