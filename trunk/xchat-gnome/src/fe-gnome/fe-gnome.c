@@ -902,10 +902,10 @@ fe_open_url (const char *url)
 	screen = gtk_widget_get_screen (gui.main_window);
 	if (strstr (url, "://") == NULL) {
 		gchar *newword = g_strdup_printf ("http://%s", url);
-		gnome_url_show_on_screen (screen, newword, &err);
+		gnome_url_show_on_screen (newword, screen, &err);
 		g_free (newword);
 	} else {
-		gnome_url_show_on_screen (screen, url, &err);
+		gnome_url_show_on_screen (url, screen, &err);
 	}
 
 	if (err != NULL) {
