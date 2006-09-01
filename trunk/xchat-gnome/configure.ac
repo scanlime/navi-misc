@@ -110,7 +110,7 @@ if test "x$dbus" != "xyes"; then
 		AC_MSG_WARN([D-Bus not found, disabling dbus support])
 	fi
 else
-	AC_DEFINE(USE_DBUS, [], [Whether to use D-Bus])
+	AC_DEFINE(USE_DBUS,[1],[Whether to use D-Bus])
 	AS_AC_EXPAND(DATADIR, $datadir)
 
 	DBUS_SERVICES_DIR="$DATADIR/dbus-1/services"
@@ -118,9 +118,7 @@ else
 	AC_DEFINE_UNQUOTED(DBUS_SERVICES_DIR, "$DBUS_SERVICES_DIR", [Where services dir for DBUS is])
 fi
 
-# FIXME: this is gross, but i don't want to take the time to fix it right now
 AM_CONDITIONAL([ENABLE_DBUS],[test "x$dbus" = "xyes"])
-AM_CONDITIONAL([USE_DBUS],[test "x$dbus" = "xyes"])
 
 # libsexy soft dependency
 PKG_CHECK_MODULES([LIBSEXY], [libsexy >= $LIBSEXY_REQUIRED], libsexy=yes, libsexy=no)

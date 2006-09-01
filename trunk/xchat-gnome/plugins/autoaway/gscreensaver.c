@@ -22,18 +22,18 @@
 #include "autoaway.h"
 #include "gscreensaver.h"
 
-#ifdef USE_DBUS
+#ifdef ENABLE_DBUS
 #define DBUS_API_SUBJECT_TO_CHANGE
 # include <dbus/dbus-glib.h>
 # include <dbus/dbus.h>
 
 static DBusGProxy *dbus_proxy = NULL;
-#endif /* USE_DBUS */
+#endif /* ENABLE_DBUS */
 
 static gboolean screensaver_is_active = FALSE;
 
 
-#ifdef USE_DBUS
+#ifdef ENABLE_DBUS
 static void
 screensaver_changed_cb (DBusGProxy *proxy, gboolean value, gpointer user_data)
 {
@@ -44,7 +44,7 @@ screensaver_changed_cb (DBusGProxy *proxy, gboolean value, gpointer user_data)
 gboolean
 get_gs_has_ipc (void)
 {
-#ifdef USE_DBUS
+#ifdef ENABLE_DBUS
 	gboolean mybool;
 	if (!dbus_g_proxy_call (dbus_proxy, "getActive", NULL,
 				G_TYPE_INVALID,
@@ -55,13 +55,13 @@ get_gs_has_ipc (void)
 	return TRUE;
 #else
 	return FALSE;
-#endif /* USE_DBUS */
+#endif /* ENABLE_DBUS */
 }
 
 void
 init_gs_connection (void)
 {
-#ifdef USE_DBUS
+#ifdef ENABLE_DBUS
 	static DBusGConnection *connection = NULL;
 	GError *err = NULL;
 	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &err);
@@ -87,13 +87,13 @@ init_gs_connection (void)
 			   G_TYPE_INVALID,
 			   G_TYPE_BOOLEAN, &screensaver_is_active,
 			   G_TYPE_INVALID);
-#endif /* USE_DBUS */
+#endif /* ENABLE_DBUS */
 }
 
 void
 close_gs_connection (void)
 {
-#ifdef USE_DBUS
+#ifdef ENABLE_DBUS
 	if (dbus_proxy)
 		g_object_unref (dbus_proxy);
 #endif

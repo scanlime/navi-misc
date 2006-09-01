@@ -1,9 +1,12 @@
-noinst_LTLIBRARIES = libxchatcommon.la
+SUBDIRS =
 
-if USE_DBUS
-dbusdir = dbus
+if ENABLE_DBUS
+SUBDIRS += dbus
 endif
-SUBDIRS = $(dbusdir) .
+
+DIST_SUBDIRS = dbus
+
+noinst_LTLIBRARIES = libxchatcommon.la
 
 libxchatcommon_la_SOURCES =			\
 	cfgfiles.c				\
@@ -77,7 +80,7 @@ libxchatcommon_la_SOURCES += 			\
  	ssl.h
 endif
 
-if USE_DBUS
+if ENABLE_DBUS
 libxchatcommon_la_CFLAGS +=				\
 	-I$(top_builddir)/src/common/dbus
 libxchatcommon_la_LIBADD +=				\
