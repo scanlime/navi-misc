@@ -1,3 +1,11 @@
+2006-09-01  Christian Persch  <chpe@cvs.gnome.org>
+
+	* configure.ac:
+	* plugins/autoaway/gscreensaver.c: (get_gs_has_ipc),
+	(init_gs_connection), (close_gs_connection):
+	* src/common/Makefile.am:
+	  - Reuse ENABLE_DBUS define, and eliminate USE_DBUS. Bug #353747.
+
 2006-08-31  Christian Persch  <chpe@cvs.gnome.org>
 
 	* configure.ac:
