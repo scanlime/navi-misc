@@ -19,10 +19,12 @@
  * xclaesse@gmail.com
  */
 
+#include "config.h"
+
 #include <dbus/dbus-glib.h>
 #include "dbus-client.h"
-#include "../xchat.h"
-#include "../xchatc.h"
+#include "xchat.h"
+#include "xchatc.h"
 
 #define DBUS_SERVICE "org.gnome.Xchat"
 #define DBUS_REMOTE "/org/gnome/Xchat/Remote"

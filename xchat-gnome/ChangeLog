@@ -1,5 +1,12 @@
 2006-09-01  Christian Persch  <chpe@cvs.gnome.org>
 
+	* src/common/dbus/dbus-client.c:
+	* src/common/xchat.h:
+	  - Fix builddir != srcdir build due to crappy xchat upstream build
+	    system. Bug #353750.
+
+2006-09-01  Christian Persch  <chpe@cvs.gnome.org>
+
 	* configure.ac:
 	* plugins/autoaway/gscreensaver.c: (get_gs_has_ipc),
 	(init_gs_connection), (close_gs_connection):

@@ -1,4 +1,4 @@
-#include "../../config.h"
+#include "config.h"
 
 #include <glib/gslist.h>
 #include <glib/glist.h>
