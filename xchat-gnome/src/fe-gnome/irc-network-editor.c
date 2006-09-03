@@ -28,8 +28,9 @@
 
 static GtkDialogClass *parent_class;
 
-static gboolean check_input   (IrcNetworkEditor *editor);
-static void     apply_changes (IrcNetworkEditor *editor);
+static gboolean  check_input        (IrcNetworkEditor *editor);
+static void      apply_changes      (IrcNetworkEditor *editor);
+static gchar    *serialize_autojoin (IrcNetworkEditor *editor);
 
 static void
 irc_network_editor_dispose (GObject *object)
@@ -565,26 +566,7 @@ apply_changes (IrcNetworkEditor *e)
 	}
 	channels = t1;
 
-	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (e->autojoin_store), &iter)) {
-		gtk_tree_model_get (GTK_TREE_MODEL (e->autojoin_store), &iter, 1, &t1, -1);
-
-		if (t1 == NULL) {
-			t1 = "";
-		}
-		t1 = g_strdup (t1);
-
-		while (gtk_tree_model_iter_next (GTK_TREE_MODEL (e->autojoin_store), &iter)) {
-			gtk_tree_model_get (GTK_TREE_MODEL (e->autojoin_store), &iter, 1, &t2, -1);
-			if (t2 == NULL) {
-				t2 = "";
-			}
-			t3 = g_strdup_printf ("%s,%s", t1, t2);
-			g_free (t1);
-			t1 = t3;
-		}
-	}
-	net->autojoin = g_strdup_printf ("%s %s", channels, t1);
-	g_free (channels);
+	net->autojoin = serialize_autojoin (e);
 
 	irc_network_save (net);
 }
@@ -621,6 +603,64 @@ check_input (IrcNetworkEditor *editor)
 		return FALSE;
 	}
 	return TRUE;
+}
+
+static gchar *
+serialize_autojoin (IrcNetworkEditor *editor)
+{
+	gchar *channels  = NULL;
+	gchar *passwords = NULL;
+	gchar *channel;
+	gchar *password;
+	gchar *ret;
+	GtkTreeIter iter;
+
+	// We run through the store twice.  On the first pass, we only get
+	// servers that have passwords set.  On the second, we do the rest.
+	// This is because xchat wants this order.
+	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (editor->autojoin_store), &iter)) {
+		do {
+			gtk_tree_model_get (GTK_TREE_MODEL (editor->autojoin_store), &iter, 0, &channel, 1, &password, -1);
+			if (password) {
+				if (channels) {
+					gchar *tmp = g_strdup_printf ("%s,%s", channels, channel);
+					g_free (channels);
+					channels = tmp;
+
+					tmp = g_strdup_printf ("%s,%s", passwords, password);
+					g_free (passwords);
+					passwords = tmp;
+				} else {
+					channels = g_strdup (channel);
+					passwords = g_strdup (password);
+				}
+			}
+		} while (gtk_tree_model_iter_next (GTK_TREE_MODEL (editor->autojoin_store), &iter));
+	}
+
+	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (editor->autojoin_store), &iter)) {
+		do {
+			gtk_tree_model_get (GTK_TREE_MODEL (editor->autojoin_store), &iter, 0, &channel, 1, &password, -1);
+			if (password == NULL) {
+				if (channels) {
+					gchar *tmp = g_strdup_printf ("%s,%s", channels, channel);
+					g_free (channels);
+					channels = tmp;
+				} else {
+					channels = g_strdup (channel);
+				}
+			}
+		} while (gtk_tree_model_iter_next (GTK_TREE_MODEL (editor->autojoin_store), &iter));
+	}
+
+	if (passwords) {
+		ret = g_strdup_printf ("%s %s", channels, passwords);
+		g_free (channels);
+		g_free (passwords);
+		return ret;
+	} else {
+		return channels;
+	}
 }
 
 void
