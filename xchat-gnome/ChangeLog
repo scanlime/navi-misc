@@ -1,3 +1,10 @@
+2006-09-04  Christian Persch  <chpe@cvs.gnome.org>
+
+	* src/fe-gnome/conversation-panel.c:
+	* src/fe-gnome/xtext.c: 
+	* src/fe-gnome/xtext.h:
+	  - Fix PRIMARY selection handling. Bug #351272.
+
 2006-09-03  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/irc-network-editor.c:
