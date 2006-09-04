@@ -697,6 +697,7 @@ copy_text (GtkAction *action, ConversationPanel *panel)
 static void
 send_email (GtkAction *action, ConversationPanel *panel)
 {
+	/* FIXME */
 }
 
 static void
@@ -1252,8 +1253,7 @@ conversation_panel_page_down (ConversationPanel *panel)
 void
 conversation_panel_copy_selection (ConversationPanel *panel)
 {
-	GtkClipboard *clipboard = gtk_widget_get_clipboard (GTK_WIDGET (panel), GDK_SELECTION_CLIPBOARD);
-	gtk_xtext_copy_selection (GTK_XTEXT (panel->priv->xtext), clipboard);
+	gtk_xtext_copy_selection (GTK_XTEXT (panel->priv->xtext));
 }
 
 void

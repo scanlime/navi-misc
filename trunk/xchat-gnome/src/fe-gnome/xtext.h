@@ -118,9 +118,9 @@ struct _GtkXText
 	GdkGC *marker_gc;
 	gulong palette[XTEXT_COLS];
 
-	gint io_tag;					  /* for delayed refresh events */
-	gint add_io_tag;				  /* "" when adding new text */
-	gint scroll_tag;				  /* marking-scroll timeout */
+	guint io_tag;					  /* for delayed refresh events */
+	guint add_io_tag;				  /* "" when adding new text */
+	guint scroll_tag;				  /* marking-scroll timeout */
 	gulong vc_signal_tag;        /* signal handler for "value_changed" adj */
 
 	int select_start_adj;		  /* the adj->value when the selection started */
@@ -263,6 +263,6 @@ xtext_buffer *gtk_xtext_buffer_new (GtkXText *xtext);
 void gtk_xtext_buffer_free (xtext_buffer *buf);
 void gtk_xtext_buffer_show (GtkXText *xtext, xtext_buffer *buf, int render);
 GtkType gtk_xtext_get_type (void);
-void gtk_xtext_copy_selection (GtkXText *xtext, GtkClipboard *clipboard);
+void gtk_xtext_copy_selection (GtkXText *xtext);
 
 #endif

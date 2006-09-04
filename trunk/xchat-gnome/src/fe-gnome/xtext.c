@@ -88,6 +88,7 @@ struct textentry
 	struct textentry *prev;
 	unsigned char *str;
 	time_t stamp;
+	/* FIXME pack these together, saving [11/2]*4 bytes */
 	gint16 str_width;
 	gint16 str_len;
 	gint16 mark_start;
@@ -108,14 +109,6 @@ enum
 	LAST_SIGNAL
 };
 
-/* values for selection info */
-enum
-{
-	TARGET_UTF8_STRING,
-	TARGET_STRING,
-	TARGET_TEXT,
-	TARGET_COMPOUND_TEXT
-};
 
 static guint xtext_signals[LAST_SIGNAL];
 
@@ -127,7 +120,7 @@ static void gtk_xtext_calc_lines (xtext_buffer *buf, int);
 static void gtk_xtext_load_trans (GtkXText * xtext);
 static void gtk_xtext_free_trans (GtkXText * xtext);
 #endif /* defined(USE_XLIB) || defined(WIN32) */
-static char *gtk_xtext_selection_get_text (GtkXText *xtext, int *len_ret);
+static char *gtk_xtext_selection_get_text (GtkXText *xtext, xtext_buffer *buf, gsize *len_ret);
 static textentry *gtk_xtext_nth (GtkXText *xtext, int line, int *subline);
 static void gtk_xtext_adjustment_changed (GtkAdjustment * adj,
 														GtkXText * xtext);
@@ -139,6 +132,7 @@ static char *gtk_xtext_conv_color (unsigned char *text, int len, int *newlen);
 static unsigned char *
 gtk_xtext_strip_color (unsigned char *text, int len, unsigned char *outbuf,
 							  int *newlen, int *mb_ret);
+static void gtk_xtext_update_primary_selection (GtkXText *xtext);
 
 /* some utility functions first */
 
@@ -444,7 +438,7 @@ backend_get_text_width (GtkXText *xtext, guchar *str, int len, int is_mb)
 	if (*str == 0)
 		return 0;
 
-	pango_layout_set_text (xtext->layout, str, len);
+	pango_layout_set_text (xtext->layout, (const char *) str, len);
 	pango_layout_get_pixel_size (xtext->layout, &width, NULL);
 
 	return width;
@@ -462,7 +456,7 @@ backend_get_char_width (GtkXText *xtext, unsigned char *str, int *mbl_ret)
 	}
 
 	*mbl_ret = charlen (str);
-	pango_layout_set_text (xtext->layout, str, *mbl_ret);
+	pango_layout_set_text (xtext->layout, (const char *) str, *mbl_ret);
 	pango_layout_get_pixel_size (xtext->layout, &width, NULL);
 
 	return width;
@@ -617,23 +611,10 @@ gtk_xtext_init (GtkXText * xtext)
 	xtext->current_word = NULL;
 
 	xtext->adj = (GtkAdjustment *) gtk_adjustment_new (0, 0, 1, 1, 1, 1);
-	g_object_ref (G_OBJECT (xtext->adj));
-	gtk_object_sink ((GtkObject *) xtext->adj);
+	g_object_ref_sink (xtext->adj);
 
 	xtext->vc_signal_tag = g_signal_connect (G_OBJECT (xtext->adj),
 				"value_changed", G_CALLBACK (gtk_xtext_adjustment_changed), xtext);
-	{
-		static const GtkTargetEntry targets[] = {
-			{ "UTF8_STRING", 0, TARGET_UTF8_STRING },
-			{ "STRING", 0, TARGET_STRING },
-			{ "TEXT",   0, TARGET_TEXT }, 
-			{ "COMPOUND_TEXT", 0, TARGET_COMPOUND_TEXT }
-		};
-		static const gint n_targets = sizeof (targets) / sizeof (targets[0]);
-
-		gtk_selection_add_targets (GTK_WIDGET (xtext), GDK_SELECTION_PRIMARY,
-											targets, n_targets);
-	}
 
 	if (getenv ("XCHAT_OVERDRAW"))
 		xtext->overdraw = TRUE;
@@ -830,20 +811,26 @@ gtk_xtext_destroy (GtkObject * object)
 		xtext->orig_buffer = NULL;
 	}
 
-	if (GTK_OBJECT_CLASS (parent_class)->destroy)
-		(*GTK_OBJECT_CLASS (parent_class)->destroy) (object);
+	GTK_OBJECT_CLASS (parent_class)->destroy (object);
 }
 
 static void
 gtk_xtext_unrealize (GtkWidget * widget)
 {
+	GtkClipboard *clipboard;
+
 	backend_deinit (GTK_XTEXT (widget));
 
 	/* if there are still events in the queue, this'll avoid segfault */
+	/* FIXME: the parent unrealize handler does this already, what's the use here?? */
 	gdk_window_set_user_data (widget->window, NULL);
 
-	if (parent_class->unrealize)
-		(* GTK_WIDGET_CLASS (parent_class)->unrealize) (widget);
+	/* Withdraw PRIMARY selection */
+	clipboard = gtk_widget_get_clipboard (widget, GDK_SELECTION_PRIMARY);
+	if (gtk_clipboard_get_owner (clipboard) == G_OBJECT (widget))
+		gtk_clipboard_clear (clipboard);
+
+	GTK_WIDGET_CLASS (parent_class)->unrealize (widget);
 }
 
 static void
@@ -947,6 +934,8 @@ gtk_xtext_realize (GtkWidget * widget)
 	widget->style = gtk_style_attach (widget->style, widget->window);
 
 	backend_init (xtext);
+
+	gtk_xtext_update_primary_selection (xtext);
 }
 
 static void
@@ -1899,43 +1888,53 @@ gtk_xtext_motion_notify (GtkWidget * widget, GdkEventMotion * event)
 }
 
 static void
-gtk_xtext_set_clip_owner (GtkWidget * xtext, GdkEventButton * event)
+primary_get_cb (GtkClipboard     *clipboard,
+                GtkSelectionData *selection_data,
+                guint             info,
+                gpointer          data)
 {
-	GtkClipboard *clipboard;
-
-	clipboard = gtk_widget_get_clipboard (xtext, GDK_SELECTION_PRIMARY);
-	gtk_xtext_copy_selection (GTK_XTEXT (xtext), clipboard);
-}
-
-void
-gtk_xtext_copy_selection (GtkXText *xtext, GtkClipboard *clipboard)
-{
+	GtkXText *xtext = GTK_XTEXT (data);
 	char *str;
-	int len;
+	gsize len;
 
-	if (GTK_XTEXT (xtext)->selection_buffer &&
-	    GTK_XTEXT (xtext)->selection_buffer != GTK_XTEXT (xtext)->buffer)
-		gtk_xtext_selection_clear (GTK_XTEXT (xtext)->selection_buffer);
-
-	GTK_XTEXT (xtext)->selection_buffer = GTK_XTEXT (xtext)->buffer;
-
-	str = gtk_xtext_selection_get_text (GTK_XTEXT (xtext), &len);
+	str = gtk_xtext_selection_get_text (xtext, xtext->selection_buffer, &len);
 	if (str)
 	{
-		gtk_clipboard_set_text (clipboard, str, len);
-		free (str);
+		gtk_selection_data_set_text (selection_data, str, len);
+		g_free (str);
 	}
 }
 
 static void
 gtk_xtext_unselect (GtkXText *xtext)
 {
-	xtext_buffer *buf = xtext->buffer;
+	xtext_buffer *buf = xtext->selection_buffer;
 
-	xtext->skip_border_fills = TRUE;
-	xtext->skip_stamp = TRUE;
+	if (!buf)
+		return;
+
+}
+
+static void
+primary_clear_cb (GtkClipboard *clipboard,
+		  gpointer      data)
+{
+	GtkXText *xtext = GTK_XTEXT (data);
+	xtext_buffer *buf;
+
+	/* Can this happen? */
+	if (!xtext->selection_buffer)
+		return;
+
+	if (xtext->selection_buffer != xtext->buffer) {
+		gtk_xtext_selection_clear (xtext->selection_buffer);
+		return;
+	}
+
+	buf = xtext->buffer;
 
 	xtext->jump_in_offset = buf->last_ent_start->mark_start;
+
 	/* just a single ent was marked? */
 	if (buf->last_ent_start == buf->last_ent_end)
 	{
@@ -1943,19 +1942,91 @@ gtk_xtext_unselect (GtkXText *xtext)
 		buf->last_ent_end = NULL;
 	}
 
-	gtk_xtext_selection_clear (xtext->buffer);
+	gtk_xtext_selection_clear (buf);
+
+	xtext->skip_border_fills = TRUE;
+	xtext->skip_stamp = TRUE;
 
 	/* FIXME: use jump_out on multi-line selects too! */
 	gtk_xtext_render_ents (xtext, buf->last_ent_start, buf->last_ent_end);
 
-	xtext->jump_in_offset = 0;
-	xtext->jump_out_offset = 0;
-
 	xtext->skip_border_fills = FALSE;
 	xtext->skip_stamp = FALSE;
 
-	xtext->buffer->last_ent_start = NULL;
-	xtext->buffer->last_ent_end = NULL;
+	xtext->jump_in_offset = 0;
+	xtext->jump_out_offset = 0;
+
+	buf->last_ent_start = NULL;
+	buf->last_ent_end = NULL;
+}
+
+/* Adapted from gtkentry.c */
+static void
+gtk_xtext_update_primary_selection (GtkXText *xtext)
+{
+	static GtkTargetEntry targets[] = {
+		{ "UTF8_STRING", 0, 0 },
+		{ "STRING", 0, 0 },
+		{ "TEXT",   0, 0 },
+		{ "COMPOUND_TEXT", 0, 0 },
+		{ "text/plain;charset=utf-8",   0, 0 },
+		{ NULL,   0, 0 },
+		{ "text/plain", 0, 0 }
+	};
+
+	GtkWidget *widget = GTK_WIDGET (xtext);
+	GtkClipboard *clipboard;
+	gint start, end;
+
+	if (G_UNLIKELY (targets[5].target == NULL))
+	{
+		static char target[64];
+		const char *charset;
+
+		g_get_charset (&charset);
+		g_snprintf (target, sizeof (target), "text/plain;charset=%s", charset);
+		targets[5].target = target;
+	}
+
+	if (!GTK_WIDGET_REALIZED (widget))
+		return;
+
+	clipboard = gtk_widget_get_clipboard (widget, GDK_SELECTION_PRIMARY);
+
+	if (xtext->buffer->last_ent_start)
+	{
+		if (xtext->selection_buffer &&
+		    xtext->selection_buffer != xtext->buffer)
+			gtk_xtext_selection_clear (xtext->selection_buffer);
+
+		xtext->selection_buffer = xtext->buffer;
+
+		if (!gtk_clipboard_set_with_owner (clipboard, targets, G_N_ELEMENTS (targets),
+		    				   primary_get_cb, primary_clear_cb, G_OBJECT (xtext)))
+			primary_clear_cb (clipboard, xtext);
+	}
+	else
+	{
+		if (gtk_clipboard_get_owner (clipboard) == G_OBJECT (xtext))
+			gtk_clipboard_clear (clipboard);
+	}
+}
+
+void
+gtk_xtext_copy_selection (GtkXText *xtext)
+{
+	GtkClipboard *clipboard;
+	char *str;
+	gsize len;
+
+	str = gtk_xtext_selection_get_text (xtext, xtext->buffer, &len);
+	if (str)
+	{
+		clipboard = gtk_widget_get_clipboard (GTK_WIDGET (xtext),
+						      GDK_SELECTION_CLIPBOARD);
+		gtk_clipboard_set_text (clipboard, str, len);
+		g_free (str);
+	}
 }
 
 static gboolean
@@ -1994,8 +2065,8 @@ gtk_xtext_button_release (GtkWidget * widget, GdkEventButton * event)
 		xtext->button_down = FALSE;
 
 		gtk_grab_remove (widget);
-		if (xtext->buffer->last_ent_start)
-			gtk_xtext_set_clip_owner (GTK_WIDGET (xtext), event);
+	
+		gtk_xtext_update_primary_selection (xtext);
 
 		if (xtext->select_start_x == event->x &&
 			 xtext->select_start_y == event->y &&
@@ -2056,7 +2127,7 @@ gtk_xtext_button_press (GtkWidget * widget, GdkEventButton * event)
 			ent->mark_end = offset + len;
 			gtk_xtext_selection_render (xtext, ent, offset, ent, offset + len);
 			xtext->word_or_line_select = TRUE;
-			gtk_xtext_set_clip_owner (GTK_WIDGET (xtext), event);
+			gtk_xtext_update_primary_selection (xtext);
 		}
 
 		return FALSE;
@@ -2071,7 +2142,7 @@ gtk_xtext_button_press (GtkWidget * widget, GdkEventButton * event)
 			ent->mark_end = ent->str_len;
 			gtk_xtext_selection_render (xtext, ent, 0, ent, ent->str_len);
 			xtext->word_or_line_select = TRUE;
-			gtk_xtext_set_clip_owner (GTK_WIDGET (xtext), event);
+			gtk_xtext_update_primary_selection (xtext);
 		}
 
 		return FALSE;
@@ -2098,30 +2169,16 @@ gtk_xtext_button_press (GtkWidget * widget, GdkEventButton * event)
 	return FALSE;
 }
 
-/* another program has claimed the selection */
-
-static gboolean
-gtk_xtext_selection_kill (GtkXText *xtext, GdkEventSelection *event)
-{
-#ifndef WIN32
-	if (xtext->buffer->last_ent_start)
-		gtk_xtext_unselect (xtext);
-#endif /* WIN32 */
-	return TRUE;
-}
-
 static char *
-gtk_xtext_selection_get_text (GtkXText *xtext, int *len_ret)
+gtk_xtext_selection_get_text (GtkXText *xtext, xtext_buffer *buf, gsize *len_ret)
 {
 	textentry *ent;
 	char *txt;
 	char *pos;
 	char *stripped;
-	int len;
+	gsize len;
 	int first = TRUE;
-	xtext_buffer *buf;
 
-	buf = xtext->selection_buffer;
 	if (!buf)
 		return NULL;
 
@@ -2146,7 +2203,7 @@ gtk_xtext_selection_get_text (GtkXText *xtext, int *len_ret)
 		return NULL;
 
 	/* now allocate mem and copy buffer */
-	pos = txt = malloc (len);
+	pos = txt = g_malloc (len);
 	ent = buf->last_ent_start;
 	while (ent)
 	{
@@ -2178,7 +2235,7 @@ gtk_xtext_selection_get_text (GtkXText *xtext, int *len_ret)
 	} else
 	{
 		stripped = gtk_xtext_strip_color (txt, strlen (txt), NULL, &len, 0);
-		free (txt);
+		g_free (txt);
 	}
 
 	*len_ret = len;
@@ -2186,53 +2243,6 @@ gtk_xtext_selection_get_text (GtkXText *xtext, int *len_ret)
 }
 
 /* another program is asking for our selection */
-
-static void
-gtk_xtext_selection_get (GtkWidget * widget,
-								 GtkSelectionData * selection_data_ptr,
-								 guint info, guint time)
-{
-	GtkXText *xtext = GTK_XTEXT (widget);
-	char *stripped;
-	guchar *new_text;
-	int len;
-	gsize glen;
-
-	stripped = gtk_xtext_selection_get_text (xtext, &len);
-	if (!stripped)
-		return;
-
-	switch (info)
-	{
-	case TARGET_UTF8_STRING:
-		/* it's already in utf8 */
-		gtk_selection_data_set_text (selection_data_ptr, stripped, len);
-		break;
-	case TARGET_TEXT:
-	case TARGET_COMPOUND_TEXT:
-		{
-			GdkAtom encoding;
-			gint format;
-			gint new_length;
-
-			gdk_string_to_compound_text_for_display (
-												gdk_drawable_get_display (widget->window),
-												stripped, &encoding, &format, &new_text,
-												&new_length);
-			gtk_selection_data_set (selection_data_ptr, encoding, format,
-											new_text, new_length);
-			gdk_free_compound_text (new_text);
-		}
-		break;
-	default:
-		new_text = g_locale_from_utf8 (stripped, len, NULL, &glen, NULL);
-		gtk_selection_data_set (selection_data_ptr, GDK_SELECTION_TYPE_STRING,
-										8, new_text, glen);
-		g_free (new_text);
-	}
-
-	free (stripped);
-}
 
 static gboolean
 gtk_xtext_scroll (GtkWidget *widget, GdkEventScroll *event)
@@ -2308,8 +2318,6 @@ gtk_xtext_class_init (GtkXTextClass * class)
 	widget_class->button_press_event = gtk_xtext_button_press;
 	widget_class->button_release_event = gtk_xtext_button_release;
 	widget_class->motion_notify_event = gtk_xtext_motion_notify;
-	widget_class->selection_clear_event = (void *)gtk_xtext_selection_kill;
-	widget_class->selection_get = gtk_xtext_selection_get;
 	widget_class->expose_event = gtk_xtext_expose;
 	widget_class->scroll_event = gtk_xtext_scroll;
 #ifdef MOTION_MONITOR
@@ -2359,7 +2367,7 @@ gtk_xtext_strip_color (unsigned char *text, int len, unsigned char *outbuf,
 	int mb = FALSE;
 
 	if (outbuf == NULL)
-		new_str = malloc (len + 2);
+		new_str = g_malloc (len + 2);
 	else
 		new_str = outbuf;
 
@@ -2440,7 +2448,7 @@ gtk_xtext_conv_color (unsigned char *text, int len, int *newlen)
 		}
 	}
 
-	new_str = malloc (j);
+	new_str = g_malloc (j);
 	j = 0;
 
 	for (i = 0; i < len;)
@@ -4073,7 +4081,7 @@ gtk_xtext_save (GtkXText * xtext, int fh)
 											  &newlen, NULL);
 		write (fh, buf, newlen);
 		write (fh, "\n", 1);
-		free (buf);
+		g_free (buf);
 		ent = ent->next;
 	}
 }
@@ -4467,7 +4475,7 @@ gtk_xtext_remove_top (xtext_buffer *buffer)
 
 	if (buffer->marker_pos == ent) buffer->marker_pos = NULL;
 
-	free (ent);
+	g_free (ent);
 }
 
 void
@@ -4484,7 +4492,7 @@ gtk_xtext_clear (xtext_buffer *buf)
 	while (buf->text_first)
 	{
 		next = buf->text_first->next;
-		free (buf->text_first);
+		g_free (buf->text_first);
 		buf->text_first = next;
 	}
 	buf->text_last = NULL;
@@ -4765,7 +4773,7 @@ gtk_xtext_append_indent (xtext_buffer *buf,
 	if (right_text[right_len-1] == '\n')
 		right_len--;
 
-	ent = malloc (left_len + right_len + 2 + sizeof (textentry));
+	ent = g_malloc (left_len + right_len + 2 + sizeof (textentry));
 	str = (unsigned char *) ent + sizeof (textentry);
 
 	memcpy (str, left_text, left_len);
@@ -4820,7 +4828,7 @@ gtk_xtext_append (xtext_buffer *buf, unsigned char *text, int len)
 	if (len >= sizeof (buf->xtext->scratch_buffer))
 		len = sizeof (buf->xtext->scratch_buffer) - 1;
 
-	ent = malloc (len + 1 + sizeof (textentry));
+	ent = g_malloc (len + 1 + sizeof (textentry));
 	ent->str = (unsigned char *) ent + sizeof (textentry);
 	ent->str_len = len;
 	if (len)
@@ -4932,10 +4940,10 @@ gtk_xtext_buffer_show (GtkXText *xtext, xtext_buffer *buf, int render)
 {
 	int w, h;
 
-	buf->xtext = xtext;
-
 	if (xtext->buffer == buf)
 		return;
+
+	buf->xtext = xtext;
 
 	if (xtext->add_io_tag)
 	{
@@ -5008,8 +5016,7 @@ gtk_xtext_buffer_new (GtkXText *xtext)
 {
 	xtext_buffer *buf;
 
-	buf = malloc (sizeof (xtext_buffer));
-	memset (buf, 0, sizeof (xtext_buffer));
+	buf = g_malloc0 (sizeof (xtext_buffer));
 	buf->old_value = -1;
 	buf->xtext = xtext;
 	buf->scrollbar_down = TRUE;
@@ -5035,9 +5042,9 @@ gtk_xtext_buffer_free (xtext_buffer *buf)
 	while (ent)
 	{
 		next = ent->next;
-		free (ent);
+		g_free (ent);
 		ent = next;
 	}
 
-	free (buf);
+	g_free (buf);
 }
