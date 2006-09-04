@@ -1,5 +1,11 @@
 2006-09-04  Christian Persch  <chpe@cvs.gnome.org>
 
+	* src/fe-gnome/navigation-tree.c:
+	* src/fe-gnome/text-entry.c:
+	  - Fix PRIMARY handling in the text entry. Bug #347067.
+
+2006-09-04  Christian Persch  <chpe@cvs.gnome.org>
+
 	* src/fe-gnome/conversation-panel.c:
 	* src/fe-gnome/xtext.c: 
 	* src/fe-gnome/xtext.h:
