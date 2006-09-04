@@ -1168,7 +1168,6 @@ navigation_selection_changed (GtkTreeSelection *treeselection, NavTree *navtree)
 		status_bar_set_current         (STATUS_BAR         (gui.status_bar),         sess->server);
 
 		gtk_widget_grab_focus (gui.text_entry);
-		gtk_editable_set_position (GTK_EDITABLE (gui.text_entry), -1);
 
 		/* Set the label of the user list button */
 		userlist_set_user_button (u, sess);

@@ -36,6 +36,8 @@ static void       text_entry_finalize          (GObject        *object);
 static gboolean   text_entry_key_press         (GtkWidget      *widget,
                                                 GdkEventKey    *event,
                                                 gpointer        data);
+static void       text_entry_grab_focus        (GtkWidget      *widget);
+
 #ifdef HAVE_LIBSEXY
 static gboolean   text_entry_spell_check       (TextEntry      *entry,
                                                 gchar          *text,
@@ -52,9 +54,6 @@ static void       text_entry_history_down      (GtkEntry       *entry);
 static gboolean   text_entry_tab_complete      (GtkEntry       *entry);
 static void       text_entry_populate_popup    (GtkEntry       *entry,
                                                 GtkMenu        *menu,
-                                                gpointer        data);
-static void       text_entry_selection_changed (GObject        *obj,
-                                                GParamSpec     *pspec,
                                                 gpointer        data);
 
 static gboolean   tab_complete_command         (GtkEntry       *entry);
@@ -73,7 +72,7 @@ static GtkEntryClass       *parent_class = NULL;
 G_DEFINE_TYPE (TextEntry, text_entry, GTK_TYPE_ENTRY);
 #endif
 
-static gchar *selected_text = NULL;
+gpointer *entry_parent_class;
 
 struct _TextEntryPriv
 {
@@ -86,13 +85,16 @@ struct _TextEntryPriv
 static void
 text_entry_class_init (TextEntryClass *klass)
 {
-	GObjectClass *gobject_class;
+	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
 
 	parent_class = g_type_class_peek_parent (klass);
-
-	gobject_class = G_OBJECT_CLASS (klass);
+	
+	entry_parent_class = g_type_class_peek_parent (g_type_class_peek (GTK_TYPE_ENTRY));
 
 	gobject_class->finalize = text_entry_finalize;
+
+	widget_class->grab_focus = text_entry_grab_focus;
 }
 
 static void
@@ -110,8 +112,6 @@ text_entry_init (TextEntry *entry)
 	g_signal_connect_after (G_OBJECT (entry), "key_press_event",         G_CALLBACK (text_entry_key_press),         NULL);
 	g_signal_connect       (G_OBJECT (entry), "activate",                G_CALLBACK (text_entry_activate),          NULL);
 	g_signal_connect       (G_OBJECT (entry), "populate-popup",          G_CALLBACK (text_entry_populate_popup),    NULL);
-	g_signal_connect       (G_OBJECT (entry), "notify::cursor-position", G_CALLBACK (text_entry_selection_changed), NULL);
-	g_signal_connect       (G_OBJECT (entry), "notify::selection-bound", G_CALLBACK (text_entry_selection_changed), NULL);
 #ifdef HAVE_LIBSEXY
 	g_signal_connect_after (G_OBJECT (entry), "word-check",              G_CALLBACK (text_entry_spell_check),       NULL);
 #endif
@@ -187,28 +187,47 @@ text_entry_finalize (GObject *object)
 	if (entry->priv)
 		g_free (entry->priv);
 
-	if (G_OBJECT_CLASS (parent_class)->finalize)
-		G_OBJECT_CLASS (parent_class)->finalize (object);
+	G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
 static gboolean
 text_entry_key_press (GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
+	guint state = event->state & gtk_accelerator_get_default_mod_mask ();
+	gboolean handled = FALSE;
+
 	switch (event->keyval) {
 		case GDK_Down:
-			text_entry_history_down (GTK_ENTRY (widget));
-			return TRUE;
+			if (state == 0) {
+				text_entry_history_down (GTK_ENTRY (widget));
+				handled = TRUE;
+			}
+			break;
 		case GDK_Up:
-			text_entry_history_up (GTK_ENTRY (widget));
-			return TRUE;
+			if (state == 0) {
+				text_entry_history_up (GTK_ENTRY (widget));
+				handled = TRUE;
+			}
+			break;
 		case GDK_Tab:
-			if (event->state & GDK_CONTROL_MASK)
-				break;
-			return text_entry_tab_complete (GTK_ENTRY (widget));
+			if (state  == 0) {
+				handled = text_entry_tab_complete (GTK_ENTRY (widget));
+			}
+			break;
 		default:
 			break;
 	}
-	return FALSE;
+
+	return handled;
+}
+
+static void
+text_entry_grab_focus (GtkWidget *widget)
+{
+	/* GtkEntry's grab_focus selects the contents and therefore 
+	 * claims PRIMARY. So we bypass it; see bug #345356 and bug #347067.
+	 */
+	GTK_WIDGET_CLASS (entry_parent_class)->grab_focus (widget);
 }
 
 #ifdef HAVE_LIBSEXY
@@ -630,29 +649,47 @@ text_entry_new (void)
 void
 text_entry_set_current (TextEntry *entry, struct session *sess)
 {
-	gchar *text;
+	TextEntryPriv *priv = entry->priv;
+	GtkWidget *widget = GTK_WIDGET (entry);
+	GtkEditable *editable = GTK_EDITABLE (entry);
+	GtkClipboard *clipboard;
+	char *selection = NULL, *text = NULL;
+	int start, end;
 
-	if (sess == entry->priv->current)
+	g_return_if_fail (GTK_WIDGET_REALIZED (widget));
+
+	if (sess == priv->current)
 		return;
 
-	if (sess == NULL) {
-		gtk_entry_set_text (GTK_ENTRY (entry), "");
-	} else {
-		g_hash_table_insert (entry->priv->entries,
-		                     entry->priv->current,
-		                     g_strdup (gtk_entry_get_text (GTK_ENTRY (entry))));
-		text = g_hash_table_lookup (entry->priv->entries, sess);
-		if (text)
-			gtk_entry_set_text (GTK_ENTRY (entry), text);
-		else
-			gtk_entry_set_text (GTK_ENTRY (entry), "");
-		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
-	}
-	entry->priv->current = sess;
+	/* If the entry owns PRIMARY, setting the new text will clear PRIMARY;
+	 * so we need to re-set PRIMARY after setting the text.
+	 * See bug #345356 and bug #347067.
+	 */
 
-	if (selected_text) {
-		gtk_clipboard_set_text (gtk_clipboard_get (GDK_SELECTION_PRIMARY),
-		                        selected_text, strlen (selected_text));
+	clipboard = gtk_widget_get_clipboard (widget, GDK_SELECTION_PRIMARY);
+	g_assert (clipboard != NULL);
+
+	if (gtk_clipboard_get_owner (clipboard) == G_OBJECT (entry) &&
+	    gtk_editable_get_selection_bounds (editable, &start, &end)) {
+		selection = gtk_editable_get_chars (editable, start, end);
+	}
+
+	if (sess != NULL) {
+		g_hash_table_insert (priv->entries,
+		                     priv->current,
+		                     g_strdup (gtk_entry_get_text (GTK_ENTRY (entry))));
+		text = g_hash_table_lookup (priv->entries, sess);
+	}
+
+	gtk_entry_set_text (GTK_ENTRY (entry), text ? text : "");
+	gtk_editable_set_position (GTK_EDITABLE (entry), -1);
+
+	priv->current = sess;
+
+	/* Restore the selection (note that it's not owned by us anymore!) */
+	if (selection) {
+		gtk_clipboard_set_text (clipboard, selection, strlen (selection));
+		g_free (selection);
 	}
 }
 
@@ -689,19 +726,3 @@ enable_spellcheck_changed (GConfClient *client, guint cnxn_id, GConfEntry *gconf
 	}
 }
 #endif
-
-static void
-text_entry_selection_changed (GObject *obj, GParamSpec *pspec, gpointer data)
-{
-	GtkEditable *editable;
-	gint start, end;
-
-	editable = GTK_EDITABLE (obj);
-	if (gtk_editable_get_selection_bounds (editable, &start, &end)) {
-		if (start != end) {
-			if (selected_text)
-				g_free (selected_text);
-			selected_text = gtk_editable_get_chars (editable, start, end);
-		}
-	}
-}
