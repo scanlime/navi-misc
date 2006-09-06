@@ -66,6 +66,7 @@ check_version (guint major, guint minor, guint micro)
 			effective[i] = 0;
 	}
 	g_strfreev (nbs);
+	g_free (version);
 
 	if (major < effective[0]) result = -1;
 	else if (major > effective[0]) result = 1;

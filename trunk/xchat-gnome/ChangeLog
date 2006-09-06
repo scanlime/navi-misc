@@ -1,3 +1,8 @@
+Wed Sep  6 22:04:20 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/migration.c:
+	  - Fix a leak. Bug #354608
+
 2006-09-04  Christian Persch  <chpe@cvs.gnome.org>
 
 	* src/fe-gnome/navigation-tree.c:
