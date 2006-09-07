@@ -87,7 +87,8 @@ xchat_gnome_SOURCES =				\
 	util.h					\
 	xg-plugin.h				\
 	xtext.c					\
-	xtext.h
+	xtext.h					\
+	$(BUILT_SOURCES)
 
 xchat_gnome_CPPFLAGS = \
 	-DTOPSRCDIR="\"$(top_srcdir)\""		\
@@ -116,15 +117,30 @@ xchat_gnome_LDADD = \
 	$(LIBSEXY_LIBS)
 
 BUILT_SOURCES =	\
-	marshallers.h
+	xg-marshal.h	\
+	xg-marshal.c
 
-CLEANFILES = $(BUILT_SOURCES)
-DISTCLEANFILES = apps_xchat.schemas
+CLEANFILES = $(stamp_files) $(BUILT_SOURCES)
+DISTCLEANFILES = $(stamp_files) apps_xchat.schemas $(BUILT_SOURCES)
+MAINTAINERCLEANFILES = $(stamp_files) $(BUILT_SOURCES)
 
-marshallers.h: marshallers.list
-	$(GLIB_GENMARSHAL)  --header --body $< > $@
+stamp_files = \
+	stamp-xg-marshal.c		\
+	stamp-xg-marshal.h
+
+xg-marshal.c: stamp-xg-marshal.c
+	@true
+stamp-xg-marshal.c: xg-marshal.list
+	$(GLIB_GENMARSHAL) --prefix=xg_marshal $(srcdir)/xg-marshal.list --header --body > xg-marshal.c \
+	&& echo timestamp > $(@F)
+
+xg-marshal.h: stamp-xg-marshal.h
+	@true
+stamp-xg-marshal.h: xg-marshal.list
+	$(GLIB_GENMARSHAL) --prefix=xg_marshal $(srcdir)/xg-marshal.list --header > xg-marshal.h \
+	&& echo timestamp > $(@F)
 
 EXTRA_DIST =					\
 	$(xchat_gnome_SOURCES)			\
-	marshallers.list			\
+	xg-marshal.list				\
 	apps_xchat.schemas.in

@@ -66,7 +66,7 @@
 #include <gdk/gdkwin32.h>
 #endif
 
-#include "marshallers.h"
+#include "xg-marshal.h"
 
 /* is delimiter */
 #define is_del(c) \
@@ -2287,7 +2287,7 @@ gtk_xtext_class_init (GtkXTextClass * class)
 							G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
 							G_STRUCT_OFFSET (GtkXTextClass, word_click),
 							NULL, NULL,
-							g_cclosure_user_marshal_VOID__POINTER_POINTER,
+							xg_marshal_VOID__POINTER_POINTER,
 							G_TYPE_NONE,
 							2, G_TYPE_POINTER, G_TYPE_POINTER);
 	xtext_signals[WORD_ENTER] =
@@ -2296,7 +2296,7 @@ gtk_xtext_class_init (GtkXTextClass * class)
 							G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
 							G_STRUCT_OFFSET (GtkXTextClass, word_enter),
 							NULL, NULL,
-							g_cclosure_marshal_VOID__POINTER,
+							xg_marshal_VOID__POINTER,
 							G_TYPE_NONE,
 							1, G_TYPE_POINTER);
 	xtext_signals[WORD_LEAVE] =
@@ -2305,7 +2305,7 @@ gtk_xtext_class_init (GtkXTextClass * class)
 							G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
 							G_STRUCT_OFFSET (GtkXTextClass, word_leave),
 							NULL, NULL,
-							g_cclosure_marshal_VOID__POINTER,
+							xg_marshal_VOID__POINTER,
 							G_TYPE_NONE,
 							1, G_TYPE_POINTER);
 
