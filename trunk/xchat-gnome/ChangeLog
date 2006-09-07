@@ -1,3 +1,13 @@
+Thu Sep  7 22:03:23 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/marshallers.list:
+	* src/fe-gnome/xtext.c:
+	* src/fe-gnome/Makefile.am:
+	* src/fe-gnome/xg-marshal.list:
+	  - Split marshal into 2 files: xg-marshal.[ch]
+	  - Rename marshallers.list to xg-marshal.list.
+	  - Set a "xg" as prefix for marshals.
+
 Wed Sep  6 22:04:20 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/migration.c:
