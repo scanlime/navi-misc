@@ -1,3 +1,13 @@
+2006-09-10  Christian Persch  <chpe@cvs.gnome.org>
+
+	* data/irc-network-editor.glade:
+	* data/preferences-dialog.glade:
+	* data/setup-dialog.glade:
+	* data/topic-change.glade:
+	* data/xchat-gnome.glade:
+	  - HIG fixes: use right capitalisation, and fix access keys. Bug
+	    #354846.
+
 Thu Sep  7 22:03:23 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/marshallers.list:

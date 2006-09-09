@@ -124,7 +124,7 @@
 		  <child>
 		    <widget class="GtkLabel" id="label7">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Server _Password:</property>
+		      <property name="label" translatable="yes">Server _password:</property>
 		      <property name="use_underline">True</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -153,7 +153,7 @@
 		  <child>
 		    <widget class="GtkLabel" id="label16">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Nickser_v Password:</property>
+		      <property name="label" translatable="yes">Nickser_v password:</property>
 		      <property name="use_underline">True</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -227,7 +227,7 @@
 		    <widget class="GtkCheckButton" id="allow_invalid">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">Accept _invalid SSL certificate</property>
+		      <property name="label" translatable="yes">Accept invalid _SSL certificate</property>
 		      <property name="use_underline">True</property>
 		      <property name="relief">GTK_RELIEF_NORMAL</property>
 		      <property name="focus_on_click">True</property>
@@ -249,7 +249,7 @@
 		    <widget class="GtkCheckButton" id="cycle">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">_Cycle until connected</property>
+		      <property name="label" translatable="yes">Cycle _until connected</property>
 		      <property name="use_underline">True</property>
 		      <property name="relief">GTK_RELIEF_NORMAL</property>
 		      <property name="focus_on_click">True</property>
@@ -635,7 +635,7 @@
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
-		      <property name="expand">True</property>
+		      <property name="expand">False</property>
 		      <property name="fill">True</property>
 		    </packing>
 		  </child>
