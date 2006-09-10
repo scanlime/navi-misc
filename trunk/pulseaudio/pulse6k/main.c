@@ -102,7 +102,15 @@ int main(int argc, char *argv[])
 	    }
 
 	    samples /= num_fft_average_samples;
-	    next_peak = MAX(next_peak, samples);
+	
+            /*
+	     * We exclude the very first column from the AGC calculations,
+	     * so as not to let bass totally take over the display.
+	     */
+	    if (i > 0) {
+	        next_peak = MAX(next_peak, samples);
+	    }
+		
 	    columns[i] = MAX(samples / peak * DISPLAY_GAIN,
 			     columns[i] * DISPLAY_FADE_RATE);
 	}
