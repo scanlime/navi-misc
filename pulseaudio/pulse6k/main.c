@@ -29,8 +29,7 @@ int main(int argc, char *argv[])
     float fft_frames[FFT_NUM_FRAMES];
     fftwf_plan fft_plan;
     fftwf_complex *fft_output;
-    double fft_average[FFT_OUTPUT_SIZE] = { 0 };
-    int num_fft_average_samples = 0;
+    double fft_combined[FFT_OUTPUT_SIZE] = { 0 };
     float columns[MI6K_WIDTH] = { 0 };
     float peak = MIN_PEAK_VALUE;
     float next_peak;
@@ -64,29 +63,14 @@ int main(int argc, char *argv[])
 	rv = pa_simple_read(s, fft_frames, sizeof fft_frames, NULL);
 	assert(rv == 0);
 	fftwf_execute_dft_r2c(fft_plan, fft_frames, fft_output);
-	
-	/*
-	 * Keep averaging the FFT results, taking the absolute value
-	 * of each complex number.
-	 */
-
 	for (i=0; i < FFT_OUTPUT_SIZE; i++) {
-	    fft_average[i] += cabs(fft_output[i]);
+	    fft_combined[i] = MAX(fft_combined[i], cabs(fft_output[i]));
 	}
-	num_fft_average_samples++;
 
-	/*
-	 * If the display isn't ready for a new frame, go back to waiting for audio
-	 */
 	if (!mi6k_needs_frame()) {
 	    continue;
 	}
 
-	/*
-	 * Resample the FFT averages. Each column onscreen is going to result from
-	 * an average of several FFT samples in time, as well as several frequencies
-	 * from the resulting FFT.
-	 */
 	freq = 0;
 	next_peak = MIN_PEAK_VALUE;
 	for (i=0; i<MI6K_WIDTH; i++) {
@@ -98,11 +82,9 @@ int main(int argc, char *argv[])
 	    };
 
 	    for (tap_width = tap_widths[i]; tap_width; freq++, tap_width--) {
-		samples += fft_average[freq];
+		samples += fft_combined[freq];
 	    }
 
-	    samples /= num_fft_average_samples;
-	
             /*
 	     * We exclude the very first column from the AGC calculations,
 	     * so as not to let bass totally take over the display.
@@ -124,11 +106,7 @@ int main(int argc, char *argv[])
 	mi6k_frame_bargraph(&frame, columns);
 	mi6k_commit_frame(&frame);
 
-	/*
-	 * Reset the averaging buffer
-	 */
-	memset(fft_average, 0, sizeof fft_average);
-	num_fft_average_samples = 0;
+	memset(fft_combined, 0, sizeof fft_combined);
     }
 
     return 0;
