@@ -12,6 +12,7 @@
 #include <string.h>
 #include <assert.h>
 #include <ctype.h>
+#include <sched.h>
 #include <sys/ioctl.h>
 #include <pulsecore/memblock.h>
 #include <pulsecore/memblockq.h>
@@ -252,6 +253,7 @@ void mi6k_commit_frame(pa_memchunk *frame)
 void mi6k_init()
 {
     int result;
+    struct sched_param param;
 
     mi6k.pool = pa_mempool_new(0);
 
@@ -271,6 +273,19 @@ void mi6k_init()
 				  1,                              /* Minimal request */
 				  mi6k.blank_frame.memblock);     /* "Silence" frame, all blank */
     assert(mi6k.queue);
+
+    /*
+     * Real-time scheduling priority dramatically increases the speed of the MI6K
+     * output. This is because our kernel module is a piece of crap, and relies
+     * on low-latency control requests rather than thinking ahead and scheduling
+     * URBs for future requests ahead of time.
+     */
+    sched_getparam(0, &param);
+    param.sched_priority = 10;
+    if (sched_setscheduler(0, SCHED_FIFO, &param) < 0) {
+      perror("sched_setscheduler");
+      exit(1);
+    }
 
     result = pthread_create(&mi6k.thread, NULL, mi6k_render_thread, NULL);
     assert(!result);

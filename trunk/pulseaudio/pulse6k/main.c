@@ -18,8 +18,8 @@
 #define FFT_OUTPUT_SIZE   (FFT_NUM_FRAMES / 2 + 1)
 
 #define DISPLAY_GAIN      1.5
-#define DISPLAY_FADE_RATE 0.5
-#define PEAK_FADE_RATE    0.95
+#define DISPLAY_FADE_RATE 0.7
+#define PEAK_FADE_RATE    0.97
 #define MIN_PEAK_VALUE    4.0
 
 int main(int argc, char *argv[])
