@@ -46,13 +46,19 @@ get_gs_has_ipc (void)
 {
 #ifdef ENABLE_DBUS
 	gboolean mybool;
-	if (!dbus_g_proxy_call (dbus_proxy, "getActive", NULL,
+	if (dbus_g_proxy_call (dbus_proxy, "GetActive", NULL,
 				G_TYPE_INVALID,
 				G_TYPE_BOOLEAN, &mybool,
-				G_TYPE_INVALID)) {
+				G_TYPE_INVALID))
+		return TRUE;
+	/* OLD API */
+	else if (dbus_g_proxy_call (dbus_proxy, "getActive", NULL,
+				G_TYPE_INVALID,
+				G_TYPE_BOOLEAN, &mybool,
+				G_TYPE_INVALID))
+		return TRUE;
+	else
 		return FALSE;
-	}
-	return TRUE;
 #else
 	return FALSE;
 #endif /* ENABLE_DBUS */
@@ -82,8 +88,12 @@ init_gs_connection (void)
 	dbus_g_proxy_add_signal (dbus_proxy, "ActiveChanged", G_TYPE_BOOLEAN, G_TYPE_INVALID);
 	dbus_g_proxy_connect_signal (dbus_proxy, "ActiveChanged", G_CALLBACK (screensaver_changed_cb), NULL, NULL);
 
-	/* Let's just pretend this will not fail */
-	dbus_g_proxy_call (dbus_proxy, "getActive", NULL,
+	/* If it fails, we try the old API "getActive" */
+	if (!dbus_g_proxy_call (dbus_proxy, "GetActive", NULL,
+			   G_TYPE_INVALID,
+			   G_TYPE_BOOLEAN, &screensaver_is_active,
+			   G_TYPE_INVALID))
+		dbus_g_proxy_call (dbus_proxy, "getActive", NULL,
 			   G_TYPE_INVALID,
 			   G_TYPE_BOOLEAN, &screensaver_is_active,
 			   G_TYPE_INVALID);
