@@ -1,7 +1,10 @@
-LDFLAGS=-lpulse-simple -lfftw3f
+LDFLAGS = -lpulse-simple -lfftw3f
+CFLAGS = -O3 -ffast-math
 OBJS = mi6k.o main.o
+BIN = pulse6k
 
-all: pulse6k
-
-pulse6k: $(OBJS)
+$(BIN): $(OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS)
+
+clean:
+	rm -f $(BIN) $(OBJS)
