@@ -1,3 +1,8 @@
+Sun Sep 10 13:27:43 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* plugins/autoaway/gscreensaver.c:
+	  - Use the new gnome-screensaver API. Bug #354306
+
 2006-09-10  Christian Persch  <chpe@cvs.gnome.org>
 
 	* data/irc-network-editor.glade:
