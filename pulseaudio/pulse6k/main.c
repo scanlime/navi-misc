@@ -7,6 +7,8 @@
 #include <string.h>
 #include <assert.h>
 #include <math.h>
+#include <stdlib.h>
+#include <alloca.h>
 #include <complex.h>
 #include <fftw3.h>
 #include <pulse/simple.h>
@@ -22,6 +24,49 @@
 #define PEAK_FADE_RATE    0.97
 #define MIN_PEAK_VALUE    4.0
 
+/*
+ * Randomly choose an item, given the probability that
+ * each should be chosen. We treat the weights as probabilities
+ * that haven't been normalized.
+ *
+ * This generates a cumulative distribution function, then
+ * searches that CDF using a uniform random variable. For example,
+ * let's say we have the following weights:
+ *   { 0.5, 0.5, 1.0 }
+ *
+ * This will give us the cumulative distribution:
+ *   { 0.5, 1.0, 2.0 }
+ *
+ * A random number in the range [0, 2.0) is chosen. If it's less than
+ * 0.5, we choose the first item. If it's less than 1.0, we choose
+ * the second item, etc.
+ */
+int choose_weighted(float *weights, int num_items)
+{
+    float *cdf = alloca(num_items * sizeof(float));
+    float r;
+    int i;
+
+    cdf[0] = weights[0];
+    for (i=1; i<num_items; i++) {
+	cdf[i] = cdf[i-1] + weights[i];
+    }
+
+    r = random() / (double) RAND_MAX;
+    r *= cdf[num_items - 1];
+
+    /* 
+     * Since our cdf is sorted, we could optimize this
+     * with a binary search rather than a linear search.
+     */
+    for (i=0; i<num_items; i++) {
+	if (r < cdf[i]) {
+	    break;
+	}
+    }
+    return i;
+}
+
 int main(int argc, char *argv[])
 {
     pa_simple *s;
@@ -31,6 +76,8 @@ int main(int argc, char *argv[])
     fftwf_complex *fft_output;
     double fft_combined[FFT_OUTPUT_SIZE] = { 0 };
     float columns[MI6K_WIDTH] = { 0 };
+    float prev_columns[MI6K_WIDTH] = { 0 };
+    float brightness_priority[MI6K_WIDTH] = { 0 };
     float peak = MIN_PEAK_VALUE;
     float next_peak;
 
@@ -55,6 +102,8 @@ int main(int argc, char *argv[])
 
     while (1) {
 	pa_memchunk frame;
+	unsigned char *frame_chars;
+	struct mi6k_dim_command *dim_command;
 	int rv, i, freq;
 
 	/*
@@ -71,7 +120,7 @@ int main(int argc, char *argv[])
 	    continue;
 	}
 
-	freq = 0;
+      	freq = 0;
 	next_peak = MIN_PEAK_VALUE;
 	for (i=0; i<MI6K_WIDTH; i++) {
 	    float samples = 0;
@@ -100,10 +149,24 @@ int main(int argc, char *argv[])
 	/* Update the automatic gain control */
 	peak = MAX(next_peak, peak * PEAK_FADE_RATE);
 
+	mi6k_frame_new(&frame, &frame_chars, &dim_command);
+	mi6k_draw_bargraph(frame_chars, columns);
+
 	/*
-	 * Render the bargraph, and queue it for output
+	 * We get to update one column's brightness per frame.
+	 * Choose a column randomly, but put more weight on
+	 * columns that have changed more since we last updated them.
 	 */
-	mi6k_frame_bargraph(&frame, columns);
+	for (i=0; i<MI6K_WIDTH; i++) {
+	    float diff = columns[i] - prev_columns[i];
+	    brightness_priority[i] += diff * diff;
+	    prev_columns[i] = columns[i];
+	}
+	i = choose_weighted(brightness_priority, MI6K_WIDTH);
+	brightness_priority[i] = 0;
+	dim_command->column = i;
+	dim_command->level = MI6K_BRIGHTNESS(columns[i]);
+
 	mi6k_commit_frame(&frame);
 
 	memset(fft_combined, 0, sizeof fft_combined);

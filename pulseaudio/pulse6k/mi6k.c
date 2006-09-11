@@ -32,10 +32,15 @@ struct {
 /* We run at about 30 frames per second.. so this shuts off the VFD after 10 minutes */
 #define AUTO_OFF_FRAMES   (10 * 60 * 30)
 
+#define FRAME_SIZE        (1 + sizeof(struct mi6k_dim_command) \
+                             + MI6K_WIDTH * MI6K_HEIGHT)
+
 #define MI6K_CLEAR        0x15
 #define MI6K_HOME         0x16
 #define MI6K_CURSOR_OFF   0x0e
 #define MI6K_DEFINE_CHAR  0x18
+#define MI6K_SET_DIM_1    0x19
+#define MI6K_SET_DIM_2    0x30
 #define MI6K_USER_CHAR(x) (0xF6 + (x))
 
 static void mi6k_define_char(char *pixels, int index)
@@ -79,57 +84,40 @@ void mi6k_init_hardware()
 		     "     "
 		     "     "
 		     "     "
-		     "     "
+		     "*****"
 		     "*****", 0);
-
+    
     mi6k_define_char("     "
-		     "     "
 		     "     "
 		     "     "
 		     "     "
 		     "*****"
+		     "*****"
 		     "*****", 1);
-    
 
     mi6k_define_char("     "
 		     "     "
 		     "     "
-		     "     "
+		     "*****"
 		     "*****"
 		     "*****"
 		     "*****", 2);
 
     mi6k_define_char("     "
 		     "     "
-		     "     "
+		     "*****"
 		     "*****"
 		     "*****"
 		     "*****"
 		     "*****", 3);
 
     mi6k_define_char("     "
-		     "     "
+		     "*****"
 		     "*****"
 		     "*****"
 		     "*****"
 		     "*****"
 		     "*****", 4);
-
-    mi6k_define_char("     "
-		     "*****"
-		     "*****"
-		     "*****"
-		     "*****"
-		     "*****"
-		     "*****", 5);
-
-    mi6k_define_char("*****"
-		     "*****"
-		     "*****"
-		     "*****"
-		     "*****"
-		     "*****"
-		     "*****", 6);
 
     fflush(mi6k.device);
 }
@@ -198,33 +186,46 @@ static void *mi6k_render_thread(void *userdata)
     return NULL;
 }
 
-void mi6k_frame_new(pa_memchunk *out, unsigned char **chars)
+void mi6k_frame_new(pa_memchunk *out,
+		    unsigned char **chars_out,
+		    struct mi6k_dim_command **dim_command_out)
 {
-    out->memblock = pa_memblock_new(mi6k.pool, MI6K_WIDTH * MI6K_HEIGHT + 1);
+    unsigned char *clear_cmd;
+    unsigned char *chars;
+    struct mi6k_dim_command *dim_command;
+
+    out->memblock = pa_memblock_new(mi6k.pool, FRAME_SIZE);
     assert(out->memblock);
 
     out->index = 0;
     out->length = out->memblock->length;
 
-    memset(out->memblock->data, ' ', out->memblock->length);
+    clear_cmd = out->memblock->data;
+    dim_command = (void*) (clear_cmd + 1);
+    chars = (void*) (dim_command + 1);
 
-    *(unsigned char*)out->memblock->data = MI6K_HOME;
-    if (chars) {
-	*chars = out->memblock->data + 1;
+    *clear_cmd = MI6K_HOME;
+    dim_command->cmd[0] = MI6K_SET_DIM_1;
+    dim_command->cmd[1] = MI6K_SET_DIM_2;
+    dim_command->column = 0xFF;
+    dim_command->level = MI6K_BRIGHTNESS_MIN;
+    memset(chars, ' ', MI6K_WIDTH * MI6K_HEIGHT);
+
+    if (chars_out) {
+	*chars_out = chars;
+    }
+    if (dim_command_out) {
+	*dim_command_out = dim_command;
     }
 }
 
-void mi6k_frame_bargraph(pa_memchunk *out, float *columns)
+void mi6k_draw_bargraph(unsigned char *chars, float *columns)
 {
-    unsigned char *chars;
     int x, y;
     static const unsigned char levels[] = {
-	' ', MI6K_USER_CHAR(0), MI6K_USER_CHAR(1), MI6K_USER_CHAR(2),
-	MI6K_USER_CHAR(3), MI6K_USER_CHAR(4), MI6K_USER_CHAR(5),
-	MI6K_USER_CHAR(6),
+	' ', '_', MI6K_USER_CHAR(0), MI6K_USER_CHAR(1), MI6K_USER_CHAR(2),
+	MI6K_USER_CHAR(3), MI6K_USER_CHAR(4), 0x7F,
     };
-
-    mi6k_frame_new(out, &chars);
 
     for (x=0; x<MI6K_WIDTH; x++) {
 	int level = MI6K_HEIGHT * sizeof levels * columns[x] + 0.5;
@@ -241,7 +242,7 @@ void mi6k_frame_bargraph(pa_memchunk *out, float *columns)
 
 int mi6k_needs_frame()
 {
-    return pa_memblockq_get_length(mi6k.queue) < MI6K_WIDTH * MI6K_HEIGHT * 2;
+  return pa_memblockq_get_length(mi6k.queue) < FRAME_SIZE*2;
 }
 
 void mi6k_commit_frame(pa_memchunk *frame)
@@ -263,15 +264,15 @@ void mi6k_init()
 	exit(1);
     }
 
-    mi6k_frame_new(&mi6k.blank_frame, NULL);
+    mi6k_frame_new(&mi6k.blank_frame, NULL, NULL);
 
-    mi6k.queue = pa_memblockq_new(0,                              /* Default index */
-				  MI6K_WIDTH * MI6K_HEIGHT * 2.5, /* Max length: 2.5 frames */
-				  MI6K_WIDTH * MI6K_HEIGHT,       /* Target length: 1 frame */
-				  1,                              /* Base value */
-				  0,                              /* No prebuffering */
-				  1,                              /* Minimal request */
-				  mi6k.blank_frame.memblock);     /* "Silence" frame, all blank */
+    mi6k.queue = pa_memblockq_new(0,                           /* Default index */
+				  FRAME_SIZE * 2.5,            /* Max length: 2.5 frames */
+				  FRAME_SIZE,                  /* Target length: 1 frame */
+				  1,                           /* Base value */
+				  0,                           /* No prebuffering */
+				  1,                           /* Minimal request */
+				  mi6k.blank_frame.memblock);  /* "Silence" frame, all blank */
     assert(mi6k.queue);
 
     /*
