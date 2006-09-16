@@ -37,11 +37,10 @@ static int buffered_bits;
 
 #define HEADER_SIZE 6
 
-
 void receiver_init()
 {
   uart_init();
-  uart_set_speed(UART_BAUD_TO_DIVISOR(9600));
+  uart_set_speed(UART_BAUD_TO_DIVISOR(9600.0));
 
   total_bits = 0;
   total_noise = 0;
