@@ -92,7 +92,7 @@ struct usb_endpoint_descriptor {
 struct usb_descriptor_entry {
   unsigned char type;
   unsigned char index;
-  code unsigned char *buffer;
+  unsigned char *buffer;
   int length;                    /* If this is 0 and type is USB_DT_STRING,
 				  * the 'buffer' is treated as an ASCII string
 				  * terminated with a NUL, rather than as a full

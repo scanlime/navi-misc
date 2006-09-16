@@ -112,11 +112,18 @@ static void usb_leave_setup() {
 }
 
 static void usb_wait_for_ep0_in() {
+  unsigned int timeout = 1000;
+
   /* The host can't read our buffer if we're still in setup */
   usb_leave_setup();
 
-  /* Wait for the host to read our buffer */
-  while ((IEPBCNT_0 & 0x80) == 0)
+  /* Wait for the host to read our buffer.
+   * 
+   * XXX: For some unknown reason, occasionally the transfer
+   *      will succeed but the silicon will never get around
+   *      to telling us about it. Hence the timeout.
+   */
+  while ((IEPBCNT_0 & 0x80) == 0 && timeout--)
     usb_idle_handler();
 }
 
@@ -127,7 +134,8 @@ static void usb_ack_ep0_in() {
 
 void usb_write_ep0_buffer(unsigned char *buffer, int length) {
   /* Sent a response to a request expecting EP0 IN data */
-  int packet_length;
+  int packet_length, i, foo;
+  int offset = 0;
   bit explicit_stop;
 
   if (length >= usb_setup_buffer.wLength) {
@@ -150,14 +158,18 @@ void usb_write_ep0_buffer(unsigned char *buffer, int length) {
     else
       packet_length = length;
 
-    memcpy(usb_ep0in_buffer, buffer, packet_length);
+    /* XXX: For some reason, using a memcpy() here will hang the microcontroller.
+     *      Maybe it's a bug in copying generic pointers to xdata pointers?
+     */
+    for (i=0; i<packet_length; i++) {
+      usb_ep0in_buffer[i] = buffer[offset++];
+    }
     IEPBCNT_0 = packet_length;
     usb_wait_for_ep0_in();
 
-    buffer += packet_length;
     length -= packet_length;
   } while (length > 0);
-
+    
   /* If our last packet wasn't smaller than the maximum packet length
    * and they asked for more data than we've sent, we need to send
    * a short packet to explicitly terminate the transction.
