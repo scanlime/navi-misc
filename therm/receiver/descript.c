@@ -85,9 +85,9 @@ const static unsigned char str_lang_table[] = {
 };
 
 const struct usb_descriptor_entry usb_descriptors[] = {
-  {USB_DT_DEVICE, 0, (void*)&dev_descript,    sizeof(dev_descript), 0},
-  {USB_DT_CONFIG, 0, (void*)&config_descript, sizeof(config_descript), 0},
-  {USB_DT_STRING, 0, (void*)str_lang_table,   sizeof(str_lang_table), 0},
+  {USB_DT_DEVICE, 0, &dev_descript,    sizeof(dev_descript), 0},
+  {USB_DT_CONFIG, 0, &config_descript, sizeof(config_descript), 0},
+  {USB_DT_STRING, 0, str_lang_table,   sizeof(str_lang_table), 0},
   {USB_DT_STRING, 1, "Micah Dowty <micah@navi.cx>", 0, 0},
   {USB_DT_STRING, 2, "Therm Receiver", 0, 0},
   {0},

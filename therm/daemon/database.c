@@ -23,6 +23,7 @@
 #include <mysql.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 #include <assert.h>
 #include "therm-daemon.h"
 

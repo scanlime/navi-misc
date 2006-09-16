@@ -22,6 +22,7 @@
 
 #include <stdio.h>
 #include <therm-rx-protocol.h>
+#include <string.h>
 #include <assert.h>
 #include "therm-daemon.h"
 
@@ -199,7 +200,7 @@ struct rx_packet* receiver_read(usb_dev_handle* self, int timeout)
   int noise, total, retval;
   struct rx_packet *packet;
 
-  retval = usb_bulk_read(self, THERMRX_PACKET_ENDPOINT, buffer,
+  retval = usb_bulk_read(self, THERMRX_PACKET_ENDPOINT, (void*) buffer,
 			 sizeof(buffer), timeout);
   if (retval <= 6)
     return NULL;
@@ -242,7 +243,7 @@ int receiver_get_local_temp(usb_dev_handle* self, int *temperature)
   int temp;
 
   if (usb_control_msg(self, USB_TYPE_VENDOR | 0x80, THERMRX_REQ_LOCAL_TEMP,
-		      0, 0, &b, 1, 100) < 0) {
+		      0, 0, (void*) &b, 1, 100) < 0) {
     perror("usb_control_msg");
     return -1;
   }
@@ -285,7 +286,7 @@ static int send_bulk_ep_buffer(usb_dev_handle* self, int endpoint,
     if (packet_size > block_size)
       packet_size = block_size;
 
-    retval = usb_bulk_write(self, endpoint, current, packet_size, 200);
+    retval = usb_bulk_write(self, endpoint, (void*) current, packet_size, 200);
     if (retval <= 0)
       return retval;
 
