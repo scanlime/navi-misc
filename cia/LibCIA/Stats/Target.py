@@ -236,7 +236,7 @@ class SubscriptionDelivery:
     def notify(self, scope):
         """Notify all subscribers to this stats target of a change in 'scope'"""
         # Get a list of applicable triggers from the database
-        Database.pool.runQuery("SELECT id, trigger FROM stats_subscriptions "
+        Database.pool.runQuery("SELECT id, `trigger` FROM stats_subscriptions "
                                "WHERE target_path = %s "
                                "AND (scope is NULL or scope = %s)" %
                                (Database.quote(self.target.path, 'varchar'),

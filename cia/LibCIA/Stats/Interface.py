@@ -177,7 +177,7 @@ class SubscriptionInterface(RpcServer.Interface):
            'ttl' is the time to live for this subscription, 25 hours by default.
            """
         cursor.execute("INSERT INTO stats_subscriptions "
-                       "(target_path, expiration, scope, client, trigger) "
+                       "(target_path, expiration, scope, client, `trigger`) "
                        "VALUES (%s, %s, %s, %s, '%s')" %
                        (Database.quote(target.path, 'varchar'),
                         Database.quote(int(time.time() + ttl), 'bigint'),
