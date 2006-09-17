@@ -37,15 +37,17 @@ usb_dev_handle* storage_open_by_id(int id);
 
 /* Send a command block wrapper to the device */
 int storage_send_cbw(usb_dev_handle *devh, unsigned int tag, unsigned int length, unsigned char flags,
-		     char *cb, int cbLength);
+		     unsigned char *cb, int cbLength);
 
 /* Perform a very simplified CBW-read-CSW cycle on the device */
-int storage_read(usb_dev_handle *devh, char *buffer, unsigned int length, char *cb, int cbLength);
+int storage_read(usb_dev_handle *devh, unsigned char *buffer, unsigned int length,
+                 unsigned char *cb, int cbLength);
 
 /* Issue a READ_CAPACITY command, to check the disk's sector size and total number of sectors */
 int storage_cmd_read_capacity(usb_dev_handle *devh, unsigned int *sector_size, unsigned int *n_sectors);
 
 /* Issue a READ_10 command, reading data with a 32-bit sector number and 16-bit count */
-int storage_cmd_read(usb_dev_handle *devh, unsigned int sector, unsigned int count, char *buffer, unsigned int length);
+int storage_cmd_read(usb_dev_handle *devh, unsigned int sector, unsigned int count,
+                     unsigned char *buffer, unsigned int length);
 
 /* The End */

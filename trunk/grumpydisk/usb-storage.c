@@ -22,6 +22,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include <scsi/scsi.h>
 #include "usb-storage.h"
 
@@ -149,7 +150,7 @@ static unsigned char read_uint8(unsigned char **buffer)
 }
 
 int storage_send_cbw(usb_dev_handle *devh, unsigned int tag, unsigned int length, unsigned char flags,
-		     char *cb, int cbLength)
+		     unsigned char *cb, int cbLength)
 {
     unsigned char cbw[31];
     unsigned char *p = cbw;
@@ -165,10 +166,11 @@ int storage_send_cbw(usb_dev_handle *devh, unsigned int tag, unsigned int length
 
     memcpy(p, cb, cbLength);
 
-    return usb_bulk_write(devh, 0x02, cbw, sizeof(cbw), 100);
+    return usb_bulk_write(devh, 0x02, (void*) cbw, sizeof(cbw), 100);
 }
 
-int storage_read(usb_dev_handle *devh, char *buffer, unsigned int length, char *cb, int cbLength)
+int storage_read(usb_dev_handle *devh, unsigned char *buffer,
+                 unsigned int length, unsigned char *cb, int cbLength)
 {
     int retval;
     unsigned char packet[512];
@@ -188,7 +190,7 @@ int storage_read(usb_dev_handle *devh, char *buffer, unsigned int length, char *
     }
 
  retry:
-    retval = usb_bulk_read(devh, 0x81, packet, sizeof(packet), 500);
+    retval = usb_bulk_read(devh, 0x81, (void*) packet, sizeof(packet), 500);
     if (retval < 0) {
 	perror("usb_bulk_read");
 	return retval;
@@ -211,7 +213,7 @@ int storage_read(usb_dev_handle *devh, char *buffer, unsigned int length, char *
 	goto retry;
     }
 
-    retval = usb_bulk_read(devh, 0x81, csw, sizeof(csw), 100);
+    retval = usb_bulk_read(devh, 0x81, (void*) csw, sizeof(csw), 100);
     if (retval < 0) {
 	perror("usb_bulk_read CSW");
 	return retval;
@@ -258,7 +260,7 @@ int storage_cmd_read_capacity(usb_dev_handle *devh, unsigned int *sector_size, u
     return retval;
 }
 
-int storage_cmd_read(usb_dev_handle *devh, unsigned int sector, unsigned int count, char *buffer, unsigned int length)
+int storage_cmd_read(usb_dev_handle *devh, unsigned int sector, unsigned int count, unsigned char *buffer, unsigned int length)
 {
     unsigned char cmd[] = {
 	READ_10,
