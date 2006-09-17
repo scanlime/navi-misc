@@ -89,7 +89,7 @@ static int disk_init(struct disk_info *di, int device_id)
     return storage_cmd_read_capacity(di->devh, &di->n_sectors, &di->sector_size);
 }
 
-static void read_or_die_trying(struct disk_info *di, unsigned int sector, unsigned int count, char *buffer)
+static void read_or_die_trying(struct disk_info *di, unsigned int sector, unsigned int count, unsigned char *buffer)
 {
     if (storage_cmd_read(di->devh, sector, count, buffer, count * di->sector_size) < 0) {
 	printf("Resetting\n");
