@@ -23,7 +23,8 @@ A generic object cache. Arbitrary python objects are mapped to files or strings.
 #
 
 from twisted.internet import defer
-import time, md5, os, random, cPickle
+from twisted.python import log
+import time, md5, os, random, cPickle, traceback, sys
 from LibCIA import Files
 
 class CachePerformance:
@@ -74,20 +75,24 @@ class AbstractFileCache:
         perf = getNamedCachePerformance(self.__class__.__name__)
 
         if os.path.isfile(filename):
-            perf.hits += 1
-
             result = defer.Deferred()
-            self._returnHit(filename, result)
-            return result
-        else:
-            perf.misses += 1
+            try:
+                self._returnHit(filename, result)
+            except:
+                log.msg("Exception occurred in %s._returnHit(%r)\n%s" % (
+                    self.__class__.__name__, filename,
+                    "".join(traceback.format_exception(*sys.exc_info()))))
+            else:
+                perf.hits += 1
+                return result
 
-            # We need to create the file. Do this atomically by first writing
-            # to a temporary file then moving that.
-            result = defer.Deferred()
-            defer.maybeDeferred(self.miss, *args).addCallback(
-                self._returnMiss, filename, result).addErrback(result.errback)
-            return result
+        # We need to create the file. Do this atomically by first writing
+        # to a temporary file then moving that.
+        result = defer.Deferred()
+        defer.maybeDeferred(self.miss, *args).addCallback(
+            self._returnMiss, filename, result).addErrback(result.errback)
+        perf.misses += 1
+        return result
 
     def _returnHit(self, filename, result):
         result.callback(open(filename))
