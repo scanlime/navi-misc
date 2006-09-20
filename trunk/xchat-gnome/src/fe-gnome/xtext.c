@@ -1919,6 +1919,7 @@ static void
 primary_clear_cb (GtkClipboard *clipboard,
 		  gpointer      data)
 {
+	GtkWidget *widget = GTK_WIDGET (data);
 	GtkXText *xtext = GTK_XTEXT (data);
 	xtext_buffer *buf;
 
@@ -1944,20 +1945,14 @@ primary_clear_cb (GtkClipboard *clipboard,
 
 	gtk_xtext_selection_clear (buf);
 
-	xtext->skip_border_fills = TRUE;
-	xtext->skip_stamp = TRUE;
-
-	/* FIXME: use jump_out on multi-line selects too! */
-	gtk_xtext_render_ents (xtext, buf->last_ent_start, buf->last_ent_end);
-
-	xtext->skip_border_fills = FALSE;
-	xtext->skip_stamp = FALSE;
-
 	xtext->jump_in_offset = 0;
 	xtext->jump_out_offset = 0;
 
 	buf->last_ent_start = NULL;
 	buf->last_ent_end = NULL;
+
+	if (GTK_WIDGET_VISIBLE (widget))
+		gtk_widget_queue_draw (widget);
 }
 
 /* Adapted from gtkentry.c */

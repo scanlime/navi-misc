@@ -1,3 +1,9 @@
+2006-09-20  Christian Persch  <chpe@cvs.gnome.org>
+
+	* src/fe-gnome/xtext.c: (primary_clear_cb):
+	  - Fix a crash when withdrawing the selection on unrealize. Bug
+	  #355503.
+
 Sun Sep 10 13:27:43 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* plugins/autoaway/gscreensaver.c:
