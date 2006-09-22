@@ -793,18 +793,6 @@ gtk_xtext_destroy (GtkObject * object)
 		xtext->marker_gc = NULL;
 	}
 
-	if (xtext->hand_cursor)
-	{
-		gdk_cursor_unref (xtext->hand_cursor);
-		xtext->hand_cursor = NULL;
-	}
-
-	if (xtext->resize_cursor)
-	{
-		gdk_cursor_unref (xtext->resize_cursor);
-		xtext->resize_cursor = NULL;
-	}
-
 	if (xtext->orig_buffer)
 	{
 		gtk_xtext_buffer_free (xtext->orig_buffer);
@@ -817,18 +805,24 @@ gtk_xtext_destroy (GtkObject * object)
 static void
 gtk_xtext_unrealize (GtkWidget * widget)
 {
+	GtkXText *xtext = GTK_XTEXT (widget);
 	GtkClipboard *clipboard;
 
-	backend_deinit (GTK_XTEXT (widget));
-
-	/* if there are still events in the queue, this'll avoid segfault */
-	/* FIXME: the parent unrealize handler does this already, what's the use here?? */
-	gdk_window_set_user_data (widget->window, NULL);
+	backend_deinit (xtext);
 
 	/* Withdraw PRIMARY selection */
 	clipboard = gtk_widget_get_clipboard (widget, GDK_SELECTION_PRIMARY);
 	if (gtk_clipboard_get_owner (clipboard) == G_OBJECT (widget))
 		gtk_clipboard_clear (clipboard);
+
+	gdk_cursor_unref (xtext->ibeam_cursor);
+	xtext->ibeam_cursor = NULL;
+
+	gdk_cursor_unref (xtext->hand_cursor);
+	xtext->hand_cursor = NULL;
+
+	gdk_cursor_unref (xtext->resize_cursor);
+	xtext->resize_cursor = NULL;
 
 	GTK_WIDGET_CLASS (parent_class)->unrealize (widget);
 }
@@ -841,9 +835,17 @@ gtk_xtext_realize (GtkWidget * widget)
 	GdkGCValues val;
 	GdkColor col;
 	GdkColormap *cmap;
+	GdkDisplay *display;
+	gint attributes_mask;
 
 	GTK_WIDGET_SET_FLAGS (widget, GTK_REALIZED);
 	xtext = GTK_XTEXT (widget);
+
+	display = gtk_widget_get_display (widget);
+
+	xtext->ibeam_cursor = gdk_cursor_new_for_display (display, GDK_XTERM);
+	xtext->hand_cursor = gdk_cursor_new_for_display (display, GDK_HAND1);
+	xtext->resize_cursor = gdk_cursor_new_for_display (display, GDK_LEFT_SIDE);
 
 	attributes.x = widget->allocation.x;
 	attributes.y = widget->allocation.y;
@@ -852,20 +854,23 @@ gtk_xtext_realize (GtkWidget * widget)
 	attributes.wclass = GDK_INPUT_OUTPUT;
 	attributes.window_type = GDK_WINDOW_CHILD;
 	attributes.event_mask = gtk_widget_get_events (widget) |
-		GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
+		GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
+		GDK_BUTTON1_MOTION_MASK
 #ifdef MOTION_MONITOR
-		| GDK_POINTER_MOTION_MASK | GDK_LEAVE_NOTIFY_MASK;
+		| GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_LEAVE_NOTIFY_MASK;
 #else /* MOTION_MONITOR */
-		| GDK_POINTER_MOTION_MASK;
+		| GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK;
 #endif /* MOTION_MONITOR */
+	
+	attributes.cursor = xtext->ibeam_cursor;
+
+	attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP | GDK_WA_CURSOR;
 
 	cmap = gtk_widget_get_colormap (widget);
 	attributes.colormap = cmap;
 	attributes.visual = gtk_widget_get_visual (widget);
 
-	widget->window = gdk_window_new (widget->parent->window, &attributes,
-												GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL |
-												GDK_WA_COLORMAP);
+	widget->window = gdk_window_new (widget->parent->window, &attributes, attributes_mask);
 
 	gdk_window_set_user_data (widget->window, widget);
 
@@ -926,9 +931,6 @@ gtk_xtext_realize (GtkWidget * widget)
 		xtext->ts_x = xtext->ts_y = 0;
 		gdk_gc_set_fill (xtext->bgc, GDK_TILED);
 	}
-
-	xtext->hand_cursor = gdk_cursor_new_for_display (gdk_drawable_get_display (widget->window), GDK_HAND1);
-	xtext->resize_cursor = gdk_cursor_new_for_display (gdk_drawable_get_display (widget->window), GDK_LEFT_SIDE);
 
 	gdk_window_set_back_pixmap (widget->window, NULL, FALSE);
 	widget->style = gtk_style_attach (widget->style, widget->window);
@@ -1742,7 +1744,7 @@ gtk_xtext_leave_notify (GtkWidget * widget, GdkEventCrossing * event)
 		xtext->hilight_start = -1;
 		xtext->hilight_end = -1;
 		xtext->cursor_hand = FALSE;
-		gdk_window_set_cursor (widget->window, 0);
+		gdk_window_set_cursor (widget->window, xtext->ibeam_cursor);
 		xtext->hilight_ent = NULL;
 	}
 
@@ -1752,7 +1754,7 @@ gtk_xtext_leave_notify (GtkWidget * widget, GdkEventCrossing * event)
 		xtext->hilight_start = -1;
 		xtext->hilight_end = -1;
 		xtext->cursor_resize = FALSE;
-		gdk_window_set_cursor (widget->window, 0);
+		gdk_window_set_cursor (widget->window, xtext->ibeam_cursor);
 		xtext->hilight_ent = NULL;
 	}
 

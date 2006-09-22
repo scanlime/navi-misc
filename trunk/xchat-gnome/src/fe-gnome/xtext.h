@@ -96,6 +96,7 @@ struct _GtkXText
 	GtkAdjustment *adj;
 	GdkPixmap *pixmap;				/* 0 = use palette[19] */
 	GdkDrawable *draw_buf;			/* points to ->window */
+	GdkCursor *ibeam_cursor;
 	GdkCursor *hand_cursor;
 	GdkCursor *resize_cursor;
 
