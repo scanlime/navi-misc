@@ -454,11 +454,14 @@ get_user_tooltip (SexyTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *
 {
 	struct User *user;
 
-	if (GTK_WIDGET_VISIBLE (gui.userlist_window) == FALSE)
+	if (FALSE == GTK_WIDGET_VISIBLE (gui.userlist_window)) {
 		return NULL;
+	}
 
 	user = userlist_get_selected ();
 
-	return get_user_vbox_infos (user);
+	if (user) {
+		return get_user_vbox_infos (user);
+	}
 }
 #endif
