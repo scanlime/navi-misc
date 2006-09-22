@@ -1,3 +1,10 @@
+2006-09-22  Christian Persch  <chpe@cvs.gnome.org>
+
+	* src/fe-gnome/xtext.c: (gtk_xtext_destroy), (gtk_xtext_unrealize),
+	(gtk_xtext_realize), (gtk_xtext_leave_notify):
+	* src/fe-gnome/xtext.h:
+	  - Set I-beam cursor on the conversation view. Bug #356504.
+
 2006-09-22  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/fe-gnome/userlist-gui.c: (get_user_tooltip):
