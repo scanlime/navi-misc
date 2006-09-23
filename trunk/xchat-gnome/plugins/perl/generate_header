@@ -28,8 +28,8 @@ my $output = "xchat.pm.h";
 
 open my $header, ">", $output or die "Couldn't open '$output': $!";
 #select $header;
-print $header header( "Xchat.pm" );
+print $header header( shift );
 print $header "#ifdef OLD_PERL\n";
-print $header header( "IRC.pm" );
+print $header header( shift );
 print $header "#endif\n";
 close $header;

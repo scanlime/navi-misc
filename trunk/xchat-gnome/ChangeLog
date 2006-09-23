@@ -1,5 +1,11 @@
 2006-09-23  David Trowbridge <trowbrds@gmail.com>
 
+	* plugins/perl/generate_header:
+	  - Fix this to actually use the command-line arguments that it used
+	    to take, so that builds work when builddir != srcdir.
+
+2006-09-23  David Trowbridge <trowbrds@gmail.com>
+
 	* plugins/python/python.c:
 	A plugins/python/CVS:
 	A plugins/python/CVS/Repository:
