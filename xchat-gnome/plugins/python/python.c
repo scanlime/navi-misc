@@ -51,7 +51,6 @@
  *
  */
 
-#include <config.h>
 #include <glib.h>
 #include <string.h>
 #include <unistd.h>
@@ -66,10 +65,12 @@
 
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 1
-#define PVERSION "0.4"
 
 #ifdef WIN32
 #undef WITH_THREAD /* Thread support locks up xchat on Win32. */
+#define VERSION "0.6/2.4"	/* Linked to python24.dll */
+#else
+#define VERSION "0.6"
 #endif
 
 #define NONE 0
@@ -107,6 +108,8 @@
 #define END_XCHAT_CALLS()
 #endif
 
+#ifdef WITH_THREAD
+
 #define BEGIN_PLUGIN(plg) \
 	do { \
 	xchat_context *begin_plugin_ctx = xchat_get_context(ph); \
@@ -119,6 +122,27 @@
 	Plugin_ReleaseThread(plg); \
 	ACQUIRE_XCHAT_LOCK(); \
 	} while (0)
+
+#else /* !WITH_THREAD (win32) */
+
+static PyThreadState *pTempThread;
+
+#define BEGIN_PLUGIN(plg) \
+	do { \
+	xchat_context *begin_plugin_ctx = xchat_get_context(ph); \
+	RELEASE_XCHAT_LOCK(); \
+	PyEval_AcquireLock(); \
+	pTempThread = PyThreadState_Swap(((PluginObject *)(plg))->tstate); \
+	Plugin_SetContext(plg, begin_plugin_ctx); \
+	} while (0)
+#define END_PLUGIN(plg) \
+	do { \
+	((PluginObject *)(plg))->tstate = PyThreadState_Swap(pTempThread); \
+	PyEval_ReleaseLock(); \
+	ACQUIRE_XCHAT_LOCK(); \
+	} while (0)
+
+#endif /* !WITH_THREAD */
 
 #define Plugin_Swap(x) \
 	PyThreadState_Swap(((PluginObject *)(x))->tstate)
@@ -221,7 +245,7 @@ static PyObject *Context_FromServerAndChannel(char *server, char *channel);
 
 static PyObject *Plugin_New(char *filename, PyMethodDef *xchat_methods,
 			    PyObject *xcoobj);
-static PyObject *Plugin_GetCurrent(void);
+static PyObject *Plugin_GetCurrent();
 static PluginObject *Plugin_ByString(char *str);
 static Hook *Plugin_AddHook(int type, PyObject *plugin, PyObject *callback,
 			    PyObject *userdata, void *data);
@@ -258,10 +282,6 @@ static void Command_PyReload(char *name);
 static void Command_PyAbout();
 static int Command_Py(char *word[], char *word_eol[], void *userdata);
 
-void xchat_plugin_get_info(char **name, char **desc, char **version, void **reserved);
-int xchat_plugin_init(xchat_plugin *plugin_handle, char **plugin_name, char **plugin_desc, char **plugin_version, char *arg);
-int xchat_plugin_deinit(void);
-
 /* ===================================================================== */
 /* Static declarations and definitions */
 
@@ -283,7 +303,7 @@ static PyObject *xchatout = NULL;
 static PyThread_type_lock xchat_lock = NULL;
 #endif
 
-static char *usage = "\
+static const char usage[] = "\
 Usage: /PY LOAD   <filename>\n\
            UNLOAD <filename|name>\n\
            RELOAD <filename|name>\n\
@@ -293,9 +313,9 @@ Usage: /PY LOAD   <filename>\n\
            ABOUT\n\
 \n";
 
-static char *about = "\
+static const char about[] = "\
 \n\
-X-Chat Python Interface " PVERSION "\n\
+X-Chat Python Interface " VERSION "\n\
 \n\
 Copyright (c) 2002-2003  Gustavo Niemeyer <niemeyer@conectiva.com>\n\
 \n";
@@ -484,7 +504,7 @@ Callback_Print(char *word[], void *userdata)
 	 * build our own here. */
 	while (word[listsize] && word[listsize][0])
 		listsize++;
-	word_eol = (char **) g_malloc(sizeof(char*)*listsize+1);
+	word_eol = (char **) g_malloc(sizeof(char*)*(listsize+1));
 	if (word_eol == NULL) {
 		xchat_print(ph, "Not enough memory to alloc word_eol "
 				"for python plugin callback.");
@@ -1168,7 +1188,7 @@ error:
 }
 
 static PyObject *
-Plugin_GetCurrent(void)
+Plugin_GetCurrent()
 {
 	PyObject *plugin;
 	plugin = PySys_GetObject("__plugin__");
@@ -1289,6 +1309,7 @@ Plugin_Delete(PyObject *plugin)
 	Plugin_RemoveAllHooks(plugin);
 	xchat_plugingui_remove(ph, ((PluginObject *)plugin)->gui);
 	Py_DECREF(plugin);
+	/*PyThreadState_Swap(tstate); needed? */
 	Py_EndInterpreter(tstate);
 }
 
@@ -1417,13 +1438,14 @@ static PyObject *
 Module_xchat_get_prefs(PyObject *self, PyObject *args)
 {
 	PyObject *res;
-	const void *info;
+	const char *info;
+	int integer;
 	char *name;
 	int type;
 	if (!PyArg_ParseTuple(args, "s:get_prefs", &name))
 		return NULL;
 	BEGIN_XCHAT_CALLS(NONE);
-	type = xchat_get_prefs(ph, name, (const char**)&info, (int*)&info);
+	type = xchat_get_prefs(ph, name, &info, &integer);
 	END_XCHAT_CALLS();
 	switch (type) {
 		case 0:
@@ -1435,7 +1457,7 @@ Module_xchat_get_prefs(PyObject *self, PyObject *args)
 			break;
 		case 2:
 		case 3:
-			res = PyInt_FromLong((int)info);
+			res = PyInt_FromLong(integer);
 			break;
 		default:
 			PyErr_Format(PyExc_RuntimeError,
@@ -1869,8 +1891,7 @@ static int
 IInterp_Cmd(char *word[], char *word_eol[], void *userdata)
 {
 	char *channel = (char *) xchat_get_info(ph, "channel");
-	g_return_val_if_fail(channel != NULL, 0);
-	if (channel[0] == '>' && strcmp(channel, ">>python<<") == 0) {
+	if (channel && channel[0] == '>' && strcmp(channel, ">>python<<") == 0) {
 		xchat_printf(ph, ">>> %s\n", word_eol[1]);
 		IInterp_Exec(word_eol[1]);
 		return 1;
@@ -2030,7 +2051,7 @@ void
 xchat_plugin_get_info(char **name, char **desc, char **version, void **reserved)
 {
 	*name = "Python";
-	*version = PVERSION;
+	*version = VERSION;
 	*desc = "Python scripting interface";
    if (reserved)
       *reserved = NULL;
@@ -2058,7 +2079,7 @@ xchat_plugin_init(xchat_plugin *plugin_handle,
 	initialized = 1;
 
 	*plugin_name = "Python";
-	*plugin_version = PVERSION;
+	*plugin_version = VERSION;
 	*plugin_desc = "Python scripting interface";
 
 	/* Initialize python. */
@@ -2116,7 +2137,7 @@ xchat_plugin_init(xchat_plugin *plugin_handle,
 }
 
 int
-xchat_plugin_deinit(void)
+xchat_plugin_deinit()
 {
 	GSList *list;
 
