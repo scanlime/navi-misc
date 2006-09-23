@@ -1,3 +1,22 @@
+2006-09-23  David Trowbridge <trowbrds@gmail.com>
+
+	* plugins/python/python.c:
+	A plugins/python/CVS:
+	A plugins/python/CVS/Repository:
+	A plugins/python/CVS/Root:
+	A plugins/python/CVS/Entries:
+	* plugins/perl/Xchat.pm:
+	* plugins/perl/CVS/Entries:
+	* src/common/dbus:
+	* src/common/dbus/CVS/Entries:
+	* src/common/plugin.c:
+	* src/common/server.c:
+	* src/common/xchat.c:
+	* src/common/CVS/Entries:
+	D src/common/CVS/Entries.Log:
+	  - Sync to xchat cvs, add CVS directory for python plugin to ease
+	    future syncs.
+
 2006-09-22  Christian Persch  <chpe@cvs.gnome.org>
 
 	* src/fe-gnome/xtext.c: (gtk_xtext_destroy), (gtk_xtext_unrealize),
@@ -177,7 +196,7 @@ Mon Aug 28 21:07:09 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 	  - Migration path for D-Bus plugin. (#349443)
 
 Mon Aug 21 15:58:19 CEST 2006  Guillaume Desmottes <cass@skynet.be>
-	
+
 	* src/fe-gnome/preferences-page-plugins.h:
 	* src/fe-gnome/preferences-page-plugins.c:
 	* src/fe-gnome/preferences-dialog.h:
@@ -333,9 +352,9 @@ Thu Jul 27 20:29:49 CEST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/text-entry.c:
 	  - Make IRC command completion case unsensitive.
-	  
+
 Thu Jul 27 18:48:31 CEST 2006  Guillaume Desmottes <cass@skynet.be>
-	
+
 	* data/preferences-dialog.glade:
 	  - HIG improvements: don't display preferences window in the
 	    windows list and make it transient.
