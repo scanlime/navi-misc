@@ -29,7 +29,6 @@ src/common/textevents.h
 src/common/util.c
 src/common/xchat.c
 src/common/dbus/dbus-plugin.c
-src/common/dbus/xchat-remote.c
 src/common/dbus/url_handler.schemas.in
 src/fe-gnome/about.c
 src/fe-gnome/apps_xchat.schemas.in

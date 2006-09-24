@@ -1,3 +1,9 @@
+2006-09-23  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/common/dbus/Makefile.am:
+	* po/POTFILES.in:
+	  - More distcheck fixes.
+
 2006-09-23  David Trowbridge <trowbrds@gmail.com>
 
 	* plugins/perl/generate_header:
