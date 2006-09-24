@@ -55,16 +55,18 @@ install-data-local:
 	fi
 endif
 
-EXTRA_DIST =			\
-	url_handler.schemas.in	\
-	remote-object.xml	\
-	marshallers.list	\
-	example.py		\
+EXTRA_DIST =				\
+	url_handler.schemas.in		\
+	remote-object.xml		\
+	marshallers.list		\
+	example.py			\
+	org.gnome.Xchat.service.in	\
 	README
 
-BUILT_SOURCES =			\
-	remote-object-glue.h	\
-	marshallers.h		\
+BUILT_SOURCES =				\
+	remote-object-glue.h		\
+	marshallers.h			\
+	org.gnome.Xchat.service		\
 	url_handler.schemas
 
 CLEANFILES = $(BUILT_SOURCES)
