@@ -1,4 +1,4 @@
-# Danish translation for xchat-gnome
+# Occitan (post 1500) translation for xchat-gnome
 # Copyright (c) (c) 2006 Canonical Ltd, and Rosetta Contributors 2006
 # This file is distributed under the same license as the xchat-gnome package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2006.
@@ -9,192 +9,193 @@ msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2006-05-22 01:13+0000\n"
-"PO-Revision-Date: 2006-06-30 03:32+0000\n"
-"Last-Translator: David Nielsen <david@lovesunix.net>\n"
-"Language-Team: Danish <da@li.org>\n"
+"PO-Revision-Date: 2006-08-29 21:59+0000\n"
+"Last-Translator: Yannig MARCHEGAY (Kokoyaya) "
+"<yannick.marchegay@lokanova.com>\n"
+"Language-Team: Occitan (post 1500) <oc@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: ../data/channel-list.glade.h:1
 msgid "<span weight=\"bold\">List Filtering</span>"
-msgstr "<span weight=\"bold\">Listefiltrering</span>"
+msgstr ""
 
 #: ../data/channel-list.glade.h:2
 msgid "Apply Text Filter To:    "
-msgstr "Anvend tekstfilter på:    "
+msgstr ""
 
 #: ../data/channel-list.glade.h:3
 msgid "Channel _Name"
-msgstr "Kanal_navn"
+msgstr ""
 
 #: ../data/channel-list.glade.h:4
 msgid "Channel _Topic"
-msgstr "Kanal_emne"
+msgstr ""
 
 #: ../data/channel-list.glade.h:5
 msgid "Join Channel"
-msgstr "Indtræd i kanal"
+msgstr ""
 
 #: ../data/channel-list.glade.h:6
 msgid "Maximum Users:"
-msgstr "Maximum antal brugere"
+msgstr ""
 
 #: ../data/channel-list.glade.h:7
 msgid "Minimum Users:"
-msgstr "Minimum antal brugere"
+msgstr ""
 
 #: ../data/channel-list.glade.h:8
 msgid "Save List _As"
-msgstr "Gem liste _som"
+msgstr ""
 
 #: ../data/channel-list.glade.h:9
 msgid "Text Filter:"
-msgstr "Tekstfilter:"
+msgstr ""
 
 #: ../data/connect-dialog.glade.h:1
 msgid "C_onnect"
-msgstr "_Tilslut"
+msgstr ""
 
 #: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
 msgid "File Transfers"
-msgstr "Filoverførsler"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:1
 msgid "<span weight=\"bold\">Automatically Join Channels</span>"
-msgstr "<span weight=\"bold\">Indtræd automatisk i kanaler</span>"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:2
 msgid "<span weight=\"bold\">User Info</span>"
-msgstr "<span weight=\"bold\">Bruger infomation</span>"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:3
 msgid "Accept _invalid SSL certificate"
-msgstr "Accepter ugyld_igt SSL-certifikat"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:4
 msgid "Character _encoding:"
-msgstr "Tegn_kodning:"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:5
 msgid "Network Settings"
-msgstr "Netværksopsætning"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:6
 msgid "Nickser_v Password:"
-msgstr "Nickser_v adgangskode:"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:7
 msgid "Server _Password:"
-msgstr "Server _adgangskode:"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:8
 msgid "Servers"
-msgstr "Servere"
+msgstr "Servidors"
 
 #: ../data/irc-network-editor.glade.h:9
 msgid "Use _global user settings"
-msgstr "Brug _global brugeropsætning"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:10
 msgid "Use _these user settings:"
-msgstr "Brug _denne brugeropsætning:"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:11
 msgid "User and Channels"
-msgstr "Brugere og kanaler"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:12
 msgid "_Automatically connect to network"
-msgstr "Forbind _automatisk til netværk"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:13
 msgid "_Cycle until connected"
-msgstr "G_entag indtil forbindelse er opnået"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:14
 msgid "_Name:"
-msgstr "_Navn:"
+msgstr "_Nom :"
 
 #: ../data/irc-network-editor.glade.h:15
 msgid "_Nick name:"
-msgstr "_Kælenavn"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:16
 msgid "_Real Name:"
-msgstr "_Rigtigt Navn"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:17
 msgid "_Use secure connection (SSL)"
-msgstr "_Brug sikker forbindelse (SSL)"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:1
 msgid "<span size=\"small\" style=\"italic\">Opaque</span>"
-msgstr "<span size=\"small\" style=\"italic\">Ugennemsigtig</span>"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:2
 msgid "<span size=\"small\" style=\"italic\">Transparent</span>"
-msgstr "<span size=\"small\" style=\"italic\">Gennemsigtig</span>"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:3
 msgid "<span weight=\"bold\">Background</span>"
-msgstr "<span weight=\"bold\">Baggrund</span>"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:4
 msgid "<span weight=\"bold\">DCC Settings</span>"
-msgstr "<span weight=\"bold\">DCC opsætning</span>"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:5
 msgid "<span weight=\"bold\">Extra Colors</span>"
-msgstr "<span weight=\"bold\">Ekstra Farver</span>"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:6
 msgid "<span weight=\"bold\">File Transfers</span>"
-msgstr "<span weight=\"bold\">Filoverførsler</span>"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:7
 msgid "<span weight=\"bold\">General</span>"
-msgstr "<span weight=\"bold\">Generelt</span>"
+msgstr "<span weight=\"bold\">General</span>"
 
 #: ../data/preferences-dialog.glade.h:8
 msgid "<span weight=\"bold\">Highlighting</span>"
-msgstr "<span weight=\"bold\">Markering</span>"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:9
 msgid "<span weight=\"bold\">Text Colors</span>"
-msgstr "<span weight=\"bold\">Tekstfarver</span>"
+msgstr "<span weight=\"bold\">Colors del tèxt</span>"
 
 #: ../data/preferences-dialog.glade.h:10
 msgid "<span weight=\"bold\">Throttling</span>"
-msgstr "<span weight=\"bold\">Justering</span>"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:11
 msgid "<span weight=\"bold\">User Interface</span>"
-msgstr "<span weight=\"bold\">Brugerflade</span>"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:12
 msgid "<span weight=\"bold\">mIRC Colors</span>"
-msgstr "<span weight=\"bold\">mIRC Farver</span>"
+msgstr "<span weight=\"bold\">Colors mIRC</span>"
 
 #: ../data/preferences-dialog.glade.h:13
 msgid "A_way message:"
-msgstr "_Ikke tilstede-besked:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:14
 msgid "Auto-accept DCC Chat"
-msgstr "Automatisk acceptér DCC-samtale"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:15
 msgid "Auto-accept DCC File Transfers"
-msgstr "Automatisk acceptér DCC-filoverførsler"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:16
 msgid "Background _image"
-msgstr "Baggrundsb_illede"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:17
 msgid "Background mark:"
-msgstr "Baggrundsmærke:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:18
 msgid "Buil_t-in schemes:"
@@ -202,19 +203,19 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:19
 msgid "Choose languages to use for spellcheck:"
-msgstr "Vælg sprog til stavekontrol:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:20
 msgid "Convert spaces to underscores in filenames"
-msgstr "Konverter mellemrum til understreg i filnavne"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:21
 msgid "Download files to:"
-msgstr "Hent filer til:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:22
 msgid "Enter extra words to trigger highlighting"
-msgstr "Indtast ekstra ord der udløser markering"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:23
 msgid "Foreground mark:"
@@ -222,131 +223,129 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:24
 msgid "Get IP Address From Server"
-msgstr "Modtag IP-adresse fra server"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:25
 msgid "Global receive KB/s: "
-msgstr "Total modtaget Kb/s: "
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:26
 msgid "Global send KB/s: "
-msgstr "Total sendt Kb/s: "
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:27
 msgid "Image _file:"
-msgstr "Billed_fil:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:28
 msgid "Individual receive KB/s: "
-msgstr "Individuelt modtaget Kb/s: "
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:29
 msgid "Individual send KB/s: "
-msgstr "Individuelt sendt Kb/s: "
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:30
 msgid "Move completed files to:"
-msgstr "Flyt komplette filer til:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:31
 msgid "Preferences"
-msgstr "Indstillinger"
+msgstr "Preferéncias"
 
 #: ../data/preferences-dialog.glade.h:32
 msgid "Real na_me:"
-msgstr "Rigtigt Na_vn"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:33
 msgid "Save sender nickname in filenames"
-msgstr "Gem afsenders kælenavn i filnavne"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:34
 msgid "Select A File"
-msgstr "Vælg en fil"
+msgstr "Seleccionar un fichièr"
 
 #: ../data/preferences-dialog.glade.h:35
 msgid "Select Completed Files Directory"
-msgstr "Vælg mappe til komplette filer"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:36
 msgid "Select Download Directory"
-msgstr "Vælg overføringsmappe"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:37
 msgid "Show _timestamps"
-msgstr "Vis _tidsstempler"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:38
 msgid ""
 "To edit a shortcut key, click on the corresponding row and type a new "
 "accelerator, or press backspace to clear."
 msgstr ""
-"Genvejstaster ændres ved at klikke på en række og indtaste den nye genvej "
-"eller trykke på tilbage-tasten for at rydde."
 
 #: ../data/preferences-dialog.glade.h:39
 msgid "Use System Terminal Font"
-msgstr "Brug Systemets terminal-skrifttype"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:40
 msgid "Use This IP Address:"
-msgstr "Brug denne IP-adresse:"
+msgstr "Utilisar l'adreça IP :"
 
 #: ../data/preferences-dialog.glade.h:41
 msgid "Use this font:"
-msgstr "Brug denne skrifttype:"
+msgstr "Utilisar la poliça :"
 
 #: ../data/preferences-dialog.glade.h:42
 msgid "_Background color:"
-msgstr "_Baggrundsfarve:"
+msgstr "Color de _fons :"
 
 #: ../data/preferences-dialog.glade.h:43
 msgid "_Check spelling"
-msgstr "_Stavekontrol"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:44 ../src/fe-gnome/main-window.c:99
 msgid "_Edit"
-msgstr "R_edigér"
+msgstr "_Edicion"
 
 #: ../data/preferences-dialog.glade.h:45
 msgid "_Foreground color:"
-msgstr "_Forgrundsfarve:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:46
 msgid "_Nickname:"
-msgstr "Kæle_navn:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:47
 msgid "_None (use solid color)"
-msgstr "_Ingen (ensfarvet)"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:48
 msgid "_Part message:"
-msgstr "_Afskedsmeddelse"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:49
 msgid "_Quit message:"
-msgstr "_Afslutningsmeddelse"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:50
 msgid "_Show colors"
-msgstr "_Vis farver"
+msgstr "_Mostrar las colors"
 
 #: ../data/preferences-dialog.glade.h:51
 msgid "_Transparent background"
-msgstr "_Gennemsigtig baggrund"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:52
 msgid "spell checking"
-msgstr "stavekontrol"
+msgstr ""
 
 #: ../data/setup-dialog.glade.h:1
 msgid "Nick Name:"
-msgstr "Kælenavn"
+msgstr ""
 
 #: ../data/setup-dialog.glade.h:2
 msgid "Real Name:"
-msgstr "Rigtigt navn:"
+msgstr ""
 
 #: ../data/setup-dialog.glade.h:3
 msgid ""
@@ -359,50 +358,43 @@ msgid ""
 "things such as registering with services. You do not have to use your real "
 "name if you do not want to."
 msgstr ""
-"Velkommen til XChat-GNOME! Da det er første gang, du bruger dette program, "
-"er der et par ting, der skal sættes op, inden du kan komme i gang.\n"
-"\n"
-"Dette er de navne som du vil blive kendt under på IRC. Dit kælenavn er det "
-"navn du vil blive kendt under, imens det rigtige navn er nyttigt til for "
-"eksempel at registrere tjenester. Du behøver ikke bruge dit rigtige navn "
-"hvis du ikke ønsker det."
 
 #: ../data/setup-dialog.glade.h:6
 msgid "XChat-GNOME Setup"
-msgstr "XChat-GNOME opsætning"
+msgstr ""
 
 #: ../data/topic-change.glade.h:1
 msgid "Change"
-msgstr "Ændr"
+msgstr "Cambiar"
 
 #: ../data/xchat-gnome.desktop.in.h:1
 msgid "Chat with people using IRC"
-msgstr "Snak med folk gennem IRC"
+msgstr ""
 
 #: ../data/xchat-gnome.desktop.in.h:2 ../src/fe-gnome/fe-gnome.c:93
 #: ../src/fe-gnome/fe-gnome.c:104
 msgid "IRC Chat"
-msgstr "IRC samtale"
+msgstr ""
 
 #: ../data/xchat-gnome.desktop.in.h:3
 msgid "XChat-GNOME IRC Chat"
-msgstr "XChat-GNOME IRC samtale"
+msgstr ""
 
 #: ../data/xchat-gnome.glade.h:1
 msgid "Apply on a_ll servers"
-msgstr "Anvend på a_lle servere"
+msgstr ""
 
 #: ../data/xchat-gnome.glade.h:2
 msgid "Change nickname to:"
-msgstr "Skift kælenavn til:"
+msgstr ""
 
 #: ../data/xchat-gnome.glade.h:3
 msgid "Close this discussion"
-msgstr "Luk denne samtale"
+msgstr ""
 
 #: ../data/xchat-gnome.glade.h:4
 msgid "Mark as _away"
-msgstr "Sæt som _fraværende"
+msgstr ""
 
 #: ../data/xchat-gnome.glade.h:5 ../src/common/text.c:527
 #: ../src/common/text.c:533 ../src/common/text.c:540 ../src/common/text.c:607
@@ -417,40 +409,40 @@ msgstr "Sæt som _fraværende"
 #: ../src/common/text.c:920 ../src/common/text.c:924 ../src/common/text.c:930
 #: ../src/common/text.c:938 ../src/common/text.c:972 ../src/common/text.c:977
 msgid "Nickname"
-msgstr "Kælenavn"
+msgstr ""
 
 #: ../data/xchat-gnome.glade.h:6 ../src/common/text.c:805
 #: ../src/fe-gnome/channel-list.c:329
 msgid "Users"
-msgstr "Brugere"
+msgstr "Usancièrs"
 
 #: ../data/xchat-gnome.glade.h:7
 msgid "nickname"
-msgstr "kælenavn"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:164
 msgid "Screensaver activated, going away."
-msgstr "Pauseskærm aktiveret, bliver fraværende"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:172
 msgid "Screensaver is off, welcome back"
-msgstr "Pauseskærm afsluttet, velkommen tilbage"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:212
 msgid "Auto Away"
-msgstr "Automatisk fraværende"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:213
 msgid "Automatically go away / come back"
-msgstr "Bliv fraværende / vend tilbage automatisk"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:231
 msgid "Disconnected"
-msgstr "Forbindelse afbrudt"
+msgstr "Desconnectat"
 
 #: ../plugins/autoaway/autoaway.c:232
 msgid "Connected"
-msgstr ""
+msgstr "Connectat"
 
 #: ../plugins/autoaway/autoaway.c:261
 msgid "Auto-away plugin unloaded\n"
@@ -529,7 +521,7 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "server"
-msgstr ""
+msgstr "servidor"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "Get some informations from xchat"
@@ -545,7 +537,7 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "name"
-msgstr ""
+msgstr "nom"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:79
 #, c-format
@@ -582,7 +574,7 @@ msgstr ""
 #: ../plugins/dbus/xchat-gnome-remote.c:159
 #, c-format
 msgid "%s doesn't exist\n"
-msgstr ""
+msgstr "%s existís pas\n"
 
 #: ../plugins/net-monitor/net-monitor.c:36
 msgid "Network Monitor"
@@ -599,11 +591,11 @@ msgstr ""
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "Orientation"
-msgstr ""
+msgstr "Orientacion"
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "The orientation of the tray."
-msgstr ""
+msgstr "L'orientacion de la zòna de notificacion."
 
 #: ../plugins/notification/notification.c:139
 msgid "Notification"
@@ -684,7 +676,7 @@ msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:828
 msgid "Time"
-msgstr ""
+msgstr "Ora"
 
 #: ../plugins/url_scraper/urlscraper.c:64 ../src/common/text.c:585
 msgid "Nick"
@@ -698,7 +690,7 @@ msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:73
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: ../plugins/url_scraper/urlscraper.c:155
 msgid "URL Scraper"
@@ -849,7 +841,7 @@ msgstr ""
 
 #: ../src/common/outbound.c:1983
 msgid "Commands Available:"
-msgstr ""
+msgstr "Comandas disponiblas :"
 
 #: ../src/common/outbound.c:1997
 msgid "User defined commands:"
@@ -1235,7 +1227,7 @@ msgstr ""
 #: ../src/common/outbound.c:3394
 #, c-format
 msgid "Usage: %s\n"
-msgstr ""
+msgstr "Sintaxi : %s\n"
 
 #: ../src/common/outbound.c:3399
 msgid ""
@@ -1329,7 +1321,7 @@ msgstr ""
 
 #: ../src/common/text.c:528
 msgid "The action"
-msgstr ""
+msgstr "L'accion"
 
 #: ../src/common/text.c:529 ../src/common/text.c:535
 msgid "Mode char"
@@ -1337,7 +1329,7 @@ msgstr ""
 
 #: ../src/common/text.c:534
 msgid "The text"
-msgstr ""
+msgstr "Lo tèxt"
 
 #: ../src/common/text.c:536 ../src/common/text.c:609
 msgid "Identified text"
@@ -1381,7 +1373,7 @@ msgstr ""
 
 #: ../src/common/text.c:564 ../src/common/text.c:621 ../src/common/text.c:628
 msgid "The reason"
-msgstr ""
+msgstr "La rason"
 
 #: ../src/common/text.c:568 ../src/common/text.c:625
 msgid "The nick of the person leaving"
@@ -1389,7 +1381,7 @@ msgstr ""
 
 #: ../src/common/text.c:575 ../src/common/text.c:581
 msgid "The time"
-msgstr ""
+msgstr "L'ora"
 
 #: ../src/common/text.c:580
 msgid "The creator"
@@ -1401,7 +1393,7 @@ msgstr ""
 
 #: ../src/common/text.c:587 ../src/common/text.c:735 ../src/common/text.c:818
 msgid "Host"
-msgstr ""
+msgstr "Òste"
 
 #: ../src/common/text.c:591 ../src/common/text.c:596 ../src/common/text.c:601
 msgid "Who it's from"
@@ -1417,7 +1409,7 @@ msgstr ""
 
 #: ../src/common/text.c:632
 msgid "The sound"
-msgstr ""
+msgstr "Lo son"
 
 #: ../src/common/text.c:633 ../src/common/text.c:639 ../src/common/text.c:644
 msgid "The nick of the person"
@@ -1553,11 +1545,11 @@ msgstr ""
 
 #: ../src/common/text.c:734
 msgid "Username"
-msgstr ""
+msgstr "Nom d'usancièr"
 
 #: ../src/common/text.c:736
 msgid "Full name"
-msgstr ""
+msgstr "Nom complet"
 
 #: ../src/common/text.c:741
 msgid "Channel Membership/\"is an IRC operator\""
@@ -1565,7 +1557,7 @@ msgstr ""
 
 #: ../src/common/text.c:746
 msgid "Server Information"
-msgstr ""
+msgstr "Informacions sul servidor"
 
 #: ../src/common/text.c:751 ../src/common/text.c:756
 msgid "Idle time"
@@ -1582,7 +1574,7 @@ msgstr ""
 #: ../src/common/text.c:771 ../src/common/text.c:777 ../src/common/text.c:785
 #: ../src/common/text.c:964
 msgid "Message"
-msgstr ""
+msgstr "Messatge"
 
 #: ../src/common/text.c:778
 msgid "Account"
@@ -1604,12 +1596,12 @@ msgstr ""
 
 #: ../src/common/text.c:793 ../src/common/text.c:950
 msgid "Text"
-msgstr ""
+msgstr "Tèxt"
 
 #: ../src/common/text.c:794 ../src/common/text.c:800 ../src/common/text.c:829
 #: ../src/common/text.c:946 ../src/common/text.c:988
 msgid "Server Name"
-msgstr ""
+msgstr "Nom del servidor"
 
 #: ../src/common/text.c:799
 msgid "Nick of person who invited you"
@@ -1649,7 +1641,7 @@ msgstr ""
 #: ../src/common/text.c:849 ../src/common/text.c:887 ../src/common/text.c:892
 #: ../src/common/text.c:933
 msgid "IP address"
-msgstr ""
+msgstr "Adreça IP"
 
 #: ../src/common/text.c:855 ../src/common/text.c:880
 msgid "DCC Type"
@@ -1660,7 +1652,7 @@ msgstr ""
 #: ../src/common/text.c:903 ../src/common/text.c:909 ../src/common/text.c:916
 #: ../src/common/text.c:925 ../src/common/text.c:931
 msgid "Filename"
-msgstr ""
+msgstr "Nom de fichièr"
 
 #: ../src/common/text.c:867 ../src/common/text.c:874
 msgid "Destination filename"
@@ -1680,7 +1672,7 @@ msgstr ""
 
 #: ../src/common/text.c:932
 msgid "Size"
-msgstr ""
+msgstr "Talha"
 
 #: ../src/common/text.c:937
 msgid "DCC String"
@@ -1700,7 +1692,7 @@ msgstr ""
 
 #: ../src/common/text.c:963
 msgid "Receiver"
-msgstr ""
+msgstr "Destinatari"
 
 #: ../src/common/text.c:968
 msgid "Hostmask"
@@ -1716,7 +1708,7 @@ msgstr ""
 
 #: ../src/common/text.c:982
 msgid "Seconds"
-msgstr ""
+msgstr "Segondas"
 
 #: ../src/common/text.c:986
 msgid "Nick of person who have been invited"
@@ -1766,11 +1758,11 @@ msgstr ""
 
 #: ../src/common/textevents.h:21
 msgid "%C13*%O$t$1 $2%O"
-msgstr ""
+msgstr "%C13*%O$t$1 $2%O"
 
 #: ../src/common/textevents.h:24
 msgid "%C13*%O$t%C8%B$1%B%O $2%O"
-msgstr ""
+msgstr "%C13*%O$t%C8%B$1%B%O $2%O"
 
 #: ../src/common/textevents.h:27
 msgid "-%C10-%C11-%O$t$1 sets ban on $2"
@@ -1810,7 +1802,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:54 ../src/common/textevents.h:306
 msgid "%C2<%O$1%C2>%O$t$2%O"
-msgstr ""
+msgstr "%C2<%O$1%C2>%O$t$2%O"
 
 #: ../src/common/textevents.h:57
 msgid "-%C10-%C11-%O$t$1 sets mode $2$3 $4"
@@ -1822,11 +1814,11 @@ msgstr ""
 
 #: ../src/common/textevents.h:63
 msgid "%C2<%C8%B$1%B%C2>%O$t$2%O"
-msgstr ""
+msgstr "%C2<%C8%B$1%B%C2>%O$t$2%O"
 
 #: ../src/common/textevents.h:66
 msgid "%C12-%C13$1/$2%C12-%O$t$3%O"
-msgstr ""
+msgstr "%C12-%C13$1/$2%C12-%O$t$3%O"
 
 #: ../src/common/textevents.h:69
 msgid "-%C10-%C11-%O$t$1 gives channel operator status to $2"
@@ -1887,7 +1879,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:111
 msgid "%C3>%O$1%C3<%O$tCTCP $2%O"
-msgstr ""
+msgstr "%C3>%O$1%C3<%O$tCTCP $2%O"
 
 #: ../src/common/textevents.h:114
 msgid "-%C10-%C11-%O$tReceived a CTCP Sound $1 from $2"
@@ -2029,7 +2021,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:207
 msgid "$1$t$2"
-msgstr ""
+msgstr "$1$t$2"
 
 #: ../src/common/textevents.h:210
 msgid "%O%C11$1%O added to ignore list."
@@ -2084,12 +2076,12 @@ msgstr ""
 
 #: ../src/common/textevents.h:246 ../src/common/textevents.h:270
 msgid "%C3>%O$1%C3<%O$t$2%O"
-msgstr ""
+msgstr "%C3>%O$1%C3<%O$t$2%O"
 
 #: ../src/common/textevents.h:249 ../src/common/textevents.h:327
 #: ../src/common/textevents.h:333 ../src/common/textevents.h:336
 msgid "-%C10-%C11-%O$t$1%O"
-msgstr ""
+msgstr "-%C10-%C11-%O$t$1%O"
 
 #: ../src/common/textevents.h:252
 msgid "-%C10-%C11-%O$tMOTD Skipped."
@@ -2113,7 +2105,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:267
 msgid "%C12-%C13$1%C12-%O$t$2%O"
-msgstr ""
+msgstr "%C12-%C13$1%C12-%O$t$2%O"
 
 #: ../src/common/textevents.h:273
 msgid "-%C10-%C11-%O$tNotify list is empty."
@@ -2153,7 +2145,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:303
 msgid "%C12*%C13$1%C12*$t%O$2%O"
-msgstr ""
+msgstr "%C12*%C13$1%C12*$t%O$2%O"
 
 #: ../src/common/textevents.h:309
 msgid "-%C10-%C11-%O$tA process is already running"
@@ -2213,7 +2205,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:360
 msgid "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
-msgstr ""
+msgstr "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
 
 #: ../src/common/textevents.h:363
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %Cis away %C14(%O$2%O%C14)"
@@ -2221,7 +2213,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:366
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
 
 #: ../src/common/textevents.h:369
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %CEnd of WHOIS list."
@@ -2229,7 +2221,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:372
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C$2"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C12[%O$1%C12] %C$2"
 
 #: ../src/common/textevents.h:375
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O"
@@ -2241,7 +2233,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:381
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C14(%O$2@$3%C14) %O: $4%O"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C12[%O$1%C12] %C14(%O$2@$3%C14) %O: $4%O"
 
 #: ../src/common/textevents.h:384
 msgid ""
@@ -2250,7 +2242,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:387
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O $2"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C12[%O$1%C12]%O $2"
 
 #: ../src/common/textevents.h:390
 msgid "%C22*%O$t%C28[%O$1%C28]%O $2"
@@ -2278,7 +2270,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:408
 msgid "%C6<%O$1%C6>%O$t$2%O"
-msgstr ""
+msgstr "%C6<%O$1%C6>%O$t$2%O"
 
 #: ../src/common/textevents.h:411
 msgid "-%C10-%C11-%O$tYou are now known as $2"
@@ -2318,7 +2310,7 @@ msgstr ""
 
 #: ../src/common/util.c:839
 msgid "Afghanistan"
-msgstr ""
+msgstr "Afganistan"
 
 #: ../src/common/util.c:840
 msgid "Antigua and Barbuda"
@@ -2330,11 +2322,11 @@ msgstr ""
 
 #: ../src/common/util.c:842
 msgid "Albania"
-msgstr ""
+msgstr "Albania"
 
 #: ../src/common/util.c:843
 msgid "Armenia"
-msgstr ""
+msgstr "Armenia"
 
 #: ../src/common/util.c:844
 msgid "Netherlands Antilles"
@@ -2342,15 +2334,15 @@ msgstr ""
 
 #: ../src/common/util.c:845
 msgid "Angola"
-msgstr ""
+msgstr "Angòla"
 
 #: ../src/common/util.c:846
 msgid "Antarctica"
-msgstr ""
+msgstr "Antarctica"
 
 #: ../src/common/util.c:847
 msgid "Argentina"
-msgstr ""
+msgstr "Argentina"
 
 #: ../src/common/util.c:848
 msgid "Reverse DNS"
@@ -2382,35 +2374,35 @@ msgstr ""
 
 #: ../src/common/util.c:855
 msgid "Bosnia and Herzegovina"
-msgstr ""
+msgstr "Bòsnia e Ercegovina"
 
 #: ../src/common/util.c:856
 msgid "Barbados"
-msgstr ""
+msgstr "Barbada"
 
 #: ../src/common/util.c:857
 msgid "Bangladesh"
-msgstr ""
+msgstr "Bangladèsh"
 
 #: ../src/common/util.c:858
 msgid "Belgium"
-msgstr ""
+msgstr "Bèlgica"
 
 #: ../src/common/util.c:859
 msgid "Burkina Faso"
-msgstr ""
+msgstr "Burkina Faso"
 
 #: ../src/common/util.c:860
 msgid "Bulgaria"
-msgstr ""
+msgstr "Bulgaria"
 
 #: ../src/common/util.c:861
 msgid "Bahrain"
-msgstr ""
+msgstr "Barein"
 
 #: ../src/common/util.c:862
 msgid "Burundi"
-msgstr ""
+msgstr "Burundi"
 
 #: ../src/common/util.c:863
 msgid "Businesses"
@@ -2418,7 +2410,7 @@ msgstr ""
 
 #: ../src/common/util.c:864
 msgid "Benin"
-msgstr ""
+msgstr "Benin"
 
 #: ../src/common/util.c:865
 msgid "Bermuda"
@@ -2462,7 +2454,7 @@ msgstr ""
 
 #: ../src/common/util.c:875
 msgid "Canada"
-msgstr ""
+msgstr "Canadà"
 
 #: ../src/common/util.c:876
 msgid "Cocos Islands"
@@ -2474,7 +2466,7 @@ msgstr ""
 
 #: ../src/common/util.c:878
 msgid "Central African Republic"
-msgstr ""
+msgstr "Centrafrica"
 
 #: ../src/common/util.c:879
 msgid "Congo"
@@ -2482,7 +2474,7 @@ msgstr ""
 
 #: ../src/common/util.c:880
 msgid "Switzerland"
-msgstr ""
+msgstr "Soïssa"
 
 #: ../src/common/util.c:881
 msgid "Cote d'Ivoire"
@@ -2514,7 +2506,7 @@ msgstr ""
 
 #: ../src/common/util.c:888
 msgid "Costa Rica"
-msgstr ""
+msgstr "Còsta Rica"
 
 #: ../src/common/util.c:889
 msgid "Serbia and Montenegro"
@@ -2546,7 +2538,7 @@ msgstr ""
 
 #: ../src/common/util.c:896
 msgid "Djibouti"
-msgstr ""
+msgstr "Jiboti"
 
 #: ../src/common/util.c:897
 msgid "Denmark"
@@ -2586,15 +2578,15 @@ msgstr ""
 
 #: ../src/common/util.c:906
 msgid "Eritrea"
-msgstr ""
+msgstr "Eritrèa"
 
 #: ../src/common/util.c:907
 msgid "Spain"
-msgstr ""
+msgstr "Espanha"
 
 #: ../src/common/util.c:908
 msgid "Ethiopia"
-msgstr ""
+msgstr "Etiopia"
 
 #: ../src/common/util.c:909
 msgid "Finland"
@@ -2614,11 +2606,11 @@ msgstr ""
 
 #: ../src/common/util.c:913
 msgid "Faroe Islands"
-msgstr ""
+msgstr "Illas Feròe"
 
 #: ../src/common/util.c:914
 msgid "France"
-msgstr ""
+msgstr "França"
 
 #: ../src/common/util.c:915
 msgid "France, Metropolitan"
@@ -2626,7 +2618,7 @@ msgstr ""
 
 #: ../src/common/util.c:916
 msgid "Gabon"
-msgstr ""
+msgstr "Gabon"
 
 #: ../src/common/util.c:917
 msgid "Great Britain"
@@ -2638,11 +2630,11 @@ msgstr ""
 
 #: ../src/common/util.c:919
 msgid "Georgia"
-msgstr ""
+msgstr "Georgia"
 
 #: ../src/common/util.c:920
 msgid "French Guiana"
-msgstr ""
+msgstr "Guiana francesa"
 
 #: ../src/common/util.c:921
 msgid "British Channel Isles"
@@ -2678,11 +2670,11 @@ msgstr ""
 
 #: ../src/common/util.c:929
 msgid "Equatorial Guinea"
-msgstr ""
+msgstr "Guinèa Eqüatoriala"
 
 #: ../src/common/util.c:930
 msgid "Greece"
-msgstr ""
+msgstr "Grèça"
 
 #: ../src/common/util.c:931
 msgid "S. Georgia and S. Sandwich Isles"
@@ -2694,7 +2686,7 @@ msgstr ""
 
 #: ../src/common/util.c:933
 msgid "Guam"
-msgstr ""
+msgstr "Guam"
 
 #: ../src/common/util.c:934
 msgid "Guinea-Bissau"
@@ -2722,19 +2714,19 @@ msgstr ""
 
 #: ../src/common/util.c:940
 msgid "Haiti"
-msgstr ""
+msgstr "Aïtí"
 
 #: ../src/common/util.c:941
 msgid "Hungary"
-msgstr ""
+msgstr "Ongria"
 
 #: ../src/common/util.c:942
 msgid "Indonesia"
-msgstr ""
+msgstr "Indonesia"
 
 #: ../src/common/util.c:943
 msgid "Ireland"
-msgstr ""
+msgstr "Irlanda"
 
 #: ../src/common/util.c:944
 msgid "Israel"
@@ -2742,7 +2734,7 @@ msgstr ""
 
 #: ../src/common/util.c:945
 msgid "India"
-msgstr ""
+msgstr "Índia"
 
 #: ../src/common/util.c:946
 msgid "Informational"
@@ -2750,7 +2742,7 @@ msgstr ""
 
 #: ../src/common/util.c:947
 msgid "International"
-msgstr ""
+msgstr "Internacional"
 
 #: ../src/common/util.c:948
 msgid "British Indian Ocean Territory"
@@ -2786,7 +2778,7 @@ msgstr ""
 
 #: ../src/common/util.c:956
 msgid "Kenya"
-msgstr ""
+msgstr "Kenia"
 
 #: ../src/common/util.c:957
 msgid "Kyrgyzstan"
@@ -2802,7 +2794,7 @@ msgstr ""
 
 #: ../src/common/util.c:960
 msgid "Comoros"
-msgstr ""
+msgstr "Comòras"
 
 #: ../src/common/util.c:961
 msgid "St. Kitts and Nevis"
@@ -2822,7 +2814,7 @@ msgstr ""
 
 #: ../src/common/util.c:965
 msgid "Cayman Islands"
-msgstr ""
+msgstr "Illas Caiman"
 
 #: ../src/common/util.c:966
 msgid "Kazakhstan"
@@ -2842,31 +2834,31 @@ msgstr ""
 
 #: ../src/common/util.c:970
 msgid "Liechtenstein"
-msgstr ""
+msgstr "Liechtenstein"
 
 #: ../src/common/util.c:971
 msgid "Sri Lanka"
-msgstr ""
+msgstr "Sri Lanka"
 
 #: ../src/common/util.c:972
 msgid "Liberia"
-msgstr ""
+msgstr "Libèria"
 
 #: ../src/common/util.c:973
 msgid "Lesotho"
-msgstr ""
+msgstr "Lesoto"
 
 #: ../src/common/util.c:974
 msgid "Lithuania"
-msgstr ""
+msgstr "Lituània"
 
 #: ../src/common/util.c:975
 msgid "Luxembourg"
-msgstr ""
+msgstr "Luxemborg"
 
 #: ../src/common/util.c:976
 msgid "Latvia"
-msgstr ""
+msgstr "Letònia"
 
 #: ../src/common/util.c:977
 msgid "Libya"
@@ -2874,7 +2866,7 @@ msgstr ""
 
 #: ../src/common/util.c:978
 msgid "Morocco"
-msgstr ""
+msgstr "Marròc"
 
 #: ../src/common/util.c:979
 msgid "Monaco"
@@ -2898,7 +2890,7 @@ msgstr ""
 
 #: ../src/common/util.c:984
 msgid "Military"
-msgstr ""
+msgstr "Militari"
 
 #: ../src/common/util.c:985
 msgid "Macedonia"
@@ -2914,11 +2906,11 @@ msgstr ""
 
 #: ../src/common/util.c:988
 msgid "Mongolia"
-msgstr ""
+msgstr "Mongolia"
 
 #: ../src/common/util.c:989
 msgid "Macau"
-msgstr ""
+msgstr "Macau"
 
 #: ../src/common/util.c:990
 msgid "Northern Mariana Islands"
@@ -2926,31 +2918,31 @@ msgstr ""
 
 #: ../src/common/util.c:991
 msgid "Martinique"
-msgstr ""
+msgstr "Martinica"
 
 #: ../src/common/util.c:992
 msgid "Mauritania"
-msgstr ""
+msgstr "Mauritània"
 
 #: ../src/common/util.c:993
 msgid "Montserrat"
-msgstr ""
+msgstr "Montserrat"
 
 #: ../src/common/util.c:994
 msgid "Malta"
-msgstr ""
+msgstr "Malta"
 
 #: ../src/common/util.c:995
 msgid "Mauritius"
-msgstr ""
+msgstr "Maurici"
 
 #: ../src/common/util.c:996
 msgid "Maldives"
-msgstr ""
+msgstr "Maldivas"
 
 #: ../src/common/util.c:997
 msgid "Malawi"
-msgstr ""
+msgstr "Malawi"
 
 #: ../src/common/util.c:998
 msgid "Mexico"
@@ -2998,15 +2990,15 @@ msgstr ""
 
 #: ../src/common/util.c:1009
 msgid "Norway"
-msgstr ""
+msgstr "Norvègia"
 
 #: ../src/common/util.c:1010
 msgid "Nepal"
-msgstr ""
+msgstr "Nepal"
 
 #: ../src/common/util.c:1011
 msgid "Nauru"
-msgstr ""
+msgstr "Nauru"
 
 #: ../src/common/util.c:1012
 msgid "Neutral Zone"
@@ -3018,11 +3010,11 @@ msgstr ""
 
 #: ../src/common/util.c:1014
 msgid "New Zealand"
-msgstr ""
+msgstr "Nòva Zelanda"
 
 #: ../src/common/util.c:1015
 msgid "Oman"
-msgstr ""
+msgstr "Oman"
 
 #: ../src/common/util.c:1016
 msgid "Internic Non-Profit Organization"
@@ -3050,11 +3042,11 @@ msgstr ""
 
 #: ../src/common/util.c:1022
 msgid "Pakistan"
-msgstr ""
+msgstr "Paquistan"
 
 #: ../src/common/util.c:1023
 msgid "Poland"
-msgstr ""
+msgstr "Polonha"
 
 #: ../src/common/util.c:1024
 msgid "St. Pierre and Miquelon"
@@ -3074,19 +3066,19 @@ msgstr ""
 
 #: ../src/common/util.c:1028
 msgid "Portugal"
-msgstr ""
+msgstr "Portugal"
 
 #: ../src/common/util.c:1029
 msgid "Palau"
-msgstr ""
+msgstr "Palau"
 
 #: ../src/common/util.c:1030
 msgid "Paraguay"
-msgstr ""
+msgstr "Paraguai"
 
 #: ../src/common/util.c:1031
 msgid "Qatar"
-msgstr ""
+msgstr "Qatar"
 
 #: ../src/common/util.c:1032
 msgid "Reunion"
@@ -3122,15 +3114,15 @@ msgstr ""
 
 #: ../src/common/util.c:1040
 msgid "Sudan"
-msgstr ""
+msgstr "Sodan"
 
 #: ../src/common/util.c:1041
 msgid "Sweden"
-msgstr ""
+msgstr "Suècia"
 
 #: ../src/common/util.c:1042
 msgid "Singapore"
-msgstr ""
+msgstr "Singapor"
 
 #: ../src/common/util.c:1043
 msgid "St. Helena"
@@ -3138,7 +3130,7 @@ msgstr ""
 
 #: ../src/common/util.c:1044
 msgid "Slovenia"
-msgstr ""
+msgstr "Eslovenia"
 
 #: ../src/common/util.c:1045
 msgid "Svalbard and Jan Mayen Islands"
@@ -3146,11 +3138,11 @@ msgstr ""
 
 #: ../src/common/util.c:1046
 msgid "Slovak Republic"
-msgstr ""
+msgstr "Republica eslovaquia"
 
 #: ../src/common/util.c:1047
 msgid "Sierra Leone"
-msgstr ""
+msgstr "Sierra Leone"
 
 #: ../src/common/util.c:1048
 msgid "San Marino"
@@ -3178,7 +3170,7 @@ msgstr ""
 
 #: ../src/common/util.c:1054
 msgid "El Salvador"
-msgstr ""
+msgstr "El Salvador"
 
 #: ../src/common/util.c:1055
 msgid "Syria"
@@ -3186,7 +3178,7 @@ msgstr ""
 
 #: ../src/common/util.c:1056
 msgid "Swaziland"
-msgstr ""
+msgstr "Swaziland"
 
 #: ../src/common/util.c:1057
 msgid "Turks and Caicos Islands"
@@ -3194,7 +3186,7 @@ msgstr ""
 
 #: ../src/common/util.c:1058
 msgid "Chad"
-msgstr ""
+msgstr "Chad"
 
 #: ../src/common/util.c:1059
 msgid "French Southern Territories"
@@ -3238,11 +3230,11 @@ msgstr ""
 
 #: ../src/common/util.c:1069
 msgid "Trinidad and Tobago"
-msgstr ""
+msgstr "Trinitat e Tobago"
 
 #: ../src/common/util.c:1070
 msgid "Tuvalu"
-msgstr ""
+msgstr "Tuvalu"
 
 #: ../src/common/util.c:1071
 msgid "Taiwan"
@@ -3254,15 +3246,15 @@ msgstr ""
 
 #: ../src/common/util.c:1073
 msgid "Ukraine"
-msgstr ""
+msgstr "Ucraïna"
 
 #: ../src/common/util.c:1074
 msgid "Uganda"
-msgstr ""
+msgstr "Oganda"
 
 #: ../src/common/util.c:1075
 msgid "United Kingdom"
-msgstr ""
+msgstr "Reialme Unit"
 
 #: ../src/common/util.c:1076
 msgid "US Minor Outlying Islands"
@@ -3290,7 +3282,7 @@ msgstr ""
 
 #: ../src/common/util.c:1082
 msgid "Venezuela"
-msgstr ""
+msgstr "Veneçuèla"
 
 #: ../src/common/util.c:1083
 msgid "British Virgin Islands"
@@ -3302,11 +3294,11 @@ msgstr ""
 
 #: ../src/common/util.c:1085
 msgid "Vietnam"
-msgstr ""
+msgstr "Vietnam"
 
 #: ../src/common/util.c:1086
 msgid "Vanuatu"
-msgstr ""
+msgstr "Vanuatu"
 
 #: ../src/common/util.c:1087
 msgid "Wallis and Futuna Islands"
@@ -3314,11 +3306,11 @@ msgstr ""
 
 #: ../src/common/util.c:1088
 msgid "Samoa"
-msgstr ""
+msgstr "Samoa"
 
 #: ../src/common/util.c:1089
 msgid "Yemen"
-msgstr ""
+msgstr "Iemèn"
 
 #: ../src/common/util.c:1090
 msgid "Mayotte"
@@ -3351,7 +3343,7 @@ msgstr ""
 
 #: ../src/common/xchat.c:738
 msgid "Send a File"
-msgstr ""
+msgstr "Enviar un fichièr"
 
 #: ../src/common/xchat.c:739
 msgid "User Info (WHOIS)"
@@ -3384,7 +3376,7 @@ msgstr ""
 #: ../src/common/xchat.c:748 ../src/common/xchat.c:843
 #: ../src/common/xchat.c:892
 msgid "Kick"
-msgstr ""
+msgstr "Kick"
 
 #: ../src/common/xchat.c:749 ../src/common/xchat.c:750
 #: ../src/common/xchat.c:751 ../src/common/xchat.c:752
@@ -3393,7 +3385,7 @@ msgstr ""
 #: ../src/common/xchat.c:847 ../src/common/xchat.c:848
 #: ../src/common/xchat.c:891
 msgid "Ban"
-msgstr ""
+msgstr "Ban"
 
 #: ../src/common/xchat.c:754 ../src/common/xchat.c:755
 #: ../src/common/xchat.c:756 ../src/common/xchat.c:757
@@ -3420,7 +3412,7 @@ msgstr ""
 
 #: ../src/common/xchat.c:824
 msgid "Version"
-msgstr ""
+msgstr "Version"
 
 #: ../src/common/xchat.c:825
 msgid "Userinfo"
@@ -3433,7 +3425,7 @@ msgstr ""
 #: ../src/common/xchat.c:827 ../src/common/xchat.c:861
 #: ../src/common/xchat.c:909
 msgid "Ping"
-msgstr ""
+msgstr "Ping"
 
 #: ../src/common/xchat.c:829
 msgid "Finger"
@@ -3449,7 +3441,7 @@ msgstr ""
 
 #: ../src/common/xchat.c:832
 msgid "Mode"
-msgstr ""
+msgstr "Mòde"
 
 #: ../src/common/xchat.c:835
 msgid "Give Half-Ops"
@@ -3465,11 +3457,11 @@ msgstr ""
 
 #: ../src/common/xchat.c:840
 msgid "Ignore User"
-msgstr ""
+msgstr "Ignorar l'usuari"
 
 #: ../src/common/xchat.c:841
 msgid "UnIgnore User"
-msgstr ""
+msgstr "Ignorar pas l'usuari"
 
 #: ../src/common/xchat.c:853
 msgid "Info"
@@ -3558,7 +3550,7 @@ msgstr ""
 
 #: ../src/common/xchat.c:906
 msgid "Send"
-msgstr ""
+msgstr "Enviar"
 
 #: ../src/common/xchat.c:907
 msgid "Chat"
@@ -3593,7 +3585,7 @@ msgstr ""
 
 #: ../src/fe-gnome/about.c:85
 msgid "Copyright © 2004-2006"
-msgstr ""
+msgstr "Copyright © 2004-2006"
 
 #: ../src/fe-gnome/about.c:86
 msgid ""
@@ -3603,7 +3595,7 @@ msgstr ""
 
 #: ../src/fe-gnome/about.c:90
 msgid "XChat-GNOME Web Site"
-msgstr ""
+msgstr "Siti web de XChat-GNOME"
 
 #. Translators: This is a special message that shouldn't
 #. * be translated literally. It is used in the about box
@@ -3690,7 +3682,7 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:19
 msgid "Use system fonts"
-msgstr ""
+msgstr "Utilisar las poliças del sistèma"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:20
 msgid "Width of the main window"
