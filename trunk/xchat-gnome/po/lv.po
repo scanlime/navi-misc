@@ -9,14 +9,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gome-xchat\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-06-21 02:02-0600\n"
-"PO-Revision-Date: 2006-05-26 20:37+0000\n"
+"POT-Creation-Date: 2006-09-24 22:03-0700\n"
+"PO-Revision-Date: 2006-06-21 08:32+0000\n"
 "Last-Translator: Agris Bombiza <agris.bombiza@gmail.com>\n"
 "Language-Team: Latvian <locale@laka.lv>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.2\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2\n"
 
 #: ../data/channel-list.glade.h:1
 msgid "<span weight=\"bold\">List Filtering</span>"
@@ -54,7 +55,7 @@ msgstr "Teksta filtrs:"
 msgid "C_onnect"
 msgstr "Pie_slēgties"
 
-#: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:119
+#: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
 msgid "File Transfers"
 msgstr "Failu pārsūtīšana"
 
@@ -67,7 +68,8 @@ msgid "<span weight=\"bold\">User Info</span>"
 msgstr "<span weight=\"bold\"> Lietotāja info</span>"
 
 #: ../data/irc-network-editor.glade.h:3
-msgid "Accept _invalid SSL certificate"
+#, fuzzy
+msgid "Accept invalid _SSL certificate"
 msgstr "P_ieņemt nederīgu SSL sertifikātu"
 
 #: ../data/irc-network-editor.glade.h:4
@@ -75,48 +77,49 @@ msgid "Character _encoding:"
 msgstr "Rakstzīmju šifrēšana:"
 
 #: ../data/irc-network-editor.glade.h:5
+#, fuzzy
+msgid "Cycle _until connected"
+msgstr "Cikls līdz"
+
+#: ../data/irc-network-editor.glade.h:6
 msgid "Network Settings"
 msgstr "Tīkla uzstādījumi"
 
-#: ../data/irc-network-editor.glade.h:6
+#: ../data/irc-network-editor.glade.h:7
 #, fuzzy
-msgid "Nickser_v Password:"
+msgid "Nickser_v password:"
 msgstr "Parole:"
 
-#: ../data/irc-network-editor.glade.h:7
-msgid "Server _Password:"
+#: ../data/irc-network-editor.glade.h:8
+#, fuzzy
+msgid "Server _password:"
 msgstr "Servera _parole:"
 
-#: ../data/irc-network-editor.glade.h:8
+#: ../data/irc-network-editor.glade.h:9
 msgid "Servers"
 msgstr "Serveri"
 
-#: ../data/irc-network-editor.glade.h:9
-msgid "Use _global user settings"
-msgstr ""
-
 #: ../data/irc-network-editor.glade.h:10
+msgid "Use _global user settings"
+msgstr "Lietot vispārīgo lietotāja info"
+
+#: ../data/irc-network-editor.glade.h:11
 msgid "Use _these user settings:"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:11
+#: ../data/irc-network-editor.glade.h:12
 msgid "User and Channels"
 msgstr "Lietotāji un kanāli"
 
-#: ../data/irc-network-editor.glade.h:12
+#: ../data/irc-network-editor.glade.h:13
 msgid "_Automatically connect to network"
 msgstr "Automātiski pieslēgties serverim"
-
-#: ../data/irc-network-editor.glade.h:13
-#, fuzzy
-msgid "_Cycle until connected"
-msgstr "Cikls līdz"
 
 #: ../data/irc-network-editor.glade.h:14
 msgid "_Name:"
 msgstr "_Nosaukums:"
 
-#: ../data/irc-network-editor.glade.h:15
+#: ../data/irc-network-editor.glade.h:15 ../data/setup-dialog.glade.h:5
 msgid "_Nick name:"
 msgstr "Segvārds:"
 
@@ -184,192 +187,197 @@ msgstr "Projām Ziņa:"
 
 #: ../data/preferences-dialog.glade.h:14
 #, fuzzy
-msgid "Auto-accept DCC Chat"
+msgid "Auto-accept DCC c_hat"
 msgstr "Auto Tērzēšana"
 
 #: ../data/preferences-dialog.glade.h:15
 #, fuzzy
-msgid "Auto-accept DCC File Transfers"
+msgid "Auto-accept DCC file tr_ansfers"
 msgstr "Auto Fails Transferti"
 
 #: ../data/preferences-dialog.glade.h:16
-msgid "Background _image"
-msgstr "Fona attēls:"
-
-#: ../data/preferences-dialog.glade.h:17
 msgid "Background mark:"
 msgstr "Fona zīmes:"
 
-#: ../data/preferences-dialog.glade.h:18
+#: ../data/preferences-dialog.glade.h:17
 #, fuzzy
 msgid "Buil_t-in schemes:"
 msgstr "in:"
 
-#: ../data/preferences-dialog.glade.h:19
+#: ../data/preferences-dialog.glade.h:18
 #, fuzzy
-msgid "Convert spaces to underscores in filenames"
+msgid "Convert spaces to _underscores in filenames"
 msgstr "Konvertēt uz in"
 
-#: ../data/preferences-dialog.glade.h:20
-#, fuzzy
-msgid "Download files to:"
-msgstr "Lejupielādēt uz:"
+#: ../data/preferences-dialog.glade.h:19
+msgid "Display a red line after the last read text"
+msgstr ""
 
-#: ../data/preferences-dialog.glade.h:21
+#: ../data/preferences-dialog.glade.h:20
 #, fuzzy
 msgid "Enter extra words to trigger highlighting"
 msgstr "Reģistrēt uz"
 
-#: ../data/preferences-dialog.glade.h:22
+#: ../data/preferences-dialog.glade.h:21
 #, fuzzy
 msgid "Foreground mark:"
 msgstr "Priekšplāns:"
 
-#: ../data/preferences-dialog.glade.h:23
-msgid "Get IP Address From Server"
+#: ../data/preferences-dialog.glade.h:22
+#, fuzzy
+msgid "Get IP address from _server"
 msgstr "Dabūt IP adresi no servera"
+
+#: ../data/preferences-dialog.glade.h:23
+#, fuzzy
+msgid "Glo_bal receive KB/s: "
+msgstr "Globāls KB s "
 
 #: ../data/preferences-dialog.glade.h:24
 #, fuzzy
-msgid "Global receive KB/s: "
-msgstr "Globāls KB s "
+msgid "I_mage file:"
+msgstr "Attēla _fails"
 
 #: ../data/preferences-dialog.glade.h:25
 #, fuzzy
-msgid "Global send KB/s: "
-msgstr "Globāls KB s "
+msgid "In_dividual send KB/s: "
+msgstr "Individuāli KB s "
 
 #: ../data/preferences-dialog.glade.h:26
-msgid "Image _file:"
-msgstr "Attēla _fails"
+#, fuzzy
+msgid "Indi_vidual receive KB/s: "
+msgstr "Individuāli KB s "
 
 #: ../data/preferences-dialog.glade.h:27
 #, fuzzy
-msgid "Individual receive KB/s: "
-msgstr "Individuāli KB s "
-
-#: ../data/preferences-dialog.glade.h:28
-#, fuzzy
-msgid "Individual send KB/s: "
-msgstr "Individuāli KB s "
-
-#: ../data/preferences-dialog.glade.h:29
-#, fuzzy
-msgid "Move completed files to:"
+msgid "Move co_mpleted files to:"
 msgstr "Pārvietot uz:"
 
-#: ../data/preferences-dialog.glade.h:30
+#: ../data/preferences-dialog.glade.h:28
 msgid "Preferences"
 msgstr "Preferences"
 
-#: ../data/preferences-dialog.glade.h:31
+#: ../data/preferences-dialog.glade.h:29
 msgid "Real na_me:"
 msgstr "Pilns vārds:"
 
-#: ../data/preferences-dialog.glade.h:32
+#: ../data/preferences-dialog.glade.h:30
 #, fuzzy
-msgid "Save sender nickname in filenames"
+msgid "Save sender _nickname in filenames"
 msgstr "Saglabāt in"
 
-#: ../data/preferences-dialog.glade.h:33
+#: ../data/preferences-dialog.glade.h:31
 msgid "Select A File"
 msgstr "Izvēlieties failu"
 
-#: ../data/preferences-dialog.glade.h:34
+#: ../data/preferences-dialog.glade.h:32
 msgid "Select Completed Files Directory"
 msgstr "Izvēlēties pabeigto failu direktoriju"
 
-#: ../data/preferences-dialog.glade.h:35
+#: ../data/preferences-dialog.glade.h:33
 msgid "Select Download Directory"
 msgstr "Izvēlēties lejupielādes direktoriju"
 
-#: ../data/preferences-dialog.glade.h:36
+#: ../data/preferences-dialog.glade.h:34
 #, fuzzy
 msgid "Show _timestamps"
 msgstr "Parādīt"
 
-#: ../data/preferences-dialog.glade.h:37
+#: ../data/preferences-dialog.glade.h:35
+msgid "Show m_arker line"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:36
 #, fuzzy
 msgid ""
 "To edit a shortcut key, click on the corresponding row and type a new "
 "accelerator, or press backspace to clear."
 msgstr "Norādiet jaunus taustiņus, vai nospiediet Atstarpi, lai nodzēstu."
 
+#: ../data/preferences-dialog.glade.h:37
+#, fuzzy
+msgid "Use _system terminal font"
+msgstr "Izmantošana Sistēma Terminālis Fonts"
+
 #: ../data/preferences-dialog.glade.h:38
 #, fuzzy
-msgid "Use System Terminal Font"
-msgstr "Izmantošana Sistēma Terminālis Fonts"
+msgid "Use t_his IP address:"
+msgstr "Izmantošana IP Adrese:"
 
 #: ../data/preferences-dialog.glade.h:39
 #, fuzzy
-msgid "Use This IP Address:"
-msgstr "Izmantošana IP Adrese:"
-
-#: ../data/preferences-dialog.glade.h:40
-#, fuzzy
-msgid "Use this font:"
+msgid "Use this f_ont:"
 msgstr "Izmantošana:"
 
-#: ../data/preferences-dialog.glade.h:41
+#: ../data/preferences-dialog.glade.h:40
 #, fuzzy
 msgid "_Background color:"
 msgstr "_Fona krāsa:"
 
-#: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:98
+#: ../data/preferences-dialog.glade.h:41
+#, fuzzy
+msgid "_Background image"
+msgstr "Fona attēls:"
+
+#: ../data/preferences-dialog.glade.h:42
+#, fuzzy
+msgid "_Download files to:"
+msgstr "Lejupielādēt uz:"
+
+#: ../data/preferences-dialog.glade.h:43 ../src/fe-gnome/main-window.c:100
 #, fuzzy
 msgid "_Edit"
 msgstr "_Rediģēt"
 
-#: ../data/preferences-dialog.glade.h:43
+#: ../data/preferences-dialog.glade.h:44
 #, fuzzy
 msgid "_Foreground color:"
 msgstr "Priekšplāna krāsu:"
 
-#: ../data/preferences-dialog.glade.h:44
+#: ../data/preferences-dialog.glade.h:45
+#, fuzzy
+msgid "_Global send KB/s: "
+msgstr "Globāls KB s "
+
+#: ../data/preferences-dialog.glade.h:46
+msgid "_Log conversations"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:47
 #, fuzzy
 msgid "_Nickname:"
 msgstr "_Segvārds:"
 
-#: ../data/preferences-dialog.glade.h:45
+#: ../data/preferences-dialog.glade.h:48
 #, fuzzy
 msgid "_None (use solid color)"
 msgstr "_Nekas (lietot viendabīgu krāsu)"
 
-#: ../data/preferences-dialog.glade.h:46
+#: ../data/preferences-dialog.glade.h:49
 #, fuzzy
 msgid "_Part message:"
 msgstr "Laidiens:"
 
-#: ../data/preferences-dialog.glade.h:47
+#: ../data/preferences-dialog.glade.h:50
 #, fuzzy
 msgid "_Quit message:"
 msgstr "Iziet:"
 
-#: ../data/preferences-dialog.glade.h:48
+#: ../data/preferences-dialog.glade.h:51
 #, fuzzy
 msgid "_Show colors"
 msgstr "Parādīt krāsas"
 
-#: ../data/preferences-dialog.glade.h:49
+#: ../data/preferences-dialog.glade.h:52
 #, fuzzy
 msgid "_Transparent background"
 msgstr "_Caurspīdīgs fons"
 
-#: ../data/preferences-dialog.glade.h:50
+#: ../data/preferences-dialog.glade.h:53
 msgid "spell checking"
 msgstr ""
 
 #: ../data/setup-dialog.glade.h:1
-#, fuzzy
-msgid "Nick Name:"
-msgstr "Signatūra Nosaukums:"
-
-#: ../data/setup-dialog.glade.h:2
-#, fuzzy
-msgid "Real Name:"
-msgstr "Reāls Nosaukums:"
-
-#: ../data/setup-dialog.glade.h:3
 #, fuzzy
 msgid ""
 "Welcome to xchat-gnome! Since this is your first time using this "
@@ -384,40 +392,44 @@ msgstr ""
 "Esiet aicināti uz Kopš ir pirmais laiks aplikācija a uz pirms dabūt, saņemt "
 "n   uz IRC vārds ir vārds   vārds ir priekš aAr Jūs nē uz vārds nē uz."
 
-#: ../data/setup-dialog.glade.h:6
+#: ../data/setup-dialog.glade.h:4
 #, fuzzy
 msgid "XChat-GNOME Setup"
 msgstr "GNOME Uzstādīt"
+
+#: ../data/setup-dialog.glade.h:6
+#, fuzzy
+msgid "_Real name:"
+msgstr "Ī_stais vārds:"
 
 #: ../data/topic-change.glade.h:1
 #, fuzzy
 msgid "Change"
 msgstr "Mainīt"
 
-#: ../data/xchat-gnome.desktop.in.h:1
+#: ../data/xchat-gnome.desktop.in.in.h:1
 #, fuzzy
 msgid "Chat with people using IRC"
 msgstr "Tērzēšana aAr IRC"
 
-#: ../data/xchat-gnome.desktop.in.h:2 ../src/fe-gnome/fe-gnome.c:94
-#: ../src/fe-gnome/fe-gnome.c:105
+#: ../data/xchat-gnome.desktop.in.in.h:2
 #, fuzzy
 msgid "IRC Chat"
 msgstr "IRC Tērzēšana"
 
-#: ../data/xchat-gnome.desktop.in.h:3
+#: ../data/xchat-gnome.desktop.in.in.h:3
 #, fuzzy
 msgid "XChat-GNOME IRC Chat"
 msgstr "GNOME IRC Tērzēšana"
 
 #: ../data/xchat-gnome.glade.h:1
 #, fuzzy
-msgid "Apply on a_ll servers"
+msgid "Apply on all _servers"
 msgstr "Piemērot uz a"
 
 #: ../data/xchat-gnome.glade.h:2
 #, fuzzy
-msgid "Change nickname to:"
+msgid "Change _nickname to:"
 msgstr "Mainīt uz:"
 
 #: ../data/xchat-gnome.glade.h:3
@@ -430,24 +442,26 @@ msgstr "Aizvērt"
 msgid "Mark as _away"
 msgstr "Atzīme"
 
-#: ../data/xchat-gnome.glade.h:5 ../src/common/text.c:527
-#: ../src/common/text.c:533 ../src/common/text.c:540 ../src/common/text.c:607
-#: ../src/common/text.c:733 ../src/common/text.c:740 ../src/common/text.c:745
-#: ../src/common/text.c:750 ../src/common/text.c:755 ../src/common/text.c:761
-#: ../src/common/text.c:766 ../src/common/text.c:770 ../src/common/text.c:776
-#: ../src/common/text.c:782 ../src/common/text.c:828 ../src/common/text.c:838
-#: ../src/common/text.c:843 ../src/common/text.c:848 ../src/common/text.c:857
-#: ../src/common/text.c:868 ../src/common/text.c:875 ../src/common/text.c:881
-#: ../src/common/text.c:886 ../src/common/text.c:891 ../src/common/text.c:898
-#: ../src/common/text.c:904 ../src/common/text.c:910 ../src/common/text.c:915
-#: ../src/common/text.c:920 ../src/common/text.c:924 ../src/common/text.c:930
-#: ../src/common/text.c:938 ../src/common/text.c:972 ../src/common/text.c:977
+#: ../data/xchat-gnome.glade.h:5 ../src/common/text.c:629
+#: ../src/common/text.c:635 ../src/common/text.c:642 ../src/common/text.c:709
+#: ../src/common/text.c:835 ../src/common/text.c:842 ../src/common/text.c:847
+#: ../src/common/text.c:852 ../src/common/text.c:857 ../src/common/text.c:863
+#: ../src/common/text.c:868 ../src/common/text.c:872 ../src/common/text.c:878
+#: ../src/common/text.c:884 ../src/common/text.c:930 ../src/common/text.c:940
+#: ../src/common/text.c:945 ../src/common/text.c:950 ../src/common/text.c:959
+#: ../src/common/text.c:970 ../src/common/text.c:977 ../src/common/text.c:983
+#: ../src/common/text.c:988 ../src/common/text.c:993 ../src/common/text.c:1000
+#: ../src/common/text.c:1006 ../src/common/text.c:1012
+#: ../src/common/text.c:1017 ../src/common/text.c:1022
+#: ../src/common/text.c:1026 ../src/common/text.c:1032
+#: ../src/common/text.c:1040 ../src/common/text.c:1074
+#: ../src/common/text.c:1079
 #, fuzzy
 msgid "Nickname"
 msgstr "Iesauka"
 
-#: ../data/xchat-gnome.glade.h:6 ../src/common/text.c:805
-#: ../src/fe-gnome/channel-list.c:321 ../src/fe-gnome/userlist.c:325
+#: ../data/xchat-gnome.glade.h:6 ../src/common/text.c:907
+#: ../src/fe-gnome/channel-list.c:326 ../src/fe-gnome/userlist.c:325
 #, fuzzy
 msgid "Users"
 msgstr "Lietotāji"
@@ -465,171 +479,20 @@ msgstr ""
 msgid "Screensaver is off, welcome back"
 msgstr "ir izslēgts"
 
-#: ../plugins/autoaway/autoaway.c:212
+#: ../plugins/autoaway/autoaway.c:218
 #, fuzzy
 msgid "Auto Away"
 msgstr "Auto Projām"
 
-#: ../plugins/autoaway/autoaway.c:213
+#: ../plugins/autoaway/autoaway.c:219
 #, fuzzy
 msgid "Automatically go away / come back"
 msgstr "Automātiski iet"
 
-#: ../plugins/autoaway/autoaway.c:261
+#: ../plugins/autoaway/autoaway.c:267
 #, fuzzy
 msgid "Auto-away plugin unloaded\n"
 msgstr "Auto iespraudnis n\n"
-
-#: ../plugins/dbus/xchat_gnome_url_handler.schemas.in.h:1
-#, fuzzy
-msgid "Run xchat-gnome in a terminal?"
-msgstr "Palaist in a terminālis?"
-
-#: ../plugins/dbus/xchat_gnome_url_handler.schemas.in.h:2
-#, fuzzy
-msgid "Set it at TRUE if you want it activated"
-msgstr "Uzstādīt PATIESS"
-
-#: ../plugins/dbus/xchat_gnome_url_handler.schemas.in.h:3
-#, fuzzy
-msgid "The handler for \"irc://\" URLs"
-msgstr "priekš URLs"
-
-#: ../plugins/dbus/dbus-plugin.c:27
-#, fuzzy
-msgid "XChat-GNOME remote access"
-msgstr "GNOME pieeja"
-
-#: ../plugins/dbus/dbus-plugin.c:28
-#, fuzzy
-msgid "plugin for remote access using DBUS"
-msgstr "iespraudnis priekš pieeja"
-
-#: ../plugins/dbus/dbus-plugin.c:333
-#, c-format
-msgid "Couldn't connect to session bus : %s\n"
-msgstr ""
-
-#: ../plugins/dbus/dbus-plugin.c:353
-#, c-format
-msgid "Failed to acquire %s: %s\n"
-msgstr ""
-
-#: ../plugins/dbus/dbus-plugin.c:401
-#, c-format
-msgid "%s loaded successfully!\n"
-msgstr ""
-
-#: ../plugins/dbus/xchat-gnome-remote.c:41 ../src/fe-gnome/fe-gnome.c:62
-#, fuzzy
-msgid "Open an irc:// url"
-msgstr "Atvērt"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:41
-#, fuzzy
-msgid "irc://server:port/channel"
-msgstr "serveris ports"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:42
-#, fuzzy
-msgid "Execute a xchat command"
-msgstr "Izpildīt a"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:42
-#, fuzzy
-msgid "\"Command to execute\""
-msgstr "Komanda uz"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:43
-#, fuzzy
-msgid "Prints some text to the current tab/window"
-msgstr "teksts uz logs"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:43
-#, fuzzy
-msgid "\"Text to print\""
-msgstr "Teksts uz"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:44
-#, fuzzy
-msgid "Change the context to the channel"
-msgstr "Mainīt uz"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:44
-msgid "channel"
-msgstr "Kanāls"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:45
-#, fuzzy
-msgid "Change the context to the server"
-msgstr "Mainīt uz serveris"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:45
-#, fuzzy
-msgid "server"
-msgstr "serveris"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:46
-#, fuzzy
-msgid "Get some informations from xchat"
-msgstr "Dabūt no"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:46
-msgid "id"
-msgstr "id"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:47
-#, fuzzy
-msgid "Get settings from xchat"
-msgstr "Dabūt no"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:47
-#, fuzzy
-msgid "name"
-msgstr "vārds"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:79
-#, c-format
-msgid ""
-"xchat-gnome-remote: %s\n"
-"Try `xchat-gnome-remote --help' for more information\n"
-msgstr ""
-
-#: ../plugins/dbus/xchat-gnome-remote.c:90
-#, fuzzy
-msgid "Couldn't connect to session bus"
-msgstr "uz"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:116
-#: ../plugins/dbus/xchat-gnome-remote.c:130
-#, fuzzy
-msgid "Failed to complete command"
-msgstr "Neizdevās uz"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:125
-#, fuzzy
-msgid "Failed to complete SetContext"
-msgstr "Neizdevās uz"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:135
-#, fuzzy
-msgid "Failed to complete print"
-msgstr "Neizdevās uz"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:142
-#, fuzzy
-msgid "Failed to complete GetInfo"
-msgstr "Neizdevās uz"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:155
-#, fuzzy
-msgid "Failed to complete GetPrefs"
-msgstr "Neizdevās uz"
-
-#: ../plugins/dbus/xchat-gnome-remote.c:159
-#, c-format
-msgid "%s doesn't exist\n"
-msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:36
 #, fuzzy
@@ -644,16 +507,6 @@ msgstr ""
 #, c-format
 msgid "%s loaded successfully\n"
 msgstr ""
-
-#: ../plugins/notification/eggtrayicon.c:111
-#, fuzzy
-msgid "Orientation"
-msgstr "Orientācija"
-
-#: ../plugins/notification/eggtrayicon.c:111
-#, fuzzy
-msgid "The orientation of the tray."
-msgstr "no."
 
 #: ../plugins/notification/notification.c:139
 #, fuzzy
@@ -708,34 +561,34 @@ msgstr "augšup no GNOME"
 msgid "Error closing notification: %s\n"
 msgstr ""
 
-#: ../plugins/notify-osd/notify-osd.c:72
+#: ../plugins/notify-osd/notify-osd.c:74
 #, c-format
 msgid "Failed to send notification: %s\n"
 msgstr ""
 
-#: ../plugins/notify-osd/notify-osd.c:113
-#: ../plugins/notify-osd/notify-osd.c:140
+#: ../plugins/notify-osd/notify-osd.c:116
+#: ../plugins/notify-osd/notify-osd.c:142
 #, c-format
 msgid "Message in %s"
 msgstr ""
 
-#: ../plugins/notify-osd/notify-osd.c:115
-#: ../plugins/notify-osd/notify-osd.c:142
+#: ../plugins/notify-osd/notify-osd.c:118
+#: ../plugins/notify-osd/notify-osd.c:144
 #, fuzzy, c-format
 msgid "Message from %s"
 msgstr "Ziņojums no %s"
 
-#: ../plugins/notify-osd/notify-osd.c:161
+#: ../plugins/notify-osd/notify-osd.c:163
 #, c-format
 msgid "Private Message from %s"
 msgstr ""
 
-#: ../plugins/notify-osd/notify-osd.c:209
+#: ../plugins/notify-osd/notify-osd.c:211
 #, fuzzy
 msgid "OSD loaded\n"
 msgstr "n\n"
 
-#: ../plugins/notify-osd/notify-osd.c:213
+#: ../plugins/notify-osd/notify-osd.c:215
 #, fuzzy
 msgid "OSD initialization failed\n"
 msgstr "inicializēšana n\n"
@@ -745,19 +598,19 @@ msgstr "inicializēšana n\n"
 msgid "xchat URL scraper"
 msgstr "URL"
 
-#: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:844
+#: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:858
 #, fuzzy
 msgid "Time"
 msgstr "Laiks"
 
-#: ../plugins/url_scraper/urlscraper.c:64 ../src/common/text.c:585
+#: ../plugins/url_scraper/urlscraper.c:64 ../src/common/text.c:687
 #, fuzzy
 msgid "Nick"
 msgstr "Signatūra"
 
-#: ../plugins/url_scraper/urlscraper.c:68 ../src/common/text.c:552
-#: ../src/common/text.c:556 ../src/common/text.c:992
-#: ../src/fe-gnome/irc-network-editor.c:273
+#: ../plugins/url_scraper/urlscraper.c:68 ../src/common/text.c:654
+#: ../src/common/text.c:658 ../src/common/text.c:1094
+#: ../src/fe-gnome/irc-network-editor.c:314
 #, fuzzy
 msgid "Channel"
 msgstr "Kanāls"
@@ -832,16 +685,16 @@ msgstr "Skaņa iespraudnis n\n"
 msgid "Cannot create ~/.xchat2"
 msgstr "Nevaru izveidot ~/.xchat2"
 
-#: ../src/common/cfgfiles.c:683
+#: ../src/common/cfgfiles.c:685
 #, fuzzy
 msgid "I'm busy"
 msgstr "I m"
 
-#: ../src/common/cfgfiles.c:684
+#: ../src/common/cfgfiles.c:686
 msgid "Leaving"
 msgstr "Iziešana"
 
-#: ../src/common/cfgfiles.c:730
+#: ../src/common/cfgfiles.c:732
 #, fuzzy
 msgid ""
 "* Running IRC as root is stupid! You should\n"
@@ -874,7 +727,7 @@ msgid "Done"
 msgstr "Pabeigts"
 
 #. green
-#: ../src/common/dcc.c:71 ../src/fe-gnome/connect-dialog.c:154
+#: ../src/common/dcc.c:71 ../src/fe-gnome/connect-dialog.c:155
 #, fuzzy
 msgid "Connect"
 msgstr "Savienot"
@@ -885,17 +738,27 @@ msgstr "Savienot"
 msgid "Aborted"
 msgstr "Atcelts"
 
-#: ../src/common/dcc.c:1875 ../src/common/outbound.c:2246
+#: ../src/common/dcc.c:1887 ../src/common/outbound.c:2309
 #, fuzzy, c-format
 msgid "Cannot access %s\n"
 msgstr "Nevar piekļūt %s\n"
 
-#: ../src/common/dcc.c:2362
+#. ! if (osvi.dwMajorVersion >= 5)
+#. fallback to error number
+#: ../src/common/dcc.c:1888 ../src/common/text.c:916 ../src/common/text.c:953
+#: ../src/common/text.c:964 ../src/common/text.c:971 ../src/common/text.c:984
+#: ../src/common/text.c:1001 ../src/common/text.c:1101
+#: ../src/common/util.c:352
+#, fuzzy
+msgid "Error"
+msgstr "Kļūda"
+
+#: ../src/common/dcc.c:2376
 #, c-format
 msgid "%s is offering \"%s\". Do you want to accept?"
 msgstr ""
 
-#: ../src/common/dcc.c:2573
+#: ../src/common/dcc.c:2587
 #, fuzzy
 msgid "No active DCCs\n"
 msgstr "Nē aktīvs n\n"
@@ -947,71 +810,71 @@ msgstr "Nē Tiesāt<channel> n\n"
 msgid "Not connected. Try /server <host> [<port>]\n"
 msgstr "Not Tiesāt serveris<host><port> n\n"
 
-#: ../src/common/outbound.c:1650
+#: ../src/common/outbound.c:1730
 #, fuzzy
 msgid "I need /bin/sh to run!\n"
 msgstr "I uz n\n"
 
-#: ../src/common/outbound.c:1983
+#: ../src/common/outbound.c:2046
 #, fuzzy
 msgid "Commands Available:"
 msgstr "Komandas Pieejams:"
 
-#: ../src/common/outbound.c:1997
+#: ../src/common/outbound.c:2060
 #, fuzzy
 msgid "User defined commands:"
 msgstr "Lietotājs:"
 
-#: ../src/common/outbound.c:2013
+#: ../src/common/outbound.c:2076
 #, fuzzy
 msgid "Plugin defined commands:"
 msgstr "Iespraudnis:"
 
-#: ../src/common/outbound.c:2024
+#: ../src/common/outbound.c:2087
 #, fuzzy
 msgid "Type /HELP <command> for more information, or /HELP -l"
 msgstr "Tips<command> priekš vai"
 
-#: ../src/common/outbound.c:2099
+#: ../src/common/outbound.c:2162
 #, fuzzy, c-format
 msgid "Unknown arg '%s' ignored."
 msgstr "Nezināmais arguments '%s' ignorēts."
 
-#: ../src/common/outbound.c:2960
+#: ../src/common/outbound.c:3049
 #, fuzzy
 msgid "No such plugin found.\n"
 msgstr "Nē iespraudnis n\n"
 
-#: ../src/common/outbound.c:2965
+#: ../src/common/outbound.c:3054
 #, fuzzy
 msgid "That plugin is refusing to unload.\n"
 msgstr "iespraudnis ir uz n\n"
 
-#: ../src/common/outbound.c:3200
+#: ../src/common/outbound.c:3323
 #, fuzzy
 msgid "ADDBUTTON <name> <action>, adds a button under the user-list"
 msgstr "<name><action> a saraksts"
 
-#: ../src/common/outbound.c:3202
+#: ../src/common/outbound.c:3325
 #, fuzzy
 msgid "ALLCHAN <cmd>, sends a command to all channels you're in"
 msgstr "<cmd> a uz visi in"
 
-#: ../src/common/outbound.c:3204
+#: ../src/common/outbound.c:3327
 #, fuzzy
 msgid "ALLCHANL <cmd>, sends a command to all channels you're in"
 msgstr "<cmd> a uz visi in"
 
-#: ../src/common/outbound.c:3206
+#: ../src/common/outbound.c:3329
 #, fuzzy
 msgid "ALLSERV <cmd>, sends a command to all servers you're in"
 msgstr "<cmd> a uz visi in"
 
-#: ../src/common/outbound.c:3207
+#: ../src/common/outbound.c:3330
 msgid "AWAY [<reason>], sets you away"
 msgstr "AWAY [<iemesls>], atzīmē jūs kā promesošu"
 
-#: ../src/common/outbound.c:3209
+#: ../src/common/outbound.c:3332
 #, fuzzy
 msgid ""
 "BAN <mask> [<bantype>], bans everyone matching the mask from the current "
@@ -1019,34 +882,42 @@ msgid ""
 "chanop)"
 msgstr "<mask><bantype> atbilst no Ja uz"
 
-#: ../src/common/outbound.c:3211
-#, fuzzy
-msgid "CLEAR, Clears the current text window"
-msgstr "teksts logs"
+#: ../src/common/outbound.c:3334
+msgid ""
+"Set per channel options\n"
+"CHANOPT CONFMODE ON|OFF - Toggle conf mode/showing of join and part "
+"messages\n"
+"CHANOPT COLORPASTE ON|OFF - Toggle color paste\n"
+"CHANOPT BEEP ON|OFF - Toggle beep on message"
+msgstr ""
 
-#: ../src/common/outbound.c:3212
+#: ../src/common/outbound.c:3340
+msgid "CLEAR [ALL|HISTORY], Clears the current text window or command history"
+msgstr ""
+
+#: ../src/common/outbound.c:3341
 #, fuzzy
 msgid "CLOSE, Closes the current window/tab"
 msgstr "logs"
 
-#: ../src/common/outbound.c:3215
+#: ../src/common/outbound.c:3344
 #, fuzzy
 msgid "COUNTRY [-s] <code|wildcard>, finds a country code, eg: au = australia"
 msgstr "s<code|wildcard> a kods"
 
-#: ../src/common/outbound.c:3217
+#: ../src/common/outbound.c:3346
 #, fuzzy
 msgid ""
 "CTCP <nick> <message>, send the CTCP message to nick, common messages are "
 "VERSION and USERINFO"
 msgstr "<nick><message> uz VERSION un"
 
-#: ../src/common/outbound.c:3219
+#: ../src/common/outbound.c:3348
 #, fuzzy
 msgid "CYCLE, parts current channel and immediately rejoins"
 msgstr "un nekavējoties"
 
-#: ../src/common/outbound.c:3221
+#: ../src/common/outbound.c:3350
 #, fuzzy
 msgid ""
 "\n"
@@ -1063,102 +934,102 @@ msgstr ""
 "<nick><nick> a uz<nick> a režīms saraksts<nick> uz<nick> "
 "režīms<type><nick><file>"
 
-#: ../src/common/outbound.c:3233
+#: ../src/common/outbound.c:3362
 #, fuzzy
 msgid ""
 "DEHOP <nick>, removes chanhalf-op status from the nick on the current "
 "channel (needs chanop)"
 msgstr "<nick> statuss no uz"
 
-#: ../src/common/outbound.c:3235
+#: ../src/common/outbound.c:3364
 #, fuzzy
 msgid "DELBUTTON <name>, deletes a button from under the user-list"
 msgstr "<name> a no saraksts"
 
-#: ../src/common/outbound.c:3237
+#: ../src/common/outbound.c:3366
 #, fuzzy
 msgid ""
 "DEOP <nick>, removes chanop status from the nick on the current channel "
 "(needs chanop)"
 msgstr "<nick> statuss no uz"
 
-#: ../src/common/outbound.c:3239
+#: ../src/common/outbound.c:3368
 #, fuzzy
 msgid ""
 "DEVOICE <nick>, removes voice status from the nick on the current channel "
 "(needs chanop)"
 msgstr "<nick> statuss no uz"
 
-#: ../src/common/outbound.c:3240
+#: ../src/common/outbound.c:3369
 #, fuzzy
 msgid "DISCON, Disconnects from server"
 msgstr "no serveris"
 
-#: ../src/common/outbound.c:3241
+#: ../src/common/outbound.c:3370
 #, fuzzy
 msgid "DNS <nick|host|ip>, Finds a users IP number"
 msgstr "DNS<nick|host|ip> a IP skaitlis"
 
-#: ../src/common/outbound.c:3242
+#: ../src/common/outbound.c:3371
 #, fuzzy
 msgid "ECHO <text>, Prints text locally"
 msgstr "<text> teksts"
 
-#: ../src/common/outbound.c:3245
+#: ../src/common/outbound.c:3374
 #, fuzzy
 msgid ""
 "EXEC [-o] <command>, runs the command. If -o flag is used then output is "
 "sent to current channel, else is printed to current text box"
 msgstr "o<command> Ja o ir izvade ir uz ir uz teksts"
 
-#: ../src/common/outbound.c:3247
+#: ../src/common/outbound.c:3376
 #, fuzzy
 msgid "EXECCONT, sends the process SIGCONT"
 msgstr "SIGCONT"
 
-#: ../src/common/outbound.c:3250
+#: ../src/common/outbound.c:3379
 #, fuzzy
 msgid ""
 "EXECKILL [-9], kills a running exec in the current session. If -9 is given "
 "the process is SIGKILL'ed"
 msgstr "a in Ja ir ir SIGKILL"
 
-#: ../src/common/outbound.c:3252
+#: ../src/common/outbound.c:3381
 #, fuzzy
 msgid "EXECSTOP, sends the process SIGSTOP"
 msgstr "SIGSTOP"
 
-#: ../src/common/outbound.c:3253
+#: ../src/common/outbound.c:3382
 #, fuzzy
 msgid "EXECWRITE, sends data to the processes stdin"
 msgstr "dati uz"
 
-#: ../src/common/outbound.c:3257
+#: ../src/common/outbound.c:3386
 #, fuzzy
 msgid "FLUSHQ, flushes the current server's send queue"
 msgstr "serveris s"
 
-#: ../src/common/outbound.c:3259
+#: ../src/common/outbound.c:3388
 #, fuzzy
 msgid "GATE <host> [<port>], proxies through a host, port defaults to 23"
 msgstr "<host><port> a ports uz"
 
-#: ../src/common/outbound.c:3262
+#: ../src/common/outbound.c:3391
 #, fuzzy
 msgid "GHOST <nick> <password>, Kills a ghosted nickname"
 msgstr "<nick><password> a"
 
-#: ../src/common/outbound.c:3267
+#: ../src/common/outbound.c:3396
 #, fuzzy
 msgid "HOP <nick>, gives chanhalf-op status to the nick (needs chanop)"
 msgstr "<nick> statuss uz"
 
-#: ../src/common/outbound.c:3268
+#: ../src/common/outbound.c:3397
 #, fuzzy
 msgid "ID <password>, identifies yourself to nickserv"
 msgstr "ID<password> uz"
 
-#: ../src/common/outbound.c:3270
+#: ../src/common/outbound.c:3399
 #, fuzzy
 msgid ""
 "IGNORE <mask> <types..> <options..>\n"
@@ -1171,140 +1042,139 @@ msgstr ""
 " uz\n"
 " no dati uz vai visi no"
 
-#: ../src/common/outbound.c:3277
+#: ../src/common/outbound.c:3406
 #, fuzzy
 msgid ""
 "INVITE <nick> [<channel>], invites someone to a channel, by default the "
 "current channel (needs chanop)"
 msgstr "<nick><channel> uz a   noklusētais"
 
-#: ../src/common/outbound.c:3278
+#: ../src/common/outbound.c:3407
 msgid "JOIN <channel>, joins the channel"
 msgstr "JOIN <kanāls>, pievienojas kanālam"
 
-#: ../src/common/outbound.c:3280
+#: ../src/common/outbound.c:3409
 #, fuzzy
 msgid "KICK <nick>, kicks the nick from the current channel (needs chanop)"
 msgstr "<nick> no"
 
-#: ../src/common/outbound.c:3282
+#: ../src/common/outbound.c:3411
 #, fuzzy
 msgid ""
 "KICKBAN <nick>, bans then kicks the nick from the current channel (needs "
 "chanop)"
 msgstr "<nick> no"
 
-#: ../src/common/outbound.c:3285
+#: ../src/common/outbound.c:3414
 #, fuzzy
 msgid "LAGCHECK, forces a new lag check"
 msgstr "a"
 
-#: ../src/common/outbound.c:3287
+#: ../src/common/outbound.c:3416
 #, fuzzy
 msgid "LASTLOG <string>, searches for a string in the buffer"
 msgstr "<string> priekš a virkne in"
 
-#: ../src/common/outbound.c:3289
+#: ../src/common/outbound.c:3418
 #, fuzzy
 msgid "LOAD [-e] <file>, loads a plugin or script"
 msgstr "e<file> a iespraudnis vai skripts"
 
-#: ../src/common/outbound.c:3292
+#: ../src/common/outbound.c:3421
 #, fuzzy
 msgid ""
 "MDEHOP, Mass deop's all chanhalf-ops in the current channel (needs chanop)"
 msgstr "Masa s visi in"
 
-#: ../src/common/outbound.c:3294
+#: ../src/common/outbound.c:3423
 #, fuzzy
 msgid "MDEOP, Mass deop's all chanops in the current channel (needs chanop)"
 msgstr "Masa s visi in"
 
-#: ../src/common/outbound.c:3296
+#: ../src/common/outbound.c:3425
 #, fuzzy
 msgid ""
 "ME <action>, sends the action to the current channel (actions are written in "
 "the 3rd person, like /me jumps)"
 msgstr "<action> uz in 3. persona līdzīgs (like)"
 
-#: ../src/common/outbound.c:3299
+#: ../src/common/outbound.c:3428
 #, fuzzy
 msgid ""
 "MKICK, Mass kicks everyone except you in the current channel (needs chanop)"
 msgstr "Masa in"
 
-#: ../src/common/outbound.c:3302
+#: ../src/common/outbound.c:3431
 #, fuzzy
 msgid "MOP, Mass op's all users in the current channel (needs chanop)"
 msgstr "Masa s visi in"
 
-#: ../src/common/outbound.c:3303
+#: ../src/common/outbound.c:3432
 #, fuzzy
 msgid "MSG <nick> <message>, sends a private message"
 msgstr "<nick><message> a privāts"
 
-#: ../src/common/outbound.c:3306
+#: ../src/common/outbound.c:3435
 #, fuzzy
 msgid "NAMES, Lists the nicks on the current channel"
 msgstr "Saraksti uz"
 
-#: ../src/common/outbound.c:3308
+#: ../src/common/outbound.c:3437
 #, fuzzy
 msgid "NCTCP <nick> <message>, Sends a CTCP notice"
 msgstr "<nick><message> a"
 
-#: ../src/common/outbound.c:3309
+#: ../src/common/outbound.c:3438
 msgid "NEWSERVER [-noconnect] <hostname> [<port>]"
 msgstr "NEWSERVER <hostdators> [<ports>]"
 
-#: ../src/common/outbound.c:3310
+#: ../src/common/outbound.c:3439
 msgid "NICK <nickname>, sets your nick"
 msgstr "NICK <segvārds>, uzstāda jums segvārdu"
 
-#: ../src/common/outbound.c:3313
+#: ../src/common/outbound.c:3442
 #, fuzzy
 msgid ""
 "NOTICE <nick/channel> <message>, sends a notice. Notices are a type of "
 "message that should be auto reacted to"
 msgstr "<nick/channel><message> a a tips no uz"
 
-#: ../src/common/outbound.c:3315
+#: ../src/common/outbound.c:3444
 #, fuzzy
 msgid "NOTIFY [<nick>], lists your notify list or adds someone to it"
 msgstr "<nick> saraksts vai uz"
 
-#: ../src/common/outbound.c:3317
+#: ../src/common/outbound.c:3446
 #, fuzzy
 msgid "OP <nick>, gives chanop status to the nick (needs chanop)"
 msgstr "<nick> statuss uz"
 
-#: ../src/common/outbound.c:3319
+#: ../src/common/outbound.c:3448
 #, fuzzy
 msgid ""
 "PART [<channel>] [<reason>], leaves the channel, by default the current one"
 msgstr "<channel><reason>   noklusētais"
 
-#: ../src/common/outbound.c:3321
+#: ../src/common/outbound.c:3450
 #, fuzzy
 msgid "PING <nick | channel>, CTCP pings nick or channel"
 msgstr "<nick | channel> vai"
 
-#: ../src/common/outbound.c:3323
-#, fuzzy
-msgid "QUERY <nick>, opens up a new privmsg window to someone"
-msgstr "<nick> augšup a logs uz"
+#: ../src/common/outbound.c:3452
+msgid "QUERY [-nofocus] <nick>, opens up a new privmsg window to someone"
+msgstr ""
 
-#: ../src/common/outbound.c:3325
+#: ../src/common/outbound.c:3454
 #, fuzzy
 msgid "QUIT [<reason>], disconnects from the current server"
 msgstr "<reason> no serveris"
 
-#: ../src/common/outbound.c:3327
+#: ../src/common/outbound.c:3456
 #, fuzzy
 msgid "QUOTE <text>, sends the text in raw form to the server"
 msgstr "<text> teksts in uz serveris"
 
-#: ../src/common/outbound.c:3330
+#: ../src/common/outbound.c:3459
 #, fuzzy
 msgid ""
 "RECONNECT [-ssl] [<host>] [<port>] [<password>], Can be called just as /"
@@ -1312,7 +1182,7 @@ msgid ""
 "reconnect to all the open servers"
 msgstr "<host><port><password> Skārda trauks uz uz serveris vai aAr uz uz visi"
 
-#: ../src/common/outbound.c:3333
+#: ../src/common/outbound.c:3462
 #, fuzzy
 msgid ""
 "RECONNECT [<host>] [<port>] [<password>], Can be called just as /RECONNECT "
@@ -1320,33 +1190,33 @@ msgid ""
 "all the open servers"
 msgstr "<host><port><password> Skārda trauks uz uz serveris vai aAr uz uz visi"
 
-#: ../src/common/outbound.c:3335
+#: ../src/common/outbound.c:3464
 #, fuzzy
 msgid ""
 "RECV <text>, send raw data to xchat, as if it was received from the irc "
 "server"
 msgstr "<text> dati uz no serveris"
 
-#: ../src/common/outbound.c:3338
+#: ../src/common/outbound.c:3467
 #, fuzzy
 msgid "SAY <text>, sends the text to the object in the current window"
 msgstr "<text> teksts uz in logs"
 
-#: ../src/common/outbound.c:3339
+#: ../src/common/outbound.c:3468
 msgid "SEND <nick> [<file>]"
 msgstr "SEND <niks> [<fails>]"
 
-#: ../src/common/outbound.c:3342
+#: ../src/common/outbound.c:3471
 #, fuzzy
 msgid "SERVCHAN [-ssl] <host> <port> <channel>, connects and joins a channel"
 msgstr "<host><port><channel> un a"
 
-#: ../src/common/outbound.c:3345
+#: ../src/common/outbound.c:3474
 #, fuzzy
 msgid "SERVCHAN <host> <port> <channel>, connects and joins a channel"
 msgstr "<host><port><channel> un a"
 
-#: ../src/common/outbound.c:3349
+#: ../src/common/outbound.c:3478
 #, fuzzy
 msgid ""
 "SERVER [-ssl] <host> [<port>] [<password>], connects to a server, the "
@@ -1355,74 +1225,74 @@ msgstr ""
 "<host><port><password> uz a serveris noklusētais ports ir priekš normāls un "
 "priekš"
 
-#: ../src/common/outbound.c:3352
+#: ../src/common/outbound.c:3481
 #, fuzzy
 msgid ""
 "SERVER <host> [<port>] [<password>], connects to a server, the default port "
 "is 6667"
 msgstr "<host><port><password> uz a serveris noklusētais ports ir"
 
-#: ../src/common/outbound.c:3354
+#: ../src/common/outbound.c:3483
 #, fuzzy
 msgid "SET [-quiet] <variable> [<value>]"
 msgstr "SET [-quiet] <mainīgais> [<vērtība>]"
 
-#: ../src/common/outbound.c:3355
+#: ../src/common/outbound.c:3484
 msgid "SETCURSOR [-|+]<position>"
 msgstr "SETCURSOR [-|+]<pozīcija>"
 
-#: ../src/common/outbound.c:3359
+#: ../src/common/outbound.c:3489
 #, fuzzy
 msgid ""
 "TOPIC [<topic>], sets the topic if one is given, else shows the current topic"
 msgstr "<topic> tēma ir tēma"
 
-#: ../src/common/outbound.c:3361
+#: ../src/common/outbound.c:3491
 msgid "UNBAN <mask> [<mask>...], unbans the specified masks."
 msgstr "UNBAN <maska> [<maska>...], noņem izraidījumu norādītajām maskām."
 
-#: ../src/common/outbound.c:3362
+#: ../src/common/outbound.c:3492
 msgid "UNIGNORE <mask> [QUIET]"
 msgstr "UNIGNORE <maska> [QUIET]"
 
-#: ../src/common/outbound.c:3363
+#: ../src/common/outbound.c:3493
 #, fuzzy
 msgid "UNLOAD <name>, unloads a plugin or script"
 msgstr "<name> a iespraudnis vai skripts"
 
-#: ../src/common/outbound.c:3364
+#: ../src/common/outbound.c:3494
 #, fuzzy
 msgid "URL <url>, opens a URL in your browser"
 msgstr "URL<url> a URL in"
 
-#: ../src/common/outbound.c:3366
+#: ../src/common/outbound.c:3496
 #, fuzzy
 msgid ""
 "USELECT [-a] [-s] <nick1> <nick2> etc, highlights nick(s) in channel userlist"
 msgstr "a s<nick1><nick2> s in"
 
-#: ../src/common/outbound.c:3369
+#: ../src/common/outbound.c:3499
 #, fuzzy
 msgid "VOICE <nick>, gives voice status to someone (needs chanop)"
 msgstr "<nick> statuss uz"
 
-#: ../src/common/outbound.c:3371
+#: ../src/common/outbound.c:3501
 #, fuzzy
 msgid "WALLCHAN <message>, writes the message to all channels"
 msgstr "<message> uz visi"
 
-#: ../src/common/outbound.c:3373
+#: ../src/common/outbound.c:3503
 #, fuzzy
 msgid ""
 "WALLCHOP <message>, sends the message to all chanops on the current channel"
 msgstr "<message> uz visi uz"
 
-#: ../src/common/outbound.c:3406
+#: ../src/common/outbound.c:3536
 #, fuzzy, c-format
 msgid "Usage: %s\n"
 msgstr "Lietošana: %s\n"
 
-#: ../src/common/outbound.c:3411
+#: ../src/common/outbound.c:3541
 #, fuzzy
 msgid ""
 "\n"
@@ -1431,26 +1301,26 @@ msgstr ""
 "\n"
 "pieejams uz n\n"
 
-#: ../src/common/outbound.c:3417
+#: ../src/common/outbound.c:3547
 #, fuzzy
 msgid "No such command.\n"
 msgstr "Nē n\n"
 
-#: ../src/common/outbound.c:3744
+#: ../src/common/outbound.c:3874
 #, fuzzy
 msgid "Bad arguments for user command.\n"
 msgstr "priekš n\n"
 
-#: ../src/common/outbound.c:3900
+#: ../src/common/outbound.c:4030
 msgid "Too many recursive usercommands, aborting."
 msgstr "Pārāk daudz rekursīvu pietotājkomandu, pārtraucu"
 
-#: ../src/common/outbound.c:3977
+#: ../src/common/outbound.c:4107
 #, fuzzy
 msgid "Unknown Command. Try /help\n"
 msgstr "Nezināms Komanda Tiesāt n\n"
 
-#: ../src/common/plugin.c:372 ../src/common/plugin.c:413
+#: ../src/common/plugin.c:357 ../src/common/plugin.c:398
 #, fuzzy
 msgid "No xchat_plugin_init symbol; is this really an xchat plugin?"
 msgstr "Nē iespraudnis ir iespraudnis?"
@@ -1460,7 +1330,7 @@ msgstr "Nē iespraudnis ir iespraudnis?"
 msgid "Are you sure this is a SSL capable server and port?\n"
 msgstr "ir a SSL serveris un ports n\n"
 
-#: ../src/common/server.c:1005
+#: ../src/common/server.c:1012
 #, fuzzy, c-format
 msgid ""
 "Cannot resolve hostname %s\n"
@@ -1469,7 +1339,7 @@ msgstr ""
 "Nevaru atšķetināt hostdatora vārdu %s\n"
 "Pārbauiet savus IP Uzstādījumus!\n"
 
-#: ../src/common/server.c:1010
+#: ../src/common/server.c:1017
 #, fuzzy
 msgid "Proxy traversal failed.\n"
 msgstr "Starpnieks n\n"
@@ -1505,519 +1375,511 @@ msgid ""
 "  permissions on %s/xchatlogs"
 msgstr ""
 
-#: ../src/common/text.c:516
+#: ../src/common/text.c:618
 #, fuzzy
 msgid "Left message"
 msgstr "Pa Kreisi"
 
-#: ../src/common/text.c:517
+#: ../src/common/text.c:619
 #, fuzzy
 msgid "Right message"
 msgstr "Pa labi"
 
-#: ../src/common/text.c:521
+#: ../src/common/text.c:623
 #, fuzzy
 msgid "The nick of the joining person"
 msgstr "no persona"
 
-#: ../src/common/text.c:522
+#: ../src/common/text.c:624
 msgid "The channel being joined"
 msgstr "Kanāls, kuram pievienojas"
 
-#: ../src/common/text.c:523 ../src/common/text.c:569 ../src/common/text.c:626
+#: ../src/common/text.c:625 ../src/common/text.c:671 ../src/common/text.c:728
 #, fuzzy
 msgid "The host of the person"
 msgstr "no persona"
 
-#: ../src/common/text.c:528
+#: ../src/common/text.c:630
 msgid "The action"
 msgstr "Darbība"
 
-#: ../src/common/text.c:529 ../src/common/text.c:535
+#: ../src/common/text.c:631 ../src/common/text.c:637
 #, fuzzy
 msgid "Mode char"
 msgstr "Režīms"
 
-#: ../src/common/text.c:534
+#: ../src/common/text.c:636
 #, fuzzy
 msgid "The text"
 msgstr "teksts"
 
-#: ../src/common/text.c:536 ../src/common/text.c:609
+#: ../src/common/text.c:638 ../src/common/text.c:711
 #, fuzzy
 msgid "Identified text"
 msgstr "teksts"
 
-#: ../src/common/text.c:541 ../src/common/text.c:597 ../src/common/text.c:603
-#: ../src/common/text.c:608
+#: ../src/common/text.c:643 ../src/common/text.c:699 ../src/common/text.c:705
+#: ../src/common/text.c:710
 msgid "The message"
 msgstr "Ziņa"
 
-#: ../src/common/text.c:545 ../src/common/text.c:613
+#: ../src/common/text.c:647 ../src/common/text.c:715
 #, fuzzy
 msgid "Old nickname"
 msgstr "Vecs"
 
-#: ../src/common/text.c:546 ../src/common/text.c:614
+#: ../src/common/text.c:648 ../src/common/text.c:716
 #, fuzzy
 msgid "New nickname"
 msgstr "Jauns"
 
-#: ../src/common/text.c:550
+#: ../src/common/text.c:652
 #, fuzzy
 msgid "Nick of person who changed the topic"
 msgstr "Signatūra no persona tēma"
 
-#: ../src/common/text.c:551 ../src/common/text.c:557
-#: ../src/fe-gnome/channel-list.c:326
+#: ../src/common/text.c:653 ../src/common/text.c:659
+#: ../src/fe-gnome/channel-list.c:331
 #, fuzzy
 msgid "Topic"
 msgstr "Tēma"
 
-#: ../src/common/text.c:561 ../src/common/text.c:620
+#: ../src/common/text.c:663 ../src/common/text.c:722
 #, fuzzy
 msgid "The nickname of the kicker"
 msgstr "no"
 
-#: ../src/common/text.c:562 ../src/common/text.c:618
+#: ../src/common/text.c:664 ../src/common/text.c:720
 #, fuzzy
 msgid "The person being kicked"
 msgstr "persona"
 
-#: ../src/common/text.c:563 ../src/common/text.c:570 ../src/common/text.c:574
-#: ../src/common/text.c:579 ../src/common/text.c:619 ../src/common/text.c:627
-#: ../src/common/text.c:634
+#: ../src/common/text.c:665 ../src/common/text.c:672 ../src/common/text.c:676
+#: ../src/common/text.c:681 ../src/common/text.c:721 ../src/common/text.c:729
+#: ../src/common/text.c:736
 msgid "The channel"
 msgstr "Kanāls"
 
-#: ../src/common/text.c:564 ../src/common/text.c:621 ../src/common/text.c:628
+#: ../src/common/text.c:666 ../src/common/text.c:723 ../src/common/text.c:730
 msgid "The reason"
 msgstr "Iemesls"
 
-#: ../src/common/text.c:568 ../src/common/text.c:625
+#: ../src/common/text.c:670 ../src/common/text.c:727
 #, fuzzy
 msgid "The nick of the person leaving"
 msgstr "no persona"
 
-#: ../src/common/text.c:575 ../src/common/text.c:581
+#: ../src/common/text.c:677 ../src/common/text.c:683
 #, fuzzy
 msgid "The time"
 msgstr "laiks"
 
-#: ../src/common/text.c:580
+#: ../src/common/text.c:682
 msgid "The creator"
 msgstr "Veidotājs"
 
-#: ../src/common/text.c:586 ../src/common/text.c:844
+#: ../src/common/text.c:688 ../src/common/text.c:946
 #, fuzzy
 msgid "Reason"
 msgstr "Cēlonis"
 
-#: ../src/common/text.c:587 ../src/common/text.c:735 ../src/common/text.c:818
+#: ../src/common/text.c:689 ../src/common/text.c:837 ../src/common/text.c:920
 #, fuzzy
 msgid "Host"
 msgstr "Resursdators"
 
-#: ../src/common/text.c:591 ../src/common/text.c:596 ../src/common/text.c:601
+#: ../src/common/text.c:693 ../src/common/text.c:698 ../src/common/text.c:703
 #, fuzzy
 msgid "Who it's from"
 msgstr "s no"
 
-#: ../src/common/text.c:592
+#: ../src/common/text.c:694
 #, fuzzy
 msgid "The time in x.x format (see below)"
 msgstr "laiks in x x zem"
 
-#: ../src/common/text.c:602 ../src/common/text.c:645
+#: ../src/common/text.c:704 ../src/common/text.c:747
 #, fuzzy
 msgid "The Channel it's going to"
 msgstr "Kanāls s uz"
 
-#: ../src/common/text.c:632
+#: ../src/common/text.c:734
 msgid "The sound"
 msgstr "Skaņa"
 
-#: ../src/common/text.c:633 ../src/common/text.c:639 ../src/common/text.c:644
+#: ../src/common/text.c:735 ../src/common/text.c:741 ../src/common/text.c:746
 #, fuzzy
 msgid "The nick of the person"
 msgstr "no persona"
 
-#: ../src/common/text.c:638 ../src/common/text.c:643
+#: ../src/common/text.c:740 ../src/common/text.c:745
 msgid "The CTCP event"
 msgstr "CTCP notikums"
 
-#: ../src/common/text.c:649
+#: ../src/common/text.c:751
 #, fuzzy
 msgid "The nick of the person who set the key"
 msgstr "no persona"
 
-#: ../src/common/text.c:650
+#: ../src/common/text.c:752
 msgid "The key"
 msgstr "Atslēga"
 
-#: ../src/common/text.c:654
+#: ../src/common/text.c:756
 #, fuzzy
 msgid "The nick of the person who set the limit"
 msgstr "no persona"
 
-#: ../src/common/text.c:655
+#: ../src/common/text.c:757
 msgid "The limit"
 msgstr "Limits"
 
-#: ../src/common/text.c:659
+#: ../src/common/text.c:761
 #, fuzzy
 msgid "The nick of the person who did the op'ing"
 msgstr "no persona"
 
-#: ../src/common/text.c:660
+#: ../src/common/text.c:762
 #, fuzzy
 msgid "The nick of the person who has been op'ed"
 msgstr "no persona"
 
-#: ../src/common/text.c:664
+#: ../src/common/text.c:766
 #, fuzzy
 msgid "The nick of the person who has been halfop'ed"
 msgstr "no persona"
 
-#: ../src/common/text.c:665
+#: ../src/common/text.c:767
 #, fuzzy
 msgid "The nick of the person who did the halfop'ing"
 msgstr "no persona"
 
-#: ../src/common/text.c:669
+#: ../src/common/text.c:771
 #, fuzzy
 msgid "The nick of the person who did the voice'ing"
 msgstr "no persona"
 
-#: ../src/common/text.c:670
+#: ../src/common/text.c:772
 #, fuzzy
 msgid "The nick of the person who has been voice'ed"
 msgstr "no persona"
 
-#: ../src/common/text.c:674
+#: ../src/common/text.c:776
 #, fuzzy
 msgid "The nick of the person who did the banning"
 msgstr "no persona"
 
-#: ../src/common/text.c:675 ../src/common/text.c:702
+#: ../src/common/text.c:777 ../src/common/text.c:804
 msgid "The ban mask"
 msgstr "Izraidījuma maska"
 
-#: ../src/common/text.c:679
+#: ../src/common/text.c:781
 msgid "The nick who removed the key"
 msgstr "Segvārds, kurš noņēma atslēgu"
 
-#: ../src/common/text.c:683
+#: ../src/common/text.c:785
 msgid "The nick who removed the limit"
 msgstr "Segvārds, kurš noņēma limitu"
 
-#: ../src/common/text.c:687
+#: ../src/common/text.c:789
 #, fuzzy
 msgid "The nick of the person of did the deop'ing"
 msgstr "no persona no"
 
-#: ../src/common/text.c:688
+#: ../src/common/text.c:790
 #, fuzzy
 msgid "The nick of the person who has been deop'ed"
 msgstr "no persona"
 
-#: ../src/common/text.c:691
+#: ../src/common/text.c:793
 #, fuzzy
 msgid "The nick of the person of did the dehalfop'ing"
 msgstr "no persona no"
 
-#: ../src/common/text.c:692
+#: ../src/common/text.c:794
 #, fuzzy
 msgid "The nick of the person who has been dehalfop'ed"
 msgstr "no persona"
 
-#: ../src/common/text.c:696
+#: ../src/common/text.c:798
 #, fuzzy
 msgid "The nick of the person of did the devoice'ing"
 msgstr "no persona no"
 
-#: ../src/common/text.c:697
+#: ../src/common/text.c:799
 #, fuzzy
 msgid "The nick of the person who has been devoice'ed"
 msgstr "no persona"
 
-#: ../src/common/text.c:701
+#: ../src/common/text.c:803
 #, fuzzy
 msgid "The nick of the person of did the unban'ing"
 msgstr "no persona no"
 
-#: ../src/common/text.c:706
+#: ../src/common/text.c:808
 #, fuzzy
 msgid "The nick of the person who did the exempt"
 msgstr "no persona"
 
-#: ../src/common/text.c:707 ../src/common/text.c:712
+#: ../src/common/text.c:809 ../src/common/text.c:814
 msgid "The exempt mask"
 msgstr "Atbrīvošanas maska"
 
-#: ../src/common/text.c:711
+#: ../src/common/text.c:813
 #, fuzzy
 msgid "The nick of the person removed the exempt"
 msgstr "no persona"
 
-#: ../src/common/text.c:716
+#: ../src/common/text.c:818
 #, fuzzy
 msgid "The nick of the person who did the invite"
 msgstr "no persona"
 
-#: ../src/common/text.c:717 ../src/common/text.c:722
+#: ../src/common/text.c:819 ../src/common/text.c:824
 msgid "The invite mask"
 msgstr "Ielūguma maska"
 
-#: ../src/common/text.c:721
+#: ../src/common/text.c:823
 #, fuzzy
 msgid "The nick of the person removed the invite"
 msgstr "no persona"
 
-#: ../src/common/text.c:726
+#: ../src/common/text.c:828
 #, fuzzy
 msgid "The nick of the person setting the mode"
 msgstr "no persona režīms"
 
-#: ../src/common/text.c:727
+#: ../src/common/text.c:829
 #, fuzzy
 msgid "The mode's sign (+/-)"
 msgstr "režīms s"
 
-#: ../src/common/text.c:728
+#: ../src/common/text.c:830
 #, fuzzy
 msgid "The mode letter"
 msgstr "režīms"
 
-#: ../src/common/text.c:729
+#: ../src/common/text.c:831
 #, fuzzy
 msgid "The channel it's being set on"
 msgstr "s uz"
 
-#: ../src/common/text.c:734
+#: ../src/common/text.c:836
 #, fuzzy
 msgid "Username"
 msgstr "Lietotājvārds"
 
-#: ../src/common/text.c:736
+#: ../src/common/text.c:838
 #, fuzzy
 msgid "Full name"
 msgstr "Pilns vārds"
 
-#: ../src/common/text.c:741
+#: ../src/common/text.c:843
 #, fuzzy
 msgid "Channel Membership/\"is an IRC operator\""
 msgstr "Kanāls Dalība ir IRC"
 
-#: ../src/common/text.c:746
+#: ../src/common/text.c:848
 #, fuzzy
 msgid "Server Information"
 msgstr "Servera informācija"
 
-#: ../src/common/text.c:751 ../src/common/text.c:756
+#: ../src/common/text.c:853 ../src/common/text.c:858
 #, fuzzy
 msgid "Idle time"
 msgstr "Dīklaiks"
 
-#: ../src/common/text.c:757
+#: ../src/common/text.c:859
 #, fuzzy
 msgid "Signon time"
 msgstr "Pieslēgšanās laiks"
 
-#: ../src/common/text.c:762
+#: ../src/common/text.c:864
 #, fuzzy
 msgid "Away reason"
 msgstr "Projām"
 
-#: ../src/common/text.c:771 ../src/common/text.c:777 ../src/common/text.c:785
-#: ../src/common/text.c:964
+#: ../src/common/text.c:873 ../src/common/text.c:879 ../src/common/text.c:887
+#: ../src/common/text.c:1066
 #, fuzzy
 msgid "Message"
 msgstr "Ziņojums"
 
-#: ../src/common/text.c:778
+#: ../src/common/text.c:880
 #, fuzzy
 msgid "Account"
 msgstr "Konts"
 
-#: ../src/common/text.c:783
+#: ../src/common/text.c:885
 #, fuzzy
 msgid "Real user@host"
 msgstr "Reālsuser@host"
 
-#: ../src/common/text.c:784
+#: ../src/common/text.c:886
 #, fuzzy
 msgid "Real IP"
 msgstr "Reāls IP"
 
-#: ../src/common/text.c:789 ../src/common/text.c:798 ../src/common/text.c:804
-#: ../src/common/text.c:833 ../src/common/text.c:987
-#: ../src/fe-gnome/channel-list.c:316
+#: ../src/common/text.c:891 ../src/common/text.c:900 ../src/common/text.c:906
+#: ../src/common/text.c:935 ../src/common/text.c:1089
+#: ../src/fe-gnome/channel-list.c:321
 #, fuzzy
 msgid "Channel Name"
 msgstr "Kanāls Nosaukums"
 
-#: ../src/common/text.c:793 ../src/common/text.c:950
+#: ../src/common/text.c:895 ../src/common/text.c:1052
 #, fuzzy
 msgid "Text"
 msgstr "Teksts"
 
-#: ../src/common/text.c:794 ../src/common/text.c:800 ../src/common/text.c:829
-#: ../src/common/text.c:946 ../src/common/text.c:988
+#: ../src/common/text.c:896 ../src/common/text.c:902 ../src/common/text.c:931
+#: ../src/common/text.c:1048 ../src/common/text.c:1090
 #, fuzzy
 msgid "Server Name"
 msgstr "Serveris Nosaukums"
 
-#: ../src/common/text.c:799
+#: ../src/common/text.c:901
 #, fuzzy
 msgid "Nick of person who invited you"
 msgstr "Signatūra no persona"
 
-#: ../src/common/text.c:809
+#: ../src/common/text.c:911
 #, fuzzy
 msgid "Nickname in use"
 msgstr "Iesauka in"
 
-#: ../src/common/text.c:810
+#: ../src/common/text.c:912
 #, fuzzy
 msgid "Nick being tried"
 msgstr "Signatūra"
 
-#. ! if (osvi.dwMajorVersion >= 5)
-#. fallback to error number
-#: ../src/common/text.c:814 ../src/common/text.c:851 ../src/common/text.c:862
-#: ../src/common/text.c:869 ../src/common/text.c:882 ../src/common/text.c:899
-#: ../src/common/text.c:999 ../src/common/util.c:352
-#, fuzzy
-msgid "Error"
-msgstr "Kļūda"
-
-#: ../src/common/text.c:819 ../src/common/text.c:954
+#: ../src/common/text.c:921 ../src/common/text.c:1056
 #, fuzzy
 msgid "IP"
 msgstr "IP"
 
-#: ../src/common/text.c:820 ../src/common/text.c:850
+#: ../src/common/text.c:922 ../src/common/text.c:952
 #, fuzzy
 msgid "Port"
 msgstr "Ports"
 
-#: ../src/common/text.c:824
+#: ../src/common/text.c:926
 #, fuzzy
 msgid "PID"
 msgstr "PID"
 
-#: ../src/common/text.c:834 ../src/common/text.c:839
+#: ../src/common/text.c:936 ../src/common/text.c:941
 #, fuzzy
 msgid "Modes string"
 msgstr "virkne"
 
-#: ../src/common/text.c:849 ../src/common/text.c:887 ../src/common/text.c:892
-#: ../src/common/text.c:933
+#: ../src/common/text.c:951 ../src/common/text.c:989 ../src/common/text.c:994
+#: ../src/common/text.c:1035
 #, fuzzy
 msgid "IP address"
 msgstr "IP"
 
-#: ../src/common/text.c:855 ../src/common/text.c:880
+#: ../src/common/text.c:957 ../src/common/text.c:982
 #, fuzzy
 msgid "DCC Type"
 msgstr "Tips"
 
-#: ../src/common/text.c:856 ../src/common/text.c:861 ../src/common/text.c:866
-#: ../src/common/text.c:873 ../src/common/text.c:893 ../src/common/text.c:897
-#: ../src/common/text.c:903 ../src/common/text.c:909 ../src/common/text.c:916
-#: ../src/common/text.c:925 ../src/common/text.c:931
+#: ../src/common/text.c:958 ../src/common/text.c:963 ../src/common/text.c:968
+#: ../src/common/text.c:975 ../src/common/text.c:995 ../src/common/text.c:999
+#: ../src/common/text.c:1005 ../src/common/text.c:1011
+#: ../src/common/text.c:1018 ../src/common/text.c:1027
+#: ../src/common/text.c:1033
 #, fuzzy
 msgid "Filename"
 msgstr "Faila nosaukums"
 
-#: ../src/common/text.c:867 ../src/common/text.c:874
+#: ../src/common/text.c:969 ../src/common/text.c:976
 #, fuzzy
 msgid "Destination filename"
 msgstr "Mērķis failavārds"
 
-#: ../src/common/text.c:876 ../src/common/text.c:905
+#: ../src/common/text.c:978 ../src/common/text.c:1007
 msgid "CPS"
 msgstr "CPS"
 
-#: ../src/common/text.c:911
+#: ../src/common/text.c:1013
 #, fuzzy
 msgid "Pathname"
 msgstr "Ceļa vārds"
 
-#: ../src/common/text.c:926
+#: ../src/common/text.c:1028
 #, fuzzy
 msgid "Position"
 msgstr "Pozīcija"
 
-#: ../src/common/text.c:932
+#: ../src/common/text.c:1034
 #, fuzzy
 msgid "Size"
 msgstr "Izmērs"
 
-#: ../src/common/text.c:937
+#: ../src/common/text.c:1039
 #, fuzzy
 msgid "DCC String"
 msgstr "Virkne"
 
-#: ../src/common/text.c:942
+#: ../src/common/text.c:1044
 #, fuzzy
 msgid "Number of notify items"
 msgstr "Skaitlis no vienības"
 
-#: ../src/common/text.c:958
+#: ../src/common/text.c:1060
 #, fuzzy
 msgid "Old Filename"
 msgstr "Vecs Faila nosaukums"
 
-#: ../src/common/text.c:959
+#: ../src/common/text.c:1061
 #, fuzzy
 msgid "New Filename"
 msgstr "Jauns Faila nosaukums"
 
-#: ../src/common/text.c:963
+#: ../src/common/text.c:1065
 #, fuzzy
 msgid "Receiver"
 msgstr "Saņēmējs"
 
-#: ../src/common/text.c:968
+#: ../src/common/text.c:1070
 msgid "Hostmask"
 msgstr "Hostdatora maska"
 
-#: ../src/common/text.c:973
+#: ../src/common/text.c:1075
 #, fuzzy
 msgid "Hostname"
 msgstr "Resursdatora nosaukums"
 
-#: ../src/common/text.c:978
+#: ../src/common/text.c:1080
 #, fuzzy
 msgid "The Packet"
 msgstr "Pakete"
 
-#: ../src/common/text.c:982
+#: ../src/common/text.c:1084
 #, fuzzy
 msgid "Seconds"
 msgstr "Sekundes"
 
-#: ../src/common/text.c:986
+#: ../src/common/text.c:1088
 #, fuzzy
 msgid "Nick of person who have been invited"
 msgstr "Signatūra no persona"
 
-#: ../src/common/text.c:993
+#: ../src/common/text.c:1095
 msgid "Banmask"
 msgstr "Izraidījuma maska"
 
-#: ../src/common/text.c:994
+#: ../src/common/text.c:1096
 msgid "Who set the ban"
 msgstr "Kurš uzstādīja izraidījumu"
 
-#: ../src/common/text.c:995
+#: ../src/common/text.c:1097
 #, fuzzy
 msgid "Ban time"
 msgstr "Aizliegums laiks"
 
-#: ../src/common/text.c:1035
+#: ../src/common/text.c:1137
 #, fuzzy, c-format
 msgid ""
 "Error parsing event %s.\n"
@@ -2026,7 +1888,7 @@ msgstr ""
 "Kļūda parsējot notikumu %s.\n"
 "Lādēju noklusēto"
 
-#: ../src/common/text.c:1712
+#: ../src/common/text.c:1818
 #, fuzzy, c-format
 msgid ""
 "Cannot read sound file:\n"
@@ -4014,271 +3876,311 @@ msgid "Zimbabwe"
 msgstr "Zimbabve"
 
 #: ../src/common/util.c:1110 ../src/common/util.c:1120
-#: ../src/fe-gnome/userlist-gui.c:398
+#: ../src/fe-gnome/userlist-gui.c:414
 #, fuzzy
 msgid "Unknown"
 msgstr "Nezināms"
 
-#: ../src/common/xchat.c:753 ../src/common/xchat.c:879
+#: ../src/common/xchat.c:767 ../src/common/xchat.c:893
 #, fuzzy
 msgid "Open Dialog Window"
 msgstr "Atvērt Dialogs Logs"
 
-#: ../src/common/xchat.c:754
+#: ../src/common/xchat.c:768
 #, fuzzy
 msgid "Send a File"
 msgstr "Sūtīt a Fails"
 
-#: ../src/common/xchat.c:755
+#: ../src/common/xchat.c:769
 #, fuzzy
 msgid "User Info (WHOIS)"
 msgstr "Lietotājs Info"
 
-#: ../src/common/xchat.c:756
+#: ../src/common/xchat.c:770
 #, fuzzy
 msgid "Operator Actions"
 msgstr "Operators Darbības"
 
-#: ../src/common/xchat.c:758 ../src/common/xchat.c:849
+#: ../src/common/xchat.c:772 ../src/common/xchat.c:863
 msgid "Give Ops"
 msgstr ""
 
-#: ../src/common/xchat.c:759 ../src/common/xchat.c:850
+#: ../src/common/xchat.c:773 ../src/common/xchat.c:864
 msgid "Take Ops"
 msgstr ""
 
-#: ../src/common/xchat.c:760 ../src/common/xchat.c:853
+#: ../src/common/xchat.c:774 ../src/common/xchat.c:867
 #, fuzzy
 msgid "Give Voice"
 msgstr "Balss"
 
-#: ../src/common/xchat.c:761 ../src/common/xchat.c:854
+#: ../src/common/xchat.c:775 ../src/common/xchat.c:868
 #, fuzzy
 msgid "Take Voice"
 msgstr "Balss"
 
-#: ../src/common/xchat.c:763 ../src/common/xchat.c:858
+#: ../src/common/xchat.c:777 ../src/common/xchat.c:872
 #, fuzzy
 msgid "Kick/Ban"
 msgstr "Aizliegums"
 
-#: ../src/common/xchat.c:764 ../src/common/xchat.c:859
-#: ../src/common/xchat.c:908
+#: ../src/common/xchat.c:778 ../src/common/xchat.c:873
+#: ../src/common/xchat.c:922
 msgid "Kick"
 msgstr "Izsviest"
 
-#: ../src/common/xchat.c:765 ../src/common/xchat.c:766
-#: ../src/common/xchat.c:767 ../src/common/xchat.c:768
-#: ../src/common/xchat.c:769 ../src/common/xchat.c:860
-#: ../src/common/xchat.c:861 ../src/common/xchat.c:862
-#: ../src/common/xchat.c:863 ../src/common/xchat.c:864
-#: ../src/common/xchat.c:907
+#: ../src/common/xchat.c:779 ../src/common/xchat.c:780
+#: ../src/common/xchat.c:781 ../src/common/xchat.c:782
+#: ../src/common/xchat.c:783 ../src/common/xchat.c:874
+#: ../src/common/xchat.c:875 ../src/common/xchat.c:876
+#: ../src/common/xchat.c:877 ../src/common/xchat.c:878
+#: ../src/common/xchat.c:921
 #, fuzzy
 msgid "Ban"
 msgstr "Aizliegums"
 
-#: ../src/common/xchat.c:770 ../src/common/xchat.c:771
-#: ../src/common/xchat.c:772 ../src/common/xchat.c:773
-#: ../src/common/xchat.c:865 ../src/common/xchat.c:866
-#: ../src/common/xchat.c:867 ../src/common/xchat.c:868
+#: ../src/common/xchat.c:784 ../src/common/xchat.c:785
+#: ../src/common/xchat.c:786 ../src/common/xchat.c:787
+#: ../src/common/xchat.c:879 ../src/common/xchat.c:880
+#: ../src/common/xchat.c:881 ../src/common/xchat.c:882
 msgid "KickBan"
 msgstr "Segvārds"
 
-#: ../src/common/xchat.c:836
+#: ../src/common/xchat.c:850
 #, fuzzy
 msgid "Direct client-to-client"
 msgstr "Tiešs uz"
 
-#: ../src/common/xchat.c:837
+#: ../src/common/xchat.c:851
 #, fuzzy
 msgid "Send File"
 msgstr "Sūtīt Failu"
 
-#: ../src/common/xchat.c:838
+#: ../src/common/xchat.c:852
 #, fuzzy
 msgid "Offer Chat"
 msgstr "Piedāvājums Tērzēšana"
 
-#: ../src/common/xchat.c:839
+#: ../src/common/xchat.c:853
 #, fuzzy
 msgid "Abort Chat"
 msgstr "Atcelt Tērzēšana"
 
-#: ../src/common/xchat.c:840
+#: ../src/common/xchat.c:854
 #, fuzzy
 msgid "Version"
 msgstr "Versija"
 
-#: ../src/common/xchat.c:841
+#: ../src/common/xchat.c:855
 msgid "Userinfo"
 msgstr "Lietotāja info"
 
-#: ../src/common/xchat.c:842
+#: ../src/common/xchat.c:856
 msgid "Clientinfo"
 msgstr "Klienta info"
 
-#: ../src/common/xchat.c:843 ../src/common/xchat.c:877
-#: ../src/common/xchat.c:925
+#: ../src/common/xchat.c:857 ../src/common/xchat.c:891
+#: ../src/common/xchat.c:939
 #, fuzzy
 msgid "Ping"
 msgstr "Utilītprogramma ping"
 
-#: ../src/common/xchat.c:845
+#: ../src/common/xchat.c:859
 #, fuzzy
 msgid "Finger"
 msgstr "Pirksts"
 
-#: ../src/common/xchat.c:846
+#: ../src/common/xchat.c:860
 msgid "Oper"
 msgstr "Atvērt"
 
-#: ../src/common/xchat.c:847
+#: ../src/common/xchat.c:861
 #, fuzzy
 msgid "Kill this user"
 msgstr "Nobeigt"
 
-#: ../src/common/xchat.c:848
+#: ../src/common/xchat.c:862
 #, fuzzy
 msgid "Mode"
 msgstr "Režīms"
 
-#: ../src/common/xchat.c:851
+#: ../src/common/xchat.c:865
 msgid "Give Half-Ops"
 msgstr ""
 
-#: ../src/common/xchat.c:852
+#: ../src/common/xchat.c:866
 msgid "Take Half-Ops"
 msgstr ""
 
-#: ../src/common/xchat.c:855 ../src/fe-gnome/userlist-gui.c:64
+#: ../src/common/xchat.c:869 ../src/fe-gnome/userlist-gui.c:65
 #, fuzzy
 msgid "Ignore"
 msgstr "Ignorēt"
 
-#: ../src/common/xchat.c:856
+#: ../src/common/xchat.c:870
 #, fuzzy
 msgid "Ignore User"
 msgstr "Ignorēt Lietotājs"
 
-#: ../src/common/xchat.c:857
+#: ../src/common/xchat.c:871
 #, fuzzy
 msgid "UnIgnore User"
 msgstr "Lietotājs"
 
-#: ../src/common/xchat.c:869
+#: ../src/common/xchat.c:883
 #, fuzzy
 msgid "Info"
 msgstr "Info"
 
-#: ../src/common/xchat.c:870
+#: ../src/common/xchat.c:884
 msgid "Who"
 msgstr "Kas"
 
-#: ../src/common/xchat.c:871 ../src/common/xchat.c:921
+#: ../src/common/xchat.c:885 ../src/common/xchat.c:935
 msgid "WhoIs"
 msgstr ""
 
-#: ../src/common/xchat.c:872
+#: ../src/common/xchat.c:886
 #, fuzzy
 msgid "DNS Lookup"
 msgstr "DNS Apsekošana"
 
-#: ../src/common/xchat.c:873
+#: ../src/common/xchat.c:887
 #, fuzzy
 msgid "Trace"
 msgstr "Trase"
 
-#: ../src/common/xchat.c:874
+#: ../src/common/xchat.c:888
 #, fuzzy
 msgid "UserHost"
 msgstr "LietotājaHosts"
 
-#: ../src/common/xchat.c:875
+#: ../src/common/xchat.c:889
 #, fuzzy
 msgid "External"
 msgstr "ārējs"
 
-#: ../src/common/xchat.c:876
+#: ../src/common/xchat.c:890
 msgid "Traceroute"
 msgstr ""
 
-#: ../src/common/xchat.c:878
+#: ../src/common/xchat.c:892
 #, fuzzy
 msgid "Telnet"
 msgstr "Telnet"
 
-#: ../src/common/xchat.c:890
+#: ../src/common/xchat.c:904
 #, fuzzy
 msgid "Leave Channel"
 msgstr "Aiziet Kanāls"
 
-#: ../src/common/xchat.c:891
+#: ../src/common/xchat.c:905
 #, fuzzy
 msgid "Join Channel..."
 msgstr "Savienojums Kanāls."
 
-#: ../src/common/xchat.c:892
+#: ../src/common/xchat.c:906
 #, fuzzy
 msgid "Enter Channel to Join:"
 msgstr "Reģistrēt Kanāls uz Savienojums:"
 
-#: ../src/common/xchat.c:893
+#: ../src/common/xchat.c:907
 #, fuzzy
 msgid "Server Links"
 msgstr "Serveris Saites"
 
-#: ../src/common/xchat.c:894
+#: ../src/common/xchat.c:908
 #, fuzzy
 msgid "Ping Server"
 msgstr "Utilītprogramma ping Serveris"
 
-#: ../src/common/xchat.c:895
+#: ../src/common/xchat.c:909
 #, fuzzy
 msgid "Hide Version"
 msgstr "Slēpt Versija"
 
-#: ../src/common/xchat.c:905
+#: ../src/common/xchat.c:919
 msgid "Op"
 msgstr "Atvērt"
 
-#: ../src/common/xchat.c:906
+#: ../src/common/xchat.c:920
 msgid "DeOp"
 msgstr ""
 
-#: ../src/common/xchat.c:909
+#: ../src/common/xchat.c:923
 msgid "bye"
 msgstr "atā"
 
-#: ../src/common/xchat.c:910
+#: ../src/common/xchat.c:924
 #, fuzzy, c-format
 msgid "Enter reason to kick %s:"
 msgstr "Ievadiet izmešanas iemeslu %s:"
 
-#: ../src/common/xchat.c:911
+#: ../src/common/xchat.c:925
 msgid "Sendfile"
 msgstr "Sūtīt failu"
 
-#: ../src/common/xchat.c:912
+#: ../src/common/xchat.c:926
 #, fuzzy
 msgid "Dialog"
 msgstr "Dialogs"
 
-#: ../src/common/xchat.c:922
+#: ../src/common/xchat.c:936
 #, fuzzy
 msgid "Send"
 msgstr "Sūtīt"
 
-#: ../src/common/xchat.c:923
+#: ../src/common/xchat.c:937
 #, fuzzy
 msgid "Chat"
 msgstr "Tērzēšana"
 
-#: ../src/common/xchat.c:924
+#: ../src/common/xchat.c:938
 #, fuzzy
 msgid "Clear"
 msgstr "Tīrs"
 
-#: ../src/fe-gnome/about.c:64
+#: ../src/common/dbus/dbus-plugin.c:30
+#, fuzzy
+msgid "remote access"
+msgstr "GNOME pieeja"
+
+#: ../src/common/dbus/dbus-plugin.c:31
+#, fuzzy
+msgid "plugin for remote access using DBUS"
+msgstr "iespraudnis priekš pieeja"
+
+#: ../src/common/dbus/dbus-plugin.c:897
+#, fuzzy, c-format
+msgid "Couldn't connect to session bus: %s\n"
+msgstr "uz"
+
+#: ../src/common/dbus/dbus-plugin.c:914
+#, c-format
+msgid "Failed to acquire %s: %s\n"
+msgstr ""
+
+#: ../src/common/dbus/dbus-plugin.c:1064
+#, c-format
+msgid "%s loaded successfully!\n"
+msgstr ""
+
+#: ../src/common/dbus/url_handler.schemas.in.h:1
+#, fuzzy
+msgid "Run xchat-gnome in a terminal?"
+msgstr "Palaist in a terminālis?"
+
+#: ../src/common/dbus/url_handler.schemas.in.h:2
+#, fuzzy
+msgid "Set it at TRUE if you want it activated"
+msgstr "Uzstādīt PATIESS"
+
+#: ../src/common/dbus/url_handler.schemas.in.h:3
+#, fuzzy
+msgid "The handler for \"irc://\" URLs"
+msgstr "priekš URLs"
+
+#: ../src/fe-gnome/about.c:74
 #, fuzzy
 msgid ""
 "X-Chat GNOME is free software; you can redistribute it and/or modify it "
@@ -4289,7 +4191,7 @@ msgstr ""
 "X Tērzēšana GNOME ir un vai no GNU Vispārējs Publisks Licence   Brīvs "
 "Programmatūra Pamats versija no Licence vai versija."
 
-#: ../src/fe-gnome/about.c:68
+#: ../src/fe-gnome/about.c:78
 #, fuzzy
 msgid ""
 "X-Chat GNOME is distributed in the hope that it will be useful, but WITHOUT "
@@ -4299,7 +4201,7 @@ msgid ""
 msgstr ""
 "X Tērzēšana GNOME ir in no vai A GNU Vispārējs Publisks Licence priekš."
 
-#: ../src/fe-gnome/about.c:72
+#: ../src/fe-gnome/about.c:82
 #, fuzzy
 msgid ""
 "You should have received a copy of the GNU General Public License along with "
@@ -4309,7 +4211,7 @@ msgstr ""
 "Jūs a kopija no GNU Vispārējs Publisks Licence aAr X Tērzēšana GNOME nē uz "
 "Brīvs Programmatūra Pamats Vieta Komplekts ASV"
 
-#: ../src/fe-gnome/about.c:85
+#: ../src/fe-gnome/about.c:97
 #, fuzzy
 msgid "Copyright © 2004-2006"
 msgstr "Publicētājs"
@@ -4319,14 +4221,14 @@ msgstr "Publicētājs"
 #. * be or replace it with something funny (but inoffensive)
 #. * in your own language, but don't translate it literally.
 #.
-#: ../src/fe-gnome/about.c:91
+#: ../src/fe-gnome/about.c:103
 #, fuzzy
 msgid ""
 "It has been well observed that a trombone is not a suitable instrument for a "
 "gentleman"
 msgstr "Informācijas tehnoloģija a ir nē a priekš a"
 
-#: ../src/fe-gnome/about.c:95
+#: ../src/fe-gnome/about.c:107
 #, fuzzy
 msgid "XChat-GNOME Web Site"
 msgstr "GNOME Tīmeklis Novietot"
@@ -4340,7 +4242,7 @@ msgstr "GNOME Tīmeklis Novietot"
 #. * write each of them on a separated line seperated by
 #. * newlines (\n).
 #.
-#: ../src/fe-gnome/about.c:109
+#: ../src/fe-gnome/about.c:121
 #, fuzzy
 msgid "translator-credits"
 msgstr ""
@@ -4466,13 +4368,12 @@ msgstr "Y pozīcija no logs uz ekrāns"
 msgid "xchat configuration version"
 msgstr "versija"
 
-#: ../src/fe-gnome/channel-list.c:291
+#: ../src/fe-gnome/channel-list.c:296
 #, c-format
 msgid "%s Channel List"
 msgstr ""
 
-#. IRC menu
-#: ../src/fe-gnome/connect-dialog.c:132 ../src/fe-gnome/main-window.c:107
+#: ../src/fe-gnome/connect-dialog.c:133
 #, fuzzy
 msgid "_Connect"
 msgstr "_Pieslēgties"
@@ -4517,59 +4418,59 @@ msgstr "Ievietot Fails vārds"
 msgid "_Cancel"
 msgstr "_Atsaukt"
 
-#: ../src/fe-gnome/conversation-panel.c:187 ../src/fe-gnome/main-window.c:113
+#: ../src/fe-gnome/conversation-panel.c:187 ../src/fe-gnome/main-window.c:115
 #, fuzzy
 msgid "_Copy"
 msgstr "_Kopēt"
 
-#: ../src/fe-gnome/conversation-panel.c:782
+#: ../src/fe-gnome/conversation-panel.c:788
 #, c-format
 msgid "URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:874
+#: ../src/fe-gnome/conversation-panel.c:886
 #, c-format
 msgid "Error reading file \"%s\": %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:889
+#: ../src/fe-gnome/conversation-panel.c:901
 #, fuzzy, c-format
 msgid "Error converting URI \"%s\" into filename: %s\n"
 msgstr "Kļūda konvertējot URI \"%s\" uz faila nosaukumu: %s\n"
 
-#: ../src/fe-gnome/conversation-panel.c:932
+#: ../src/fe-gnome/conversation-panel.c:944
 #, c-format
 msgid "Error retrieving file information for \"%s\": %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:1009
+#: ../src/fe-gnome/conversation-panel.c:1029
 #, fuzzy
 msgid "Save Transcript"
 msgstr "Saglabāt Kopija"
 
-#: ../src/fe-gnome/conversation-panel.c:1035
-#: ../src/fe-gnome/conversation-panel.c:1045
+#: ../src/fe-gnome/conversation-panel.c:1055
+#: ../src/fe-gnome/conversation-panel.c:1065
 #, c-format
 msgid "Error saving %s"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:1175
+#: ../src/fe-gnome/conversation-panel.c:1197
 #, fuzzy
 msgid "Search buffer is empty.\n"
 msgstr "Meklēt ir tukšs n\n"
 
 #. File completion percent
-#: ../src/fe-gnome/dcc-window.c:144
+#: ../src/fe-gnome/dcc-window.c:143
 #, fuzzy
 msgid "%"
 msgstr "%"
 
-#: ../src/fe-gnome/dcc-window.c:145
+#: ../src/fe-gnome/dcc-window.c:144
 #, fuzzy
 msgid "File"
 msgstr "Fails"
 
-#: ../src/fe-gnome/dcc-window.c:146
+#: ../src/fe-gnome/dcc-window.c:145
 #, fuzzy
 msgid "Remaining"
 msgstr "Atlicis"
@@ -4579,7 +4480,7 @@ msgstr "Atlicis"
 msgid "Incoming File Transfer"
 msgstr "Ienākošais Fails Transferts"
 
-#: ../src/fe-gnome/dcc-window.c:226 ../src/fe-gnome/fe-gnome.c:482
+#: ../src/fe-gnome/dcc-window.c:226 ../src/fe-gnome/fe-gnome.c:493
 #, fuzzy
 msgid "_Accept"
 msgstr "_Pieņemt"
@@ -4630,478 +4531,522 @@ msgstr ""
 msgid "Transfer failed"
 msgstr "Pārsūtīšana neizdevās"
 
-#: ../src/fe-gnome/dcc-window.c:312
+#: ../src/fe-gnome/dcc-window.c:311
+msgid "aborted"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:314
 msgid "stalled"
 msgstr "Neizdevās"
 
-#: ../src/fe-gnome/dcc-window.c:316
+#: ../src/fe-gnome/dcc-window.c:318
 #, c-format
 msgid "%.2d:%.2d:%.2d"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:318
+#: ../src/fe-gnome/dcc-window.c:320
 #, c-format
 msgid "%.2d:%.2d"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:431
+#: ../src/fe-gnome/dcc-window.c:433
 #, fuzzy
 msgid "Send File..."
 msgstr "Sūtīt Fails."
 
-#: ../src/fe-gnome/fe-gnome.c:59
+#: ../src/fe-gnome/fe-gnome.c:61
 #, fuzzy
 msgid "Use directory instead of the default config dir"
 msgstr "Izmantošana no noklusētais"
 
-#: ../src/fe-gnome/fe-gnome.c:60
+#: ../src/fe-gnome/fe-gnome.c:63
 #, fuzzy
 msgid "Don't auto-connect to servers"
 msgstr "uz"
 
-#: ../src/fe-gnome/fe-gnome.c:61
+#: ../src/fe-gnome/fe-gnome.c:65
 #, fuzzy
 msgid "Don't auto-load plugins"
 msgstr "ielādēt"
 
-#: ../src/fe-gnome/fe-gnome.c:63
+#: ../src/fe-gnome/fe-gnome.c:67
+#, fuzzy
+msgid "Open an irc:// url"
+msgstr "Atvērt"
+
+#: ../src/fe-gnome/fe-gnome.c:69
+msgid "Open URL in an existing xchat-gnome instance"
+msgstr ""
+
+#: ../src/fe-gnome/fe-gnome.c:71
 #, fuzzy
 msgid "Show version information"
 msgstr "Parādīt versijas informāciju"
 
-#: ../src/fe-gnome/fe-gnome.c:111
+#: ../src/fe-gnome/fe-gnome.c:126
 #, c-format
 msgid ""
 "xchat-gnome: %s\n"
 "Try `xchat-gnome --help' for more information\n"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:480
+#: ../src/fe-gnome/fe-gnome.c:491
 msgid "Incoming DCC Chat"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:485
+#: ../src/fe-gnome/fe-gnome.c:496
 #, c-format
 msgid ""
 "%s is attempting to create a direct chat. Do you wish to accept the "
 "connection?"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:899
+#: ../src/fe-gnome/fe-gnome.c:912
 #, c-format
 msgid "Unable to show '%s'"
 msgstr ""
 
-#: ../src/fe-gnome/find-bar.c:95
+#: ../src/fe-gnome/find-bar.c:97
 #, fuzzy
 msgid "Find:"
 msgstr "Meklēt:"
 
-#: ../src/fe-gnome/find-bar.c:97
+#: ../src/fe-gnome/find-bar.c:99
 #, fuzzy
 msgid "_Previous"
 msgstr "_Iepriekšējais"
 
-#: ../src/fe-gnome/find-bar.c:99
+#: ../src/fe-gnome/find-bar.c:101
 #, fuzzy
 msgid "_Next"
 msgstr "_Nākošais"
 
-#: ../src/fe-gnome/find-bar.c:218
+#: ../src/fe-gnome/find-bar.c:221
 #, fuzzy
 msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
 msgstr "<span foreground=\"dark grey\"> beigas no augša</span>"
 
-#: ../src/fe-gnome/find-bar.c:225
+#: ../src/fe-gnome/find-bar.c:228
 #, fuzzy
 msgid ""
 "<span foreground=\"dark grey\">Reached beginning, continuing from bottom</"
 "span>"
 msgstr "<span foreground=\"dark grey\"> no apakša</span>"
 
-#: ../src/fe-gnome/find-bar.c:232
+#: ../src/fe-gnome/find-bar.c:235
 #, fuzzy
 msgid "<span foreground=\"red\">Search string not found</span>"
 msgstr "<span foreground=\"red\"> Meklēt virkne nē</span>"
 
-#: ../src/fe-gnome/irc-network-editor.c:268
+#: ../src/fe-gnome/irc-network-editor.c:309
 #, fuzzy
 msgid "Server"
 msgstr "Serveris"
 
+#: ../src/fe-gnome/irc-network-editor.c:318
+msgid "Key"
+msgstr ""
+
 #. We're creating a new network. Don't populate things from the structure
-#: ../src/fe-gnome/irc-network-editor.c:380
+#: ../src/fe-gnome/irc-network-editor.c:448
 msgid "New Network"
 msgstr "Jauns tīkls"
 
-#: ../src/fe-gnome/irc-network-editor.c:388
+#: ../src/fe-gnome/irc-network-editor.c:456
 #, c-format
 msgid "%s Network Properties"
 msgstr "%s Tīkla parametri"
 
-#: ../src/fe-gnome/irc-network-editor.c:511
-#: ../src/fe-gnome/irc-network-editor.c:518
-#: ../src/fe-gnome/irc-network-editor.c:524
+#: ../src/fe-gnome/irc-network-editor.c:582
+#: ../src/fe-gnome/irc-network-editor.c:589
+#: ../src/fe-gnome/irc-network-editor.c:595
 msgid "Invalid input"
 msgstr "Nederīgs ievads"
 
-#: ../src/fe-gnome/irc-network-editor.c:511
+#: ../src/fe-gnome/irc-network-editor.c:582
 #, fuzzy
 msgid "You must enter a network name"
 msgstr "Jūs a vārds"
 
-#: ../src/fe-gnome/irc-network-editor.c:518
+#: ../src/fe-gnome/irc-network-editor.c:589
 msgid "You must enter a nick name"
 msgstr "Jums ir jāievada segvārds"
 
-#: ../src/fe-gnome/irc-network-editor.c:524
+#: ../src/fe-gnome/irc-network-editor.c:595
 msgid "You must enter a real name"
 msgstr "Jums ir jāievada reāls vārds"
 
-#: ../src/fe-gnome/irc-network-editor.c:531
+#: ../src/fe-gnome/irc-network-editor.c:602
 msgid "No Servers"
 msgstr "Nav serveru"
 
-#: ../src/fe-gnome/irc-network-editor.c:531
+#: ../src/fe-gnome/irc-network-editor.c:602
 #, fuzzy
 msgid "You must add at least one server for this network"
 msgstr "Jūs serveris priekš"
 
-#: ../src/fe-gnome/irc-network.c:31
+#: ../src/fe-gnome/irc-network.c:32
 msgid "UTF-8 (Unicode)"
 msgstr "UTF-8 Unikods"
 
-#: ../src/fe-gnome/irc-network.c:32
+#: ../src/fe-gnome/irc-network.c:33
 msgid "ISO-8859-15 (Western Europe)"
 msgstr "ISO-8859-15 (Rietumeiropa)"
 
-#: ../src/fe-gnome/irc-network.c:33
+#: ../src/fe-gnome/irc-network.c:34
 msgid "ISO-8859-2 (Central Europe)"
 msgstr "ISO-8859-2 (Centrāleiropa)"
 
-#: ../src/fe-gnome/irc-network.c:34
+#: ../src/fe-gnome/irc-network.c:35
 msgid "ISO-8859-7 (Greek)"
 msgstr "ISO-8859-7 (Grieķu)"
 
-#: ../src/fe-gnome/irc-network.c:35
+#: ../src/fe-gnome/irc-network.c:36
 msgid "ISO-8859-8 (Hebrew)"
 msgstr "ISO-8859-8 (Ebreju)"
 
-#: ../src/fe-gnome/irc-network.c:36
+#: ../src/fe-gnome/irc-network.c:37
 msgid "ISO-8859-9 (Turkish)"
 msgstr "ISO-8859-9 (Turku)"
 
-#: ../src/fe-gnome/irc-network.c:37
+#: ../src/fe-gnome/irc-network.c:38
 msgid "ISO-2022-JP (Japanese)"
 msgstr "ISO-2022-JP (Japāņu)"
 
-#: ../src/fe-gnome/irc-network.c:38
+#: ../src/fe-gnome/irc-network.c:39
 msgid "SJIS (Japanese)"
 msgstr "SJIS (Japāņu)"
 
-#: ../src/fe-gnome/irc-network.c:39
+#: ../src/fe-gnome/irc-network.c:40
 msgid "CP949 (Korean)"
 msgstr "CP949 (Korejiešu)"
 
-#: ../src/fe-gnome/irc-network.c:40
+#: ../src/fe-gnome/irc-network.c:41
 #, fuzzy
 msgid "KOI8-R (Cyrillic)"
 msgstr "CP1251 (Kirilica)"
 
-#: ../src/fe-gnome/irc-network.c:41
+#: ../src/fe-gnome/irc-network.c:42
 msgid "CP1251 (Cyrillic)"
 msgstr "CP1251 (Kirilica)"
 
-#: ../src/fe-gnome/irc-network.c:42
+#: ../src/fe-gnome/irc-network.c:43
 msgid "CP1256 (Arabic)"
 msgstr "CP1256 (Arābu)"
 
-#: ../src/fe-gnome/irc-network.c:43
+#: ../src/fe-gnome/irc-network.c:44
 #, fuzzy
 msgid "CP1257 (Baltic)"
 msgstr "CP1256 (Arābu)"
 
-#: ../src/fe-gnome/irc-network.c:44
+#: ../src/fe-gnome/irc-network.c:45
 msgid "GB18030 (Chinese)"
 msgstr "GB18030 (Ķīniešu)"
 
+#: ../src/fe-gnome/irc-network.c:46
+msgid "TIS-620 (Thai)"
+msgstr ""
+
 #. Toplevel
-#: ../src/fe-gnome/main-window.c:97
+#: ../src/fe-gnome/main-window.c:99
 msgid "_IRC"
 msgstr "_IRC"
 
-#: ../src/fe-gnome/main-window.c:99
+#: ../src/fe-gnome/main-window.c:101
 msgid "In_sert"
 msgstr "Ievietot"
 
-#: ../src/fe-gnome/main-window.c:100
+#: ../src/fe-gnome/main-window.c:102
 msgid "_Network"
 msgstr "_Tīkls"
 
-#: ../src/fe-gnome/main-window.c:101
+#: ../src/fe-gnome/main-window.c:103
 msgid "_Discussion"
 msgstr "_Apspriešana"
 
-#: ../src/fe-gnome/main-window.c:102
+#: ../src/fe-gnome/main-window.c:104
 msgid "_Go"
 msgstr "_Iet"
 
-#: ../src/fe-gnome/main-window.c:103
+#: ../src/fe-gnome/main-window.c:105
 msgid "_Help"
 msgstr "_Palīdzība"
 
-#: ../src/fe-gnome/main-window.c:108
+#. IRC menu
+#: ../src/fe-gnome/main-window.c:109
+#, fuzzy
+msgid "_Connect..."
+msgstr "_Pieslēgties"
+
+#: ../src/fe-gnome/main-window.c:110
 msgid "_File Transfers"
 msgstr "_Failu pārsūtīšana"
 
-#: ../src/fe-gnome/main-window.c:109
+#: ../src/fe-gnome/main-window.c:111
 msgid "_Quit"
 msgstr "_Iziet"
 
 #. Edit menu
-#: ../src/fe-gnome/main-window.c:112
+#: ../src/fe-gnome/main-window.c:114
 msgid "Cu_t"
 msgstr "Iz_griezt"
 
-#: ../src/fe-gnome/main-window.c:114
+#: ../src/fe-gnome/main-window.c:116
 msgid "_Paste"
 msgstr "_Ievietot"
 
-#: ../src/fe-gnome/main-window.c:115
+#: ../src/fe-gnome/main-window.c:117
 msgid "Prefere_nces"
 msgstr "Prefere_nces"
 
 #. Network menu
-#: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:82
+#: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:83
 msgid "_Reconnect"
 msgstr "Pā_rvienot"
 
-#: ../src/fe-gnome/main-window.c:119 ../src/fe-gnome/navigation-tree.c:83
+#: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:84
 msgid "_Disconnect"
 msgstr "_Atslēgties"
 
-#: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:84
-#: ../src/fe-gnome/navigation-tree.c:90 ../src/fe-gnome/navigation-tree.c:96
+#: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:85
+#: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
 msgid "_Close"
 msgstr "_Aizvērt"
 
-#: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:85
+#: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:86
 msgid "_Channels..."
 msgstr "_Kanāli..."
 
 #. Discussion menu
 #. Channel context menu
 #. Dialog context menu
-#: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:88
-#: ../src/fe-gnome/navigation-tree.c:95
+#: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:89
+#: ../src/fe-gnome/navigation-tree.c:97
 #, fuzzy
 msgid "_Save Transcript"
 msgstr "Saglabāt Kopija"
 
-#: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:89
+#: ../src/fe-gnome/main-window.c:127 ../src/fe-gnome/navigation-tree.c:90
 msgid "_Leave"
 msgstr "_Atstāt"
 
-#: ../src/fe-gnome/main-window.c:126
+#: ../src/fe-gnome/main-window.c:128
 msgid "Cl_ose"
 msgstr "Aiz_vērt"
 
-#: ../src/fe-gnome/main-window.c:127
+#: ../src/fe-gnome/main-window.c:129
 msgid "_Find"
 msgstr "At_rast"
 
-#: ../src/fe-gnome/main-window.c:128
+#: ../src/fe-gnome/main-window.c:130
 msgid "Change _Topic"
 msgstr "Mainīt tēmu"
 
-#: ../src/fe-gnome/main-window.c:129 ../src/fe-gnome/navigation-tree.c:92
+#: ../src/fe-gnome/main-window.c:131 ../src/fe-gnome/navigation-tree.c:94
 msgid "_Bans..."
 msgstr "Izraidīto Saraksts..."
 
-#: ../src/fe-gnome/main-window.c:130
+#: ../src/fe-gnome/main-window.c:132
 msgid "_Users"
 msgstr "_Lietotāji"
 
 #. Go menu
-#: ../src/fe-gnome/main-window.c:133
+#: ../src/fe-gnome/main-window.c:135
 #, fuzzy
 msgid "Pre_vious Network"
 msgstr "Tīkls"
 
-#: ../src/fe-gnome/main-window.c:134
+#: ../src/fe-gnome/main-window.c:136
 #, fuzzy
 msgid "Nex_t Network"
 msgstr "Tīkls"
 
-#: ../src/fe-gnome/main-window.c:135
+#: ../src/fe-gnome/main-window.c:137
 msgid "_Previous Discussion"
 msgstr "Ie_priekšējā apspriešana"
 
-#: ../src/fe-gnome/main-window.c:136
+#: ../src/fe-gnome/main-window.c:138
 msgid "_Next Discussion"
 msgstr "_Nākošā apspriešana"
 
 #. Help menu
-#: ../src/fe-gnome/main-window.c:139
+#: ../src/fe-gnome/main-window.c:141
 msgid "_Contents"
 msgstr "_Saturs"
 
-#: ../src/fe-gnome/main-window.c:140
+#: ../src/fe-gnome/main-window.c:142
 msgid "_About"
 msgstr "_Par"
 
-#: ../src/fe-gnome/main-window.c:502 ../src/fe-gnome/navigation-tree.c:1667
+#: ../src/fe-gnome/main-window.c:505 ../src/fe-gnome/navigation-tree.c:1676
 #, fuzzy
 msgid "Ex-Chat"
 msgstr "Tērzēšana"
 
-#: ../src/fe-gnome/main-window.c:583
+#: ../src/fe-gnome/main-window.c:586
 #, fuzzy
 msgid "Error showing help"
 msgstr "Kļūda"
 
+#: ../src/fe-gnome/migration.c:117
+#, c-format
+msgid ""
+"The way the D-Bus plugin works has changed.\n"
+"To avoid problems, you should remove the old plugin file.\n"
+"\n"
+"<b>Please delete %s</b>"
+msgstr ""
+
+#: ../src/fe-gnome/migration.c:119
+msgid "D-Bus plugin is still installed"
+msgstr ""
+
 #. Server context menu
-#: ../src/fe-gnome/navigation-tree.c:81
+#: ../src/fe-gnome/navigation-tree.c:82
 msgid "_Information"
 msgstr "_Informācija"
 
-#: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:97
+#: ../src/fe-gnome/navigation-tree.c:92
+msgid "_Join"
+msgstr ""
+
+#: ../src/fe-gnome/navigation-tree.c:93 ../src/fe-gnome/navigation-tree.c:99
 #, fuzzy
 msgid "_Find..."
 msgstr "_Meklēt..."
 
 #. Server context menu
-#: ../src/fe-gnome/navigation-tree.c:102
+#: ../src/fe-gnome/navigation-tree.c:104
 #, fuzzy
 msgid "_Auto-connect on startup"
 msgstr "Auto uz"
 
 #. Channel context menu
-#: ../src/fe-gnome/navigation-tree.c:105
+#: ../src/fe-gnome/navigation-tree.c:107
 #, fuzzy
 msgid "_Auto-join on connect"
 msgstr "Auto uz"
 
 #. Add the new server to the model. By default connected is false.
-#: ../src/fe-gnome/navigation-tree.c:357
-#: ../src/fe-gnome/navigation-tree.c:1296
+#: ../src/fe-gnome/navigation-tree.c:361
+#: ../src/fe-gnome/navigation-tree.c:1305
 msgid "<none>"
 msgstr "<nekas>"
 
-#: ../src/fe-gnome/preferences-page-colors.c:223
+#: ../src/fe-gnome/preferences-page-colors.c:251
 msgid "Colors"
 msgstr "Krāsas"
 
-#: ../src/fe-gnome/preferences-page-colors.c:226
+#: ../src/fe-gnome/preferences-page-colors.c:254
 msgid "Black on White"
 msgstr "Melns uz balta"
 
-#: ../src/fe-gnome/preferences-page-colors.c:227
+#: ../src/fe-gnome/preferences-page-colors.c:255
 msgid "White on Black"
 msgstr "Balts uz melna"
 
-#: ../src/fe-gnome/preferences-page-colors.c:228
+#: ../src/fe-gnome/preferences-page-colors.c:256
 msgid "Custom"
 msgstr "Pielāgots"
 
-#: ../src/fe-gnome/preferences-page-colors.c:229
+#: ../src/fe-gnome/preferences-page-colors.c:257
 msgid "System Theme Colors"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-dcc.c:184
+#: ../src/fe-gnome/preferences-page-dcc.c:186
 #, fuzzy
 msgid "File Transfers & DCC"
 msgstr "Fails Transferti"
 
-#: ../src/fe-gnome/preferences-page-effects.c:176
+#: ../src/fe-gnome/preferences-page-effects.c:177
 msgid "Effects"
 msgstr "Efekti"
 
-#: ../src/fe-gnome/preferences-page-irc.c:256
+#: ../src/fe-gnome/preferences-page-irc.c:301
 #, fuzzy
 msgid "IRC Preferences"
 msgstr "IRC Preferences"
 
-#: ../src/fe-gnome/preferences-page-networks.c:118
+#: ../src/fe-gnome/preferences-page-networks.c:116
 #, fuzzy, c-format
 msgid "Really remove network \"%s\" and all of its servers?"
 msgstr "Patiesi izņemt tīklu \"%s\" un visus tā serverus?"
 
-#: ../src/fe-gnome/preferences-page-networks.c:171
+#: ../src/fe-gnome/preferences-page-networks.c:170
 msgid "Networks"
 msgstr "Tīkli"
 
-#: ../src/fe-gnome/preferences-page-networks.c:179
+#: ../src/fe-gnome/preferences-page-networks.c:178
 msgid "Name"
 msgstr "Nosaukums"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:90
-#: ../src/fe-gnome/preferences-page-plugins.c:91
+#: ../src/fe-gnome/preferences-page-plugins.c:92
+#: ../src/fe-gnome/preferences-page-plugins.c:93
 msgid "unknown"
 msgstr "nezināms"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:131
+#: ../src/fe-gnome/preferences-page-plugins.c:133
 #, c-format
 msgid "An error occured unloading %s"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-plugins.c:132
+#: ../src/fe-gnome/preferences-page-plugins.c:134
 #, fuzzy
 msgid "Plugin Unload Failed"
 msgstr "Iespraudnis Izlādēt Neizdevās"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:143
+#: ../src/fe-gnome/preferences-page-plugins.c:145
 msgid "Plugin Load Failed"
 msgstr "Iespraudni ielādēt neizdevās"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:182
+#: ../src/fe-gnome/preferences-page-plugins.c:184
 msgid "Open Plugin"
 msgstr "Atvērt iespraudni"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:314
+#: ../src/fe-gnome/preferences-page-plugins.c:316
 msgid "Scripts and Plugins"
 msgstr "Skripti un iespraudņi"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:327
-#: ../src/fe-gnome/preferences-page-spellcheck.c:223
+#: ../src/fe-gnome/preferences-page-plugins.c:329
+#: ../src/fe-gnome/preferences-page-spellcheck.c:225
 msgid "Enable"
 msgstr "Aktivizēt"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:329
+#: ../src/fe-gnome/preferences-page-plugins.c:331
 msgid "Plugin"
 msgstr "Iespraudnis"
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:101
+#: ../src/fe-gnome/preferences-page-spellcheck.c:102
 #, c-format
 msgid "Error in language %s activation: %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:140
+#: ../src/fe-gnome/preferences-page-spellcheck.c:141
 #, c-format
 msgid "Error in spell checking configuration: %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:186
+#: ../src/fe-gnome/preferences-page-spellcheck.c:188
 msgid "Spell checking"
 msgstr "Pareizrakstības pārbaude"
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:190
+#: ../src/fe-gnome/preferences-page-spellcheck.c:192
 msgid ""
 "In order to get spell-checking, you need to have libenchant installed with "
 "at least one dictionary."
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:201
+#: ../src/fe-gnome/preferences-page-spellcheck.c:203
 #, fuzzy
 msgid "_Check spelling"
 msgstr "Numuriņš"
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:202
+#: ../src/fe-gnome/preferences-page-spellcheck.c:204
 #, fuzzy
 msgid "Choose languages to use for spellcheck:"
 msgstr "Izvēlēties uz priekš:"
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:228
+#: ../src/fe-gnome/preferences-page-spellcheck.c:230
 msgid "Language"
 msgstr "Valoda"
 
@@ -5115,126 +5060,131 @@ msgstr ""
 msgid "%d bytes buffered"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:145 ../src/fe-gnome/text-entry.c:710
+#: ../src/fe-gnome/text-entry.c:146
 #, c-format
 msgid "Error in spellchecking configuration: %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:342
+#: ../src/fe-gnome/text-entry.c:358
 msgid "I_nsert Color Code"
 msgstr "Ievietot krāsas kodu"
 
-#: ../src/fe-gnome/text-entry.c:349
+#: ../src/fe-gnome/text-entry.c:365
 msgid "Black"
 msgstr "Melns"
 
-#: ../src/fe-gnome/text-entry.c:353
+#: ../src/fe-gnome/text-entry.c:369
 msgid "Dark Blue"
 msgstr "Tumši zils"
 
-#: ../src/fe-gnome/text-entry.c:357
+#: ../src/fe-gnome/text-entry.c:373
 msgid "Dark Green"
 msgstr "Tumši zaļš"
 
-#: ../src/fe-gnome/text-entry.c:361
+#: ../src/fe-gnome/text-entry.c:377
 msgid "Red"
 msgstr "Sarkans"
 
-#: ../src/fe-gnome/text-entry.c:365
+#: ../src/fe-gnome/text-entry.c:381
 msgid "Brown"
 msgstr "Brūns"
 
-#: ../src/fe-gnome/text-entry.c:369
+#: ../src/fe-gnome/text-entry.c:385
 msgid "Purple"
 msgstr "Purpura"
 
-#: ../src/fe-gnome/text-entry.c:373
+#: ../src/fe-gnome/text-entry.c:389
 msgid "Orange"
 msgstr "Oranžs"
 
-#: ../src/fe-gnome/text-entry.c:377
+#: ../src/fe-gnome/text-entry.c:393
 msgid "Yellow"
 msgstr "Dzeltens"
 
-#: ../src/fe-gnome/text-entry.c:381
+#: ../src/fe-gnome/text-entry.c:397
 msgid "Light Green"
 msgstr "Gaiži zaļš"
 
-#: ../src/fe-gnome/text-entry.c:385
+#: ../src/fe-gnome/text-entry.c:401
 msgid "Aqua"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:389
+#: ../src/fe-gnome/text-entry.c:405
 msgid "Light Blue"
 msgstr "Gaiši zils"
 
-#: ../src/fe-gnome/text-entry.c:393
+#: ../src/fe-gnome/text-entry.c:409
 msgid "Blue"
 msgstr "Zils"
 
-#: ../src/fe-gnome/text-entry.c:397
+#: ../src/fe-gnome/text-entry.c:413
 msgid "Violet"
 msgstr "Violets"
 
-#: ../src/fe-gnome/text-entry.c:401
+#: ../src/fe-gnome/text-entry.c:417
 msgid "Grey"
 msgstr "Pelēks"
 
-#: ../src/fe-gnome/text-entry.c:405
+#: ../src/fe-gnome/text-entry.c:421
 msgid "Light Grey"
 msgstr "Viegli pelēks"
 
-#: ../src/fe-gnome/text-entry.c:409
+#: ../src/fe-gnome/text-entry.c:425
 msgid "White"
 msgstr "Balts"
 
-#: ../src/fe-gnome/topic-label.c:264
+#: ../src/fe-gnome/topic-label.c:277
 #, c-format
 msgid "Changing topic for %s"
 msgstr ""
 
-#: ../src/fe-gnome/userlist-gui.c:60
+#: ../src/fe-gnome/userlist-gui.c:61
 msgid "_Send File..."
 msgstr "_Sūtīt failu..."
 
-#: ../src/fe-gnome/userlist-gui.c:61
+#: ../src/fe-gnome/userlist-gui.c:62
 msgid "Private _Chat"
 msgstr "Privāta tērzēšana"
 
-#: ../src/fe-gnome/userlist-gui.c:62
-msgid "_Kick"
-msgstr ""
-
 #: ../src/fe-gnome/userlist-gui.c:63
+msgid "_Kick"
+msgstr "Segvārds"
+
+#: ../src/fe-gnome/userlist-gui.c:64
 msgid "_Ban"
 msgstr "Aizliegums"
 
-#: ../src/fe-gnome/userlist-gui.c:393
+#: ../src/fe-gnome/userlist-gui.c:66
+msgid "_Op"
+msgstr ""
+
+#: ../src/fe-gnome/userlist-gui.c:409
 #, c-format
 msgid ""
 "%s\n"
 "<span weight=\"bold\">Name:</span> %s"
 msgstr ""
 
-#: ../src/fe-gnome/userlist-gui.c:400
+#: ../src/fe-gnome/userlist-gui.c:416
 #, c-format
 msgid ""
 "%s\n"
 "<span weight=\"bold\">Country:</span> %s"
 msgstr ""
 
-#: ../src/fe-gnome/userlist-gui.c:410
-#, fuzzy, c-format
+#: ../src/fe-gnome/userlist-gui.c:426
+#, c-format
 msgid ""
 "%s\n"
 "<span weight=\"bold\">Last message:</span> %d minute ago"
 msgid_plural ""
 "%s\n"
 "<span weight=\"bold\">Last message:</span> %d minutes ago"
-msgstr[0] "<span weight=\"bold\"> Saraksta filtrēšana</span>"
-msgstr[1] "<span weight=\"bold\"> Saraksta filtrēšana</span>"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
-#: ../src/fe-gnome/userlist-gui.c:421
+#: ../src/fe-gnome/userlist-gui.c:437
 #, c-format
 msgid ""
 "%s\n"
@@ -5242,11 +5192,106 @@ msgid ""
 msgstr ""
 
 #: ../src/fe-gnome/userlist.c:320
-#, fuzzy, c-format
+#, c-format
 msgid "%d User"
 msgid_plural "%d Users"
-msgstr[0] "Lietotāji"
-msgstr[1] "Lietotāji"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, fuzzy
+#~ msgid "Nick Name:"
+#~ msgstr "Signatūra Nosaukums:"
+
+#, fuzzy
+#~ msgid "Real Name:"
+#~ msgstr "Reāls Nosaukums:"
+
+#, fuzzy
+#~ msgid "Orientation"
+#~ msgstr "Orientācija"
+
+#, fuzzy
+#~ msgid "The orientation of the tray."
+#~ msgstr "no."
+
+#, fuzzy
+#~ msgid "irc://server:port/channel"
+#~ msgstr "serveris ports"
+
+#, fuzzy
+#~ msgid "Execute a xchat command"
+#~ msgstr "Izpildīt a"
+
+#, fuzzy
+#~ msgid "\"Command to execute\""
+#~ msgstr "Komanda uz"
+
+#, fuzzy
+#~ msgid "Prints some text to the current tab/window"
+#~ msgstr "teksts uz logs"
+
+#, fuzzy
+#~ msgid "\"Text to print\""
+#~ msgstr "Teksts uz"
+
+#, fuzzy
+#~ msgid "Change the context to the channel"
+#~ msgstr "Mainīt uz"
+
+#~ msgid "channel"
+#~ msgstr "Kanāls"
+
+#, fuzzy
+#~ msgid "Change the context to the server"
+#~ msgstr "Mainīt uz serveris"
+
+#, fuzzy
+#~ msgid "server"
+#~ msgstr "serveris"
+
+#, fuzzy
+#~ msgid "Get some informations from xchat"
+#~ msgstr "Dabūt no"
+
+#~ msgid "id"
+#~ msgstr "id"
+
+#, fuzzy
+#~ msgid "Get settings from xchat"
+#~ msgstr "Dabūt no"
+
+#, fuzzy
+#~ msgid "name"
+#~ msgstr "vārds"
+
+#, fuzzy
+#~ msgid "Failed to complete command"
+#~ msgstr "Neizdevās uz"
+
+#, fuzzy
+#~ msgid "Failed to complete SetContext"
+#~ msgstr "Neizdevās uz"
+
+#, fuzzy
+#~ msgid "Failed to complete print"
+#~ msgstr "Neizdevās uz"
+
+#, fuzzy
+#~ msgid "Failed to complete GetInfo"
+#~ msgstr "Neizdevās uz"
+
+#, fuzzy
+#~ msgid "Failed to complete GetPrefs"
+#~ msgstr "Neizdevās uz"
+
+#, fuzzy
+#~ msgid "CLEAR, Clears the current text window"
+#~ msgstr "teksts logs"
+
+#, fuzzy
+#~ msgid "QUERY <nick>, opens up a new privmsg window to someone"
+#~ msgstr "<nick> augšup a logs uz"
 
 #~ msgid "Save List _As"
 #~ msgstr "Saglabāt sar_akstu kā"
