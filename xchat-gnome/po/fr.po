@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-08-08 15:51-0700\n"
-"PO-Revision-Date: 2006-04-29 14:45+0000\n"
+"POT-Creation-Date: 2006-09-24 22:03-0700\n"
+"PO-Revision-Date: 2006-08-08 22:36+0000\n"
 "Last-Translator: olive <olive@picapo.net>\n"
 "Language-Team: French <olivier@lethanh.be>\n"
 "MIME-Version: 1.0\n"
@@ -70,7 +70,8 @@ msgid "<span weight=\"bold\">User Info</span>"
 msgstr "<span weight=\"bold\">Informations utilisateur</span>"
 
 #: ../data/irc-network-editor.glade.h:3
-msgid "Accept _invalid SSL certificate"
+#, fuzzy
+msgid "Accept invalid _SSL certificate"
 msgstr "Accepter un certificat SSL _invalide"
 
 #: ../data/irc-network-editor.glade.h:4
@@ -78,46 +79,49 @@ msgid "Character _encoding:"
 msgstr "_Encodage des caractères :"
 
 #: ../data/irc-network-editor.glade.h:5
+#, fuzzy
+msgid "Cycle _until connected"
+msgstr "_Cycler jusqu'à la connexion"
+
+#: ../data/irc-network-editor.glade.h:6
 msgid "Network Settings"
 msgstr "Configuration réseau"
 
-#: ../data/irc-network-editor.glade.h:6
-msgid "Nickser_v Password:"
+#: ../data/irc-network-editor.glade.h:7
+#, fuzzy
+msgid "Nickser_v password:"
 msgstr "Mot de passe du pseudonyme (nickser_v):"
 
-#: ../data/irc-network-editor.glade.h:7
-msgid "Server _Password:"
+#: ../data/irc-network-editor.glade.h:8
+#, fuzzy
+msgid "Server _password:"
 msgstr "Mot de _passe du serveur :"
 
-#: ../data/irc-network-editor.glade.h:8
+#: ../data/irc-network-editor.glade.h:9
 msgid "Servers"
 msgstr "Serveurs"
 
-#: ../data/irc-network-editor.glade.h:9
+#: ../data/irc-network-editor.glade.h:10
 msgid "Use _global user settings"
 msgstr "Utiliser les paramètres _globaux de l'utilisateur"
 
-#: ../data/irc-network-editor.glade.h:10
+#: ../data/irc-network-editor.glade.h:11
 msgid "Use _these user settings:"
 msgstr "Utiliser ces para_mètres :"
 
-#: ../data/irc-network-editor.glade.h:11
+#: ../data/irc-network-editor.glade.h:12
 msgid "User and Channels"
 msgstr "Utilisateur et canaux"
 
-#: ../data/irc-network-editor.glade.h:12
+#: ../data/irc-network-editor.glade.h:13
 msgid "_Automatically connect to network"
 msgstr "Connexion _automatique au réseau"
-
-#: ../data/irc-network-editor.glade.h:13
-msgid "_Cycle until connected"
-msgstr "_Cycler jusqu'à la connexion"
 
 #: ../data/irc-network-editor.glade.h:14
 msgid "_Name:"
 msgstr "_Nom :"
 
-#: ../data/irc-network-editor.glade.h:15
+#: ../data/irc-network-editor.glade.h:15 ../data/setup-dialog.glade.h:5
 msgid "_Nick name:"
 msgstr "_Pseudonyme :"
 
@@ -182,106 +186,104 @@ msgid "A_way message:"
 msgstr "Message d'a_bsence :"
 
 #: ../data/preferences-dialog.glade.h:14
-msgid "Auto-accept DCC Chat"
+#, fuzzy
+msgid "Auto-accept DCC c_hat"
 msgstr "Accepter automatiquement les discussions DCC"
 
 #: ../data/preferences-dialog.glade.h:15
-msgid "Auto-accept DCC File Transfers"
+#, fuzzy
+msgid "Auto-accept DCC file tr_ansfers"
 msgstr "Accepter automatiquement les _transferts de fichier DCC"
 
 #: ../data/preferences-dialog.glade.h:16
-msgid "Background _image"
-msgstr "_Image d'arrière-plan"
-
-#: ../data/preferences-dialog.glade.h:17
 msgid "Background mark:"
 msgstr "Marque de fond :"
 
-#: ../data/preferences-dialog.glade.h:18
+#: ../data/preferences-dialog.glade.h:17
 msgid "Buil_t-in schemes:"
 msgstr "Thèmes prédéfinis :"
 
-#: ../data/preferences-dialog.glade.h:19
-msgid "Convert spaces to underscores in filenames"
+#: ../data/preferences-dialog.glade.h:18
+#, fuzzy
+msgid "Convert spaces to _underscores in filenames"
 msgstr "Convertir les espaces en tirets dans les noms de fichiers."
 
-#: ../data/preferences-dialog.glade.h:20
+#: ../data/preferences-dialog.glade.h:19
 msgid "Display a red line after the last read text"
 msgstr "Afficher une ligne rouge après la derniere ligne lue"
 
-#: ../data/preferences-dialog.glade.h:21
-msgid "Download files to:"
-msgstr "Télécharger les fichiers vers :"
-
-#: ../data/preferences-dialog.glade.h:22
+#: ../data/preferences-dialog.glade.h:20
 msgid "Enter extra words to trigger highlighting"
 msgstr "Entrez les mots à mettre en surbrillance"
 
-#: ../data/preferences-dialog.glade.h:23
+#: ../data/preferences-dialog.glade.h:21
 msgid "Foreground mark:"
 msgstr "Marque d'avant-plan :"
 
-#: ../data/preferences-dialog.glade.h:24
-msgid "Get IP Address From Server"
+#: ../data/preferences-dialog.glade.h:22
+#, fuzzy
+msgid "Get IP address from _server"
 msgstr "Obtenir l'adresse IP depuis le serveur"
 
-#: ../data/preferences-dialog.glade.h:25
-msgid "Global receive KB/s: "
+#: ../data/preferences-dialog.glade.h:23
+#, fuzzy
+msgid "Glo_bal receive KB/s: "
 msgstr "Réception totale Ko/s : "
 
-#: ../data/preferences-dialog.glade.h:26
-msgid "Global send KB/s: "
-msgstr "Envoi total Ko/s : "
-
-#: ../data/preferences-dialog.glade.h:27
-msgid "Image _file:"
+#: ../data/preferences-dialog.glade.h:24
+#, fuzzy
+msgid "I_mage file:"
 msgstr "_Image :"
 
-#: ../data/preferences-dialog.glade.h:28
-msgid "Individual receive KB/s: "
-msgstr "Réception individuelle Ko/s : "
-
-#: ../data/preferences-dialog.glade.h:29
-msgid "Individual send KB/s: "
+#: ../data/preferences-dialog.glade.h:25
+#, fuzzy
+msgid "In_dividual send KB/s: "
 msgstr "Envoi individuel Ko/s : "
 
-#: ../data/preferences-dialog.glade.h:30
-msgid "Move completed files to:"
+#: ../data/preferences-dialog.glade.h:26
+#, fuzzy
+msgid "Indi_vidual receive KB/s: "
+msgstr "Réception individuelle Ko/s : "
+
+#: ../data/preferences-dialog.glade.h:27
+#, fuzzy
+msgid "Move co_mpleted files to:"
 msgstr "Déplacer les téléchargements terminés vers :"
 
-#: ../data/preferences-dialog.glade.h:31
+#: ../data/preferences-dialog.glade.h:28
 msgid "Preferences"
 msgstr "Préférences"
 
-#: ../data/preferences-dialog.glade.h:32
+#: ../data/preferences-dialog.glade.h:29
 msgid "Real na_me:"
 msgstr "Nom _réel :"
 
-#: ../data/preferences-dialog.glade.h:33
-msgid "Save sender nickname in filenames"
+#: ../data/preferences-dialog.glade.h:30
+#, fuzzy
+msgid "Save sender _nickname in filenames"
 msgstr "Enregistrer le pseudo de l'expéditeur dans les noms des fichiers"
 
-#: ../data/preferences-dialog.glade.h:34
+#: ../data/preferences-dialog.glade.h:31
 msgid "Select A File"
 msgstr "Sélectionner un fichier"
 
-#: ../data/preferences-dialog.glade.h:35
+#: ../data/preferences-dialog.glade.h:32
 msgid "Select Completed Files Directory"
 msgstr "Choisissez le répertoire pour les téléchargements terminés"
 
-#: ../data/preferences-dialog.glade.h:36
+#: ../data/preferences-dialog.glade.h:33
 msgid "Select Download Directory"
 msgstr "Choisissez le répertoire de téléchargement"
 
-#: ../data/preferences-dialog.glade.h:37
+#: ../data/preferences-dialog.glade.h:34
 msgid "Show _timestamps"
 msgstr "Afficher les _marques de temps"
 
-#: ../data/preferences-dialog.glade.h:38
+#: ../data/preferences-dialog.glade.h:35
 msgid "Show m_arker line"
 msgstr "Afficher la ligne de démarcation"
 
-#: ../data/preferences-dialog.glade.h:39
+#: ../data/preferences-dialog.glade.h:36
 msgid ""
 "To edit a shortcut key, click on the corresponding row and type a new "
 "accelerator, or press backspace to clear."
@@ -289,29 +291,47 @@ msgstr ""
 "Pour éditer un raccourci clavier, cliquez sur la ligne correspondante et "
 "tapez le nouveau raccourci, ou pressez Retour Arrière pour effacer."
 
-#: ../data/preferences-dialog.glade.h:40
-msgid "Use System Terminal Font"
+#: ../data/preferences-dialog.glade.h:37
+#, fuzzy
+msgid "Use _system terminal font"
 msgstr "Utiliser la police de terminal du système"
 
-#: ../data/preferences-dialog.glade.h:41
-msgid "Use This IP Address:"
+#: ../data/preferences-dialog.glade.h:38
+#, fuzzy
+msgid "Use t_his IP address:"
 msgstr "Utiliser cette adresse IP :"
 
-#: ../data/preferences-dialog.glade.h:42
-msgid "Use this font:"
+#: ../data/preferences-dialog.glade.h:39
+#, fuzzy
+msgid "Use this f_ont:"
 msgstr "Utiliser cette police :"
 
-#: ../data/preferences-dialog.glade.h:43
+#: ../data/preferences-dialog.glade.h:40
 msgid "_Background color:"
 msgstr "Couleur d'arriè_re-plan :"
 
-#: ../data/preferences-dialog.glade.h:44 ../src/fe-gnome/main-window.c:100
+#: ../data/preferences-dialog.glade.h:41
+#, fuzzy
+msgid "_Background image"
+msgstr "_Image d'arrière-plan"
+
+#: ../data/preferences-dialog.glade.h:42
+#, fuzzy
+msgid "_Download files to:"
+msgstr "Télécharger les fichiers vers :"
+
+#: ../data/preferences-dialog.glade.h:43 ../src/fe-gnome/main-window.c:100
 msgid "_Edit"
 msgstr "_Édition"
 
-#: ../data/preferences-dialog.glade.h:45
+#: ../data/preferences-dialog.glade.h:44
 msgid "_Foreground color:"
 msgstr "Couleur d'a_vant-plan :"
+
+#: ../data/preferences-dialog.glade.h:45
+#, fuzzy
+msgid "_Global send KB/s: "
+msgstr "Envoi total Ko/s : "
 
 #: ../data/preferences-dialog.glade.h:46
 msgid "_Log conversations"
@@ -346,14 +366,6 @@ msgid "spell checking"
 msgstr "correction orthographique"
 
 #: ../data/setup-dialog.glade.h:1
-msgid "Nick Name:"
-msgstr "Pseudo :"
-
-#: ../data/setup-dialog.glade.h:2
-msgid "Real Name:"
-msgstr "Nom réel :"
-
-#: ../data/setup-dialog.glade.h:3
 msgid ""
 "Welcome to xchat-gnome! Since this is your first time using this "
 "application, there are a couple things you'll need to configure before you "
@@ -373,32 +385,39 @@ msgstr ""
 "des choses tels que s'enregistrer auprès de services. Vous n'avez pas à "
 "utiliser votre vrai nom si vous ne le souhaitez pas."
 
-#: ../data/setup-dialog.glade.h:6
+#: ../data/setup-dialog.glade.h:4
 msgid "XChat-GNOME Setup"
 msgstr "Configuration IRC XChat-GNOME"
+
+#: ../data/setup-dialog.glade.h:6
+#, fuzzy
+msgid "_Real name:"
+msgstr "Nom _réel :"
 
 #: ../data/topic-change.glade.h:1
 msgid "Change"
 msgstr "Changer"
 
-#: ../data/xchat-gnome.desktop.in.h:1
+#: ../data/xchat-gnome.desktop.in.in.h:1
 msgid "Chat with people using IRC"
 msgstr "Discuter avec des personnes utilisant IRC"
 
-#: ../data/xchat-gnome.desktop.in.h:2
+#: ../data/xchat-gnome.desktop.in.in.h:2
 msgid "IRC Chat"
 msgstr "Discussion IRC"
 
-#: ../data/xchat-gnome.desktop.in.h:3
+#: ../data/xchat-gnome.desktop.in.in.h:3
 msgid "XChat-GNOME IRC Chat"
 msgstr "Discussion IRC XChat-GNOME"
 
 #: ../data/xchat-gnome.glade.h:1
-msgid "Apply on a_ll servers"
+#, fuzzy
+msgid "Apply on all _servers"
 msgstr "Sur _tout les serveurs"
 
 #: ../data/xchat-gnome.glade.h:2
-msgid "Change nickname to:"
+#, fuzzy
+msgid "Change _nickname to:"
 msgstr "Changer le pseudonyme en :"
 
 #: ../data/xchat-gnome.glade.h:3
@@ -467,14 +486,6 @@ msgstr "Moniteur de connexion NetworkManager"
 #, c-format
 msgid "%s loaded successfully\n"
 msgstr "chargement de %s réussi.\n"
-
-#: ../plugins/notification/eggtrayicon.c:111
-msgid "Orientation"
-msgstr "Orientation"
-
-#: ../plugins/notification/eggtrayicon.c:111
-msgid "The orientation of the tray."
-msgstr "L'orientation du panneau."
 
 #: ../plugins/notification/notification.c:139
 msgid "Notification"
@@ -559,7 +570,7 @@ msgstr "Échec de l'initialisation d'OSD\n"
 msgid "xchat URL scraper"
 msgstr "XChat URL Scraper"
 
-#: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:855
+#: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:858
 msgid "Time"
 msgstr "Temps"
 
@@ -569,7 +580,7 @@ msgstr "Pseudo"
 
 #: ../plugins/url_scraper/urlscraper.c:68 ../src/common/text.c:654
 #: ../src/common/text.c:658 ../src/common/text.c:1094
-#: ../src/fe-gnome/irc-network-editor.c:313
+#: ../src/fe-gnome/irc-network-editor.c:314
 msgid "Channel"
 msgstr "Canal"
 
@@ -684,7 +695,7 @@ msgstr "Connexion"
 msgid "Aborted"
 msgstr "Interrompu"
 
-#: ../src/common/dcc.c:1887 ../src/common/outbound.c:2302
+#: ../src/common/dcc.c:1887 ../src/common/outbound.c:2309
 #, c-format
 msgid "Cannot access %s\n"
 msgstr "Impossible d'accéder à %s\n"
@@ -749,68 +760,68 @@ msgstr "Pas encore dans un canal. Essayez /join #<canal>\n"
 msgid "Not connected. Try /server <host> [<port>]\n"
 msgstr "Pas encore connecté. Essayez /server <hôte> [<port>]\n"
 
-#: ../src/common/outbound.c:1723
+#: ../src/common/outbound.c:1730
 msgid "I need /bin/sh to run!\n"
 msgstr "J'ai besoin de /bin/sh pour tourner !\n"
 
-#: ../src/common/outbound.c:2039
+#: ../src/common/outbound.c:2046
 msgid "Commands Available:"
 msgstr "Commandes Disponibles :"
 
-#: ../src/common/outbound.c:2053
+#: ../src/common/outbound.c:2060
 msgid "User defined commands:"
 msgstr "Commandes définies par l'utilisateur :"
 
-#: ../src/common/outbound.c:2069
+#: ../src/common/outbound.c:2076
 msgid "Plugin defined commands:"
 msgstr "Commandes définies par le greffon :"
 
-#: ../src/common/outbound.c:2080
+#: ../src/common/outbound.c:2087
 msgid "Type /HELP <command> for more information, or /HELP -l"
 msgstr "Tapez /HELP <commande> pour plus d'informations, ou /HELP -l"
 
-#: ../src/common/outbound.c:2155
+#: ../src/common/outbound.c:2162
 #, c-format
 msgid "Unknown arg '%s' ignored."
 msgstr "Argument inconnu '%s' ignoré."
 
-#: ../src/common/outbound.c:3035
+#: ../src/common/outbound.c:3049
 msgid "No such plugin found.\n"
 msgstr "Aucun greffon de ce type trouvé.\n"
 
-#: ../src/common/outbound.c:3040
+#: ../src/common/outbound.c:3054
 msgid "That plugin is refusing to unload.\n"
 msgstr "Ce greffon refuse de se décharger.\n"
 
-#: ../src/common/outbound.c:3275
+#: ../src/common/outbound.c:3323
 msgid "ADDBUTTON <name> <action>, adds a button under the user-list"
 msgstr ""
 "ADDBUTTON <nom> <action>, ajoute un bouton en-dessous de la liste des "
 "utilisateurs"
 
-#: ../src/common/outbound.c:3277
+#: ../src/common/outbound.c:3325
 msgid "ALLCHAN <cmd>, sends a command to all channels you're in"
 msgstr ""
 "ALLCHAN <cmd>, envoie une commande à tous les canaux dans lesquels vous êtes "
 "présent"
 
-#: ../src/common/outbound.c:3279
+#: ../src/common/outbound.c:3327
 msgid "ALLCHANL <cmd>, sends a command to all channels you're in"
 msgstr ""
 "ALLCHANL <cmd>, envoie une commande à tous les canaux dans lesquels vous "
 "êtes présent"
 
-#: ../src/common/outbound.c:3281
+#: ../src/common/outbound.c:3329
 msgid "ALLSERV <cmd>, sends a command to all servers you're in"
 msgstr ""
 "ALLSERV <cmd>, envoie une commande à tous les serveurs sur lesquels vous "
 "êtes connecté"
 
-#: ../src/common/outbound.c:3282
+#: ../src/common/outbound.c:3330
 msgid "AWAY [<reason>], sets you away"
 msgstr "AWAY [<raison>], vous signale comme absent"
 
-#: ../src/common/outbound.c:3284
+#: ../src/common/outbound.c:3332
 msgid ""
 "BAN <mask> [<bantype>], bans everyone matching the mask from the current "
 "channel. If they are already on the channel this doesn't kick them (needs "
@@ -820,7 +831,7 @@ msgstr ""
 "le canal en cours. S'ils sont déjà sur le canal ça ne les met pas dehors "
 "(kick) (nécessite chanop)"
 
-#: ../src/common/outbound.c:3286
+#: ../src/common/outbound.c:3334
 msgid ""
 "Set per channel options\n"
 "CHANOPT CONFMODE ON|OFF - Toggle conf mode/showing of join and part "
@@ -834,21 +845,21 @@ msgstr ""
 "CHANOPT COLORPASTE ON|OFF - Basculez le collage des couleurs\n"
 "CHANOPT BEEP ON|OFF - Basculez les bip sur les messages"
 
-#: ../src/common/outbound.c:3292
+#: ../src/common/outbound.c:3340
 msgid "CLEAR [ALL|HISTORY], Clears the current text window or command history"
 msgstr "CLEAR [ALL|HISTORY], Efface le texte la fenêtre courante"
 
-#: ../src/common/outbound.c:3293
+#: ../src/common/outbound.c:3341
 msgid "CLOSE, Closes the current window/tab"
 msgstr "CLOSE, Ferme l'onglet/fenêtre courant"
 
-#: ../src/common/outbound.c:3296
+#: ../src/common/outbound.c:3344
 msgid "COUNTRY [-s] <code|wildcard>, finds a country code, eg: au = australia"
 msgstr ""
 "COUNTRY [-s] <code|caractère de substitution>, recherche un code de pays, "
 "par exemple : au = australie"
 
-#: ../src/common/outbound.c:3298
+#: ../src/common/outbound.c:3346
 msgid ""
 "CTCP <nick> <message>, send the CTCP message to nick, common messages are "
 "VERSION and USERINFO"
@@ -856,11 +867,11 @@ msgstr ""
 "CTCP <pseudo> <message>, envoie le message CTCP au pseudo, VERSION et "
 "USERINFO sont des messages d'utilisation courante"
 
-#: ../src/common/outbound.c:3300
+#: ../src/common/outbound.c:3348
 msgid "CYCLE, parts current channel and immediately rejoins"
 msgstr "CYCLE, sort du canal courant et revient immédiatement"
 
-#: ../src/common/outbound.c:3302
+#: ../src/common/outbound.c:3350
 msgid ""
 "\n"
 "DCC GET <nick>                      - accept an offered file\n"
@@ -883,7 +894,7 @@ msgstr ""
 "DCC CLOSE <type> <pseudo> <fichier>     exemple :\n"
 "         /dcc close send rogerdupont fichier.tar.gz"
 
-#: ../src/common/outbound.c:3314
+#: ../src/common/outbound.c:3362
 msgid ""
 "DEHOP <nick>, removes chanhalf-op status from the nick on the current "
 "channel (needs chanop)"
@@ -891,11 +902,11 @@ msgstr ""
 "DEHOP <pseudo>, supprime le statut chanhalf-op d'un pseudo sur le canal "
 "courant (nécessite chanop)"
 
-#: ../src/common/outbound.c:3316
+#: ../src/common/outbound.c:3364
 msgid "DELBUTTON <name>, deletes a button from under the user-list"
 msgstr "DELBUTTON <nom>, supprime un bouton de sous la liste des utilisateurs"
 
-#: ../src/common/outbound.c:3318
+#: ../src/common/outbound.c:3366
 msgid ""
 "DEOP <nick>, removes chanop status from the nick on the current channel "
 "(needs chanop)"
@@ -903,7 +914,7 @@ msgstr ""
 "DEOP <pseudo>, supprime le statut chanop d'un pseudo sur le canal courant "
 "(nécessite chanop)"
 
-#: ../src/common/outbound.c:3320
+#: ../src/common/outbound.c:3368
 msgid ""
 "DEVOICE <nick>, removes voice status from the nick on the current channel "
 "(needs chanop)"
@@ -911,19 +922,19 @@ msgstr ""
 "DEVOICE <pseudo>, supprime le statut voice d'un pseudo sur le canal courant "
 "(nécessite chanop)"
 
-#: ../src/common/outbound.c:3321
+#: ../src/common/outbound.c:3369
 msgid "DISCON, Disconnects from server"
 msgstr "DISCON, se déconnecte du serveur"
 
-#: ../src/common/outbound.c:3322
+#: ../src/common/outbound.c:3370
 msgid "DNS <nick|host|ip>, Finds a users IP number"
 msgstr "DNS <pseudo|hôte|ip>, trouve l'adresse IP d'un utilisateur"
 
-#: ../src/common/outbound.c:3323
+#: ../src/common/outbound.c:3371
 msgid "ECHO <text>, Prints text locally"
 msgstr "ECHO <texte>, affiche un texte en local"
 
-#: ../src/common/outbound.c:3326
+#: ../src/common/outbound.c:3374
 msgid ""
 "EXEC [-o] <command>, runs the command. If -o flag is used then output is "
 "sent to current channel, else is printed to current text box"
@@ -932,11 +943,11 @@ msgstr ""
 "sortie est envoyée sur le canal courant, sinon elle est affichée dans la "
 "zone de texte courante"
 
-#: ../src/common/outbound.c:3328
+#: ../src/common/outbound.c:3376
 msgid "EXECCONT, sends the process SIGCONT"
 msgstr "EXECCONT, envoie un SIGCONT au processus"
 
-#: ../src/common/outbound.c:3331
+#: ../src/common/outbound.c:3379
 msgid ""
 "EXECKILL [-9], kills a running exec in the current session. If -9 is given "
 "the process is SIGKILL'ed"
@@ -944,36 +955,36 @@ msgstr ""
 "EXECKILL [-9], tue une exécution en cours dans la session courante. Si -9 "
 "est fourni, le processus est tué par SIGKILL"
 
-#: ../src/common/outbound.c:3333
+#: ../src/common/outbound.c:3381
 msgid "EXECSTOP, sends the process SIGSTOP"
 msgstr "EXECSTOP, envoie un SIGSTOP au processus"
 
-#: ../src/common/outbound.c:3334
+#: ../src/common/outbound.c:3382
 msgid "EXECWRITE, sends data to the processes stdin"
 msgstr "EXECWRITE, envoie des données à l'entrée standard du processus"
 
-#: ../src/common/outbound.c:3338
+#: ../src/common/outbound.c:3386
 msgid "FLUSHQ, flushes the current server's send queue"
 msgstr "FLUSHQ, vide la queue d'envoi du serveur courant"
 
-#: ../src/common/outbound.c:3340
+#: ../src/common/outbound.c:3388
 msgid "GATE <host> [<port>], proxies through a host, port defaults to 23"
 msgstr ""
 "GATE <hôte> [<port>], utilise un hôte comme proxy, le port est 23 par défaut"
 
-#: ../src/common/outbound.c:3343
+#: ../src/common/outbound.c:3391
 msgid "GHOST <nick> <password>, Kills a ghosted nickname"
 msgstr "GHOST <pseudo> <mot de passe>, tue les pseudonymes fantômes"
 
-#: ../src/common/outbound.c:3348
+#: ../src/common/outbound.c:3396
 msgid "HOP <nick>, gives chanhalf-op status to the nick (needs chanop)"
 msgstr "HOP <pseudo>, donne le statut chanhalf-op au pseudo (nécessite chanop)"
 
-#: ../src/common/outbound.c:3349
+#: ../src/common/outbound.c:3397
 msgid "ID <password>, identifies yourself to nickserv"
 msgstr "ID <mot de passe>, vous identifie au serveur de noms"
 
-#: ../src/common/outbound.c:3351
+#: ../src/common/outbound.c:3399
 msgid ""
 "IGNORE <mask> <types..> <options..>\n"
 "    mask - host mask to ignore, eg: *!*@*.aol.com\n"
@@ -987,7 +998,7 @@ msgstr ""
 "              PRIV, CHAN, NOTI, CTCP, INVI, ALL\n"
 "    options - NOSAVE, QUIET"
 
-#: ../src/common/outbound.c:3358
+#: ../src/common/outbound.c:3406
 msgid ""
 "INVITE <nick> [<channel>], invites someone to a channel, by default the "
 "current channel (needs chanop)"
@@ -995,17 +1006,17 @@ msgstr ""
 "INVITE <pseudo> [<canal>], invite quelqu'un sur un canal, par défaut le "
 "canal courant (nécessite chanop)"
 
-#: ../src/common/outbound.c:3359
+#: ../src/common/outbound.c:3407
 msgid "JOIN <channel>, joins the channel"
 msgstr "JOIN <canal>, rejoint le canal"
 
-#: ../src/common/outbound.c:3361
+#: ../src/common/outbound.c:3409
 msgid "KICK <nick>, kicks the nick from the current channel (needs chanop)"
 msgstr ""
 "KICK <pseudo>, met dehors (kicke) le pseudo du canal courant (nécessite "
 "chanop)"
 
-#: ../src/common/outbound.c:3363
+#: ../src/common/outbound.c:3411
 msgid ""
 "KICKBAN <nick>, bans then kicks the nick from the current channel (needs "
 "chanop)"
@@ -1013,32 +1024,32 @@ msgstr ""
 "KICKBAN <pseudo>, bannit puis met dehors (kicke) le pseudo du canal courant "
 "(nécessite chanop)"
 
-#: ../src/common/outbound.c:3366
+#: ../src/common/outbound.c:3414
 msgid "LAGCHECK, forces a new lag check"
 msgstr "LAGCHECK, force une nouvelle vérification de lag (délai)"
 
-#: ../src/common/outbound.c:3368
+#: ../src/common/outbound.c:3416
 msgid "LASTLOG <string>, searches for a string in the buffer"
 msgstr "LASTLOG <chaîne>, recherche une chaîne dans le tampon."
 
-#: ../src/common/outbound.c:3370
+#: ../src/common/outbound.c:3418
 msgid "LOAD [-e] <file>, loads a plugin or script"
 msgstr "LOAD [-e] <fichier>, charge un greffon ou un script"
 
-#: ../src/common/outbound.c:3373
+#: ../src/common/outbound.c:3421
 msgid ""
 "MDEHOP, Mass deop's all chanhalf-ops in the current channel (needs chanop)"
 msgstr ""
 "MDEHOP, fait un deop massif sur tous les chanhalf-ops du canal courant "
 "(nécessite chanop)"
 
-#: ../src/common/outbound.c:3375
+#: ../src/common/outbound.c:3423
 msgid "MDEOP, Mass deop's all chanops in the current channel (needs chanop)"
 msgstr ""
 "MDEOP, fait un deop massif sur tous les chanops du canal courant (nécessite "
 "chanop)"
 
-#: ../src/common/outbound.c:3377
+#: ../src/common/outbound.c:3425
 msgid ""
 "ME <action>, sends the action to the current channel (actions are written in "
 "the 3rd person, like /me jumps)"
@@ -1046,40 +1057,40 @@ msgstr ""
 "ME <action>, envoie l'action dans le canal courant (les actions sont écrites "
 "à la 3ème personne, comme /me est content)"
 
-#: ../src/common/outbound.c:3380
+#: ../src/common/outbound.c:3428
 msgid ""
 "MKICK, Mass kicks everyone except you in the current channel (needs chanop)"
 msgstr ""
 "MKICK, fait un kick massif de tout le monde sauf vous dans le canal courant "
 "(nécessite chanop)"
 
-#: ../src/common/outbound.c:3383
+#: ../src/common/outbound.c:3431
 msgid "MOP, Mass op's all users in the current channel (needs chanop)"
 msgstr ""
 "MOP, fait un op massif sur tous les utilisateurs du canal courant (nécessite "
 "chanop)"
 
-#: ../src/common/outbound.c:3384
+#: ../src/common/outbound.c:3432
 msgid "MSG <nick> <message>, sends a private message"
 msgstr "MSG <pseudo> <message>, envoie un message privé"
 
-#: ../src/common/outbound.c:3387
+#: ../src/common/outbound.c:3435
 msgid "NAMES, Lists the nicks on the current channel"
 msgstr "NAMES, Liste les pseudos sur le canal courant"
 
-#: ../src/common/outbound.c:3389
+#: ../src/common/outbound.c:3437
 msgid "NCTCP <nick> <message>, Sends a CTCP notice"
 msgstr "NCTCP <pseudo> <message>, Envoie une notice CTCP"
 
-#: ../src/common/outbound.c:3390
+#: ../src/common/outbound.c:3438
 msgid "NEWSERVER [-noconnect] <hostname> [<port>]"
 msgstr "NEWSERVER <nomhôte> [<port>]"
 
-#: ../src/common/outbound.c:3391
+#: ../src/common/outbound.c:3439
 msgid "NICK <nickname>, sets your nick"
 msgstr "NICK <pseudonyme>, définit votre pseudo"
 
-#: ../src/common/outbound.c:3394
+#: ../src/common/outbound.c:3442
 msgid ""
 "NOTICE <nick/channel> <message>, sends a notice. Notices are a type of "
 "message that should be auto reacted to"
@@ -1087,39 +1098,39 @@ msgstr ""
 "NOTICE <pseudo/canal> <message>, envoie une notification. Les notifications "
 "sont un type de message auquel on devrait réagir automatiquement"
 
-#: ../src/common/outbound.c:3396
+#: ../src/common/outbound.c:3444
 msgid "NOTIFY [<nick>], lists your notify list or adds someone to it"
 msgstr ""
 "NOTIFY [<pseudo>], liste votre liste de notifications et y ajoute quelqu'un"
 
-#: ../src/common/outbound.c:3398
+#: ../src/common/outbound.c:3446
 msgid "OP <nick>, gives chanop status to the nick (needs chanop)"
 msgstr "OP <pseudo>, donne le statut chanop au pseudo (nécessite chanop)"
 
-#: ../src/common/outbound.c:3400
+#: ../src/common/outbound.c:3448
 msgid ""
 "PART [<channel>] [<reason>], leaves the channel, by default the current one"
 msgstr ""
 "PART [<canal>] [<raison>], quitte le canal, par défaut le canal courant"
 
-#: ../src/common/outbound.c:3402
+#: ../src/common/outbound.c:3450
 msgid "PING <nick | channel>, CTCP pings nick or channel"
 msgstr "PING <pseudo | canal>, envoie un CTCP ping au pseudo ou au canal"
 
-#: ../src/common/outbound.c:3404
+#: ../src/common/outbound.c:3452
 msgid "QUERY [-nofocus] <nick>, opens up a new privmsg window to someone"
 msgstr ""
 "QUERY <pseudo>, ouvre une nouvelle fenêtre de message privé avec quelqu'un"
 
-#: ../src/common/outbound.c:3406
+#: ../src/common/outbound.c:3454
 msgid "QUIT [<reason>], disconnects from the current server"
 msgstr "QUIT [<raison>], déconnecte du serveur courant"
 
-#: ../src/common/outbound.c:3408
+#: ../src/common/outbound.c:3456
 msgid "QUOTE <text>, sends the text in raw form to the server"
 msgstr "QUOTE <texte>, transmet le texte sous forme brute au serveur"
 
-#: ../src/common/outbound.c:3411
+#: ../src/common/outbound.c:3459
 msgid ""
 "RECONNECT [-ssl] [<host>] [<port>] [<password>], Can be called just as /"
 "RECONNECT to reconnect to the current server or with /RECONNECT ALL to "
@@ -1129,7 +1140,7 @@ msgstr ""
 "avec /RECONNECT pour se reconnecter au serveur courant ou avec /RECONNECT "
 "ALL pour se reconnecter à tous les serveurs ouverts"
 
-#: ../src/common/outbound.c:3414
+#: ../src/common/outbound.c:3462
 msgid ""
 "RECONNECT [<host>] [<port>] [<password>], Can be called just as /RECONNECT "
 "to reconnect to the current server or with /RECONNECT ALL to reconnect to "
@@ -1139,7 +1150,7 @@ msgstr ""
 "RECONNECT pour se reconnecter au serveur courant ou avec /RECONNECT ALL pour "
 "se reconnecter à tous les serveurs ouverts"
 
-#: ../src/common/outbound.c:3416
+#: ../src/common/outbound.c:3464
 msgid ""
 "RECV <text>, send raw data to xchat, as if it was received from the irc "
 "server"
@@ -1147,23 +1158,23 @@ msgstr ""
 "RECV <texte>, transmet le texte sous forme brute vers xchat, comme s'il "
 "avait été reçu depuis le serveur irc"
 
-#: ../src/common/outbound.c:3419
+#: ../src/common/outbound.c:3467
 msgid "SAY <text>, sends the text to the object in the current window"
 msgstr "SAY <texte>, envoie un texte à l'objet de la fenêtre courante"
 
-#: ../src/common/outbound.c:3420
+#: ../src/common/outbound.c:3468
 msgid "SEND <nick> [<file>]"
 msgstr "SEND <pseudo> [<fichier>]"
 
-#: ../src/common/outbound.c:3423
+#: ../src/common/outbound.c:3471
 msgid "SERVCHAN [-ssl] <host> <port> <channel>, connects and joins a channel"
 msgstr "SERVCHAN [-ssl] <hôte> <port> <canal>, se connecte et rejoint un canal"
 
-#: ../src/common/outbound.c:3426
+#: ../src/common/outbound.c:3474
 msgid "SERVCHAN <host> <port> <channel>, connects and joins a channel"
 msgstr "SERVCHAN <hôte> <port> <canal>, se connecte et rejoint un canal"
 
-#: ../src/common/outbound.c:3430
+#: ../src/common/outbound.c:3478
 msgid ""
 "SERVER [-ssl] <host> [<port>] [<password>], connects to a server, the "
 "default port is 6667 for normal connections, and 9999 for ssl connections"
@@ -1172,7 +1183,7 @@ msgstr ""
 "port par défaut est 6667 pour les connexions normales, et 994 pour les "
 "connexions ssl"
 
-#: ../src/common/outbound.c:3433
+#: ../src/common/outbound.c:3481
 msgid ""
 "SERVER <host> [<port>] [<password>], connects to a server, the default port "
 "is 6667"
@@ -1180,64 +1191,64 @@ msgstr ""
 "SERVER <hôte> [<port>] [<motpasse>], se connecte à un serveur, le port par "
 "défaut est 6667"
 
-#: ../src/common/outbound.c:3435
+#: ../src/common/outbound.c:3483
 msgid "SET [-quiet] <variable> [<value>]"
 msgstr "SET [-quiet] <variable> [<valeur>] (-quiet = silencieusement)"
 
-#: ../src/common/outbound.c:3436
+#: ../src/common/outbound.c:3484
 msgid "SETCURSOR [-|+]<position>"
 msgstr "SETCURSOR [-|+]<position>"
 
-#: ../src/common/outbound.c:3441
+#: ../src/common/outbound.c:3489
 msgid ""
 "TOPIC [<topic>], sets the topic if one is given, else shows the current topic"
 msgstr ""
 "TOPIC [<sujet>], définit le sujet si on en fourni un, sinon affiche le sujet "
 "actuel"
 
-#: ../src/common/outbound.c:3443
+#: ../src/common/outbound.c:3491
 msgid "UNBAN <mask> [<mask>...], unbans the specified masks."
 msgstr "UNBAN <masque> [<masque>...], débannit les masques fournis."
 
-#: ../src/common/outbound.c:3444
+#: ../src/common/outbound.c:3492
 msgid "UNIGNORE <mask> [QUIET]"
 msgstr "UNIGNORE <masque> [QUIET]"
 
-#: ../src/common/outbound.c:3445
+#: ../src/common/outbound.c:3493
 msgid "UNLOAD <name>, unloads a plugin or script"
 msgstr "UNLOAD <nom>, décharge un greffon ou un script"
 
-#: ../src/common/outbound.c:3446
+#: ../src/common/outbound.c:3494
 msgid "URL <url>, opens a URL in your browser"
 msgstr "URL <url>, ouvre une URL dans votre navigateur"
 
-#: ../src/common/outbound.c:3448
+#: ../src/common/outbound.c:3496
 msgid ""
 "USELECT [-a] [-s] <nick1> <nick2> etc, highlights nick(s) in channel userlist"
 msgstr ""
 "USELECT [-a] [-s] <pseudo1> <pseudo2> etc, met en surbrillance le(s) "
 "pseudonyme(s) dans la liste d'utilisateurs du canal"
 
-#: ../src/common/outbound.c:3451
+#: ../src/common/outbound.c:3499
 msgid "VOICE <nick>, gives voice status to someone (needs chanop)"
 msgstr "VOICE <pseudo>, donne le statut voice à quelqu'un (nécessite chanop)"
 
-#: ../src/common/outbound.c:3453
+#: ../src/common/outbound.c:3501
 msgid "WALLCHAN <message>, writes the message to all channels"
 msgstr "WALLCHAN <message>, écrit le message sur tous les canaux"
 
-#: ../src/common/outbound.c:3455
+#: ../src/common/outbound.c:3503
 msgid ""
 "WALLCHOP <message>, sends the message to all chanops on the current channel"
 msgstr ""
 "WALLCHOP <message>, envoie le message à tous les chanops du canal courant"
 
-#: ../src/common/outbound.c:3488
+#: ../src/common/outbound.c:3536
 #, c-format
 msgid "Usage: %s\n"
 msgstr "Utilisation :%s\n"
 
-#: ../src/common/outbound.c:3493
+#: ../src/common/outbound.c:3541
 msgid ""
 "\n"
 "No help available on that command.\n"
@@ -1245,19 +1256,19 @@ msgstr ""
 "\n"
 "Aucune aide disponible pour cette commande.\n"
 
-#: ../src/common/outbound.c:3499
+#: ../src/common/outbound.c:3547
 msgid "No such command.\n"
 msgstr "Aucune commande correspondante.\n"
 
-#: ../src/common/outbound.c:3826
+#: ../src/common/outbound.c:3874
 msgid "Bad arguments for user command.\n"
 msgstr "Arguments erronés pour la commande utilisateur.\n"
 
-#: ../src/common/outbound.c:3982
+#: ../src/common/outbound.c:4030
 msgid "Too many recursive usercommands, aborting."
 msgstr "Trop de commandes utilisateur récursives, arrêt."
 
-#: ../src/common/outbound.c:4059
+#: ../src/common/outbound.c:4107
 msgid "Unknown Command. Try /help\n"
 msgstr "Commande inconnue. Essayez /help\n"
 
@@ -1269,7 +1280,7 @@ msgstr "Aucun symbole xchat_plugin_init ; est-ce vraiment un greffon xchat ?"
 msgid "Are you sure this is a SSL capable server and port?\n"
 msgstr "Êtes vous sûr que le serveur et le port gèrent SSL ?\n"
 
-#: ../src/common/server.c:1005
+#: ../src/common/server.c:1012
 #, c-format
 msgid ""
 "Cannot resolve hostname %s\n"
@@ -1278,7 +1289,7 @@ msgstr ""
 "Ne peut résoudre le nom d'hôte %s\n"
 "Vérifiez vos réglages IP !\n"
 
-#: ../src/common/server.c:1010
+#: ../src/common/server.c:1017
 msgid "Proxy traversal failed.\n"
 msgstr "La traversée du proxy a échoué.\n"
 
@@ -1745,7 +1756,7 @@ msgstr ""
 "Erreur d'analyse de l'événement %s.\n"
 "Charge les valeurs par défaut"
 
-#: ../src/common/text.c:1814
+#: ../src/common/text.c:1818
 #, c-format
 msgid ""
 "Cannot read sound file:\n"
@@ -3380,385 +3391,253 @@ msgstr "Zimbabwe"
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: ../src/common/xchat.c:764 ../src/common/xchat.c:890
+#: ../src/common/xchat.c:767 ../src/common/xchat.c:893
 msgid "Open Dialog Window"
 msgstr "Ouvrir la fenêtre de dialogue"
 
-#: ../src/common/xchat.c:765
+#: ../src/common/xchat.c:768
 msgid "Send a File"
 msgstr "Envoyer un fichier"
 
-#: ../src/common/xchat.c:766
+#: ../src/common/xchat.c:769
 msgid "User Info (WHOIS)"
 msgstr "Info utilisateur (WHOIS)"
 
-#: ../src/common/xchat.c:767
+#: ../src/common/xchat.c:770
 msgid "Operator Actions"
 msgstr "Actions Opérateur"
 
-#: ../src/common/xchat.c:769 ../src/common/xchat.c:860
+#: ../src/common/xchat.c:772 ../src/common/xchat.c:863
 msgid "Give Ops"
 msgstr "Donne le Op"
 
-#: ../src/common/xchat.c:770 ../src/common/xchat.c:861
+#: ../src/common/xchat.c:773 ../src/common/xchat.c:864
 msgid "Take Ops"
 msgstr "enlève le Op"
 
-#: ../src/common/xchat.c:771 ../src/common/xchat.c:864
+#: ../src/common/xchat.c:774 ../src/common/xchat.c:867
 msgid "Give Voice"
 msgstr "Donne le Voice"
 
-#: ../src/common/xchat.c:772 ../src/common/xchat.c:865
+#: ../src/common/xchat.c:775 ../src/common/xchat.c:868
 msgid "Take Voice"
 msgstr "Enlève le Voice"
 
-#: ../src/common/xchat.c:774 ../src/common/xchat.c:869
+#: ../src/common/xchat.c:777 ../src/common/xchat.c:872
 msgid "Kick/Ban"
 msgstr "Kick/Ban"
 
-#: ../src/common/xchat.c:775 ../src/common/xchat.c:870
-#: ../src/common/xchat.c:919
+#: ../src/common/xchat.c:778 ../src/common/xchat.c:873
+#: ../src/common/xchat.c:922
 msgid "Kick"
 msgstr "Kick"
 
-#: ../src/common/xchat.c:776 ../src/common/xchat.c:777
-#: ../src/common/xchat.c:778 ../src/common/xchat.c:779
-#: ../src/common/xchat.c:780 ../src/common/xchat.c:871
-#: ../src/common/xchat.c:872 ../src/common/xchat.c:873
-#: ../src/common/xchat.c:874 ../src/common/xchat.c:875
-#: ../src/common/xchat.c:918
+#: ../src/common/xchat.c:779 ../src/common/xchat.c:780
+#: ../src/common/xchat.c:781 ../src/common/xchat.c:782
+#: ../src/common/xchat.c:783 ../src/common/xchat.c:874
+#: ../src/common/xchat.c:875 ../src/common/xchat.c:876
+#: ../src/common/xchat.c:877 ../src/common/xchat.c:878
+#: ../src/common/xchat.c:921
 msgid "Ban"
 msgstr "Ban"
 
-#: ../src/common/xchat.c:781 ../src/common/xchat.c:782
-#: ../src/common/xchat.c:783 ../src/common/xchat.c:784
-#: ../src/common/xchat.c:876 ../src/common/xchat.c:877
-#: ../src/common/xchat.c:878 ../src/common/xchat.c:879
+#: ../src/common/xchat.c:784 ../src/common/xchat.c:785
+#: ../src/common/xchat.c:786 ../src/common/xchat.c:787
+#: ../src/common/xchat.c:879 ../src/common/xchat.c:880
+#: ../src/common/xchat.c:881 ../src/common/xchat.c:882
 msgid "KickBan"
 msgstr "KickBan"
 
-#: ../src/common/xchat.c:847
+#: ../src/common/xchat.c:850
 msgid "Direct client-to-client"
 msgstr "Client-vers-client direct"
 
-#: ../src/common/xchat.c:848
+#: ../src/common/xchat.c:851
 msgid "Send File"
 msgstr "Envoyer un fichier"
 
-#: ../src/common/xchat.c:849
+#: ../src/common/xchat.c:852
 msgid "Offer Chat"
 msgstr "Proposer une discussion"
 
-#: ../src/common/xchat.c:850
+#: ../src/common/xchat.c:853
 msgid "Abort Chat"
 msgstr "Abandonner la discussion"
 
-#: ../src/common/xchat.c:851
+#: ../src/common/xchat.c:854
 msgid "Version"
 msgstr "Version"
 
-#: ../src/common/xchat.c:852
+#: ../src/common/xchat.c:855
 msgid "Userinfo"
 msgstr "Information utilisateur"
 
-#: ../src/common/xchat.c:853
+#: ../src/common/xchat.c:856
 msgid "Clientinfo"
 msgstr "Information du client"
 
-#: ../src/common/xchat.c:854 ../src/common/xchat.c:888
-#: ../src/common/xchat.c:936
+#: ../src/common/xchat.c:857 ../src/common/xchat.c:891
+#: ../src/common/xchat.c:939
 msgid "Ping"
 msgstr "Ping"
 
-#: ../src/common/xchat.c:856
+#: ../src/common/xchat.c:859
 msgid "Finger"
 msgstr "Finger"
 
-#: ../src/common/xchat.c:857
+#: ../src/common/xchat.c:860
 msgid "Oper"
 msgstr "Opér"
 
-#: ../src/common/xchat.c:858
+#: ../src/common/xchat.c:861
 msgid "Kill this user"
 msgstr "Tuer cet utilisateur"
 
-#: ../src/common/xchat.c:859
+#: ../src/common/xchat.c:862
 msgid "Mode"
 msgstr "Mode"
 
-#: ../src/common/xchat.c:862
+#: ../src/common/xchat.c:865
 msgid "Give Half-Ops"
 msgstr "Donner l'Half-Ops"
 
-#: ../src/common/xchat.c:863
+#: ../src/common/xchat.c:866
 msgid "Take Half-Ops"
 msgstr "Prendre l'Half-Ops"
 
-#: ../src/common/xchat.c:866 ../src/fe-gnome/userlist-gui.c:65
+#: ../src/common/xchat.c:869 ../src/fe-gnome/userlist-gui.c:65
 msgid "Ignore"
 msgstr "Ignorer"
 
-#: ../src/common/xchat.c:867
+#: ../src/common/xchat.c:870
 msgid "Ignore User"
 msgstr "Ignorer l'utilisateur"
 
-#: ../src/common/xchat.c:868
+#: ../src/common/xchat.c:871
 msgid "UnIgnore User"
 msgstr "Ne pas ignorer l'utilisateur"
 
-#: ../src/common/xchat.c:880
+#: ../src/common/xchat.c:883
 msgid "Info"
 msgstr "Info"
 
-#: ../src/common/xchat.c:881
+#: ../src/common/xchat.c:884
 msgid "Who"
 msgstr "Who"
 
-#: ../src/common/xchat.c:882 ../src/common/xchat.c:932
+#: ../src/common/xchat.c:885 ../src/common/xchat.c:935
 msgid "WhoIs"
 msgstr "WhoIs"
 
-#: ../src/common/xchat.c:883
+#: ../src/common/xchat.c:886
 msgid "DNS Lookup"
 msgstr "Résolution DNS"
 
-#: ../src/common/xchat.c:884
+#: ../src/common/xchat.c:887
 msgid "Trace"
 msgstr "Trace"
 
-#: ../src/common/xchat.c:885
+#: ../src/common/xchat.c:888
 msgid "UserHost"
 msgstr "Hôte de l'utilisateur"
 
-#: ../src/common/xchat.c:886
+#: ../src/common/xchat.c:889
 msgid "External"
 msgstr "Externe"
 
-#: ../src/common/xchat.c:887
+#: ../src/common/xchat.c:890
 msgid "Traceroute"
 msgstr "Traceroute"
 
-#: ../src/common/xchat.c:889
+#: ../src/common/xchat.c:892
 msgid "Telnet"
 msgstr "Telnet"
 
-#: ../src/common/xchat.c:901
+#: ../src/common/xchat.c:904
 msgid "Leave Channel"
 msgstr "Quitter le canal"
 
-#: ../src/common/xchat.c:902
+#: ../src/common/xchat.c:905
 msgid "Join Channel..."
 msgstr "Rejoindre le canal..."
 
-#: ../src/common/xchat.c:903
+#: ../src/common/xchat.c:906
 msgid "Enter Channel to Join:"
 msgstr "Saisissez la canal à rejoindre :"
 
-#: ../src/common/xchat.c:904
+#: ../src/common/xchat.c:907
 msgid "Server Links"
 msgstr "Liens du serveur"
 
-#: ../src/common/xchat.c:905
+#: ../src/common/xchat.c:908
 msgid "Ping Server"
 msgstr "Pinger le serveur"
 
-#: ../src/common/xchat.c:906
+#: ../src/common/xchat.c:909
 msgid "Hide Version"
 msgstr "Cacher la version"
 
-#: ../src/common/xchat.c:916
+#: ../src/common/xchat.c:919
 msgid "Op"
 msgstr "Op"
 
-#: ../src/common/xchat.c:917
+#: ../src/common/xchat.c:920
 msgid "DeOp"
 msgstr "DéOp"
 
-#: ../src/common/xchat.c:920
+#: ../src/common/xchat.c:923
 msgid "bye"
 msgstr "bonsoir"
 
-#: ../src/common/xchat.c:921
+#: ../src/common/xchat.c:924
 #, c-format
 msgid "Enter reason to kick %s:"
 msgstr "Saisissez la raison pour kicker %s :"
 
-#: ../src/common/xchat.c:922
+#: ../src/common/xchat.c:925
 msgid "Sendfile"
 msgstr "Fichier à envoyer"
 
-#: ../src/common/xchat.c:923
+#: ../src/common/xchat.c:926
 msgid "Dialog"
 msgstr "Dialogue"
 
-#: ../src/common/xchat.c:933
+#: ../src/common/xchat.c:936
 msgid "Send"
 msgstr "Envoyer"
 
-#: ../src/common/xchat.c:934
+#: ../src/common/xchat.c:937
 msgid "Chat"
 msgstr "Discuter"
 
-#: ../src/common/xchat.c:935
+#: ../src/common/xchat.c:938
 msgid "Clear"
 msgstr "Effacer"
 
-#: ../src/common/dbus/dbus-plugin.c:46
-msgid "XChat-GNOME remote access"
+#: ../src/common/dbus/dbus-plugin.c:30
+#, fuzzy
+msgid "remote access"
 msgstr "Contrôle à distance de XChat-GNOME"
 
-#: ../src/common/dbus/dbus-plugin.c:47
-msgid "plugin for remote access using D-Bus"
+#: ../src/common/dbus/dbus-plugin.c:31
+#, fuzzy
+msgid "plugin for remote access using DBUS"
 msgstr "Greffon pour contrôler XChat-gnome via DBUS"
 
-#: ../src/common/dbus/dbus-plugin.c:329
-msgid "switch to an invalid xchat context"
-msgstr "Passage a un contexte xchat invalide"
-
-#: ../src/common/dbus/dbus-plugin.c:389
-msgid "xchat context not found"
-msgstr "Contexte xchat non trouvé"
-
-#: ../src/common/dbus/dbus-plugin.c:427 ../src/common/dbus/dbus-plugin.c:692
-msgid "xchat context ID not found"
-msgstr "Contexte ID xchat non trouvé"
-
-#: ../src/common/dbus/dbus-plugin.c:458
-#, c-format
-msgid "info \"%s\" does not exist"
-msgstr "L'info %s n'existe pas"
-
-#: ../src/common/dbus/dbus-plugin.c:488
-#, c-format
-msgid "preference \"%s\" does not exist"
-msgstr "La préférence %s n'existe pas"
-
-#: ../src/common/dbus/dbus-plugin.c:726
-#, c-format
-msgid "\"%s\" list name not found"
-msgstr "\"%s\" liste de noms non trouvée"
-
-#: ../src/common/dbus/dbus-plugin.c:754 ../src/common/dbus/dbus-plugin.c:777
-#: ../src/common/dbus/dbus-plugin.c:800 ../src/common/dbus/dbus-plugin.c:818
-msgid "xchat list ID not found"
-msgstr "Liste d'ID xchat non trouvé"
-
-#: ../src/common/dbus/dbus-plugin.c:869
-#, c-format
-msgid "Couldn't connect to session bus : %s\n"
+#: ../src/common/dbus/dbus-plugin.c:897
+#, fuzzy, c-format
+msgid "Couldn't connect to session bus: %s\n"
 msgstr "Impossible de se connecter au bus de session : %s\n"
 
-#: ../src/common/dbus/dbus-plugin.c:886
+#: ../src/common/dbus/dbus-plugin.c:914
 #, c-format
 msgid "Failed to acquire %s: %s\n"
 msgstr "Impossible d'acquérir %s : %s\n"
 
-#: ../src/common/dbus/dbus-plugin.c:958
+#: ../src/common/dbus/dbus-plugin.c:1064
 #, c-format
 msgid "%s loaded successfully!\n"
 msgstr "Chargement de %s réussi !\n"
-
-#: ../src/common/dbus/xchat-remote.c:41 ../src/fe-gnome/fe-gnome.c:62
-msgid "Open an irc:// url"
-msgstr "Ouvrir une url irc://"
-
-#: ../src/common/dbus/xchat-remote.c:42
-msgid "irc://server:port/channel"
-msgstr "irc://serveur:port/canal"
-
-#: ../src/common/dbus/xchat-remote.c:44
-msgid "Execute a xchat command"
-msgstr "Exécuter une commande xchat"
-
-#: ../src/common/dbus/xchat-remote.c:45
-msgid "\"Command to execute\""
-msgstr "\"Commande à exécuter\""
-
-#: ../src/common/dbus/xchat-remote.c:47
-msgid "Prints some text to the current tab/window"
-msgstr "Affiche du texte dans la fenêtre/onglet courant"
-
-#: ../src/common/dbus/xchat-remote.c:48
-msgid "\"Text to print\""
-msgstr "\"Text à afficher\""
-
-#: ../src/common/dbus/xchat-remote.c:50
-msgid "Change the context to the channel"
-msgstr "Changer le contexte vers le canal"
-
-#: ../src/common/dbus/xchat-remote.c:51
-msgid "channel"
-msgstr "canal"
-
-#: ../src/common/dbus/xchat-remote.c:53
-msgid "Change the context to the server"
-msgstr "Changer le contexte vers le serveur"
-
-#: ../src/common/dbus/xchat-remote.c:54
-msgid "server"
-msgstr "serveur"
-
-#: ../src/common/dbus/xchat-remote.c:56
-msgid "Get some informations from xchat"
-msgstr "Obtenir des informations depuis xchat"
-
-#: ../src/common/dbus/xchat-remote.c:57
-msgid "id"
-msgstr "id"
-
-#: ../src/common/dbus/xchat-remote.c:59
-msgid "Get settings from xchat"
-msgstr "Obtenir la configuration depuis xchat"
-
-#: ../src/common/dbus/xchat-remote.c:60
-msgid "name"
-msgstr "nom"
-
-#: ../src/common/dbus/xchat-remote.c:94
-#, c-format
-msgid ""
-"%s: %s\n"
-"Try `%s --help' for more information\n"
-msgstr ""
-"%s: %s\n"
-"Utilisez `%s --help' pour plus d'informations\n"
-
-#: ../src/common/dbus/xchat-remote.c:106
-msgid "Couldn't connect to session bus"
-msgstr "Impossible de se connecter au bus de session"
-
-#: ../src/common/dbus/xchat-remote.c:134
-msgid "Failed to start "
-msgstr "Impossible de démarrer"
-
-#: ../src/common/dbus/xchat-remote.c:139 ../src/common/dbus/xchat-remote.c:173
-msgid "Failed to complete command"
-msgstr "Impossible d'accomplir la commande"
-
-#: ../src/common/dbus/xchat-remote.c:156
-msgid "Failed to complete FindContext"
-msgstr "Impossible d'accomplir FindContext"
-
-#: ../src/common/dbus/xchat-remote.c:163
-msgid "Failed to complete SetContext"
-msgstr "Impossible d'accomplir SetContext"
-
-#: ../src/common/dbus/xchat-remote.c:183
-msgid "Failed to complete print"
-msgstr "Impossible d'accomplir l'impression"
-
-#: ../src/common/dbus/xchat-remote.c:196
-msgid "Failed to complete GetInfo"
-msgstr "Impossible d'accomplir GetInfo"
-
-#: ../src/common/dbus/xchat-remote.c:215
-msgid "Failed to complete GetPrefs"
-msgstr "Impossible d'accomplir GetPrefs"
-
-#: ../src/common/dbus/xchat-remote.c:220
-#, c-format
-msgid "%s doesn't exist\n"
-msgstr "%s n'existe pas\n"
 
 #: ../src/common/dbus/url_handler.schemas.in.h:1
 msgid "Run xchat-gnome in a terminal?"
@@ -3772,7 +3651,7 @@ msgstr "Mettre à vrai pour activer"
 msgid "The handler for \"irc://\" URLs"
 msgstr "Le gestionnaire pour les URLs \"irc://\""
 
-#: ../src/fe-gnome/about.c:64
+#: ../src/fe-gnome/about.c:74
 msgid ""
 "X-Chat GNOME is free software; you can redistribute it and/or modify it "
 "under the terms of the GNU General Public License as published by the Free "
@@ -3784,7 +3663,7 @@ msgstr ""
 "GNUtelle que publiée par la Free Software Foundation ; version 2 de "
 "lalicence, ou (à votre choix) toute version ultérieure."
 
-#: ../src/fe-gnome/about.c:68
+#: ../src/fe-gnome/about.c:78
 msgid ""
 "X-Chat GNOME is distributed in the hope that it will be useful, but WITHOUT "
 "ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
@@ -3796,7 +3675,7 @@ msgstr ""
 "D'ADAPTATION À UN OBJET PARTICULIER.Pour plus de détails, voir la Licence "
 "Publique Générale GNU."
 
-#: ../src/fe-gnome/about.c:72
+#: ../src/fe-gnome/about.c:82
 msgid ""
 "You should have received a copy of the GNU General Public License along with "
 "X-Chat GNOME; if not, write to the Free Software Foundation, Inc., 59 Temple "
@@ -3806,7 +3685,7 @@ msgstr ""
 "programme ; si ce n'est pas le cas, écrivez à la Free Software Foundation "
 "Inc.,59 Temple Place, Suite 330, Boston, MA  02111-1307  USA"
 
-#: ../src/fe-gnome/about.c:85
+#: ../src/fe-gnome/about.c:97
 msgid "Copyright © 2004-2006"
 msgstr "Copyright © 2004-2006"
 
@@ -3815,14 +3694,14 @@ msgstr "Copyright © 2004-2006"
 #. * be or replace it with something funny (but inoffensive)
 #. * in your own language, but don't translate it literally.
 #.
-#: ../src/fe-gnome/about.c:91
+#: ../src/fe-gnome/about.c:103
 msgid ""
 "It has been well observed that a trombone is not a suitable instrument for a "
 "gentleman"
 msgstr ""
 "Il est notoire qu'un trombone n'est pas un instrument digne d'un gentilhomme"
 
-#: ../src/fe-gnome/about.c:95
+#: ../src/fe-gnome/about.c:107
 msgid "XChat-GNOME Web Site"
 msgstr "Site Web XChat-GNOME"
 
@@ -3835,7 +3714,7 @@ msgstr "Site Web XChat-GNOME"
 #. * write each of them on a separated line seperated by
 #. * newlines (\n).
 #.
-#: ../src/fe-gnome/about.c:109
+#: ../src/fe-gnome/about.c:121
 msgid "translator-credits"
 msgstr ""
 "Olivier Lê Thanh Duong <olivier@lethanh.be>\n"
@@ -3945,8 +3824,7 @@ msgstr "version de la configuration xchat"
 msgid "%s Channel List"
 msgstr "%s Liste des canaux"
 
-#. IRC menu
-#: ../src/fe-gnome/connect-dialog.c:133 ../src/fe-gnome/main-window.c:109
+#: ../src/fe-gnome/connect-dialog.c:133
 msgid "_Connect"
 msgstr "_Connecter"
 
@@ -3986,40 +3864,40 @@ msgstr "_Annuler"
 msgid "_Copy"
 msgstr "_Copier"
 
-#: ../src/fe-gnome/conversation-panel.c:786
+#: ../src/fe-gnome/conversation-panel.c:788
 #, c-format
 msgid "URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"
 msgstr ""
 "La liste d'URI déposée sur xchat-gnome a un mauvais format (%d) ou longueur "
 "(%d)\n"
 
-#: ../src/fe-gnome/conversation-panel.c:884
+#: ../src/fe-gnome/conversation-panel.c:886
 #, c-format
 msgid "Error reading file \"%s\": %s\n"
 msgstr "Erreur lors de la lecture du fichier \"%s\" : %s\n"
 
-#: ../src/fe-gnome/conversation-panel.c:899
+#: ../src/fe-gnome/conversation-panel.c:901
 #, c-format
 msgid "Error converting URI \"%s\" into filename: %s\n"
 msgstr ""
 "Erreur lors de la transformation de l'URI \"%s\" en nom de fichier : %s\n"
 
-#: ../src/fe-gnome/conversation-panel.c:942
+#: ../src/fe-gnome/conversation-panel.c:944
 #, c-format
 msgid "Error retrieving file information for \"%s\": %s\n"
 msgstr "Erreur lors de la lecture des informations du fichier \"%s\" : %s\n"
 
-#: ../src/fe-gnome/conversation-panel.c:1027
+#: ../src/fe-gnome/conversation-panel.c:1029
 msgid "Save Transcript"
 msgstr "Enregistrer la discussion"
 
-#: ../src/fe-gnome/conversation-panel.c:1053
-#: ../src/fe-gnome/conversation-panel.c:1063
+#: ../src/fe-gnome/conversation-panel.c:1055
+#: ../src/fe-gnome/conversation-panel.c:1065
 #, c-format
 msgid "Error saving %s"
 msgstr "Erreur lors de l'enregistrement du fichier %s"
 
-#: ../src/fe-gnome/conversation-panel.c:1195
+#: ../src/fe-gnome/conversation-panel.c:1197
 msgid "Search buffer is empty.\n"
 msgstr "Le cache de recherche est vide.\n"
 
@@ -4040,7 +3918,7 @@ msgstr "Restant"
 msgid "Incoming File Transfer"
 msgstr "Transfert de fichier arrivant"
 
-#: ../src/fe-gnome/dcc-window.c:226 ../src/fe-gnome/fe-gnome.c:484
+#: ../src/fe-gnome/dcc-window.c:226 ../src/fe-gnome/fe-gnome.c:493
 msgid "_Accept"
 msgstr "_Accepter"
 
@@ -4119,23 +3997,31 @@ msgstr "%.2d:%.2d"
 msgid "Send File..."
 msgstr "_Envoyer un fichier..."
 
-#: ../src/fe-gnome/fe-gnome.c:59
+#: ../src/fe-gnome/fe-gnome.c:61
 msgid "Use directory instead of the default config dir"
 msgstr "Utiliser un répertoire de configuration spécifique"
 
-#: ../src/fe-gnome/fe-gnome.c:60
+#: ../src/fe-gnome/fe-gnome.c:63
 msgid "Don't auto-connect to servers"
 msgstr "Ne pas se connecter automatiquement"
 
-#: ../src/fe-gnome/fe-gnome.c:61
+#: ../src/fe-gnome/fe-gnome.c:65
 msgid "Don't auto-load plugins"
 msgstr "Ne pas charger automatiquement les greffons"
 
-#: ../src/fe-gnome/fe-gnome.c:63
+#: ../src/fe-gnome/fe-gnome.c:67
+msgid "Open an irc:// url"
+msgstr "Ouvrir une url irc://"
+
+#: ../src/fe-gnome/fe-gnome.c:69
+msgid "Open URL in an existing xchat-gnome instance"
+msgstr ""
+
+#: ../src/fe-gnome/fe-gnome.c:71
 msgid "Show version information"
 msgstr "Afficher le numéro de version"
 
-#: ../src/fe-gnome/fe-gnome.c:118
+#: ../src/fe-gnome/fe-gnome.c:126
 #, c-format
 msgid ""
 "xchat-gnome: %s\n"
@@ -4144,11 +4030,11 @@ msgstr ""
 "xchat-gnome : %s\n"
 "Utilisez `xchat-gnome --help' pour plus d'informations\n"
 
-#: ../src/fe-gnome/fe-gnome.c:482
+#: ../src/fe-gnome/fe-gnome.c:491
 msgid "Incoming DCC Chat"
 msgstr "Discussion DCC entrante"
 
-#: ../src/fe-gnome/fe-gnome.c:487
+#: ../src/fe-gnome/fe-gnome.c:496
 #, c-format
 msgid ""
 "%s is attempting to create a direct chat. Do you wish to accept the "
@@ -4157,7 +4043,7 @@ msgstr ""
 "%s essaye d'initier une communication directe avec vous.  Voulez-vous "
 "accepter cette connexion ?"
 
-#: ../src/fe-gnome/fe-gnome.c:901
+#: ../src/fe-gnome/fe-gnome.c:912
 #, c-format
 msgid "Unable to show '%s'"
 msgstr "Impossible de montrer '%s'"
@@ -4192,47 +4078,47 @@ msgstr ""
 msgid "<span foreground=\"red\">Search string not found</span>"
 msgstr "<span foreground=\"red\">Texte recherché non trouvé</span>"
 
-#: ../src/fe-gnome/irc-network-editor.c:308
+#: ../src/fe-gnome/irc-network-editor.c:309
 msgid "Server"
 msgstr "Serveurs"
 
-#: ../src/fe-gnome/irc-network-editor.c:317
+#: ../src/fe-gnome/irc-network-editor.c:318
 msgid "Key"
 msgstr "Clé"
 
 #. We're creating a new network. Don't populate things from the structure
-#: ../src/fe-gnome/irc-network-editor.c:447
+#: ../src/fe-gnome/irc-network-editor.c:448
 msgid "New Network"
 msgstr "Nouveau réseau"
 
-#: ../src/fe-gnome/irc-network-editor.c:455
+#: ../src/fe-gnome/irc-network-editor.c:456
 #, c-format
 msgid "%s Network Properties"
 msgstr "Configuration du réseau %s"
 
-#: ../src/fe-gnome/irc-network-editor.c:600
-#: ../src/fe-gnome/irc-network-editor.c:607
-#: ../src/fe-gnome/irc-network-editor.c:613
+#: ../src/fe-gnome/irc-network-editor.c:582
+#: ../src/fe-gnome/irc-network-editor.c:589
+#: ../src/fe-gnome/irc-network-editor.c:595
 msgid "Invalid input"
 msgstr "Entrée invalide"
 
-#: ../src/fe-gnome/irc-network-editor.c:600
+#: ../src/fe-gnome/irc-network-editor.c:582
 msgid "You must enter a network name"
 msgstr "Vous devez entrer un nom de réseau"
 
-#: ../src/fe-gnome/irc-network-editor.c:607
+#: ../src/fe-gnome/irc-network-editor.c:589
 msgid "You must enter a nick name"
 msgstr "Vous devez entrer un pseudo"
 
-#: ../src/fe-gnome/irc-network-editor.c:613
+#: ../src/fe-gnome/irc-network-editor.c:595
 msgid "You must enter a real name"
 msgstr "Vous devez entrer un vrai nom"
 
-#: ../src/fe-gnome/irc-network-editor.c:620
+#: ../src/fe-gnome/irc-network-editor.c:602
 msgid "No Servers"
 msgstr "Pas de serveurs"
 
-#: ../src/fe-gnome/irc-network-editor.c:620
+#: ../src/fe-gnome/irc-network-editor.c:602
 msgid "You must add at least one server for this network"
 msgstr "Vous devez spécifier au moins un serveur pour le réseau"
 
@@ -4320,6 +4206,12 @@ msgstr "A_ller à"
 #: ../src/fe-gnome/main-window.c:105
 msgid "_Help"
 msgstr "_Aide"
+
+#. IRC menu
+#: ../src/fe-gnome/main-window.c:109
+#, fuzzy
+msgid "_Connect..."
+msgstr "_Connecter"
 
 #: ../src/fe-gnome/main-window.c:110
 msgid "_File Transfers"
@@ -4418,13 +4310,26 @@ msgstr "_Sommaire"
 msgid "_About"
 msgstr "À _propos"
 
-#: ../src/fe-gnome/main-window.c:505 ../src/fe-gnome/navigation-tree.c:1677
+#: ../src/fe-gnome/main-window.c:505 ../src/fe-gnome/navigation-tree.c:1676
 msgid "Ex-Chat"
 msgstr "Ex-Chat"
 
 #: ../src/fe-gnome/main-window.c:586
 msgid "Error showing help"
 msgstr "Erreur lors de l'affichage de l'aide"
+
+#: ../src/fe-gnome/migration.c:117
+#, c-format
+msgid ""
+"The way the D-Bus plugin works has changed.\n"
+"To avoid problems, you should remove the old plugin file.\n"
+"\n"
+"<b>Please delete %s</b>"
+msgstr ""
+
+#: ../src/fe-gnome/migration.c:119
+msgid "D-Bus plugin is still installed"
+msgstr ""
 
 #. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:82
@@ -4451,7 +4356,7 @@ msgstr "Rejoindre _automatiquement"
 
 #. Add the new server to the model. By default connected is false.
 #: ../src/fe-gnome/navigation-tree.c:361
-#: ../src/fe-gnome/navigation-tree.c:1306
+#: ../src/fe-gnome/navigation-tree.c:1305
 msgid "<none>"
 msgstr "<aucun>"
 
@@ -4502,38 +4407,38 @@ msgstr "Réseaux"
 msgid "Name"
 msgstr "Nom"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:90
-#: ../src/fe-gnome/preferences-page-plugins.c:91
+#: ../src/fe-gnome/preferences-page-plugins.c:92
+#: ../src/fe-gnome/preferences-page-plugins.c:93
 msgid "unknown"
 msgstr "inconnu"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:131
+#: ../src/fe-gnome/preferences-page-plugins.c:133
 #, c-format
 msgid "An error occured unloading %s"
 msgstr "Une erreur est survenue lors du déchargement du greffon %s"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:132
+#: ../src/fe-gnome/preferences-page-plugins.c:134
 msgid "Plugin Unload Failed"
 msgstr "Le déchargement du greffon a échoué"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:143
+#: ../src/fe-gnome/preferences-page-plugins.c:145
 msgid "Plugin Load Failed"
 msgstr "Le chargement du greffon a échoué"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:182
+#: ../src/fe-gnome/preferences-page-plugins.c:184
 msgid "Open Plugin"
 msgstr "Ouvrir le greffon"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:314
+#: ../src/fe-gnome/preferences-page-plugins.c:316
 msgid "Scripts and Plugins"
 msgstr "Scripts et greffons"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:327
+#: ../src/fe-gnome/preferences-page-plugins.c:329
 #: ../src/fe-gnome/preferences-page-spellcheck.c:225
 msgid "Enable"
 msgstr "Activé"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:329
+#: ../src/fe-gnome/preferences-page-plugins.c:331
 msgid "Plugin"
 msgstr "Greffon"
 
@@ -4586,71 +4491,71 @@ msgstr "%d octets ont été mis en cache"
 msgid "Error in spellchecking configuration: %s\n"
 msgstr "Erreur lors de la configuration du correcteur orthographique : %s\n"
 
-#: ../src/fe-gnome/text-entry.c:339
+#: ../src/fe-gnome/text-entry.c:358
 msgid "I_nsert Color Code"
 msgstr "Insérer un code couleur"
 
-#: ../src/fe-gnome/text-entry.c:346
+#: ../src/fe-gnome/text-entry.c:365
 msgid "Black"
 msgstr "Noir"
 
-#: ../src/fe-gnome/text-entry.c:350
+#: ../src/fe-gnome/text-entry.c:369
 msgid "Dark Blue"
 msgstr "Bleu foncé"
 
-#: ../src/fe-gnome/text-entry.c:354
+#: ../src/fe-gnome/text-entry.c:373
 msgid "Dark Green"
 msgstr "Vert foncé"
 
-#: ../src/fe-gnome/text-entry.c:358
+#: ../src/fe-gnome/text-entry.c:377
 msgid "Red"
 msgstr "Rouge"
 
-#: ../src/fe-gnome/text-entry.c:362
+#: ../src/fe-gnome/text-entry.c:381
 msgid "Brown"
 msgstr "Brun"
 
-#: ../src/fe-gnome/text-entry.c:366
+#: ../src/fe-gnome/text-entry.c:385
 msgid "Purple"
 msgstr "Pourpre"
 
-#: ../src/fe-gnome/text-entry.c:370
+#: ../src/fe-gnome/text-entry.c:389
 msgid "Orange"
 msgstr "Orange"
 
-#: ../src/fe-gnome/text-entry.c:374
+#: ../src/fe-gnome/text-entry.c:393
 msgid "Yellow"
 msgstr "Jaune"
 
-#: ../src/fe-gnome/text-entry.c:378
+#: ../src/fe-gnome/text-entry.c:397
 msgid "Light Green"
 msgstr "Vert clair"
 
-#: ../src/fe-gnome/text-entry.c:382
+#: ../src/fe-gnome/text-entry.c:401
 msgid "Aqua"
 msgstr "Eau"
 
-#: ../src/fe-gnome/text-entry.c:386
+#: ../src/fe-gnome/text-entry.c:405
 msgid "Light Blue"
 msgstr "Bleu clair"
 
-#: ../src/fe-gnome/text-entry.c:390
+#: ../src/fe-gnome/text-entry.c:409
 msgid "Blue"
 msgstr "Bleu"
 
-#: ../src/fe-gnome/text-entry.c:394
+#: ../src/fe-gnome/text-entry.c:413
 msgid "Violet"
 msgstr "Violet"
 
-#: ../src/fe-gnome/text-entry.c:398
+#: ../src/fe-gnome/text-entry.c:417
 msgid "Grey"
 msgstr "Gris"
 
-#: ../src/fe-gnome/text-entry.c:402
+#: ../src/fe-gnome/text-entry.c:421
 msgid "Light Grey"
 msgstr "Gris clair"
 
-#: ../src/fe-gnome/text-entry.c:406
+#: ../src/fe-gnome/text-entry.c:425
 msgid "White"
 msgstr "Blanc"
 
@@ -4727,6 +4632,112 @@ msgid "%d User"
 msgid_plural "%d Users"
 msgstr[0] "%d utilisateur"
 msgstr[1] "%d utilisateurs"
+
+#~ msgid "Nick Name:"
+#~ msgstr "Pseudo :"
+
+#~ msgid "Real Name:"
+#~ msgstr "Nom réel :"
+
+#~ msgid "Orientation"
+#~ msgstr "Orientation"
+
+#~ msgid "The orientation of the tray."
+#~ msgstr "L'orientation du panneau."
+
+#~ msgid "switch to an invalid xchat context"
+#~ msgstr "Passage a un contexte xchat invalide"
+
+#~ msgid "xchat context not found"
+#~ msgstr "Contexte xchat non trouvé"
+
+#~ msgid "xchat context ID not found"
+#~ msgstr "Contexte ID xchat non trouvé"
+
+#~ msgid "info \"%s\" does not exist"
+#~ msgstr "L'info %s n'existe pas"
+
+#~ msgid "preference \"%s\" does not exist"
+#~ msgstr "La préférence %s n'existe pas"
+
+#~ msgid "\"%s\" list name not found"
+#~ msgstr "\"%s\" liste de noms non trouvée"
+
+#~ msgid "xchat list ID not found"
+#~ msgstr "Liste d'ID xchat non trouvé"
+
+#~ msgid "irc://server:port/channel"
+#~ msgstr "irc://serveur:port/canal"
+
+#~ msgid "Execute a xchat command"
+#~ msgstr "Exécuter une commande xchat"
+
+#~ msgid "\"Command to execute\""
+#~ msgstr "\"Commande à exécuter\""
+
+#~ msgid "Prints some text to the current tab/window"
+#~ msgstr "Affiche du texte dans la fenêtre/onglet courant"
+
+#~ msgid "\"Text to print\""
+#~ msgstr "\"Text à afficher\""
+
+#~ msgid "Change the context to the channel"
+#~ msgstr "Changer le contexte vers le canal"
+
+#~ msgid "channel"
+#~ msgstr "canal"
+
+#~ msgid "Change the context to the server"
+#~ msgstr "Changer le contexte vers le serveur"
+
+#~ msgid "server"
+#~ msgstr "serveur"
+
+#~ msgid "Get some informations from xchat"
+#~ msgstr "Obtenir des informations depuis xchat"
+
+#~ msgid "id"
+#~ msgstr "id"
+
+#~ msgid "Get settings from xchat"
+#~ msgstr "Obtenir la configuration depuis xchat"
+
+#~ msgid "name"
+#~ msgstr "nom"
+
+#~ msgid ""
+#~ "%s: %s\n"
+#~ "Try `%s --help' for more information\n"
+#~ msgstr ""
+#~ "%s: %s\n"
+#~ "Utilisez `%s --help' pour plus d'informations\n"
+
+#~ msgid "Couldn't connect to session bus"
+#~ msgstr "Impossible de se connecter au bus de session"
+
+#~ msgid "Failed to start "
+#~ msgstr "Impossible de démarrer "
+
+#~ msgid "Failed to complete command"
+#~ msgstr "Impossible d'accomplir la commande"
+
+#~ msgid "Failed to complete FindContext"
+#~ msgstr "Impossible d'accomplir FindContext"
+
+#~ msgid "Failed to complete SetContext"
+#~ msgstr "Impossible d'accomplir SetContext"
+
+#~ msgid "Failed to complete print"
+#~ msgstr "Impossible d'accomplir l'impression"
+
+#~ msgid "Failed to complete GetInfo"
+#~ msgstr "Impossible d'accomplir GetInfo"
+
+#~ msgid "Failed to complete GetPrefs"
+#~ msgstr "Impossible d'accomplir GetPrefs"
+
+#~ msgid "%s doesn't exist\n"
+#~ msgstr "%s n'existe pas\n"
 
 #~ msgid "Åland, îles"
 #~ msgstr "Falkland, îles (malvinas)"

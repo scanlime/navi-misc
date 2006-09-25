@@ -1,5 +1,10 @@
 2006-09-24  David Trowbridge  <trowbrds@gmail.com>
 
+	* po/cs.po:
+	  - Update from rosetta trunk
+
+2006-09-24  David Trowbridge  <trowbrds@gmail.com>
+
 	* src/fe-gnome/fe-gnome.c:
 	  - Fix capitalization in usage
 
