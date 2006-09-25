@@ -66,7 +66,7 @@ static GOptionEntry entries[] = {
 	{"url",		'u', 0, G_OPTION_ARG_STRING,	&arg_url,
 	 N_("Open an irc:// url"), "irc://server:port/channel"},
 	{"existing",	'e', 0, G_OPTION_ARG_NONE,	&arg_existing,
-	 N_("Open URL in an existing XChat-gnome"), NULL},
+	 N_("Open URL in an existing xchat-gnome instance"), NULL},
 	{"version",	'v', 0, G_OPTION_ARG_NONE,	&opt_version,
 	 N_("Show version information"), NULL},
 	{ NULL }
