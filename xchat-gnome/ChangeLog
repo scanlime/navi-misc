@@ -1,3 +1,8 @@
+2006-09-25  David Trowbridge  <trowbrds@gmail.com>
+
+	* data/channel-list.glade:
+	  - Snazzy new layout for filtering options.
+
 2006-09-24  David Trowbridge  <trowbrds@gmail.com>
 
 	* po/cs.po:
