@@ -1,3 +1,8 @@
+2006-10-02  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/connect-dialog.c:
+	  - Fix accelerator collision. (Launchpad: #63378)
+
 2006-09-25  David Trowbridge  <trowbrds@gmail.com>
 
 	* data/channel-list.glade:
