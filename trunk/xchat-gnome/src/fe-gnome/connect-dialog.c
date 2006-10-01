@@ -130,7 +130,7 @@ connect_dialog_init (ConnectDialog *dialog)
 	column = gtk_tree_view_column_new_with_attributes ("name", renderer, "text", 0, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (dialog->server_list), column);
 
-	button = gtk_button_new_with_mnemonic (_("_Connect"));
+	button = gtk_button_new_with_mnemonic (_("C_onnect"));
 	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE);
 	gtk_dialog_add_action_widget (GTK_DIALOG (dialog), button, GTK_RESPONSE_OK);
 	gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
