@@ -107,6 +107,18 @@ static GtkToggleActionEntry toggle_action_entries[] = {
 	{"ChannelAutoJoin",   NULL, N_("_Auto-join on connect"),    "", NULL, G_CALLBACK (on_channel_autojoin), FALSE},
 };
 
+enum
+{
+	COLUMN_PIXBUF,
+	COLUMN_NAME,
+	COLUMN_SESSION,
+	COLUMN_STATUS,
+	COLUMN_COLOR,
+	COLUMN_REFCOUNT,
+	COLUMN_CONNECTED,
+	N_COLUMNS
+};
+
 GType
 navigation_tree_get_type (void)
 {
@@ -358,7 +370,13 @@ navigation_tree_remove_server (NavTree *navtree, struct session *sess)
 			gtk_tree_model_get_iter_first (store, &iter);
 			navigation_tree_server_rm_chans (navtree, &iter);
 			gtk_tree_model_get_iter_first (store, &iter);
-			gtk_tree_store_set (GTK_TREE_STORE (store), &iter, 1, _("<none>"), -1);
+			gtk_tree_store_set (GTK_TREE_STORE (store), &iter,
+			                    COLUMN_NAME,      _("<none>"),
+					    COLUMN_SESSION,   NULL,
+					    COLUMN_STATUS,    0,
+					    COLUMN_COLOR,     NULL,
+					    COLUMN_CONNECTED, FALSE,
+					    -1);
 		}
 	} else {
 		/* This isn't the first server. Select the server above it and remove it. */
@@ -859,7 +877,11 @@ navigation_tree_set_channel_name_iterate (GtkTreeModel *model, GtkTreePath *path
 	gtk_tree_model_get (model, iter, 2, &s, -1);
 	if (s == data) {
 		struct session *sess = s;
-		gtk_tree_store_set (GTK_TREE_STORE (model), iter, 1, (sess->channel), 4, NULL, 6, TRUE, -1);
+		gtk_tree_store_set (GTK_TREE_STORE (model), iter,
+		                    COLUMN_NAME,      (sess->channel),
+				    COLUMN_COLOR,     NULL,
+				    COLUMN_CONNECTED, TRUE,
+				    -1);
 		return TRUE;
 	}
 	return FALSE;
@@ -1160,7 +1182,10 @@ navigation_selection_changed (GtkTreeSelection *treeselection, NavTree *navtree)
 		/* remove any icon that exists */
 		store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
 		gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &newiter, &iter);
-		gtk_tree_store_set (GTK_TREE_STORE (store), &newiter, 0, NULL, 3, 0, -1);
+		gtk_tree_store_set (GTK_TREE_STORE (store), &newiter,
+		                    COLUMN_PIXBUF, NULL,
+				    COLUMN_STATUS, 0,
+				    -1);
 
 		conversation_panel_set_current (CONVERSATION_PANEL (gui.conversation_panel), sess);
 		topic_label_set_current        (TOPIC_LABEL        (gui.topic_label),        sess);
@@ -1238,13 +1263,13 @@ navigation_model_get_type (void)
 static void
 navigation_model_init (NavModel *navmodel)
 {
-	navmodel->store = gtk_tree_store_new (7, GDK_TYPE_PIXBUF, /* status image */
-	                                         G_TYPE_STRING,   /* name */
-	                                         G_TYPE_POINTER,  /* session pointer */
-	                                         G_TYPE_INT,      /* status # (for tracking highest state) */
-	                                         GDK_TYPE_COLOR,  /* status color (disconnected, etc) */
-	                                         G_TYPE_INT,      /* reference count */
-	                                         G_TYPE_BOOLEAN); /* connected */
+	navmodel->store = gtk_tree_store_new (N_COLUMNS, GDK_TYPE_PIXBUF, /* status image */
+	                                                 G_TYPE_STRING,   /* name */
+	                                                 G_TYPE_POINTER,  /* session pointer */
+	                                                 G_TYPE_INT,      /* status # (for tracking highest state) */
+	                                                 GDK_TYPE_COLOR,  /* status color (disconnected, etc) */
+	                                                 G_TYPE_INT,      /* reference count */
+	                                                 G_TYPE_BOOLEAN); /* connected */
 	navmodel->sorted = gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (navmodel->store));
 	gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (navmodel->sorted), 1, GTK_SORT_ASCENDING);
 	gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE (navmodel->sorted), 1, gtk_tree_iter_sort_func_nocase, NULL, NULL);
@@ -1302,7 +1327,14 @@ navigation_model_add_new_network (NavModel *model, struct session *sess)
 	gtk_tree_store_append (model->store, &iter, NULL);
 
 	/* Add the new server to the model. By default connected is false. */
-	gtk_tree_store_set (model->store, &iter, 1, _("<none>"), 2, sess, 3, 0, 4, NULL, 5, 0, 6, FALSE, -1);
+	gtk_tree_store_set (model->store, &iter,
+	                    COLUMN_NAME,      _("<none>"),
+			    COLUMN_SESSION,   sess,
+			    COLUMN_STATUS,    0,
+			    COLUMN_COLOR,     NULL,
+			    COLUMN_REFCOUNT,  0,
+			    COLUMN_CONNECTED, FALSE,
+			    -1);
 
 	/* Insert a row reference to the new entry in the unsorted store in the
 	 * hash table. This allows us to look up entries in the navigation model
@@ -1330,7 +1362,14 @@ navigation_model_create_new_channel_entry_iterate (GtkTreeModel *model, GtkTreeP
 
 		gtk_tree_store_append (GTK_TREE_STORE (model), &child, iter);
 		/* Add the new channel to the store. By default connected is true. */
-		gtk_tree_store_set (GTK_TREE_STORE (model), &child, 1, data->channel, 2, data, 3, 0, 4, NULL, 5, 0, 6, TRUE, -1);
+		gtk_tree_store_set (GTK_TREE_STORE (model), &child,
+		                    COLUMN_NAME,      data->channel,
+				    COLUMN_SESSION,   data,
+				    COLUMN_STATUS,    0,
+				    COLUMN_COLOR,     NULL,
+				    COLUMN_REFCOUNT,  0,
+				    COLUMN_CONNECTED, TRUE,
+				    -1);
 
 		path = gtk_tree_model_get_path (model, &child);
 		rowref = gtk_tree_row_reference_new (model, path);
@@ -1409,7 +1448,10 @@ navigation_model_set_disconn_iterate (GtkTreeModel * model, GtkTreePath * path, 
 	gtk_tree_model_get (model, iter, 2, &s, -1);
 	if (s == data) {
 		/* Change the color and set connected to false. */
-		gtk_tree_store_set (GTK_TREE_STORE (model), iter, 4, &colors[40], 6, FALSE, -1);
+		gtk_tree_store_set (GTK_TREE_STORE (model), iter,
+		                    COLUMN_COLOR,     &colors[40],
+				    COLUMN_CONNECTED, FALSE,
+				    -1);
 		return TRUE;
 	}
 	return FALSE;
@@ -1433,18 +1475,30 @@ navigation_model_set_hilight_iterate (GtkTreeModel * model, GtkTreePath * path, 
 		struct session *sess = s;
 
 		if (sess->nick_said) {
-			gtk_tree_store_set (GTK_TREE_STORE (model), iter, 0, pix_nicksaid, 3, 3, -1);
+			gtk_tree_store_set (GTK_TREE_STORE (model), iter,
+			                    COLUMN_PIXBUF, pix_nicksaid,
+					    COLUMN_STATUS, 3,
+					    -1);
 			return TRUE;
 		}
 		if (sess->msg_said && e < 2) {
 			if (sess->type != SESS_DIALOG)
-				gtk_tree_store_set (GTK_TREE_STORE (model), iter, 0, pix_msgsaid, 3, 2, -1);
+				gtk_tree_store_set (GTK_TREE_STORE (model), iter,
+				                    COLUMN_PIXBUF, pix_msgsaid,
+						    COLUMN_STATUS, 2,
+						    -1);
 			else
-				gtk_tree_store_set (GTK_TREE_STORE (model), iter, 0, pix_nicksaid, 3, 3, -1);
+				gtk_tree_store_set (GTK_TREE_STORE (model), iter,
+				                    COLUMN_PIXBUF, pix_nicksaid,
+						    COLUMN_STATUS, 3,
+						    -1);
 			return TRUE;
 		}
 		if (sess->new_data && e < 1) {
-			gtk_tree_store_set (GTK_TREE_STORE (model), iter, 0, pix_newdata, 3, 1, -1);
+			gtk_tree_store_set (GTK_TREE_STORE (model), iter,
+			                    COLUMN_PIXBUF, pix_newdata,
+					    COLUMN_STATUS, 1,
+					    -1);
 			return TRUE;
 		}
 	}
@@ -1478,7 +1532,9 @@ navigation_model_rowref_ref (GtkTreeRowReference * rowref)
 	gtk_tree_model_get_iter (model, &iter, path);
 	gtk_tree_model_get (model, &iter, 5, &ref_count, -1);
 	gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &childiter, &iter);
-	gtk_tree_store_set (GTK_TREE_STORE (childmodel), &childiter, 5, ref_count + 1, -1);
+	gtk_tree_store_set (GTK_TREE_STORE (childmodel), &childiter,
+	                    COLUMN_REFCOUNT, ref_count + 1,
+			    -1);
 	gtk_tree_path_free (path);
 }
 
@@ -1506,7 +1562,9 @@ navigation_model_rowref_deref (GtkTreeRowReference *rowref)
 
 		childmodel = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
 		gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &childiter, &iter);
-		gtk_tree_store_set (GTK_TREE_STORE (childmodel), &childiter, 5, ref_count - 1, -1);
+		gtk_tree_store_set (GTK_TREE_STORE (childmodel), &childiter,
+		                    COLUMN_REFCOUNT, ref_count - 1,
+				    -1);
 	}
 
 	gtk_tree_path_free (path);
@@ -1520,7 +1578,9 @@ navigation_model_sorted_iter_ref (NavModel * model, GtkTreeIter * iter)
 	gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model->sorted), &unsorted, iter);
 	gtk_tree_model_get (model->sorted, iter, 5, &ref_count, -1);
 
-	gtk_tree_store_set (model->store, &unsorted, 5, ref_count + 1, -1);
+	gtk_tree_store_set (model->store, &unsorted,
+	                    COLUMN_REFCOUNT, ref_count + 1,
+			    -1);
 }
 
 void
@@ -1533,7 +1593,9 @@ navigation_model_sorted_iter_unref (NavModel * model, GtkTreeIter * iter)
 	gtk_tree_model_get (model->sorted, iter, 5, &ref_count, -1);
 
 	if (ref_count > 0)
-		gtk_tree_store_set (model->store, &unsorted, 5, ref_count - 1, -1);
+		gtk_tree_store_set (model->store, &unsorted,
+		                    COLUMN_REFCOUNT, ref_count - 1,
+				    -1);
 }
 
 struct server *
@@ -1600,7 +1662,9 @@ on_server_disconnect (GtkAction * action, gpointer data)
 	/* Mark as disconnected */
 	store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
 	gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &newiter, &iter);
-	gtk_tree_store_set (GTK_TREE_STORE (store), &newiter, 6, FALSE, -1);
+	gtk_tree_store_set (GTK_TREE_STORE (store), &newiter,
+	                    COLUMN_CONNECTED, FALSE,
+			    -1);
 }
 
 static void
@@ -1679,7 +1743,10 @@ on_channel_leave (GtkAction * action, gpointer data)
 			g_free (text);
 		}
 		gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &newiter, &iter);
-		gtk_tree_store_set (GTK_TREE_STORE (store), &newiter, 4, &colors[40], 6, FALSE, -1);
+		gtk_tree_store_set (GTK_TREE_STORE (store), &newiter,
+		                    COLUMN_COLOR,     &colors[40],
+				    COLUMN_CONNECTED, FALSE,
+				    -1);
 	}
 }
 

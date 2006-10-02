@@ -1,3 +1,8 @@
+2006-10-02  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/fe-gnome/navigation-tree.c:
+	  - Use a column enum to make things more maintainable.
+
 2006-10-02  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/connect-dialog.c:
