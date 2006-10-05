@@ -1,3 +1,9 @@
+2006-10-04  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/fe-gnome/navigation-tree.c:
+	  - Add checks in navigation_model_get_server to try to prevent
+	  crashes (#359761).
+
 2006-10-02  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/fe-gnome/navigation-tree.c:

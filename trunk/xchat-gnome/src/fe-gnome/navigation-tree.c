@@ -371,11 +371,7 @@ navigation_tree_remove_server (NavTree *navtree, struct session *sess)
 			navigation_tree_server_rm_chans (navtree, &iter);
 			gtk_tree_model_get_iter_first (store, &iter);
 			gtk_tree_store_set (GTK_TREE_STORE (store), &iter,
-			                    COLUMN_NAME,      _("<none>"),
-					    COLUMN_SESSION,   NULL,
-					    COLUMN_STATUS,    0,
-					    COLUMN_COLOR,     NULL,
-					    COLUMN_CONNECTED, FALSE,
+			                    COLUMN_NAME, _("<none>"),
 					    -1);
 		}
 	} else {
@@ -1605,6 +1601,9 @@ navigation_model_get_server (NavModel *model, ircnet *network)
 	struct server *serv;
 	GtkTreeIter iter;
 
+	if (model == NULL || network == NULL)
+		return NULL;
+
 	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (model->store), &iter) == FALSE)
 		return NULL;
 
@@ -1612,7 +1611,7 @@ navigation_model_get_server (NavModel *model, ircnet *network)
 		gtk_tree_model_get (GTK_TREE_MODEL (model->store), &iter, 2, &sess, -1);
 		if (sess) {
 			serv = sess->server;
-			if (serv->network == network)
+			if (serv && serv->network == network)
 				return serv;
 		}
 	} while (gtk_tree_model_iter_next (GTK_TREE_MODEL (model->store), &iter));
