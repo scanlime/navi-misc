@@ -357,23 +357,11 @@ navigation_tree_remove_server (NavTree *navtree, struct session *sess)
 
 		gtk_tree_model_get_iter_first (sorted, &iter);
 
-		if (gtk_tree_model_iter_next (sorted, &iter)) {
-			/* There's another server after the first one. */
-			gtk_tree_selection_select_iter (select, &iter);
-			navigation_model_remove (navtree->model, sess);
+		/* There's another server after the first one. */
+		gtk_tree_selection_select_iter (select, &iter);
+		navigation_model_remove (navtree->model, sess);
 
-			/* We rely on the above select_iter call triggering the selection 'changed' event to do book-keeping */
-		} else {
-			/* The first server is the only server. */
-			GtkTreeModel *store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (sorted));
-
-			gtk_tree_model_get_iter_first (store, &iter);
-			navigation_tree_server_rm_chans (navtree, &iter);
-			gtk_tree_model_get_iter_first (store, &iter);
-			gtk_tree_store_set (GTK_TREE_STORE (store), &iter,
-			                    COLUMN_NAME, _("<none>"),
-					    -1);
-		}
+		/* We rely on the above select_iter call triggering the selection 'changed' event to do book-keeping */
 	} else {
 		/* This isn't the first server. Select the server above it and remove it. */
 		gtk_tree_selection_select_path (select, path);
@@ -1104,12 +1092,17 @@ navigation_selection_changed (GtkTreeSelection *treeselection, NavTree *navtree)
 	gpointer     *s;
 	session      *sess;
 
-	if (gui.server_tree == NULL)
+	if (gtk_tree_selection_get_selected (treeselection, NULL, NULL) == FALSE) {
 		return;
+	}
 
+	if (gui.server_tree == NULL) {
+		return;
+	}
 
-	if (gui.server_tree->current_rowref != NULL)
+	if (gui.server_tree->current_rowref != NULL) {
 		navigation_model_rowref_deref (gui.server_tree->current_rowref);
+	}
 
 	/* If find bar is open, hide it */
 	find_bar_close (FIND_BAR (gui.find_bar));
@@ -1203,8 +1196,9 @@ row_expanded (GtkTreeView *treeview, GtkTreeIter *iter, GtkTreePath *path, gpoin
 {
 	GtkTreePath *current_path;
 
-	if (NAVTREE (treeview)->current_rowref == NULL)
+	if (NAVTREE (treeview)->current_rowref == NULL) {
 		return;
+	}
 	current_path = gtk_tree_row_reference_get_path (NAVTREE (treeview)->current_rowref);
 
 	/* If we had something selected before the row was collapsed make sure it gets selected. */
