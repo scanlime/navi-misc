@@ -130,7 +130,7 @@ load_unload (char *filename, gboolean loaded, PreferencesPagePlugins *page, GtkT
 			}
 
 		} else {
-			gchar *errmsg = g_strdup_printf (_("An error occured unloading %s"), filename);
+			gchar *errmsg = g_strdup_printf (_("An error occurred unloading %s"), filename);
 			error_dialog (_("Plugin Unload Failed"), errmsg);
 		}
 

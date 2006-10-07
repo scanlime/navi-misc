@@ -1,3 +1,9 @@
+2006-10-07  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/preferences-page-plugins.c:
+	  - Fix a typo. "occurred" instead of "occured".
+	    (Launchpad: #64479)
+
 2006-10-04  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/fe-gnome/navigation-tree.c:
