@@ -168,6 +168,7 @@ fe_init (void)
 	prefs.use_server_tab = TRUE;
 	prefs.notices_tabs = FALSE;
 	prefs.servernotice = TRUE;
+	prefs.slist_skip = FALSE;
 
 	/* If we don't have a specific DCC IP address, force get-from-server */
 	if (strlen (prefs.dcc_ip_str) == 0)

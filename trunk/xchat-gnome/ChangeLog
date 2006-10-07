@@ -1,3 +1,10 @@
+2006-10-07  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/fe-gnome/fe-gnome.c:
+	* src/fe-gnome/navigation-tree.c:
+	  - Remove the default "<none>" session in the tree view, since it's
+	    not really needed anymore and was breaking things.
+
 2006-10-07  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/preferences-page-plugins.c:
