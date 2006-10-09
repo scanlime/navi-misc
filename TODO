@@ -1,0 +1,11 @@
+- It would be nice to have support for minimizing to the windows
+  systray when in console mode. This combined with a way to run
+  a rendering server on startup would make it easier to keep windows
+  machines permanently in a cluster.
+
+- Extend the 'interactivity preferences' dialog into a more generic
+  preferences thingydoo. It would be good to change, for example,
+  the number of history items we record.
+
+- Display information on current frame progress (done/total) in the
+  animation render window.

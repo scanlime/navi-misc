@@ -1,0 +1,11 @@
+- When rendering on the command line using a cluster,
+  it won't wait for pending histogram merges to arrive
+  before terminating. On most cluster renders this isn't
+  noticeable, but on very short renders of relatively large
+  or oversampled images, the render can terminate while
+  partial buffers have been merged, leaving ugly horizontal
+  banding on the resulting image.
+
+- When changing the size of the image, if a scrollbar is no
+  longer needed it can end up as an artifact on the image
+  drawing area.

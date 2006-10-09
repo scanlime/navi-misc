@@ -1,0 +1,9 @@
+#!/bin/sh
+
+TARGET=mingw32
+cache=win32.cache
+echo sh configure --cache-file="$cache" --target=$TARGET --host=$TARGET --build=i686-linux --prefix=/opt/xmingw --disable-binreloc $*
+sh configure --cache-file="$cache" --target=$TARGET --host=$TARGET --build=i686-linux --prefix=/opt/xmingw --disable-binreloc $*
+status=$?
+rm -f "$cache"
+exit $status

@@ -1,0 +1,6 @@
+// Microsoft Windows resource file for Fyre.
+// We don't need any of these resources to run,
+// this is just here to give our app a pretty icon
+
+101     ICON    DISCARDABLE     "fyre.ico"
+102     ICON    DISCARDABLE     "x-fyre-animation.ico"
