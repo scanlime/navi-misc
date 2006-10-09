@@ -1,3 +1,9 @@
+2006-10-08  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/fe-gnome/channel-list.c:
+	* src/fe-gnome/channel-list.h:
+	  - Clean up some dead stuff.
+
 2006-10-07  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/fe-gnome/fe-gnome.c:
