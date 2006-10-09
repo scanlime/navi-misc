@@ -1122,6 +1122,8 @@ navigation_selection_changed (GtkTreeSelection *treeselection, NavTree *navtree)
 		navigation_model_rowref_ref (gui.server_tree->current_rowref);
 		gtk_tree_selection_get_selected (treeselection, &model, &iter);
 
+		gtk_tree_path_free (path);
+
 		/* Get the session for the new selection. */
 		gtk_tree_model_get (model, &iter, 2, &s, -1);
 		sess = (session *) s;
