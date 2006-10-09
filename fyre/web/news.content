@@ -8,8 +8,8 @@
 <ul>
     <li>The Fyre 1.0.1 <a href="http://navi.cx/svn/misc/tags/fyre-1.0.1/README">README</a> and
         <a href="http://navi.cx/svn/misc/tags/fyre-1.0.1/ChangeLog">ChangeLog</a></li>
-    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.1.tar.gz">Source Code (.tar.gz)</a></li>
-    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.1.tar.bz2">Source Code (.tar.bz2)</a></li>
+    <li><a href="http://releases.navi.cx/fyre/fyre-1.0.1.tar.gz">Source Code (.tar.gz)</a></li>
+    <li><a href="http://releases.navi.cx/fyre/fyre-1.0.1.tar.bz2">Source Code (.tar.bz2)</a></li>
 </ul>
 <div class="heading">14 May 2005 - More cool stuff</div>
 <p>
@@ -43,7 +43,7 @@
     Curtis S. Netterville contributed a x86_64 fedora package for y'all. Thanks Curtis!
 </p>
 <ul>
-    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0-2.x86_64.rpm">fyre-1.0.0-2.x86_64.rpm</a></li>
+    <li><a href="http://releases.navi.cx/fyre/fyre-1.0.0-2.x86_64.rpm">fyre-1.0.0-2.x86_64.rpm</a></li>
 </ul>
 
 <div class="heading">15 March 2005 - Future Plans</div>
@@ -57,8 +57,8 @@
     Fedora users rejoice, for we now have RPMs! Thanks Mirco!
 </p>
 <ul>
-    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0-2.src.rpm">fyre-1.0.0-2.src.rpm</a></li>
-    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0-2.i686.rpm">fyre-1.0.0-2.i686.rpm</a></li>
+    <li><a href="http://releases.navi.cx/fyre/fyre-1.0.0-2.src.rpm">fyre-1.0.0-2.src.rpm</a></li>
+    <li><a href="http://releases.navi.cx/fyre/fyre-1.0.0-2.i686.rpm">fyre-1.0.0-2.i686.rpm</a></li>
 </ul>
 
 <div class="heading">24 February 2005 - Packaging</div>
@@ -67,7 +67,7 @@
     through apt, but until then, you can grab it here. Thanks Christoph!
 </p>
 <ul>
-    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre_1.0.0-1_i386.deb">fyre_1.0.0-1_i386.deb</a></li>
+    <li><a href="http://releases.navi.cx/fyre/fyre_1.0.0-1_i386.deb">fyre_1.0.0-1_i386.deb</a></li>
 </ul>
 
 <div class="heading">19 February 2005 - 1.0.0 released</div>
@@ -82,11 +82,11 @@
 <ul>
     <li>The Fyre 1.0.0 <a href="http://navi.cx/svn/misc/tags/fyre-1.0.0/README">README</a> and
         <a href="http://navi.cx/svn/misc/tags/fyre-1.0.0/ChangeLog">ChangeLog</a></li>
-    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.tar.gz">Source Code (.tar.gz)</a></li>
-    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.tar.bz2">Source Code (.tar.bz2)</a></li>
-    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.x86.package">Linux x86 Autopackage</a></li>
-    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.exe">Windows Installer (recommended)</a></li>
-    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.zip">Windows .zip file, doesn't require installation</a></li>
+    <li><a href="http://releases.navi.cx/fyre/fyre-1.0.0.tar.gz">Source Code (.tar.gz)</a></li>
+    <li><a href="http://releases.navi.cx/fyre/fyre-1.0.0.tar.bz2">Source Code (.tar.bz2)</a></li>
+    <li><a href="http://releases.navi.cx/fyre/fyre-1.0.0.x86.package">Linux x86 Autopackage</a></li>
+    <li><a href="http://releases.navi.cx/fyre/fyre-1.0.0.exe">Windows Installer (recommended)</a></li>
+    <li><a href="http://releases.navi.cx/fyre/fyre-1.0.0.zip">Windows .zip file, doesn't require installation</a></li>
 </ul>
 
 <div class="heading">07 February 2005 - 0.9 released</div>
@@ -97,10 +97,10 @@
     Fyre 0.9 is available as:
 </p>
 <ul>
-    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-0.9.tar.gz">Source Code (.tar.gz)</a></li>
-    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-0.9.tar.bz2">Source Code (.tar.bz2)</a></li>
-    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-0.9.exe">Windows Installer (recommended)</a></li>
-    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-0.9.zip">Windows .zip file, doesn't require installation</a></li>
+    <li><a href="http://releases.navi.cx/fyre/fyre-0.9.tar.gz">Source Code (.tar.gz)</a></li>
+    <li><a href="http://releases.navi.cx/fyre/fyre-0.9.tar.bz2">Source Code (.tar.bz2)</a></li>
+    <li><a href="http://releases.navi.cx/fyre/fyre-0.9.exe">Windows Installer (recommended)</a></li>
+    <li><a href="http://releases.navi.cx/fyre/fyre-0.9.zip">Windows .zip file, doesn't require installation</a></li>
 </ul>
 
 <div class="heading">31 January 2005 - Spiraling Shape</div>
@@ -109,11 +109,11 @@
     If you haven't seen Fyre's animation capabilities in action yet, here's your
     chance. The first entry in an online video gallery is online. <em>Spiraling
     Shape</em> is a simple but elegant transition between spirals. Grab the
-        <a href="http://flapjack.navi.cx/media/fyre/spiraling-shape-low.avi">Low Quality AVI</a> (891 KB, 0:34)
+        <a href="http://fyre.navi.cx/media/fyre/spiraling-shape-low.avi">Low Quality AVI</a> (891 KB, 0:34)
     or the
-        <a href="http://flapjack.navi.cx/media/fyre/spiraling-shape-high.avi">High Quality AVI</a>. (12 MB, 0:34)
+        <a href="http://fyre.navi.cx/media/fyre/spiraling-shape-high.avi">High Quality AVI</a>. (12 MB, 0:34)
     If you want to open it in Fyre's animation editor, grab the
-        <a href="http://flapjack.navi.cx/media/fyre/spiraling-shape.fa.gz">gzipped .fa file</a> (82 KB)
+        <a href="http://fyre.navi.cx/media/fyre/spiraling-shape.fa.gz">gzipped .fa file</a> (82 KB)
     and feel free to experiment.
 </p>
 <p>
@@ -125,14 +125,14 @@
 
 <div class="heading">27 January 2005 - 0.8 released</div>
 <p>
-    This release fixes all of the known non-windows bugs. Get it now from
-    <a href="http://flapjack.navi.cx/releases/fyre/">FlapJack</a>.
+    This release fixes all of the known non-windows bugs.
+    <a href="http://releases.navi.cx/fyre/">Get it now!</a>
 </p>
 
 <div class="heading">02 January 2005 - 0.7 released</div>
 <p>
     Well, it's real soon now. All these new features are now available in
-    <a href="http://flapjack.navi.cx/releases/fyre/fyre-0.7.tar.bz2">Fyre 0.7</a>.
+    <a href="http://releases.navi.cx/fyre/fyre-0.7.tar.bz2">Fyre 0.7</a>.
     Windows builds at 11...
 </p>
 
@@ -151,13 +151,13 @@
     useful to be able to run Fyre under windows. So, thanks to the spiffy portability
     of Gtk and all the other libraries Fyre is based on, this went pretty quickly.
     If you haven't been able to try Fyre yet due to lack of Linux, now's your chance to
-    <a href="http://flapjack.navi.cx/releases/fyre/fyre-win32-20040805.exe">grab the installer and give it a try</a>.
+    <a href="http://releases.navi.cx/fyre/fyre-win32-20040805.exe">grab the installer and give it a try</a>.
 </p>
 
 <div class="heading">11 July 2004 - 0.6 released</div>
 <p>
     First release under the new name, with a slew of new features. Get it now at
-    your friendly neighborhood <a href="http://flapjack.navi.cx/releases/fyre">releases</a> directory.
+    your friendly neighborhood <a href="http://releases.navi.cx/fyre">releases</a> directory.
 </p>
 
 <div class="heading">09 March 2004 - New name</div>
