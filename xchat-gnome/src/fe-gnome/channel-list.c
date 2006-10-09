@@ -284,7 +284,7 @@ create_channel_list (session *sess)
 		g_free (win);
 		return;
 	}
-	
+
 	win->xml = glade_xml_new (path, NULL, NULL);
 	g_free (path);
 	if (!win->xml) {
@@ -395,11 +395,6 @@ channel_list_append (server *serv, char *channel, char *users, char *topic)
 
 	gtk_list_store_append (store, &iter);
 	gtk_list_store_set (store, &iter, 0, channel, 1, users, 2, topic, 3, serv, 4, nusers, -1);
-}
-
-void
-repopulate_channel_list (channel_list_window *win)
-{
 }
 
 gboolean
