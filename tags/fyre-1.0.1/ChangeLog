@@ -1,0 +1,81 @@
+1.0.1
+	* New scalable (and not-ugly) icon, drawn by Andreas Nilsson
+	* Fix a few crashes in pathological and corner cases
+	* Add +/- 1 subpixel of noise during oversampling, to avoid aliasing in
+	  certain conditions
+	* Implement the 'Polar' variant of the Box-Mueller transform, for a
+	  slight performance increase.
+
+1.0.0 (17 February 2005)
+	* Minor cluster autodetection bugfixes
+	* Fixed a hang on exit when running Fyre in console mode
+	  on Windows XP
+	* Implemented a "Go" menu that provides undo/redo
+	  functionality using a web-browser-like history system
+	* Many binreloc and deployment fixes
+	* Added the --chuid and --pidfile options for Fyre servers
+	* Replaced the "target density" stopping conditions with a
+	  new quality metric based on the ratio of histogram samples to
+	  distance travelled in color space
+	* Minor UI bugfixes
+	* Added and updated init scripts and packaging for Linux distros
+	* Automatically retry connections to cluster nodes as long as they
+	  are enabled. Currently it retries every 60 seconds
+	* Added elapsed time to the status bar
+
+0.9 (07 February 2005)
+	* Made the about box the coolest thing since sliced cheese
+	* Added keybindings for zoom presets
+	* Used the new icon in Win32 and on individual Fyre windows
+	* Added an index to AVI files created with the animation renderer,
+	  allowing them to be played in Windows Media Player
+	* Added cluster autodetection using UDP broadcast packets
+	* Added file associations for image/png and
+	  application/x-fyre-animation on linux
+	* Minor bugfixes and UI polishing
+	* Added GUI support to remote control mode
+	* Added a Python example client for Fyre's remote control mode
+
+0.8 (27 January 2005)
+	* Minor bugfixes
+	* Add an icon
+
+0.7 (02 January 2005)
+	* Brand New Cluster support!
+	* GtkFileChooser support for gtk+ 2.4+
+	* Tweakable interactivity
+	* Saving to OpenEXR
+	* Autoconf support
+	* Added binreloc support for relocatability
+	* Added windows support
+	* Adjustable interactivity settings
+	* Various bug fixes
+
+0.6 (11 August 2004)
+	* Support 64-bit machines and Intel icc
+	* Added experimental "screensaver" mode
+	* Added gamma correction for oversampling
+	* Scrolly parameter panel, due to feature bloat!
+	* Add selectable distributions for the initial conditions in
+	  emphasize-transient mode
+	* Added new "emphasize transient" feature to show just the first few
+	  iterations of the map
+	* En-coolinated the rotate tool - now rotates around the center of the
+	  view rather than the origin
+	* Begin the long road towards multiple function support
+	* Renamed project to "Fyre"
+
+0.5 (01 March 2004)
+	* Added animation support
+	* Added tileable image support
+	* Added mouse-based tools
+	* Improved oversampling
+
+0.3 (15 February 2004)
+	* Fixed a super-critical bug in parameters
+	* Added oversampling
+	* Added color clamping
+	* Lots of speed improvements
+
+0.2 (15 February 2004)
+	* First histogram-based release

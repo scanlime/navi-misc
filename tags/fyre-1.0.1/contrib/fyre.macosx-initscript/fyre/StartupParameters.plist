@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>fyre</string>
+	<key>Messages</key>
+	<dict>
+		<key>restart</key>
+		<string>Restarting fyre daemon</string>
+		<key>start</key>
+		<string>Starting fyre daemon</string>
+		<key>stop</key>
+		<string>Stopping fyre daemon</string>
+	</dict>
+	<key>OrderPreference</key>
+	<string>None</string>
+	<key>Provides</key>
+	<array>
+		<string>fyre</string>
+	</array>
+	<key>Requires</key>
+	<array>
+		<string>Network</string>
+		<string>Resolver</string>
+	</array>
+</dict>
+</plist>

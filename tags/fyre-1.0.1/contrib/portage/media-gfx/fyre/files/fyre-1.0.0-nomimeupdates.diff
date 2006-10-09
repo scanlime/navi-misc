@@ -1,0 +1,13 @@
+--- data/Makefile.am	2005-02-12 15:13:07.048064399 -0700
++++ data/Makefile.am.new	2005-02-12 15:13:24.638056966 -0700
+@@ -30,10 +30,6 @@
+ update_xdgmime = /bin/true
+ endif
+ 
+-install-data-hook:
+-	$(update_xdgmime) || true
+-	$(update_fdodesktop) || true
+-
+ uninstall-hook:
+ 	$(update_xdgmime)
+ 	$(update_fdodesktop)

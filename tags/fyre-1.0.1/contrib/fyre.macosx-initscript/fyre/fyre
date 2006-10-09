@@ -1,0 +1,30 @@
+#!/bin/sh
+# startup script for fyre daemon, created by laodamas
+# we assume the fyre has been installed by fink and is
+# located in the /sw/bin directory and that this script
+# is the only entitiy that runs fyre in daemon mode
+
+. /etc/rc.common
+
+StartService ()
+{
+    ConsoleMessage "Starting fyre daemon"
+
+    if [ -x /sw/bin/fyre ]; then
+      # run the daemon
+      /sw/bin/fyre -r
+    fi
+}
+
+StopService ()
+{
+    kill `ps awux | grep 'fyre -r' | grep nobody | awk '{ print $2 }'`
+}
+
+RestartService ()
+{
+    kill `ps awux | grep 'fyre -r' | grep nobody | awk '{ print $2 }'`
+    /sw/bin/fyre -r
+}
+
+RunService "$1"
