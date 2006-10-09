@@ -1,3 +1,16 @@
+<div class="heading">9 October 2006 - 1.0.1 Released</div>
+<p>
+    Wow, it's been a while!  This release sports several improvements: a beautiful new icon,
+    some performance increases, a more robust oversampling method, and other bug fixes.
+
+    <img src="news-icons/new-icon.png" width="106" height="106" class="newsIcon" alt="New Icon" />
+</p>
+<ul>
+    <li>The Fyre 1.0.1 <a href="http://navi.cx/svn/misc/tags/fyre-1.0.1/README">README</a> and
+        <a href="http://navi.cx/svn/misc/tags/fyre-1.0.1/ChangeLog">ChangeLog</a></li>
+    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.1.tar.gz">Source Code (.tar.gz)</a></li>
+    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.1.tar.bz2">Source Code (.tar.bz2)</a></li>
+</ul>
 <div class="heading">14 May 2005 - More cool stuff</div>
 <p>
     Now that you're all finished ogling at quartz composer, you can ogle at the
