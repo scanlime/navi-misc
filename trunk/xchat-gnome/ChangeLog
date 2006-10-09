@@ -1,6 +1,11 @@
 2006-10-08  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/fe-gnome/navigation-tree.c:
+	  - Fix a small memory leak. (#354612)
+
+2006-10-08  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/fe-gnome/navigation-tree.c:
 	  - De-break a bunch of stuff with book-keeping selections, including
 	    handling the nickname button nicely when the last server is
 	    closed. (#358952)
