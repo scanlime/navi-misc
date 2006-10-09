@@ -1,5 +1,12 @@
 2006-10-08  David Trowbridge  <trowbrds@gmail.com>
 
+	* src/fe-gnome/navigation-tree.c:
+	  - De-break a bunch of stuff with book-keeping selections, including
+	    handling the nickname button nicely when the last server is
+	    closed. (#358952)
+
+2006-10-08  David Trowbridge  <trowbrds@gmail.com>
+
 	* src/fe-gnome/channel-list.c:
 	* src/fe-gnome/channel-list.h:
 	  - Clean up some dead stuff.
