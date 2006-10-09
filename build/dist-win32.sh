@@ -82,7 +82,7 @@ function copy_dir()
     cp -av $PREFIX/$sourcedir/$source $TARGETDIR/$dest/$prefix || exit 1
 }
 
-copy_dir  bin    gnet-2.0.dll                                   lib
+#copy_dir  bin    gnet-2.0.dll                                   lib
 copy_dir  bin    libglade-2.0-0.dll                             lib
 copy_dir  bin    libxml2.dll                                    lib
 
@@ -106,7 +106,7 @@ copy_dir  bin    libpangowin32-1.0-0.dll            		lib
 copy_dir  lib    gtk-2.0/2.4.0/immodules/                       lib
 copy_dir  lib    gtk-2.0/2.4.0/loaders/libpixbufloader-png.dll  lib
 copy_dir  lib    gtk-2.0/2.4.0/engines/libwimp.dll              lib
-copy_dir  lib    pango/1.4.0/modules      			lib
+copy_dir  lib    pango/1.5.0/modules      			lib
 for lang in $ALL_LINGUAS; do
     copy_dir lib locale/$lang lib
 done
