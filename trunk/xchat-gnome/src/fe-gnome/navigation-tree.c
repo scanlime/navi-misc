@@ -223,8 +223,10 @@ static void
 navigation_tree_finalize (GObject *object)
 {
 	NavTree *navtree = (NavTree *) object;
-	gtk_tree_row_reference_free (navtree->current_rowref);
-	navtree->current_rowref = NULL;
+	if (NULL == navtree->current_rowref) {
+		gtk_tree_row_reference_free (navtree->current_rowref);
+		navtree->current_rowref = NULL;
+	}
 }
 
 /* New NavTree. */
@@ -355,17 +357,20 @@ navigation_tree_remove_server (NavTree *navtree, struct session *sess)
 		GtkTreeModel *sorted = gtk_tree_view_get_model (GTK_TREE_VIEW (navtree));
 		GtkTreeIter  iter;
 
-		gtk_tree_model_get_iter_first (sorted, &iter);
-
-		/* There's another server after the first one. */
-		gtk_tree_selection_select_iter (select, &iter);
 		navigation_model_remove (navtree->model, sess);
+
+		if (gtk_tree_model_get_iter_first (sorted, &iter)) {
+			/* There's another server after the first one. */
+			gtk_tree_selection_select_iter (select, &iter);
+		} else {
+			gtk_tree_selection_unselect_all (select);
+		}
 
 		/* We rely on the above select_iter call triggering the selection 'changed' event to do book-keeping */
 	} else {
 		/* This isn't the first server. Select the server above it and remove it. */
-		gtk_tree_selection_select_path (select, path);
 		navigation_model_remove (navtree->model, sess);
+		gtk_tree_selection_select_path (select, path);
 	}
 
 	navigation_tree_update_refs (navtree);
@@ -1092,16 +1097,14 @@ navigation_selection_changed (GtkTreeSelection *treeselection, NavTree *navtree)
 	gpointer     *s;
 	session      *sess;
 
-	if (gtk_tree_selection_get_selected (treeselection, NULL, NULL) == FALSE) {
-		return;
-	}
-
 	if (gui.server_tree == NULL) {
 		return;
 	}
 
 	if (gui.server_tree->current_rowref != NULL) {
 		navigation_model_rowref_deref (gui.server_tree->current_rowref);
+		gtk_tree_row_reference_free (gui.server_tree->current_rowref);
+		gui.server_tree->current_rowref = NULL;
 	}
 
 	/* If find bar is open, hide it */
@@ -1110,17 +1113,12 @@ navigation_selection_changed (GtkTreeSelection *treeselection, NavTree *navtree)
 	/* XXX: This sets model to be the GtkTreeModelSort used by the NavTree, it is
 	 *      not a GtkTreeModel. The iter is for that ModelSort.
 	 */
-	if (gtk_tree_selection_get_selected (treeselection, &model, &iter) && gui.current_session) {
+	if (gtk_tree_selection_get_selected (treeselection, &model, &iter)) {
 		GtkTreePath *path;
 
 		path = gtk_tree_model_get_path (model, &iter);
 
-		/* Update current_rowref. */
-		if (gui.server_tree->current_rowref) {
-			gtk_tree_row_reference_free (gui.server_tree->current_rowref);
-		}
-
-		gui.server_tree->current_rowref = gtk_tree_row_reference_new(model, path);
+		gui.server_tree->current_rowref = gtk_tree_row_reference_new (model, path);
 		navigation_model_rowref_ref (gui.server_tree->current_rowref);
 		gtk_tree_selection_get_selected (treeselection, &model, &iter);
 
@@ -1188,6 +1186,12 @@ navigation_selection_changed (GtkTreeSelection *treeselection, NavTree *navtree)
 
 		/* Emit "focus tab" event */
 		plugin_emit_dummy_print (sess, "Focus Tab");
+
+		gtk_widget_set_sensitive (gui.nick_button, TRUE);
+	} else {
+		gui.current_session = NULL;
+		gtk_button_set_label (GTK_BUTTON (gui.nick_button), "");
+		gtk_widget_set_sensitive (gui.nick_button, FALSE);
 	}
 }
 
@@ -1538,6 +1542,10 @@ navigation_model_rowref_deref (GtkTreeRowReference *rowref)
 
 	model = gtk_tree_row_reference_get_model (rowref);
 	path = gtk_tree_row_reference_get_path (rowref);
+
+	if (NULL == path) {
+		return;
+	}
 
 	if (gtk_tree_model_get_iter (model, &iter, path) == FALSE) {
 		g_critical ("path is invalid in navigation_model_rowref_deref\n");
