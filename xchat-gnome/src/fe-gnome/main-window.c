@@ -706,6 +706,11 @@ set_nickname (struct server *serv, char *newnick)
 		return;
 	}
 
+	if (serv == NULL) {
+		gtk_button_set_label (GTK_BUTTON (gui.nick_button), "");
+		return;
+	}
+
 	if (serv == gui.current_session->server) {
 		if (newnick == NULL) {
 			gtk_button_set_label (GTK_BUTTON (gui.nick_button), serv->nick);

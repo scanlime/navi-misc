@@ -1,3 +1,8 @@
+2006-10-11  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/fe-gnome/main-window.c:
+	  - Fix a possible crash in setting the nickname button. (#361199)
+
 2006-10-10  David Trowbridge  <trowbrds@gmail.com>
 
 	* /src/fe-gnome/palette.c:
