@@ -152,8 +152,9 @@ find_bar_finalize (GObject *object)
 
 	g_free (bar->priv);
 
-	if (G_OBJECT_CLASS (parent_class)->finalize)
+	if (G_OBJECT_CLASS (parent_class)->finalize) {
 		G_OBJECT_CLASS (parent_class)->finalize (object);
+	}
 }
 
 static void
@@ -172,8 +173,9 @@ find_bar_search_changed (GtkWidget *entry, FindBar *bar)
 static gboolean
 find_bar_key_press (GtkWidget *entry, GdkEventKey *event, FindBar *bar)
 {
-	if (event->keyval == GDK_Escape)
+	if (event->keyval == GDK_Escape) {
 		find_bar_close (bar);
+	}
 	return FALSE;
 }
 
@@ -260,8 +262,9 @@ find_bar_close (FindBar *bar)
 {
 	gint position;
 
-	if (!GTK_WIDGET_VISIBLE (bar))
+	if (!GTK_WIDGET_VISIBLE (bar)) {
 		return;
+	}
 
 	conversation_panel_clear_selection (CONVERSATION_PANEL (gui.conversation_panel));
 	gtk_entry_set_text (GTK_ENTRY (bar->priv->entry), "");

@@ -132,8 +132,9 @@ remove_server_clicked (GtkButton *button, IrcNetworkEditor *e)
 	GtkTreeIter iter;
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (e->servers));
-	if (gtk_tree_selection_get_selected (selection, NULL, &iter))
+	if (gtk_tree_selection_get_selected (selection, NULL, &iter)) {
 		gtk_list_store_remove (e->server_store, &iter);
+	}
 }
 
 static void
@@ -157,10 +158,11 @@ server_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *newtext, IrcNe
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (e->servers));
 	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		if (strlen (newtext))
+		if (strlen (newtext)) {
 			gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, newtext, -1);
-		else
+		} else {
 			gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+		}
 	}
 }
 
@@ -198,8 +200,9 @@ remove_autojoin_clicked (GtkButton *button, IrcNetworkEditor *e)
 	GtkTreeIter iter;
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (e->autojoin_channels));
-	if (gtk_tree_selection_get_selected (selection, NULL, &iter))
+	if (gtk_tree_selection_get_selected (selection, NULL, &iter)) {
 		gtk_list_store_remove (e->autojoin_store, &iter);
+	}
 }
 
 static void
@@ -223,10 +226,11 @@ autojoin_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *newtext, Irc
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (e->autojoin_channels));
 	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		if (strlen (newtext))
+		if (strlen (newtext)) {
 			gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, newtext, -1);
-		else
+		} else {
 			gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+		}
 	}
 }
 
@@ -239,10 +243,11 @@ autojoin_key_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *newtext,
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (e->autojoin_channels));
 	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		if (strlen (newtext))
+		if (strlen (newtext)) {
 			gtk_list_store_set (GTK_LIST_STORE (model), &iter, 1, newtext, -1);
-		else
+		} else {
 			gtk_list_store_set (GTK_LIST_STORE (model), &iter, 1, NULL, -1);
+		}
 	}
 }
 
@@ -262,8 +267,9 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	path = locate_data_file ("irc-network-editor.glade");
 	xml = glade_xml_new (path, "toplevel", NULL);
 	g_free (path);
-	if (!xml)
+	if (!xml) {
 		return;
+	}
 
 #define GW(name) ((dialog->name) = glade_xml_get_widget (xml, #name))
 	GW(network_settings_table);
@@ -404,8 +410,9 @@ populate_autojoin_list (IrcNetworkEditor *e)
 	gint i;
 	gboolean keys_done;
 
-	if (!e->network->autojoin)
+	if (!e->network->autojoin) {
 		return;
+	}
 
 	autojoin = g_strsplit (e->network->autojoin, " ", 0);
 	channels = g_strsplit (autojoin[0], ",", 0);
@@ -480,10 +487,12 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 	gtk_widget_set_sensitive (e->edit_autojoin, FALSE);
 	gtk_widget_set_sensitive (e->remove_autojoin, FALSE);
 
-	if (e->network->password)
+	if (e->network->password) {
 		gtk_entry_set_text (GTK_ENTRY (e->password), e->network->password);
-	if (e->network->nickserv_password)
+	}
+	if (e->network->nickserv_password) {
 		gtk_entry_set_text (GTK_ENTRY (e->nickserv_password), e->network->nickserv_password);
+	}
 
 	gtk_combo_box_set_active (GTK_COMBO_BOX (e->encoding), e->network->encoding);
 

@@ -52,10 +52,11 @@ dcc_window_class_init (DccWindowClass *klass)
 static void
 transfer_selection_changed (GtkTreeSelection *selection, DccWindow *window)
 {
-	if (gtk_tree_selection_get_selected (selection, NULL, NULL))
+	if (gtk_tree_selection_get_selected (selection, NULL, NULL)) {
 		gtk_widget_set_sensitive (window->stop_button, TRUE);
-	else
+	} else {
 		gtk_widget_set_sensitive (window->stop_button, FALSE);
+	}
 }
 
 static void
@@ -67,8 +68,9 @@ transfer_stop_clicked (GtkButton *button, DccWindow *window)
 	struct DCC *dcc;
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (window->transfer_list));
-	if (gtk_tree_selection_get_selected (selection, &model, &iter) == FALSE)
+	if (gtk_tree_selection_get_selected (selection, &model, &iter) == FALSE) {
 		return;
+	}
 
 	gtk_tree_model_get (model, &iter, DCC_COLUMN, &dcc, -1);
 	gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
@@ -86,8 +88,9 @@ dcc_window_init (DccWindow *window)
 	path = locate_data_file ("dcc-window.glade");
 	xml = glade_xml_new (path, "toplevel", NULL);
 	g_free (path);
-	if (!xml)
+	if (!xml) {
 		return;
+	}
 
 #define GW(name) ((window->name) = glade_xml_get_widget (xml, #name))
 	GW(transfer_list);
@@ -158,7 +161,7 @@ dcc_window_init (DccWindow *window)
 	path = locate_data_file ("stock_up.png");
 	window->up_icon = gdk_pixbuf_new_from_file_at_size (path, 24, 24, NULL);
 	g_free (path);
-		
+
 	path = locate_data_file ("stock_down.png");
 	window->down_icon = gdk_pixbuf_new_from_file_at_size (path, 24, 24, NULL);
 	g_free (path);
@@ -268,8 +271,9 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 	GtkTreeIter iter;
 
 	/* DCC chats cause crashes here, because they're not handled in this window. */
-	if (dcc->type == 2)
+	if (dcc->type == 2) {
 		return;
+	}
 
 	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (window->transfer_store), &iter)) {
 		do {
@@ -322,11 +326,11 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 				}
 
 				gtk_list_store_set (window->transfer_store, &iter,
-						    INFO_COLUMN, info_text,
-						    DONE_COLUMN, done,
-						    DONE_LABEL_COLUMN, done_text,
-						    TIME_COLUMN, remaining_text,
-						    -1);
+				                    INFO_COLUMN, info_text,
+				                    DONE_COLUMN, done,
+				                    DONE_LABEL_COLUMN, done_text,
+				                    TIME_COLUMN, remaining_text,
+				                    -1);
 				g_free (done_text);
 				g_free (info_text);
 				g_free (remaining_text);
@@ -343,8 +347,9 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 					gpointer image_data;
 
 					/* If the file doesn't exist yet, don't do the icon */
-					if (g_file_test (dcc->destfile, G_FILE_TEST_EXISTS) == FALSE)
+					if (g_file_test (dcc->destfile, G_FILE_TEST_EXISTS) == FALSE) {
 						return;
+					}
 
 					/* Get MIME type from gnome-vfs, create the proper file icon for it. */
 					mime = gnome_vfs_get_mime_type (dcc->destfile);
@@ -372,10 +377,11 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 					                      GDK_INTERP_BILINEAR, 255);
 
 					/* Composite on an emblem which shows the direction of transfer */
-					if (dcc->type == 1)
+					if (dcc->type == 1) {
 						direction_emblem = window->down_icon;
-					else
+					} else {
 						direction_emblem = window->up_icon;
+					}
 
 					gdk_pixbuf_composite (direction_emblem,
 					                      file_icon,
@@ -412,8 +418,10 @@ void
 dcc_window_remove (DccWindow *window, struct DCC *dcc)
 {
 	GtkTreeIter iter;
-	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (window->transfer_store), &iter) == FALSE)
+	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (window->transfer_store), &iter) == FALSE) {
 		return;
+	}
+
 	do {
 		gpointer ptr;
 		gtk_tree_model_get (GTK_TREE_MODEL (window->transfer_store), &iter, DCC_COLUMN, &ptr, -1);
@@ -431,11 +439,11 @@ dcc_send_file (struct User *user)
 	GtkResponseType response;
 
 	dialog = gtk_file_chooser_dialog_new (_("Send File..."),
-			GTK_WINDOW (gui.main_window),
-			GTK_FILE_CHOOSER_ACTION_OPEN,
-			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-			NULL);
+	                GTK_WINDOW (gui.main_window),
+	                GTK_FILE_CHOOSER_ACTION_OPEN,
+	                GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+	                GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+	                NULL);
 
 	response = gtk_dialog_run (GTK_DIALOG (dialog));
 	gtk_widget_hide (dialog);

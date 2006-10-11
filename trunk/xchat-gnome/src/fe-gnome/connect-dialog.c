@@ -50,10 +50,11 @@ connect_dialog_class_init (ConnectDialogClass *klass)
 static void
 selection_changed (GtkTreeSelection *select, ConnectDialog *dialog)
 {
-	if (gtk_tree_selection_get_selected (select, NULL, NULL))
+	if (gtk_tree_selection_get_selected (select, NULL, NULL)) {
 		gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, TRUE);
-	else
+	} else {
 		gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
+	}
 }
 
 static void
@@ -71,12 +72,14 @@ dialog_response (ConnectDialog *dialog, gint response, gpointer data)
 			gboolean connected;
 
 			s = navigation_tree_get_selected_session(&connected);
-			if (connected)
+			if (connected) {
 				s = NULL;
+			}
 
 			gtk_tree_model_get (model, &iter, 0, &network, -1);
-			if (!navigation_tree_server_is_connected (gui.server_tree, network))
+			if (!navigation_tree_server_is_connected (gui.server_tree, network)) {
 				servlist_connect_by_netname (s, network, TRUE);
+			}
 			g_free (network);
 			gtk_widget_destroy (GTK_WIDGET (dialog));
 		}
@@ -89,8 +92,9 @@ static void
 row_activated (GtkTreeView *widget, GtkTreePath *path, GtkTreeViewColumn *column, ConnectDialog *dialog)
 {
 	GtkTreeIter iter;
-	if (gtk_tree_model_get_iter (GTK_TREE_MODEL (dialog->server_store), &iter, path))
+	if (gtk_tree_model_get_iter (GTK_TREE_MODEL (dialog->server_store), &iter, path)) {
 		gtk_dialog_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
+	}
 }
 
 static void
@@ -110,11 +114,12 @@ connect_dialog_init (ConnectDialog *dialog)
 
 	xml = NULL;
 	path = locate_data_file ("connect-dialog.glade");
-		
+
 	xml = glade_xml_new (path, "toplevel", NULL);
 	g_free (path);
-	if (!xml)
+	if (!xml) {
 		return;
+	}
 
 #define GW(name) ((dialog->name) = glade_xml_get_widget (xml, #name))
 	GW(toplevel);

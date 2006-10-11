@@ -128,7 +128,6 @@ static int gtk_xtext_render_ents (GtkXText * xtext, textentry *, textentry *);
 static void gtk_xtext_recalc_widths (xtext_buffer *buf, int);
 static void gtk_xtext_fix_indent (xtext_buffer *buf);
 static int gtk_xtext_find_subline (GtkXText *xtext, textentry *ent, int line);
-static char *gtk_xtext_conv_color (unsigned char *text, int len, int *newlen);
 static unsigned char *
 gtk_xtext_strip_color (unsigned char *text, int len, unsigned char *outbuf,
 							  int *newlen, int *mb_ret);
@@ -1912,9 +1911,29 @@ gtk_xtext_unselect (GtkXText *xtext)
 {
 	xtext_buffer *buf = xtext->selection_buffer;
 
-	if (!buf)
-		return;
+	xtext->skip_border_fills = TRUE;
+        xtext->skip_stamp = TRUE;
 
+	xtext->jump_in_offset = buf->last_ent_start->mark_start;
+	/* just a single ent was marked? */
+	if (buf->last_ent_start == buf->last_ent_end) {
+		xtext->jump_out_offset = buf->last_ent_start->mark_end;
+		buf->last_ent_end = NULL;
+	}
+
+	gtk_xtext_selection_clear (xtext->buffer);
+
+	/* FIXME: use jump_out on multi-line selects too! */
+	gtk_xtext_render_ents (xtext, buf->last_ent_start, buf->last_ent_end);
+
+	xtext->jump_in_offset = 0;
+	xtext->jump_out_offset = 0;
+
+	xtext->skip_border_fills = FALSE;
+	xtext->skip_stamp = FALSE;
+
+	xtext->buffer->last_ent_start = NULL;
+	xtext->buffer->last_ent_end = NULL;
 }
 
 static void
@@ -1973,7 +1992,6 @@ gtk_xtext_update_primary_selection (GtkXText *xtext)
 
 	GtkWidget *widget = GTK_WIDGET (xtext);
 	GtkClipboard *clipboard;
-	gint start, end;
 
 	if (G_UNLIKELY (targets[5].target == NULL))
 	{
@@ -2062,7 +2080,7 @@ gtk_xtext_button_release (GtkWidget * widget, GdkEventButton * event)
 		xtext->button_down = FALSE;
 
 		gtk_grab_remove (widget);
-	
+
 		gtk_xtext_update_primary_selection (xtext);
 
 		if (xtext->select_start_x == event->x &&
@@ -2411,95 +2429,6 @@ gtk_xtext_strip_color (unsigned char *text, int len, unsigned char *outbuf,
 
 	if (mb_ret != NULL)
 		*mb_ret = mb;
-
-	return new_str;
-}
-
-/* GeEkMaN: converts mIRC control codes to literal control codes */
-
-static char *
-gtk_xtext_conv_color (unsigned char *text, int len, int *newlen)
-{
-	int i, j = 2;
-	char cchar = 0;
-	char *new_str;
-	int mbl;
-
-	for (i = 0; i < len;)
-	{
-		switch (text[i])
-		{
-		case ATTR_COLOR:
-		case ATTR_RESET:
-		case ATTR_REVERSE:
-		case ATTR_BOLD:
-		case ATTR_UNDERLINE:
-		case ATTR_ITALICS:
-			j += 3;
-			i++;
-			break;
-		default:
-			mbl = charlen (text + i);
-			j += mbl;
-			i += mbl;
-		}
-	}
-
-	new_str = g_malloc (j);
-	j = 0;
-
-	for (i = 0; i < len;)
-	{
-		switch (text[i])
-		{
-		case ATTR_COLOR:
-			cchar = 'C';
-			break;
-		case ATTR_RESET:
-			cchar = 'O';
-			break;
-		case ATTR_REVERSE:
-			cchar = 'R';
-			break;
-		case ATTR_BOLD:
-			cchar = 'B';
-			break;
-		case ATTR_UNDERLINE:
-			cchar = 'U';
-			break;
-		case ATTR_ITALICS:
-			cchar = 'I';
-			break;
-		case ATTR_BEEP:
-			break;
-		default:
-			mbl = charlen (text + i);
-			if (mbl == 1)
-			{
-				new_str[j] = text[i];
-				j++;
-				i++;
-			} else
-			{
-				/* invalid utf8 safe guard */
-				if (i + mbl > len)
-					mbl = len - i;
-				memcpy (new_str + j, text + i, mbl);
-				j += mbl;
-				i += mbl;
-			}
-		}
-		if (cchar != 0)
-		{
-			new_str[j++] = '%';
-			new_str[j++] = cchar;
-			cchar = 0;
-			i++;
-		}
-	}
-
-	new_str[j] = 0;
-	*newlen = j;
 
 	return new_str;
 }

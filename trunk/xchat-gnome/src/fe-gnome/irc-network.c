@@ -143,10 +143,11 @@ irc_network_new (ircnet *net)
 
 	n->nickserv_password = g_strdup (net->nickserv);
 	n->password    = g_strdup(net->pass);
-	if (net->encoding)
+	if (net->encoding) {
 		n->encoding = GPOINTER_TO_UINT (g_hash_table_lookup (enctoindex, net->encoding));
-	else
+	} else {
 		n->encoding = 0;
+	}
 	n->use_global  = net->flags & FLAG_USE_GLOBAL;
 	n->nick        = g_strdup (net->nick);
 	n->real        = g_strdup (net->real);
@@ -177,23 +178,26 @@ irc_network_save (IrcNetwork *network)
 	if (net->autojoin) g_free (net->autojoin);
 	if (net->encoding) g_free (net->encoding);
 
-	net->name     = g_strdup (network->name);
-	if (network->password && strlen (network->password) != 0)
+	net->name = g_strdup (network->name);
+	if (network->password && strlen (network->password) != 0) {
 		net->pass = g_strdup (network->password);
-	else
+	} else {
 		net->pass = NULL;
-	net->nick     = g_strdup (network->nick);
-	net->real     = g_strdup (network->real);
-	if (network->nickserv_password && strlen (network->nickserv_password) != 0)
+	}
+	net->nick = g_strdup (network->nick);
+	net->real = g_strdup (network->real);
+	if (network->nickserv_password && strlen (network->nickserv_password) != 0) {
 		net->nickserv = g_strdup (network->nickserv_password);
-	else
+	} else {
 		net->nickserv = NULL;
+	}
 	net->autojoin = g_strdup (network->autojoin);
 	net->encoding = g_strdup (encodings[network->encoding]);
 
 	serv = navigation_model_get_server (gui.tree_model, net);
-	if (serv)
+	if (serv) {
 		server_set_encoding (serv, net->encoding);
+	}
 
 	if (network->autoconnect) flags |= FLAG_AUTO_CONNECT;
 	if (network->use_ssl)     flags |= FLAG_USE_SSL;
@@ -204,13 +208,15 @@ irc_network_save (IrcNetwork *network)
 
 	while (net->servlist) {
 		ircserver *is = net->servlist->data;
-		if (is && is->hostname)
+		if (is && is->hostname) {
 			servlist_server_remove (net, is);
+		}
 	}
 	for (s = network->servers; s; s = g_slist_next (s)) {
 		ircserver *is = s->data;
-		if (!(is == NULL || is->hostname == NULL))
+		if (!(is == NULL || is->hostname == NULL)) {
 			servlist_server_add (net, is->hostname);
+		}
 	}
 
 	servlist_save ();

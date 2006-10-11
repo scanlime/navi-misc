@@ -151,12 +151,9 @@ initialize_main_window (void)
 	gchar *path;
 
 	gui.main_window = glade_xml_get_widget (gui.xml, "xchat-gnome");
-	g_signal_connect (G_OBJECT (gui.main_window), "delete-event",
-	                  G_CALLBACK (on_main_window_close), NULL);
-	g_signal_connect (G_OBJECT (gui.main_window), "focus-in-event",
-	                  G_CALLBACK (on_main_window_focus_in), NULL);
-	g_signal_connect (G_OBJECT (gui.main_window), "configure-event",
-	                  G_CALLBACK (on_main_window_configure), NULL);
+	g_signal_connect (G_OBJECT (gui.main_window), "delete-event",    G_CALLBACK (on_main_window_close),     NULL);
+	g_signal_connect (G_OBJECT (gui.main_window), "focus-in-event",  G_CALLBACK (on_main_window_focus_in),  NULL);
+	g_signal_connect (G_OBJECT (gui.main_window), "configure-event", G_CALLBACK (on_main_window_configure), NULL);
 
 	/* hook up the menus */
 	gui.action_group = gtk_action_group_new ("MenuAction");
@@ -263,13 +260,13 @@ initialize_main_window (void)
 		 */
 		closure = g_cclosure_new (G_CALLBACK (on_go_next_discussion_activate), NULL, NULL);
 		gtk_accel_group_connect (discussion_accel, GDK_Page_Down,
-				GDK_MOD1_MASK | GDK_CONTROL_MASK , GTK_ACCEL_VISIBLE, closure);
+		                         GDK_MOD1_MASK | GDK_CONTROL_MASK , GTK_ACCEL_VISIBLE, closure);
 
 		g_closure_unref (closure);
 
 		closure = g_cclosure_new (G_CALLBACK (on_go_previous_discussion_activate), NULL, NULL);
 		gtk_accel_group_connect (discussion_accel, GDK_Page_Up,
-				GDK_MOD1_MASK | GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, closure);
+		                        GDK_MOD1_MASK | GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, closure);
 
 		g_closure_unref (closure);
 
@@ -311,14 +308,16 @@ run_main_window ()
 	client = gconf_client_get_default ();
 	width  = gconf_client_get_int (client, "/apps/xchat/main_window/width",  NULL);
 	height = gconf_client_get_int (client, "/apps/xchat/main_window/height", NULL);
-	if(width == 0 || height == 0)
+	if (width == 0 || height == 0) {
 		gtk_window_set_default_size (GTK_WINDOW (gui.main_window), 800, 550);
-	else
+	} else {
 		gtk_window_set_default_size (GTK_WINDOW (gui.main_window), width, height);
+	}
 	x = gconf_client_get_int (client, "/apps/xchat/main_window/x", NULL);
 	y = gconf_client_get_int (client, "/apps/xchat/main_window/y", NULL);
-	if (!(x == 0 || y == 0))
+	if (!(x == 0 || y == 0)) {
 		gtk_window_move (GTK_WINDOW (gui.main_window), x, y);
+	}
 	h = gconf_client_get_int (client, "/apps/xchat/main_window/hpane", NULL);
 	if(h != 0) {
 		GtkWidget *hpane = glade_xml_get_widget (gui.xml, "HPane");
@@ -338,10 +337,11 @@ rename_main_window (gchar *server, gchar *channel)
 	gchar *new_title;
 
 	if (server == NULL) {
-		if (channel && strlen (channel) != 0)
+		if (channel && strlen (channel) != 0) {
 			gtk_window_set_title (GTK_WINDOW (gui.main_window), channel);
-		else
+		} else {
 			gtk_window_set_title (GTK_WINDOW (gui.main_window), "XChat-GNOME");
+		}
 		return;
 	}
 	new_title = g_strconcat (server, ": ", channel, NULL);
@@ -406,12 +406,13 @@ on_edit_cut_activate (GtkAction *action, gpointer data)
 static void
 on_edit_copy_activate (GtkAction *action, gpointer data)
 {
-	if (gtk_editable_get_selection_bounds (GTK_EDITABLE (gui.text_entry), NULL, NULL))
+	if (gtk_editable_get_selection_bounds (GTK_EDITABLE (gui.text_entry), NULL, NULL)) {
 		/* There is something selected in the text_entry */
 		gtk_editable_copy_clipboard (GTK_EDITABLE (gui.text_entry));
-	else
+	} else {
 		/* Nothing selected, we copy from the conversation panel */
 		conversation_panel_copy_selection (CONVERSATION_PANEL (gui.conversation_panel));
+	}
 }
 
 static void
@@ -426,7 +427,7 @@ on_edit_preferences_activate (GtkAction *action, gpointer data)
 	if (!gui.prefs_dialog) {
 		gui.prefs_dialog = preferences_dialog_new ();
 		g_object_add_weak_pointer (G_OBJECT (gui.prefs_dialog),
-					   (gpointer *) (&gui.prefs_dialog));
+		                           (gpointer *) (&gui.prefs_dialog));
 	}
 
 	preferences_dialog_show (gui.prefs_dialog);
@@ -442,8 +443,9 @@ static void
 on_network_disconnect_activate (GtkAction *action, gpointer data)
 {
 	session *s = gui.current_session;
-	if (s)
+	if (s) {
 		s->server->disconnect (s, TRUE, -1);
+	}
 }
 
 static void
@@ -501,8 +503,9 @@ on_discussion_leave_activate (GtkAction *action, gpointer data)
 
 		client = gconf_client_get_default ();
 		text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
-		if (text == NULL)
+		if (text == NULL) {
 			text = g_strdup (_("Ex-Chat"));
+		}
 		s->server->p_part (s->server, s->channel, text);
 		g_object_unref (client);
 		g_free (text);
@@ -513,9 +516,9 @@ static void
 on_discussion_close_activate (GtkAction *action, gpointer data)
 {
 	session *s = gui.current_session;
-	if (s == NULL)
+	if (s == NULL) {
 		return;
-/*	navigation_tree_select_next_channel (gui.server_tree, TRUE);*/
+	}
 	fe_close_window (s);
 	conversation_panel_remove_session (CONVERSATION_PANEL (gui.conversation_panel), s);
 	topic_label_remove_session        (TOPIC_LABEL        (gui.topic_label),        s);
@@ -607,8 +610,9 @@ on_nickname_clicked (GtkButton *widget, gpointer user_data)
 	GtkWidget *entry, *away;
 	gint result;
 
-	if (gui.current_session == NULL)
+	if (gui.current_session == NULL) {
 		return;
+	}
 	current_sess = gui.current_session;
 
 	dialog = glade_xml_get_widget (gui.xml, "nickname dialog");
@@ -630,22 +634,24 @@ on_nickname_clicked (GtkButton *widget, gpointer user_data)
 
 		/* Nick */
 		text = (gchar *) gtk_entry_get_text (GTK_ENTRY (entry));
-		if (all)
+		if (all) {
 			buf = g_strdup_printf ("allserv nick %s", text);
-		else
+		} else {
 			buf = g_strdup_printf ("nick %s", text);
+		}
 		handle_command (current_sess, buf, FALSE);
 		g_free (buf);
 
 		/* Away */
 		if (current_sess->server->is_away != gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (away))) {
-			if (all)
+			if (all) {
 				handle_command (current_sess, "allserv away", FALSE);
-			else
+			} else {
 				handle_command (current_sess, "away", FALSE);	
+			}
 		}
 	}
-	gtk_widget_hide (dialog);	
+	gtk_widget_hide (dialog);
 }
 
 static gboolean
@@ -686,23 +692,26 @@ on_users_toggled (GtkToggleButton *widget, gpointer user_data)
 
 	toggled = gtk_toggle_button_get_active (widget);
 
-	if (toggled)
+	if (toggled) {
 		userlist_gui_show ();
-	else
+	} else {
 		userlist_gui_hide ();
+	}
 }
 
 void
 set_nickname (struct server *serv, char *newnick)
 {
-	if (gui.current_session == NULL)
+	if (gui.current_session == NULL) {
 		return;
+	}
 
 	if (serv == gui.current_session->server) {
-		if (newnick == NULL)
+		if (newnick == NULL) {
 			gtk_button_set_label (GTK_BUTTON (gui.nick_button), serv->nick);
-		else
+		} else {
 			gtk_button_set_label (GTK_BUTTON (gui.nick_button), newnick);
+		}
 		set_nickname_color (serv);
 	}
 }
@@ -756,8 +765,9 @@ on_main_window_configure (GtkWidget *widget, GdkEventConfigure *event, gpointer 
 static void
 nickname_style_set (GtkWidget *button, GtkStyle *previous_style, gpointer data)
 {
-	if (gui.current_session == NULL)
+	if (gui.current_session == NULL) {
 		return;
+	}
 
 	set_nickname_color (gui.current_session->server);
 }

@@ -42,20 +42,26 @@ chanlist_filter (GtkTreeModel *model, GtkTreeIter *iter, channel_list_window *wi
 	gtk_tree_model_get (model, iter, 0, &name, 2, &topic, 4, &users, -1);
 
 	/* filter number of users first, since it's fast */
-	if (users < window->minimum)
+	if (users < window->minimum) {
 		return FALSE;
-	if (window->maximum > 0 && users > window->maximum)
+	}
+	if (window->maximum > 0 && users > window->maximum) {
 		return FALSE;
+	}
 
 	/* text filtering */
-	if (window->filter_topic && window->text_filter != NULL && strlen (window->text_filter) != 0)
+	if (window->filter_topic && window->text_filter != NULL && strlen (window->text_filter) != 0) {
 		/* We have something to filter */
-		if (strcasestr (topic, window->text_filter) == NULL)
+		if (strcasestr (topic, window->text_filter) == NULL) {
 			return FALSE;
+		}
+	}
 
-	if (window->filter_name && window->text_filter != NULL && strlen (window->text_filter) != 0)
-		if (strcasestr (name, window->text_filter) == NULL)
+	if (window->filter_name && window->text_filter != NULL && strlen (window->text_filter) != 0) {
+		if (strcasestr (name, window->text_filter) == NULL) {
 			return FALSE;
+		}
+	}
 
 	return TRUE;
 }
@@ -65,13 +71,15 @@ chanlist_compare_p (gconstpointer a, gconstpointer b, gpointer data)
 {
 	channel_list_window *as = (channel_list_window *) a;
 
-	if (a == NULL)
+	if (a == NULL) {
 		return 1;
+	}
 
-	if (as->server == b)
+	if (as->server == b) {
 		return 0;
-	else
+	} else {
 		return 1;
+	}
 }
 
 static gboolean
@@ -79,8 +87,9 @@ chanlist_delete (GtkWidget *widget, GdkEvent *event, channel_list_window *win)
 {
 	GtkWidget *window;
 
-	if (win->refresh_timeout)
+	if (win->refresh_timeout) {
 		g_source_remove (win->refresh_timeout);
+	}
 
 	chanlists = g_slist_remove (chanlists, (gpointer) win);
 
@@ -164,8 +173,7 @@ join_selected_channel (GtkTreeView *treeview)
 	server *serv;
 
 	select = gtk_tree_view_get_selection (treeview);
-	if (gtk_tree_selection_get_selected (select, &model, &iter))
-	{
+	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
 		gtk_tree_model_get (model, &iter, 0, &channel, 3, &serv, -1);
 		serv->p_join (serv, channel, "");
 	}
@@ -224,8 +232,9 @@ maxusers_changed (GtkSpinButton *button, channel_list_window *win)
 static void
 filter_changed (GtkEntry *entry, channel_list_window *win)
 {
-	if (win->text_filter != NULL)
+	if (win->text_filter != NULL) {
 		g_free (win->text_filter);
+	}
 	win->text_filter = g_strdup (gtk_entry_get_text (entry));
 	gtk_tree_model_filter_refilter (GTK_TREE_MODEL_FILTER (win->filter));
 }
@@ -256,15 +265,18 @@ create_channel_list (session *sess)
 	gchar *title, *path;
 	GConfClient *client;
 
-	if (sess == NULL)
+	if (sess == NULL) {
 		return;
+	}
 
-	if (chanlists == NULL)
+	if (chanlists == NULL) {
 		chanlists = g_slist_alloc ();
+	}
 
 	/* check to see if we already have a channel list GUI available */
-	if (g_slist_find_custom (chanlists, sess->server, (GCompareFunc) chanlist_compare_p) != NULL)
+	if (g_slist_find_custom (chanlists, sess->server, (GCompareFunc) chanlist_compare_p) != NULL) {
 		return;
+	}
 
 	win = g_new (channel_list_window, 1);
 
@@ -356,10 +368,11 @@ create_channel_list (session *sess)
 	width  = gconf_client_get_int (client, "/apps/xchat/channel_list/width",  NULL);
 	height = gconf_client_get_int (client, "/apps/xchat/channel_list/height", NULL);
 	g_object_unref (client);
-	if (width == 0 || height == 0)
+	if (width == 0 || height == 0) {
 		gtk_window_set_default_size (GTK_WINDOW (widget), 640, 480);
-	else
+	} else {
 		gtk_window_set_default_size (GTK_WINDOW (widget), width, height);
+	}
 	g_signal_connect (G_OBJECT (widget), "configure-event", G_CALLBACK (chanlist_resize), NULL);
 	gtk_widget_show_all (widget);
 
@@ -380,8 +393,9 @@ channel_list_append (server *serv, char *channel, char *users, char *topic)
 	int nusers;
 
 	element = g_slist_find_custom (chanlists, serv, (GCompareFunc) chanlist_compare_p);
-	if (element == NULL)
+	if (element == NULL) {
 		return;
+	}
 
 	win = element->data;
 	treeview = glade_xml_get_widget (win->xml, "channel list");
