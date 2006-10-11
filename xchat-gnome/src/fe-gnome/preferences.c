@@ -46,15 +46,14 @@ preferences_exist (void)
 	client = gconf_client_get_default ();
 
 	text = gconf_client_get_string (client, "/apps/xchat/version", NULL);
-	if (text == NULL)
+	if (text == NULL) {
 		return FALSE;
-	else
+	} else {
 		g_free (text);
+	}
 
 	g_object_unref (client);
 
-	/* probably eventually do some checking on the version to migrate from
-	   previous versions when new features are added */
 	return TRUE;
 }
 

@@ -42,12 +42,13 @@ show_about_dialog (void)
 {
 	char *license_trans;
 
-	const gchar *authors[] =
-	{
+	const gchar *authors[] = {
 		"Andre Dahlqvist <andre.bugs@gmail.com>",
 		"Bastien Nocera <hadess@hadess.net>",
 		"Brian Pepple <bdpepple@gmail.com>",
+		"Christian Persch <chpe@gnome.org>",
 		"Dan Kuester <Daniel.Kuester@colorado.edu>",
+		"Daniel Drake <dsd@gentoo.org>"
 		"David Trowbridge <trowbrds@gmail.com>",
 		"Evan Sheehan <Wallace.Sheehan@gmail.com>",
 		"Guillaume Desmottes <cass@skynet.be>",
@@ -59,13 +60,11 @@ show_about_dialog (void)
 		"Xavier Claessens <xclaesse@gmail.com>",
 		NULL
 	};
-	const gchar *documenters[] =
-	{
+	const gchar *documenters[] = {
 		"Brian Pepple <bdpepple@gmail.com>",
 		NULL
 	};
-	const gchar *artists[] =
-	{
+	const gchar *artists[] = {
 		"Micah Dowty <micah@navi.cx>",
 		NULL
 	};
@@ -92,21 +91,21 @@ show_about_dialog (void)
 #endif
 
 	gtk_show_about_dialog (GTK_WINDOW (gui.main_window),
-	                       "name",        "XChat-GNOME",
-	                       "version",     PACKAGE_VERSION,
-	                       "copyright",   _("Copyright © 2004-2006"),
-			       /* Translators: This is a random, mostly-meaningless
-				* quotation from Jeeves & Wooster.  Either leave it
-				* be or replace it with something funny (but inoffensive)
-				* in your own language, but don't translate it literally.
-				*/
-	                       "comments",    _("It has been well observed that a trombone is not a suitable instrument for a gentleman"),
-	                       "license",     license_trans,
+	                       "name", "XChat-GNOME",
+	                       "version", PACKAGE_VERSION,
+	                       "copyright", _("Copyright © 2004-2006"),
+	                       /* Translators: This is a random, mostly-meaningless
+	                        * quotation from Jeeves & Wooster.  Either leave it
+	                        * be or replace it with something funny (but inoffensive)
+	                        * in your own language, but don't translate it literally.
+	                        */
+	                       "comments", _("It has been well observed that a trombone is not a suitable instrument for a gentleman"),
+	                       "license", license_trans,
 	                       "wrap-license", TRUE,
-	                       "website",     "http://xchat-gnome.navi.cx",
+	                       "website", "http://xchat-gnome.navi.cx",
 	                       "website-label", _("XChat-GNOME Web Site"),
-	                       "authors",     authors,
-	                       "artists",     artists,
+	                       "authors", authors,
+	                       "artists", artists,
 	                       "logo-icon-name", "xchat-gnome",
 	                       "documenters", documenters,
 	                       /* Translators: This is a special message that shouldn't

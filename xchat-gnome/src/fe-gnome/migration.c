@@ -58,29 +58,35 @@ check_version (guint major, guint minor, guint micro)
 				tmp = g_strndup (nbs[i], strlen (nbs[i]) - 3);
 				effective[i] = atoi (tmp);
 				g_free (tmp);
-			}
-			else
+			} else {
 				effective[i] = atoi (nbs[i]);
-		}
-		else
+			}
+		} else {
 			effective[i] = 0;
+		}
 	}
 	g_strfreev (nbs);
 	g_free (version);
 
-	if (major < effective[0]) result = -1;
-	else if (major > effective[0]) result = 1;
-	else {
-		if (minor < effective[1]) result = -1;
-		else if (minor > effective[1]) result = 1;
-		else {
-			if (micro < effective[2]) result = -1;
-			else if (micro > effective[2]) result = 1;
-			else result = 0;
-		}
+	if (major < effective[0]) {
+		return -1;
+	} else if (major > effective[0]) {
+		return 1;
 	}
-		
-	return result;
+
+	if (minor < effective[1]) {
+		return -1;
+	} else if (minor > effective[1]) {
+		return 1;
+	}
+
+	if (micro < effective[2]) {
+		return -1;
+	} else if (micro > effective[2]) {
+		return 1;
+	}
+
+	return 0;
 }
 
 static void
@@ -99,13 +105,12 @@ dbus_migration_remove_autoload (void)
 			GSList *tmp = l->next;
 			enabled_plugins = g_slist_delete_link (enabled_plugins, l);
 			l = tmp;
-		}
-		else
+		} else {
 			l = l->next;
+		}
 	}
-	gconf_client_set_list (client, "/apps/xchat/plugins/loaded", GCONF_VALUE_STRING,
-				enabled_plugins, NULL);
-	
+	gconf_client_set_list (client, "/apps/xchat/plugins/loaded", GCONF_VALUE_STRING, enabled_plugins, NULL);
+
 	g_object_unref (client);
 }
 
@@ -115,8 +120,9 @@ dbus_migration_check_file (void)
 	gchar *msg;
 
 	msg = g_strdup_printf (_("The way the D-Bus plugin works has changed.\nTo avoid problems, you should remove the old plugin file.\n\n<b>Please delete %s</b>"), XCHATLIBDIR "/plugins/dbus.so");
-	if (g_file_test (XCHATLIBDIR "/plugins/dbus.so", G_FILE_TEST_EXISTS))
+	if (g_file_test (XCHATLIBDIR "/plugins/dbus.so", G_FILE_TEST_EXISTS)) {
 		error_dialog (_("D-Bus plugin is still installed"), msg);
+	}
 	g_free (msg);
 }
 

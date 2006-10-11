@@ -45,8 +45,9 @@ initialize_gui_1 (void)
 	path = locate_data_file ("xchat-gnome.glade");
 	gui.xml = glade_xml_new (path, NULL, NULL);
 	g_free (path);
-	if (!gui.xml)
+	if (!gui.xml) {
 		return FALSE;
+	}
 	return TRUE;
 }
 

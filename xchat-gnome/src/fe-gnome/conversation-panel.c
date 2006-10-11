@@ -168,7 +168,7 @@ struct _ConversationPanelPriv
 
 static GtkActionEntry url_actions[] = {
 	{ "TextURLOpen", GTK_STOCK_OPEN, N_("_Open Link in Browser"), NULL, NULL, G_CALLBACK (open_url) },
-        { "TextURLCopy", GTK_STOCK_COPY, N_("_Copy Link Location"),   NULL, NULL, G_CALLBACK (copy_text) },
+	{ "TextURLCopy", GTK_STOCK_COPY, N_("_Copy Link Location"),   NULL, NULL, G_CALLBACK (copy_text) },
 };
 
 static GtkActionEntry email_actions[] = {
@@ -296,8 +296,9 @@ conversation_panel_finalize (GObject *object)
 	g_hash_table_destroy (panel->priv->timestamp_notifies);
 	g_free (panel->priv);
 
-	if (G_OBJECT_CLASS (parent_class)->finalize)
+	if (G_OBJECT_CLASS (parent_class)->finalize) {
 		G_OBJECT_CLASS (parent_class)->finalize (object);
+	}
 }
 
 static void
@@ -306,8 +307,9 @@ conversation_panel_realize (GtkWidget *widget)
 	ConversationPanel *panel;
 	GConfClient       *client;
 
-	if (GTK_WIDGET_CLASS (parent_class)->realize)
+	if (GTK_WIDGET_CLASS (parent_class)->realize) {
 		GTK_WIDGET_CLASS (parent_class)->realize (widget);
+	}
 
 	panel  = CONVERSATION_PANEL (widget);
 	client = gconf_client_get_default ();
@@ -358,13 +360,15 @@ conversation_panel_check_word (GtkWidget *xtext, char *word, int len)
 	url = url_check_word (word, len);
 	if (url == 0 && current_sess) {
 		if (current_sess->type == SESS_DIALOG) {
-			if (strcmp (word, current_sess->channel) == 0)
+			if (strcmp (word, current_sess->channel) == 0) {
 				return WORD_NICK;
+			}
 			return WORD_DIALOG;
 		} else if (((word[0]=='@' || word[0]=='+') && userlist_find (current_sess, word+1)) ||
 			   userlist_find (current_sess, word)) {
-			if (strcmp (word, current_sess->server->nick) != 0)
+			if (strcmp (word, current_sess->server->nick) != 0) {
 				return WORD_NICK;
+			}
 		}
 	}
 	return url;
@@ -373,8 +377,9 @@ conversation_panel_check_word (GtkWidget *xtext, char *word, int len)
 static void
 conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, ConversationPanel *panel)
 {
-	if (word == NULL)
+	if (word == NULL) {
 		return;
+	}
 
 	if (event->button == 1) {
 		switch (conversation_panel_check_word (xtext, word, strlen (word))) {
@@ -393,13 +398,14 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 				struct session *sess;
 
 				if ((gui.current_session->type == SESS_DIALOG) &&
-				    (strcmp (gui.current_session->channel, word) == 0))
+				    (strcmp (gui.current_session->channel, word) == 0)) {
 					break;
+				}
 
 				sess = find_dialog (gui.current_session->server, word);
-				if (sess)
+				if (sess) {
 					navigation_tree_select_session (gui.server_tree, sess);
-				else {
+				} else {
 					command = g_strdup_printf ("QUERY %s", word);
 					handle_command (gui.current_session, command, 1);
 					g_free (command);
@@ -412,8 +418,9 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 				struct session *sess;
 
 				sess = find_channel (gui.current_session->server, word);
-				if (sess)
+				if (sess) {
 					navigation_tree_select_session (gui.server_tree, sess);
+				}
 				/* Having the channel opened doesn't mean that we're still on it
 				 * (if channel was left) */
 				command = g_strdup_printf ("JOIN %s", word);
@@ -448,8 +455,9 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 			{
 				GtkWidget *menu;
 				menu = gtk_ui_manager_get_widget (gui.manager, "/TextURLPopup");
-				if (panel->priv->selected_word)
+				if (panel->priv->selected_word) {
 					g_free (panel->priv->selected_word);
+				}
 				panel->priv->selected_word = g_strdup (word);
 				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, event->time);
 			}
@@ -459,8 +467,9 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 				struct User *user;
 				GtkWidget   *menu;
 
-				if (panel->priv->selected_word)
+				if (panel->priv->selected_word) {
 					g_free (panel->priv->selected_word);
+				}
 				panel->priv->selected_word = g_strdup (word);
 
 				if (gui.current_session->type == SESS_CHANNEL) {
@@ -486,8 +495,9 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 			{
 				GtkWidget *menu;
 				menu = gtk_ui_manager_get_widget (gui.manager, "/TextEmailPopup");
-				if (panel->priv->selected_word)
+				if (panel->priv->selected_word) {
 					g_free (panel->priv->selected_word);
+				}
 				panel->priv->selected_word = g_strdup (word);
 				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, event->time);
 			}
@@ -536,12 +546,11 @@ static void
 conversation_panel_enter_word (GtkWidget *xtext, char *word, ConversationPanel *panel)
 {
 	switch (conversation_panel_check_word (xtext, word, strlen (word))) {
-		case WORD_NICK:
-			{
-				panel->priv->tooltip_timeout =
-					g_timeout_add (500, (GSourceFunc) show_user_tooltip, word);
-				break;
-			}
+	case WORD_NICK:
+		{
+			panel->priv->tooltip_timeout = g_timeout_add (500, (GSourceFunc) show_user_tooltip, word);
+			break;
+		}
 	}
 }
 
@@ -563,11 +572,11 @@ static void
 conversation_panel_leave_word (GtkWidget *xtext, char *word, ConversationPanel *panel)
 {
 	switch (conversation_panel_check_word (xtext, word, strlen (word))) {
-		case WORD_NICK:
-			{
-				conversation_panel_remove_tooltip (panel);
-				break;
-			}
+	case WORD_NICK:
+		{
+			conversation_panel_remove_tooltip (panel);
+			break;
+		}
 	}
 }
 
@@ -586,13 +595,15 @@ conversation_panel_set_font (ConversationPanel *panel)
 	gchar       *font = NULL;
 
 	client = gconf_client_get_default ();
-	if (!gconf_client_get_bool(client, "/apps/xchat/main_window/use_sys_fonts", NULL))
+	if (!gconf_client_get_bool(client, "/apps/xchat/main_window/use_sys_fonts", NULL)) {
 		font = gconf_client_get_string (client, "/apps/xchat/main_window/font", NULL);
+	}
 
 	/* Either use_sys_fonts==TRUE, or there is no current font preference.
 	 * In both cases we try the GNOME monospace font. */
-	if (font == NULL)
+	if (font == NULL) {
 		font = gconf_client_get_string (client, "/desktop/gnome/interface/monospace_font_name", NULL);
+	}
 
 	g_object_unref (client);
 
@@ -703,8 +714,9 @@ send_email (GtkAction *action, ConversationPanel *panel)
 static void
 drop_send_files  (GtkAction *action, ConversationPanel *panel)
 {
-	if (panel->priv->current->type != SESS_DIALOG)
+	if (panel->priv->current->type != SESS_DIALOG) {
 		return;
+	}
 	drop_send (panel);
 }
 
@@ -724,8 +736,9 @@ drop_paste_filename  (GtkAction *action, ConversationPanel *panel)
 
 	for (l = panel->priv->dropped_files; l != NULL; l = g_slist_next (l)) {
 		path = g_filename_from_uri (l->data, NULL, NULL);
-		if (path == NULL)
+		if (path == NULL) {
 			path = g_strdup (l->data);
+		}
 
 		if (txt == NULL) {
 			txt = g_strdup (path);
@@ -739,8 +752,9 @@ drop_paste_filename  (GtkAction *action, ConversationPanel *panel)
 		g_free (path);
 	}
 
-	if (panel->priv->current != NULL)
+	if (panel->priv->current != NULL) {
 		handle_multiline (panel->priv->current, txt, TRUE, FALSE);
+	}
 
 	g_free (txt);
 	free_dropped_files (panel);
@@ -1112,14 +1126,11 @@ conversation_panel_print_line (ConversationPanel *panel, xtext_buffer *buffer, g
 	if (tab && tab < (text + len)) {
 		leftlen = tab - text;
 
-		if(!panel->priv->redundant_nickstamps && strncmp (buffer->laststamp, text, leftlen) == 0)
-		{
+		if(!panel->priv->redundant_nickstamps && strncmp (buffer->laststamp, text, leftlen) == 0) {
 			text = tab+1;
 			len -= leftlen;
 			gtk_xtext_append_indent (buffer, 0, 0, text, len);
-		}
-		else
-		{
+		} else {
 			strncpy (buffer->laststamp, text, leftlen);
 			buffer->laststamp[leftlen]=0;
 			gtk_xtext_append_indent (buffer, text, leftlen, tab + 1, strlen (text) - leftlen - 1);
@@ -1227,10 +1238,12 @@ conversation_panel_page_up (ConversationPanel *panel)
 	adj = GTK_XTEXT (panel->priv->xtext)->adj;
 	end = adj->upper - adj->lower - adj->page_size;
 	value = adj->value - (adj->page_size - 1);
-	if (value < 0)
+	if (value < 0) {
 		value = 0;
-	if (value > end)
+	}
+	if (value > end) {
 		value = end;
+	}
 	gtk_adjustment_set_value (adj, value);
 }
 
@@ -1243,10 +1256,12 @@ conversation_panel_page_down (ConversationPanel *panel)
 	adj = GTK_XTEXT (panel->priv->xtext)->adj;
 	end = adj->upper - adj->lower - adj->page_size;
 	value = adj->value + (adj->page_size - 1);
-	if (value < 0)
+	if (value < 0) {
 		value = 0;
-	if (value > end)
+	}
+	if (value > end) {
 		value = end;
+	}
 	gtk_adjustment_set_value (adj, value);
 }
 
@@ -1280,10 +1295,12 @@ root_event_cb (GdkXEvent *xev, GdkEventProperty *event, ConversationPanel *panel
 	XEvent *xevent = (XEvent *)xev;
 
 	if (xevent->type == PropertyNotify) {
-		if (at == None)
+		if (at == None) {
 			at = XInternAtom (xevent->xproperty.display, "_XROOTPMAP_ID", True);
-		if (at == xevent->xproperty.atom)
+		}
+		if (at == xevent->xproperty.atom) {
 			redraw_transparency (panel);
+		}
 	}
 	return GDK_FILTER_CONTINUE;
 }

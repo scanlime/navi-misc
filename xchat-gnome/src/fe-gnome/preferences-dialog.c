@@ -103,8 +103,7 @@ preferences_response (GtkWidget *widget,
 		      gint response,
 		      PreferencesDialog *dialog)
 {
-	if (response == GTK_RESPONSE_HELP)
-	{
+	if (response == GTK_RESPONSE_HELP) {
 		/* FIXME */
 		return;
 	}
@@ -128,8 +127,9 @@ preferences_dialog_init (PreferencesDialog *p)
 	path = locate_data_file ("preferences-dialog.glade");
 	xml = glade_xml_new (path, "dialog", NULL);
 	g_free (path);
-	if (!xml)
+	if (!xml) {
 		return;
+	}
 
 #define GW(name) ((p->name) = glade_xml_get_widget (xml, #name))
 	GW(dialog);

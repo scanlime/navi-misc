@@ -57,18 +57,12 @@ static gboolean  opt_noplugins = FALSE;
 static gchar    *opt_cfgdir    = NULL;
 
 static GOptionEntry entries[] = {
-	{"cfgdir",	'd', 0, G_OPTION_ARG_FILENAME,	&opt_cfgdir,
-	 N_("Use directory instead of the default config dir"), "directory"},
-	{"no-auto",	'a', 0, G_OPTION_ARG_NONE,	&arg_dont_autoconnect,
-	 N_("Don't auto-connect to servers"), NULL},
-	{"no-plugins",	'n', 0, G_OPTION_ARG_NONE,	&opt_noplugins,
-	 N_("Don't auto-load plugins"), NULL},
-	{"url",		'u', 0, G_OPTION_ARG_STRING,	&arg_url,
-	 N_("Open an irc:// url"), "irc://server:port/channel"},
-	{"existing",	'e', 0, G_OPTION_ARG_NONE,	&arg_existing,
-	 N_("Open URL in an existing xchat-gnome instance"), NULL},
-	{"version",	'v', 0, G_OPTION_ARG_NONE,	&opt_version,
-	 N_("Show version information"), NULL},
+	{"cfgdir",     'd', 0, G_OPTION_ARG_FILENAME, &opt_cfgdir,           N_("Use directory instead of the default config dir"), "directory"},
+	{"no-auto",    'a', 0, G_OPTION_ARG_NONE,     &arg_dont_autoconnect, N_("Don't auto-connect to servers"),                   NULL},
+	{"no-plugins", 'n', 0, G_OPTION_ARG_NONE,     &opt_noplugins,        N_("Don't auto-load plugins"),                         NULL},
+	{"url",        'u', 0, G_OPTION_ARG_STRING,   &arg_url,              N_("Open an irc:// url"),                              "irc://server:port/channel"},
+	{"existing",   'e', 0, G_OPTION_ARG_NONE,     &arg_existing,         N_("Open URL in an existing xchat-gnome instance"),    NULL},
+	{"version",    'v', 0, G_OPTION_ARG_NONE,     &opt_version,          N_("Show version information"),                        NULL},
 	{ NULL }
 };
 
@@ -133,8 +127,9 @@ fe_args (int argc, char *argv[])
 		return 0;
 	}
 
-	if (opt_cfgdir)
+	if (opt_cfgdir) {
 		xdir_fs = opt_cfgdir;
+	}
 
 	setup_sm (argc, argv);
 
@@ -155,10 +150,11 @@ fe_init (void)
 	servlist_init ();
 	palette_init ();
 	run_migrations ();
-	if (!preferences_exist ())
+	if (!preferences_exist ()) {
 		run_setup_dialog ();
-	else
+	} else {
 		set_version ();
+	}
 	load_preferences ();
 	initialize_gui_1 ();
 	initialize_gui_2 ();
@@ -171,8 +167,9 @@ fe_init (void)
 	prefs.slist_skip = FALSE;
 
 	/* If we don't have a specific DCC IP address, force get-from-server */
-	if (strlen (prefs.dcc_ip_str) == 0)
+	if (strlen (prefs.dcc_ip_str) == 0) {
 		prefs.ip_from_server = TRUE;
+	}
 
 	/* Don't allow the core to autoload plugins. We use our own
 	 * method for autoloading.
@@ -206,8 +203,9 @@ fe_main (void)
 	/* FIXME: this is a crappy hack copied from fe-gtk. There's got
 	 * to be a way to ensure that the quit messages get sent before
 	 * we finish */
-	if (prefs.wait_on_exit)
+	if (prefs.wait_on_exit) {
 		sleep (3);
+	}
 }
 
 void
@@ -255,8 +253,9 @@ fe_new_window (struct session *sess, int focus)
 		user = userlist_find_global (sess->server, sess->channel);
 
 		navigation_tree_create_new_channel_entry (gui.server_tree, sess, (gboolean) focus);
-		if (user)
+		if (user) {
 			topic_label_set_topic (TOPIC_LABEL (gui.topic_label), sess, user->hostname);
+		}
 	}
 #ifdef USE_PLUGIN
 	if (!(opt_noplugins || loaded)) {
@@ -292,12 +291,15 @@ fe_input_add (int sok, int flags, void *func, void *data)
 
 	channel = g_io_channel_unix_new (sok);
 
-	if (flags & FIA_READ)
+	if (flags & FIA_READ) {
 		type |= G_IO_IN | G_IO_HUP | G_IO_ERR;
-	if (flags & FIA_WRITE)
+	}
+	if (flags & FIA_WRITE) {
 		type |= G_IO_OUT | G_IO_ERR;
-	if (flags & FIA_EX)
+	}
+	if (flags & FIA_EX) {
 		type |= G_IO_PRI;
+	}
 
 	tag = g_io_add_watch (channel, type, (GIOFunc) func, data);
 	g_io_channel_unref (channel);
@@ -327,8 +329,9 @@ void
 fe_set_hilight (struct session *sess)
 {
 	navigation_model_set_hilight (gui.tree_model, sess);
-	if (!gtk_window_is_active (GTK_WINDOW (gui.main_window)))
+	if (!gtk_window_is_active (GTK_WINDOW (gui.main_window))) {
 		gtk_window_set_urgency_hint (GTK_WINDOW (gui.main_window), TRUE);
+	}
 }
 
 void
@@ -408,10 +411,11 @@ void
 fe_close_window (struct session *sess)
 {
 	if (!gui.quit) {
-		if (sess->type == SESS_CHANNEL)
+		if (sess->type == SESS_CHANNEL) {
 			navigation_tree_remove_channel (gui.server_tree, sess);
-		else
+		} else {
 			navigation_tree_remove_server (gui.server_tree, sess);
+		}
 	}
 
 	session_free (sess);
@@ -435,9 +439,11 @@ fe_print_text (struct session *sess, char *text)
 	conversation_panel_print (CONVERSATION_PANEL (gui.conversation_panel), sess, text, prefs.indent_nicks);
 	sess->new_data = TRUE;
 	navigation_model_set_hilight (gui.tree_model, sess);
-	if (sess->nick_said)
-		if (!gtk_window_is_active (GTK_WINDOW (gui.main_window)))
+	if (sess->nick_said) {
+		if (!gtk_window_is_active (GTK_WINDOW (gui.main_window))) {
 			gtk_window_set_urgency_hint (GTK_WINDOW (gui.main_window), TRUE);
+		}
+	}
 }
 
 void
@@ -494,8 +500,8 @@ fe_dcc_add (struct DCC *dcc)
 			                       _("_Accept"),
 			                       GTK_RESPONSE_ACCEPT);
 			gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-				_("%s is attempting to create a direct chat. Do you wish to accept the connection?"),
-				dcc->nick);
+			                                          _("%s is attempting to create a direct chat. Do you wish to accept the connection?"),
+			                                          dcc->nick);
 
 			response = gtk_dialog_run (GTK_DIALOG (dialog));
 			if (response == GTK_RESPONSE_ACCEPT) {
@@ -658,12 +664,14 @@ fe_set_lag (server *serv, int lag)
 	unsigned long now;
 	float seconds;
 
-	if (gui.quit)
+	if (gui.quit) {
 		return;
+	}
 
 	if (lag == -1) {
-		if (!serv->lag_sent)
+		if (!serv->lag_sent) {
 			return;
+		}
 		now = make_ping_time ();
 		seconds = (now - serv->lag_sent) / 1000000.0f;
 	} else {
@@ -676,8 +684,9 @@ fe_set_lag (server *serv, int lag)
 void
 fe_set_throttle (server * serv)
 {
-	if (gui.quit)
+	if (gui.quit) {
 		return;
+	}
 
 	status_bar_set_queue (STATUS_BAR (gui.status_bar), serv, serv->sendq_len);
 }
@@ -732,10 +741,12 @@ fe_gui_info (session * sess, int info_type)
 {
 	switch (info_type) {
 	case 0:
-		if (!GTK_WIDGET_VISIBLE (GTK_WINDOW (gui.main_window)))
+		if (!GTK_WIDGET_VISIBLE (GTK_WINDOW (gui.main_window))) {
 			return 2;
-		if (gtk_window_is_active (GTK_WINDOW (gui.main_window)))
+		}
+		if (gtk_window_is_active (GTK_WINDOW (gui.main_window))) {
 			return 1;
+		}
 		return 0;
 		break;
 	}
@@ -958,11 +969,12 @@ fe_server_event (server *serv, int type, int arg)
 		sess = list->data;
 		if (sess->server == serv) {
 			switch (type) {
-				case FE_SE_LOGGEDIN:
-					if (arg == 0)
-						/* No auto-join channels */
-						create_channel_list (sess);
+			case FE_SE_LOGGEDIN:
+				if (arg == 0) {
+					/* No auto-join channels */
+					create_channel_list (sess);
 					break;
+				}
 			}
 		}
 		list = list->next;
@@ -1030,13 +1042,15 @@ not_autoconnect (void)
 {
 	GSList *i;
 
-	if (arg_dont_autoconnect)
+	if (arg_dont_autoconnect) {
 		return TRUE;
+	}
 
 	for (i = network_list; i; i = g_slist_next (i)) {
 		ircnet *net = (ircnet *) (i->data);
-		if (net->flags & FLAG_AUTO_CONNECT)
+		if (net->flags & FLAG_AUTO_CONNECT) {
 			return FALSE;
+		}
 	}
 
 	return TRUE;

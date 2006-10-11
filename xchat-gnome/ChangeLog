@@ -1,3 +1,27 @@
+2006-10-10  David Trowbridge  <trowbrds@gmail.com>
+
+	* /src/fe-gnome/palette.c:
+	* /fe-gnome/preferences.c:
+	* /fe-gnome/conversation-panel.c:
+	* /fe-gnome/main-window.c:
+	* /fe-gnome/migration.c:
+	* /fe-gnome/fe-gnome.c:
+	* /fe-gnome/preferences-dialog.c:
+	* /fe-gnome/irc-network.c:
+	* /fe-gnome/gui.c:
+	* /fe-gnome/about.c:
+	* /fe-gnome/find-bar.c:
+	* /fe-gnome/connect-dialog.c:
+	* /fe-gnome/irc-network-editor.c:
+	* /fe-gnome/dcc-window.c:
+	* /fe-gnome/channel-list.c:
+	* /fe-gnome/navigation-tree.c:
+	  - Lots of ws nitpicking.
+
+	* /fe-gnome/xtext.c:
+	  - Remove the selection when a single click without any motion in the
+	    text area is performed. (#357232)
+
 2006-10-08  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/fe-gnome/navigation-tree.c:

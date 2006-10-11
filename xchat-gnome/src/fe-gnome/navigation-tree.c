@@ -296,14 +296,12 @@ navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess
 
 		topic_label_set_current (TOPIC_LABEL (gui.topic_label), sess);
 		net = sess->server->network;
-		if (net == NULL)
-			rename_main_window (NULL, sess->channel);
-		else
-			rename_main_window (net->name, sess->channel);
+		rename_main_window (net == NULL ? NULL : net->name, sess->channel);
 
 		button = glade_xml_get_widget (gui.xml, "close discussion");
-		if (sess->type == SESS_CHANNEL)
+		if (sess->type == SESS_CHANNEL) {
 			gtk_widget_set_sensitive (button, TRUE);
+		}
 
 		action = gtk_action_group_get_action (gui.action_group, "DiscussionChangeTopic");
 		gtk_action_set_sensitive (action, sess->type == SESS_CHANNEL);
@@ -617,8 +615,8 @@ navigation_tree_select_prev_channel (NavTree *navtree)
 		/* If a channel is selected... */
 		if (!gtk_tree_path_prev (path)) {
 			/* If it's the first channel on the server, pretend we've got
-		 	 * that server selected.
-		 	 */
+			 * that server selected.
+			 */
 			depth = 1;
 			gtk_tree_path_up (path);
 		}
@@ -760,8 +758,9 @@ navigation_tree_select_prev_network (NavTree *navtree)
 		GtkTreeIter current, previous;
 		gtk_tree_model_get_iter_first (model, &current);
 		previous = current;
-		while (gtk_tree_model_iter_next (model, &current))
+		while (gtk_tree_model_iter_next (model, &current)) {
 			previous = current;
+		}
 		/* Free the old path and set it to the iter that points to the last entry. */
 		gtk_tree_path_free (path);
 		path = gtk_tree_model_get_path (model, &previous);
@@ -786,8 +785,9 @@ navigation_tree_get_selected_session (gboolean *connected)
 	select = gtk_tree_view_get_selection (treeview);
 	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
 		gtk_tree_model_get (model, &iter, 2, &s, 6, &temp, -1);
-		if (connected)
+		if (connected) {
 			*connected = temp;
+		}
 		return s;
 	}
 	return NULL;
@@ -796,9 +796,9 @@ navigation_tree_get_selected_session (gboolean *connected)
 static void
 navigation_tree_update_refs (NavTree *navtree)
 {
-	GtkTreeModel*	model = GTK_TREE_MODEL (navtree->model->sorted);
-	GtkTreeIter	iter;
-	GtkTreePath*	path;
+	GtkTreeModel* model = GTK_TREE_MODEL (navtree->model->sorted);
+	GtkTreeIter   iter;
+	GtkTreePath*  path;
 
 	/* If there is nothing in the tree, set the references to NULL. */
 	if (!gtk_tree_model_get_iter_first (model, &iter)) {
@@ -810,26 +810,29 @@ navigation_tree_update_refs (NavTree *navtree)
 	path = gtk_tree_path_new_first ();
 
 	/*** Find the last network in the treeview. ***/
-	if (navtree->last_server)
+	if (navtree->last_server) {
 		/* Free the current reference if there is one. */
 		gtk_tree_row_reference_free (navtree->last_server);
+	}
 
 	/* Find the last server. */
-	while (gtk_tree_model_iter_next (model, &iter))
+	while (gtk_tree_model_iter_next (model, &iter)) {
 		gtk_tree_path_next (path);
+	}
 
 	/* Set the reference. */
 	navtree->last_server = gtk_tree_row_reference_new (model, path);
 
 	/*** Find the last visible channel in the treeview. ***/
 
-	if (navtree->last_channel)
+	if (navtree->last_channel) {
 		/* Free the current reference if there is one. */
 		gtk_tree_row_reference_free (navtree->last_channel);
+	}
 
 	/* Find the server furthest down the list with visible children. */
 	do {
-		gint	children = 0;
+		gint children = 0;
 
 		gtk_tree_model_get_iter (model, &iter, path);
 		children = gtk_tree_model_iter_n_children (model, &iter);
@@ -843,16 +846,17 @@ navigation_tree_update_refs (NavTree *navtree)
 		}
 	} while (gtk_tree_path_prev (path));
 
-	if (gtk_tree_path_get_depth (path) == 1)
+	if (gtk_tree_path_get_depth (path) == 1) {
 		/* If the path is still pointing to servers, we must not be
 		 * connected to any channels. Set this reference to NULL.
 		 */
 		navtree->last_channel = NULL;
-	else
+	} else {
 		/* At this point, path refers to the last channel in the
 		 * treeview.
 		 */
 		navtree->last_channel = gtk_tree_row_reference_new (model, path);
+	}
 
 	gtk_tree_path_free (path);
 }
@@ -868,9 +872,9 @@ navigation_tree_set_channel_name_iterate (GtkTreeModel *model, GtkTreePath *path
 		struct session *sess = s;
 		gtk_tree_store_set (GTK_TREE_STORE (model), iter,
 		                    COLUMN_NAME,      (sess->channel),
-				    COLUMN_COLOR,     NULL,
-				    COLUMN_CONNECTED, TRUE,
-				    -1);
+		                    COLUMN_COLOR,     NULL,
+		                    COLUMN_CONNECTED, TRUE,
+		                    -1);
 		return TRUE;
 	}
 	return FALSE;
@@ -950,10 +954,11 @@ server_context (GtkWidget *treeview, session *selected)
 		/* check if the network is in the auto-connect list */
 		action = gtk_action_group_get_action (navtree->action_group, "ServerAutoConnect");
 		gtk_action_set_sensitive (action, TRUE);
-		if (((ircnet *)selected->server->network)->flags & FLAG_AUTO_CONNECT)
+		if (((ircnet *)selected->server->network)->flags & FLAG_AUTO_CONNECT) {
 			gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), TRUE);
-		else
+		} else {
 			gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), FALSE);
+		}
 	}
 	return menu;
 }
@@ -981,10 +986,11 @@ channel_context (GtkWidget *treeview, session *selected)
 		gtk_action_set_sensitive (action, FALSE);
 	} else {
 		gtk_action_set_sensitive (action, TRUE);
-		if (channel_is_autojoin (network, selected->channel))
+		if (channel_is_autojoin (network, selected->channel)) {
 			gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), TRUE);
-		else
+		} else {
 			gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), FALSE);
+		}
 	}
 
 	return menu;
@@ -1010,8 +1016,9 @@ show_context_menu (GtkWidget *treeview, GdkEventButton *event)
 	GtkWidget *menu;
 	session *s;
 
-	if (NAVTREE (treeview)->current_rowref == NULL)
+	if (NAVTREE (treeview)->current_rowref == NULL) {
 		return;
+	}
 
 	model = gtk_tree_row_reference_get_model (NAVTREE (treeview)->current_rowref);
 	path = gtk_tree_row_reference_get_path (NAVTREE (treeview)->current_rowref);
@@ -1019,19 +1026,20 @@ show_context_menu (GtkWidget *treeview, GdkEventButton *event)
 	gtk_tree_path_free(path);
 	gtk_tree_model_get (model, &iter, 2, &s, -1);
 
-	if (s == NULL)
+	if (s == NULL) {
 		return;
+	}
 
 	menu = navigation_context (treeview, s); /* FIXME */	
 	g_return_if_fail (menu != NULL);
 
 	if (event != NULL) {
 		gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL,
-				event->button, event->time);
+		                event->button, event->time);
 	} else {
 		gtk_menu_popup (GTK_MENU (menu), NULL, NULL,
-				menu_position_under_tree_view, treeview,
-				0, gtk_get_current_event_time ());
+		                menu_position_under_tree_view, treeview,
+		                0, gtk_get_current_event_time ());
 
 		gtk_menu_shell_select_first (GTK_MENU_SHELL (menu), FALSE);
 	}
@@ -1044,12 +1052,14 @@ click (GtkWidget *treeview, GdkEventButton *event, gpointer data)
 	GtkTreePath *path;
 	GtkTreeSelection *select;
 
-	if (!event)
+	if (!event) {
 		return FALSE;
+	}
 
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
-	if (gtk_tree_selection_get_selected (select, NULL, NULL) == FALSE)
+	if (gtk_tree_selection_get_selected (select, NULL, NULL) == FALSE) {
 		return FALSE;
+	}
 
 	if (event->button == 3) {
 		if (gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (treeview), event->x, event->y, &path, 0, 0, 0)) {
@@ -1138,7 +1148,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, NavTree *navtree)
 
 		/* Change the model in the userlist to the one for this session. */
 		gtk_tree_view_set_model (GTK_TREE_VIEW (gui.userlist),
-				         GTK_TREE_MODEL (userlist_get_store (u, sess)));
+		                         GTK_TREE_MODEL (userlist_get_store (u, sess)));
 
 		/* Set our nick. */
 		set_nickname (sess->server, NULL);
@@ -1173,8 +1183,8 @@ navigation_selection_changed (GtkTreeSelection *treeselection, NavTree *navtree)
 		gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &newiter, &iter);
 		gtk_tree_store_set (GTK_TREE_STORE (store), &newiter,
 		                    COLUMN_PIXBUF, NULL,
-				    COLUMN_STATUS, 0,
-				    -1);
+		                    COLUMN_STATUS, 0,
+		                    -1);
 
 		conversation_panel_set_current (CONVERSATION_PANEL (gui.conversation_panel), sess);
 		topic_label_set_current        (TOPIC_LABEL        (gui.topic_label),        sess);
@@ -1240,13 +1250,13 @@ navigation_model_get_type (void)
 	if (!navigation_model_type) {
 		static const GTypeInfo navigation_model_info = {
 			sizeof (NavTreeClass),
-			NULL,		/* base init. */
-			NULL,		/* base finalize. */
+			NULL, /* base init. */
+			NULL, /* base finalize. */
 			(GClassInitFunc) navigation_model_class_init,
-			NULL,		/* class_finalize. */
-			NULL,		/* class_data. */
+			NULL, /* class_finalize. */
+			NULL, /* class_data. */
 			sizeof (NavModel),
-			0,			/* n_preallocs. */
+			0, /* n_preallocs. */
 			(GInstanceInitFunc) navigation_model_init,
 		};
 
@@ -1325,12 +1335,12 @@ navigation_model_add_new_network (NavModel *model, struct session *sess)
 	/* Add the new server to the model. By default connected is false. */
 	gtk_tree_store_set (model->store, &iter,
 	                    COLUMN_NAME,      _("<none>"),
-			    COLUMN_SESSION,   sess,
-			    COLUMN_STATUS,    0,
-			    COLUMN_COLOR,     NULL,
-			    COLUMN_REFCOUNT,  0,
-			    COLUMN_CONNECTED, FALSE,
-			    -1);
+	                    COLUMN_SESSION,   sess,
+	                    COLUMN_STATUS,    0,
+	                    COLUMN_COLOR,     NULL,
+	                    COLUMN_REFCOUNT,  0,
+	                    COLUMN_CONNECTED, FALSE,
+	                    -1);
 
 	/* Insert a row reference to the new entry in the unsorted store in the
 	 * hash table. This allows us to look up entries in the navigation model
@@ -1360,12 +1370,12 @@ navigation_model_create_new_channel_entry_iterate (GtkTreeModel *model, GtkTreeP
 		/* Add the new channel to the store. By default connected is true. */
 		gtk_tree_store_set (GTK_TREE_STORE (model), &child,
 		                    COLUMN_NAME,      data->channel,
-				    COLUMN_SESSION,   data,
-				    COLUMN_STATUS,    0,
-				    COLUMN_COLOR,     NULL,
-				    COLUMN_REFCOUNT,  0,
-				    COLUMN_CONNECTED, TRUE,
-				    -1);
+		                    COLUMN_SESSION,   data,
+		                    COLUMN_STATUS,    0,
+		                    COLUMN_COLOR,     NULL,
+		                    COLUMN_REFCOUNT,  0,
+		                    COLUMN_CONNECTED, TRUE,
+		                    -1);
 
 		path = gtk_tree_model_get_path (model, &child);
 		rowref = gtk_tree_row_reference_new (model, path);
@@ -1393,8 +1403,9 @@ navigation_model_remove (NavModel *model, struct session *sess)
 	GtkTreeIter *iter = navigation_model_get_unsorted_iter (model, sess);
 	GtkTreePath *path = gtk_tree_model_get_path (GTK_TREE_MODEL (model->store), iter);
 
-	if (gtk_tree_path_get_depth (path) == 1)
+	if (gtk_tree_path_get_depth (path) == 1) {
 		model->servers--;
+	}
 
 	gtk_tree_store_remove (model->store, iter);
 
@@ -1446,8 +1457,8 @@ navigation_model_set_disconn_iterate (GtkTreeModel * model, GtkTreePath * path, 
 		/* Change the color and set connected to false. */
 		gtk_tree_store_set (GTK_TREE_STORE (model), iter,
 		                    COLUMN_COLOR,     &colors[40],
-				    COLUMN_CONNECTED, FALSE,
-				    -1);
+		                    COLUMN_CONNECTED, FALSE,
+		                    -1);
 		return TRUE;
 	}
 	return FALSE;
@@ -1473,28 +1484,28 @@ navigation_model_set_hilight_iterate (GtkTreeModel * model, GtkTreePath * path, 
 		if (sess->nick_said) {
 			gtk_tree_store_set (GTK_TREE_STORE (model), iter,
 			                    COLUMN_PIXBUF, pix_nicksaid,
-					    COLUMN_STATUS, 3,
-					    -1);
+			                    COLUMN_STATUS, 3,
+			                    -1);
 			return TRUE;
 		}
 		if (sess->msg_said && e < 2) {
 			if (sess->type != SESS_DIALOG)
 				gtk_tree_store_set (GTK_TREE_STORE (model), iter,
 				                    COLUMN_PIXBUF, pix_msgsaid,
-						    COLUMN_STATUS, 2,
-						    -1);
+				                    COLUMN_STATUS, 2,
+				                    -1);
 			else
 				gtk_tree_store_set (GTK_TREE_STORE (model), iter,
 				                    COLUMN_PIXBUF, pix_nicksaid,
-						    COLUMN_STATUS, 3,
-						    -1);
+				                    COLUMN_STATUS, 3,
+				                    -1);
 			return TRUE;
 		}
 		if (sess->new_data && e < 1) {
 			gtk_tree_store_set (GTK_TREE_STORE (model), iter,
 			                    COLUMN_PIXBUF, pix_newdata,
-					    COLUMN_STATUS, 1,
-					    -1);
+			                    COLUMN_STATUS, 1,
+			                    -1);
 			return TRUE;
 		}
 	}
@@ -1530,7 +1541,7 @@ navigation_model_rowref_ref (GtkTreeRowReference * rowref)
 	gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &childiter, &iter);
 	gtk_tree_store_set (GTK_TREE_STORE (childmodel), &childiter,
 	                    COLUMN_REFCOUNT, ref_count + 1,
-			    -1);
+	                    -1);
 	gtk_tree_path_free (path);
 }
 
@@ -1564,7 +1575,7 @@ navigation_model_rowref_deref (GtkTreeRowReference *rowref)
 		gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &childiter, &iter);
 		gtk_tree_store_set (GTK_TREE_STORE (childmodel), &childiter,
 		                    COLUMN_REFCOUNT, ref_count - 1,
-				    -1);
+		                    -1);
 	}
 
 	gtk_tree_path_free (path);
@@ -1580,7 +1591,7 @@ navigation_model_sorted_iter_ref (NavModel * model, GtkTreeIter * iter)
 
 	gtk_tree_store_set (model->store, &unsorted,
 	                    COLUMN_REFCOUNT, ref_count + 1,
-			    -1);
+	                    -1);
 }
 
 void
@@ -1592,10 +1603,11 @@ navigation_model_sorted_iter_unref (NavModel * model, GtkTreeIter * iter)
 	gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model->sorted), &unsorted, iter);
 	gtk_tree_model_get (model->sorted, iter, 5, &ref_count, -1);
 
-	if (ref_count > 0)
+	if (ref_count > 0) {
 		gtk_tree_store_set (model->store, &unsorted,
 		                    COLUMN_REFCOUNT, ref_count - 1,
-				    -1);
+		                    -1);
+	}
 }
 
 struct server *
@@ -1605,18 +1617,21 @@ navigation_model_get_server (NavModel *model, ircnet *network)
 	struct server *serv;
 	GtkTreeIter iter;
 
-	if (model == NULL || network == NULL)
+	if (model == NULL || network == NULL) {
 		return NULL;
+	}
 
-	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (model->store), &iter) == FALSE)
+	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (model->store), &iter) == FALSE) {
 		return NULL;
+	}
 
 	do {
 		gtk_tree_model_get (GTK_TREE_MODEL (model->store), &iter, 2, &sess, -1);
 		if (sess) {
 			serv = sess->server;
-			if (serv && serv->network == network)
+			if (serv && serv->network == network) {
 				return serv;
+			}
 		}
 	} while (gtk_tree_model_iter_next (GTK_TREE_MODEL (model->store), &iter));
 	return NULL;
@@ -1633,8 +1648,9 @@ on_server_reconnect (GtkAction * action, gpointer data)
 	session *s;
 
 	s = navigation_tree_get_selected_session (NULL);
-	if (s)
+	if (s) {
 		s->server->auto_reconnect (s->server, FALSE, -1);
+	}
 }
 
 static void
@@ -1650,8 +1666,9 @@ on_server_disconnect (GtkAction * action, gpointer data)
 
 	treeview = GTK_TREE_VIEW (gui.server_tree);
 	select = gtk_tree_view_get_selection (treeview);
-	if (!gtk_tree_selection_get_selected (select, &model, &iter))
+	if (!gtk_tree_selection_get_selected (select, &model, &iter)) {
 		return;
+	}
 
 	gtk_tree_model_get (model, &iter, 2, &s, -1);
 	if (s) {
@@ -1667,7 +1684,7 @@ on_server_disconnect (GtkAction * action, gpointer data)
 	gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &newiter, &iter);
 	gtk_tree_store_set (GTK_TREE_STORE (store), &newiter,
 	                    COLUMN_CONNECTED, FALSE,
-			    -1);
+	                    -1);
 }
 
 static void
@@ -1676,8 +1693,9 @@ on_server_channel_list (GtkAction * action, gpointer data)
 	session *s;
 
 	s = navigation_tree_get_selected_session (NULL);
-	if (s)
+	if (s) {
 		create_channel_list (s);
+	}
 }
 
 static void
@@ -1748,8 +1766,8 @@ on_channel_leave (GtkAction * action, gpointer data)
 		gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &newiter, &iter);
 		gtk_tree_store_set (GTK_TREE_STORE (store), &newiter,
 		                    COLUMN_COLOR,     &colors[40],
-				    COLUMN_CONNECTED, FALSE,
-				    -1);
+		                    COLUMN_CONNECTED, FALSE,
+		                    -1);
 	}
 }
 
@@ -1845,9 +1863,9 @@ on_channel_autojoin (GtkAction *action, gpointer data)
 
 			for (i=0; channels[i]; i++) {
 				if (strcmp (channels[i], sess->channel) != 0) {
-					if (new_channels == NULL)
+					if (new_channels == NULL) {
 						new_channels = g_strdup (channels[i]);
-					else {
+					} else {
 						tmp = new_channels;
 						new_channels = g_strdup_printf ("%s,%s", new_channels, channels[i]);
 						g_free (tmp);
@@ -1861,21 +1879,21 @@ on_channel_autojoin (GtkAction *action, gpointer data)
 							new_keys = g_strdup_printf ("%s,%s", new_keys, keys[i]);
 							g_free (tmp);
 						}
-					}
-					else
+					} else {
 						keys_done = TRUE;
-				}
-				else if (!keys_done && !keys[i])
+					}
+				} else if (!keys_done && !keys[i]) {
 					keys_done = TRUE;
+				}
 			}
 
 			if (new_keys) {
 				network->autojoin = g_strdup_printf ("%s %s", new_channels, new_keys);
 				g_free (new_channels);
 				g_free (new_keys);
-			}
-			else
+			} else {
 				network->autojoin = new_channels;
+			}
 
 			servlist_save ();
 			g_strfreev (channels);
@@ -1887,23 +1905,25 @@ on_channel_autojoin (GtkAction *action, gpointer data)
 			/* FIXME: we should save the key of the channel is there is one */
 			if (network->autojoin == NULL) {
 				network->autojoin = g_strdup (sess->channel);
-			}
-			else {
+			} else {
 				autojoins = g_strsplit (network->autojoin, " ", 0);
 				tmp = network->autojoin;
 
-				if (autojoins[1])
+				if (autojoins[1]) {
 					network->autojoin = g_strdup_printf ("%s,%s %s", autojoins[0], sess->channel, autojoins[1]);
-				else
+				} else {
 					network->autojoin = g_strdup_printf ("%s,%s", autojoins[0], sess->channel);
+				}
 
 				g_free (tmp);
 			}
 
 			servlist_save ();
 		}
-		
-		if (autojoins) g_strfreev (autojoins);
+
+		if (autojoins) {
+			g_strfreev (autojoins);
+		}
 	}
 }
 
@@ -1918,9 +1938,11 @@ channel_is_autojoin (ircnet *network, gchar *chan)
 
 	autojoin = g_strsplit (network->autojoin, " ", 0);
 	channels = g_strsplit (autojoin[0], ",", 0);
-	for (i=0; channels[i] && !find; i++)
-		if (!strcmp (channels[i], chan))
+	for (i=0; channels[i] && !find; i++) {
+		if (!strcmp (channels[i], chan)) {
 			find = TRUE;
+		}
+	}
 
 	g_strfreev (autojoin);
 	g_strfreev (channels);

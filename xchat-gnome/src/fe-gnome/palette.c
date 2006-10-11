@@ -410,7 +410,7 @@ distance (float La, float aa, float ba, float Lb, float ab, float bb)
 
 /*
  * This optimizes the palette for the current background color.  It does this
- * by defining colors not as a specific point but as a region in HSV space,
+ * by defining colors not as a specific point but as a region in L*a*b* space,
  * and then choosing the corner of that region which is "furthest" from the
  * background color by a sort of distance metric which is biased for maximum
  * contrast.  This makes it so things are generally readable, no matter what
