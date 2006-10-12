@@ -403,7 +403,7 @@ ban (session * sess, char *tbuf, char *mask, char *bantypestr, int deop)
 	{
 		if (deop)
 		{
-			mode = "-o+b";
+			mode = "-o+b ";
 			p2 = user->nick;
 		} else
 		{
@@ -465,19 +465,19 @@ ban (session * sess, char *tbuf, char *mask, char *bantypestr, int deop)
 			switch (bantype)
 			{
 			case 0:
-				snprintf (tbuf, TBUFSIZE, "%s %s *!*@%s.*", mode, p2, domain);
+				snprintf (tbuf, TBUFSIZE, "%s%s *!*@%s.*", mode, p2, domain);
 				break;
 
 			case 1:
-				snprintf (tbuf, TBUFSIZE, "%s %s *!*@%s", mode, p2, fullhost);
+				snprintf (tbuf, TBUFSIZE, "%s%s *!*@%s", mode, p2, fullhost);
 				break;
 
 			case 2:
-				snprintf (tbuf, TBUFSIZE, "%s %s *!%s@%s.*", mode, p2, username, domain);
+				snprintf (tbuf, TBUFSIZE, "%s%s *!%s@%s.*", mode, p2, username, domain);
 				break;
 
 			case 3:
-				snprintf (tbuf, TBUFSIZE, "%s %s *!%s@%s", mode, p2, username, fullhost);
+				snprintf (tbuf, TBUFSIZE, "%s%s *!%s@%s", mode, p2, username, fullhost);
 				break;
 			}
 		} else
@@ -485,19 +485,19 @@ ban (session * sess, char *tbuf, char *mask, char *bantypestr, int deop)
 			switch (bantype)
 			{
 			case 0:
-				snprintf (tbuf, TBUFSIZE, "%s %s *!*@*%s", mode, p2, domain);
+				snprintf (tbuf, TBUFSIZE, "%s%s *!*@*%s", mode, p2, domain);
 				break;
 
 			case 1:
-				snprintf (tbuf, TBUFSIZE, "%s %s *!*@%s", mode, p2, fullhost);
+				snprintf (tbuf, TBUFSIZE, "%s%s *!*@%s", mode, p2, fullhost);
 				break;
 
 			case 2:
-				snprintf (tbuf, TBUFSIZE, "%s %s *!%s@*%s", mode, p2, username, domain);
+				snprintf (tbuf, TBUFSIZE, "%s%s *!%s@*%s", mode, p2, username, domain);
 				break;
 
 			case 3:
-				snprintf (tbuf, TBUFSIZE, "%s %s *!%s@%s", mode, p2, username, fullhost);
+				snprintf (tbuf, TBUFSIZE, "%s%s *!%s@%s", mode, p2, username, fullhost);
 				break;
 			}
 		}
@@ -1889,6 +1889,57 @@ cmd_getint (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 }
 
 static void
+get_file_cb (char *cmd, char *file)
+{
+	char buf[1024 + 128];
+
+	/* execute the command once per file, then once more with
+      no args */
+	if (file)
+	{
+		snprintf (buf, sizeof (buf), "%s %s", cmd, file);
+		handle_command (current_sess, buf, FALSE);
+	}
+	else
+	{
+		handle_command (current_sess, cmd, FALSE);
+		free (cmd);
+	}
+}
+
+static int
+cmd_getfile (struct session *sess, char *tbuf, char *word[], char *word_eol[])
+{
+	int idx = 2;
+	int flags = 0;
+
+	if (!word[3][0])
+		return FALSE;
+
+	if (!strcmp (word[2], "-folder"))
+	{
+		flags |= FRF_CHOOSEFOLDER;
+		idx++;
+	}
+
+	if (!strcmp (word[idx], "-multi"))
+	{
+		flags |= FRF_MULTIPLE;
+		idx++;
+	}
+
+	if (!strcmp (word[idx], "-save"))
+	{
+		flags |= FRF_WRITE;
+		idx++;
+	}
+
+	fe_get_file (word[idx+1], word[idx+2], (void *)get_file_cb, strdup (word[idx]), flags);
+
+	return TRUE;
+}
+
+static void
 get_str_cb (int cancel, char *val, getvalinfo *info)
 {
 	char buf[512];
@@ -1972,6 +2023,9 @@ show_help_line (session *sess, help_list *hl, char *name, char *usage)
 {
 	int j, len, max;
 	char *p;
+
+	if (name[0] == '.')	/* hidden command? */
+		return;
 
 	if (hl->longfmt)	/* long format for /HELP -l */
 	{
@@ -2253,7 +2307,7 @@ cmd_lagcheck (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 }
 
 static void
-lastlog (session *sess, char *search)
+lastlog (session *sess, char *search, gboolean regexp)
 {
 	session *lastlog_sess;
 
@@ -2263,11 +2317,12 @@ lastlog (session *sess, char *search)
 	lastlog_sess = find_dialog (sess->server, "(lastlog)");
 	if (!lastlog_sess)
 		lastlog_sess = new_ircwindow (sess->server, "(lastlog)", SESS_DIALOG, 0);
+
 	lastlog_sess->lastlog_sess = sess;
+	lastlog_sess->lastlog_regexp = regexp;	/* remember the search type */
 
 	fe_text_clear (lastlog_sess);
-
-	fe_lastlog (sess, lastlog_sess, search);
+	fe_lastlog (sess, lastlog_sess, search, regexp);
 }
 
 static int
@@ -2275,7 +2330,10 @@ cmd_lastlog (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 {
 	if (*word_eol[2])
 	{
-		lastlog (sess, word_eol[2]);
+		if (!strcmp (word[2], "-r"))
+			lastlog (sess, word_eol[3], TRUE);
+		else
+			lastlog (sess, word_eol[2], FALSE);
 		return TRUE;
 	}
 
@@ -2569,9 +2627,16 @@ static int
 cmd_notify (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 {
 	int i = 1;
+	char *net = NULL;
 
 	if (*word[2])
 	{
+		if (strcmp (word[2], "-n") == 0)	/* comma sep network list */
+		{
+			net = word[3];
+			i += 2;
+		}
+
 		while (1)
 		{
 			i++;
@@ -2582,7 +2647,7 @@ cmd_notify (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 				EMIT_SIGNAL (XP_TE_DELNOTIFY, sess, word[i], NULL, NULL, NULL, 0);
 				return TRUE;
 			}
-			notify_adduser (word[i]);
+			notify_adduser (word[i], net);
 			EMIT_SIGNAL (XP_TE_ADDNOTIFY, sess, word[i], NULL, NULL, NULL, 0);
 		}
 	} else
@@ -3387,6 +3452,7 @@ const struct commands xc_cmds[] = {
 	{"GATE", cmd_gate, 0, 0, 1,
 	 N_("GATE <host> [<port>], proxies through a host, port defaults to 23")},
 	{"GETINT", cmd_getint, 0, 0, 1, "GETINT <default> <command> <prompt>"},
+	{"GETFILE", cmd_getfile, 0, 0, 1, "GETFILE [-folder] [-multi] [-save] <command> <title> [<initial>]"},
 	{"GETSTR", cmd_getstr, 0, 0, 1, "GETSTR <default> <command> <prompt>"},
 	{"GHOST", cmd_ghost, 1, 0, 1, N_("GHOST <nick> <password>, Kills a ghosted nickname")},
 	{"GUI", cmd_gui, 0, 0, 1, "GUI [ATTACH|DETACH|SHOW|HIDE|FOCUS|FLASH|ICONIFY|COLOR <n>]\n"
@@ -3441,7 +3507,7 @@ const struct commands xc_cmds[] = {
 	{"NOTICE", cmd_notice, 1, 0, 1,
 	 N_("NOTICE <nick/channel> <message>, sends a notice. Notices are a type of message that should be auto reacted to")},
 	{"NOTIFY", cmd_notify, 0, 0, 1,
-	 N_("NOTIFY [<nick>], lists your notify list or adds someone to it")},
+	 N_("NOTIFY [-n network1[,network2,...]] [<nick>], displays your notify list or adds someone to it")},
 	{"OP", cmd_op, 1, 1, 1,
 	 N_("OP <nick>, gives chanop status to the nick (needs chanop)")},
 	{"PART", cmd_part, 1, 1, 1,
@@ -3480,7 +3546,7 @@ const struct commands xc_cmds[] = {
 	{"SERVER", cmd_server, 0, 0, 1,
 	 N_("SERVER <host> [<port>] [<password>], connects to a server, the default port is 6667")},
 #endif
-	{"SET", cmd_set, 0, 0, 1, N_("SET [-quiet] <variable> [<value>]")},
+	{"SET", cmd_set, 0, 0, 1, N_("SET [-e] [-quiet] <variable> [<value>]")},
 	{"SETCURSOR", cmd_setcursor, 0, 0, 1, N_("SETCURSOR [-|+]<position>")},
 	{"SETTAB", cmd_settab, 0, 0, 1, 0},
 	{"SETTEXT", cmd_settext, 0, 0, 1, 0},
@@ -3556,8 +3622,8 @@ help (session *sess, char *tbuf, char *helpcmd, int quiet)
 
 int
 auto_insert (char *dest, int destlen, unsigned char *src, char *word[],
-				 char *word_eol[], char *a, char *c, char *d, char *h, char *n,
-				 char *s)
+				 char *word_eol[], char *a, char *c, char *d, char *e, char *h,
+				 char *n, char *s)
 {
 	int num;
 	char buf[32];
@@ -3638,6 +3704,8 @@ auto_insert (char *dest, int destlen, unsigned char *src, char *word[],
 					utf = c; break;
 				case 'd':
 					utf = d; break;
+				case 'e':
+					utf = e; break;
 				case 'h':
 					utf = h; break;
 				case 'm':
@@ -3868,8 +3936,9 @@ static void
 user_command (session * sess, char *tbuf, char *cmd, char *word[],
 				  char *word_eol[])
 {
-	if (!auto_insert (tbuf, 2048, cmd, word, word_eol, "",
-							sess->channel, "", "", sess->server->nick, ""))
+	if (!auto_insert (tbuf, 2048, cmd, word, word_eol, "", sess->channel, "",
+							server_get_network (sess->server, TRUE), "",
+							sess->server->nick, ""))
 	{
 		PrintText (sess, _("Bad arguments for user command.\n"));
 		return;
@@ -3895,7 +3964,7 @@ handle_say (session *sess, char *text, int check_spch)
 
 	if (strcmp (sess->channel, "(lastlog)") == 0)
 	{
-		lastlog (sess->lastlog_sess, text);
+		lastlog (sess->lastlog_sess, text, sess->lastlog_regexp);
 		return;
 	}
 

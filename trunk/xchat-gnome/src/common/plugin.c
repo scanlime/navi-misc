@@ -1211,7 +1211,7 @@ xchat_list_fields (xchat_plugin *ph, const char *name)
 	};
 	static const char * const notify_fields[] =
 	{
-		"iflags", "snick", "toff", "ton", "tseen", NULL
+		"iflags", "snetworks", "snick", "toff", "ton", "tseen", NULL
 	};
 	static const char * const users_fields[] =
 	{
@@ -1334,6 +1334,8 @@ xchat_list_str (xchat_plugin *ph, xchat_list *xlist, const char *name)
 	case LIST_NOTIFY:
 		switch (hash)
 		{
+		case 0x4e49ec05:	/* networks */
+			return ((struct notify *)data)->networks;
 		case 0x339763: /* nick */
 			return ((struct notify *)data)->name;
 		}
