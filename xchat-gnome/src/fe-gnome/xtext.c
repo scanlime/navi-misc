@@ -22,10 +22,6 @@
  */
 
 #define TINT_VALUE 195				/* 195/255 of the brightness. */
-#define MOTION_MONITOR				/* URL hilights. */
-#define SMOOTH_SCROLL				/* line-by-line or pixel scroll? */
-#define SCROLL_HACK					/* use XCopyArea scroll, or full redraw? */
-#undef COLOR_HILIGHT				/* Color instead of underline? */
 #define GDK_MULTIHEAD_SAFE
 #define USE_DB							/* double buffer */
 
@@ -73,12 +69,8 @@
 	(c == ' ' || c == '\n' || c == ')' || c == '(' || \
 	 c == '>' || c == '<' || c == ATTR_RESET || c == ATTR_BOLD || c == 0)
 
-#ifdef SCROLL_HACK
 /* force scrolling off */
 #define dontscroll(buf) (buf)->last_pixel_pos = 0x7fffffff
-#else /* SCROLL_HACK */
-#define dontscroll(buf)
-#endif /* SCROLL_HACK */
 
 static GtkWidgetClass *parent_class = NULL;
 
@@ -659,11 +651,7 @@ gtk_xtext_adjustment_timeout (GtkXText * xtext)
 static void
 gtk_xtext_adjustment_changed (GtkAdjustment * adj, GtkXText * xtext)
 {
-#ifdef SMOOTH_SCROLL
 	if (xtext->buffer->old_value != xtext->adj->value)
-#else /* SMOOTH_SCROLL */
-	if ((int) xtext->buffer->old_value != (int) xtext->adj->value)
-#endif /* SMOOTH_SCROLL */
 	{
 		if (xtext->adj->value >= xtext->adj->upper - xtext->adj->page_size)
 			xtext->buffer->scrollbar_down = TRUE;
@@ -853,13 +841,8 @@ gtk_xtext_realize (GtkWidget * widget)
 	attributes.wclass = GDK_INPUT_OUTPUT;
 	attributes.window_type = GDK_WINDOW_CHILD;
 	attributes.event_mask = gtk_widget_get_events (widget) |
-		GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
-		GDK_BUTTON1_MOTION_MASK
-#ifdef MOTION_MONITOR
-		| GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_LEAVE_NOTIFY_MASK;
-#else /* MOTION_MONITOR */
-		| GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK;
-#endif /* MOTION_MONITOR */
+		GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_BUTTON1_MOTION_MASK |
+		GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_LEAVE_NOTIFY_MASK;
 	
 	attributes.cursor = xtext->ibeam_cursor;
 
@@ -1714,8 +1697,6 @@ gtk_xtext_get_word (GtkXText * xtext, int x, int y, textentry ** ret_ent,
 	return gtk_xtext_strip_color (word, len, xtext->scratch_buffer, NULL, NULL);
 }
 
-#ifdef MOTION_MONITOR
-
 static void
 gtk_xtext_unrender_hilight (GtkXText *xtext)
 {
@@ -1760,8 +1741,6 @@ gtk_xtext_leave_notify (GtkWidget * widget, GdkEventCrossing * event)
 	return FALSE;
 }
 
-#endif /* MOTION_MONITOR */
-
 static gboolean
 gtk_xtext_motion_notify (GtkWidget * widget, GdkEventMotion * event)
 {
@@ -1804,7 +1783,6 @@ gtk_xtext_motion_notify (GtkWidget * widget, GdkEventMotion * event)
 		xtext->hilighting = TRUE;
 		return FALSE;
 	}
-#ifdef MOTION_MONITOR
 
 	if (xtext->separator && xtext->buffer->indent)
 	{
@@ -1883,8 +1861,6 @@ gtk_xtext_motion_notify (GtkWidget * widget, GdkEventMotion * event)
 
 	gtk_xtext_leave_notify (widget, NULL);
 
-#endif /* MOTION_MONITOR */
-
 	return FALSE;
 }
 
@@ -1934,6 +1910,8 @@ gtk_xtext_unselect (GtkXText *xtext)
 
 	xtext->buffer->last_ent_start = NULL;
 	xtext->buffer->last_ent_end = NULL;
+
+	gtk_clipboard_clear (gtk_widget_get_clipboard (GTK_WIDGET (xtext), GDK_SELECTION_PRIMARY));
 }
 
 static void
@@ -1945,8 +1923,9 @@ primary_clear_cb (GtkClipboard *clipboard,
 	xtext_buffer *buf;
 
 	/* Can this happen? */
-	if (!xtext->selection_buffer)
+	if (!xtext->selection_buffer) {
 		return;
+	}
 
 	if (xtext->selection_buffer != xtext->buffer) {
 		gtk_xtext_selection_clear (xtext->selection_buffer);
@@ -1955,11 +1934,15 @@ primary_clear_cb (GtkClipboard *clipboard,
 
 	buf = xtext->buffer;
 
+	if (buf->last_ent_start == NULL) {
+		/* The selection has already been cleared */
+		return;
+	}
+
 	xtext->jump_in_offset = buf->last_ent_start->mark_start;
 
 	/* just a single ent was marked? */
-	if (buf->last_ent_start == buf->last_ent_end)
-	{
+	if (buf->last_ent_start == buf->last_ent_end) {
 		xtext->jump_out_offset = buf->last_ent_start->mark_end;
 		buf->last_ent_end = NULL;
 	}
@@ -1972,8 +1955,9 @@ primary_clear_cb (GtkClipboard *clipboard,
 	buf->last_ent_start = NULL;
 	buf->last_ent_end = NULL;
 
-	if (GTK_WIDGET_VISIBLE (widget))
+	if (GTK_WIDGET_VISIBLE (widget)) {
 		gtk_widget_queue_draw (widget);
+	}
 }
 
 /* Adapted from gtkentry.c */
@@ -2335,9 +2319,7 @@ gtk_xtext_class_init (GtkXTextClass * class)
 	widget_class->motion_notify_event = gtk_xtext_motion_notify;
 	widget_class->expose_event = gtk_xtext_expose;
 	widget_class->scroll_event = gtk_xtext_scroll;
-#ifdef MOTION_MONITOR
 	widget_class->leave_notify_event = gtk_xtext_leave_notify;
-#endif /* MOTION_MONITOR */
 
 	xtext_class->word_click = NULL;
 }
@@ -2479,10 +2461,8 @@ gtk_xtext_render_flush (GtkXText * xtext, int x, int y, unsigned char *str,
 	{
 		if (!xtext->in_hilight)	/* is it a hilight prefix? */
 			return str_width;
-#ifndef COLOR_HILIGHT
 		if (!xtext->un_hilight)	/* doing a hilight? no need to draw the text */
 			goto dounder;
-#endif /* COLOR_HILIGHT */
 	}
 
 #ifdef USE_DB
@@ -2557,9 +2537,7 @@ gtk_xtext_render_flush (GtkXText * xtext, int x, int y, unsigned char *str,
 		GdkColor col;
 #endif /* USE_XFT */
 
-#ifndef COLOR_HILIGHT
 dounder:
-#endif /* COLOR_HILIGHT */
 
 #ifdef USE_XFT
 		col.pixel = xtext->xft_fg->pixel;
@@ -2635,21 +2613,16 @@ gtk_xtext_render_str (GtkXText * xtext, int y, textentry * ent,
 		xtext->backcolor = TRUE;
 		mark = TRUE;
 	}
-#ifdef MOTION_MONITOR
+
 	if (xtext->hilight_ent == ent &&
 		 xtext->hilight_start <= i + offset && xtext->hilight_end > i + offset)
 	{
 		if (!xtext->un_hilight)
 		{
-#ifdef COLOR_HILIGHT
 			xtext_set_bg (xtext, gc, 2);
-#else /* COLOR_HILIGHT */
-			xtext->underline = TRUE;
-#endif /* COLOR_HILIGHT */
 		}
 		xtext->in_hilight = TRUE;
 	}
-#endif /* MOTION_MONITOR */
 
 	if (!xtext->skip_border_fills && !xtext->dont_render)
 	{
@@ -2679,7 +2652,6 @@ gtk_xtext_render_str (GtkXText * xtext, int y, textentry * ent,
 	while (i < len)
 	{
 
-#ifdef MOTION_MONITOR
 		if (xtext->hilight_ent == ent && xtext->hilight_start == (i + offset))
 		{
 			x += gtk_xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
@@ -2687,16 +2659,11 @@ gtk_xtext_render_str (GtkXText * xtext, int y, textentry * ent,
 			j = 0;
 			if (!xtext->un_hilight)
 			{
-#ifdef COLOR_HILIGHT
 				xtext_set_bg (xtext, gc, 2);
-#else /* COLOR_HILIGHT */
-				xtext->underline = TRUE;
-#endif /* COLOR_HILIGHT */
 			}
 
 			xtext->in_hilight = TRUE;
 		}
-#endif /* MOTION_MONITOR */
 
 		if ((xtext->parsing_color && isdigit (str[i]) && xtext->nc < 2) ||
 			 (xtext->parsing_color && str[i] == ',' && isdigit (str[i+1]) && xtext->nc < 3))
@@ -2871,13 +2838,11 @@ gtk_xtext_render_str (GtkXText * xtext, int y, textentry * ent,
 			xtext->dont_render2 = FALSE;
 		}
 
-#ifdef MOTION_MONITOR
 		if (xtext->hilight_ent == ent && xtext->hilight_end == (i + offset))
 		{
 			x += gtk_xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
 			pstr += j;
 			j = 0;
-#ifdef COLOR_HILIGHT
 			if (mark)
 			{
 				xtext_set_bg (xtext, gc, XTEXT_MARK_BG);
@@ -2890,9 +2855,6 @@ gtk_xtext_render_str (GtkXText * xtext, int y, textentry * ent,
 				else
 					xtext->backcolor = FALSE;
 			}
-#else /* COLOR_HILIGHT */
-			xtext->underline = FALSE;
-#endif /* COLOR_HILIGHT */
 			xtext->in_hilight = FALSE;
 			if (xtext->render_hilights_only)
 			{
@@ -2901,7 +2863,6 @@ gtk_xtext_render_str (GtkXText * xtext, int y, textentry * ent,
 				break;
 			}
 		}
-#endif /* MOTION_MONITOR */
 
 		if (!mark && ent->mark_start == (i + offset))
 		{
@@ -4242,11 +4203,7 @@ gtk_xtext_render_page (GtkXText * xtext)
 	if (width < 34 || height < xtext->fontsize || width < xtext->buffer->indent + 32)
 		return;
 
-#ifdef SMOOTH_SCROLL
 	xtext->pixel_offset = (xtext->adj->value - startline) * xtext->fontsize;
-#else /* SMOOTH_SCROLL */
-	xtext->pixel_offset = 0;
-#endif /* SMOOTH_SCROLL */
 
 	subline = line = 0;
 	ent = xtext->buffer->text_first;
@@ -4258,7 +4215,6 @@ gtk_xtext_render_page (GtkXText * xtext)
 	xtext->buffer->pagetop_subline = subline;
 	xtext->buffer->pagetop_line = startline;
 
-#ifdef SCROLL_HACK
 {
 	int pos, overlap;
 	GdkRectangle area;
@@ -4266,11 +4222,7 @@ gtk_xtext_render_page (GtkXText * xtext)
 	if (xtext->buffer->num_lines <= xtext->adj->page_size)
 		dontscroll (xtext->buffer);
 
-#ifdef SMOOTH_SCROLL
 	pos = xtext->adj->value * xtext->fontsize;
-#else /* SMOOTH_SCROLL */
-	pos = startline * xtext->fontsize;
-#endif /* SMOOTH_SCROLL */
 	overlap = xtext->buffer->last_pixel_pos - pos;
 	xtext->buffer->last_pixel_pos = pos;
 
@@ -4321,7 +4273,6 @@ gtk_xtext_render_page (GtkXText * xtext)
 		return;
 	}
 }
-#endif /* SCROLL_HACK */
 
 	xtext->buffer->grid_dirty = FALSE;
 	width -= MARGIN;
@@ -4647,11 +4598,9 @@ gtk_xtext_append_entry (xtext_buffer *buf, textentry * ent)
 
 	if (buf->xtext->buffer == buf)
 	{
-#ifdef SCROLL_HACK
 		/* this could be improved */
 		if ((buf->num_lines - 1) <= buf->xtext->adj->page_size)
 			dontscroll (buf);
-#endif /* SCROLL_HACK */
 
 		if (!buf->xtext->add_io_tag)
 		{

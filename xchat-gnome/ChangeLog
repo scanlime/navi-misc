@@ -1,5 +1,11 @@
 2006-10-11  David Trowbridge  <trowbrds@gmail.com>
 
+	* src/fe-gnome/xtext.c:
+	  - Fix a crash wrt selections and clipboards. (#361551).  Also remove
+	    some unused code paths to begin cleaning up xtext.
+
+2006-10-11  David Trowbridge  <trowbrds@gmail.com>
+
 	* src/fe-gnome/main-window.c:
 	  - Fix a possible crash in setting the nickname button. (#361199)
 
