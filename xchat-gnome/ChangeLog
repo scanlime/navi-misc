@@ -1,5 +1,28 @@
 2006-10-11  David Trowbridge  <trowbrds@gmail.com>
 
+	* src/common/outbound.c:
+	* src/common/outbound.h:
+	* src/common/servlist.c:
+	* src/common/dbus/CVS/Entries:
+	* src/common/util.c:
+	* src/common/cfgfiles.c:
+	* src/common/text.c:
+	* src/common/dcc.c:
+	* src/common/plugin.c:
+	* src/common/inbound.c:
+	* src/common/fe.h:
+	* src/common/server.c:
+	* src/common/xchat.c:
+	* src/common/notify.c:
+	* src/common/CVS/Entries:
+	* src/common/xchat.h:
+	* src/common/notify.h:
+	* src/common/ctcp.c:
+	* src/fe-gnome/fe-gnome.c:
+	  - Sync from xchat CVS.
+
+2006-10-11  David Trowbridge  <trowbrds@gmail.com>
+
 	* src/fe-gnome/xtext.c:
 	  - Fix a crash wrt selections and clipboards. (#361551).  Also remove
 	    some unused code paths to begin cleaning up xtext.

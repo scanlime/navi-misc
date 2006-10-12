@@ -44,7 +44,8 @@ void fe_input_remove (int tag);
 void fe_idle_add (void *func, void *data);
 void fe_set_topic (struct session *sess, char *topic);
 void fe_set_hilight (struct session *sess);
-void fe_set_tab_color (struct session *sess, int col, int flash);
+void fe_set_tab_color (struct session *sess, int col);
+void fe_flash_window (struct session *sess);
 void fe_update_mode_buttons (struct session *sess, char mode, char sign);
 void fe_update_channel_key (struct session *sess);
 void fe_update_channel_limit (struct session *sess);
@@ -89,7 +90,7 @@ void fe_set_nonchannel (struct session *sess, int state);
 void fe_set_nick (struct server *serv, char *newnick);
 void fe_ignore_update (int level);
 void fe_beep (void);
-void fe_lastlog (session *sess, session *lastlog_sess, char *sstr);
+void fe_lastlog (session *sess, session *lastlog_sess, char *sstr, gboolean regexp);
 void fe_set_lag (server *serv, int lag);
 void fe_set_throttle (server *serv);
 void fe_set_away (server *serv);
@@ -97,6 +98,15 @@ void fe_set_color_paste (session *sess, int status);
 void fe_serverlist_open (session *sess);
 void fe_get_str (char *prompt, char *def, void *callback, void *ud);
 void fe_get_int (char *prompt, int def, void *callback, void *ud);
+#define FRF_WRITE 1	/* save file */
+#define FRF_MULTIPLE 2	/* multi-select */
+#define FRF_ADDFOLDER 4	/* add ~/.xchat2 to favourites */
+#define FRF_CHOOSEFOLDER 8	/* choosing a folder only */
+#define FRF_FILTERISINITIAL 16	/* unused */
+#define FRF_NOASKOVERWRITE 32	/* don't ask to overwrite existing files */
+void fe_get_file (const char *title, char *initial,
+				 void (*callback) (void *userdata, char *file), void *userdata,
+				 int flags);
 void fe_ctrl_gui (session *sess, int action, int arg);
 int fe_gui_info (session *sess, int info_type);
 void *fe_gui_info_ptr (session *sess, int info_type);

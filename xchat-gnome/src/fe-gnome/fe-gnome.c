@@ -329,13 +329,11 @@ void
 fe_set_hilight (struct session *sess)
 {
 	navigation_model_set_hilight (gui.tree_model, sess);
-	if (!gtk_window_is_active (GTK_WINDOW (gui.main_window))) {
-		gtk_window_set_urgency_hint (GTK_WINDOW (gui.main_window), TRUE);
-	}
+	fe_flash_window (sess);
 }
 
 void
-fe_set_tab_color (struct session *sess, int col, int flash)
+fe_set_tab_color (struct session *sess, int col)
 {
 	/* FIXME: implement */
 }
@@ -653,8 +651,9 @@ fe_beep (void)
 }
 
 void
-fe_lastlog (session * sess, session * lastlog_sess, char *sstr)
+fe_lastlog (session * sess, session * lastlog_sess, char *sstr, gboolean regexp)
 {
+	/* FIXME: handle regexp */
 	conversation_panel_lastlog (CONVERSATION_PANEL (gui.conversation_panel), sess, lastlog_sess, sstr);
 }
 
@@ -985,6 +984,22 @@ void
 fe_userlist_set_selected (struct session *sess)
 {
 	/* FIXME: implement? */
+}
+
+void fe_flash_window (struct session *sess)
+{
+	if (!gtk_window_is_active (GTK_WINDOW (gui.main_window))) {
+		gtk_window_set_urgency_hint (GTK_WINDOW (gui.main_window), TRUE);
+	}
+}
+
+void fe_get_file (const char  *title,
+                  char        *initial,
+                  void       (*callback) (void *userdata, char *file),
+                  void        *userdata,
+                  int          flags)
+{
+	/* FIXME: implement */
 }
 
 static void
