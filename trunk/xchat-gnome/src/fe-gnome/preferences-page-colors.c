@@ -50,8 +50,9 @@ color_button_changed (GtkColorButton *button, gpointer data)
 	int index = GPOINTER_TO_INT (data);
 	GdkColor c;
 
-	if (scheme != 2)
+	if (scheme != 2) {
 		return;
+	}
 
 	gtk_color_button_get_color (button, &c);
 	if (index < 32) {
@@ -123,10 +124,12 @@ colors_changed (GtkComboBox *combo_box, PreferencesColorsPage *page)
 	sensitive = (selection == 2);
 
 	/* If we've set custom, sensitize the color buttons */
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < 4; i++) {
 		gtk_widget_set_sensitive (page->color_buttons[i], sensitive);
-	for (i = 0; i < 32; i++)
+	}
+	for (i = 0; i < 32; i++) {
 		gtk_widget_set_sensitive (page->palette_buttons[i], sensitive);
+	}
 
 	gtk_widget_set_sensitive (page->mirc_colors_box, sensitive);
 	gtk_widget_set_sensitive (page->extra_colors_box, sensitive);
@@ -261,13 +264,13 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	scheme = gconf_client_get_int (p->gconf, "/apps/xchat/irc/color_scheme", NULL);
 
 	page->nh[0] = gconf_client_notify_add (p->gconf, "/apps/xchat/irc/showcolors",
-						(GConfClientNotifyFunc) gconf_show_colors_changed, page->show_colors, NULL, NULL);
+	                                       (GConfClientNotifyFunc) gconf_show_colors_changed, page->show_colors, NULL, NULL);
 	page->nh[1] = gconf_client_notify_add (p->gconf, "/apps/xchat/irc/color_scheme",
-	                                        (GConfClientNotifyFunc) gconf_color_changed, page, NULL, NULL);
+	                                       (GConfClientNotifyFunc) gconf_color_changed, page, NULL, NULL);
 
 	toggle = gconf_client_get_bool (p->gconf, "/apps/xchat/irc/showcolors", NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->show_colors), toggle);
-	
+
 	g_signal_connect (G_OBJECT (page->combo), "changed", G_CALLBACK (colors_changed), page);
 	gtk_combo_box_set_active (GTK_COMBO_BOX (page->combo), scheme);
 
@@ -281,8 +284,9 @@ preferences_page_colors_free (PreferencesColorsPage *page)
 	GConfClient *client;
 
 	client = gconf_client_get_default ();
-	for (i = 0; i < 2; i++)
+	for (i = 0; i < 2; i++) {
 		gconf_client_notify_remove (client, page->nh[i]);
+	}
 	g_object_unref (client);
 	g_object_unref (page->icon);
 	g_free (page);

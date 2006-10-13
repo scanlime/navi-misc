@@ -135,14 +135,16 @@ userlist_click (GtkWidget *view, GdkEventButton *event, gpointer data)
 	GtkTreePath *path;
 	GtkTreeSelection *select;
 	struct User *user;
-	if (!event)
+	if (!event) {
 		return FALSE;
+	}
 
 	if (event->button == 1) {
 		if (gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (view), event->x, event->y, &path, 0, 0, 0)) {
 			user = userlist_get_selected ();
-			if (user != NULL)
+			if (user != NULL) {
 				user_cmd ("query", user->nick);
+			}
 			userlist_gui_hide ();
 			return TRUE;
 		}
@@ -156,8 +158,9 @@ userlist_click (GtkWidget *view, GdkEventButton *event, gpointer data)
 			gtk_tree_path_free (path);
 		}
 		user = userlist_get_selected ();
-		if (user != NULL)
+		if (user != NULL) {
 			userlist_context (view, user);
+		}
 		return TRUE;
 	}
 	return FALSE;
@@ -173,8 +176,9 @@ userlist_context (GtkWidget *treeview, struct User *user)
 
 	current_user = user;
 
-	if (grab_menu_handler == 0)
+	if (grab_menu_handler == 0) {
 		grab_menu_handler = g_signal_connect (G_OBJECT (menu), "deactivate", G_CALLBACK (userlist_popup_deactivate), NULL);
+	}
 
 	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 2, gtk_get_current_event_time ());
 }
@@ -280,20 +284,25 @@ userlist_gui_show (void)
 	 * the rest of the window's UI goop used up, but oh well.
 	 */
 	desired_height = request.height + 20;
-	if (desired_height > monitor_rect.height)
+	if (desired_height > monitor_rect.height) {
 		desired_height = monitor_rect.height;
+	}
 
 	window_x = toggle_x + 10;
 	window_y = toggle_y - (desired_height / 2);
 
-	if (window_x < monitor_rect.x)
+	if (window_x < monitor_rect.x) {
 		window_x = monitor_rect.x;
-	if (window_x + 250 > monitor_rect.width)
+	}
+	if (window_x + 250 > monitor_rect.width) {
 		window_x = monitor_rect.width - 250;
-	if (window_y < monitor_rect.y)
+	}
+	if (window_y < monitor_rect.y) {
 		window_y = monitor_rect.y;
-	if (window_y + desired_height > monitor_rect.height)
+	}
+	if (window_y + desired_height > monitor_rect.height) {
 		window_y = monitor_rect.height - desired_height;
+	}
 	gtk_window_move (GTK_WINDOW (gui.userlist_window), window_x, window_y);
 
 	gtk_window_resize (GTK_WINDOW (gui.userlist_window), 250, desired_height);
@@ -339,21 +348,25 @@ userlist_window_event (GtkWidget *window, GdkEvent *event, gpointer data)
 static gboolean
 userlist_window_grab_broken (GtkWidget *window, GdkEventGrabBroken *event, gpointer data)
 {
-	if (have_grab && event->grab_window == NULL)
+	if (have_grab && event->grab_window == NULL) {
 		userlist_gui_hide ();
+	}
 	return TRUE;
 }
 
 static void
 userlist_grab (void)
 {
-	if (have_grab)
+	if (have_grab) {
 		return;
+	}
+
 	have_grab = (gdk_pointer_grab (gui.userlist_window->window, TRUE,
 	                               GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK |
 				       GDK_BUTTON_RELEASE_MASK | GDK_ENTER_NOTIFY_MASK |
 				       GDK_LEAVE_NOTIFY_MASK,
 	                               NULL, NULL, GDK_CURRENT_TIME) == GDK_GRAB_SUCCESS);
+
 	if (have_grab) {
 		have_grab = (gdk_keyboard_grab (gui.userlist_window->window, TRUE, GDK_CURRENT_TIME) == GDK_GRAB_SUCCESS);
 		if (have_grab == FALSE) {

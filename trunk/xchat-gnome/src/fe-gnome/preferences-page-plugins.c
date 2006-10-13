@@ -98,8 +98,9 @@ fe_plugin_add (char *filename)
 			    COL_DESC, desc, COL_FILENAME, filename, COL_DISPLAY, display, -1);
 	g_free (display);
 
-	if (handle != NULL)
+	if (handle != NULL) {
 		g_module_close (handle);
+	}
 }
 
 static gint
@@ -140,7 +141,6 @@ load_unload (char *filename, gboolean loaded, PreferencesPagePlugins *page, GtkT
 		if (err == NULL) {
 			gtk_list_store_set (page->plugin_store, &iter, COL_LOADED, TRUE, -1);
 			enabled_plugins = g_slist_append (enabled_plugins, filename);
-
 		} else {
 			error_dialog (_("Plugin Load Failed"), err);
 		}
@@ -264,15 +264,14 @@ get_plugin_tooltip (SexyTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn
 	GtkTreeIter iter;
 	GtkWidget *label;
 	gchar *text;
-	
+
 	label = NULL;
 
-	if (gtk_tree_model_get_iter (GTK_TREE_MODEL (page->plugin_store), &iter, path))
-	{	
+	if (gtk_tree_model_get_iter (GTK_TREE_MODEL (page->plugin_store), &iter, path)) {
 		gtk_tree_model_get (GTK_TREE_MODEL (page->plugin_store), &iter, COL_DESC, &text, -1);
 		label = gtk_label_new (text);
 		g_free (text);
-		gtk_widget_show_all (label);	
+		gtk_widget_show_all (label);
 	}
 
 	return label;
@@ -297,7 +296,7 @@ preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 	GW(plugins_open);
 	GW(plugins_remove);
 #undef GW
-	
+
 #ifdef HAVE_LIBSEXY
 	page->plugins_list = sexy_tree_view_new ();
 #else

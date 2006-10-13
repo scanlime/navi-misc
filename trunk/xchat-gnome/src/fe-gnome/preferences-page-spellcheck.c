@@ -73,32 +73,27 @@ language_changed (GtkCellRendererToggle *toggle, gchar *pathstr, PreferencesSpel
 		if (activated) {
 			/* we want to deactive it */
 			sexy_spell_entry_deactivate_language (SEXY_SPELL_ENTRY (gui.text_entry), lang);
-		}
-		else {
+		} else {
 			/* we want to activate it */
 			result = sexy_spell_entry_activate_language (SEXY_SPELL_ENTRY (gui.text_entry), lang, &err);
 		}
 
 		if (result) {
 			/* ok we can update the configuration */
-			/*gtk_list_store_set (page->spellcheck_store, &iter,
-			                    COL_LANG_ACTIVATED, !activated,
-			                    -1);
-			*/
 			client = gconf_client_get_default ();
 			languages = sexy_spell_entry_get_active_languages (SEXY_SPELL_ENTRY (gui.text_entry));
 			gconf_client_set_list (client, "/apps/xchat/spellcheck/languages",
 			                       GCONF_VALUE_STRING, languages, NULL);
 
-			if (languages == NULL)
+			if (languages == NULL) {
 				/* No more languages selected: desactivate spellchecking */
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->enable_spellcheck), FALSE);
+			}
 
 			g_slist_foreach (languages, (GFunc) g_free, NULL);
 			g_slist_free (languages);
 			g_object_unref (client);
-		}
-		else {
+		} else {
 			g_printerr (_("Error in language %s activation: %s\n"), lang, err->message);
 			g_error_free (err);
 		}
@@ -134,8 +129,9 @@ gconf_languages_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, 
 	 * */
 	new_languages = gconf_client_get_list (client, "/apps/xchat/spellcheck/languages", GCONF_VALUE_STRING, NULL);
 
-	if (new_languages != NULL)
+	if (new_languages != NULL) {
 		sexy_spell_entry_set_active_languages (SEXY_SPELL_ENTRY (gui.text_entry), new_languages, &err);
+	}
 
 	if (err) {
 		g_printerr (_("Error in spell checking configuration: %s\n"), err->message);
@@ -148,8 +144,7 @@ gconf_languages_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, 
 			g_slist_foreach (old_languages, (GFunc) g_free, NULL);
 			g_slist_free (old_languages);
 		}
-	}
-	else {
+	} else {
 		/* Then we update the store */
 		if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (store), &iter)) {
 			do {
@@ -252,13 +247,13 @@ preferences_page_spellcheck_new (gpointer prefs_dialog, GladeXML *xml)
 			                    COL_LANG_CODE, l->data,
 			                    -1);
 			g_free (name);
-		}
-		else
+		} else {
 			gtk_list_store_set (page->spellcheck_store, &iter,
 			                    COL_LANG_NAME, l->data,
 			                    COL_LANG_ACTIVATED, active,
 			                    COL_LANG_CODE, l->data,
 			                    -1);
+		}
 	}
 	g_slist_free (languages);
 
@@ -276,13 +271,15 @@ preferences_page_spellcheck_free (PreferencesSpellcheckPage *page)
 	 GConfClient *client;
 
 	client = gconf_client_get_default ();
-	for (i = 0; i < 2; i++)
+	for (i = 0; i < 2; i++) {
 		gconf_client_notify_remove (client, page->nh[i]);
+	}
 	g_object_unref (client);
 
 	g_object_unref (page->icon);
-	if (page->spellcheck_store)
+	if (page->spellcheck_store) {
 		g_object_unref (page->spellcheck_store);
+	}
 	g_free (page);
 }
 

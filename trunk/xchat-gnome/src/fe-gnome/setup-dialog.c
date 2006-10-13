@@ -46,9 +46,10 @@ void run_setup_dialog (void)
 	path = locate_data_file ("setup-dialog.glade");
 	xml = glade_xml_new (path, NULL, NULL);
 	g_free (path);
-	if (!xml)
+	if (!xml) {
 		/* FIXME - if we can't do this, we've got major problems */
 		return;
+	}
 
 	window = glade_xml_get_widget (xml, "setup window");
 
@@ -70,8 +71,9 @@ void run_setup_dialog (void)
 
 	gtk_widget_show_all (window);
 	done = FALSE;
-	while (!done)
+	while (!done) {
 		g_main_context_iteration (NULL, TRUE);
+	}
 
 	g_object_unref (xml);
 	gtk_widget_destroy (window);
@@ -113,8 +115,9 @@ entry_changed (GtkEditable *entry, gpointer user_data)
 	nick = gtk_entry_get_text (GTK_ENTRY (nick_entry));
 	real = gtk_entry_get_text (GTK_ENTRY (real_entry));
 
-	if (strlen(nick) == 0 || strlen(real) == 0)
+	if (strlen(nick) == 0 || strlen(real) == 0) {
 		gtk_widget_set_sensitive (ok_button, FALSE);
-	else
+	} else {
 		gtk_widget_set_sensitive (ok_button, TRUE);
+	}
 }

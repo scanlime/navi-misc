@@ -139,10 +139,11 @@ preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 #undef GW
 
 	gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (page->download_dir_button), prefs.dccdir);
-	if (strlen (prefs.dcc_completed_dir) == 0)
+	if (strlen (prefs.dcc_completed_dir) == 0) {
 		gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (page->completed_dir_button), prefs.dccdir);
-	else
+	} else {
 		gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (page->completed_dir_button), prefs.dcc_completed_dir);
+	}
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->convert_spaces), prefs.dcc_send_fillspaces);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->save_nicknames_dcc), prefs.dccwithnick);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->autoaccept_dcc_chat), prefs.autodccchat);

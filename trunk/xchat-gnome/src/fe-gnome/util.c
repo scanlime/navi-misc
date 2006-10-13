@@ -51,7 +51,10 @@ gint gtk_tree_iter_sort_func_nocase (GtkTreeModel *model, GtkTreeIter *a, GtkTre
 	gtk_tree_model_get (model, a, 1, &as, -1);
 	gtk_tree_model_get (model, b, 1, &bs, -1);
 
-	if (as == NULL) return 1;
+	if (as == NULL) {
+		return 1;
+	}
+
 	if (bs == NULL) {
 		g_free (as);
 		return -1;
@@ -111,10 +114,11 @@ menu_position_under_widget (GtkMenu *menu, gint *x, gint *y, gboolean *push_in, 
 	gdk_window_get_origin (w->window, x, y);
 	gtk_widget_size_request (GTK_WIDGET (menu), &requisition);
 
-	if (gtk_widget_get_direction (w) == GTK_TEXT_DIR_RTL)
+	if (gtk_widget_get_direction (w) == GTK_TEXT_DIR_RTL) {
 		*x += w->allocation.x + w->allocation.width - requisition.width;
-	else
+	} else {
 		*x += w->allocation.x;
+	}
 
 	*y += w->allocation.y + w->allocation.height;
 
