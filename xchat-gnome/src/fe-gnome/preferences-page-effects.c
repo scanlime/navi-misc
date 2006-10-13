@@ -144,8 +144,9 @@ update_preview (GtkFileChooser *file_chooser, PreferencesEffectsPage *page)
 		g_free (filename);
 
 		gtk_image_set_from_pixbuf (GTK_IMAGE (page->image_preview), pixbuf);
-		if (pixbuf)
+		if (pixbuf) {
 			g_object_unref (pixbuf);
+		}
 	}
 
 	gtk_file_chooser_set_preview_widget_active (file_chooser, have_preview);
@@ -224,8 +225,9 @@ preferences_page_effects_free (PreferencesEffectsPage *page)
 	gint i;
 
 	client = gconf_client_get_default ();
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < 3; i++) {
 		gconf_client_notify_remove (client, page->nh[i]);
+	}
 	g_object_unref (client);
 
 	g_object_unref (page->icon);

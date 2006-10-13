@@ -126,8 +126,9 @@ get_user_icon (struct server *serv, struct User *user)
 	char *pre;
 	int level;
 
-	if (!user)
+	if (!user) {
 		return NULL;
+	}
 
 	switch (user->prefix[0]) {
 	case '\0': return NULL;
@@ -150,8 +151,9 @@ get_user_icon (struct server *serv, struct User *user)
 				break; /* 3+, no icons */
 			}
 			level++;
-			if (pre == serv->nick_prefixes)
+			if (pre == serv->nick_prefixes) {
 				break;
+			}
 			pre--;
 		}
 	}
@@ -166,8 +168,9 @@ userlist_insert (Userlist *userlist, session *sess, struct User *newuser, int ro
 	GdkPixbuf *icon;
 	GList *item;
 
-	if (!store)
+	if (!store) {
 		store = create_userlist (userlist, sess);
+	}
 
 	icon = get_user_icon (sess->server, newuser);
 
@@ -191,8 +194,9 @@ find_user (Store *store, struct User *user)
 	if (gtk_tree_model_get_iter_first (model, &iter)) {
 		do {
 			gtk_tree_model_get (model, &iter, 2, &row_user, -1);
-			if (row_user == user)
+			if (row_user == user) {
 				return &iter;
+			}
 		} while (gtk_tree_model_iter_next (model, &iter));
 	}
 	return NULL;
@@ -208,8 +212,9 @@ userlist_remove_user (Userlist *userlist, session *sess, struct User *user)
 	g_return_val_if_fail (store != NULL, FALSE);
 
 	iter = find_user (store, user);
-	if (!iter)
+	if (!iter) {
 		return FALSE;
+	}
 
 	gtk_list_store_remove (store->liststore, iter);
 
@@ -273,8 +278,9 @@ userlist_clear_all (Userlist *userlist, session *sess)
 {
 	Store *store = g_hash_table_lookup (userlist->stores, sess);
 
-	if (store == NULL)
+	if (store == NULL) {
 		store = create_userlist (userlist, sess);
+	}
 
 	g_completion_clear_items (store->completion);
 	gtk_list_store_clear (store->liststore);
@@ -297,8 +303,9 @@ GtkListStore*
 userlist_get_store (Userlist *userlist, session *sess)
 {
 	Store *store = g_hash_table_lookup (userlist->stores, sess);
-	if (store == NULL)
+	if (store == NULL) {
 		store = create_userlist (userlist, sess);
+	}
 	return store->liststore;
 }
 
@@ -320,8 +327,8 @@ userlist_set_user_button (Userlist *userlist, session *sess)
 			label = g_strdup_printf (ngettext ("%d User", "%d Users", sess->total), sess->total);
 			gtk_button_set_label (GTK_BUTTON (gui.userlist_toggle), label);
 			g_free (label);
-		}
-		else
+		} else {
 			gtk_button_set_label (GTK_BUTTON (gui.userlist_toggle), _("Users"));
+		}
 	}
 }

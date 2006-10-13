@@ -89,7 +89,7 @@ text_entry_class_init (TextEntryClass *klass)
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
 
 	parent_class = g_type_class_peek_parent (klass);
-	
+
 	entry_parent_class = g_type_class_peek_parent (g_type_class_peek (GTK_TYPE_ENTRY));
 
 	gobject_class->finalize = text_entry_finalize;
@@ -149,8 +149,7 @@ text_entry_init (TextEntry *entry)
 
 		g_slist_foreach (languages, (GFunc) g_free, NULL);
 		g_slist_free (languages);
-	}
-	else {
+	} else {
 		if (enable_spellcheck) {
 			/* We use libsexy default languages and set it in gconf */
 			languages = sexy_spell_entry_get_active_languages (SEXY_SPELL_ENTRY (entry));
@@ -180,12 +179,15 @@ text_entry_finalize (GObject *object)
 
 	entry = TEXT_ENTRY (object);
 
-	if (entry->priv->entries)
+	if (entry->priv->entries) {
 		g_hash_table_destroy (entry->priv->entries);
-	if (entry->priv->command_completion)
+	}
+	if (entry->priv->command_completion) {
 		g_completion_free (entry->priv->command_completion);
-	if (entry->priv)
+	}
+	if (entry->priv) {
 		g_free (entry->priv);
+	}
 
 	G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -197,25 +199,25 @@ text_entry_key_press (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	gboolean handled = FALSE;
 
 	switch (event->keyval) {
-		case GDK_Down:
-			if (state == 0) {
-				text_entry_history_down (GTK_ENTRY (widget));
-				handled = TRUE;
-			}
-			break;
-		case GDK_Up:
-			if (state == 0) {
-				text_entry_history_up (GTK_ENTRY (widget));
-				handled = TRUE;
-			}
-			break;
-		case GDK_Tab:
-			if (state  == 0) {
-				handled = text_entry_tab_complete (GTK_ENTRY (widget));
-			}
-			break;
-		default:
-			break;
+	case GDK_Down:
+		if (state == 0) {
+			text_entry_history_down (GTK_ENTRY (widget));
+			handled = TRUE;
+		}
+		break;
+	case GDK_Up:
+		if (state == 0) {
+			text_entry_history_up (GTK_ENTRY (widget));
+			handled = TRUE;
+		}
+		break;
+	case GDK_Tab:
+		if (state  == 0) {
+			handled = text_entry_tab_complete (GTK_ENTRY (widget));
+		}
+		break;
+	default:
+		break;
 	}
 
 	return handled;
@@ -224,7 +226,7 @@ text_entry_key_press (GtkWidget *widget, GdkEventKey *event, gpointer data)
 static void
 text_entry_grab_focus (GtkWidget *widget)
 {
-	/* GtkEntry's grab_focus selects the contents and therefore 
+	/* GtkEntry's grab_focus selects the contents and therefore
 	 * claims PRIMARY. So we bypass it; see bug #345356 and bug #347067.
 	 */
 	GTK_WIDGET_CLASS (entry_parent_class)->grab_focus (widget);
@@ -237,19 +239,22 @@ text_entry_spell_check (TextEntry *entry, gchar *text, gpointer data)
 	GtkTreeModel *store = GTK_TREE_MODEL (userlist_get_store (u, entry->priv->current));
 	GtkTreeIter iter;
 
-	if (gtk_tree_model_get_iter_first (store, &iter) == FALSE)
+	if (gtk_tree_model_get_iter_first (store, &iter) == FALSE) {
 		return TRUE;
+	}
 	do {
 		gchar *nick;
 		gboolean match = FALSE;
 
 		gtk_tree_model_get (store, &iter, 1, &nick, -1);
-		if (strncmp (text, nick, strlen (nick)) == 0)
+		if (strncmp (text, nick, strlen (nick)) == 0) {
 			match = TRUE;
+		}
 
 		g_free (nick);
-		if (match)
+		if (match) {
 			return FALSE;
+		}
 	} while (gtk_tree_model_iter_next (store, &iter));
 	return TRUE;
 }
@@ -260,8 +265,9 @@ text_entry_activate (GtkWidget *widget, gpointer data)
 {
 	char *entry_text = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	gtk_entry_set_text (GTK_ENTRY (widget), "");
-	if (TEXT_ENTRY (widget)->priv->current != NULL)
+	if (TEXT_ENTRY (widget)->priv->current != NULL) {
 		handle_multiline (TEXT_ENTRY (widget)->priv->current, (char *) entry_text, TRUE, FALSE);
+	}
 	g_free (entry_text);
 }
 
@@ -272,8 +278,9 @@ text_entry_history_up (GtkEntry *entry)
 	char *new_line;
 
 	text_entry = TEXT_ENTRY (entry);
-	if (text_entry->priv->current == NULL)
+	if (text_entry->priv->current == NULL) {
 		return;
+	}
 
 	new_line = history_up (&(text_entry->priv->current->history), (char *)entry->text);
 	if (new_line) {
@@ -289,8 +296,9 @@ text_entry_history_down (GtkEntry *entry)
 	char *new_line;
 
 	text_entry = TEXT_ENTRY (entry);
-	if (text_entry->priv->current == NULL)
+	if (text_entry->priv->current == NULL) {
 		return;
+	}
 
 	new_line = history_down (&(text_entry->priv->current->history));
 	if (new_line) {
@@ -309,13 +317,15 @@ text_entry_tab_complete (GtkEntry *entry)
 	text = gtk_entry_get_text (entry);
 	cursor_pos = gtk_editable_get_position (GTK_EDITABLE (entry));
 
-	if (cursor_pos == 0)
+	if (cursor_pos == 0) {
 		return TRUE;
+	}
 
 	/* If we're directly after a space, we have nothing to tab complete */
 	p = g_utf8_offset_to_pointer (text, cursor_pos - 1);
-	if (p[0] == ' ')
+	if (p[0] == ' ') {
 		return TRUE;
+	}
 
 	/* search from cusror backwards to find /, #, ' ' or start */
 	p = g_utf8_offset_to_pointer (text, cursor_pos);
@@ -460,7 +470,6 @@ tab_complete_command (GtkEntry *entry)
 
 		if (length - cursor == 0) {
 			/* at the end of the entry, just insert */
-
 			npt = g_strdup_printf ("/%s ", (char *) options->data);
 			pos = strlen (npt);
 		} else {
@@ -658,8 +667,9 @@ text_entry_set_current (TextEntry *entry, struct session *sess)
 
 	g_return_if_fail (GTK_WIDGET_REALIZED (widget));
 
-	if (sess == priv->current)
+	if (sess == priv->current) {
 		return;
+	}
 
 	/* If the entry owns PRIMARY, setting the new text will clear PRIMARY;
 	 * so we need to re-set PRIMARY after setting the text.
@@ -697,8 +707,9 @@ void
 text_entry_remove_session (TextEntry *entry, struct session *sess)
 {
 	g_hash_table_remove (entry->priv->entries, sess);
-	if (sess == entry->priv->current)
+	if (sess == entry->priv->current) {
 		gtk_entry_set_text (GTK_ENTRY (entry), "");
+	}
 }
 
 #ifdef HAVE_LIBSEXY

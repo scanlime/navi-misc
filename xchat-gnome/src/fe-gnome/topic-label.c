@@ -172,8 +172,9 @@ topic_label_set_topic (TopicLabel *label, struct session *sess, const char *topi
 
 	g_hash_table_insert (priv->topics, sess, escaped);
 
-	if (sess == priv->current)
+	if (sess == priv->current) {
 		topic_label_set_current (label, sess);
+	}
 }
 
 void
@@ -182,8 +183,9 @@ topic_label_remove_session (TopicLabel *label, struct session *sess)
 	TopicLabelPriv *priv = label->priv;
 
 	g_hash_table_remove (priv->topics, sess);
-	if (sess == priv->current)
+	if (sess == priv->current) {
 		gtk_label_set_text (GTK_LABEL (priv->label), "");
+	}
 }
 
 void
@@ -194,23 +196,36 @@ topic_label_set_current (TopicLabel *label, struct session *sess)
 
 	topic = g_hash_table_lookup (priv->topics, sess);
 #ifdef HAVE_LIBSEXY
-	if (topic) sexy_url_label_set_markup (SEXY_URL_LABEL (priv->label), topic);
-	else       gtk_label_set_text (GTK_LABEL (priv->label), "");
+	if (topic) {
+		sexy_url_label_set_markup (SEXY_URL_LABEL (priv->label), topic);
+	} else {
+		gtk_label_set_text (GTK_LABEL (priv->label), "");
+	}
 
-	if (topic) sexy_url_label_set_markup (SEXY_URL_LABEL (priv->sizing_label), topic);
-	else       gtk_label_set_text (GTK_LABEL (priv->sizing_label), "");
+	if (topic) {
+		sexy_url_label_set_markup (SEXY_URL_LABEL (priv->sizing_label), topic);
+	} else {
+		gtk_label_set_text (GTK_LABEL (priv->sizing_label), "");
+	}
 #else
-	if (topic) gtk_label_set_text (GTK_LABEL (priv->label), topic);
-	else       gtk_label_set_text (GTK_LABEL (priv->label), "");
+	if (topic) {
+		gtk_label_set_text (GTK_LABEL (priv->label), topic);
+	} else {
+		gtk_label_set_text (GTK_LABEL (priv->label), "");
+	}
 
-	if (topic) gtk_label_set_text (GTK_LABEL (priv->sizing_label), topic);
-	else       gtk_label_set_text (GTK_LABEL (priv->sizing_label), "");
+	if (topic) {
+		gtk_label_set_text (GTK_LABEL (priv->sizing_label), topic);
+	} else {
+		gtk_label_set_text (GTK_LABEL (priv->sizing_label), "");
+	}
 #endif
 
-	if (sess->type == SESS_SERVER)
+	if (sess->type == SESS_SERVER) {
 		gtk_widget_hide (gui.topic_hbox);
-	else
+	} else {
 		gtk_widget_show (gui.topic_hbox);
+	}
 
 	priv->current = sess;
 }
@@ -224,18 +239,21 @@ topic_label_get_topic_string (const char *topic)
 	gchar *escaped, *result, *temp;
 	int i;
 
-	if ((topic == NULL) || (strlen (topic) == 0))
+	if ((topic == NULL) || (strlen (topic) == 0)) {
 		return NULL;
+	}
 
 	/* escape out <>&"' so that pango markup doesn't get confused */
 	escaped = g_markup_escape_text (topic, strlen (topic));
 
 	/* surround urls with <a> markup so that sexy-url-label can link it */
 	tokens = g_strsplit_set (escaped, " \t\n", 0);
-	if (url_check_word (tokens[0], strlen (tokens[0])) == WORD_URL)
+	if (url_check_word (tokens[0], strlen (tokens[0])) == WORD_URL) {
 		result = g_strdup_printf ("<a href=\"%s\">%s</a>", tokens[0], tokens[0]);
-	else
+	} else {
 		result = g_strdup (tokens[0]);
+	}
+
 	for (i = 1; tokens[i]; i++) {
 		if (url_check_word (tokens[i], strlen (tokens[i])) == WORD_URL) {
 			temp = g_strdup_printf ("%s <a href=\"%s\">%s</a>", result, tokens[i], tokens[i]);
@@ -264,8 +282,9 @@ topic_label_change_current (TopicLabel *label)
 	GtkTextBuffer *buffer;
 	gchar *title, *topic, *path;
 
-	if ((priv->current == NULL) || (priv->current->type != SESS_CHANNEL))
+	if ((priv->current == NULL) || (priv->current->type != SESS_CHANNEL)) {
 		return;
+	}
 
 	path = locate_data_file ("topic-change.glade");
 	xml = glade_xml_new (path, NULL, NULL);
@@ -282,8 +301,9 @@ topic_label_change_current (TopicLabel *label)
 	buffer = gtk_text_buffer_new (NULL);
         gtk_text_view_set_buffer (GTK_TEXT_VIEW (entry), buffer);
 	g_signal_connect (G_OBJECT (buffer), "insert-text", G_CALLBACK (topic_entry_activate), dialog);
-	if (topic)
+	if (topic) {
         	gtk_text_buffer_set_text (buffer, topic, -1);
+	}
 
 	if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
 		GtkTextIter start, end;
@@ -326,6 +346,7 @@ topic_label_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 static void
 topic_entry_activate (GtkTextBuffer *textbuffer, GtkTextIter *arg1, gchar *text, gint len, GtkDialog *dialog)
 {
-	if (strncmp (text, "\n", len) == 0)
+	if (strncmp (text, "\n", len) == 0) {
 		gtk_dialog_response (dialog, GTK_RESPONSE_OK);
+	}
 }

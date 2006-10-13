@@ -73,8 +73,9 @@ status_bar_finalize (GObject *object)
 	g_hash_table_destroy (bar->priv->queues);
 	g_free (bar->priv);
 
-	if (G_OBJECT_CLASS (parent_class)->finalize)
+	if (G_OBJECT_CLASS (parent_class)->finalize) {
 		G_OBJECT_CLASS (parent_class)->finalize (object);
+	}
 }
 
 GtkWidget *
@@ -107,15 +108,17 @@ status_bar_set_queue (StatusBar *bar, struct server *sess, int bytes)
 		g_hash_table_insert (bar->priv->queues, sess, queue);
 	}
 
-	if (bar->priv->current == sess)
+	if (bar->priv->current == sess) {
 		status_bar_update (bar);
+	}
 }
 
 void
 status_bar_set_current (StatusBar *bar, struct server *sess)
 {
-	if (bar->priv->current == sess)
+	if (bar->priv->current == sess) {
 		return;
+	}
 
 	bar->priv->current = sess;
 	status_bar_update (bar);
@@ -124,8 +127,9 @@ status_bar_set_current (StatusBar *bar, struct server *sess)
 void
 status_bar_remove_server (StatusBar *bar, struct server *sess)
 {
-	if (bar->priv->current == sess)
+	if (bar->priv->current == sess) {
 		status_bar_set_current (bar, NULL);
+	}
 
 	g_hash_table_remove (bar->priv->lags,   sess);
 	g_hash_table_remove (bar->priv->queues, sess);
@@ -144,14 +148,15 @@ status_bar_update (StatusBar *bar)
 	lag   = g_hash_table_lookup (bar->priv->lags,   bar->priv->current);
 	queue = g_hash_table_lookup (bar->priv->queues, bar->priv->current);
 
-	if (lag && queue)
+	if (lag && queue) {
 		text = g_strdup_printf ("%s, %s", lag, queue);
-	else if (lag)
+	} else if (lag) {
 		text = g_strdup (lag);
-	else if (queue)
+	} else if (queue) {
 		text = g_strdup (queue);
-	else
+	} else {
 		text = g_strdup ("");
+	}
 
 	gtk_statusbar_pop  (GTK_STATUSBAR (bar), bar->priv->context);
 	gtk_statusbar_push (GTK_STATUSBAR (bar), bar->priv->context, text);

@@ -78,8 +78,9 @@ edit_clicked (GtkWidget *button, PreferencesNetworksPage *page)
 	GtkTreeIter iter;
 
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (page->network_list));
-	if (!gtk_tree_selection_get_selected (select, &model, &iter))
+	if (!gtk_tree_selection_get_selected (select, &model, &iter)) {
 		return;
+	}
 	gtk_tree_model_get (model, &iter, 1, &net, -1);
 
 	n = irc_network_new (net);
@@ -94,8 +95,9 @@ static void
 edit_activated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, PreferencesNetworksPage *page)
 {
 	GtkTreeIter iter;
-	if (gtk_tree_model_get_iter (GTK_TREE_MODEL (page->sort_model), &iter, path))
+	if (gtk_tree_model_get_iter (GTK_TREE_MODEL (page->sort_model), &iter, path)) {
 		edit_clicked (NULL, page);
+	}
 }
 
 static void
@@ -109,8 +111,9 @@ remove_clicked (GtkWidget *button, PreferencesNetworksPage *page)
 	gint r;
 
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (page->network_list));
-	if (!gtk_tree_selection_get_selected (select, &model, &iter))
+	if (!gtk_tree_selection_get_selected (select, &model, &iter)) {
 		return;
+	}
 	gtk_tree_model_get(model, &iter, 1, &net, -1);
 
 	dialog = gtk_message_dialog_new (NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE, _("Really remove network \"%s\" and all of its servers?"), net->name);

@@ -196,10 +196,11 @@ highlight_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *newtext, Pr
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (page->highlight_list));
 	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		if (strlen (newtext))
+		if (strlen (newtext)) {
 			gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, newtext, -1);
-		else
+		} else {
 			gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+		}
 		save_highlight (page);
 	}
 }
@@ -228,19 +229,21 @@ auto_logging_changed (GtkToggleButton *button, gpointer data)
 	session *sess;
 
 	active = gtk_toggle_button_get_active (button);
-	
-	if (active)
+
+	if (active) {
 		prefs.logging = 1;
-	else
+	} else {
 		prefs.logging = 0;
+	}
 
 	list = sess_list;
 	while (list) {
 		sess = list->data;
-		if (active)
+		if (active) {
 			log_open (sess);
-		else
+		} else {
 			log_close (sess);
+		}
 		list = list->next;
 	}
 }
@@ -252,11 +255,12 @@ show_marker_changed (GtkToggleButton *button, gpointer data)
 
 	active = gtk_toggle_button_get_active (button);
 	conversation_panel_set_show_marker (CONVERSATION_PANEL (gui.conversation_panel), active);
-	
-	if (active)
+
+	if (active) {
 		prefs.show_marker = 1;
-	else
+	} else {
 		prefs.show_marker = 0;
+	}
 }
 
 PreferencesIrcPage *
@@ -413,8 +417,9 @@ preferences_page_irc_free (PreferencesIrcPage *page)
 	GConfClient *client;
 
 	client = gconf_client_get_default ();
-	for (i = 0; i < 8; i++)
+	for (i = 0; i < 8; i++) {
 		gconf_client_notify_remove (client, page->nh[i]);
+	}
 	g_object_unref (client);
 
 	g_object_unref (page->highlight_store);

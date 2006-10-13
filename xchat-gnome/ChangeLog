@@ -1,3 +1,21 @@
+2006-10-13  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/fe-gnome/preferences-page-dcc.c:
+	* src/fe-gnome/util.c:
+	* src/fe-gnome/text-entry.c:
+	* src/fe-gnome/preferences-page-plugins.c:
+	* src/fe-gnome/userlist-gui.c:
+	* src/fe-gnome/status-bar.c:
+	* src/fe-gnome/preferences-page-irc.c:
+	* src/fe-gnome/topic-label.c:
+	* src/fe-gnome/preferences-page-colors.c:
+	* src/fe-gnome/preferences-page-networks.c:
+	* src/fe-gnome/preferences-page-spellcheck.c:
+	* src/fe-gnome/userlist.c:
+	* src/fe-gnome/preferences-page-effects.c:
+	* src/fe-gnome/setup-dialog.c:
+	  - More ws cleanup.
+
 2006-10-12  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/fe-gnome/xtext.c:
