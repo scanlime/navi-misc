@@ -970,7 +970,7 @@ style_set_callback (GtkWidget *widget, GtkStyle  *previous_style, void *data)
 	client = gconf_client_get_default ();
 	color_scheme = gconf_client_get_int (client, "/apps/xchat/irc/color_scheme", NULL);
 	g_object_unref (client);
-	if (color_scheme == 0) {
+	if (color_scheme == 3) {
 		load_colors (color_scheme);
 		load_palette (color_scheme);
 	}

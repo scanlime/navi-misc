@@ -1,5 +1,11 @@
 2006-10-13  David Trowbridge  <trowbrds@gmail.com>
 
+	* src/fe-gnome/conversation-panel.c:
+	  - Also fix the stupid bug that was preventing the conversation panel
+	  from adapting to theme changes (#347956).
+
+2006-10-13  David Trowbridge  <trowbrds@gmail.com>
+
 	* src/fe-gnome/main-window.c:
 	  - Make nickname button properly adjust to theme changes (#348870).
 
