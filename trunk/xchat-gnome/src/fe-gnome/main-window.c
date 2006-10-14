@@ -750,7 +750,6 @@ set_nickname_color (struct server *serv)
 			color = &(style->fg[GTK_STATE_NORMAL]);
 		}
 		attr = pango_attr_foreground_new (color->red, color->green, color->blue);
-		g_print ("setting color\n");
 
 		attr->start_index = 0;
 		attr->end_index = G_MAXUINT;
@@ -779,7 +778,6 @@ on_main_window_configure (GtkWidget *widget, GdkEventConfigure *event, gpointer 
 static void
 nickname_style_set (GtkWidget *button, GtkStyle *previous_style, gpointer data)
 {
-	g_print ("nickname_style_set\n");
 	if (gui.current_session == NULL) {
 		return;
 	}
