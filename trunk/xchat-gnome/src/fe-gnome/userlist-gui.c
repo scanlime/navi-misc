@@ -294,14 +294,14 @@ userlist_gui_show (void)
 	if (window_x < monitor_rect.x) {
 		window_x = monitor_rect.x;
 	}
-	if (window_x + 250 > monitor_rect.width) {
-		window_x = monitor_rect.width - 250;
+	if (window_x + 250 > monitor_rect.x + monitor_rect.width) {
+		window_x = monitor_rect.x + monitor_rect.width - 250;
 	}
 	if (window_y < monitor_rect.y) {
 		window_y = monitor_rect.y;
 	}
-	if (window_y + desired_height > monitor_rect.height) {
-		window_y = monitor_rect.height - desired_height;
+	if (window_y + desired_height > monitor_rect.y + monitor_rect.height) {
+		window_y = monitor_rect.y + monitor_rect.height - desired_height;
 	}
 	gtk_window_move (GTK_WINDOW (gui.userlist_window), window_x, window_y);
 
