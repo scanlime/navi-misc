@@ -5,15 +5,12 @@ BUILT_SOURCES = notification.schemas
 DISTCLEANFILES = $(BUILT_SOURCES)
 
 notification_la_SOURCES =	\
-	eggtrayicon.c		\
-	eggtrayicon.h		\
 	notification.c
 
 notification_la_CPPFLAGS = \
 	-I$(top_srcdir)/src/fe-gnome		\
 	-I$(srcdir)/..				\
 	-DXCHATSHAREDIR="\"$(pkgdatadir)\""	\
-	-DEGG_COMPILATION			\
 	$(AM_CPPFLAGS)
 
 notification_la_CFLAGS = \
