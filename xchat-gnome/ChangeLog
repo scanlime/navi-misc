@@ -1,5 +1,15 @@
 2006-10-13  David Trowbridge  <trowbrds@gmail.com>
 
+	* plugins/notification/notification.c:
+	* plugins/notification/Makefile.am:
+	* configure.ac:
+	D plugins/notification/eggtrayicon.c:
+	D plugins/notification/eggtrayicon.h:
+	  - Apply Christian Persch's patch to port the notification plugin to
+	    GtkStatusIcon, and bump the required GTK+ version to 2.10.0.
+
+2006-10-13  David Trowbridge  <trowbrds@gmail.com>
+
 	* src/fe-gnome/conversation-panel.c:
 	  - Fix a potential crasher if another message comes in right after
 	    we've closed a channel (#356612).
