@@ -1148,6 +1148,9 @@ conversation_panel_print (ConversationPanel *panel, struct session *sess, guchar
 	int           len       = 0;
 
 	buffer = g_hash_table_lookup (panel->priv->buffers, sess);
+	if (buffer == NULL) {
+		return;
+	}
 
 	/* split the text into separate lines */
 	while (1) {
