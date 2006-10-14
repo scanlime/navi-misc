@@ -289,7 +289,7 @@ initialize_main_window (void)
 	/* connect nickname button */
 	gtk_button_set_use_underline (GTK_BUTTON (gui.nick_button), FALSE);
 	g_signal_connect (G_OBJECT (gui.nick_button), "clicked",   G_CALLBACK (on_nickname_clicked), NULL);
-	g_signal_connect (G_OBJECT (gui.nick_button), "style-set", G_CALLBACK (nickname_style_set),  NULL);
+	g_signal_connect (G_OBJECT (GTK_BIN (gui.nick_button)->child), "style-set", G_CALLBACK (nickname_style_set),  NULL);
 
 	/* Temporarily disable menu items */
 	action = gtk_action_group_get_action (gui.action_group, "DiscussionBans");
@@ -702,20 +702,24 @@ on_users_toggled (GtkToggleButton *widget, gpointer user_data)
 void
 set_nickname (struct server *serv, char *newnick)
 {
+	GtkLabel *label;
+
 	if (gui.current_session == NULL) {
 		return;
 	}
 
+	label = GTK_LABEL (GTK_BIN (gui.nick_button)->child);
+
 	if (serv == NULL) {
-		gtk_button_set_label (GTK_BUTTON (gui.nick_button), "");
+		gtk_label_set_text (label, "");
 		return;
 	}
 
 	if (serv == gui.current_session->server) {
 		if (newnick == NULL) {
-			gtk_button_set_label (GTK_BUTTON (gui.nick_button), serv->nick);
+			gtk_label_set_text (label, serv->nick);
 		} else {
-			gtk_button_set_label (GTK_BUTTON (gui.nick_button), newnick);
+			gtk_label_set_text (label, newnick);
 		}
 		set_nickname_color (serv);
 	}
@@ -724,24 +728,29 @@ set_nickname (struct server *serv, char *newnick)
 void
 set_nickname_color (struct server *serv)
 {
-	if (gui.current_session == NULL)
+	if (gui.current_session == NULL) {
 		return;
+	}
 
 	if (serv == gui.current_session->server) {
 		GtkLabel *label;
 		PangoAttribute *attr;
 		PangoAttrList *l;
+		GtkStyle *style;
 		GdkColor *color;
 
 		l = pango_attr_list_new ();
 		label = GTK_LABEL (GTK_BIN (gui.nick_button)->child);
 
+		style = gtk_widget_get_style (GTK_WIDGET (label));
+
 		if (serv->is_away) {
-			color = &(gui.nick_button->style->fg[GTK_STATE_INSENSITIVE]);
+			color = &(style->fg[GTK_STATE_INSENSITIVE]);
 		} else {
-			color = &(gui.nick_button->style->fg[GTK_STATE_NORMAL]);
+			color = &(style->fg[GTK_STATE_NORMAL]);
 		}
 		attr = pango_attr_foreground_new (color->red, color->green, color->blue);
+		g_print ("setting color\n");
 
 		attr->start_index = 0;
 		attr->end_index = G_MAXUINT;
@@ -770,6 +779,7 @@ on_main_window_configure (GtkWidget *widget, GdkEventConfigure *event, gpointer 
 static void
 nickname_style_set (GtkWidget *button, GtkStyle *previous_style, gpointer data)
 {
+	g_print ("nickname_style_set\n");
 	if (gui.current_session == NULL) {
 		return;
 	}
