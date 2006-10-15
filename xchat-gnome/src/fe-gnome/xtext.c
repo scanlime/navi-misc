@@ -1,5 +1,6 @@
 /* X-Chat
  * Copyright (C) 1998 Peter Zelezny.
+ * Copyright (C) 2006 xchat-gnome team.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +22,6 @@
  *
  */
 
-#define TINT_VALUE 195				/* 195/255 of the brightness. */
 #define GDK_MULTIHEAD_SAFE
 
 #define MARGIN 2						/* dont touch. */
@@ -108,7 +108,7 @@ int xtext_get_stamp_str (time_t, char **);
 static void gtk_xtext_render_page (GtkXText * xtext);
 static void gtk_xtext_calc_lines (xtext_buffer *buf, int);
 #if defined(USE_XLIB) || defined(WIN32)
-static void gtk_xtext_load_trans (GtkXText * xtext);
+static void gtk_xtext_load_trans (GtkXText * xtext, gboolean recycle);
 static void gtk_xtext_free_trans (GtkXText * xtext);
 #endif /* defined(USE_XLIB) || defined(WIN32) */
 static char *gtk_xtext_selection_get_text (GtkXText *xtext, xtext_buffer *buf, gsize *len_ret);
@@ -122,6 +122,10 @@ static unsigned char *
 gtk_xtext_strip_color (unsigned char *text, int len, unsigned char *outbuf,
 							  int *newlen, int *mb_ret);
 static void gtk_xtext_update_primary_selection (GtkXText *xtext);
+
+/* Signal handlers */
+static void xtext_screen_changed (GtkWidget *widget, GdkScreen *screen, gpointer data);
+static void xtext_composited_changed (GtkWidget *widget, gpointer data);
 
 /* some utility functions first */
 
@@ -179,8 +183,7 @@ xtext_draw_bg (GtkXText *xtext, int x, int y, int width, int height)
 
 #else /* WIN32 */
 
-#define xtext_draw_bg(xt,x,y,w,h) gdk_draw_rectangle(xt->draw_buf, xt->bgc, \
-																	  1,x,y,w,h);
+#define xtext_draw_bg(xt,x,y,w,h) gdk_draw_rectangle(xt->draw_buf, xt->bgc, 1,x,y,w,h);
 
 #endif /* WIN32 */
 
@@ -328,10 +331,6 @@ backend_draw_text (GtkXText *xtext, int dofill, GdkGC *gc, int x, int y,
 	font = xtext->font;
 
 	draw_func (xtext->xftdraw, xtext->xft_fg, font, x, y, str, len);
-
-	if (xtext->overdraw) {
-		draw_func (xtext->xftdraw, xtext->xft_fg, font, x, y, str, len);
-	}
 
 	if (xtext->bold) {
 		draw_func (xtext->xftdraw, xtext->xft_fg, font, x + 1, y, str, len);
@@ -488,8 +487,7 @@ backend_draw_text (GtkXText *xtext, int dofill, GdkGC *gc, int x, int y,
 	if (dofill) {
 #ifdef WIN32
 		if (xtext->transparent && !xtext->backcolor) {
-			win32_draw_bg (xtext, x, y - xtext->font->ascent, str_width,
-								xtext->fontsize);
+			win32_draw_bg (xtext, x, y - xtext->font->ascent, str_width, xtext->fontsize);
 		} else {
 			gdk_gc_get_values (gc, &val);
 			col.pixel = val.background.pixel;
@@ -511,10 +509,6 @@ backend_draw_text (GtkXText *xtext, int dofill, GdkGC *gc, int x, int y,
 	line = pango_layout_get_lines (xtext->layout)->data;
 
 	xtext_draw_layout_line (xtext->draw_buf, gc, x, y, line);
-
-	if (xtext->overdraw) {
-		xtext_draw_layout_line (xtext->draw_buf, gc, x, y, line);
-	}
 
 	if (xtext->bold) {
 		xtext_draw_layout_line (xtext->draw_buf, gc, x + 1, y, line);
@@ -587,18 +581,14 @@ gtk_xtext_init (GtkXText * xtext)
 	xtext->clip_x2 = 1000000;
 	xtext->clip_y = 0;
 	xtext->clip_y2 = 1000000;
-	xtext->error_function = NULL;
 	xtext->urlcheck_function = NULL;
 	xtext->color_paste = FALSE;
 	xtext->skip_border_fills = FALSE;
 	xtext->skip_stamp = FALSE;
 	xtext->render_hilights_only = FALSE;
 	xtext->un_hilight = FALSE;
-	xtext->recycle = FALSE;
 	xtext->dont_render = FALSE;
 	xtext->dont_render2 = FALSE;
-	xtext->overdraw = FALSE;
-	xtext->tint_red = xtext->tint_green = xtext->tint_blue = TINT_VALUE;
 
 	xtext->current_word = NULL;
 
@@ -608,9 +598,7 @@ gtk_xtext_init (GtkXText * xtext)
 	xtext->vc_signal_tag = g_signal_connect (G_OBJECT (xtext->adj),
 				"value_changed", G_CALLBACK (gtk_xtext_adjustment_changed), xtext);
 
-	if (getenv ("XCHAT_OVERDRAW")) {
-		xtext->overdraw = TRUE;
-	}
+	g_signal_connect (G_OBJECT (xtext), "screen-changed", G_CALLBACK (xtext_screen_changed), NULL);
 }
 
 static void
@@ -888,7 +876,7 @@ gtk_xtext_realize (GtkWidget * widget)
 
 #if defined(USE_XLIB) || defined(WIN32)
 	if (xtext->transparent) {
-		gtk_xtext_load_trans (xtext);
+		gtk_xtext_load_trans (xtext, FALSE);
 	} else {
 		if (xtext->pixmap) {
 			gdk_gc_set_tile (xtext->bgc, xtext->pixmap);
@@ -956,7 +944,7 @@ gtk_xtext_size_allocate (GtkWidget * widget, GtkAllocation * allocation)
 #if defined(USE_XLIB) || defined(WIN32)
 		if (do_trans && xtext->transparent && xtext->shaded) {
 			gtk_xtext_free_trans (xtext);
-			gtk_xtext_load_trans (xtext);
+			gtk_xtext_load_trans (xtext, FALSE);
 		}
 #endif /* defined(USE_XLIB) || defined(WIN32) */
 		if (xtext->buffer->scrollbar_down) {
@@ -1188,16 +1176,14 @@ gtk_xtext_paint (GtkWidget *widget, GdkRectangle *area)
 			xtext->last_win_y = y;
 #if !defined(USE_SHM) && !defined(WIN32)
 			if (xtext->shaded) {
-				xtext->recycle = TRUE;
-				gtk_xtext_load_trans (xtext);
-				xtext->recycle = FALSE;
+				gtk_xtext_load_trans (xtext, TRUE);
 			} else {
 				gtk_xtext_free_trans (xtext);
-				gtk_xtext_load_trans (xtext);
+				gtk_xtext_load_trans (xtext, FALSE);
 			}
 #else /* !defined(USE_SHM) && !defined(WIN32) */
 			gtk_xtext_free_trans (xtext);
-			gtk_xtext_load_trans (xtext);
+			gtk_xtext_load_trans (xtext, FALSE);
 #endif /* !defined(USE_SHM) && !defined(WIN32) */
 		}
 	}
@@ -3112,7 +3098,7 @@ get_image (GtkXText *xtext, Display *xdisplay, XShmSegmentInfo *shminfo,
 #endif /* USE_SHM */
 
 static GdkPixmap *
-shade_pixmap (GtkXText * xtext, Pixmap p, int x, int y, int w, int h)
+shade_pixmap (GtkXText * xtext, Pixmap p, int x, int y, int w, int h, gboolean recycle)
 {
 	unsigned int dummy, width, height, depth;
 	GdkPixmap *shaded_pix;
@@ -3166,7 +3152,7 @@ shade_pixmap (GtkXText * xtext, Pixmap p, int x, int y, int w, int h)
 		             xtext->palette[XTEXT_BG], depth);
 	}
 
-	if (xtext->recycle) {
+	if (recycle) {
 		shaded_pix = xtext->pixmap;
 	} else {
 #ifdef USE_SHM
@@ -3331,7 +3317,7 @@ here:
 #if defined(USE_XLIB) || defined(WIN32)
 
 static void
-gtk_xtext_load_trans (GtkXText * xtext)
+gtk_xtext_load_trans (GtkXText * xtext, gboolean recycle)
 {
 #ifdef WIN32
 	GdkImage *img;
@@ -3361,9 +3347,6 @@ gtk_xtext_load_trans (GtkXText * xtext)
 
 	rootpix = get_pixmap_prop (GDK_WINDOW_XDISPLAY (widget->window), GDK_WINDOW_XWINDOW (widget->window));
 	if (rootpix == None) {
-		if (xtext->error_function) {
-			xtext->error_function (0);
-		}
 		xtext->transparent = FALSE;
 		return;
 	}
@@ -3373,7 +3356,7 @@ gtk_xtext_load_trans (GtkXText * xtext)
 	if (xtext->shaded) {
 		int width, height;
 		gdk_drawable_get_size (GTK_WIDGET (xtext)->window, &width, &height);
-		xtext->pixmap = shade_pixmap (xtext, rootpix, x, y, width+105, height);
+		xtext->pixmap = shade_pixmap (xtext, rootpix, x, y, width+105, height, recycle);
 		if (xtext->pixmap == NULL) {
 			xtext->shaded = 0;
 			goto noshade;
@@ -3755,7 +3738,7 @@ gtk_xtext_set_background (GtkXText * xtext, GdkPixmap * pixmap, gboolean trans)
 	if (trans) {
 		xtext->shaded = shaded;
 		if (GTK_WIDGET_REALIZED (xtext))
-			gtk_xtext_load_trans (xtext);
+			gtk_xtext_load_trans (xtext, FALSE);
 		return;
 	}
 #endif /* !defined(USE_XLIB) && !defined(WIN32) */
@@ -4110,7 +4093,7 @@ gtk_xtext_refresh (GtkXText * xtext, int do_trans)
 #if defined(USE_XLIB) || defined(WIN32)
 		if (xtext->transparent && do_trans) {
 			gtk_xtext_free_trans (xtext);
-			gtk_xtext_load_trans (xtext);
+			gtk_xtext_load_trans (xtext, FALSE);
 		}
 #endif /* defined(USE_XLIB) || defined(WIN32) */
 		gtk_xtext_render_page (xtext);
@@ -4538,12 +4521,6 @@ gtk_xtext_foreach (xtext_buffer *buf, GtkXTextForeach func, void *data)
 }
 
 void
-gtk_xtext_set_error_function (GtkXText *xtext, void (*error_function) (int))
-{
-	xtext->error_function = error_function;
-}
-
-void
 gtk_xtext_set_indent (GtkXText *xtext, gboolean indent)
 {
 	xtext->auto_indent = indent;
@@ -4721,4 +4698,33 @@ gtk_xtext_buffer_free (xtext_buffer *buf)
 	}
 
 	g_free (buf);
+}
+
+
+/*
+ * This signal handler handles setting the colormap for the xtext widget.
+ * If we can get an ARGB colormap, then we have half of what is necessary for
+ * real transparency to work.
+ */
+static void
+xtext_screen_changed (GtkWidget *widget,
+                      GdkScreen *old_screen,
+		      gpointer   data)
+{
+	GtkXText    *xtext;
+	GdkScreen   *screen;
+	GdkColormap *cmap;
+
+	xtext = GTK_XTEXT (widget);
+
+	screen = gtk_widget_get_screen (widget);
+	cmap = gdk_screen_get_rgba_colormap (screen);
+	if (cmap) {
+		xtext->has_argb_visual = TRUE;
+	} else {
+		cmap = gdk_screen_get_rgb_colormap (screen);
+		xtext->has_argb_visual = FALSE;
+	}
+
+	gtk_widget_set_colormap (widget, cmap);
 }
