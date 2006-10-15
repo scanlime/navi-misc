@@ -1,3 +1,10 @@
+2006-10-15  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/fe-gnome/xtext.c:
+	* src/fe-gnome/xtext.h:
+	  - Some more cleanup, and the first baby steps towards true
+	    transparency.
+
 2006-10-14  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/fe-gnome/topic-label.c:
