@@ -1,5 +1,10 @@
 2006-10-14  David Trowbridge  <trowbrds@gmail.com>
 
+	* src/fe-gnome/topic-label.c:
+	  - Do alignment properly.  Unfortunately, this hasn't fixed the bug.
+
+2006-10-14  David Trowbridge  <trowbrds@gmail.com>
+
 	* src/fe-gnome/userlist-gui.c:
 	  - One last fix before bed -- pop up the userlist on the correct
 	    monitor in xinerama situations. (#347045)

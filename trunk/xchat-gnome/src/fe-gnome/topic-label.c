@@ -99,6 +99,7 @@ topic_label_init (TopicLabel *label)
 	gtk_expander_set_use_markup (GTK_EXPANDER (priv->expander), TRUE);
 	gtk_label_set_ellipsize (GTK_LABEL (priv->label), PANGO_ELLIPSIZE_END);
 	gtk_label_set_selectable (GTK_LABEL (priv->label), TRUE);
+	gtk_misc_set_alignment (GTK_MISC (priv->label), 0.0, 0.0);
 
 	gtk_widget_show (priv->expander);
 	gtk_widget_show (priv->label);
@@ -108,9 +109,9 @@ topic_label_init (TopicLabel *label)
 	gtk_box_pack_start (GTK_BOX (label), priv->label,    TRUE,  TRUE, 0);
 	gtk_box_set_spacing (GTK_BOX (label), 6);
 
-	g_signal_connect (G_OBJECT (priv->expander), "activate",      G_CALLBACK (topic_label_expand_activate), (gpointer) label);
+	g_signal_connect (G_OBJECT (priv->expander), "activate", G_CALLBACK (topic_label_expand_activate), (gpointer) label);
 #ifdef HAVE_LIBSEXY
-	g_signal_connect (G_OBJECT (priv->label),    "url_activated", G_CALLBACK (topic_label_url_activated),   (gpointer) label);
+	g_signal_connect (G_OBJECT (priv->label), "url_activated", G_CALLBACK (topic_label_url_activated), (gpointer) label);
 #endif
 
 	priv->topics = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_free);
@@ -135,11 +136,9 @@ topic_label_expand_activate (GtkExpander *expander, TopicLabel *label)
 	if (gtk_expander_get_expanded (expander)) {
 		gtk_label_set_ellipsize (GTK_LABEL (priv->label), PANGO_ELLIPSIZE_END);
 		gtk_label_set_line_wrap (GTK_LABEL (priv->label), FALSE);
-		gtk_misc_set_alignment (GTK_MISC (priv->label), 0.5, 0.5);
 	} else {
 		gtk_label_set_ellipsize (GTK_LABEL (priv->label), PANGO_ELLIPSIZE_NONE);
 		gtk_label_set_line_wrap (GTK_LABEL (priv->label), TRUE);
-		gtk_misc_set_alignment (GTK_MISC (priv->label), 0.0, 0.5);
 	}
 }
 
