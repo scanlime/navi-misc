@@ -2,9 +2,6 @@
 #define __XTEXT_H__
 
 #include <gtk/gtkadjustment.h>
-#ifdef USE_XFT
-#include <X11/Xft/Xft.h>
-#endif
 
 #ifdef USE_SHM
 #include <X11/Xlib.h>
@@ -148,13 +145,6 @@ struct _XText
 
 	guint16 fontwidth[128]; /* each char's width, only the ASCII ones */
 
-#ifdef USE_XFT
-	XftColor color[XTEXT_N_COLORS];
-	XftColor *xft_fg;
-	XftColor *xft_bg;
-	XftDraw *xftdraw;
-	XftFont *font;
-#else
 	struct pangofont
 	{
 		PangoFontDescription *font;
@@ -162,7 +152,6 @@ struct _XText
 		int descent;
 	} *font, pango_font;
 	PangoLayout *layout;
-#endif
 
 	int fontsize;
 	int space_width; /* width (pixels) of the space " " character */
