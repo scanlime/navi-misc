@@ -136,7 +136,6 @@ struct _XText
 	unsigned int moving_separator:1;
 	unsigned int word_or_line_select:1;
 	unsigned int color_paste:1;
-	unsigned int thinline:1;
 	unsigned int parsing_backcolor:1;
 	unsigned int parsing_color:1;
 	unsigned int backcolor:1;
@@ -149,7 +148,6 @@ struct _XText
 	unsigned int marker:1;
 	unsigned int separator:1;
 	unsigned int shaded:1;
-	unsigned int wordwrap:1;
 	unsigned int dont_render:1;
 	unsigned int dont_render2:1;
 	unsigned int cursor_hand:1;
@@ -196,22 +194,20 @@ void xtext_set_max_indent (XText *xtext, int max_auto_indent);
 void xtext_set_max_lines (XText *xtext, int max_lines);
 void xtext_set_show_marker (XText *xtext, gboolean show_marker);
 void xtext_set_show_separator (XText *xtext, gboolean show_separator);
-void xtext_set_thin_separator (XText *xtext, gboolean thin_separator);
 void xtext_set_time_stamp (xtext_buffer *buf, gboolean timestamp);
 void xtext_set_tint (XText *xtext, int tint);
 void xtext_set_urlcheck_function (XText *xtext, int (*urlcheck_function) (GtkWidget *, char *, int));
-void xtext_set_wordwrap (XText *xtext, gboolean word_wrap);
 
 xtext_buffer *xtext_buffer_new (XText *xtext);
 void xtext_buffer_free (xtext_buffer *buf);
 void xtext_buffer_show (XText *xtext, xtext_buffer *buf, int render);
-GtkType xtext_get_type (void);
 void xtext_copy_selection (XText *xtext);
 
 /***********************************************************************************
  * !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!! *
  ***********************************************************************************/
 
+GType xtext_get_type (void) G_GNUC_CONST;
 GtkAdjustment *xtext_get_adjustment (XText *xtext);
 
 #endif

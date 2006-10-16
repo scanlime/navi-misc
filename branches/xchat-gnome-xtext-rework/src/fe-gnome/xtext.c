@@ -133,7 +133,6 @@ struct _XTextPriv
 	GdkGC *bgc;
 	GdkGC *fgc;
 	GdkGC *light_separator_gc;
-	GdkGC *dark_separator_gc;
 	GdkGC *thin_gc;
 	GdkGC *marker_gc;
 
@@ -591,7 +590,6 @@ xtext_new (GdkColor palette[], int separator)
 
 	xtext = g_object_new (xtext_get_type (), NULL);
 	xtext->separator = separator;
-	xtext->wordwrap = TRUE;
 	xtext->buffer = xtext_buffer_new (xtext);
 	xtext->orig_buffer = xtext->buffer;
 
@@ -659,11 +657,6 @@ xtext_destroy (GtkObject * object)
 	if (priv->light_separator_gc) {
 		g_object_unref (priv->light_separator_gc);
 		priv->light_separator_gc = NULL;
-	}
-
-	if (priv->dark_separator_gc) {
-		g_object_unref (priv->dark_separator_gc);
-		priv->dark_separator_gc = NULL;
 	}
 
 	if (priv->thin_gc) {
@@ -764,8 +757,7 @@ xtext_realize (GtkWidget * widget)
 
 	priv->bgc       = gdk_gc_new_with_values (widget->window, &val, GDK_GC_EXPOSURES | GDK_GC_SUBWINDOW);
 	priv->fgc       = gdk_gc_new_with_values (widget->window, &val, GDK_GC_EXPOSURES | GDK_GC_SUBWINDOW);
-	priv->light_separator_gc  = gdk_gc_new_with_values (widget->window, &val, GDK_GC_EXPOSURES | GDK_GC_SUBWINDOW);
-	priv->dark_separator_gc   = gdk_gc_new_with_values (widget->window, &val, GDK_GC_EXPOSURES | GDK_GC_SUBWINDOW);
+	priv->light_separator_gc = gdk_gc_new_with_values (widget->window, &val, GDK_GC_EXPOSURES | GDK_GC_SUBWINDOW);
 	priv->thin_gc   = gdk_gc_new_with_values (widget->window, &val, GDK_GC_EXPOSURES | GDK_GC_SUBWINDOW);
 	priv->marker_gc = gdk_gc_new_with_values (widget->window, &val, GDK_GC_EXPOSURES | GDK_GC_SUBWINDOW);
 
@@ -773,11 +765,6 @@ xtext_realize (GtkWidget * widget)
 	col.red = 0xffff; col.green = 0xffff; col.blue = 0xffff;
 	gdk_colormap_alloc_color (cmap, &col, FALSE, TRUE);
 	gdk_gc_set_foreground (priv->light_separator_gc, &col);
-
-	/* for the separator bar (dark) */
-	col.red = 0x1111; col.green = 0x1111; col.blue = 0x1111;
-	gdk_colormap_alloc_color (cmap, &col, FALSE, TRUE);
-	gdk_gc_set_foreground (priv->dark_separator_gc, &col);
 
 	/* for the separator bar (thinline) */
 	col.red = 0x8e38; col.green = 0x8e38; col.blue = 0x9f38;
@@ -1021,7 +1008,7 @@ xtext_draw_sep (XText * xtext, int y)
 {
 	XTextPriv *priv;
 	int x, height;
-	GdkGC *light, *dark;
+	GdkGC *light;
 
 	priv = XTEXT_GET_PRIVATE (xtext);
 
@@ -1035,27 +1022,16 @@ xtext_draw_sep (XText * xtext, int y)
 	/* draw the separator line */
 	if (xtext->separator && xtext->buffer->indent) {
 		light = priv->light_separator_gc;
-		dark = priv->dark_separator_gc;
 
 		x = xtext->buffer->indent - ((xtext->space_width + 1) / 2);
 		if (x < 1) {
 			return;
 		}
 
-		if (xtext->thinline) {
-			if (xtext->moving_separator) {
-				gdk_draw_line (priv->draw_buffer, light, x, y, x, y + height);
-			} else {
-				gdk_draw_line (priv->draw_buffer, priv->thin_gc, x, y, x, y + height);
-			}
+		if (xtext->moving_separator) {
+			gdk_draw_line (priv->draw_buffer, light, x, y, x, y + height);
 		} else {
-			if (xtext->moving_separator) {
-				gdk_draw_line (priv->draw_buffer, light, x - 1, y, x - 1, y + height);
-				gdk_draw_line (priv->draw_buffer, dark, x, y, x, y + height);
-			} else {
-				gdk_draw_line (priv->draw_buffer, dark, x - 1, y, x - 1, y + height);
-				gdk_draw_line (priv->draw_buffer, light, x, y, x, y + height);
-			}
+			gdk_draw_line (priv->draw_buffer, priv->thin_gc, x, y, x, y + height);
 		}
 	}
 }
@@ -3350,22 +3326,18 @@ find_next_wrap (XText * xtext, textentry * ent, unsigned char *str, int win_widt
 			default:
 				str_width += backend_get_char_width (xtext, str, &mbl);
 				if (str_width > win_width) {
-					if (xtext->wordwrap) {
-						if (str - last_space > WORDWRAP_LIMIT + limit_offset) {
-							ret = str - orig_str; /* fall back to character wrap */
-						} else {
-							if (*last_space == ' ') {
-								last_space++;
-							}
-							ret = last_space - orig_str;
-							if (ret == 0) {
-								/* fall back to character wrap */
-								ret = str - orig_str;
-							}
+					if (str - last_space > WORDWRAP_LIMIT + limit_offset) {
+						ret = str - orig_str; /* fall back to character wrap */
+					} else {
+						if (*last_space == ' ') {
+							last_space++;
 						}
-						goto done;
+						ret = last_space - orig_str;
+						if (ret == 0) {
+							/* fall back to character wrap */
+							ret = str - orig_str;
+						}
 					}
-					ret = str - orig_str;
 					goto done;
 				}
 
@@ -4484,12 +4456,6 @@ xtext_set_show_separator (XText *xtext, gboolean show_separator)
 }
 
 void
-xtext_set_thin_separator (XText *xtext, gboolean thin_separator)
-{
-	xtext->thinline = thin_separator;
-}
-
-void
 xtext_set_time_stamp (xtext_buffer *buf, gboolean time_stamp)
 {
 	buf->time_stamp = time_stamp;
@@ -4509,12 +4475,6 @@ void
 xtext_set_urlcheck_function (XText *xtext, int (*urlcheck_function) (GtkWidget *, char *, int))
 {
 	xtext->urlcheck_function = urlcheck_function;
-}
-
-void
-xtext_set_wordwrap (XText *xtext, gboolean wordwrap)
-{
-	xtext->wordwrap = wordwrap;
 }
 
 void
