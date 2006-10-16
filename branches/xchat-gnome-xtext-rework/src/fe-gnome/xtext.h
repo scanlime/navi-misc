@@ -102,12 +102,6 @@ struct _XText
 
 	int pixel_offset; /* amount of pixels the top line is chopped by */
 
-	GdkGC *bgc; /* backing pixmap */
-	GdkGC *fgc; /* text foreground color */
-	GdkGC *light_gc; /* sep bar */
-	GdkGC *dark_gc;
-	GdkGC *thin_gc;
-	GdkGC *marker_gc;
 	gulong palette[XTEXT_N_COLORS];
 
 	guint io_tag; /* for delayed refresh events */
