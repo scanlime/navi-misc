@@ -236,7 +236,7 @@ conversation_panel_init (ConversationPanel *panel)
 
 	panel->priv = g_new0 (ConversationPanelPriv, 1);
 	panel->priv->xtext     = xtext_new (colors, TRUE);
-	panel->priv->scrollbar = gtk_vscrollbar_new (XTEXT (panel->priv->xtext)->adj);
+	panel->priv->scrollbar = gtk_vscrollbar_new (xtext_get_adjustment (XTEXT (panel->priv->xtext)));
 	frame                  = gtk_frame_new (NULL);
 
 	panel->priv->buffers            = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, (GDestroyNotify) xtext_buffer_free);
@@ -622,7 +622,7 @@ conversation_panel_font_changed (GConfClient *client, guint cnxn_id, GConfEntry 
 
 	conversation_panel_set_font (panel);
 
-	adj = XTEXT (panel->priv->xtext)->adj;
+	adj = xtext_get_adjustment (XTEXT (panel->priv->xtext));
 	gtk_adjustment_set_value (adj, adj->upper - adj->page_size);
 	xtext_refresh (XTEXT (panel->priv->xtext), FALSE);
 }
@@ -1238,7 +1238,7 @@ conversation_panel_page_up (ConversationPanel *panel)
 	GtkAdjustment *adj;
 	int end, value;
 
-	adj = XTEXT (panel->priv->xtext)->adj;
+	adj = xtext_get_adjustment (XTEXT (panel->priv->xtext));
 	end = adj->upper - adj->lower - adj->page_size;
 	value = adj->value - (adj->page_size - 1);
 	if (value < 0) {
@@ -1256,7 +1256,7 @@ conversation_panel_page_down (ConversationPanel *panel)
 	GtkAdjustment *adj;
 	int value, end;
 
-	adj = XTEXT (panel->priv->xtext)->adj;
+	adj = xtext_get_adjustment (XTEXT (panel->priv->xtext));
 	end = adj->upper - adj->lower - adj->page_size;
 	value = adj->value + (adj->page_size - 1);
 	if (value < 0) {
