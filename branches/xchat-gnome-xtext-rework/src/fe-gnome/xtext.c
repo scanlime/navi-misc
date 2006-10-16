@@ -184,14 +184,24 @@ static int xtext_render_ents (XText * xtext, textentry *, textentry *);
 static void xtext_recalc_widths (xtext_buffer *buf, int);
 static void xtext_fix_indent (xtext_buffer *buf);
 static int xtext_find_subline (XText *xtext, textentry *ent, int line);
-static unsigned char *
-xtext_strip_color (unsigned char *text, int len, unsigned char *outbuf,
-							  int *newlen, int *mb_ret);
+static unsigned char *xtext_strip_color (unsigned char *text, int len, unsigned char *outbuf, int *newlen, int *mb_ret);
 static void xtext_update_primary_selection (XText *xtext);
 
+/***********************************************************************************
+ * !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!! *
+ ***********************************************************************************/
+
+/* GtkWidget overrides */
+static void unrealize (GtkWidget *widget);
+
 /* Signal handlers */
-static void xtext_screen_changed (GtkWidget *widget, GdkScreen *screen, gpointer data);
-static void xtext_composited_changed (GtkWidget *widget, gpointer data);
+static void screen_changed (GtkWidget *widget, GdkScreen *screen, gpointer data);
+static void composited_changed (GtkWidget *widget, gpointer data);
+
+/***********************************************************************************
+ * !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!! *
+ ***********************************************************************************/
+
 
 /* some utility functions first */
 
@@ -501,16 +511,21 @@ xtext_init (XText * xtext)
 
 	xtext->current_word = NULL;
 
+	xtext->buffer = xtext_buffer_new (xtext);
+	xtext->orig_buffer = xtext->buffer;
+
+	gtk_widget_set_double_buffered (GTK_WIDGET (xtext), FALSE);
+
 	priv->adj = (GtkAdjustment *) gtk_adjustment_new (0, 0, 1, 1, 1, 1);
 	g_object_ref_sink (priv->adj);
 
 	xtext->vc_signal_tag = g_signal_connect (G_OBJECT (priv->adj),
 				"value_changed", G_CALLBACK (xtext_adjustment_changed), xtext);
 
-	g_signal_connect (G_OBJECT (xtext), "screen-changed", G_CALLBACK (xtext_screen_changed), NULL);
-	g_signal_connect (G_OBJECT (xtext), "composited-changed", G_CALLBACK (xtext_composited_changed), NULL);
-	xtext_screen_changed (GTK_WIDGET (xtext), NULL, NULL);
-	xtext_composited_changed (GTK_WIDGET (xtext), NULL);
+	g_signal_connect (G_OBJECT (xtext), "screen-changed", G_CALLBACK (screen_changed), NULL);
+	g_signal_connect (G_OBJECT (xtext), "composited-changed", G_CALLBACK (composited_changed), NULL);
+	screen_changed (GTK_WIDGET (xtext), NULL, NULL);
+	composited_changed (GTK_WIDGET (xtext), NULL);
 }
 
 static void
@@ -581,22 +596,6 @@ xtext_adjustment_changed (GtkAdjustment * adj, XText * xtext)
 		}
 	}
 	xtext->buffer->old_value = adj->value;
-}
-
-GtkWidget *
-xtext_new (GdkColor palette[], int separator)
-{
-	XText *xtext;
-
-	xtext = g_object_new (xtext_get_type (), NULL);
-	xtext->separator = separator;
-	xtext->buffer = xtext_buffer_new (xtext);
-	xtext->orig_buffer = xtext->buffer;
-
-	gtk_widget_set_double_buffered (GTK_WIDGET (xtext), FALSE);
-	xtext_set_palette (xtext, palette);
-
-	return GTK_WIDGET (xtext);
 }
 
 static void
@@ -675,33 +674,6 @@ xtext_destroy (GtkObject * object)
 	}
 
 	GTK_OBJECT_CLASS (parent_class)->destroy (object);
-}
-
-static void
-xtext_unrealize (GtkWidget * widget)
-{
-	XText *xtext = XTEXT (widget);
-	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	GtkClipboard *clipboard;
-
-	backend_deinit (xtext);
-
-	/* Withdraw PRIMARY selection */
-	clipboard = gtk_widget_get_clipboard (widget, GDK_SELECTION_PRIMARY);
-	if (gtk_clipboard_get_owner (clipboard) == G_OBJECT (widget)) {
-		gtk_clipboard_clear (clipboard);
-	}
-
-	gdk_cursor_unref (priv->ibeam_cursor);
-	priv->ibeam_cursor = NULL;
-
-	gdk_cursor_unref (priv->hand_cursor);
-	priv->hand_cursor = NULL;
-
-	gdk_cursor_unref (priv->resize_cursor);
-	priv->resize_cursor = NULL;
-
-	GTK_WIDGET_CLASS (parent_class)->unrealize (widget);
 }
 
 static void
@@ -1020,7 +992,7 @@ xtext_draw_sep (XText * xtext, int y)
 	}
 
 	/* draw the separator line */
-	if (xtext->separator && xtext->buffer->indent) {
+	if (xtext->buffer->indent) {
 		light = priv->light_separator_gc;
 
 		x = xtext->buffer->indent - ((xtext->space_width + 1) / 2);
@@ -1605,7 +1577,7 @@ xtext_motion_notify (GtkWidget * widget, GdkEventMotion * event)
 		return FALSE;
 	}
 
-	if (xtext->separator && xtext->buffer->indent) {
+	if (xtext->buffer->indent) {
 		line_x = xtext->buffer->indent - ((xtext->space_width + 1) / 2);
 		if (line_x == x || line_x == x + 1 || line_x == x - 1) {
 			if (!xtext->cursor_resize) {
@@ -1957,7 +1929,7 @@ xtext_button_press (GtkWidget * widget, GdkEventButton * event)
 	}
 
 	/* check if it was a separator-bar click */
-	if (xtext->separator && xtext->buffer->indent) {
+	if (xtext->buffer->indent) {
 		line_x = xtext->buffer->indent - ((xtext->space_width + 1) / 2);
 		if (line_x == x || line_x == x + 1 || line_x == x - 1) {
 			xtext->moving_separator = TRUE;
@@ -2114,7 +2086,7 @@ xtext_class_init (XTextClass * class)
 	object_class->destroy = xtext_destroy;
 
 	widget_class->realize = xtext_realize;
-	widget_class->unrealize = xtext_unrealize;
+	widget_class->unrealize = unrealize;
 	widget_class->size_request = xtext_size_request;
 	widget_class->size_allocate = xtext_size_allocate;
 	widget_class->button_press_event = xtext_button_press;
@@ -2595,17 +2567,7 @@ xtext_render_str (XText * xtext, int y, textentry * ent,
 			x += xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
 			pstr += j;
 			j = 0;
-			if (mark) {
-				xtext_set_bg (xtext, gc, XTEXT_MARK_BG);
-				xtext->backcolor = TRUE;
-			} else {
-				xtext_set_bg (xtext, gc, priv->background_color);
-				if (priv->background_color != XTEXT_BG) {
-					xtext->backcolor = TRUE;
-				} else {
-					xtext->backcolor = FALSE;
-				}
-			}
+			xtext->underline = FALSE;
 			xtext->in_hilight = FALSE;
 			if (xtext->render_hilights_only) {
 				/* stop drawing this ent */
@@ -3486,31 +3448,6 @@ xtext_render_line (XText * xtext, textentry * ent, int line, int lines_max, int 
 	xtext_draw_marker (xtext, ent, y - xtext->fontsize * (taken + start_subline));
 
 	return taken;
-}
-
-void
-xtext_set_palette (XText * xtext, GdkColor palette[])
-{
-	XTextPriv *priv;
-	int i;
-	GdkColor col;
-
-	priv = XTEXT_GET_PRIVATE (xtext);
-
-	for (i = (XTEXT_N_COLORS -1); i >= 0; i--) {
-		xtext->palette[i] = palette[i].pixel;
-	}
-
-	if (GTK_WIDGET_REALIZED (xtext)) {
-		xtext_set_fg (xtext, priv->fgc, XTEXT_FG);
-		xtext_set_bg (xtext, priv->fgc, XTEXT_BG);
-		xtext_set_fg (xtext, priv->bgc, XTEXT_BG);
-
-		col.pixel = xtext->palette[XTEXT_MARKER];
-		gdk_gc_set_foreground (priv->marker_gc, &col);
-	}
-	priv->foreground_color = XTEXT_FG;
-	priv->background_color = XTEXT_BG;
 }
 
 static void
@@ -4450,25 +4387,9 @@ xtext_set_show_marker (XText *xtext, gboolean show_marker)
 }
 
 void
-xtext_set_show_separator (XText *xtext, gboolean show_separator)
-{
-	xtext->separator = show_separator;
-}
-
-void
 xtext_set_time_stamp (xtext_buffer *buf, gboolean time_stamp)
 {
 	buf->time_stamp = time_stamp;
-}
-
-void
-xtext_set_tint (XText *xtext, int tint)
-{
-	XTextPriv *priv;
-
-	priv = XTEXT_GET_PRIVATE (xtext);
-
-	priv->tint = tint;
 }
 
 void
@@ -4604,15 +4525,48 @@ xtext_buffer_free (xtext_buffer *buf)
 
 G_DEFINE_TYPE (XText, xtext, GTK_TYPE_WIDGET);
 
+GtkWidget *
+xtext_new (void)
+{
+	return GTK_WIDGET (g_object_new (XTEXT_TYPE, NULL));
+}
+
+static void
+unrealize (GtkWidget *widget)
+{
+	XText *xtext = XTEXT (widget);
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
+	GtkClipboard *clipboard;
+
+	backend_deinit (xtext);
+
+	/* Withdraw PRIMARY selection */
+	clipboard = gtk_widget_get_clipboard (widget, GDK_SELECTION_PRIMARY);
+	if (gtk_clipboard_get_owner (clipboard) == G_OBJECT (widget)) {
+		gtk_clipboard_clear (clipboard);
+	}
+
+	gdk_cursor_unref (priv->ibeam_cursor);
+	priv->ibeam_cursor = NULL;
+
+	gdk_cursor_unref (priv->hand_cursor);
+	priv->hand_cursor = NULL;
+
+	gdk_cursor_unref (priv->resize_cursor);
+	priv->resize_cursor = NULL;
+
+	GTK_WIDGET_CLASS (parent_class)->unrealize (widget);
+}
+
 /*
  * This signal handler handles setting the colormap for the xtext widget.
  * If we can get an ARGB colormap, then we have half of what is necessary for
  * real transparency to work.
  */
 static void
-xtext_screen_changed (GtkWidget *widget,
-                      GdkScreen *old_screen,
-		      gpointer   data)
+screen_changed (GtkWidget *widget,
+                GdkScreen *old_screen,
+		gpointer   data)
 {
 	XText       *xtext;
 	XTextPriv   *priv;
@@ -4638,7 +4592,8 @@ xtext_screen_changed (GtkWidget *widget,
 }
 
 static void
-xtext_composited_changed (GtkWidget *widget, gpointer data)
+composited_changed (GtkWidget *widget,
+                    gpointer   data)
 {
 	XText     *xtext;
 	XTextPriv *priv;
@@ -4657,4 +4612,38 @@ xtext_get_adjustment (XText *xtext)
 {
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	return priv->adj;
+}
+
+void
+xtext_set_palette (XText    *xtext,
+                   GdkColor  palette[])
+{
+	XTextPriv *priv;
+	int i;
+	GdkColor col;
+
+	priv = XTEXT_GET_PRIVATE (xtext);
+
+	for (i = 0; i < XTEXT_N_COLORS; i++) {
+		xtext->palette[i] = palette[i].pixel;
+	}
+
+	if (GTK_WIDGET_REALIZED (xtext)) {
+		xtext_set_fg (xtext, priv->fgc, XTEXT_FG);
+		xtext_set_bg (xtext, priv->fgc, XTEXT_BG);
+		xtext_set_fg (xtext, priv->bgc, XTEXT_BG);
+
+		col.pixel = xtext->palette[XTEXT_MARKER];
+		gdk_gc_set_foreground (priv->marker_gc, &col);
+	}
+	priv->foreground_color = XTEXT_FG;
+	priv->background_color = XTEXT_BG;
+}
+
+void
+xtext_set_tint (XText *xtext,
+                int    tint)
+{
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
+	priv->tint = tint;
 }
