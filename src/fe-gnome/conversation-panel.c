@@ -320,8 +320,6 @@ conversation_panel_realize (GtkWidget *widget)
 	xtext_set_show_separator    (XTEXT (panel->priv->xtext), prefs.show_separator);
 	xtext_set_indent            (XTEXT (panel->priv->xtext), prefs.indent_nicks);
 	xtext_set_max_indent        (XTEXT (panel->priv->xtext), prefs.max_auto_indent);
-	xtext_set_thin_separator    (XTEXT (panel->priv->xtext), prefs.thin_separator);
-	xtext_set_wordwrap          (XTEXT (panel->priv->xtext), prefs.wordwrap);
 	xtext_set_urlcheck_function (XTEXT (panel->priv->xtext), conversation_panel_check_word);
 
 	conversation_panel_set_font       (panel);
