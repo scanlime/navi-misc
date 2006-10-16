@@ -91,7 +91,7 @@ static void     conversation_panel_print_line         (ConversationPanel      *p
                                                        guchar                  *text,
                                                        int                     len,
                                                        gboolean                indent);
-static void     conversation_panel_lastlog_foreach    (GtkXText               *xtext,
+static void     conversation_panel_lastlog_foreach    (XText                  *xtext,
                                                        guchar                 *text,
                                                        fe_lastlog_info        *info);
 
@@ -235,11 +235,11 @@ conversation_panel_init (ConversationPanel *panel)
 	GConfClient       *client;
 
 	panel->priv = g_new0 (ConversationPanelPriv, 1);
-	panel->priv->xtext     = gtk_xtext_new (colors, TRUE);
-	panel->priv->scrollbar = gtk_vscrollbar_new (GTK_XTEXT (panel->priv->xtext)->adj);
+	panel->priv->xtext     = xtext_new (colors, TRUE);
+	panel->priv->scrollbar = gtk_vscrollbar_new (XTEXT (panel->priv->xtext)->adj);
 	frame                  = gtk_frame_new (NULL);
 
-	panel->priv->buffers            = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, (GDestroyNotify) gtk_xtext_buffer_free);
+	panel->priv->buffers            = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, (GDestroyNotify) xtext_buffer_free);
 	panel->priv->timestamp_notifies = g_hash_table_new      (g_direct_hash, g_direct_equal);
 
 	gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_IN);
@@ -315,14 +315,14 @@ conversation_panel_realize (GtkWidget *widget)
 	client = gconf_client_get_default ();
 
 	palette_alloc (panel->priv->xtext);
-	gtk_xtext_set_palette           (GTK_XTEXT (panel->priv->xtext), colors);
-	gtk_xtext_set_max_lines         (GTK_XTEXT (panel->priv->xtext), 3000);
-	gtk_xtext_set_show_separator    (GTK_XTEXT (panel->priv->xtext), prefs.show_separator);
-	gtk_xtext_set_indent            (GTK_XTEXT (panel->priv->xtext), prefs.indent_nicks);
-	gtk_xtext_set_max_indent        (GTK_XTEXT (panel->priv->xtext), prefs.max_auto_indent);
-	gtk_xtext_set_thin_separator    (GTK_XTEXT (panel->priv->xtext), prefs.thin_separator);
-	gtk_xtext_set_wordwrap          (GTK_XTEXT (panel->priv->xtext), prefs.wordwrap);
-	gtk_xtext_set_urlcheck_function (GTK_XTEXT (panel->priv->xtext), conversation_panel_check_word);
+	xtext_set_palette           (XTEXT (panel->priv->xtext), colors);
+	xtext_set_max_lines         (XTEXT (panel->priv->xtext), 3000);
+	xtext_set_show_separator    (XTEXT (panel->priv->xtext), prefs.show_separator);
+	xtext_set_indent            (XTEXT (panel->priv->xtext), prefs.indent_nicks);
+	xtext_set_max_indent        (XTEXT (panel->priv->xtext), prefs.max_auto_indent);
+	xtext_set_thin_separator    (XTEXT (panel->priv->xtext), prefs.thin_separator);
+	xtext_set_wordwrap          (XTEXT (panel->priv->xtext), prefs.wordwrap);
+	xtext_set_urlcheck_function (XTEXT (panel->priv->xtext), conversation_panel_check_word);
 
 	conversation_panel_set_font       (panel);
 	conversation_panel_set_background (panel);
@@ -610,7 +610,7 @@ conversation_panel_set_font (ConversationPanel *panel)
 	if (font == NULL)
 		font = g_strdup ("fixed 11");
 
-	gtk_xtext_set_font (GTK_XTEXT (panel->priv->xtext), font);
+	xtext_set_font (XTEXT (panel->priv->xtext), font);
 
 	g_free (font);
 }
@@ -622,9 +622,9 @@ conversation_panel_font_changed (GConfClient *client, guint cnxn_id, GConfEntry 
 
 	conversation_panel_set_font (panel);
 
-	adj = GTK_XTEXT (panel->priv->xtext)->adj;
+	adj = XTEXT (panel->priv->xtext)->adj;
 	gtk_adjustment_set_value (adj, adj->upper - adj->page_size);
-	gtk_xtext_refresh (GTK_XTEXT (panel->priv->xtext), FALSE);
+	xtext_refresh (XTEXT (panel->priv->xtext), FALSE);
 }
 
 static void
@@ -636,12 +636,12 @@ conversation_panel_set_background (ConversationPanel *panel)
 	client = gconf_client_get_default ();
 	background_type = gconf_client_get_int (client, "/apps/xchat/main_window/background_type", NULL);
 	if (background_type == 0) {
-		gtk_xtext_set_tint       (GTK_XTEXT (panel->priv->xtext), 0, 0, 0);
-		gtk_xtext_set_background (GTK_XTEXT (panel->priv->xtext), NULL, FALSE);
+		xtext_set_tint       (XTEXT (panel->priv->xtext), 0, 0, 0);
+		xtext_set_background (XTEXT (panel->priv->xtext), NULL, FALSE);
 	} else if (background_type == 1) {
 		gchar *filename = gconf_client_get_string (client, "/apps/xchat/main_window/background_image", NULL);
-		gtk_xtext_set_tint       (GTK_XTEXT (panel->priv->xtext), 0, 0, 0);
-		gtk_xtext_set_background (GTK_XTEXT (panel->priv->xtext), NULL, FALSE);
+		xtext_set_tint       (XTEXT (panel->priv->xtext), 0, 0, 0);
+		xtext_set_background (XTEXT (panel->priv->xtext), NULL, FALSE);
 		if (filename) {
 			GdkPixbuf *pixbuf;
 			pixbuf = gdk_pixbuf_new_from_file (filename, NULL);
@@ -655,7 +655,7 @@ conversation_panel_set_background (ConversationPanel *panel)
 				image = gdk_pixmap_new (NULL, width, height, 24);
 				gdk_draw_pixbuf (image, NULL, pixbuf, 0, 0, 0, 0, width, height, GDK_RGB_DITHER_NONE, 0, 0);
 
-				gtk_xtext_set_background (GTK_XTEXT (panel->priv->xtext), image, FALSE);
+				xtext_set_background (XTEXT (panel->priv->xtext), image, FALSE);
 				g_object_unref (pixbuf);
 				g_object_unref (image);
 			}
@@ -664,8 +664,8 @@ conversation_panel_set_background (ConversationPanel *panel)
 	} else {
 		float transparency = gconf_client_get_float (client, "/apps/xchat/main_window/background_transparency", NULL);
 		int value = 255 - ((int) (transparency * 255));
-		gtk_xtext_set_tint       (GTK_XTEXT (panel->priv->xtext), value, value, value);
-		gtk_xtext_set_background (GTK_XTEXT (panel->priv->xtext), NULL, TRUE);
+		xtext_set_tint       (XTEXT (panel->priv->xtext), value, value, value);
+		xtext_set_background (XTEXT (panel->priv->xtext), NULL, TRUE);
 	}
 	g_object_unref (client);
 }
@@ -674,13 +674,13 @@ static void
 conversation_panel_background_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, ConversationPanel *panel)
 {
 	conversation_panel_set_background (panel);
-	gtk_xtext_refresh (GTK_XTEXT (panel->priv->xtext), TRUE);
+	xtext_refresh (XTEXT (panel->priv->xtext), TRUE);
 }
 
 static void
 timestamps_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, xtext_buffer *buffer)
 {
-	gtk_xtext_set_time_stamp (buffer, gconf_client_get_bool (client, entry->key, NULL));
+	xtext_set_time_stamp (buffer, gconf_client_get_bool (client, entry->key, NULL));
 }
 
 static void
@@ -987,8 +987,8 @@ void
 conversation_panel_update_colors (ConversationPanel *panel)
 {
 	palette_alloc (panel->priv->xtext);
-	gtk_xtext_set_palette (GTK_XTEXT (panel->priv->xtext), colors);
-	gtk_xtext_refresh     (GTK_XTEXT (panel->priv->xtext), FALSE);
+	xtext_set_palette (XTEXT (panel->priv->xtext), colors);
+	xtext_refresh     (XTEXT (panel->priv->xtext), FALSE);
 }
 
 void
@@ -998,10 +998,10 @@ conversation_panel_add_session (ConversationPanel *panel, struct session *sess, 
 	xtext_buffer *buffer;
 	gint          notify;
 
-	buffer = gtk_xtext_buffer_new (GTK_XTEXT (panel->priv->xtext));
+	buffer = xtext_buffer_new (XTEXT (panel->priv->xtext));
 
 	client = gconf_client_get_default ();
-	gtk_xtext_set_time_stamp (buffer, gconf_client_get_bool (client, "/apps/xchat/irc/showtimestamps", NULL));
+	xtext_set_time_stamp (buffer, gconf_client_get_bool (client, "/apps/xchat/irc/showtimestamps", NULL));
 	notify = gconf_client_notify_add (client, "/apps/xchat/irc/showtimestamps",
 	                                  (GConfClientNotifyFunc) timestamps_changed, buffer, NULL, NULL);
 	g_object_unref (client);
@@ -1021,7 +1021,7 @@ conversation_panel_set_current (ConversationPanel *panel, struct session *sess)
 
 	panel->priv->current = sess;
 	buffer = g_hash_table_lookup (panel->priv->buffers, sess);
-	gtk_xtext_buffer_show (GTK_XTEXT (panel->priv->xtext), buffer, TRUE);
+	xtext_buffer_show (XTEXT (panel->priv->xtext), buffer, TRUE);
 
 #ifdef HAVE_LIBSEXY
 	conversation_panel_remove_tooltip (panel);
@@ -1072,7 +1072,7 @@ conversation_panel_save_current (ConversationPanel *panel)
 			g_error_free (error);
 		} else {
 			gint fd = g_io_channel_unix_get_fd (file);
-			gtk_xtext_save (GTK_XTEXT (panel->priv->xtext), fd);
+			xtext_save (XTEXT (panel->priv->xtext), fd);
 			g_io_channel_shutdown (file, TRUE, &error);
 
 			if (error) {
@@ -1093,8 +1093,8 @@ conversation_panel_clear (ConversationPanel *panel, struct session *sess)
 	xtext_buffer *buffer;
 
 	buffer = g_hash_table_lookup (panel->priv->buffers, sess);
-	gtk_xtext_clear (buffer);
-	gtk_xtext_refresh (GTK_XTEXT (panel->priv->xtext), FALSE);
+	xtext_clear (buffer);
+	xtext_refresh (XTEXT (panel->priv->xtext), FALSE);
 }
 
 static void
@@ -1117,7 +1117,7 @@ conversation_panel_print_line (ConversationPanel *panel, xtext_buffer *buffer, g
 		memcpy (new_text, stamp, stamp_size);
 		g_free (stamp);
 		memcpy (new_text + stamp_size, text, len);
-		gtk_xtext_append (buffer, new_text, len + stamp_size);
+		xtext_append (buffer, new_text, len + stamp_size);
 		g_free (new_text);
 		return;
 	}
@@ -1129,14 +1129,14 @@ conversation_panel_print_line (ConversationPanel *panel, xtext_buffer *buffer, g
 		if(!panel->priv->redundant_nickstamps && strncmp (buffer->laststamp, text, leftlen) == 0) {
 			text = tab+1;
 			len -= leftlen;
-			gtk_xtext_append_indent (buffer, 0, 0, text, len);
+			xtext_append_indent (buffer, 0, 0, text, len);
 		} else {
 			strncpy (buffer->laststamp, text, leftlen);
 			buffer->laststamp[leftlen]=0;
-			gtk_xtext_append_indent (buffer, text, leftlen, tab + 1, strlen (text) - leftlen - 1);
+			xtext_append_indent (buffer, text, leftlen, tab + 1, strlen (text) - leftlen - 1);
 		}
 	} else {
-		gtk_xtext_append_indent (buffer, 0, 0, text, len);
+		xtext_append_indent (buffer, 0, 0, text, len);
 	}
 }
 
@@ -1192,7 +1192,7 @@ conversation_panel_remove_session (ConversationPanel *panel, struct session *ses
 }
 
 static void
-conversation_panel_lastlog_foreach (GtkXText *xtext, guchar *text, fe_lastlog_info *info)
+conversation_panel_lastlog_foreach (XText *xtext, guchar *text, fe_lastlog_info *info)
 {
 	if (nocasestrstr (text, info->sstr)) {
 		conversation_panel_print (info->panel, info->sess, text, prefs.indent_nicks);
@@ -1207,7 +1207,7 @@ conversation_panel_lastlog (ConversationPanel *panel, struct session *sess, stru
 	buffer  = g_hash_table_lookup (panel->priv->buffers, sess);
 	lbuffer = g_hash_table_lookup (panel->priv->buffers, lsess);
 
-	if (gtk_xtext_is_empty (buffer)) {
+	if (xtext_is_empty (buffer)) {
 		conversation_panel_print (panel, lsess, _("Search buffer is empty.\n"), TRUE);
 	} else {
 		fe_lastlog_info info;
@@ -1215,21 +1215,21 @@ conversation_panel_lastlog (ConversationPanel *panel, struct session *sess, stru
 		info.sess  = lsess;
 		info.sstr  = sstr;
 
-		gtk_xtext_foreach (buffer, (GtkXTextForeach) conversation_panel_lastlog_foreach, &info);
+		xtext_foreach (buffer, (XTextForeach) conversation_panel_lastlog_foreach, &info);
 	}
 }
 
 void
 conversation_panel_clear_selection (ConversationPanel *panel)
 {
-	gtk_xtext_selection_clear_full (GTK_XTEXT (panel->priv->xtext)->buffer);
-        gtk_xtext_refresh (GTK_XTEXT (panel->priv->xtext), TRUE);
+	xtext_selection_clear_full (XTEXT (panel->priv->xtext)->buffer);
+        xtext_refresh (XTEXT (panel->priv->xtext), TRUE);
 }
 
 gpointer
 conversation_panel_search (ConversationPanel *panel, const gchar *text, gpointer start, gboolean casem, gboolean reverse)
 {
-	return gtk_xtext_search (GTK_XTEXT (panel->priv->xtext), text, start, casem, reverse);
+	return xtext_search (XTEXT (panel->priv->xtext), text, start, casem, reverse);
 }
 
 void
@@ -1238,7 +1238,7 @@ conversation_panel_page_up (ConversationPanel *panel)
 	GtkAdjustment *adj;
 	int end, value;
 
-	adj = GTK_XTEXT (panel->priv->xtext)->adj;
+	adj = XTEXT (panel->priv->xtext)->adj;
 	end = adj->upper - adj->lower - adj->page_size;
 	value = adj->value - (adj->page_size - 1);
 	if (value < 0) {
@@ -1256,7 +1256,7 @@ conversation_panel_page_down (ConversationPanel *panel)
 	GtkAdjustment *adj;
 	int value, end;
 
-	adj = GTK_XTEXT (panel->priv->xtext)->adj;
+	adj = XTEXT (panel->priv->xtext)->adj;
 	end = adj->upper - adj->lower - adj->page_size;
 	value = adj->value + (adj->page_size - 1);
 	if (value < 0) {
@@ -1271,13 +1271,13 @@ conversation_panel_page_down (ConversationPanel *panel)
 void
 conversation_panel_copy_selection (ConversationPanel *panel)
 {
-	gtk_xtext_copy_selection (GTK_XTEXT (panel->priv->xtext));
+	xtext_copy_selection (XTEXT (panel->priv->xtext));
 }
 
 void
 conversation_panel_queue_tdraw (ConversationPanel *panel)
 {
-	if (GTK_XTEXT (panel->priv->xtext)->transparent) {
+	if (XTEXT (panel->priv->xtext)->transparent) {
 		gtk_widget_queue_draw (panel->priv->xtext);
 	}
 }
@@ -1285,8 +1285,8 @@ conversation_panel_queue_tdraw (ConversationPanel *panel)
 static void
 redraw_transparency (ConversationPanel *panel)
 {
-	if (GTK_XTEXT (panel->priv->xtext)->transparent) {
-		gtk_xtext_refresh (GTK_XTEXT (panel->priv->xtext), 1);
+	if (XTEXT (panel->priv->xtext)->transparent) {
+		xtext_refresh (XTEXT (panel->priv->xtext), 1);
 	}
 }
 
@@ -1312,11 +1312,11 @@ root_event_cb (GdkXEvent *xev, GdkEventProperty *event, ConversationPanel *panel
 void
 conversation_panel_check_marker_visibility (ConversationPanel *panel)
 {
-	gtk_xtext_check_marker_visibility (GTK_XTEXT (panel->priv->xtext));
+	xtext_check_marker_visibility (XTEXT (panel->priv->xtext));
 }
 
 void
 conversation_panel_set_show_marker (ConversationPanel *panel, gboolean show_marker)
 {
-	gtk_xtext_set_show_marker (GTK_XTEXT (panel->priv->xtext), show_marker);
+	xtext_set_show_marker (XTEXT (panel->priv->xtext), show_marker);
 }
