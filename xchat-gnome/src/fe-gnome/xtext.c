@@ -599,6 +599,9 @@ gtk_xtext_init (GtkXText * xtext)
 				"value_changed", G_CALLBACK (gtk_xtext_adjustment_changed), xtext);
 
 	g_signal_connect (G_OBJECT (xtext), "screen-changed", G_CALLBACK (xtext_screen_changed), NULL);
+	g_signal_connect (G_OBJECT (xtext), "composited-changed", G_CALLBACK (xtext_composited_changed), NULL);
+	xtext_screen_changed (GTK_WIDGET (xtext), NULL, NULL);
+	xtext_composited_changed (GTK_WIDGET (xtext), NULL);
 }
 
 static void
@@ -4727,4 +4730,19 @@ xtext_screen_changed (GtkWidget *widget,
 	}
 
 	gtk_widget_set_colormap (widget, cmap);
+	if (xtext->transparent) {
+		gtk_widget_queue_draw (widget);
+	}
+}
+
+static void
+xtext_composited_changed (GtkWidget *widget, gpointer data)
+{
+	GtkXText *xtext;
+
+	xtext = GTK_XTEXT (widget);
+	xtext->has_composite = gtk_widget_is_composited (widget);
+	if (xtext->transparent) {
+		gtk_widget_queue_draw (widget);
+	}
 }
