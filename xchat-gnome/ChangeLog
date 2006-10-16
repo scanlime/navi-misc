@@ -1,6 +1,11 @@
 2006-10-15  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/fe-gnome/xtext.c:
+	  - Fix a small regression in hilight rendering. (#362477)
+
+2006-10-15  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/fe-gnome/xtext.c:
 	  - Well, I can reliably detect when the screen is composited now.
 
 2006-10-15  David Trowbridge  <trowbrds@gmail.com>

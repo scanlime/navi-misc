@@ -2500,7 +2500,7 @@ gtk_xtext_render_str (GtkXText * xtext, int y, textentry * ent,
 	if (xtext->hilight_ent == ent &&
 	    xtext->hilight_start <= i + offset && xtext->hilight_end > i + offset) {
 		if (!xtext->un_hilight) {
-			xtext_set_bg (xtext, gc, 2);
+			xtext->underline = TRUE;
 		}
 		xtext->in_hilight = TRUE;
 	}
@@ -2532,7 +2532,7 @@ gtk_xtext_render_str (GtkXText * xtext, int y, textentry * ent,
 			pstr += j;
 			j = 0;
 			if (!xtext->un_hilight) {
-				xtext_set_bg (xtext, gc, 2);
+				xtext->underline = TRUE;
 			}
 
 			xtext->in_hilight = TRUE;
