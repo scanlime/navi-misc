@@ -109,8 +109,6 @@ struct _XText
 	int hilight_start;
 	int hilight_end;
 
-	guint16 fontwidth[128]; /* each char's width, only the ASCII ones */
-
 	int fontsize;
 	int space_width; /* width (pixels) of the space " " character */
 	int stamp_width; /* width of timestamp string */
