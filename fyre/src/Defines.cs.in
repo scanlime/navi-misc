@@ -1,7 +1,0 @@
-public class Defines
-{
-	public const string VERSION	= "@version@";
-	public const string DATADIR	= "@datadir@";
-	public const string PKGLIBDIR	= "@pkglibdir";
-	public const string PLUGINSDIR	= "@pkglibdir@/Plugins";
-}
