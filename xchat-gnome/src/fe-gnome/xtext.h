@@ -2,9 +2,6 @@
 #define __XTEXT_H__
 
 #include <gtk/gtkadjustment.h>
-#ifdef USE_XFT
-#include <X11/Xft/Xft.h>
-#endif
 
 #ifdef USE_SHM
 #include <X11/Xlib.h>
@@ -13,12 +10,12 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-#define GTK_TYPE_XTEXT              (gtk_xtext_get_type ())
-#define GTK_XTEXT(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), GTK_TYPE_XTEXT, GtkXText))
-#define GTK_XTEXT_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST ((klass), GTK_TYPE_XTEXT, GtkXTextClass))
-#define GTK_IS_XTEXT(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), GTK_TYPE_XTEXT))
-#define GTK_IS_XTEXT_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), GTK_TYPE_XTEXT))
-#define GTK_XTEXT_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_XTEXT, GtkXTextClass))
+#define XTEXT_TYPE              (xtext_get_type ())
+#define XTEXT(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), XTEXT_TYPE, XText))
+#define XTEXT_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST ((klass), XTEXT_TYPE, XTextClass))
+#define IS_XTEXT(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), XTEXT_TYPE))
+#define IS_XTEXT_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), XTEXT_TYPE))
+#define XTEXT_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj), XTEXT_TYPE, XTextClass))
 
 #define ATTR_BOLD      '\002'
 #define ATTR_COLOR     '\003'
@@ -31,22 +28,23 @@
 #define ATTR_UNDERLINE '\037'
 
 /* these match palette.h */
-#define XTEXT_MIRC_COLS 32
-#define XTEXT_COLS 37      /* 32 plus 5 for extra stuff below */
-#define XTEXT_MARK_FG 32
-#define XTEXT_MARK_BG 33
-#define XTEXT_FG 34
-#define XTEXT_BG 35
-#define XTEXT_MARKER 36
+#define XTEXT_MIRC_COLORS 32
+#define XTEXT_MARK_FG     32
+#define XTEXT_MARK_BG     33
+#define XTEXT_FG          34
+#define XTEXT_BG          35
+#define XTEXT_MARKER      36
+#define XTEXT_N_COLORS    37
 
 #include "../common/xchat.h"
 
-typedef struct _GtkXText GtkXText;
-typedef struct _GtkXTextClass GtkXTextClass;
+typedef struct _XText      XText;
+typedef struct _XTextClass XTextClass;
+typedef struct _XTextPriv  XTextPriv;
 typedef struct textentry textentry;
 
 typedef struct {
-	GtkXText *xtext;
+	XText *xtext;
 
 	gfloat old_value; /* last known adj->value */
 	textentry *text_first;
@@ -83,7 +81,7 @@ typedef struct {
 	unsigned int reset_marker_pos:1;
 } xtext_buffer;
 
-struct _GtkXText
+struct _XText
 {
 	GtkWidget widget;
 
@@ -91,38 +89,8 @@ struct _GtkXText
 	xtext_buffer *orig_buffer;
 	xtext_buffer *selection_buffer;
 
-#ifdef USE_SHM
-	XShmSegmentInfo shminfo;
-#endif
+	gulong palette[XTEXT_N_COLORS];
 
-	GtkAdjustment *adj;
-	GdkPixmap *pixmap; /* if NULL, use palette[19] */
-	GdkDrawable *draw_buf; /* points to ->window */
-	GdkCursor *ibeam_cursor;
-	GdkCursor *hand_cursor;
-	GdkCursor *resize_cursor;
-
-	int pixel_offset; /* amount of pixels the top line is chopped by */
-
-	int last_win_x;
-	int last_win_y;
-	int last_win_h;
-	int last_win_w;
-
-	int tint_red;
-	int tint_green;
-	int tint_blue;
-
-	GdkGC *bgc; /* backing pixmap */
-	GdkGC *fgc; /* text foreground color */
-	GdkGC *light_gc; /* sep bar */
-	GdkGC *dark_gc;
-	GdkGC *thin_gc;
-	GdkGC *marker_gc;
-	gulong palette[XTEXT_COLS];
-
-	guint io_tag; /* for delayed refresh events */
-	guint add_io_tag; /* "" when adding new text */
 	guint scroll_tag; /* marking-scroll timeout */
 	gulong vc_signal_tag; /* signal handler for "value_changed" adj */
 
@@ -131,11 +99,6 @@ struct _GtkXText
 	int select_start_y;
 	int select_end_x;
 	int select_end_y;
-
-	int max_lines;
-
-	int col_fore;
-	int col_back;
 
 	int depth; /* gdk window depth */
 
@@ -147,22 +110,6 @@ struct _GtkXText
 	int hilight_end;
 
 	guint16 fontwidth[128]; /* each char's width, only the ASCII ones */
-
-#ifdef USE_XFT
-	XftColor color[XTEXT_COLS];
-	XftColor *xft_fg;
-	XftColor *xft_bg;
-	XftDraw *xftdraw;
-	XftFont *font;
-#else
-	struct pangofont
-	{
-		PangoFontDescription *font;
-		int ascent;
-		int descent;
-	} *font, pango_font;
-	PangoLayout *layout;
-#endif
 
 	int fontsize;
 	int space_width; /* width (pixels) of the space " " character */
@@ -189,7 +136,6 @@ struct _GtkXText
 	unsigned int moving_separator:1;
 	unsigned int word_or_line_select:1;
 	unsigned int color_paste:1;
-	unsigned int thinline:1;
 	unsigned int parsing_backcolor:1;
 	unsigned int parsing_color:1;
 	unsigned int backcolor:1;
@@ -200,9 +146,7 @@ struct _GtkXText
 	unsigned int italics:1;
 	unsigned int transparent:1;
 	unsigned int marker:1;
-	unsigned int separator:1;
 	unsigned int shaded:1;
-	unsigned int wordwrap:1;
 	unsigned int dont_render:1;
 	unsigned int dont_render2:1;
 	unsigned int cursor_hand:1;
@@ -214,56 +158,57 @@ struct _GtkXText
 	unsigned int un_hilight:1;
 	unsigned int avoid_trans:1;
 	unsigned int indent_changed:1;
-	unsigned int shm:1;
-
-	/* composite data */
-	gboolean has_argb_visual;
-	gboolean has_composite;
 
 	gchar *current_word;
 };
 
-struct _GtkXTextClass
+struct _XTextClass
 {
 	GtkWidgetClass parent_class;
-	void (*word_click) (GtkXText * xtext, char *word, GdkEventButton * event);
-	void (*word_enter) (GtkXText * xtext, char *word);
-	void (*word_leave) (GtkXText * xtext, char *word);
+	void (*word_click) (XText * xtext, char *word, GdkEventButton * event);
+	void (*word_enter) (XText * xtext, char *word);
+	void (*word_leave) (XText * xtext, char *word);
 };
 
-GtkWidget *gtk_xtext_new (GdkColor palette[], int separator);
-void gtk_xtext_append (xtext_buffer *buf, unsigned char *text, int len);
-void gtk_xtext_append_indent (xtext_buffer *buf, unsigned char *left_text, int left_len, unsigned char *right_text, int right_len);
-void gtk_xtext_selection_clear_full (xtext_buffer *buf);
-int gtk_xtext_set_font (GtkXText *xtext, char *name);
-void gtk_xtext_set_background (GtkXText * xtext, GdkPixmap * pixmap, gboolean trans);
-void gtk_xtext_set_palette (GtkXText * xtext, GdkColor palette[]);
-void gtk_xtext_clear (xtext_buffer *buf);
-void gtk_xtext_save (GtkXText * xtext, int fh);
-void gtk_xtext_refresh (GtkXText * xtext, int do_trans);
-textentry *gtk_xtext_search (GtkXText * xtext, const gchar *text, textentry *start, gboolean case_match, gboolean backward);
-void gtk_xtext_reset_marker_pos (GtkXText *xtext);
-void gtk_xtext_check_marker_visibility(GtkXText *xtext);
+void xtext_append (xtext_buffer *buf, unsigned char *text, int len);
+void xtext_append_indent (xtext_buffer *buf, unsigned char *left_text, int left_len, unsigned char *right_text, int right_len);
+void xtext_selection_clear_full (xtext_buffer *buf);
+int xtext_set_font (XText *xtext, char *name);
+void xtext_set_background (XText * xtext, GdkPixmap * pixmap, gboolean trans);
+void xtext_clear (xtext_buffer *buf);
+void xtext_save (XText * xtext, int fh);
+void xtext_refresh (XText * xtext, int do_trans);
+textentry *xtext_search (XText * xtext, const gchar *text, textentry *start, gboolean case_match, gboolean backward);
+void xtext_reset_marker_pos (XText *xtext);
+void xtext_check_marker_visibility(XText *xtext);
 
-gboolean gtk_xtext_is_empty (xtext_buffer *buf);
-typedef void (*GtkXTextForeach) (GtkXText *xtext, unsigned char *text, void *data);
-void gtk_xtext_foreach (xtext_buffer *buf, GtkXTextForeach func, void *data);
+gboolean xtext_is_empty (xtext_buffer *buf);
+typedef void (*XTextForeach) (XText *xtext, unsigned char *text, void *data);
+void xtext_foreach (xtext_buffer *buf, XTextForeach func, void *data);
 
-void gtk_xtext_set_indent (GtkXText *xtext, gboolean indent);
-void gtk_xtext_set_max_indent (GtkXText *xtext, int max_auto_indent);
-void gtk_xtext_set_max_lines (GtkXText *xtext, int max_lines);
-void gtk_xtext_set_show_marker (GtkXText *xtext, gboolean show_marker);
-void gtk_xtext_set_show_separator (GtkXText *xtext, gboolean show_separator);
-void gtk_xtext_set_thin_separator (GtkXText *xtext, gboolean thin_separator);
-void gtk_xtext_set_time_stamp (xtext_buffer *buf, gboolean timestamp);
-void gtk_xtext_set_tint (GtkXText *xtext, int tint_red, int tint_green, int tint_blue);
-void gtk_xtext_set_urlcheck_function (GtkXText *xtext, int (*urlcheck_function) (GtkWidget *, char *, int));
-void gtk_xtext_set_wordwrap (GtkXText *xtext, gboolean word_wrap);
+void xtext_set_indent (XText *xtext, gboolean indent);
+void xtext_set_max_indent (XText *xtext, int max_auto_indent);
+void xtext_set_max_lines (XText *xtext, int max_lines);
+void xtext_set_show_marker (XText *xtext, gboolean show_marker);
+void xtext_set_time_stamp (xtext_buffer *buf, gboolean timestamp);
+void xtext_set_urlcheck_function (XText *xtext, int (*urlcheck_function) (GtkWidget *, char *, int));
 
-xtext_buffer *gtk_xtext_buffer_new (GtkXText *xtext);
-void gtk_xtext_buffer_free (xtext_buffer *buf);
-void gtk_xtext_buffer_show (GtkXText *xtext, xtext_buffer *buf, int render);
-GtkType gtk_xtext_get_type (void);
-void gtk_xtext_copy_selection (GtkXText *xtext);
+xtext_buffer *xtext_buffer_new (XText *xtext);
+void xtext_buffer_free (xtext_buffer *buf);
+void xtext_buffer_show (XText *xtext, xtext_buffer *buf, int render);
+void xtext_copy_selection (XText *xtext);
+
+/***********************************************************************************
+ * !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!! *
+ ***********************************************************************************/
+
+GType          xtext_get_type            (void) G_GNUC_CONST;
+GtkWidget     *xtext_new                 (void);
+
+GtkAdjustment *xtext_get_adjustment      (XText    *xtext);
+void           xtext_set_palette         (XText    *xtext,
+                                          GdkColor  palette[]);
+void           xtext_set_tint            (XText    *xtext,
+                                          int       tint);
 
 #endif
