@@ -1,5 +1,14 @@
 2006-10-15  David Trowbridge  <trowbrds@gmail.com>
 
+	* m4/gnome-doc-utils.m4:
+	  - gnome-doc-utils really wants to update this.
+
+	* configure.ac:
+	* NEWS:
+	  - Bump to 0.14
+
+2006-10-15  David Trowbridge  <trowbrds@gmail.com>
+
 	* src/fe-gnome/xtext.c:
 	  - Fix a small regression in hilight rendering. (#362477)
 
