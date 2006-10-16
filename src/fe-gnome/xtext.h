@@ -89,15 +89,8 @@ struct _XText
 	xtext_buffer *orig_buffer;
 	xtext_buffer *selection_buffer;
 
-	GtkAdjustment *adj;
-	GdkDrawable *draw_buf; /* points to ->window */
-
-	int pixel_offset; /* amount of pixels the top line is chopped by */
-
 	gulong palette[XTEXT_N_COLORS];
 
-	guint io_tag; /* for delayed refresh events */
-	guint add_io_tag; /* "" when adding new text */
 	guint scroll_tag; /* marking-scroll timeout */
 	gulong vc_signal_tag; /* signal handler for "value_changed" adj */
 
@@ -214,5 +207,11 @@ void xtext_buffer_free (xtext_buffer *buf);
 void xtext_buffer_show (XText *xtext, xtext_buffer *buf, int render);
 GtkType xtext_get_type (void);
 void xtext_copy_selection (XText *xtext);
+
+/***********************************************************************************
+ * !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!! *
+ ***********************************************************************************/
+
+GtkAdjustment *xtext_get_adjustment (XText *xtext);
 
 #endif
