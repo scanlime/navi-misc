@@ -235,7 +235,7 @@ conversation_panel_init (ConversationPanel *panel)
 	GConfClient       *client;
 
 	panel->priv = g_new0 (ConversationPanelPriv, 1);
-	panel->priv->xtext     = xtext_new (colors, TRUE);
+	panel->priv->xtext     = xtext_new ();
 	panel->priv->scrollbar = gtk_vscrollbar_new (xtext_get_adjustment (XTEXT (panel->priv->xtext)));
 	frame                  = gtk_frame_new (NULL);
 
@@ -317,7 +317,6 @@ conversation_panel_realize (GtkWidget *widget)
 	palette_alloc (panel->priv->xtext);
 	xtext_set_palette           (XTEXT (panel->priv->xtext), colors);
 	xtext_set_max_lines         (XTEXT (panel->priv->xtext), 3000);
-	xtext_set_show_separator    (XTEXT (panel->priv->xtext), prefs.show_separator);
 	xtext_set_indent            (XTEXT (panel->priv->xtext), prefs.indent_nicks);
 	xtext_set_max_indent        (XTEXT (panel->priv->xtext), prefs.max_auto_indent);
 	xtext_set_urlcheck_function (XTEXT (panel->priv->xtext), conversation_panel_check_word);

@@ -146,7 +146,6 @@ struct _XText
 	unsigned int italics:1;
 	unsigned int transparent:1;
 	unsigned int marker:1;
-	unsigned int separator:1;
 	unsigned int shaded:1;
 	unsigned int dont_render:1;
 	unsigned int dont_render2:1;
@@ -171,13 +170,11 @@ struct _XTextClass
 	void (*word_leave) (XText * xtext, char *word);
 };
 
-GtkWidget *xtext_new (GdkColor palette[], int separator);
 void xtext_append (xtext_buffer *buf, unsigned char *text, int len);
 void xtext_append_indent (xtext_buffer *buf, unsigned char *left_text, int left_len, unsigned char *right_text, int right_len);
 void xtext_selection_clear_full (xtext_buffer *buf);
 int xtext_set_font (XText *xtext, char *name);
 void xtext_set_background (XText * xtext, GdkPixmap * pixmap, gboolean trans);
-void xtext_set_palette (XText * xtext, GdkColor palette[]);
 void xtext_clear (xtext_buffer *buf);
 void xtext_save (XText * xtext, int fh);
 void xtext_refresh (XText * xtext, int do_trans);
@@ -193,9 +190,7 @@ void xtext_set_indent (XText *xtext, gboolean indent);
 void xtext_set_max_indent (XText *xtext, int max_auto_indent);
 void xtext_set_max_lines (XText *xtext, int max_lines);
 void xtext_set_show_marker (XText *xtext, gboolean show_marker);
-void xtext_set_show_separator (XText *xtext, gboolean show_separator);
 void xtext_set_time_stamp (xtext_buffer *buf, gboolean timestamp);
-void xtext_set_tint (XText *xtext, int tint);
 void xtext_set_urlcheck_function (XText *xtext, int (*urlcheck_function) (GtkWidget *, char *, int));
 
 xtext_buffer *xtext_buffer_new (XText *xtext);
@@ -207,7 +202,13 @@ void xtext_copy_selection (XText *xtext);
  * !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!! *
  ***********************************************************************************/
 
-GType xtext_get_type (void) G_GNUC_CONST;
-GtkAdjustment *xtext_get_adjustment (XText *xtext);
+GType          xtext_get_type            (void) G_GNUC_CONST;
+GtkWidget     *xtext_new                 (void);
+
+GtkAdjustment *xtext_get_adjustment      (XText    *xtext);
+void           xtext_set_palette         (XText    *xtext,
+                                          GdkColor  palette[]);
+void           xtext_set_tint            (XText    *xtext,
+                                          int       tint);
 
 #endif
