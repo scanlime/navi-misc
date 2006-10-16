@@ -89,16 +89,8 @@ struct _XText
 	xtext_buffer *orig_buffer;
 	xtext_buffer *selection_buffer;
 
-#ifdef USE_SHM
-	XShmSegmentInfo shminfo;
-#endif
-
 	GtkAdjustment *adj;
-	GdkPixmap *pixmap; /* if NULL, use palette[19] */
 	GdkDrawable *draw_buf; /* points to ->window */
-	GdkCursor *ibeam_cursor;
-	GdkCursor *hand_cursor;
-	GdkCursor *resize_cursor;
 
 	int pixel_offset; /* amount of pixels the top line is chopped by */
 
@@ -115,11 +107,6 @@ struct _XText
 	int select_end_x;
 	int select_end_y;
 
-	int max_lines;
-
-	int col_fore;
-	int col_back;
-
 	int depth; /* gdk window depth */
 
 	char num[8]; /* for parsing mirc color */
@@ -130,14 +117,6 @@ struct _XText
 	int hilight_end;
 
 	guint16 fontwidth[128]; /* each char's width, only the ASCII ones */
-
-	struct pangofont
-	{
-		PangoFontDescription *font;
-		int ascent;
-		int descent;
-	} *font, pango_font;
-	PangoLayout *layout;
 
 	int fontsize;
 	int space_width; /* width (pixels) of the space " " character */
@@ -189,11 +168,6 @@ struct _XText
 	unsigned int un_hilight:1;
 	unsigned int avoid_trans:1;
 	unsigned int indent_changed:1;
-	unsigned int shm:1;
-
-	/* composite data */
-	gboolean has_argb_visual;
-	gboolean has_composite;
 
 	gchar *current_word;
 };
