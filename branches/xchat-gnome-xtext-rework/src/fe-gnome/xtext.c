@@ -191,12 +191,20 @@ static void xtext_update_primary_selection (XText *xtext);
  * !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!! *
  ***********************************************************************************/
 
+/* Drawing backend */
+static void backend_init       (XText *xtext);
+static void backend_deinit     (XText *xtext);
+static void backend_font_close (XText *xtext);
+
 /* GtkWidget overrides */
 static void unrealize (GtkWidget *widget);
 
 /* Signal handlers */
-static void screen_changed (GtkWidget *widget, GdkScreen *screen, gpointer data);
-static void composited_changed (GtkWidget *widget, gpointer data);
+static void screen_changed     (GtkWidget *widget,
+                                GdkScreen *screen,
+                                gpointer   data);
+static void composited_changed (GtkWidget *widget,
+                                gpointer   data);
 
 /***********************************************************************************
  * !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!! *
@@ -204,21 +212,6 @@ static void composited_changed (GtkWidget *widget, gpointer data);
 
 
 /* some utility functions first */
-
-/* gives width of a 8bit string - with no mIRC codes in it */
-static int
-xtext_text_width_8bit (XText *xtext, unsigned char *str, int len)
-{
-	int width = 0;
-
-	while (len) {
-		width += xtext->fontwidth[*str];
-		str++;
-		len--;
-	}
-
-	return width;
-}
 
 #ifdef WIN32
 
@@ -280,35 +273,6 @@ xtext_draw_bg (XText *xtext, int x, int y, int width, int height)
 /* ============ PANGO BACKEND ============ */
 /* ======================================= */
 
-static void
-backend_font_close (XText *xtext)
-{
-	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	pango_font_description_free (priv->font->font_desc);
-}
-
-static void
-backend_init (XText *xtext)
-{
-	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	if (priv->layout == NULL) {
-		priv->layout = gtk_widget_create_pango_layout (GTK_WIDGET (xtext), 0);
-		if (priv->font) {
-			pango_layout_set_font_description (priv->layout, priv->font->font_desc);
-		}
-	}
-}
-
-static void
-backend_deinit (XText *xtext)
-{
-	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	if (priv->layout) {
-		g_object_unref (priv->layout);
-		priv->layout = NULL;
-	}
-}
-
 static PangoFontDescription *
 backend_font_open_real (char *name)
 {
@@ -360,10 +324,6 @@ backend_get_text_width (XText *xtext, guchar *str, int len, int is_mb)
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	int width;
 
-	if (!is_mb) {
-		return xtext_text_width_8bit (xtext, str, len);
-	}
-
 	if (*str == 0) {
 		return 0;
 	}
@@ -379,11 +339,6 @@ backend_get_char_width (XText *xtext, unsigned char *str, int *mbl_ret)
 {
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	int width;
-
-	if (*str < 128) {
-		*mbl_ret = 1;
-		return xtext->fontwidth[*str];
-	}
 
 	*mbl_ret = charlen (str);
 	pango_layout_set_text (priv->layout, (const char *) str, *mbl_ret);
@@ -775,6 +730,9 @@ xtext_realize (GtkWidget * widget)
 #endif /* defined(USE_XLIB) || defined(WIN32) */
 
 	gdk_window_set_back_pixmap (widget->window, NULL, FALSE);
+	col.pixel = xtext->palette[XTEXT_BG];
+	gdk_window_set_background (widget->window, &col);
+	gdk_window_clear (widget->window);
 	widget->style = gtk_style_attach (widget->style, widget->window);
 
 	backend_init (xtext);
@@ -3494,8 +3452,6 @@ int
 xtext_set_font (XText *xtext, char *name)
 {
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	int i;
-	unsigned char c;
 	char *time_str;
 	int stamp_size;
 
@@ -3511,12 +3467,7 @@ xtext_set_font (XText *xtext, char *name)
 		return FALSE;
 	}
 
-	/* measure the width of ASCII characters */
-	for (i = 0; i < sizeof(xtext->fontwidth)/sizeof(xtext->fontwidth[0]); i++) {
-		c = i;
-		xtext->fontwidth[i] = backend_get_text_width (xtext, &c, 1, TRUE);
-	}
-	xtext->space_width = xtext->fontwidth[' '];
+	xtext->space_width = xtext_text_width (xtext, " ", 1, NULL);
 	xtext->fontsize = priv->font->ascent + priv->font->descent;
 
 	stamp_size = xtext_get_stamp_str (time(0), &time_str);
@@ -4646,4 +4597,33 @@ xtext_set_tint (XText *xtext,
 {
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	priv->tint = tint;
+}
+
+static void
+backend_font_close (XText *xtext)
+{
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
+	pango_font_description_free (priv->font->font_desc);
+}
+
+static void
+backend_init (XText *xtext)
+{
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
+	if (priv->layout == NULL) {
+		priv->layout = gtk_widget_create_pango_layout (GTK_WIDGET (xtext), 0);
+		if (priv->font) {
+			pango_layout_set_font_description (priv->layout, priv->font->font_desc);
+		}
+	}
+}
+
+static void
+backend_deinit (XText *xtext)
+{
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
+	if (priv->layout) {
+		g_object_unref (priv->layout);
+		priv->layout = NULL;
+	}
 }
