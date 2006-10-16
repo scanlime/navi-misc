@@ -2043,30 +2043,6 @@ xtext_class_init (XTextClass * class)
 	xtext_class->word_click = NULL;
 }
 
-GtkType
-xtext_get_type (void)
-{
-	static GtkType xtext_type = 0;
-
-	if (!xtext_type) {
-		static const GTypeInfo xtext_info = {
-			sizeof (XTextClass),
-			NULL,		/* base_init */
-			NULL,		/* base_finalize */
-			(GClassInitFunc) xtext_class_init,
-			NULL,		/* class_finalize */
-			NULL,		/* class_data */
-			sizeof (XText),
-			0,		/* n_preallocs */
-			(GInstanceInitFunc) xtext_init,
-		};
-
-		xtext_type = g_type_register_static (GTK_TYPE_WIDGET, "XText", &xtext_info, 0);
-	}
-
-	return xtext_type;
-}
-
 /* strip MIRC colors and other attribs. */
 
 static unsigned char *
@@ -4512,6 +4488,8 @@ xtext_buffer_free (xtext_buffer *buf)
 /***********************************************************************************
  * !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!! *
  ***********************************************************************************/
+
+G_DEFINE_TYPE (XText, xtext, GTK_TYPE_WIDGET);
 
 /*
  * This signal handler handles setting the colormap for the xtext widget.
