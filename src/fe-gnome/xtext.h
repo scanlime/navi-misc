@@ -38,8 +38,9 @@
 
 #include "../common/xchat.h"
 
-typedef struct _XText XText;
+typedef struct _XText      XText;
 typedef struct _XTextClass XTextClass;
+typedef struct _XTextPriv  XTextPriv;
 typedef struct textentry textentry;
 
 typedef struct {
@@ -100,15 +101,6 @@ struct _XText
 	GdkCursor *resize_cursor;
 
 	int pixel_offset; /* amount of pixels the top line is chopped by */
-
-	int last_win_x;
-	int last_win_y;
-	int last_win_h;
-	int last_win_w;
-
-	int tint_red;
-	int tint_green;
-	int tint_blue;
 
 	GdkGC *bgc; /* backing pixmap */
 	GdkGC *fgc; /* text foreground color */
@@ -245,7 +237,7 @@ void xtext_set_show_marker (XText *xtext, gboolean show_marker);
 void xtext_set_show_separator (XText *xtext, gboolean show_separator);
 void xtext_set_thin_separator (XText *xtext, gboolean thin_separator);
 void xtext_set_time_stamp (xtext_buffer *buf, gboolean timestamp);
-void xtext_set_tint (XText *xtext, int tint_red, int tint_green, int tint_blue);
+void xtext_set_tint (XText *xtext, int tint);
 void xtext_set_urlcheck_function (XText *xtext, int (*urlcheck_function) (GtkWidget *, char *, int));
 void xtext_set_wordwrap (XText *xtext, gboolean word_wrap);
 

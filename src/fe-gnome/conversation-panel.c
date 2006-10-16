@@ -636,11 +636,11 @@ conversation_panel_set_background (ConversationPanel *panel)
 	client = gconf_client_get_default ();
 	background_type = gconf_client_get_int (client, "/apps/xchat/main_window/background_type", NULL);
 	if (background_type == 0) {
-		xtext_set_tint       (XTEXT (panel->priv->xtext), 0, 0, 0);
+		xtext_set_tint (XTEXT (panel->priv->xtext), 0);
 		xtext_set_background (XTEXT (panel->priv->xtext), NULL, FALSE);
 	} else if (background_type == 1) {
 		gchar *filename = gconf_client_get_string (client, "/apps/xchat/main_window/background_image", NULL);
-		xtext_set_tint       (XTEXT (panel->priv->xtext), 0, 0, 0);
+		xtext_set_tint (XTEXT (panel->priv->xtext), 0);
 		xtext_set_background (XTEXT (panel->priv->xtext), NULL, FALSE);
 		if (filename) {
 			GdkPixbuf *pixbuf;
@@ -664,7 +664,7 @@ conversation_panel_set_background (ConversationPanel *panel)
 	} else {
 		float transparency = gconf_client_get_float (client, "/apps/xchat/main_window/background_transparency", NULL);
 		int value = 255 - ((int) (transparency * 255));
-		xtext_set_tint       (XTEXT (panel->priv->xtext), value, value, value);
+		xtext_set_tint (XTEXT (panel->priv->xtext), value);
 		xtext_set_background (XTEXT (panel->priv->xtext), NULL, TRUE);
 	}
 	g_object_unref (client);

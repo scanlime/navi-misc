@@ -92,6 +92,17 @@ struct textentry
 	unsigned int mb:1;	/* is multibyte? */
 };
 
+#define XTEXT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), XTEXT_TYPE, XTextPriv))
+struct _XTextPriv
+{
+	/* Used for tracking window moves for fake transparency */
+	int last_win_x;
+	int last_win_y;
+
+	/* Number between 0 and 255, describing the tint level */
+	int tint;
+};
+
 enum
 {
 	WORD_CLICK,
@@ -993,6 +1004,7 @@ static void
 xtext_paint (GtkWidget *widget, GdkRectangle *area)
 {
 	XText *xtext = XTEXT (widget);
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	textentry *ent_start, *ent_end;
 	int x, y;
 
@@ -1000,9 +1012,9 @@ xtext_paint (GtkWidget *widget, GdkRectangle *area)
 	if (xtext->transparent) {
 		gdk_window_get_origin (widget->window, &x, &y);
 		/* update transparency only if it moved */
-		if (xtext->last_win_x != x || xtext->last_win_y != y) {
-			xtext->last_win_x = x;
-			xtext->last_win_y = y;
+		if (priv->last_win_x != x || priv->last_win_y != y) {
+			priv->last_win_x = x;
+			priv->last_win_y = y;
 #if !defined(USE_SHM) && !defined(WIN32)
 			if (xtext->shaded) {
 				xtext_load_trans (xtext, TRUE);
@@ -2041,6 +2053,8 @@ xtext_class_init (XTextClass * class)
 	widget_class->leave_notify_event = xtext_leave_notify;
 
 	xtext_class->word_click = NULL;
+
+	g_type_class_add_private (class, sizeof (XTextPriv));
 }
 
 /* strip MIRC colors and other attribs. */
@@ -2891,6 +2905,7 @@ get_image (XText *xtext, Display *xdisplay, XShmSegmentInfo *shminfo,
 static GdkPixmap *
 shade_pixmap (XText * xtext, Pixmap p, int x, int y, int w, int h, gboolean recycle)
 {
+	XTextPriv *priv;
 	unsigned int dummy, width, height, depth;
 	GdkPixmap *shaded_pix;
 	Window root;
@@ -2899,6 +2914,8 @@ shade_pixmap (XText * xtext, Pixmap p, int x, int y, int w, int h, gboolean recy
 	XGCValues gcv;
 	GC tgc;
 	Display *xdisplay = GDK_WINDOW_XDISPLAY (xtext->draw_buf);
+
+	priv = XTEXT_GET_PRIVATE (xtext);
 
 	XGetGeometry (xdisplay, p, &root, &dummy, &dummy, &width, &height, &dummy, &depth);
 
@@ -2933,13 +2950,12 @@ shade_pixmap (XText * xtext, Pixmap p, int x, int y, int w, int h, gboolean recy
 
 	if (depth <= 14) {
 		shade_ximage_generic (gdk_drawable_get_visual (GTK_WIDGET (xtext)->window),
-		                      ximg, ximg->bytes_per_line, w, h, xtext->tint_red,
-		                      xtext->tint_green, xtext->tint_blue,
-		                      xtext->palette[XTEXT_BG]);
+		                      ximg, ximg->bytes_per_line, w, h, priv->tint,
+		                      priv->tint, priv->tint, xtext->palette[XTEXT_BG]);
 	} else {
 		shade_image (gdk_drawable_get_visual (GTK_WIDGET (xtext)->window),
 		             ximg->data, ximg->bytes_per_line, ximg->bits_per_pixel,
-		             w, h, xtext->tint_red, xtext->tint_green, xtext->tint_blue,
+		             w, h, priv->tint, priv->tint, priv->tint,
 		             xtext->palette[XTEXT_BG], depth);
 	}
 
@@ -3003,12 +3019,15 @@ xtext_free_trans (XText * xtext)
 static GdkPixmap *
 win32_tint (XText *xtext, GdkImage *img, int width, int height)
 {
+	XTextPriv *priv;
 	guchar *pixelp;
 	int x, y;
 	GdkPixmap *pix;
 	GdkVisual *visual = gdk_drawable_get_visual (GTK_WIDGET (xtext)->window);
 	guint32 pixel;
 	int r, g, b;
+
+	priv = XTEXT_GET_PRIVATE (xtext);
 
 	if (img->depth <= 14) {
 		/* slow generic routine */
@@ -3053,9 +3072,9 @@ here:
 				b = (pixel & visual->blue_mask) >> visual->blue_shift;
 
 				/* actual tinting is only these 3 lines */
-				pixel = ((r * xtext->tint_red) >> 8) << visual->red_shift |
-				        ((g * xtext->tint_green) >> 8) << visual->green_shift |
-				        ((b * xtext->tint_blue) >> 8) << visual->blue_shift;
+				pixel = ((r * priv->tint) >> 8) << visual->red_shift |
+				        ((g * priv->tint) >> 8) << visual->green_shift |
+				        ((b * priv->tint) >> 8) << visual->blue_shift;
 
 				if (img->depth == 1) {
 					if (pixel & 1) {
@@ -3092,7 +3111,7 @@ here:
 		}
 	} else {
 		shade_image (visual, img->mem, img->bpl, img->bpp, width, height,
-		             xtext->tint_red, xtext->tint_green, xtext->tint_blue,
+		             priv->tint, priv->tint, priv->tint,
 		             xtext->palette[XTEXT_BG], visual->depth);
 	}
 
@@ -3491,10 +3510,13 @@ xtext_set_font (XText *xtext, char *name)
 void
 xtext_set_background (XText * xtext, GdkPixmap * pixmap, gboolean trans)
 {
+	XTextPriv *priv;
 	GdkGCValues val;
 	gboolean shaded = FALSE;
 
-	if (trans && (xtext->tint_red != 255 || xtext->tint_green != 255 || xtext->tint_blue != 255)) {
+	priv = XTEXT_GET_PRIVATE (xtext);
+
+	if (trans && priv->tint != 255) {
 		shaded = TRUE;
 	}
 
@@ -4347,11 +4369,13 @@ xtext_set_time_stamp (xtext_buffer *buf, gboolean time_stamp)
 }
 
 void
-xtext_set_tint (XText *xtext, int tint_red, int tint_green, int tint_blue)
+xtext_set_tint (XText *xtext, int tint)
 {
-	xtext->tint_red = tint_red;
-	xtext->tint_green = tint_green;
-	xtext->tint_blue = tint_blue;
+	XTextPriv *priv;
+
+	priv = XTEXT_GET_PRIVATE (xtext);
+
+	priv->tint = tint;
 }
 
 void
