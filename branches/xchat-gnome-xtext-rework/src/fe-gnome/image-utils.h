@@ -32,6 +32,11 @@
 #include <X11/Xlib.h>
 
 void shade_ximage_generic (GdkVisual *visual, XImage *ximg, int bpl, int w, int h, int rm, int gm, int bm, int bg);
+void shade_ximage_15 (void *data, int bpl, int w, int h, int rm, int gm, int bm, int bg);
+void shade_ximage_16 (void *data, int bpl, int w, int h, int rm, int gm, int bm, int bg);
+void shade_ximage_24 (void *data, int bpl, int w, int h, int rm, int gm, int bm, int bg);
+void shade_ximage_32 (void *data, int bpl, int w, int h, int rm, int gm, int bm, int bg);
+void shade_image (GdkVisual *visual, void *data, int bpl, int bpp, int w, int h, int rm, int gm, int bm, int bg, int depth);
 
 #endif /* USE_XLIB */
 
