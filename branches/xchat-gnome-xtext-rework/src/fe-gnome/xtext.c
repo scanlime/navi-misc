@@ -4348,6 +4348,9 @@ screen_changed (GtkWidget *widget,
                 GdkScreen *old_screen,
 		gpointer   data)
 {
+	/* For now, this is a no-op, since pushing an argb visual at the
+	 * existing shading routines is very bad */
+#if 0
 	XText       *xtext;
 	XTextPriv   *priv;
 	GdkScreen   *screen;
@@ -4369,6 +4372,7 @@ screen_changed (GtkWidget *widget,
 	if (xtext->transparent) {
 		gtk_widget_queue_draw (widget);
 	}
+#endif
 }
 
 static void
