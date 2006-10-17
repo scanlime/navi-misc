@@ -677,8 +677,6 @@ xtext_realize (GtkWidget * widget)
 
 	gdk_window_set_user_data (widget->window, widget);
 
-	xtext->depth = gdk_drawable_get_visual (widget->window)->depth;
-
 	val.subwindow_mode = GDK_INCLUDE_INFERIORS;
 	val.graphics_exposures = 0;
 
@@ -2183,7 +2181,8 @@ xtext_render_flush (XText * xtext, int x, int y, unsigned char *str, int len, Gd
 	if (!xtext->transparent)
 #endif /* WIN32 */
 	{
-		pix = gdk_pixmap_new (priv->draw_buffer, str_width, xtext->fontsize, xtext->depth);
+		pix = gdk_pixmap_new (priv->draw_buffer, str_width, xtext->fontsize,
+		                      gdk_drawable_get_visual (GTK_WIDGET (xtext)->window)->depth);
 		if (pix) {
 			dest_x = x;
 			dest_y = y - priv->font->ascent;
