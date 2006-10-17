@@ -53,15 +53,15 @@
 #endif
 
 #include "xtext.h"
-
-#define charlen(str) g_utf8_skip[*(guchar *)(str)]
+#include "xg-marshal.h"
+#include "image-utils.h"
 
 #ifdef WIN32
 #include <windows.h>
 #include <gdk/gdkwin32.h>
 #endif
 
-#include "xg-marshal.h"
+#define charlen(str) g_utf8_skip[*(guchar *)(str)]
 
 /* is delimiter */
 #define is_del(c) \
@@ -2676,33 +2676,6 @@ get_pixmap_prop (Display *xdisplay, Window the_window)
 	}
 
 	return pix;
-}
-
-/* slow generic routine, for the depths/bpp we don't know about */
-
-static void
-shade_ximage_generic (GdkVisual *visual, XImage *ximg, int bpl, int w, int h, int rm, int gm, int bm, int bg)
-{
-	int x, y;
-	int bgr = (256 - rm) * (bg & visual->red_mask);
-	int bgg = (256 - gm) * (bg & visual->green_mask);
-	int bgb = (256 - bm) * (bg & visual->blue_mask);
-
-	for (x = 0; x < w; x++) {
-		for (y = 0; y < h; y++) {
-			unsigned long pixel = XGetPixel (ximg, x, y);
-			int r, g, b;
-
-			r = rm * (pixel & visual->red_mask) + bgr;
-			g = gm * (pixel & visual->green_mask) + bgg;
-			b = bm * (pixel & visual->blue_mask) + bgb;
-
-			XPutPixel (ximg, x, y,
-							((r >> 8) & visual->red_mask) |
-							((g >> 8) & visual->green_mask) |
-							((b >> 8) & visual->blue_mask));
-		}
-	}
 }
 
 #endif /* USE_XLIB */
