@@ -100,8 +100,6 @@ struct _XText
 	int select_end_x;
 	int select_end_y;
 
-	int depth; /* gdk window depth */
-
 	char num[8]; /* for parsing mirc color */
 	int nc; /* offset into xtext->num */
 
