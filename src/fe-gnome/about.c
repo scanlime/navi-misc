@@ -24,19 +24,6 @@
 #include "about.h"
 #include "../common/fe.h"
 
-#ifndef HAVE_LIBGNOMEUI_2_16
-static void
-about_email_hook (GtkAboutDialog *dialog, const gchar *link, gpointer data)
-{
-}
-
-static void
-about_url_hook (GtkAboutDialog *dialog, const gchar *link, gpointer data)
-{
-	fe_open_url (link);
-}
-#endif /* !HAVE_LIBGNOMEUI_2_16 */
-
 void
 show_about_dialog (void)
 {
@@ -84,11 +71,6 @@ show_about_dialog (void)
 	};
 
 	license_trans = g_strjoin ("\n\n", _(license[0]), _(license[1]), _(license[2]), NULL);
-
-#ifndef HAVE_LIBGNOMEUI_2_16
-	gtk_about_dialog_set_url_hook   (about_url_hook,   NULL, NULL);
-	gtk_about_dialog_set_email_hook (about_email_hook, NULL, NULL);
-#endif
 
 	gtk_show_about_dialog (GTK_WINDOW (gui.main_window),
 	                       "name", "XChat-GNOME",
