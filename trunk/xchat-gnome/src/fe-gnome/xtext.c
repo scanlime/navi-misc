@@ -53,15 +53,15 @@
 #endif
 
 #include "xtext.h"
-
-#define charlen(str) g_utf8_skip[*(guchar *)(str)]
+#include "xg-marshal.h"
+#include "image-utils.h"
 
 #ifdef WIN32
 #include <windows.h>
 #include <gdk/gdkwin32.h>
 #endif
 
-#include "xg-marshal.h"
+#define charlen(str) g_utf8_skip[*(guchar *)(str)]
 
 /* is delimiter */
 #define is_del(c) \
@@ -127,6 +127,9 @@ struct _XTextPriv
 	/* Number of pixels offset from a text line (for smooth scrolling) */
 	int pixel_offset;
 
+	/* Currently moving the separator bar? */
+	gboolean moving_separator;
+
 	/*** Drawing data ***/
 	GdkDrawable *draw_buffer;
 
@@ -191,12 +194,23 @@ static void xtext_update_primary_selection (XText *xtext);
  * !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!! *
  ***********************************************************************************/
 
+/* Drawing backend */
+static void backend_init           (XText  *xtext);
+static void backend_deinit         (XText  *xtext);
+static void backend_font_close     (XText  *xtext);
+static int  backend_get_text_width (XText  *xtext,
+                                    guchar *str,
+                                    int     len);
+
 /* GtkWidget overrides */
 static void unrealize (GtkWidget *widget);
 
 /* Signal handlers */
-static void screen_changed (GtkWidget *widget, GdkScreen *screen, gpointer data);
-static void composited_changed (GtkWidget *widget, gpointer data);
+static void screen_changed     (GtkWidget *widget,
+                                GdkScreen *screen,
+                                gpointer   data);
+static void composited_changed (GtkWidget *widget,
+                                gpointer   data);
 
 /***********************************************************************************
  * !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!!    CRUFT BARRIER    !!!! *
@@ -204,21 +218,6 @@ static void composited_changed (GtkWidget *widget, gpointer data);
 
 
 /* some utility functions first */
-
-/* gives width of a 8bit string - with no mIRC codes in it */
-static int
-xtext_text_width_8bit (XText *xtext, unsigned char *str, int len)
-{
-	int width = 0;
-
-	while (len) {
-		width += xtext->fontwidth[*str];
-		str++;
-		len--;
-	}
-
-	return width;
-}
 
 #ifdef WIN32
 
@@ -280,35 +279,6 @@ xtext_draw_bg (XText *xtext, int x, int y, int width, int height)
 /* ============ PANGO BACKEND ============ */
 /* ======================================= */
 
-static void
-backend_font_close (XText *xtext)
-{
-	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	pango_font_description_free (priv->font->font_desc);
-}
-
-static void
-backend_init (XText *xtext)
-{
-	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	if (priv->layout == NULL) {
-		priv->layout = gtk_widget_create_pango_layout (GTK_WIDGET (xtext), 0);
-		if (priv->font) {
-			pango_layout_set_font_description (priv->layout, priv->font->font_desc);
-		}
-	}
-}
-
-static void
-backend_deinit (XText *xtext)
-{
-	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	if (priv->layout) {
-		g_object_unref (priv->layout);
-		priv->layout = NULL;
-	}
-}
-
 static PangoFontDescription *
 backend_font_open_real (char *name)
 {
@@ -354,36 +324,11 @@ backend_font_open (XText *xtext, char *name)
 	pango_font_metrics_unref (metrics);
 }
 
-static int
-backend_get_text_width (XText *xtext, guchar *str, int len, int is_mb)
-{
-	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	int width;
-
-	if (!is_mb) {
-		return xtext_text_width_8bit (xtext, str, len);
-	}
-
-	if (*str == 0) {
-		return 0;
-	}
-
-	pango_layout_set_text (priv->layout, (const char *) str, len);
-	pango_layout_get_pixel_size (priv->layout, &width, NULL);
-
-	return width;
-}
-
 inline static int
 backend_get_char_width (XText *xtext, unsigned char *str, int *mbl_ret)
 {
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	int width;
-
-	if (*str < 128) {
-		*mbl_ret = 1;
-		return xtext->fontwidth[*str];
-	}
 
 	*mbl_ret = charlen (str);
 	pango_layout_set_text (priv->layout, (const char *) str, *mbl_ret);
@@ -722,8 +667,6 @@ xtext_realize (GtkWidget * widget)
 
 	gdk_window_set_user_data (widget->window, widget);
 
-	xtext->depth = gdk_drawable_get_visual (widget->window)->depth;
-
 	val.subwindow_mode = GDK_INCLUDE_INFERIORS;
 	val.graphics_exposures = 0;
 
@@ -775,6 +718,9 @@ xtext_realize (GtkWidget * widget)
 #endif /* defined(USE_XLIB) || defined(WIN32) */
 
 	gdk_window_set_back_pixmap (widget->window, NULL, FALSE);
+	col.pixel = xtext->palette[XTEXT_BG];
+	gdk_window_set_background (widget->window, &col);
+	gdk_window_clear (widget->window);
 	widget->style = gtk_style_attach (widget->style, widget->window);
 
 	backend_init (xtext);
@@ -1000,7 +946,7 @@ xtext_draw_sep (XText * xtext, int y)
 			return;
 		}
 
-		if (xtext->moving_separator) {
+		if (priv->moving_separator) {
 			gdk_draw_line (priv->draw_buffer, light, x, y, x, y + height);
 		} else {
 			gdk_draw_line (priv->draw_buffer, priv->thin_gc, x, y, x, y + height);
@@ -1550,7 +1496,7 @@ xtext_motion_notify (GtkWidget * widget, GdkEventMotion * event)
 
 	gdk_window_get_pointer (widget->window, &x, &y, 0);
 
-	if (xtext->moving_separator) {
+	if (priv->moving_separator) {
 		if (x < (3 * widget->allocation.width) / 5 && x > 15) {
 			tmp = xtext->buffer->indent;
 			xtext->buffer->indent = x;
@@ -1818,11 +1764,12 @@ static gboolean
 xtext_button_release (GtkWidget * widget, GdkEventButton * event)
 {
 	XText *xtext = XTEXT (widget);
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	unsigned char *word;
 	int old;
 
-	if (xtext->moving_separator) {
-		xtext->moving_separator = FALSE;
+	if (priv->moving_separator) {
+		priv->moving_separator = FALSE;
 		old = xtext->buffer->indent;
 		if (event->x < (4 * widget->allocation.width) / 5 && event->x > 15) {
 			xtext->buffer->indent = event->x;
@@ -1932,7 +1879,7 @@ xtext_button_press (GtkWidget * widget, GdkEventButton * event)
 	if (xtext->buffer->indent) {
 		line_x = xtext->buffer->indent - ((xtext->space_width + 1) / 2);
 		if (line_x == x || line_x == x + 1 || line_x == x - 1) {
-			xtext->moving_separator = TRUE;
+			priv->moving_separator = TRUE;
 			/* draw the separator line */
 			xtext_draw_sep (xtext, -1);
 			return FALSE;
@@ -2177,7 +2124,7 @@ xtext_text_width (XText *xtext, unsigned char *text, int len, int *mb_ret)
 		*mb_ret = mb;
 	}
 
-	return backend_get_text_width (xtext, new_buf, new_len, mb);
+	return backend_get_text_width (xtext, new_buf, new_len);
 }
 
 /* actually draw text to screen (one run with the same color/attribs) */
@@ -2196,7 +2143,7 @@ xtext_render_flush (XText * xtext, int x, int y, unsigned char *str, int len, Gd
 		return 0;
 	}
 
-	str_width = backend_get_text_width (xtext, str, len, is_mb);
+	str_width = backend_get_text_width (xtext, str, len);
 
 	if (xtext->dont_render2) {
 		return str_width;
@@ -2225,7 +2172,8 @@ xtext_render_flush (XText * xtext, int x, int y, unsigned char *str, int len, Gd
 	if (!xtext->transparent)
 #endif /* WIN32 */
 	{
-		pix = gdk_pixmap_new (priv->draw_buffer, str_width, xtext->fontsize, xtext->depth);
+		pix = gdk_pixmap_new (priv->draw_buffer, str_width, xtext->fontsize,
+		                      gdk_drawable_get_visual (GTK_WIDGET (xtext)->window)->depth);
 		if (pix) {
 			dest_x = x;
 			dest_y = y - priv->font->ascent;
@@ -2720,176 +2668,6 @@ get_pixmap_prop (Display *xdisplay, Window the_window)
 
 	return pix;
 }
-
-/* slow generic routine, for the depths/bpp we don't know about */
-
-static void
-shade_ximage_generic (GdkVisual *visual, XImage *ximg, int bpl, int w, int h, int rm, int gm, int bm, int bg)
-{
-	int x, y;
-	int bgr = (256 - rm) * (bg & visual->red_mask);
-	int bgg = (256 - gm) * (bg & visual->green_mask);
-	int bgb = (256 - bm) * (bg & visual->blue_mask);
-
-	for (x = 0; x < w; x++) {
-		for (y = 0; y < h; y++) {
-			unsigned long pixel = XGetPixel (ximg, x, y);
-			int r, g, b;
-
-			r = rm * (pixel & visual->red_mask) + bgr;
-			g = gm * (pixel & visual->green_mask) + bgg;
-			b = bm * (pixel & visual->blue_mask) + bgb;
-
-			XPutPixel (ximg, x, y,
-							((r >> 8) & visual->red_mask) |
-							((g >> 8) & visual->green_mask) |
-							((b >> 8) & visual->blue_mask));
-		}
-	}
-}
-
-#endif /* USE_XLIB */
-
-/* Fast shading routine. Based on code by Willem Monsuwe <willem@stack.nl> */
-
-#define SHADE_IMAGE(bytes, type, rmask, gmask, bmask) \
-	unsigned char *ptr; \
-	int x, y; \
-	int bgr = (256 - rm) * (bg & rmask); \
-	int bgg = (256 - gm) * (bg & gmask); \
-	int bgb = (256 - bm) * (bg & bmask); \
-	ptr = (unsigned char *) data + (w * bytes); \
-	for (y = h; --y >= 0;) \
-	{ \
-		for (x = -w; x < 0; x++) \
-		{ \
-			int r, g, b; \
-			b = ((type *) ptr)[x]; \
-			r = rm * (b & rmask) + bgr; \
-			g = gm * (b & gmask) + bgg; \
-			b = bm * (b & bmask) + bgb; \
-			((type *) ptr)[x] = ((r >> 8) & rmask) \
-										| ((g >> 8) & gmask) \
-										| ((b >> 8) & bmask); \
-		} \
-		ptr += bpl; \
-    }
-
-/* RGB 15 */
-static void
-shade_ximage_15 (void *data, int bpl, int w, int h, int rm, int gm, int bm, int bg)
-{
-	SHADE_IMAGE (2, guint16, 0x7c00, 0x3e0, 0x1f);
-}
-
-/* RGB 16 */
-static void
-shade_ximage_16 (void *data, int bpl, int w, int h, int rm, int gm, int bm, int bg)
-{
-	SHADE_IMAGE (2, guint16, 0xf800, 0x7e0, 0x1f);
-}
-
-/* RGB 24 */
-static void
-shade_ximage_24 (void *data, int bpl, int w, int h, int rm, int gm, int bm, int bg)
-{
-	/* 24 has to be a special case, there's no guint24, or 24bit MOV :) */
-	unsigned char *ptr;
-	int x, y;
-	int bgr = (256 - rm) * ((bg & 0xff0000) >> 16);
-	int bgg = (256 - gm) * ((bg & 0xff00) >> 8);
-	int bgb = (256 - bm) * (bg & 0xff);
-
-	ptr = (unsigned char *) data + (w * 3);
-	for (y = h; --y >= 0;) {
-		for (x = -(w * 3); x < 0; x += 3) {
-			int r, g, b;
-
-#if (G_BYTE_ORDER == G_BIG_ENDIAN)
-			r = (ptr[x + 0] * rm + bgr) >> 8;
-			g = (ptr[x + 1] * gm + bgg) >> 8;
-			b = (ptr[x + 2] * bm + bgb) >> 8;
-			ptr[x + 0] = r;
-			ptr[x + 1] = g;
-			ptr[x + 2] = b;
-#else /* (G_BYTE_ORDER == G_BIG_ENDIAN) */
-			r = (ptr[x + 2] * rm + bgr) >> 8;
-			g = (ptr[x + 1] * gm + bgg) >> 8;
-			b = (ptr[x + 0] * bm + bgb) >> 8;
-			ptr[x + 2] = r;
-			ptr[x + 1] = g;
-			ptr[x + 0] = b;
-#endif /* (G_BYTE_ORDER == G_BIG_ENDIAN) */
-		}
-		ptr += bpl;
-	}
-}
-
-/* RGB 32 */
-static void
-shade_ximage_32 (void *data, int bpl, int w, int h, int rm, int gm, int bm, int bg)
-{
-	SHADE_IMAGE (4, guint32, 0xff0000, 0xff00, 0xff);
-}
-
-static void
-shade_image (GdkVisual *visual, void *data, int bpl, int bpp, int w, int h,
-				 int rm, int gm, int bm, int bg, int depth)
-{
-	int bg_r, bg_g, bg_b;
-
-	bg_r = bg & visual->red_mask;
-	bg_g = bg & visual->green_mask;
-	bg_b = bg & visual->blue_mask;
-
-#ifdef USE_MMX
-	/* the MMX routines are about 50% faster at 16-bit. */
-	/* only use MMX routines with a pure black background */
-	/* We do a runtime check for MMX too */
-	if (bg_r == 0 && bg_g == 0 && bg_b == 0 && have_mmx ()) {
-		switch (depth)
-		{
-		case 15:
-			shade_ximage_15_mmx (data, bpl, w, h, rm, gm, bm);
-			break;
-		case 16:
-			shade_ximage_16_mmx (data, bpl, w, h, rm, gm, bm);
-			break;
-		case 24:
-			if (bpp != 32) {
-				goto generic;
-			}
-		case 32:
-			shade_ximage_32_mmx (data, bpl, w, h, rm, gm, bm);
-			break;
-		default:
-			goto generic;
-		}
-	} else {
-generic:
-#endif /* USE_MMX */
-		switch (depth)
-		{
-		case 15:
-			shade_ximage_15 (data, bpl, w, h, rm, gm, bm, bg);
-			break;
-		case 16:
-			shade_ximage_16 (data, bpl, w, h, rm, gm, bm, bg);
-			break;
-		case 24:
-			if (bpp != 32) {
-				shade_ximage_24 (data, bpl, w, h, rm, gm, bm, bg);
-				break;
-			}
-		case 32:
-			shade_ximage_32 (data, bpl, w, h, rm, gm, bm, bg);
-		}
-#ifdef USE_MMX
-	}
-#endif /* USE_MMX */
-}
-
-#ifdef USE_XLIB
 
 #ifdef USE_SHM
 
@@ -3494,8 +3272,6 @@ int
 xtext_set_font (XText *xtext, char *name)
 {
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	int i;
-	unsigned char c;
 	char *time_str;
 	int stamp_size;
 
@@ -3511,12 +3287,7 @@ xtext_set_font (XText *xtext, char *name)
 		return FALSE;
 	}
 
-	/* measure the width of ASCII characters */
-	for (i = 0; i < sizeof(xtext->fontwidth)/sizeof(xtext->fontwidth[0]); i++) {
-		c = i;
-		xtext->fontwidth[i] = backend_get_text_width (xtext, &c, 1, TRUE);
-	}
-	xtext->space_width = xtext->fontwidth[' '];
+	xtext->space_width = xtext_text_width (xtext, " ", 1, NULL);
 	xtext->fontsize = priv->font->ascent + priv->font->descent;
 
 	stamp_size = xtext_get_stamp_str (time(0), &time_str);
@@ -4568,6 +4339,9 @@ screen_changed (GtkWidget *widget,
                 GdkScreen *old_screen,
 		gpointer   data)
 {
+	/* For now, this is a no-op, since pushing an argb visual at the
+	 * existing shading routines is very bad */
+#if 0
 	XText       *xtext;
 	XTextPriv   *priv;
 	GdkScreen   *screen;
@@ -4589,6 +4363,7 @@ screen_changed (GtkWidget *widget,
 	if (xtext->transparent) {
 		gtk_widget_queue_draw (widget);
 	}
+#endif
 }
 
 static void
@@ -4646,4 +4421,49 @@ xtext_set_tint (XText *xtext,
 {
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	priv->tint = tint;
+}
+
+static void
+backend_font_close (XText *xtext)
+{
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
+	pango_font_description_free (priv->font->font_desc);
+}
+
+static void
+backend_init (XText *xtext)
+{
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
+	if (priv->layout == NULL) {
+		priv->layout = gtk_widget_create_pango_layout (GTK_WIDGET (xtext), 0);
+		if (priv->font) {
+			pango_layout_set_font_description (priv->layout, priv->font->font_desc);
+		}
+	}
+}
+
+static void
+backend_deinit (XText *xtext)
+{
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
+	if (priv->layout) {
+		g_object_unref (priv->layout);
+		priv->layout = NULL;
+	}
+}
+
+static int
+backend_get_text_width (XText *xtext, guchar *str, int len)
+{
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
+	int width;
+
+	if (*str == 0) {
+		return 0;
+	}
+
+	pango_layout_set_text (priv->layout, (const char *) str, len);
+	pango_layout_get_pixel_size (priv->layout, &width, NULL);
+
+	return width;
 }

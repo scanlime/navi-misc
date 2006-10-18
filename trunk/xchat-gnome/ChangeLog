@@ -1,3 +1,16 @@
+2006-10-18  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/fe-gnome/xtext.c:
+	* src/fe-gnome/xtext.h:
+	A src/fe-gnome/image-utils.c:
+	A src/fe-gnome/image-utils.h:
+	* src/fe-gnome/fe-gnome.c:
+	* src/fe-gnome/gui.c:
+	* src/fe-gnome/about.c:
+	* src/fe-gnome/Makefile.am:
+	* configure.ac:
+	  - Merge 10916:10923 from xtext-rework branch.
+
 2006-10-16  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/fe-gnome/conversation-panel.c:

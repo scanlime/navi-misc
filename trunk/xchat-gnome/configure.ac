@@ -20,7 +20,8 @@ GLIB_REQUIRED=2.12.0
 GTK_REQUIRED=2.10.0
 LIBGLADE_REQUIRED=2.3.0
 LIBGNOMEVFS_REQUIRED=2.9.2
-LIBGNOMEUI_REQUIRED=2.6.0
+LIBGNOME_REQUIRED=2.16.0
+LIBGNOMEUI_REQUIRED=2.16.0
 GCONF_REQUIRED=2.8.0
 DBUS_REQUIRED=0.60
 DBUS_GLIB_REQUIRED=0.60
@@ -59,23 +60,10 @@ PKG_CHECK_MODULES([DEPENDENCIES], [\
                   gtk+-2.0 >= $GTK_REQUIRED \
                   libglade-2.0 >= $LIBGLADE_REQUIRED \
                   gnome-vfs-2.0 >= $LIBGNOMEVFS_REQUIRED \
+		  libgnome-2.0 >= $LIBGNOME_REQUIRED \
                   libgnomeui-2.0 >= $LIBGNOMEUI_REQUIRED \
                   gconf-2.0 >= $GCONF_REQUIRED \
                   ])
-
-# We can do better option parsing if we have libgnome >= 2.14
-# Once 2.14 is out and relatively common, we should probably eliminate this
-# and just force everyone to it.
-PKG_CHECK_EXISTS([libgnome-2.0 >= 2.13],[newlibgnome=yes],[newlibgnome=no])
-if test "$newlibgnome" = "yes"; then
-	AC_DEFINE([HAVE_LIBGNOME_214],[1],[Enable 2.14-specific code])
-fi
-
-# Check libgnomeui version
-PKG_CHECK_EXISTS([libgnomeui-2.0 >= 2.15.2],[libgnomeui_2_16=yes],[libgnomeui_2_16=no])
-if test "$libgnomeui_2_16" = "yes"; then
-	AC_DEFINE([HAVE_LIBGNOMEUI_2_16],[1],[Libgnomeui 2.16 available])
-fi
 
 #D-Bus
 AC_MSG_CHECKING([whether D-Bus support is requested])
