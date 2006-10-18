@@ -19,9 +19,7 @@
 
 #define ATTR_BOLD      '\002'
 #define ATTR_COLOR     '\003'
-#define ATTR_BLINK     '\006'
 #define ATTR_BEEP      '\007'
-#define ATTR_ITALICS2  '\011'
 #define ATTR_RESET     '\017'
 #define ATTR_REVERSE   '\026'
 #define ATTR_ITALICS   '\035'
@@ -100,16 +98,12 @@ struct _XText
 	int select_end_x;
 	int select_end_y;
 
-	int depth; /* gdk window depth */
-
 	char num[8]; /* for parsing mirc color */
 	int nc; /* offset into xtext->num */
 
 	textentry *hilight_ent;
 	int hilight_start;
 	int hilight_end;
-
-	guint16 fontwidth[128]; /* each char's width, only the ASCII ones */
 
 	int fontsize;
 	int space_width; /* width (pixels) of the space " " character */
@@ -133,7 +127,6 @@ struct _XText
 	int clip_y2; /* from y to y2 */
 
 	unsigned int auto_indent:1;
-	unsigned int moving_separator:1;
 	unsigned int word_or_line_select:1;
 	unsigned int color_paste:1;
 	unsigned int parsing_backcolor:1;
