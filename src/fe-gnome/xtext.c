@@ -127,6 +127,9 @@ struct _XTextPriv
 	/* Number of pixels offset from a text line (for smooth scrolling) */
 	int pixel_offset;
 
+	/* Currently moving the separator bar? */
+	gboolean moving_separator;
+
 	/*** Drawing data ***/
 	GdkDrawable *draw_buffer;
 
@@ -192,9 +195,12 @@ static void xtext_update_primary_selection (XText *xtext);
  ***********************************************************************************/
 
 /* Drawing backend */
-static void backend_init       (XText *xtext);
-static void backend_deinit     (XText *xtext);
-static void backend_font_close (XText *xtext);
+static void backend_init           (XText  *xtext);
+static void backend_deinit         (XText  *xtext);
+static void backend_font_close     (XText  *xtext);
+static int  backend_get_text_width (XText  *xtext,
+                                    guchar *str,
+                                    int     len);
 
 /* GtkWidget overrides */
 static void unrealize (GtkWidget *widget);
@@ -316,22 +322,6 @@ backend_font_open (XText *xtext, char *name)
 	priv->font->ascent = pango_font_metrics_get_ascent (metrics) / PANGO_SCALE;
 	priv->font->descent = pango_font_metrics_get_descent (metrics) / PANGO_SCALE;
 	pango_font_metrics_unref (metrics);
-}
-
-static int
-backend_get_text_width (XText *xtext, guchar *str, int len, int is_mb)
-{
-	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	int width;
-
-	if (*str == 0) {
-		return 0;
-	}
-
-	pango_layout_set_text (priv->layout, (const char *) str, len);
-	pango_layout_get_pixel_size (priv->layout, &width, NULL);
-
-	return width;
 }
 
 inline static int
@@ -956,7 +946,7 @@ xtext_draw_sep (XText * xtext, int y)
 			return;
 		}
 
-		if (xtext->moving_separator) {
+		if (priv->moving_separator) {
 			gdk_draw_line (priv->draw_buffer, light, x, y, x, y + height);
 		} else {
 			gdk_draw_line (priv->draw_buffer, priv->thin_gc, x, y, x, y + height);
@@ -1506,7 +1496,7 @@ xtext_motion_notify (GtkWidget * widget, GdkEventMotion * event)
 
 	gdk_window_get_pointer (widget->window, &x, &y, 0);
 
-	if (xtext->moving_separator) {
+	if (priv->moving_separator) {
 		if (x < (3 * widget->allocation.width) / 5 && x > 15) {
 			tmp = xtext->buffer->indent;
 			xtext->buffer->indent = x;
@@ -1774,11 +1764,12 @@ static gboolean
 xtext_button_release (GtkWidget * widget, GdkEventButton * event)
 {
 	XText *xtext = XTEXT (widget);
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	unsigned char *word;
 	int old;
 
-	if (xtext->moving_separator) {
-		xtext->moving_separator = FALSE;
+	if (priv->moving_separator) {
+		priv->moving_separator = FALSE;
 		old = xtext->buffer->indent;
 		if (event->x < (4 * widget->allocation.width) / 5 && event->x > 15) {
 			xtext->buffer->indent = event->x;
@@ -1888,7 +1879,7 @@ xtext_button_press (GtkWidget * widget, GdkEventButton * event)
 	if (xtext->buffer->indent) {
 		line_x = xtext->buffer->indent - ((xtext->space_width + 1) / 2);
 		if (line_x == x || line_x == x + 1 || line_x == x - 1) {
-			xtext->moving_separator = TRUE;
+			priv->moving_separator = TRUE;
 			/* draw the separator line */
 			xtext_draw_sep (xtext, -1);
 			return FALSE;
@@ -2133,7 +2124,7 @@ xtext_text_width (XText *xtext, unsigned char *text, int len, int *mb_ret)
 		*mb_ret = mb;
 	}
 
-	return backend_get_text_width (xtext, new_buf, new_len, mb);
+	return backend_get_text_width (xtext, new_buf, new_len);
 }
 
 /* actually draw text to screen (one run with the same color/attribs) */
@@ -2152,7 +2143,7 @@ xtext_render_flush (XText * xtext, int x, int y, unsigned char *str, int len, Gd
 		return 0;
 	}
 
-	str_width = backend_get_text_width (xtext, str, len, is_mb);
+	str_width = backend_get_text_width (xtext, str, len);
 
 	if (xtext->dont_render2) {
 		return str_width;
@@ -4459,4 +4450,20 @@ backend_deinit (XText *xtext)
 		g_object_unref (priv->layout);
 		priv->layout = NULL;
 	}
+}
+
+static int
+backend_get_text_width (XText *xtext, guchar *str, int len)
+{
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
+	int width;
+
+	if (*str == 0) {
+		return 0;
+	}
+
+	pango_layout_set_text (priv->layout, (const char *) str, len);
+	pango_layout_get_pixel_size (priv->layout, &width, NULL);
+
+	return width;
 }
