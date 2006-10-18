@@ -127,7 +127,6 @@ struct _XText
 	int clip_y2; /* from y to y2 */
 
 	unsigned int auto_indent:1;
-	unsigned int moving_separator:1;
 	unsigned int word_or_line_select:1;
 	unsigned int color_paste:1;
 	unsigned int parsing_backcolor:1;

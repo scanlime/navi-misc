@@ -29,6 +29,7 @@
 #include "about.h"
 #include "userlist-gui.h"
 #include "pixmaps.h"
+#include "util.h"
 #include "../common/text.h"
 #include "../common/xchatc.h"
 
