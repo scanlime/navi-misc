@@ -2977,8 +2977,8 @@ xtext_load_trans (XText * xtext, gboolean recycle)
 	PaintDesktop (hdc);
 	ReleaseDC (hwnd, hdc);
 
-	gdk_window_get_size (GTK_WIDGET (xtext)->window, &width, &height);
-	img = gdk_image_get (GTK_WIDGET (xtext)->window, 0, 0, width+128, height);
+	gdk_drawable_get_size (GTK_WIDGET (xtext)->window, &width, &height);
+	img = gdk_drawable_get_image (GTK_WIDGET (xtext)->window, 0, 0, width+128, height);
 	priv->pixmap = win32_tint (xtext, img, img->width, img->height);
 
 #else /* WIN32 */
