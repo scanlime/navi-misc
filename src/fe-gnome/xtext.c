@@ -336,10 +336,15 @@ backend_get_char_width (XText *xtext, unsigned char *str, int *mbl_ret)
 {
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	int width;
+	int cwidth;
 
-	*mbl_ret = charlen (str);
-	pango_layout_set_text (priv->layout, (const char *) str, *mbl_ret);
+	cwidth = charlen (str);
+	pango_layout_set_text (priv->layout, (const char *) str, cwidth);
 	pango_layout_get_pixel_size (priv->layout, &width, NULL);
+
+	if (mbl_ret) {
+		*mbl_ret = cwidth;
+	}
 
 	return width;
 }
@@ -371,7 +376,7 @@ xtext_draw_layout_line (GdkDrawable      *drawable,
 
 static void
 backend_draw_text (XText *xtext, int dofill, GdkGC *gc, int x, int y,
-                   char *str, int len, int str_width, int is_mb)
+                   char *str, int len, int str_width)
 {
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	GdkGCValues val;
@@ -853,7 +858,7 @@ find_x (XText *xtext, textentry *ent, unsigned char *text, int x, int indent)
 				break;
 			default:
 				xx += backend_get_char_width (xtext, text, &mbl);
-				text += mbl;
+				text = g_utf8_next_char (text);
 				if (xx >= x)
 					return i + (orig - ent->str);
 			}
@@ -2137,7 +2142,7 @@ xtext_text_width (XText *xtext, unsigned char *text, int len, int *mb_ret)
 /* actually draw text to screen (one run with the same color/attribs) */
 
 static int
-xtext_render_flush (XText * xtext, int x, int y, unsigned char *str, int len, GdkGC *gc, int is_mb)
+xtext_render_flush (XText * xtext, int x, int y, unsigned char *str, int len, GdkGC *gc)
 {
 	XTextPriv *priv;
 	int str_width, dofill;
@@ -2202,7 +2207,7 @@ xtext_render_flush (XText * xtext, int x, int y, unsigned char *str, int len, Gd
 		dofill = FALSE;	/* already drawn the background */
 	}
 
-	backend_draw_text (xtext, dofill, gc, x, y, str, len, str_width, is_mb);
+	backend_draw_text (xtext, dofill, gc, x, y, str, len, str_width);
 
 	if (pix) {
 		GdkRectangle clip;
@@ -2339,7 +2344,7 @@ xtext_render_str (XText * xtext, int y, textentry * ent,
 
 	while (i < len) {
 		if (xtext->hilight_ent == ent && xtext->hilight_start == (i + offset)) {
-			x += xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
+			x += xtext_render_flush (xtext, x, y, pstr, j, gc);
 			pstr += j;
 			j = 0;
 			if (!xtext->un_hilight) {
@@ -2413,7 +2418,7 @@ xtext_render_str (XText * xtext, int y, textentry * ent,
 					xtext->parsing_backcolor = FALSE;
 				} else {
 					/* got a \003<non-digit>... i.e. reset colors */
-					x += xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
+					x += xtext_render_flush (xtext, x, y, pstr, j, gc);
 					pstr += j;
 					j = 0;
 					xtext_reset (xtext, mark, FALSE);
@@ -2425,7 +2430,7 @@ xtext_render_str (XText * xtext, int y, textentry * ent,
 			/*case ATTR_BEEP:*/
 				break;
 			case ATTR_REVERSE:
-				x += xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
+				x += xtext_render_flush (xtext, x, y, pstr, j, gc);
 				pstr += j + 1;
 				j = 0;
 				tmp = priv->foreground_color;
@@ -2442,31 +2447,31 @@ xtext_render_str (XText * xtext, int y, textentry * ent,
 				}
 				break;
 			case ATTR_BOLD:
-				x += xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
+				x += xtext_render_flush (xtext, x, y, pstr, j, gc);
 				xtext->bold = !xtext->bold;
 				pstr += j + 1;
 				j = 0;
 				break;
 			case ATTR_UNDERLINE:
-				x += xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
+				x += xtext_render_flush (xtext, x, y, pstr, j, gc);
 				xtext->underline = !xtext->underline;
 				pstr += j + 1;
 				j = 0;
 				break;
 			case ATTR_ITALICS:
-				x += xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
+				x += xtext_render_flush (xtext, x, y, pstr, j, gc);
 				xtext->italics = !xtext->italics;
 				pstr += j + 1;
 				j = 0;
 				break;
 			case ATTR_RESET:
-				x += xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
+				x += xtext_render_flush (xtext, x, y, pstr, j, gc);
 				pstr += j + 1;
 				j = 0;
 				xtext_reset (xtext, mark, !xtext->in_hilight);
 				break;
 			case ATTR_COLOR:
-				x += xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
+				x += xtext_render_flush (xtext, x, y, pstr, j, gc);
 				xtext->parsing_color = TRUE;
 				pstr += j + 1;
 				j = 0;
@@ -2493,11 +2498,11 @@ xtext_render_str (XText * xtext, int y, textentry * ent,
 		if (offset == 0) {
 			/* we've reached the end of the left part? */
 			if ((pstr-str)+j == ent->left_len) {
-				x += xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
+				x += xtext_render_flush (xtext, x, y, pstr, j, gc);
 				pstr += j;
 				j = 0;
 			} else if ((pstr-str)+j == ent->left_len+1) {
-				x += xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
+				x += xtext_render_flush (xtext, x, y, pstr, j, gc);
 				pstr += j;
 				j = 0;
 			}
@@ -2505,21 +2510,21 @@ xtext_render_str (XText * xtext, int y, textentry * ent,
 
 		/* have we been told to stop rendering at this point? */
 		if (xtext->jump_out_offset > 0 && xtext->jump_out_offset <= (i + offset)) {
-			xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
+			xtext_render_flush (xtext, x, y, pstr, j, gc);
 			ret = 0;	/* skip the rest of the lines, we're done. */
 			j = 0;
 			break;
 		}
 
 		if (xtext->jump_in_offset > 0 && xtext->jump_in_offset == (i + offset)) {
-			x += xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
+			x += xtext_render_flush (xtext, x, y, pstr, j, gc);
 			pstr += j;
 			j = 0;
 			xtext->dont_render2 = FALSE;
 		}
 
 		if (xtext->hilight_ent == ent && xtext->hilight_end == (i + offset)) {
-			x += xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
+			x += xtext_render_flush (xtext, x, y, pstr, j, gc);
 			pstr += j;
 			j = 0;
 			xtext->underline = FALSE;
@@ -2532,7 +2537,7 @@ xtext_render_str (XText * xtext, int y, textentry * ent,
 		}
 
 		if (!mark && ent->mark_start == (i + offset)) {
-			x += xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
+			x += xtext_render_flush (xtext, x, y, pstr, j, gc);
 			pstr += j;
 			j = 0;
 			xtext_set_bg (xtext, gc, XTEXT_MARK_BG);
@@ -2542,7 +2547,7 @@ xtext_render_str (XText * xtext, int y, textentry * ent,
 		}
 
 		if (mark && ent->mark_end == (i + offset)) {
-			x += xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
+			x += xtext_render_flush (xtext, x, y, pstr, j, gc);
 			pstr += j;
 			j = 0;
 			xtext_set_bg (xtext, gc, priv->background_color);
@@ -2558,7 +2563,7 @@ xtext_render_str (XText * xtext, int y, textentry * ent,
 	}
 
 	if (j) {
-		x += xtext_render_flush (xtext, x, y, pstr, j, gc, ent->mb);
+		x += xtext_render_flush (xtext, x, y, pstr, j, gc);
 	}
 
 	if (mark) {
@@ -3032,7 +3037,6 @@ find_next_wrap (XText * xtext, textentry * ent, unsigned char *str, int win_widt
 	int str_width = indent;
 	int col = FALSE;
 	int nc = 0;
-	int mbl;
 	int ret;
 	int limit_offset = 0;
 
@@ -3071,7 +3075,7 @@ find_next_wrap (XText * xtext, textentry * ent, unsigned char *str, int win_widt
 				str++;
 				break;
 			default:
-				str_width += backend_get_char_width (xtext, str, &mbl);
+				str_width += backend_get_char_width (xtext, str, NULL);
 				if (str_width > win_width) {
 					if (str - last_space > WORDWRAP_LIMIT + limit_offset) {
 						ret = str - orig_str; /* fall back to character wrap */
@@ -3094,9 +3098,7 @@ find_next_wrap (XText * xtext, textentry * ent, unsigned char *str, int win_widt
 					limit_offset = 0;
 				}
 
-				/* progress to the next char */
-				str += mbl;
-
+				str = g_utf8_next_char (str);
 			}
 		}
 
