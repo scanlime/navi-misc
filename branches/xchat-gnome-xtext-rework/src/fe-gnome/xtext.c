@@ -332,7 +332,7 @@ backend_font_open (XText *xtext, char *name)
 }
 
 inline static int
-backend_get_char_width (XText *xtext, unsigned char *str, int *mbl_ret)
+backend_get_char_width (XText *xtext, unsigned char *str)
 {
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	int width;
@@ -341,10 +341,6 @@ backend_get_char_width (XText *xtext, unsigned char *str, int *mbl_ret)
 	cwidth = charlen (str);
 	pango_layout_set_text (priv->layout, (const char *) str, cwidth);
 	pango_layout_get_pixel_size (priv->layout, &width, NULL);
-
-	if (mbl_ret) {
-		*mbl_ret = cwidth;
-	}
 
 	return width;
 }
@@ -833,14 +829,13 @@ find_x (XText *xtext, textentry *ent, unsigned char *text, int x, int indent)
 	int col = FALSE;
 	int nc = 0;
 	unsigned char *orig = text;
-	int mbl;
 
 	while (*text) {
-		mbl = 1;
 		if ((col && isdigit (*text) && nc < 2) || (col && *text == ',' && isdigit (*(text+1)) && nc < 3)) {
 			nc++;
-			if (*text == ',')
+			if (*text == ',') {
 				nc = 0;
+			}
 			text++;
 		} else {
 			col = FALSE;
@@ -857,14 +852,15 @@ find_x (XText *xtext, textentry *ent, unsigned char *text, int x, int indent)
 				text++;
 				break;
 			default:
-				xx += backend_get_char_width (xtext, text, &mbl);
+				xx += backend_get_char_width (xtext, text);
 				text = g_utf8_next_char (text);
-				if (xx >= x)
+				if (xx >= x) {
 					return i + (orig - ent->str);
+				}
 			}
 		}
 
-		i += mbl;
+		i += charlen (text);
 		if (text - orig >= ent->str_len) {
 			return ent->str_len;
 		}
@@ -3075,7 +3071,7 @@ find_next_wrap (XText * xtext, textentry * ent, unsigned char *str, int win_widt
 				str++;
 				break;
 			default:
-				str_width += backend_get_char_width (xtext, str, NULL);
+				str_width += backend_get_char_width (xtext, str);
 				if (str_width > win_width) {
 					if (str - last_space > WORDWRAP_LIMIT + limit_offset) {
 						ret = str - orig_str; /* fall back to character wrap */
