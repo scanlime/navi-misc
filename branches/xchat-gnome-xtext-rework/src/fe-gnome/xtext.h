@@ -108,7 +108,6 @@ struct _XText
 	int fontsize;
 	int space_width; /* width (pixels) of the space " " character */
 	int stamp_width; /* width of timestamp string */
-	int max_auto_indent;
 
 	unsigned char scratch_buffer[4096];
 
@@ -126,7 +125,6 @@ struct _XText
 	int clip_y; /* clipping (y directions) */
 	int clip_y2; /* from y to y2 */
 
-	unsigned int auto_indent:1;
 	unsigned int word_or_line_select:1;
 	unsigned int color_paste:1;
 	unsigned int parsing_backcolor:1;
@@ -150,7 +148,6 @@ struct _XText
 	unsigned int in_hilight:1;
 	unsigned int un_hilight:1;
 	unsigned int avoid_trans:1;
-	unsigned int indent_changed:1;
 
 	gchar *current_word;
 };

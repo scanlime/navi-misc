@@ -103,6 +103,10 @@ struct _XTextPriv
 	/* Opacity value, between 0 and 255 */
 	int tint;
 
+	/* Whether to automatically move the separator bar, and how far */
+	gboolean auto_indent;
+	guint max_auto_indent;
+
 	/*** Internal state ***/
 
 	/* Used for tracking window moves for fake transparency */
@@ -129,6 +133,9 @@ struct _XTextPriv
 
 	/* Currently moving the separator bar? */
 	gboolean moving_separator;
+
+	/* Whether the position of the separator bar has changed since the last layout */
+	gboolean indent_dirty;
 
 	/*** Drawing data ***/
 	GdkDrawable *draw_buffer;
@@ -3165,7 +3172,7 @@ xtext_render_line (XText * xtext, textentry * ent, int line, int lines_max, int 
 	start_subline = subline;
 
 	/* draw the timestamp */
-	if (xtext->auto_indent && xtext->buffer->time_stamp && !xtext->skip_stamp) {
+	if (priv->auto_indent && xtext->buffer->time_stamp && !xtext->skip_stamp) {
 		char *time_str;
 		int stamp_size = xtext_get_stamp_str (ent->stamp, &time_str);
 		int tmp = ent->mb;
@@ -3754,6 +3761,8 @@ xtext_remove_top (xtext_buffer *buffer)
 void
 xtext_clear (xtext_buffer *buf)
 {
+	XText *xtext = buf->xtext;
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	textentry *next;
 
 	buf->scrollbar_down = TRUE;
@@ -3776,8 +3785,8 @@ xtext_clear (xtext_buffer *buf)
 		xtext_calc_lines (buf, FALSE);
 	}
 
-	if (buf->xtext->auto_indent) {
-		buf->xtext->buffer->indent = 1;
+	if (priv->auto_indent) {
+		xtext->buffer->indent = 1;
 	}
 }
 
@@ -3925,8 +3934,8 @@ xtext_render_page_timeout (XText * xtext)
 		xtext_render_page (xtext);
 	} else {
 		xtext_adjustment_set (xtext->buffer, TRUE);
-		if (xtext->indent_changed) {
-			xtext->indent_changed = FALSE;
+		if (priv->indent_dirty) {
+			priv->indent_dirty = FALSE;
 			xtext_render_page (xtext);
 		}
 	}
@@ -4017,9 +4026,11 @@ xtext_append_entry (xtext_buffer *buf, textentry * ent)
 
 void
 xtext_append_indent (xtext_buffer *buf,
-                         unsigned char *left_text, int left_len,
-                         unsigned char *right_text, int right_len)
+                     unsigned char *left_text, int left_len,
+                     unsigned char *right_text, int right_len)
 {
+	XText *xtext = buf->xtext;
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	textentry *ent;
 	unsigned char *str;
 	int space;
@@ -4034,8 +4045,8 @@ xtext_append_indent (xtext_buffer *buf,
 		right_len = strlen (right_text);
 	}
 
-	if (right_len >= sizeof (buf->xtext->scratch_buffer)) {
-		right_len = sizeof (buf->xtext->scratch_buffer) - 1;
+	if (right_len >= sizeof (xtext->scratch_buffer)) {
+		right_len = sizeof (xtext->scratch_buffer) - 1;
 	}
 
 	if (right_text[right_len-1] == '\n') {
@@ -4050,36 +4061,36 @@ xtext_append_indent (xtext_buffer *buf,
 	memcpy (str + left_len + 1, right_text, right_len);
 	str[left_len + 1 + right_len] = 0;
 
-	left_width = xtext_text_width (buf->xtext, left_text, left_len, NULL);
+	left_width = xtext_text_width (xtext, left_text, left_len, NULL);
 
 	ent->left_len = left_len;
 	ent->str = str;
 	ent->str_len = left_len + 1 + right_len;
-	ent->indent = (buf->indent - left_width) - buf->xtext->space_width;
+	ent->indent = (buf->indent - left_width) - xtext->space_width;
 
 	if (buf->time_stamp) {
-		space = buf->xtext->stamp_width;
+		space = xtext->stamp_width;
 	} else {
 		space = 0;
 	}
 
 	/* do we need to auto adjust the separator position? */
-	if (buf->xtext->auto_indent && ent->indent < MARGIN + space) {
+	if (priv->auto_indent && ent->indent < MARGIN + space) {
 		tempindent = MARGIN + space + buf->xtext->space_width + left_width;
 
 		if (tempindent > buf->indent) {
 			buf->indent = tempindent;
 		}
 
-		if (buf->indent > buf->xtext->max_auto_indent) {
-			buf->indent = buf->xtext->max_auto_indent;
+		if (buf->indent > priv->max_auto_indent) {
+			buf->indent = priv->max_auto_indent;
 		}
 
 		xtext_fix_indent (buf);
 		xtext_recalc_widths (buf, FALSE);
 
-		ent->indent = (buf->indent - left_width) - buf->xtext->space_width;
-		buf->xtext->indent_changed = TRUE;
+		ent->indent = (buf->indent - left_width) - xtext->space_width;
+		priv->indent_dirty = TRUE;
 	}
 
 	xtext_append_entry (buf, ent);
@@ -4135,13 +4146,15 @@ xtext_foreach (xtext_buffer *buf, XTextForeach func, void *data)
 void
 xtext_set_indent (XText *xtext, gboolean indent)
 {
-	xtext->auto_indent = indent;
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
+	priv->auto_indent = indent;
 }
 
 void
 xtext_set_max_indent (XText *xtext, int max_auto_indent)
 {
-	xtext->max_auto_indent = max_auto_indent;
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
+	priv->max_auto_indent = max_auto_indent;
 }
 
 void
