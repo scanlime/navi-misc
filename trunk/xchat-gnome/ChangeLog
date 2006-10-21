@@ -50,6 +50,8 @@
 	* configure.ac:
 	  - Bump to 0.15svn
 
+==================== 0.14 ====================
+
 2006-10-15  David Trowbridge  <trowbrds@gmail.com>
 
 	* m4/gnome-doc-utils.m4:
