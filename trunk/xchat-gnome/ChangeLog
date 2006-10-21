@@ -1,3 +1,9 @@
+2006-10-21  David Trowbridge  <trowbrds@gmail.com>
+
+	* data/xchat-gnome.glade:
+	  - Change initial window title to include the words "IRC Client"
+	    (#363649).
+
 2006-10-18  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/fe-gnome/xtext.c:
