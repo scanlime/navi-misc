@@ -187,7 +187,7 @@
     </child>
   </widget>
   <widget class="GtkWindow" id="xchat-gnome">
-    <property name="title">XChat-GNOME IRC Client</property>
+    <property name="title">XChat-GNOME IRC Chat</property>
     <child>
       <widget class="GtkVBox" id="vbox53">
         <property name="visible">True</property>
