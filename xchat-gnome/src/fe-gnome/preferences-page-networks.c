@@ -62,9 +62,9 @@ add_clicked (GtkWidget *button, PreferencesNetworksPage *page)
 	n = irc_network_new (NULL);
 	e = irc_network_editor_new (n);
 
+	g_object_weak_ref (G_OBJECT (e), (GWeakNotify) populate, page);
 	irc_network_editor_run (e);
 	g_object_unref (n);
-	populate (page);
 }
 
 static void
@@ -86,9 +86,9 @@ edit_clicked (GtkWidget *button, PreferencesNetworksPage *page)
 	n = irc_network_new (net);
 	e = irc_network_editor_new (n);
 
+	g_object_weak_ref (G_OBJECT (e), (GWeakNotify) populate, page);
 	irc_network_editor_run (e);
 	g_object_unref (n);
-	populate (page);
 }
 
 static void
