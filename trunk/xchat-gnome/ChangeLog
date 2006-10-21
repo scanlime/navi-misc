@@ -1,5 +1,12 @@
 2006-10-21  David Trowbridge  <trowbrds@gmail.com>
 
+	* src/fe-gnome/preferences-page-networks.c:
+	  - Use weak references to the editor dialogs to repopulate the list
+	    on the networks prefs page.  The way it was written before worked
+	    fine when this editor was modal, but was broken now. (#363655)
+
+2006-10-21  David Trowbridge  <trowbrds@gmail.com>
+
 	* data/xchat-gnome.glade:
 	  - Disable the "Users" button by default, since it will be enabled
 	    when the first channel is joined, and it doesn't make sense when
