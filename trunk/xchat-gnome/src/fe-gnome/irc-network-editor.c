@@ -53,7 +53,7 @@ static void
 irc_network_editor_response (GtkDialog *dialog, gint response)
 {
 	IrcNetworkEditor *editor = IRC_NETWORK_EDITOR (dialog);
-	if (response == GTK_RESPONSE_OK) {
+	if (response == GTK_RESPONSE_ACCEPT) {
 		if (check_input (editor)) {
 			apply_changes (editor);
 			gtk_widget_destroy (GTK_WIDGET (editor));
@@ -334,9 +334,9 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 		enc++;
 	} while (*enc);
 
-	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
-	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_OK,     GTK_RESPONSE_OK);
-	gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
+	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_REVERT_TO_SAVED, GTK_RESPONSE_REJECT);
+	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_CLOSE,           GTK_RESPONSE_ACCEPT);
+	gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
 
 	gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
 	gtk_container_add (GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), dialog->toplevel);
