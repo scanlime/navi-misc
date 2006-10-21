@@ -160,12 +160,14 @@ struct _XTextPriv
 	GdkCursor *resize_cursor;
 
 	/* Pango data */
+	// FIXME: rename these
 	struct {
 		PangoFontDescription *font_desc;
 		int ascent;
 		int descent;
 	} *font, pango_font;
 	PangoLayout *layout;
+	PangoFont *pfont;
 };
 
 enum
@@ -322,27 +324,33 @@ backend_font_open (XText *xtext, char *name)
 	backend_init (xtext);
 	pango_layout_set_font_description (priv->layout, priv->font->font_desc);
 
-	/* vte does it this way */
 	context = gtk_widget_get_pango_context (GTK_WIDGET (xtext));
 	lang = pango_context_get_language (context);
-	metrics = pango_context_get_metrics (context, priv->font->font_desc, lang);
+	priv->pfont = pango_context_load_font (context, priv->font->font_desc);
+	g_assert (priv->pfont);
+	metrics = pango_font_get_metrics (priv->pfont, lang);
 	priv->font->ascent = pango_font_metrics_get_ascent (metrics) / PANGO_SCALE;
 	priv->font->descent = pango_font_metrics_get_descent (metrics) / PANGO_SCALE;
 	pango_font_metrics_unref (metrics);
 }
 
-inline static int
+static int
 backend_get_char_width (XText *xtext, unsigned char *str)
 {
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
+	PangoRectangle rect;
 	int width;
-	int cwidth;
 
-	cwidth = charlen (str);
-	pango_layout_set_text (priv->layout, (const char *) str, cwidth);
+	pango_layout_set_text (priv->layout, (const char *) str, charlen (str));
 	pango_layout_get_pixel_size (priv->layout, &width, NULL);
-
 	return width;
+
+	// This below is what I'd like to do, but it seems to break
+	// something deep in pango -- some state that is either not
+	// getting set or getting trampled on.
+	pango_font_get_glyph_extents (priv->pfont, g_utf8_get_char (str), NULL, &rect);
+
+	return PANGO_PIXELS (rect.width);
 }
 
 /* simplified version of gdk_draw_layout_line_with_colors() */
