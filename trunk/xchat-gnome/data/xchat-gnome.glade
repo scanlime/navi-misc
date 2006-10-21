@@ -2,7 +2,7 @@
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
 <!-- Generated with glade3
 	Version: 3.0.1
-	Date: Sat Oct 21 00:39:27 2006
+	Date: Sat Oct 21 01:06:13 2006
 	User: david
 	Host: kirby
 -->
@@ -227,6 +227,7 @@
                 <child>
                   <widget class="GtkToggleButton" id="userlist_toggle">
                     <property name="visible">True</property>
+                    <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <property name="label" translatable="yes">Users</property>
                     <property name="relief">GTK_RELIEF_NONE</property>
