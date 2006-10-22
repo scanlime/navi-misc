@@ -4098,27 +4098,6 @@ xtext_append_indent (xtext_buffer *buf,
 	xtext_append_entry (buf, ent);
 }
 
-void
-xtext_append (xtext_buffer *buf, unsigned char *text, int len)
-{
-	if (len == -1) {
-		len = strlen (text);
-	}
-
-	if (text[len-1] == '\n') {
-		len--;
-	}
-
-	if (len >= sizeof (buf->xtext->scratch_buffer)) {
-		len = sizeof (buf->xtext->scratch_buffer) - 1;
-	}
-
-	textentry *ent = textentry_new (NULL, -1, text, len);
-	ent->indent = 0;
-
-	xtext_append_entry (buf, ent);
-}
-
 gboolean
 xtext_is_empty (xtext_buffer *buf)
 {
@@ -4490,34 +4469,20 @@ textentry_new (gchar *left, guint left_len, gchar *right, guint right_len)
 {
 	textentry *ent = g_new0 (textentry, 1);
 
-	if (left_len == -1) {
-		// Non-separated line
-		ent->str_len = right_len;
-		ent->left_len = -1;
-		ent->right_len = right_len;
+	ent->str_len = left_len + right_len + 1;
+	ent->left_len = left_len;
+	ent->right_len = right_len;
 
-		ent->str       = g_new0 (gchar, ent->str_len + 1);
-		ent->right_str = g_new0 (gchar, ent->right_len + 1);
+	ent->str       = g_new0 (gchar, ent->str_len + 1);
+	ent->left_str  = g_new0 (gchar, ent->left_len + 1);
+	ent->right_str = g_new0 (gchar, ent->right_len + 1);
 
-		memcpy (ent->str,       right, right_len);
-		memcpy (ent->right_str, right, right_len);
-	} else {
-		// Separated line
-		ent->str_len = left_len + right_len + 1;
-		ent->left_len = left_len;
-		ent->right_len = right_len;
+	memcpy (ent->str, left, left_len);
+	memcpy (ent->str + left_len + 1, right, right_len);
+	ent->str[left_len] = ' ';
 
-		ent->str       = g_new0 (gchar, ent->str_len + 1);
-		ent->left_str  = g_new0 (gchar, ent->left_len + 1);
-		ent->right_str = g_new0 (gchar, ent->right_len + 1);
-
-		memcpy (ent->str, left, left_len);
-		memcpy (ent->str + left_len + 1, right, right_len);
-		ent->str[left_len] = ' ';
-
-		memcpy (ent->left_str,  left,  left_len);
-		memcpy (ent->right_str, right, right_len);
-	}
+	memcpy (ent->left_str,  left,  left_len);
+	memcpy (ent->right_str, right, right_len);
 
 	return ent;
 }

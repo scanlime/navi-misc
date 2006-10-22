@@ -419,7 +419,7 @@ fe_progressbar_end (struct server *serv)
 void
 fe_print_text (struct session *sess, char *text)
 {
-	conversation_panel_print (CONVERSATION_PANEL (gui.conversation_panel), sess, text, prefs.indent_nicks);
+	conversation_panel_print (CONVERSATION_PANEL (gui.conversation_panel), sess, text);
 	sess->new_data = TRUE;
 	navigation_model_set_hilight (gui.tree_model, sess);
 	if (sess->nick_said) {

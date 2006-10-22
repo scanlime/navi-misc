@@ -493,7 +493,7 @@ tab_complete_command (GtkEntry *entry)
 			g_free (printtext);
 			printtext = npt;
 		}
-		conversation_panel_print (CONVERSATION_PANEL (gui.conversation_panel), text_entry->priv->current, (guchar *) printtext, TRUE);
+		conversation_panel_print (CONVERSATION_PANEL (gui.conversation_panel), text_entry->priv->current, (guchar *) printtext);
 		g_free (printtext);
 
 		if (new_prefix && strcasecmp (prefix, new_prefix) != 0) {
@@ -596,7 +596,7 @@ tab_complete_nickname (GtkEntry *entry, gint start)
 			g_free (printtext);
 			printtext = npt;
 		}
-		conversation_panel_print (CONVERSATION_PANEL (gui.conversation_panel), text_entry->priv->current, (guchar *) printtext, TRUE);
+		conversation_panel_print (CONVERSATION_PANEL (gui.conversation_panel), text_entry->priv->current, (guchar *) printtext);
 		g_free (printtext);
 
 		if (strcasecmp (prefix, new_prefix) != 0) {
