@@ -108,8 +108,7 @@ struct _XTextPriv
 	/* Opacity value, between 0 and 255 */
 	int tint;
 
-	/* Whether to automatically move the separator bar, and how far */
-	gboolean auto_indent;
+	/* How far to automatically move the separator bar */
 	guint max_auto_indent;
 
 	/* Color palette */
@@ -3185,7 +3184,7 @@ xtext_render_line (XText * xtext, textentry * ent, int line, int lines_max, int 
 	start_subline = subline;
 
 	/* draw the timestamp */
-	if (priv->auto_indent && xtext->buffer->time_stamp && !xtext->skip_stamp) {
+	if (xtext->buffer->time_stamp && !xtext->skip_stamp) {
 		char *time_str;
 		int stamp_size = xtext_get_stamp_str (ent->stamp, &time_str);
 		int tmp = ent->mb;
@@ -3798,9 +3797,7 @@ xtext_clear (xtext_buffer *buf)
 		xtext_calc_lines (buf, FALSE);
 	}
 
-	if (priv->auto_indent) {
-		xtext->buffer->indent = 1;
-	}
+	xtext->buffer->indent = 1;
 }
 
 static gboolean
@@ -4038,9 +4035,9 @@ xtext_append_entry (xtext_buffer *buf, textentry * ent)
 /* the main two public functions */
 
 void
-xtext_append_indent (xtext_buffer *buf,
-                     unsigned char *left_text, int left_len,
-                     unsigned char *right_text, int right_len)
+xtext_append (xtext_buffer *buf,
+              unsigned char *left_text, int left_len,
+              unsigned char *right_text, int right_len)
 {
 	XText *xtext = buf->xtext;
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
@@ -4077,7 +4074,7 @@ xtext_append_indent (xtext_buffer *buf,
 	}
 
 	/* do we need to auto adjust the separator position? */
-	if (priv->auto_indent && ent->indent < MARGIN + space) {
+	if (ent->indent < MARGIN + space) {
 		tempindent = MARGIN + space + buf->xtext->space_width + left_width;
 
 		if (tempindent > buf->indent) {
@@ -4113,27 +4110,6 @@ xtext_foreach (xtext_buffer *buf, XTextForeach func, void *data)
 		(*func) (buf->xtext, ent->str, data);
 		ent = ent->next;
 	}
-}
-
-void
-xtext_set_indent (XText *xtext, gboolean indent)
-{
-	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	priv->auto_indent = indent;
-}
-
-void
-xtext_set_max_indent (XText *xtext, int max_auto_indent)
-{
-	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	priv->max_auto_indent = max_auto_indent;
-}
-
-void
-xtext_set_max_lines (XText *xtext, int max_lines)
-{
-	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	priv->max_lines = max_lines;
 }
 
 void
@@ -4400,6 +4376,22 @@ xtext_set_tint (XText *xtext,
 {
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	priv->tint = tint;
+}
+
+void
+xtext_set_max_lines (XText *xtext, int max_lines)
+{
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
+	priv->max_lines = max_lines;
+
+	// FIXME: if there are more than this in the buffer, trim it
+}
+
+void
+xtext_set_max_indent (XText *xtext, int max_auto_indent)
+{
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
+	priv->max_auto_indent = max_auto_indent;
 }
 
 static void

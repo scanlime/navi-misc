@@ -315,7 +315,6 @@ conversation_panel_realize (GtkWidget *widget)
 
 	xtext_set_palette           (XTEXT (panel->priv->xtext), colors);
 	xtext_set_max_lines         (XTEXT (panel->priv->xtext), 3000);
-	xtext_set_indent            (XTEXT (panel->priv->xtext), prefs.indent_nicks);
 	xtext_set_max_indent        (XTEXT (panel->priv->xtext), prefs.max_auto_indent);
 	xtext_set_urlcheck_function (XTEXT (panel->priv->xtext), conversation_panel_check_word);
 
@@ -1108,14 +1107,14 @@ conversation_panel_print_line (ConversationPanel *panel, xtext_buffer *buffer, g
 		if(!panel->priv->redundant_nickstamps && strncmp (buffer->laststamp, text, leftlen) == 0) {
 			text = tab+1;
 			len -= leftlen;
-			xtext_append_indent (buffer, 0, 0, text, len);
+			xtext_append (buffer, 0, 0, text, len);
 		} else {
 			strncpy (buffer->laststamp, text, leftlen);
 			buffer->laststamp[leftlen]=0;
-			xtext_append_indent (buffer, text, leftlen, tab + 1, strlen (text) - leftlen - 1);
+			xtext_append (buffer, text, leftlen, tab + 1, strlen (text) - leftlen - 1);
 		}
 	} else {
-		xtext_append_indent (buffer, 0, 0, text, len);
+		xtext_append (buffer, 0, 0, text, len);
 	}
 }
 

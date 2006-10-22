@@ -158,7 +158,7 @@ struct _XTextClass
 	void (*word_leave) (XText * xtext, char *word);
 };
 
-void xtext_append_indent (xtext_buffer *buf, unsigned char *left_text, int left_len, unsigned char *right_text, int right_len);
+void xtext_append (xtext_buffer *buf, unsigned char *left_text, int left_len, unsigned char *right_text, int right_len);
 void xtext_selection_clear_full (xtext_buffer *buf);
 int xtext_set_font (XText *xtext, char *name);
 void xtext_set_background (XText * xtext, GdkPixmap * pixmap, gboolean trans);
@@ -173,9 +173,6 @@ gboolean xtext_is_empty (xtext_buffer *buf);
 typedef void (*XTextForeach) (XText *xtext, unsigned char *text, void *data);
 void xtext_foreach (xtext_buffer *buf, XTextForeach func, void *data);
 
-void xtext_set_indent (XText *xtext, gboolean indent);
-void xtext_set_max_indent (XText *xtext, int max_auto_indent);
-void xtext_set_max_lines (XText *xtext, int max_lines);
 void xtext_set_show_marker (XText *xtext, gboolean show_marker);
 void xtext_set_time_stamp (xtext_buffer *buf, gboolean timestamp);
 void xtext_set_urlcheck_function (XText *xtext, int (*urlcheck_function) (GtkWidget *, char *, int));
@@ -197,5 +194,9 @@ void           xtext_set_palette         (XText    *xtext,
                                           GdkColor  palette[]);
 void           xtext_set_tint            (XText    *xtext,
                                           int       tint);
+void           xtext_set_max_lines       (XText    *xtext,
+                                          int       max_lines);
+void           xtext_set_max_indent      (XText    *xtext,
+                                          int       max_auto_indent);
 
 #endif
