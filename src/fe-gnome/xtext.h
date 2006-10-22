@@ -87,8 +87,6 @@ struct _XText
 	xtext_buffer *orig_buffer;
 	xtext_buffer *selection_buffer;
 
-	GdkColor palette[XTEXT_N_COLORS];
-
 	guint scroll_tag; /* marking-scroll timeout */
 	gulong vc_signal_tag; /* signal handler for "value_changed" adj */
 
