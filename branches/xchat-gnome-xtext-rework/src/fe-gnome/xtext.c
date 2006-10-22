@@ -85,11 +85,16 @@ struct textentry
 	gint16 mark_start;
 	gint16 mark_end;
 	gint16 indent;
-	gint16 left_len;
 	gint16 lines_taken;
 #define RECORD_WRAPS 4
 	guint16 wrap_offset[RECORD_WRAPS];
 	unsigned int mb:1;	/* is multibyte? */
+
+	gchar *left_str;
+	gchar *right_str;
+
+	gint16 left_len;
+	gint16 right_len;
 };
 
 #define XTEXT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), XTEXT_TYPE, XTextPriv))
@@ -215,7 +220,12 @@ static int  backend_get_text_width (XText  *xtext,
                                     int     len);
 
 /* Internal management */
-static void palette_alloc (XText *xtext);
+static textentry *textentry_new  (gchar     *left,
+                                  guint      left_len,
+                                  gchar      *right,
+                                  guint      right_len);
+static void       textentry_free (textentry *ent);
+static void       palette_alloc  (XText     *xtext);
 
 /* GtkWidget overrides */
 static void unrealize (GtkWidget *widget);
@@ -3758,8 +3768,7 @@ xtext_remove_top (xtext_buffer *buffer)
 		buffer->marker_pos = NULL;
 	}
 
-	g_free (ent->str);
-	g_free (ent);
+	textentry_free (ent);
 }
 
 void
@@ -3777,8 +3786,7 @@ xtext_clear (xtext_buffer *buf)
 
 	while (buf->text_first) {
 		next = buf->text_first->next;
-		g_free (buf->text_first->str);
-		g_free (buf->text_first);
+		textentry_free (buf->text_first);
 		buf->text_first = next;
 	}
 	buf->text_last = NULL;
@@ -4036,8 +4044,6 @@ xtext_append_indent (xtext_buffer *buf,
 {
 	XText *xtext = buf->xtext;
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	textentry *ent;
-	unsigned char *str;
 	int space;
 	int tempindent;
 	int left_width;
@@ -4058,19 +4064,10 @@ xtext_append_indent (xtext_buffer *buf,
 		right_len--;
 	}
 
-	ent = g_new0 (textentry, 1);
-	str = g_new0 (gchar, left_len + right_len + 2);
-
-	memcpy (str, left_text, left_len);
-	str[left_len] = ' ';
-	memcpy (str + left_len + 1, right_text, right_len);
-	str[left_len + 1 + right_len] = 0;
+	textentry *ent = textentry_new(left_text, left_len, right_text, right_len);
 
 	left_width = xtext_text_width (xtext, left_text, left_len, NULL);
 
-	ent->left_len = left_len;
-	ent->str = str;
-	ent->str_len = left_len + 1 + right_len;
 	ent->indent = (buf->indent - left_width) - xtext->space_width;
 
 	if (buf->time_stamp) {
@@ -4104,8 +4101,6 @@ xtext_append_indent (xtext_buffer *buf,
 void
 xtext_append (xtext_buffer *buf, unsigned char *text, int len)
 {
-	textentry *ent;
-
 	if (len == -1) {
 		len = strlen (text);
 	}
@@ -4118,13 +4113,8 @@ xtext_append (xtext_buffer *buf, unsigned char *text, int len)
 		len = sizeof (buf->xtext->scratch_buffer) - 1;
 	}
 
-	ent = g_new0 (textentry, 1);
-	ent->str = g_new0 (gchar, len + 1);
-	ent->str_len = len;
-	memcpy (ent->str, text, len);
-	ent->str[len] = 0;
+	textentry *ent = textentry_new (NULL, -1, text, len);
 	ent->indent = 0;
-	ent->left_len = -1;
 
 	xtext_append_entry (buf, ent);
 }
@@ -4298,8 +4288,7 @@ xtext_buffer_free (xtext_buffer *buf)
 	ent = buf->text_first;
 	while (ent) {
 		next = ent->next;
-		g_free (ent->str);
-		g_free (ent);
+		textentry_free (ent);
 		ent = next;
 	}
 
@@ -4494,4 +4483,51 @@ palette_alloc (XText *xtext)
 		gdk_colormap_alloc_color (cmap, &priv->palette[i], FALSE, TRUE);
 	}
 	already_alloced = TRUE;
+}
+
+static textentry *
+textentry_new (gchar *left, guint left_len, gchar *right, guint right_len)
+{
+	textentry *ent = g_new0 (textentry, 1);
+
+	if (left_len == -1) {
+		// Non-separated line
+		ent->str_len = right_len;
+		ent->left_len = -1;
+		ent->right_len = right_len;
+
+		ent->str       = g_new0 (gchar, ent->str_len + 1);
+		ent->right_str = g_new0 (gchar, ent->right_len + 1);
+
+		memcpy (ent->str,       right, right_len);
+		memcpy (ent->right_str, right, right_len);
+	} else {
+		// Separated line
+		ent->str_len = left_len + right_len + 1;
+		ent->left_len = left_len;
+		ent->right_len = right_len;
+
+		ent->str       = g_new0 (gchar, ent->str_len + 1);
+		ent->left_str  = g_new0 (gchar, ent->left_len + 1);
+		ent->right_str = g_new0 (gchar, ent->right_len + 1);
+
+		memcpy (ent->str, left, left_len);
+		memcpy (ent->str + left_len + 1, right, right_len);
+		ent->str[left_len] = ' ';
+
+		memcpy (ent->left_str,  left,  left_len);
+		memcpy (ent->right_str, right, right_len);
+	}
+
+	return ent;
+}
+
+static void
+textentry_free (textentry *ent)
+{
+	g_free (ent->left_str);
+	g_free (ent->right_str);
+
+	g_free (ent->str);
+	g_free (ent);
 }
