@@ -107,6 +107,9 @@ struct _XTextPriv
 	gboolean auto_indent;
 	guint max_auto_indent;
 
+	/* Color palette */
+	GdkColor palette[XTEXT_N_COLORS];
+
 	/*** Internal state ***/
 
 	/* Used for tracking window moves for fake transparency */
@@ -424,18 +427,20 @@ backend_draw_text (XText *xtext, int dofill, GdkGC *gc, int x, int y,
 static void
 xtext_set_fg (XText *xtext, GdkGC *gc, int index)
 {
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	GdkColor col;
 
-	col.pixel = xtext->palette[index].pixel;
+	col.pixel = priv->palette[index].pixel;
 	gdk_gc_set_foreground (gc, &col);
 }
 
 static void
 xtext_set_bg (XText *xtext, GdkGC *gc, int index)
 {
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	GdkColor col;
 
-	col.pixel = xtext->palette[index].pixel;
+	col.pixel = priv->palette[index].pixel;
 	gdk_gc_set_background (gc, &col);
 }
 
@@ -730,7 +735,7 @@ xtext_realize (GtkWidget * widget)
 #endif /* defined(USE_XLIB) || defined(WIN32) */
 
 	gdk_window_set_back_pixmap (widget->window, NULL, FALSE);
-	col.pixel = xtext->palette[XTEXT_BG].pixel;
+	col.pixel = priv->palette[XTEXT_BG].pixel;
 	gdk_window_set_background (widget->window, &col);
 	gdk_window_clear (widget->window);
 	widget->style = gtk_style_attach (widget->style, widget->window);
@@ -2783,12 +2788,12 @@ shade_pixmap (XText * xtext, Pixmap p, int x, int y, int w, int h, gboolean recy
 	if (depth <= 14) {
 		shade_ximage_generic (gdk_drawable_get_visual (GTK_WIDGET (xtext)->window),
 		                      ximg, ximg->bytes_per_line, w, h, priv->tint,
-		                      priv->tint, priv->tint, xtext->palette[XTEXT_BG].pixel);
+		                      priv->tint, priv->tint, priv->palette[XTEXT_BG].pixel);
 	} else {
 		shade_image (gdk_drawable_get_visual (GTK_WIDGET (xtext)->window),
 		             ximg->data, ximg->bytes_per_line, ximg->bits_per_pixel,
 		             w, h, priv->tint, priv->tint, priv->tint,
-		             xtext->palette[XTEXT_BG].pixel, depth);
+		             priv->palette[XTEXT_BG].pixel, depth);
 	}
 
 	if (recycle) {
@@ -2945,7 +2950,7 @@ here:
 	} else {
 		shade_image (visual, img->mem, img->bpl, img->bpp, width, height,
 		             priv->tint, priv->tint, priv->tint,
-		             xtext->palette[XTEXT_BG].pixel, visual->depth);
+		             priv->palette[XTEXT_BG].pixel, visual->depth);
 	}
 
 	/* no need to dump it to a Pixmap, it's one and the same on win32 */
@@ -4415,7 +4420,7 @@ xtext_set_palette (XText    *xtext,
 	priv = XTEXT_GET_PRIVATE (xtext);
 
 	for (i = 0; i < XTEXT_N_COLORS; i++) {
-		xtext->palette[i] = palette[i];
+		priv->palette[i] = palette[i];
 	}
 
 	if (GTK_WIDGET_REALIZED (xtext)) {
@@ -4423,10 +4428,10 @@ xtext_set_palette (XText    *xtext,
 		xtext_set_bg (xtext, priv->fgc, XTEXT_BG);
 		xtext_set_fg (xtext, priv->bgc, XTEXT_BG);
 
-		col.pixel = xtext->palette[XTEXT_MARKER].pixel;
+		col.pixel = priv->palette[XTEXT_MARKER].pixel;
 		gdk_gc_set_foreground (priv->marker_gc, &col);
 
-		col.pixel = xtext->palette[XTEXT_MARKER].pixel;
+		col.pixel = priv->palette[XTEXT_MARKER].pixel;
 		gdk_gc_set_foreground (priv->marker_gc, &col);
 	}
 	priv->foreground_color = XTEXT_FG;
