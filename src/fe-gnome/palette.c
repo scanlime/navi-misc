@@ -645,21 +645,3 @@ palette_save (void)
 		close (f);
 	}
 }
-
-void
-palette_alloc (GtkWidget *widget)
-{
-	static gboolean done = FALSE;
-	GdkColormap *cmap;
-	int i;
-
-	cmap = gtk_widget_get_colormap (widget);
-
-	if (done)
-		gdk_colormap_free_colors (cmap, colors, 40);
-
-	for (i = 0; i < 40; i++)
-		gdk_colormap_alloc_color (cmap, &colors[i], FALSE, TRUE);
-
-	done = TRUE;
-}

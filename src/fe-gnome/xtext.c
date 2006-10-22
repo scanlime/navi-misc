@@ -214,6 +214,9 @@ static int  backend_get_text_width (XText  *xtext,
                                     guchar *str,
                                     int     len);
 
+/* Internal management */
+static void palette_alloc (XText *xtext);
+
 /* GtkWidget overrides */
 static void unrealize (GtkWidget *widget);
 
@@ -4415,6 +4418,8 @@ xtext_set_palette (XText    *xtext,
 		priv->palette[i] = palette[i];
 	}
 
+	palette_alloc (xtext);
+
 	if (GTK_WIDGET_REALIZED (xtext)) {
 		xtext_set_fg (xtext, priv->fgc, XTEXT_FG);
 		xtext_set_bg (xtext, priv->fgc, XTEXT_BG);
@@ -4469,7 +4474,7 @@ backend_get_text_width (XText *xtext, guchar *str, int len)
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	int width;
 
-	if (*str == 0) {
+	if (*str == '\0') {
 		return 0;
 	}
 
@@ -4477,4 +4482,22 @@ backend_get_text_width (XText *xtext, guchar *str, int len)
 	pango_layout_get_pixel_size (priv->layout, &width, NULL);
 
 	return width;
+}
+
+static void
+palette_alloc (XText *xtext)
+{
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
+	GdkColormap *cmap = gtk_widget_get_colormap (GTK_WIDGET (xtext));
+	static gboolean already_alloced = FALSE;
+	int i;
+
+	if (already_alloced) {
+		gdk_colormap_free_colors (cmap, priv->palette, XTEXT_N_COLORS);
+	}
+
+	for (i = 0; i < XTEXT_N_COLORS; i++) {
+		gdk_colormap_alloc_color (cmap, &priv->palette[i], FALSE, TRUE);
+	}
+	already_alloced = TRUE;
 }
