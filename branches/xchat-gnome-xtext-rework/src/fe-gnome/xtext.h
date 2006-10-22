@@ -50,10 +50,10 @@ typedef struct {
 	guint16 grid_offset[256];
 
 	/* this basically describes the last rendered selection */
-	textentry *last_ent_start;
-	textentry *last_ent_end;
-	int last_offset_start;
-	int last_offset_end;
+	textentry *selection_ent_start;
+	textentry *selection_ent_end;
+	int selection_offset_start;
+	int selection_offset_end;
 
 	int last_pixel_pos;
 

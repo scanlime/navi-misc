@@ -810,14 +810,14 @@ xtext_selection_clear (xtext_buffer *buf)
 	textentry *ent;
 	int ret = 0;
 
-	ent = buf->last_ent_start;
+	ent = buf->selection_ent_start;
 	while (ent) {
 		if (ent->mark_start != -1) {
 			ret = 1;
 		}
 		ent->mark_start = -1;
 		ent->mark_end = -1;
-		if (ent == buf->last_ent_end) {
+		if (ent == buf->selection_ent_end) {
 			break;
 		}
 		ent = ent->next;
@@ -1099,8 +1099,8 @@ xtext_selection_up (XText *xtext, textentry *start, textentry *end,
 	}
 
 	/* now the incomplete upper line */
-	if (start == xtext->buffer->last_ent_start) {
-		xtext->jump_in_offset = xtext->buffer->last_offset_start;
+	if (start == xtext->buffer->selection_ent_start) {
+		xtext->jump_in_offset = xtext->buffer->selection_offset_start;
 	} else {
 		xtext->jump_in_offset = start_offset;
 	}
@@ -1122,8 +1122,8 @@ xtext_selection_down (XText *xtext, textentry *start, textentry *end,
 	}
 
 	/* now the incomplete bottom line */
-	if (end == xtext->buffer->last_ent_end) {
-		xtext->jump_out_offset = xtext->buffer->last_offset_end;
+	if (end == xtext->buffer->selection_ent_end) {
+		xtext->jump_out_offset = xtext->buffer->selection_offset_end;
 	} else {
 		xtext->jump_out_offset = end_offset;
 	}
@@ -1143,32 +1143,32 @@ xtext_selection_render (XText *xtext,
 	xtext->skip_stamp = TRUE;
 
 	/* force an optimized render if there was no previous selection */
-	if (xtext->buffer->last_ent_start == NULL && start_ent == end_ent) {
-		xtext->buffer->last_offset_start = start_offset;
-		xtext->buffer->last_offset_end = end_offset;
+	if (xtext->buffer->selection_ent_start == NULL && start_ent == end_ent) {
+		xtext->buffer->selection_offset_start = start_offset;
+		xtext->buffer->selection_offset_end = end_offset;
 		goto lamejump;
 	}
 
 	/* mark changed within 1 ent only? */
-	if (xtext->buffer->last_ent_start == start_ent && xtext->buffer->last_ent_end == end_ent) {
+	if (xtext->buffer->selection_ent_start == start_ent && xtext->buffer->selection_ent_end == end_ent) {
 		/* when only 1 end of the selection is changed, we can really save on rendering */
-		if (xtext->buffer->last_offset_start == start_offset || xtext->buffer->last_offset_end == end_offset) {
+		if (xtext->buffer->selection_offset_start == start_offset || xtext->buffer->selection_offset_end == end_offset) {
 lamejump:
 			ent = end_ent;
 			/* figure out where to start and end the rendering */
-			if (end_offset > xtext->buffer->last_offset_end) {
+			if (end_offset > xtext->buffer->selection_offset_end) {
 				end = end_offset;
-				start = xtext->buffer->last_offset_end;
-			} else if (end_offset < xtext->buffer->last_offset_end) {
-				end = xtext->buffer->last_offset_end;
+				start = xtext->buffer->selection_offset_end;
+			} else if (end_offset < xtext->buffer->selection_offset_end) {
+				end = xtext->buffer->selection_offset_end;
 				start = end_offset;
-			} else if (start_offset < xtext->buffer->last_offset_start) {
-				end = xtext->buffer->last_offset_start;
+			} else if (start_offset < xtext->buffer->selection_offset_start) {
+				end = xtext->buffer->selection_offset_start;
 				start = start_offset;
 				ent = start_ent;
-			} else if (start_offset > xtext->buffer->last_offset_start) {
+			} else if (start_offset > xtext->buffer->selection_offset_start) {
 				end = start_offset;
-				start = xtext->buffer->last_offset_start;
+				start = xtext->buffer->selection_offset_start;
 				ent = start_ent;
 			} else {
 				/* WORD selects end up here */
@@ -1179,12 +1179,12 @@ lamejump:
 			/* LINE selects end up here */
 			/* so which ent actually changed? */
 			ent = start_ent;
-			if (xtext->buffer->last_offset_start == start_offset) {
+			if (xtext->buffer->selection_offset_start == start_offset) {
 				ent = end_ent;
 			}
 
-			end = MAX (xtext->buffer->last_offset_end, end_offset);
-			start = MIN (xtext->buffer->last_offset_start, start_offset);
+			end = MAX (xtext->buffer->selection_offset_end, end_offset);
+			start = MIN (xtext->buffer->selection_offset_start, start_offset);
 		}
 
 		xtext->jump_out_offset = end;
@@ -1192,30 +1192,30 @@ lamejump:
 		xtext_render_ents (xtext, ent, NULL);
 		xtext->jump_out_offset = 0;
 		xtext->jump_in_offset = 0;
-	} else if (xtext->buffer->last_ent_start == start_ent && xtext->buffer->last_offset_start == start_offset) {
+	} else if (xtext->buffer->selection_ent_start == start_ent && xtext->buffer->selection_offset_start == start_offset) {
 		/* marking downward */
 		/* find the range that covers both old and new selection */
 		ent = start_ent;
 		while (ent) {
-			if (ent == xtext->buffer->last_ent_end) {
+			if (ent == xtext->buffer->selection_ent_end) {
 				xtext_selection_down (xtext, ent, end_ent, end_offset);
 				break;
 			}
 			if (ent == end_ent) {
-				xtext_selection_down (xtext, ent, xtext->buffer->last_ent_end, end_offset);
+				xtext_selection_down (xtext, ent, xtext->buffer->selection_ent_end, end_offset);
 				break;
 			}
 			ent = ent->next;
 		}
-	} else if (xtext->buffer->last_ent_end == end_ent && xtext->buffer->last_offset_end == end_offset) {
+	} else if (xtext->buffer->selection_ent_end == end_ent && xtext->buffer->selection_offset_end == end_offset) {
 		/* marking upward */
 		ent = end_ent;
 		while (ent) {
 			if (ent == start_ent) {
-				xtext_selection_up (xtext, xtext->buffer->last_ent_start, ent, start_offset);
+				xtext_selection_up (xtext, xtext->buffer->selection_ent_start, ent, start_offset);
 				break;
 			}
-			if (ent == xtext->buffer->last_ent_start) {
+			if (ent == xtext->buffer->selection_ent_start) {
 				xtext_selection_up (xtext, start_ent, ent, start_offset);
 				break;
 			}
@@ -1224,13 +1224,13 @@ lamejump:
 	} else {
 		/* cross-over mark (stretched or shrunk at both ends) */
 		/* unrender the old mark */
-		xtext_render_ents (xtext, xtext->buffer->last_ent_start, xtext->buffer->last_ent_end);
+		xtext_render_ents (xtext, xtext->buffer->selection_ent_start, xtext->buffer->selection_ent_end);
 		/* now render the new mark, but skip overlaps */
-		if (start_ent == xtext->buffer->last_ent_start) {
+		if (start_ent == xtext->buffer->selection_ent_start) {
 			/* if the new mark is a sub-set of the old, do nothing */
 			if (start_ent != end_ent)
 				xtext_render_ents (xtext, start_ent->next, end_ent);
-		} else if (end_ent == xtext->buffer->last_ent_end) {
+		} else if (end_ent == xtext->buffer->selection_ent_end) {
 			/* if the new mark is a sub-set of the old, do nothing */
 			if (start_ent != end_ent)
 				xtext_render_ents (xtext, start_ent, end_ent->prev);
@@ -1239,10 +1239,10 @@ lamejump:
 		}
 	}
 
-	xtext->buffer->last_ent_start = start_ent;
-	xtext->buffer->last_ent_end = end_ent;
-	xtext->buffer->last_offset_start = start_offset;
-	xtext->buffer->last_offset_end = end_offset;
+	xtext->buffer->selection_ent_start = start_ent;
+	xtext->buffer->selection_ent_end = end_ent;
+	xtext->buffer->selection_offset_start = start_offset;
+	xtext->buffer->selection_offset_end = end_offset;
 
 	xtext->skip_border_fills = FALSE;
 	xtext->skip_stamp = FALSE;
@@ -1304,10 +1304,10 @@ xtext_selection_draw (XText * xtext, GdkEventMotion * event)
 	}
 
 	/* has the selection changed? Dont render unless necessary */
-	if (xtext->buffer->last_ent_start == ent_start &&
-	    xtext->buffer->last_ent_end == ent_end &&
-	    xtext->buffer->last_offset_start == offset_start &&
-	    xtext->buffer->last_offset_end == offset_end) {
+	if (xtext->buffer->selection_ent_start == ent_start &&
+	    xtext->buffer->selection_ent_end == ent_end &&
+	    xtext->buffer->selection_offset_start == offset_start &&
+	    xtext->buffer->selection_offset_end == offset_end) {
 		return;
 	}
 
@@ -1634,17 +1634,17 @@ xtext_unselect (XText *xtext)
 	xtext->skip_border_fills = TRUE;
         xtext->skip_stamp = TRUE;
 
-	xtext->jump_in_offset = buf->last_ent_start->mark_start;
+	xtext->jump_in_offset = buf->selection_ent_start->mark_start;
 	/* just a single ent was marked? */
-	if (buf->last_ent_start == buf->last_ent_end) {
-		xtext->jump_out_offset = buf->last_ent_start->mark_end;
-		buf->last_ent_end = NULL;
+	if (buf->selection_ent_start == buf->selection_ent_end) {
+		xtext->jump_out_offset = buf->selection_ent_start->mark_end;
+		buf->selection_ent_end = NULL;
 	}
 
 	xtext_selection_clear (xtext->buffer);
 
 	/* FIXME: use jump_out on multi-line selects too! */
-	xtext_render_ents (xtext, buf->last_ent_start, buf->last_ent_end);
+	xtext_render_ents (xtext, buf->selection_ent_start, buf->selection_ent_end);
 
 	xtext->jump_in_offset = 0;
 	xtext->jump_out_offset = 0;
@@ -1652,8 +1652,8 @@ xtext_unselect (XText *xtext)
 	xtext->skip_border_fills = FALSE;
 	xtext->skip_stamp = FALSE;
 
-	xtext->buffer->last_ent_start = NULL;
-	xtext->buffer->last_ent_end = NULL;
+	xtext->buffer->selection_ent_start = NULL;
+	xtext->buffer->selection_ent_end = NULL;
 
 	clipboard = gtk_widget_get_clipboard (GTK_WIDGET (xtext), GDK_SELECTION_PRIMARY);
 	if (gtk_clipboard_get_owner (clipboard) == G_OBJECT (xtext)) {
@@ -1681,17 +1681,17 @@ primary_clear_cb (GtkClipboard *clipboard,
 
 	buf = xtext->buffer;
 
-	if (buf->last_ent_start == NULL) {
+	if (buf->selection_ent_start == NULL) {
 		/* The selection has already been cleared */
 		return;
 	}
 
-	xtext->jump_in_offset = buf->last_ent_start->mark_start;
+	xtext->jump_in_offset = buf->selection_ent_start->mark_start;
 
 	/* just a single ent was marked? */
-	if (buf->last_ent_start == buf->last_ent_end) {
-		xtext->jump_out_offset = buf->last_ent_start->mark_end;
-		buf->last_ent_end = NULL;
+	if (buf->selection_ent_start == buf->selection_ent_end) {
+		xtext->jump_out_offset = buf->selection_ent_start->mark_end;
+		buf->selection_ent_end = NULL;
 	}
 
 	xtext_selection_clear (buf);
@@ -1699,8 +1699,8 @@ primary_clear_cb (GtkClipboard *clipboard,
 	xtext->jump_in_offset = 0;
 	xtext->jump_out_offset = 0;
 
-	buf->last_ent_start = NULL;
-	buf->last_ent_end = NULL;
+	buf->selection_ent_start = NULL;
+	buf->selection_ent_end = NULL;
 
 	if (GTK_WIDGET_VISIBLE (widget)) {
 		gtk_widget_queue_draw (widget);
@@ -1739,7 +1739,7 @@ xtext_update_primary_selection (XText *xtext)
 
 	clipboard = gtk_widget_get_clipboard (widget, GDK_SELECTION_PRIMARY);
 
-	if (xtext->buffer->last_ent_start) {
+	if (xtext->buffer->selection_ent_start) {
 		if (xtext->selection_buffer &&
 		    xtext->selection_buffer != xtext->buffer) {
 			xtext_selection_clear (xtext->selection_buffer);
@@ -1813,7 +1813,7 @@ xtext_button_release (GtkWidget * widget, GdkEventButton * event)
 
 		if (xtext->select_start_x == event->x &&
 		    xtext->select_start_y == event->y &&
-		    xtext->buffer->last_ent_start) {
+		    xtext->buffer->selection_ent_start) {
 			xtext_unselect (xtext);
 			return FALSE;
 		}
@@ -1923,7 +1923,7 @@ xtext_selection_get_text (XText *xtext, xtext_buffer *buf, gsize *len_ret)
 
 	/* first find out how much we need to malloc ... */
 	len = 0;
-	ent = buf->last_ent_start;
+	ent = buf->selection_ent_start;
 	while (ent) {
 		if (ent->mark_start != -1) {
 			if (ent->mark_end - ent->mark_start > 0) {
@@ -1932,7 +1932,7 @@ xtext_selection_get_text (XText *xtext, xtext_buffer *buf, gsize *len_ret)
 				len++;
 			}
 		}
-		if (ent == buf->last_ent_end) {
+		if (ent == buf->selection_ent_end) {
 			break;
 		}
 		ent = ent->next;
@@ -1944,7 +1944,7 @@ xtext_selection_get_text (XText *xtext, xtext_buffer *buf, gsize *len_ret)
 
 	/* now allocate mem and copy buffer */
 	pos = txt = g_malloc (len);
-	ent = buf->last_ent_start;
+	ent = buf->selection_ent_start;
 	while (ent) {
 		if (ent->mark_start != -1) {
 			if (!first) {
@@ -1957,7 +1957,7 @@ xtext_selection_get_text (XText *xtext, xtext_buffer *buf, gsize *len_ret)
 				pos += ent->mark_end - ent->mark_start;
 			}
 		}
-		if (ent == buf->last_ent_end) {
+		if (ent == buf->selection_ent_end) {
 			break;
 		}
 		ent = ent->next;
@@ -3745,13 +3745,13 @@ xtext_remove_top (xtext_buffer *buffer)
 		buffer->pagetop_ent = NULL;
 	}
 
-	if (ent == buffer->last_ent_start) {
-		buffer->last_ent_start = ent->next;
+	if (ent == buffer->selection_ent_start) {
+		buffer->selection_ent_start = ent->next;
 	}
 
-	if (ent == buffer->last_ent_end) {
-		buffer->last_ent_start = NULL;
-		buffer->last_ent_end = NULL;
+	if (ent == buffer->selection_ent_end) {
+		buffer->selection_ent_start = NULL;
+		buffer->selection_ent_end = NULL;
 	}
 
 	if (buffer->marker_pos == ent) {
@@ -3769,8 +3769,8 @@ xtext_clear (xtext_buffer *buf)
 	textentry *next;
 
 	buf->scrollbar_down = TRUE;
-	buf->last_ent_start = NULL;
-	buf->last_ent_end = NULL;
+	buf->selection_ent_start = NULL;
+	buf->selection_ent_end = NULL;
 	buf->marker_pos = NULL;
 	dontscroll (buf);
 
@@ -3836,8 +3836,8 @@ xtext_search (XText * xtext, const gchar *text, textentry *start, gboolean case_
 	gchar *str = NULL, *nee, *hay = NULL;	/* needle in haystack */
 
 	xtext_selection_clear_full (xtext->buffer);
-	xtext->buffer->last_ent_start = NULL;
-	xtext->buffer->last_ent_end = NULL;
+	xtext->buffer->selection_ent_start = NULL;
+	xtext->buffer->selection_ent_end = NULL;
 
 	/* set up text comparand for Case Match or Ignore */
 	if (case_match) {
