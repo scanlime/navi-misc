@@ -428,20 +428,14 @@ static void
 xtext_set_fg (XText *xtext, GdkGC *gc, int index)
 {
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	GdkColor col;
-
-	col.pixel = priv->palette[index].pixel;
-	gdk_gc_set_foreground (gc, &col);
+	gdk_gc_set_foreground (gc, &priv->palette[index]);
 }
 
 static void
 xtext_set_bg (XText *xtext, GdkGC *gc, int index)
 {
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	GdkColor col;
-
-	col.pixel = priv->palette[index].pixel;
-	gdk_gc_set_background (gc, &col);
+	gdk_gc_set_background (gc, &priv->palette[index]);
 }
 
 static void
@@ -735,8 +729,7 @@ xtext_realize (GtkWidget * widget)
 #endif /* defined(USE_XLIB) || defined(WIN32) */
 
 	gdk_window_set_back_pixmap (widget->window, NULL, FALSE);
-	col.pixel = priv->palette[XTEXT_BG].pixel;
-	gdk_window_set_background (widget->window, &col);
+	gdk_window_set_background (widget->window, &priv->palette[XTEXT_BG]);
 	gdk_window_clear (widget->window);
 	widget->style = gtk_style_attach (widget->style, widget->window);
 
@@ -4415,7 +4408,6 @@ xtext_set_palette (XText    *xtext,
 {
 	XTextPriv *priv;
 	int i;
-	GdkColor col;
 
 	priv = XTEXT_GET_PRIVATE (xtext);
 
@@ -4428,11 +4420,7 @@ xtext_set_palette (XText    *xtext,
 		xtext_set_bg (xtext, priv->fgc, XTEXT_BG);
 		xtext_set_fg (xtext, priv->bgc, XTEXT_BG);
 
-		col.pixel = priv->palette[XTEXT_MARKER].pixel;
-		gdk_gc_set_foreground (priv->marker_gc, &col);
-
-		col.pixel = priv->palette[XTEXT_MARKER].pixel;
-		gdk_gc_set_foreground (priv->marker_gc, &col);
+		gdk_gc_set_foreground (priv->marker_gc, &priv->palette[XTEXT_MARKER]);
 	}
 	priv->foreground_color = XTEXT_FG;
 	priv->background_color = XTEXT_BG;
