@@ -89,8 +89,7 @@ static void     redundant_nickstamp_changed           (GConfClient            *c
 static void     conversation_panel_print_line         (ConversationPanel      *panel,
                                                        xtext_buffer           *buffer,
                                                        guchar                  *text,
-                                                       int                     len,
-                                                       gboolean                indent);
+                                                       int                     len);
 static void     conversation_panel_lastlog_foreach    (XText                  *xtext,
                                                        guchar                 *text,
                                                        fe_lastlog_info        *info);
@@ -1093,28 +1092,13 @@ conversation_panel_clear (ConversationPanel *panel, struct session *sess)
 }
 
 static void
-conversation_panel_print_line (ConversationPanel *panel, xtext_buffer *buffer, guchar *text, int len, gboolean indent)
+conversation_panel_print_line (ConversationPanel *panel, xtext_buffer *buffer, guchar *text, int len)
 {
 	int            leftlen;
 	unsigned char *tab;
 
 	if (len == 0) {
 		len = 1;
-	}
-
-	if (indent == FALSE) {
-		int     stamp_size;
-		char   *stamp;
-		guchar *new_text;
-
-		stamp_size = get_stamp_str (prefs.stamp_format, time(NULL), &stamp);
-		new_text = g_malloc (len + stamp_size + 1);
-		memcpy (new_text, stamp, stamp_size);
-		g_free (stamp);
-		memcpy (new_text + stamp_size, text, len);
-		xtext_append (buffer, new_text, len + stamp_size);
-		g_free (new_text);
-		return;
 	}
 
 	tab = strchr (text, '\t');
@@ -1136,7 +1120,7 @@ conversation_panel_print_line (ConversationPanel *panel, xtext_buffer *buffer, g
 }
 
 void
-conversation_panel_print (ConversationPanel *panel, struct session *sess, guchar *text, gboolean indent)
+conversation_panel_print (ConversationPanel *panel, struct session *sess, guchar *text)
 {
 	xtext_buffer *buffer;
 	guchar       *last_text = text;
@@ -1151,10 +1135,10 @@ conversation_panel_print (ConversationPanel *panel, struct session *sess, guchar
 	while (1) {
 		switch (*text) {
 		case '\0':
-			conversation_panel_print_line (panel, buffer, last_text, len, indent);
+			conversation_panel_print_line (panel, buffer, last_text, len);
 			return;
 		case '\n':
-			conversation_panel_print_line (panel, buffer, last_text, len, indent);
+			conversation_panel_print_line (panel, buffer, last_text, len);
 			text++;
 			if (*text == '\0')
 				return;
@@ -1190,7 +1174,7 @@ static void
 conversation_panel_lastlog_foreach (XText *xtext, guchar *text, fe_lastlog_info *info)
 {
 	if (nocasestrstr (text, info->sstr)) {
-		conversation_panel_print (info->panel, info->sess, text, prefs.indent_nicks);
+		conversation_panel_print (info->panel, info->sess, text);
 	}
 }
 
@@ -1203,7 +1187,7 @@ conversation_panel_lastlog (ConversationPanel *panel, struct session *sess, stru
 	lbuffer = g_hash_table_lookup (panel->priv->buffers, lsess);
 
 	if (xtext_is_empty (buffer)) {
-		conversation_panel_print (panel, lsess, _("Search buffer is empty.\n"), TRUE);
+		conversation_panel_print (panel, lsess, _("Search buffer is empty.\n"));
 	} else {
 		fe_lastlog_info info;
 		info.panel = panel;

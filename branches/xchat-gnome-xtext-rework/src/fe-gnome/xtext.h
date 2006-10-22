@@ -158,7 +158,6 @@ struct _XTextClass
 	void (*word_leave) (XText * xtext, char *word);
 };
 
-void xtext_append (xtext_buffer *buf, unsigned char *text, int len);
 void xtext_append_indent (xtext_buffer *buf, unsigned char *left_text, int left_len, unsigned char *right_text, int right_len);
 void xtext_selection_clear_full (xtext_buffer *buf);
 int xtext_set_font (XText *xtext, char *name);

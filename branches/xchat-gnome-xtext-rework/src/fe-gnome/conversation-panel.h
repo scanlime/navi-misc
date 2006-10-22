@@ -61,8 +61,7 @@ void       conversation_panel_clear                   (ConversationPanel *panel,
                                                        struct session    *sess);
 void       conversation_panel_print                   (ConversationPanel *panel,
                                                        struct session    *sess,
-                                                       guchar            *text,
-                                                       gboolean           indent);
+                                                       guchar            *text);
 void       conversation_panel_remove_session          (ConversationPanel *panel,
                                                        struct session    *sess);
 void       conversation_panel_lastlog                 (ConversationPanel *panel,
