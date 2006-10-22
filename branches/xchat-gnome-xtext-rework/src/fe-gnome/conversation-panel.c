@@ -314,7 +314,6 @@ conversation_panel_realize (GtkWidget *widget)
 	panel  = CONVERSATION_PANEL (widget);
 	client = gconf_client_get_default ();
 
-	palette_alloc (panel->priv->xtext);
 	xtext_set_palette           (XTEXT (panel->priv->xtext), colors);
 	xtext_set_max_lines         (XTEXT (panel->priv->xtext), 3000);
 	xtext_set_indent            (XTEXT (panel->priv->xtext), prefs.indent_nicks);
@@ -983,7 +982,6 @@ conversation_panel_new (void)
 void
 conversation_panel_update_colors (ConversationPanel *panel)
 {
-	palette_alloc (panel->priv->xtext);
 	xtext_set_palette (XTEXT (panel->priv->xtext), colors);
 	xtext_refresh     (XTEXT (panel->priv->xtext), FALSE);
 }
