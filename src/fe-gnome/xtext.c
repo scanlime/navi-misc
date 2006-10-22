@@ -3758,6 +3758,7 @@ xtext_remove_top (xtext_buffer *buffer)
 		buffer->marker_pos = NULL;
 	}
 
+	g_free (ent->str);
 	g_free (ent);
 }
 
@@ -3776,6 +3777,7 @@ xtext_clear (xtext_buffer *buf)
 
 	while (buf->text_first) {
 		next = buf->text_first->next;
+		g_free (buf->text_first->str);
 		g_free (buf->text_first);
 		buf->text_first = next;
 	}
@@ -4056,8 +4058,8 @@ xtext_append_indent (xtext_buffer *buf,
 		right_len--;
 	}
 
-	ent = g_malloc (left_len + right_len + 2 + sizeof (textentry));
-	str = (unsigned char *) ent + sizeof (textentry);
+	ent = g_new0 (textentry, 1);
+	str = g_new0 (gchar, left_len + right_len + 2);
 
 	memcpy (str, left_text, left_len);
 	str[left_len] = ' ';
@@ -4116,12 +4118,10 @@ xtext_append (xtext_buffer *buf, unsigned char *text, int len)
 		len = sizeof (buf->xtext->scratch_buffer) - 1;
 	}
 
-	ent = g_malloc (len + 1 + sizeof (textentry));
-	ent->str = (unsigned char *) ent + sizeof (textentry);
+	ent = g_new0 (textentry, 1);
+	ent->str = g_new0 (gchar, len + 1);
 	ent->str_len = len;
-	if (len) {
-		memcpy (ent->str, text, len);
-	}
+	memcpy (ent->str, text, len);
 	ent->str[len] = 0;
 	ent->indent = 0;
 	ent->left_len = -1;
@@ -4298,6 +4298,7 @@ xtext_buffer_free (xtext_buffer *buf)
 	ent = buf->text_first;
 	while (ent) {
 		next = ent->next;
+		g_free (ent->str);
 		g_free (ent);
 		ent = next;
 	}
