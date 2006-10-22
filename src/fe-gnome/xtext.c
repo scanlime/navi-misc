@@ -4386,11 +4386,8 @@ static void
 composited_changed (GtkWidget *widget,
                     gpointer   data)
 {
-	XText     *xtext;
-	XTextPriv *priv;
-
-	xtext = XTEXT (widget);
-	priv = XTEXT_GET_PRIVATE (widget);
+	XText     *xtext = XTEXT (widget);
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 
 	priv->has_composite = gtk_widget_is_composited (widget);
 	if (xtext->transparent) {
@@ -4409,12 +4406,9 @@ void
 xtext_set_palette (XText    *xtext,
                    GdkColor  palette[])
 {
-	XTextPriv *priv;
-	int i;
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 
-	priv = XTEXT_GET_PRIVATE (xtext);
-
-	for (i = 0; i < XTEXT_N_COLORS; i++) {
+	for (int i = 0; i < XTEXT_N_COLORS; i++) {
 		priv->palette[i] = palette[i];
 	}
 
@@ -4471,12 +4465,12 @@ backend_deinit (XText *xtext)
 static int
 backend_get_text_width (XText *xtext, guchar *str, int len)
 {
-	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	int width;
-
 	if (*str == '\0') {
 		return 0;
 	}
+
+	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
+	int width;
 
 	pango_layout_set_text (priv->layout, (const char *) str, len);
 	pango_layout_get_pixel_size (priv->layout, &width, NULL);
@@ -4490,13 +4484,12 @@ palette_alloc (XText *xtext)
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	GdkColormap *cmap = gtk_widget_get_colormap (GTK_WIDGET (xtext));
 	static gboolean already_alloced = FALSE;
-	int i;
 
 	if (already_alloced) {
 		gdk_colormap_free_colors (cmap, priv->palette, XTEXT_N_COLORS);
 	}
 
-	for (i = 0; i < XTEXT_N_COLORS; i++) {
+	for (int i = 0; i < XTEXT_N_COLORS; i++) {
 		gdk_colormap_alloc_color (cmap, &priv->palette[i], FALSE, TRUE);
 	}
 	already_alloced = TRUE;
