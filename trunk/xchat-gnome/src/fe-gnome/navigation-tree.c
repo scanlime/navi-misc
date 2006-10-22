@@ -1202,8 +1202,14 @@ navigation_selection_changed (GtkTreeSelection *treeselection, NavTree *navtree)
 		gtk_widget_set_sensitive (gui.nick_button, TRUE);
 	} else {
 		gui.current_session = NULL;
+		gtk_window_set_title (GTK_WINDOW (gui.main_window), _("XChat-GNOME IRC Chat"));
 		gtk_button_set_label (GTK_BUTTON (gui.nick_button), "");
 		gtk_widget_set_sensitive (gui.nick_button, FALSE);
+
+		conversation_panel_set_current (CONVERSATION_PANEL (gui.conversation_panel), NULL);
+		topic_label_set_current        (TOPIC_LABEL        (gui.topic_label),        NULL);
+		text_entry_set_current         (TEXT_ENTRY         (gui.text_entry),         NULL);
+		status_bar_set_current         (STATUS_BAR         (gui.status_bar),         NULL);
 	}
 }
 

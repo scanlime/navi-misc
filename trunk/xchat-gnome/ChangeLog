@@ -1,5 +1,13 @@
 2006-10-21  David Trowbridge  <trowbrds@gmail.com>
 
+	* src/fe-gnome/conversation-panel.c:
+	* src/fe-gnome/topic-label.c:
+	* src/fe-gnome/navigation-tree.c:
+	  - Fix a few problems when closing the last server.  This prevents a
+	    couple crashes, and resets the window title. (#363859)
+
+2006-10-21  David Trowbridge  <trowbrds@gmail.com>
+
 	* src/fe-gnome/preferences-page-networks.c:
 	  - Use weak references to the editor dialogs to repopulate the list
 	    on the networks prefs page.  The way it was written before worked

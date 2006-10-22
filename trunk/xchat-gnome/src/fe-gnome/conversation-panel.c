@@ -1017,8 +1017,12 @@ conversation_panel_set_current (ConversationPanel *panel, struct session *sess)
 	xtext_buffer *buffer;
 
 	panel->priv->current = sess;
-	buffer = g_hash_table_lookup (panel->priv->buffers, sess);
-	xtext_buffer_show (XTEXT (panel->priv->xtext), buffer, TRUE);
+	if (sess) {
+		buffer = g_hash_table_lookup (panel->priv->buffers, sess);
+		xtext_buffer_show (XTEXT (panel->priv->xtext), buffer, TRUE);
+	} else {
+		xtext_buffer_show (XTEXT (panel->priv->xtext), XTEXT (panel->priv->xtext)->orig_buffer, TRUE);
+	}
 
 #ifdef HAVE_LIBSEXY
 	conversation_panel_remove_tooltip (panel);

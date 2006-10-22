@@ -193,34 +193,32 @@ topic_label_set_current (TopicLabel *label, struct session *sess)
 	TopicLabelPriv *priv = label->priv;
 	gchar *topic;
 
-	topic = g_hash_table_lookup (priv->topics, sess);
+	if (sess) {
+		topic = g_hash_table_lookup (priv->topics, sess);
+	} else {
+		topic = NULL;
+	}
+
+
 #ifdef HAVE_LIBSEXY
 	if (topic) {
 		sexy_url_label_set_markup (SEXY_URL_LABEL (priv->label), topic);
-	} else {
-		gtk_label_set_text (GTK_LABEL (priv->label), "");
-	}
-
-	if (topic) {
 		sexy_url_label_set_markup (SEXY_URL_LABEL (priv->sizing_label), topic);
 	} else {
+		gtk_label_set_text (GTK_LABEL (priv->label), "");
 		gtk_label_set_text (GTK_LABEL (priv->sizing_label), "");
 	}
 #else
 	if (topic) {
 		gtk_label_set_text (GTK_LABEL (priv->label), topic);
-	} else {
-		gtk_label_set_text (GTK_LABEL (priv->label), "");
-	}
-
-	if (topic) {
 		gtk_label_set_text (GTK_LABEL (priv->sizing_label), topic);
 	} else {
+		gtk_label_set_text (GTK_LABEL (priv->label), "");
 		gtk_label_set_text (GTK_LABEL (priv->sizing_label), "");
 	}
 #endif
 
-	if (sess->type == SESS_SERVER) {
+	if (sess == NULL || sess->type == SESS_SERVER) {
 		gtk_widget_hide (gui.topic_hbox);
 	} else {
 		gtk_widget_show (gui.topic_hbox);
