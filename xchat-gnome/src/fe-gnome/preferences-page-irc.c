@@ -297,9 +297,8 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	GW(show_marker);
 #undef GW
 
-	path = locate_data_file ("irc.png");
-	page->icon = gdk_pixbuf_new_from_file (path, NULL);
-	g_free (path);
+	GtkIconTheme *theme = gtk_icon_theme_get_default ();
+	page->icon = gtk_icon_theme_load_icon (theme, "preferences-system", 16, 0, NULL);
 
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("IRC Preferences"), 2, 0, -1);

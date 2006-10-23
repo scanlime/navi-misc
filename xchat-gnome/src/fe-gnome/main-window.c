@@ -278,9 +278,7 @@ initialize_main_window (void)
 	group = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL);
 	gui.userlist_toggle = glade_xml_get_widget (gui.xml, "userlist_toggle");
 	g_signal_connect (G_OBJECT (gui.userlist_toggle), "toggled", G_CALLBACK (on_users_toggled), NULL);
-	path = locate_data_file ("users.png");
-	gtk_button_set_image (GTK_BUTTON (gui.userlist_toggle), gtk_image_new_from_file (path));
-	g_free (path);
+	gtk_button_set_image (GTK_BUTTON (gui.userlist_toggle), gtk_image_new_from_icon_name ("system-config-users", GTK_ICON_SIZE_MENU));
 	gtk_size_group_add_widget (group, gui.userlist_toggle);
 	widget = glade_xml_get_widget (gui.xml, "entry hbox");
 	gtk_size_group_add_widget (group, widget);

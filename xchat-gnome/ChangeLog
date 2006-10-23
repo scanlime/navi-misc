@@ -1,3 +1,27 @@
+2006-10-22  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/fe-gnome/main-window.c:
+	* src/fe-gnome/preferences-page-irc.c:
+	* src/fe-gnome/preferences-page-colors.c:
+	* src/fe-gnome/preferences-page-spellcheck.c:
+	* src/fe-gnome/dcc-window.c:
+	* data/Makefile.am:
+	D data/stock_link.png:
+	D data/users.png:
+	D data/logout.png:
+	D data/color.png:
+	D data/stock_up.png:
+	D data/notauthorized.png:
+	D data/soap.png:
+	D data/preferences-keybindings.png:
+	D data/toilet-paper.png:
+	D data/stock_down.png:
+	D data/spellcheck.png:
+	D data/irc.png:
+	  - Get rid of a lot of the icons we're currently bundling, in favor
+	    of theme-based ones.
+
+
 2006-10-21  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/fe-gnome/conversation-panel.c:

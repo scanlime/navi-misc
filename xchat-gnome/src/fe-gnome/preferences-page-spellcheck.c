@@ -167,18 +167,14 @@ preferences_page_spellcheck_new (gpointer prefs_dialog, GladeXML *xml)
 {
 	PreferencesSpellcheckPage *page = g_new0 (PreferencesSpellcheckPage, 1);
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
-	GtkTreeIter iter;
 	gboolean enabled;
-	GtkTreeViewColumn *column;
 	GSList *languages, *l;
 	GtkWidget *contents_vbox, *page_vbox, *label, *swin;
 	page_vbox = glade_xml_get_widget (xml, "spell check");
-	gchar *path;
 
-	path = locate_data_file ("spellcheck.png");
-	page->icon = gdk_pixbuf_new_from_file (path, NULL);
-	g_free (path);
+	page->icon = gtk_widget_render_icon (page_vbox, GTK_STOCK_SPELL_CHECK, GTK_ICON_SIZE_MENU, NULL);
 
+	GtkTreeIter iter;
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Spell checking"), 2, 7, -1);
 
@@ -215,6 +211,7 @@ preferences_page_spellcheck_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_tree_view_set_model (GTK_TREE_VIEW (page->spellcheck_list),
 	                         GTK_TREE_MODEL (page->spellcheck_store));
 
+	GtkTreeViewColumn *column;
 	page->activated_renderer = gtk_cell_renderer_toggle_new ();
 	g_object_set (G_OBJECT (page->activated_renderer), "activatable", TRUE, NULL);
 	column = gtk_tree_view_column_new_with_attributes (_("Enable"), page->activated_renderer,
@@ -276,7 +273,10 @@ preferences_page_spellcheck_free (PreferencesSpellcheckPage *page)
 	}
 	g_object_unref (client);
 
-	g_object_unref (page->icon);
+	if (page->icon) {
+		g_object_unref (page->icon);
+	}
+
 	if (page->spellcheck_store) {
 		g_object_unref (page->spellcheck_store);
 	}

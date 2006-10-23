@@ -157,14 +157,9 @@ dcc_window_init (DccWindow *window)
 	gtk_tree_view_append_column (GTK_TREE_VIEW (window->transfer_list), window->info_column);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (window->transfer_list), window->remaining_column);
 
-	/* FIXME: why do these not use the icon theme? */
-	path = locate_data_file ("stock_up.png");
-	window->up_icon = gdk_pixbuf_new_from_file_at_size (path, 24, 24, NULL);
-	g_free (path);
-
-	path = locate_data_file ("stock_down.png");
-	window->down_icon = gdk_pixbuf_new_from_file_at_size (path, 24, 24, NULL);
-	g_free (path);
+	GtkIconTheme *theme = gtk_icon_theme_get_default ();
+	window->up_icon   = gtk_icon_theme_load_icon (theme, "go-up",   24, 0, NULL);
+	window->down_icon = gtk_icon_theme_load_icon (theme, "go-down", 24, 0, NULL);
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (window->transfer_list));
 	g_signal_connect (G_OBJECT (selection), "changed", G_CALLBACK (transfer_selection_changed), window);
