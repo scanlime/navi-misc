@@ -1,6 +1,12 @@
 2006-10-22  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/fe-gnome/main-window.c:
+	  - Hack around the fact that there isn't a standard name for the
+	    "people" icon.
+
+2006-10-22  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/fe-gnome/main-window.c:
 	* src/fe-gnome/preferences-page-irc.c:
 	* src/fe-gnome/preferences-page-colors.c:
 	* src/fe-gnome/preferences-page-spellcheck.c:
