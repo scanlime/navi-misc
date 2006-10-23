@@ -172,7 +172,6 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	GtkSizeGroup *group;
 	GtkTreeIter iter;
 	gint i, j;
-	gchar *path;
 	gboolean toggle;
 
 	palette_init ();
@@ -246,9 +245,7 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	g_signal_connect (G_OBJECT (page->color_buttons[2]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (34));
 	g_signal_connect (G_OBJECT (page->color_buttons[3]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (35));
 
-	path = locate_data_file ("color.png");
-	page->icon = gdk_pixbuf_new_from_file (path, NULL);
-	g_free (path);
+	page->icon = gtk_widget_render_icon (page->show_colors, GTK_STOCK_SELECT_COLOR, GTK_ICON_SIZE_MENU, NULL);
 
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Colors"), 2, 1, -1);
