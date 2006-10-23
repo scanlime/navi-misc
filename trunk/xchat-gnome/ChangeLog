@@ -1,5 +1,15 @@
 2006-10-22  David Trowbridge  <trowbrds@gmail.com>
 
+	* src/fe-gnome/preferences-page-networks.c:
+	* src/fe-gnome/preferences-page-effects.c:
+	* data/Makefile.am:
+	D data/effects.png:
+	D data/servers.png:
+	  - Remove a couple more bundled images.
+
+
+2006-10-22  David Trowbridge  <trowbrds@gmail.com>
+
 	* src/fe-gnome/main-window.c:
 	  - Hack around the fact that there isn't a standard name for the
 	    "people" icon.
