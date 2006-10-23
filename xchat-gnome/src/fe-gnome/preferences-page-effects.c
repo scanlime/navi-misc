@@ -159,7 +159,7 @@ preferences_page_effects_new (gpointer prefs_dialog, GladeXML *xml)
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
 	GtkTreeIter iter;
 	int type;
-	gchar *filename, *path;
+	gchar *filename;
 	float transparency;
 
 #define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
@@ -170,9 +170,9 @@ preferences_page_effects_new (gpointer prefs_dialog, GladeXML *xml)
 	GW(background_transparency);
 #undef GW
 
-	path = locate_data_file ("effects.png");
-	page->icon = gdk_pixbuf_new_from_file (path, NULL);
-	g_free (path);
+	GtkIconTheme *theme = gtk_icon_theme_get_default ();
+	// FIXME: This needs a more appropriate/precise icon
+	page->icon = gtk_icon_theme_load_icon (theme, "applications-graphics", 16, 0, NULL);
 
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Effects"), 2, 2, -1);

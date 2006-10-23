@@ -3,7 +3,6 @@ xchat_gnome_DATA = 			\
 	connect-dialog.glade		\
 	dcc-window.glade		\
 	dcc.png				\
-	effects.png			\
 	global-message.png		\
 	hop.png				\
 	irc-network-editor.glade	\
@@ -15,7 +14,6 @@ xchat_gnome_DATA = 			\
 	preferences-dialog.glade	\
 	purple.png			\
 	red.png				\
-	servers.png			\
 	setup-dialog.glade		\
 	topic-change.glade		\
 	voice.png			\
