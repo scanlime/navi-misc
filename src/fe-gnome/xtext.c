@@ -2333,7 +2333,9 @@ xtext_render_str (XText * xtext, int y, textentry * ent,
 
 	if (!xtext->skip_border_fills && !xtext->dont_render) {
 		/* draw background to the left of the text */
-		if (str == ent->str && indent > MARGIN && xtext->buffer->time_stamp) {
+		if ((offset == 0 || offset == ent->left_len + 1) &&
+		    (indent > MARGIN) &&
+		    (xtext->buffer->time_stamp)) {
 			/* don't overwrite the timestamp */
 			if (indent > xtext->stamp_width) {
 				xtext_draw_bg (xtext, xtext->stamp_width, y - priv->font->ascent,
@@ -3143,7 +3145,7 @@ xtext_find_subline (XText *xtext, textentry *ent, int line)
 
 	/* we record the first 4 lines' wraps, so take a shortcut */
 	if (line <= RECORD_WRAPS) {
-		return ent->wrap_offset[line - 1];
+		return ent->wrap_offset[line - 1] + ent->left_len + 1;
 	}
 
 	gdk_drawable_get_size (GTK_WIDGET (xtext)->window, &win_width, 0);
@@ -3151,7 +3153,7 @@ xtext_find_subline (XText *xtext, textentry *ent, int line)
 
 	/* start from the last recorded wrap, and move forward */
 	indent = xtext->buffer->indent;
-	str_pos = ent->wrap_offset[RECORD_WRAPS-1];
+	str_pos = ent->wrap_offset[RECORD_WRAPS-1] + ent->left_len + 1;
 	str = str_pos + ent->str;
 	line_pos = RECORD_WRAPS;
 
@@ -3176,12 +3178,13 @@ xtext_render_line (XText * xtext, textentry * ent, int line, int lines_max, int 
 {
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	unsigned char *str;
-	int indent, taken, entline, len, y, start_subline;
+	int indent, taken, entline, len, y, start_subline, nline;
 
 	entline = taken = 0;
 	str = ent->str;
 	indent = ent->indent;
 	start_subline = subline;
+	nline = line;
 
 	/* draw the timestamp */
 	if (xtext->buffer->time_stamp && !xtext->skip_stamp) {
@@ -3195,13 +3198,16 @@ xtext_render_line (XText * xtext, textentry * ent, int line, int lines_max, int 
 		g_free (time_str);
 	}
 
+	str += ent->left_len + 1;
+	indent = xtext->buffer->indent;
+
 	/* draw each line one by one */
 	do {
 		/* if it's one of the first 4 wraps, we don't need to calculate it, it's
 		 * recorded in ->wrap_offset. This saves us a loop. */
 		if (entline < RECORD_WRAPS) {
 			if (ent->lines_taken < 2) {
-				len = ent->str_len;
+				len = ent->str_len - ent->left_len - 1;
 			} else {
 				if (entline > 0) {
 					len = ent->wrap_offset[entline] - ent->wrap_offset[entline-1];
@@ -3215,32 +3221,35 @@ xtext_render_line (XText * xtext, textentry * ent, int line, int lines_max, int 
 
 		entline++;
 
-		y = (xtext->fontsize * line) + priv->font->ascent - priv->pixel_offset;
+		y = (xtext->fontsize * nline) + priv->font->ascent - priv->pixel_offset;
 		if (!subline) {
-			if (!xtext_render_str (xtext, y, ent, str, len, win_width, indent, line, FALSE)) {
+			if (!xtext_render_str (xtext, y, ent, str, len, win_width, indent, nline, FALSE)) {
 				/* small optimization */
 				xtext_draw_marker (xtext, ent, y - xtext->fontsize * (taken + start_subline + 1));
 				return ent->lines_taken - subline;
 			}
 		} else {
 			xtext->dont_render = TRUE;
-			xtext_render_str (xtext, y, ent, str, len, win_width, indent, line, FALSE);
+			xtext_render_str (xtext, y, ent, str, len, win_width, indent, nline, FALSE);
 			xtext->dont_render = FALSE;
 			subline--;
-			line--;
+			nline--;
 			taken--;
 		}
 
-		indent = xtext->buffer->indent;
-		line++;
+		nline++;
 		taken++;
 		str += len;
 
-		if (line >= lines_max) {
+		if (nline >= lines_max) {
 			break;
 		}
 
 	} while (str < ent->str + ent->str_len);
+
+	/* draw the nickname */
+	y = (xtext->fontsize * line) + priv->font->ascent - priv->pixel_offset;
+	xtext_render_str (xtext, y, ent, ent->str, ent->left_len, win_width, ent->indent, line, TRUE);
 
 	xtext_draw_marker (xtext, ent, y - xtext->fontsize * (taken + start_subline));
 
@@ -3423,7 +3432,7 @@ xtext_lines_taken (xtext_buffer *buf, textentry * ent)
 	do {
 		len = find_next_wrap (buf->xtext, ent, str, win_width, indent);
 		if (taken < RECORD_WRAPS) {
-			ent->wrap_offset[taken] = (str + len) - ent->str;
+			ent->wrap_offset[taken] = (str + len) - ent->str - ent->left_len - 1;
 		}
 		indent = buf->indent;
 		taken++;
