@@ -2292,14 +2292,13 @@ xtext_reset (XText * xtext, int mark, int attribs)
 
 static int
 xtext_render_str (XText * xtext, int y, textentry * ent,
-                      unsigned char *str, int len, int win_width, int indent,
-                      int line, int left_only)
+                  unsigned char *str, int len, int win_width, int indent,
+                  int line, int left_only, int offset)
 {
 	GdkGC *gc;
 	int i = 0, x = indent, j = 0;
 	unsigned char *pstr = str;
 	int col_num, tmp;
-	int offset;
 	int mark = FALSE;
 	int ret = 1;
 	XTextPriv *priv;
@@ -2307,8 +2306,6 @@ xtext_render_str (XText * xtext, int y, textentry * ent,
 	priv = XTEXT_GET_PRIVATE (xtext);
 
 	xtext->in_hilight = FALSE;
-
-	offset = str - ent->str;
 
 	if (line < 255 && line >= 0) {
 		xtext->buffer->grid_offset[line] = offset;
@@ -2501,23 +2498,6 @@ xtext_render_str (XText * xtext, int y, textentry * ent,
 		/* invalid utf8 safe guard */
 		if (i > len) {
 			i = len;
-		}
-
-		/* Separate the left part, the space and the right part
-		   into separate runs, and reset bidi state inbetween.
-		   Perform this only on the first line of the message.
-                */
-		if (offset == 0) {
-			/* we've reached the end of the left part? */
-			if ((pstr-str)+j == ent->left_len) {
-				x += xtext_render_flush (xtext, x, y, pstr, j, gc);
-				pstr += j;
-				j = 0;
-			} else if ((pstr-str)+j == ent->left_len+1) {
-				x += xtext_render_flush (xtext, x, y, pstr, j, gc);
-				pstr += j;
-				j = 0;
-			}
 		}
 
 		/* have we been told to stop rendering at this point? */
@@ -3193,7 +3173,7 @@ xtext_render_line (XText * xtext, textentry * ent, int line, int lines_max, int 
 		int tmp = ent->mb;
 		y = (xtext->fontsize * line) + priv->font->ascent - priv->pixel_offset;
 		ent->mb = TRUE;
-		xtext_render_str (xtext, y, ent, time_str, stamp_size, win_width, 2, line, TRUE);
+		xtext_render_str (xtext, y, ent, time_str, stamp_size, win_width, 2, line, TRUE, -1);
 		ent->mb = tmp;
 		g_free (time_str);
 	}
@@ -3223,14 +3203,14 @@ xtext_render_line (XText * xtext, textentry * ent, int line, int lines_max, int 
 
 		y = (xtext->fontsize * nline) + priv->font->ascent - priv->pixel_offset;
 		if (!subline) {
-			if (!xtext_render_str (xtext, y, ent, str, len, win_width, indent, nline, FALSE)) {
+			if (!xtext_render_str (xtext, y, ent, str, len, win_width, indent, nline, FALSE, (int) (str - ent->str))) {
 				/* small optimization */
 				xtext_draw_marker (xtext, ent, y - xtext->fontsize * (taken + start_subline + 1));
 				return ent->lines_taken - subline;
 			}
 		} else {
 			xtext->dont_render = TRUE;
-			xtext_render_str (xtext, y, ent, str, len, win_width, indent, nline, FALSE);
+			xtext_render_str (xtext, y, ent, str, len, win_width, indent, nline, FALSE, (int) (str - ent->str));
 			xtext->dont_render = FALSE;
 			subline--;
 			nline--;
@@ -3249,7 +3229,7 @@ xtext_render_line (XText * xtext, textentry * ent, int line, int lines_max, int 
 
 	/* draw the nickname */
 	y = (xtext->fontsize * line) + priv->font->ascent - priv->pixel_offset;
-	xtext_render_str (xtext, y, ent, ent->str, ent->left_len, win_width, ent->indent, line, TRUE);
+	xtext_render_str (xtext, y, ent, ent->str, ent->left_len, win_width, ent->indent, line, TRUE, 0);
 
 	xtext_draw_marker (xtext, ent, y - xtext->fontsize * (taken + start_subline));
 
