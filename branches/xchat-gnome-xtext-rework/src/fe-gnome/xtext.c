@@ -3022,7 +3022,7 @@ noshade:
 /* walk through str until this line doesn't fit anymore */
 
 static int
-find_next_wrap (XText * xtext, textentry * ent, unsigned char *str, int win_width, int indent)
+find_next_wrap (XText * xtext, textentry * ent, unsigned char *str, int win_width, int indent, int offset)
 {
 	unsigned char *last_space = str;
 	unsigned char *orig_str = str;
@@ -3039,7 +3039,7 @@ find_next_wrap (XText * xtext, textentry * ent, unsigned char *str, int win_widt
 
 	/* it does happen! */
 	if (win_width < 1) {
-		ret = ent->str_len - (str - ent->str);
+		ret = ent->str_len - offset;
 		goto done;
 	}
 
@@ -3094,7 +3094,7 @@ find_next_wrap (XText * xtext, textentry * ent, unsigned char *str, int win_widt
 			}
 		}
 
-		if (str >= ent->str + ent->str_len) {
+		if (*str == '\0') {
 			ret = str - orig_str;
 			goto done;
 		}
@@ -3138,7 +3138,7 @@ xtext_find_subline (XText *xtext, textentry *ent, int line)
 	line_pos = RECORD_WRAPS;
 
 	do {
-		len = find_next_wrap (xtext, ent, str, win_width, indent);
+		len = find_next_wrap (xtext, ent, str, win_width, indent, (int) (str - ent->str));
 		indent = xtext->buffer->indent;
 		str += len;
 		str_pos += len;
@@ -3183,6 +3183,8 @@ xtext_render_line (XText * xtext, textentry * ent, int line, int lines_max, int 
 
 	/* draw each line one by one */
 	do {
+		int offset = (int) (str - ent->str);
+
 		/* if it's one of the first 4 wraps, we don't need to calculate it, it's
 		 * recorded in ->wrap_offset. This saves us a loop. */
 		if (entline < RECORD_WRAPS) {
@@ -3196,14 +3198,14 @@ xtext_render_line (XText * xtext, textentry * ent, int line, int lines_max, int 
 				}
 			}
 		} else {
-			len = find_next_wrap (xtext, ent, str, win_width, indent);
+			len = find_next_wrap (xtext, ent, str, win_width, indent, offset);
 		}
 
 		entline++;
 
 		y = (xtext->fontsize * nline) + priv->font->ascent - priv->pixel_offset;
 		if (!subline) {
-			if (!xtext_render_str (xtext, y, ent, str, len, win_width, indent, nline, FALSE, (int) (str - ent->str))) {
+			if (!xtext_render_str (xtext, y, ent, str, len, win_width, indent, nline, FALSE, offset)) {
 				/* small optimization */
 				xtext_draw_marker (xtext, ent, y - xtext->fontsize * (taken + start_subline + 1));
 				return ent->lines_taken - subline;
@@ -3410,7 +3412,7 @@ xtext_lines_taken (xtext_buffer *buf, textentry * ent)
 	taken = 0;
 
 	do {
-		len = find_next_wrap (buf->xtext, ent, str, win_width, indent);
+		len = find_next_wrap (buf->xtext, ent, str, win_width, indent, (int) (str - ent->str));
 		if (taken < RECORD_WRAPS) {
 			ent->wrap_offset[taken] = (str + len) - ent->str - ent->left_len - 1;
 		}
@@ -3763,7 +3765,6 @@ void
 xtext_clear (xtext_buffer *buf)
 {
 	XText *xtext = buf->xtext;
-	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	textentry *next;
 
 	buf->scrollbar_down = TRUE;
