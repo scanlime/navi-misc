@@ -3157,12 +3157,9 @@ static int
 xtext_render_line (XText * xtext, textentry * ent, int line, int lines_max, int subline, int win_width)
 {
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
-	unsigned char *str;
-	int indent, taken, entline, len, y, start_subline, nline;
+	int taken, entline, len, y, start_subline, nline;
 
 	entline = taken = 0;
-	str = ent->str;
-	indent = ent->indent;
 	start_subline = subline;
 	nline = line;
 
@@ -3178,18 +3175,18 @@ xtext_render_line (XText * xtext, textentry * ent, int line, int lines_max, int 
 		g_free (time_str);
 	}
 
-	str += ent->left_len + 1;
-	indent = xtext->buffer->indent;
+	gchar *str = ent->right_str;
+	int indent = xtext->buffer->indent;
 
 	/* draw each line one by one */
 	do {
-		int offset = (int) (str - ent->str);
+		int offset = (int) (str - ent->right_str);
 
 		/* if it's one of the first 4 wraps, we don't need to calculate it, it's
 		 * recorded in ->wrap_offset. This saves us a loop. */
 		if (entline < RECORD_WRAPS) {
 			if (ent->lines_taken < 2) {
-				len = ent->str_len - ent->left_len - 1;
+				len = ent->right_len;
 			} else {
 				if (entline > 0) {
 					len = ent->wrap_offset[entline] - ent->wrap_offset[entline-1];
@@ -3212,7 +3209,7 @@ xtext_render_line (XText * xtext, textentry * ent, int line, int lines_max, int 
 			}
 		} else {
 			xtext->dont_render = TRUE;
-			xtext_render_str (xtext, y, ent, str, len, win_width, indent, nline, FALSE, (int) (str - ent->str));
+			xtext_render_str (xtext, y, ent, str, len, win_width, indent, nline, FALSE, offset);
 			xtext->dont_render = FALSE;
 			subline--;
 			nline--;
@@ -3226,8 +3223,7 @@ xtext_render_line (XText * xtext, textentry * ent, int line, int lines_max, int 
 		if (nline >= lines_max) {
 			break;
 		}
-
-	} while (str < ent->str + ent->str_len);
+	} while (str < ent->right_str + ent->right_len);
 
 	/* draw the nickname */
 	y = (xtext->fontsize * line) + priv->font->ascent - priv->pixel_offset;
