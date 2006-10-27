@@ -14,7 +14,6 @@ xchat_gnome_DATA = 			\
 	setup-dialog.glade		\
 	topic-change.glade		\
 	voice.png			\
-	wrap.png			\
 	xchat-gnome-ui.xml		\
 	xchat-gnome.glade
 
