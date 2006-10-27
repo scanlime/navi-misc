@@ -427,6 +427,10 @@ AC_SUBST([DEPENDENCIES_LIBS])
 AC_CONFIG_FILES([
 Makefile
 data/Makefile
+data/icons/Makefile
+data/icons/hicolor/Makefile
+data/icons/hicolor/48x48/Makefile
+data/icons/hicolor/48x48/apps/Makefile
 help/Makefile
 plugins/Makefile
 plugins/autoaway/Makefile

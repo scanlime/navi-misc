@@ -1,5 +1,24 @@
 2006-10-26  David Trowbridge  <trowbrds@gmail.com>
 
+	* configure.ac:
+	D data/xchat-gnome.png:
+	* data/Makefile.am:
+	A data/icons:
+	A data/icons/Makefile.am:
+	A data/icons/hicolor:
+	A data/icons/hicolor/Makefile.am:
+	A data/icons/hicolor/48x48:
+	A data/icons/hicolor/48x48/Makefile.am:
+	A data/icons/hicolor/48x48/apps:
+	A data/icons/hicolor/48x48/apps/Makefile.am:
+	A data/icons/hicolor/48x48/apps/xchat-gnome.png:
+	A data/icons/hicolor/16x16:
+	A data/icons/hicolor/16x16/apps:
+	  - Make a mini-icontheme here, to organize everything.
+
+
+2006-10-26  David Trowbridge  <trowbrds@gmail.com>
+
 	* data/Makefile.am:
 	  - Don't install xchat-gnome.png into $PREFIX/share/xchat-gnome.
 
