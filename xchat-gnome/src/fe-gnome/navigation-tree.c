@@ -109,7 +109,7 @@ static GtkToggleActionEntry toggle_action_entries[] = {
 
 enum
 {
-	COLUMN_PIXBUF,
+	COLUMN_ICON,
 	COLUMN_NAME,
 	COLUMN_SESSION,
 	COLUMN_STATUS,
@@ -172,10 +172,10 @@ navigation_tree_init (NavTree *navtree)
 	text_renderer = gtk_cell_renderer_text_new ();
 	/* Icon columns. */
 	gtk_tree_view_column_pack_start (column, icon_renderer, FALSE);
-	gtk_tree_view_column_set_attributes (column, icon_renderer, "pixbuf", 0, NULL);
+	gtk_tree_view_column_set_attributes (column, icon_renderer, "icon-name", COLUMN_ICON, NULL);
 	/* text columns. */
 	gtk_tree_view_column_pack_start (column, text_renderer, TRUE);
-	gtk_tree_view_column_set_attributes (column, text_renderer, "text", 1, "foreground-gdk", 4, NULL);
+	gtk_tree_view_column_set_attributes (column, text_renderer, "text", COLUMN_NAME, "foreground-gdk", COLUMN_COLOR, NULL);
 	/* Add the column to the TreeView. */
 	gtk_tree_view_append_column (GTK_TREE_VIEW (navtree), column);
 
@@ -1030,7 +1030,7 @@ show_context_menu (GtkWidget *treeview, GdkEventButton *event)
 		return;
 	}
 
-	menu = navigation_context (treeview, s); /* FIXME */	
+	menu = navigation_context (treeview, s); /* FIXME */
 	g_return_if_fail (menu != NULL);
 
 	if (event != NULL) {
@@ -1182,7 +1182,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, NavTree *navtree)
 		store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
 		gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &newiter, &iter);
 		gtk_tree_store_set (GTK_TREE_STORE (store), &newiter,
-		                    COLUMN_PIXBUF, NULL,
+		                    COLUMN_ICON, NULL,
 		                    COLUMN_STATUS, 0,
 		                    -1);
 
@@ -1275,7 +1275,7 @@ navigation_model_get_type (void)
 static void
 navigation_model_init (NavModel *navmodel)
 {
-	navmodel->store = gtk_tree_store_new (N_COLUMNS, GDK_TYPE_PIXBUF, /* status image */
+	navmodel->store = gtk_tree_store_new (N_COLUMNS, G_TYPE_STRING,   /* status image */
 	                                                 G_TYPE_STRING,   /* name */
 	                                                 G_TYPE_POINTER,  /* session pointer */
 	                                                 G_TYPE_INT,      /* status # (for tracking highest state) */
@@ -1340,6 +1340,7 @@ navigation_model_add_new_network (NavModel *model, struct session *sess)
 
 	/* Add the new server to the model. By default connected is false. */
 	gtk_tree_store_set (model->store, &iter,
+	                    COLUMN_ICON,      NULL,
 	                    COLUMN_NAME,      _("<none>"),
 	                    COLUMN_SESSION,   sess,
 	                    COLUMN_STATUS,    0,
@@ -1489,7 +1490,7 @@ navigation_model_set_hilight_iterate (GtkTreeModel * model, GtkTreePath * path, 
 
 		if (sess->nick_said) {
 			gtk_tree_store_set (GTK_TREE_STORE (model), iter,
-			                    COLUMN_PIXBUF, pix_nicksaid,
+			                    COLUMN_ICON, "xchat-gnome-message-nickname-said",
 			                    COLUMN_STATUS, 3,
 			                    -1);
 			return TRUE;
@@ -1497,12 +1498,12 @@ navigation_model_set_hilight_iterate (GtkTreeModel * model, GtkTreePath * path, 
 		if (sess->msg_said && e < 2) {
 			if (sess->type != SESS_DIALOG) {
 				gtk_tree_store_set (GTK_TREE_STORE (model), iter,
-				                    COLUMN_PIXBUF, pix_msgsaid,
+				                    COLUMN_ICON, "xchat-gnome-message-new",
 				                    COLUMN_STATUS, 2,
 				                    -1);
 			} else {
 				gtk_tree_store_set (GTK_TREE_STORE (model), iter,
-				                    COLUMN_PIXBUF, pix_nicksaid,
+				                    COLUMN_ICON, "xchat-gnome-message-nickname-said",
 				                    COLUMN_STATUS, 3,
 				                    -1);
 			}
@@ -1510,7 +1511,7 @@ navigation_model_set_hilight_iterate (GtkTreeModel * model, GtkTreePath * path, 
 		}
 		if (sess->new_data && e < 1) {
 			gtk_tree_store_set (GTK_TREE_STORE (model), iter,
-			                    COLUMN_PIXBUF, pix_newdata,
+			                    COLUMN_ICON, "xchat-gnome-message-data",
 			                    COLUMN_STATUS, 1,
 			                    -1);
 			return TRUE;
