@@ -1,3 +1,5 @@
+SUBDIRS = icons
+
 xchat_gnome_DATA = 			\
 	channel-list.glade		\
 	connect-dialog.glade		\
@@ -22,9 +24,6 @@ xchat_gnome_DATA = 			\
 	xchat-gnome.glade
 
 xchat_gnomedir = $(datadir)/xchat-gnome
-
-icondir = $(datadir)/icons/hicolor/48x48/apps
-icon_DATA = xchat-gnome.png
 
 gtk_update_icon_cache = gtk-update-icon-cache -f -t $(datadir)/icons/hicolor
 
