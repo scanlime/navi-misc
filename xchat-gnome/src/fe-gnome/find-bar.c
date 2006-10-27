@@ -88,7 +88,6 @@ find_bar_init (FindBar *bar)
 	GtkWidget *previous_image;
 	GtkWidget *next;
 	GtkWidget *next_image;
-	gchar *path;
 
 	bar->priv = g_new0 (FindBarPriv, 1);
 
@@ -101,10 +100,7 @@ find_bar_init (FindBar *bar)
 	next             = gtk_button_new_with_mnemonic (_("_Next"));
 	next_image       = gtk_image_new_from_stock (GTK_STOCK_GO_FORWARD, GTK_ICON_SIZE_BUTTON);
 
-	path = locate_data_file ("wrap.png");
-	bar->priv->status_wrapped = gtk_image_new_from_file (path);
-	g_free (path);
-
+	bar->priv->status_wrapped = gtk_image_new_from_icon_name ("xchat-gnome-search-wrapped", GTK_ICON_SIZE_MENU);
 	bar->priv->status_notfound = gtk_image_new_from_stock (GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_BUTTON);
 	bar->priv->status_label = gtk_label_new (NULL);
 

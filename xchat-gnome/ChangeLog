@@ -1,3 +1,13 @@
+2006-10-27  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/fe-gnome/find-bar.c:
+	D data/wrap.png:
+	* data/Makefile.am:
+	A data/icons/hicolor/16x16/apps/xchat-gnome-search-wrapped.png:
+	* data/icons/hicolor/16x16/apps/Makefile.am:
+	  - Move wrap into the icon theme, why not.
+
+
 2006-10-26  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/fe-gnome/about.c:
