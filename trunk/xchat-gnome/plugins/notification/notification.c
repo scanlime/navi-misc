@@ -50,70 +50,26 @@ typedef enum
 	N_NOTIF
 } NotifStatus;
 
-static GtkStatusIcon*      status_icon;          /* Notification area icon. */
-static gboolean            focused = TRUE;       /* GTK_WIDGET_HAS_FOCUS doesn't seem to be working... */
-static gint		   level = 0;		 /* Level of messages that we want to notify */
-static gboolean            hidden = FALSE;       /* True when the main window is hidden. */
-static GdkPixbuf*          pixbufs[N_NOTIF];     /* Pixbufs */
-static GtkWidget*          main_window;          /* xchat-gnome's main window. */
-static NotifStatus         status = NOTIF_NONE;  /* Current status level. */
-static xchat_gnome_plugin* xgph;                 /* xchat gnome plugin handle. */
-static xchat_plugin*       ph;                   /* Plugin handle. */
+static GtkStatusIcon*      status_icon;         /* Notification area icon. */
+static gboolean            focused = TRUE;      /* GTK_WIDGET_HAS_FOCUS doesn't seem to be working... */
+static gint		   level = 0;		/* Level of messages that we want to notify */
+static gboolean            hidden = FALSE;      /* True when the main window is hidden. */
+static GtkWidget*          main_window;         /* xchat-gnome's main window. */
+static NotifStatus         status = NOTIF_NONE; /* Current status level. */
+static xchat_gnome_plugin* xgph;                /* xchat gnome plugin handle. */
+static xchat_plugin*       ph;                  /* Plugin handle. */
 static guint		   gconf_notify_id;
-
-static GdkPixbuf *
-load_pixbuf (const char *name, gint size)
-{
-	GdkPixbuf *pixbuf;
-	GError *error = NULL;
-	char *uninstalled_path, *path;
-
-	uninstalled_path = g_strdup_printf ("../../data/%s", name);
-	if (g_file_test (uninstalled_path, G_FILE_TEST_EXISTS)) {
-		path = uninstalled_path;
-	} else {
-		g_free (uninstalled_path);
-		path = gnome_program_locate_file (gnome_program_get (), GNOME_FILE_DOMAIN_APP_DATADIR, name, FALSE, NULL);
-	}
-
-	pixbuf = gdk_pixbuf_new_from_file_at_scale (path, size, size, TRUE, &error);
-	if (error != NULL) {
-		g_warning ("Failed to load pixbuf %s at size %d: %s\n", path, size, error->message);
-		g_error_free (error);
-	}
-
-	g_free (path);
-
-	return pixbuf;
-}
-
-static void
-load_tray_icons (gint size)
-{
-	static const char *icons[N_NOTIF] = {
-		"xchat-gnome.png",
-		"newdata.png",
-		"global-message.png",
-		"nicksaid.png"
-	};
-	static int old_size = -1;
-	guint i;
-
-	if (size == old_size) return;
-	old_size = size;
-
-	for (i = 0; i < N_NOTIF; ++i) {
-		if (pixbufs[i] != NULL) {
-			g_object_unref (pixbufs[i]);
-		}
-		pixbufs[i] = load_pixbuf (icons[i], size);
-	}
-}
+static const char *images[N_NOTIF] = {
+	"xchat-gnome",
+	"xchat-gnome-message-data",
+	"xchat-gnome-message-new",
+	"xchat-gnome-message-nickname-said"
+};
 
 static void
 update_tray (void)
 {
-	gtk_status_icon_set_from_pixbuf (status_icon, pixbufs[status]);
+	gtk_status_icon_set_from_icon_name (status_icon, images[status]);
 	gtk_status_icon_set_visible (status_icon, status >= level);
 }
 
@@ -157,8 +113,6 @@ new_msg_cb (char *word[], void *statusptr)
 static gboolean
 status_icon_size_changed_cb (GtkStatusIcon *icon, gint size, gpointer user_data)
 {
-	load_tray_icons (size);
-
 	update_tray ();
 
 	return TRUE;
@@ -235,10 +189,6 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 	status = NOTIF_NONE;
 
 	/* Create the notification icon. */
-	for (i = 0; i < N_NOTIF; ++i) {
-		pixbufs[i] = 0;
-	}
-
 	status_icon = gtk_status_icon_new ();
 	g_signal_connect (status_icon, "activate", G_CALLBACK (status_icon_activate_cb), NULL);
 	g_signal_connect (status_icon, "size-changed", G_CALLBACK (status_icon_size_changed_cb), NULL);
@@ -276,13 +226,6 @@ xchat_plugin_deinit (void)
 	gconf_client_notify_remove (client, gconf_notify_id);
 	g_object_unref (client);
 	gconf_notify_id = 0;
-
-	for (i = 0; i < N_NOTIF; ++i) {
-		if (pixbufs[i]) {
-			g_object_unref (pixbufs[i]);
-		}
-		pixbufs[i] = NULL;
-	}
 
 	xchat_print (ph, _("Notification plugin unloaded.\n"));
 

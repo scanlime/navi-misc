@@ -77,7 +77,7 @@ add_notify (char *summary, char *message)
 	}
 
 	notifications = g_slist_prepend (notifications, notify);
-	
+
 	g_free (escaped);
 }
 
@@ -198,10 +198,8 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 	ph = plugin_handle;
 
 	if (notify_init ("Xchat OSD")) {
-		if (g_file_test ("../../data/xchat-gnome.png", G_FILE_TEST_EXISTS))
-			notify_icon = gdk_pixbuf_new_from_file ("../../data/xchat-gnome.png", 0);
-		else
-			notify_icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/xchat-gnome.png", 0);
+		GtkIconTheme *theme = gtk_icon_theme_get_default ();
+		notify_icon = gtk_icon_theme_load_icon (theme, "xchat-gnome", 48, 0, NULL);
 
 		xchat_hook_print (ph, "Channel Msg Hilight",       XCHAT_PRI_NORM, new_msg_cb,     NULL);
 		xchat_hook_print (ph, "Channel Action Hilight",    XCHAT_PRI_NORM, new_action_cb,  NULL);

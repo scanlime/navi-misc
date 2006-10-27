@@ -25,15 +25,11 @@
 #include "pixmaps.h"
 #include "util.h"
 
-GdkPixbuf *pix_purple;
-GdkPixbuf *pix_red;
 GdkPixbuf *pix_op;
 GdkPixbuf *pix_hop;
+GdkPixbuf *pix_purple;
+GdkPixbuf *pix_red;
 GdkPixbuf *pix_voice;
-
-GdkPixbuf *pix_newdata;
-GdkPixbuf *pix_nicksaid;
-GdkPixbuf *pix_msgsaid;
 
 static GdkPixbuf *
 pixbuf_new_from_file (const gchar *file_name)
@@ -51,13 +47,16 @@ pixbuf_new_from_file (const gchar *file_name)
 void
 pixmaps_init (void)
 {
+	GtkIconTheme *theme = gtk_icon_theme_get_default ();
+	gchar *uninstalled_path = g_build_filename (TOPSRCDIR, "data", "icons", NULL);
+	if (g_file_test (uninstalled_path, G_FILE_TEST_EXISTS)) {
+		gtk_icon_theme_prepend_search_path (theme, uninstalled_path);
+	}
+	g_free (uninstalled_path);
+
+	pix_op  = gtk_icon_theme_load_icon (theme, "xchat-gnome-status-operator", 16, 0, NULL);
+	pix_hop = gtk_icon_theme_load_icon (theme, "xchat-gnome-status-halfop", 16, 0, NULL);
 	pix_purple   = pixbuf_new_from_file ("purple.png");
 	pix_red      = pixbuf_new_from_file ("red.png");
-	pix_op       = pixbuf_new_from_file ("op.png");
-	pix_hop      = pixbuf_new_from_file ("hop.png");
 	pix_voice    = pixbuf_new_from_file ("voice.png");
-
-	pix_newdata  = pixbuf_new_from_file ("newdata.png");
-	pix_nicksaid = pixbuf_new_from_file ("nicksaid.png");
-	pix_msgsaid  = pixbuf_new_from_file ("global-message.png");
 }

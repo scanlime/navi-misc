@@ -1,5 +1,40 @@
 2006-10-26  David Trowbridge  <trowbrds@gmail.com>
 
+	* plugins/notification/notification.c:
+	* plugins/notify-osd/notify-osd.c:
+	* src/fe-gnome/pixmaps.c:
+	* src/fe-gnome/navigation-tree.c:
+	* configure.ac:
+	D data/op.png:
+	D data/global-message.png:
+	D data/newdata.png:
+	D data/nicksaid.png:
+	D data/hop.png:
+	* data/Makefile.am:
+	* data/icons/hicolor/48x48/apps:
+	A data/icons/hicolor/22x22:
+	A data/icons/hicolor/22x22/apps:
+	A data/icons/hicolor/22x22/apps/xchat-gnome-message-nickname-said.png:
+	A data/icons/hicolor/22x22/apps/xchat-gnome-status-halfop.png:
+	A data/icons/hicolor/22x22/apps/xchat-gnome-message-new.png:
+	A data/icons/hicolor/22x22/apps/xchat-gnome-status-operator.png:
+	A data/icons/hicolor/22x22/apps/Makefile.am:
+	A data/icons/hicolor/22x22/Makefile.am:
+	M data/icons/hicolor/16x16:
+	* data/icons/hicolor/16x16/apps:
+	* data/icons/hicolor/16x16/apps/xchat-gnome-message-nickname-said.png:
+	A data/icons/hicolor/16x16/apps/xchat-gnome-status-halfop.png:
+	A data/icons/hicolor/16x16/apps/xchat-gnome-message-new.png:
+	A data/icons/hicolor/16x16/apps/xchat-gnome-message-data.png:
+	A data/icons/hicolor/16x16/apps/xchat-gnome-status-operator.png:
+	A data/icons/hicolor/16x16/apps/Makefile.am:
+	A data/icons/hicolor/16x16/Makefile.am:
+	* data/icons/hicolor/Makefile.am:
+	  - Add awesome new icons.
+
+
+2006-10-26  David Trowbridge  <trowbrds@gmail.com>
+
 	* configure.ac:
 	D data/xchat-gnome.png:
 	* data/Makefile.am:

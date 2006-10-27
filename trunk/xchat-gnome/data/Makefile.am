@@ -5,13 +5,8 @@ xchat_gnome_DATA = 			\
 	connect-dialog.glade		\
 	dcc-window.glade		\
 	dcc.png				\
-	global-message.png		\
-	hop.png				\
 	irc-network-editor.glade	\
 	message.wav			\
-	newdata.png			\
-	nicksaid.png			\
-	op.png				\
 	plugin-manager.png		\
 	preferences-dialog.glade	\
 	purple.png			\
