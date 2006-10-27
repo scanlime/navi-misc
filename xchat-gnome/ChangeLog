@@ -1,5 +1,10 @@
 2006-10-26  David Trowbridge  <trowbrds@gmail.com>
 
+	* src/fe-gnome/about.c:
+	  - Add credits for Andreas & Lapo.  Whoo!
+
+2006-10-26  David Trowbridge  <trowbrds@gmail.com>
+
 	* plugins/notification/notification.c:
 	* plugins/notify-osd/notify-osd.c:
 	* src/fe-gnome/pixmaps.c:

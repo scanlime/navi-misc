@@ -53,6 +53,8 @@ show_about_dialog (void)
 	};
 	const gchar *artists[] = {
 		"Micah Dowty <micah@navi.cx>",
+		"Andreas Nilsson <nisses.mail@home.se>",
+		"Lapo Calamandrei <lapo@it.gnome.org>",
 		NULL
 	};
 
