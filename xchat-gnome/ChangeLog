@@ -1,5 +1,17 @@
 2006-10-27  David Trowbridge  <trowbrds@gmail.com>
 
+	* configure.ac
+	D data/xchat-gnome-small.png
+	* data/icons/hicolor/Makefile.am
+	A data/icons/hicolor/128x128
+	A data/icons/hicolor/128x128/apps/Makefile.am
+	A data/icons/hicolor/128x128/apps
+	A data/icons/hicolor/128x128/apps/xchat-gnome.png
+	A data/icons/hicolor/128x128/Makefile.am
+	  - Might as well install the 128x128 logo into a icontheme dir.
+
+2006-10-27  David Trowbridge  <trowbrds@gmail.com>
+
 	* src/fe-gnome/main-window.c:
 	* data/icons/hicolor/22x22/apps/Makefile.am:
 	A data/icons/hicolor/22x22/apps/xchat-gnome-users.png:
