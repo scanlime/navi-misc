@@ -1,5 +1,10 @@
 2006-10-27  David Trowbridge  <trowbrds@gmail.com>
 
+	* configure.ac:
+	  - Bump to C99 on this branch too.
+
+2006-10-27  David Trowbridge  <trowbrds@gmail.com>
+
 	* src/fe-gnome/pixmaps.c:
 	* src/fe-gnome/pixmaps.h:
 	* src/fe-gnome/userlist.c:
