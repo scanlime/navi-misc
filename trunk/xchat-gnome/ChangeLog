@@ -1,5 +1,14 @@
 2006-10-27  David Trowbridge  <trowbrds@gmail.com>
 
+	* src/fe-gnome/preferences-page-dcc.c:
+	* data/Makefile.am:
+	A data/icons/hicolor/16x16/apps/xchat-gnome-dcc.png:
+	* data/icons/hicolor/16x16/apps/Makefile.am:
+	D data/dcc.png:
+	  - Move last icon into the icontheme dir.
+
+2006-10-27  David Trowbridge  <trowbrds@gmail.com>
+
 	* src/fe-gnome/migration.c:
 	  - Another possible crasher.
 

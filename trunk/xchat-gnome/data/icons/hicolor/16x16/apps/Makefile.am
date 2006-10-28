@@ -1,5 +1,6 @@
 icondir = $(datadir)/icons/hicolor/16x16/apps
 icon_DATA =					\
+	xchat-gnome-dcc.png			\
 	xchat-gnome-message-data.png		\
 	xchat-gnome-message-new.png		\
 	xchat-gnome-message-nickname-said.png	\

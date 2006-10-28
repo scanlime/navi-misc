@@ -4,7 +4,6 @@ xchat_gnome_DATA = 			\
 	channel-list.glade		\
 	connect-dialog.glade		\
 	dcc-window.glade		\
-	dcc.png				\
 	irc-network-editor.glade	\
 	message.wav			\
 	preferences-dialog.glade	\
