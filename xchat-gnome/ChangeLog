@@ -1,5 +1,10 @@
 2006-10-27  David Trowbridge  <trowbrds@gmail.com>
 
+	* src/fe-gnome/migration.c:
+	  - Another possible crasher.
+
+2006-10-27  David Trowbridge  <trowbrds@gmail.com>
+
 	* src/fe-gnome/pixmaps.c:
 	* src/fe-gnome/pixmaps.h:
 	* src/fe-gnome/userlist-gui.c:

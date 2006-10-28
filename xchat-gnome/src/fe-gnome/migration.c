@@ -50,7 +50,7 @@ check_version (guint major, guint minor, guint micro)
 		return 0;
 	}
 
-	guint effective[3];
+	guint effective[3] = {0, 0, 0};
 	guint result;
 
 	gchar **nbs = g_strsplit (version, ".", 0);
@@ -66,7 +66,7 @@ check_version (guint major, guint minor, guint micro)
 				effective[i] = atoi (nbs[i]);
 			}
 		} else {
-			effective[i] = 0;
+			break;
 		}
 	}
 	g_strfreev (nbs);
