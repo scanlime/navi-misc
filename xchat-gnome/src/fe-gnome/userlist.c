@@ -25,7 +25,6 @@
 #include <gtk/gtk.h>
 #include "userlist.h"
 #include "palette.h"
-#include "pixmaps.h"
 #include "gui.h"
 
 static void userlist_class_init (UserlistClass *klass);
@@ -112,7 +111,7 @@ create_userlist (Userlist *userlist, session *sess)
 {
 	Store *store = g_new (Store, 1);
 
-	store->liststore = gtk_list_store_new (4, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_POINTER, GDK_TYPE_COLOR);
+	store->liststore = gtk_list_store_new (4, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER, GDK_TYPE_COLOR);
 	store->completion = g_completion_new (NULL);
 	store->completion_items = NULL;
 
@@ -120,7 +119,7 @@ create_userlist (Userlist *userlist, session *sess)
 	return store;
 }
 
-static GdkPixbuf*
+static gchar*
 get_user_icon (struct server *serv, struct User *user)
 {
 	if (!user) {
@@ -128,9 +127,9 @@ get_user_icon (struct server *serv, struct User *user)
 	}
 
 	switch (user->prefix[0]) {
-	case '@': return pix_op;
-	case '%': return pix_hop;
-	case '+': return pix_voice;
+	case '@': return "xchat-gnome-status-operator";
+	case '%': return "xchat-gnome-status-halfop";
+	case '+': return "xchat-gnome-status-voice";
 	default:  return NULL;
 	}
 }
@@ -140,14 +139,13 @@ userlist_insert (Userlist *userlist, session *sess, struct User *newuser, int ro
 {
 	Store *store = (Store*) g_hash_table_lookup (userlist->stores, sess);
 	GtkTreeIter iter;
-	GdkPixbuf *icon;
 	GList *item;
 
 	if (!store) {
 		store = create_userlist (userlist, sess);
 	}
 
-	icon = get_user_icon (sess->server, newuser);
+	gchar *icon = get_user_icon (sess->server, newuser);
 
 	gtk_list_store_insert (store->liststore, &iter, row);
 	gtk_list_store_set (store->liststore, &iter, 0, icon, 1, newuser->nick, 2, newuser, 3, newuser->away ? &colors[40] : NULL, -1);
@@ -235,14 +233,13 @@ userlist_move (Userlist *userlist, session *sess, struct User *user, int new_row
 {
 	Store *store = g_hash_table_lookup (userlist->stores, sess);
 	GtkTreeIter *iter1, iter2;
-	GdkPixbuf *icon;
 
 	g_assert (store != NULL);
 
 	iter1 = find_user (store, user);
 	gtk_list_store_remove (store->liststore, iter1);
 
-	icon = get_user_icon (sess->server, user);
+	gchar *icon = get_user_icon (sess->server, user);
 
 	gtk_list_store_insert (store->liststore, &iter2, new_row);
 	gtk_list_store_set (store->liststore, &iter2, 0, icon, 1, user->nick, 2, user, 3, user->away ? &colors[40] : NULL, -1);

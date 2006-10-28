@@ -20,27 +20,8 @@
  */
 
 #include <config.h>
-#include <glib/gi18n.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
+#include <gtk/gtkicontheme.h>
 #include "pixmaps.h"
-#include "util.h"
-
-GdkPixbuf *pix_op;
-GdkPixbuf *pix_hop;
-GdkPixbuf *pix_voice;
-
-static GdkPixbuf *
-pixbuf_new_from_file (const gchar *file_name)
-{
-	GdkPixbuf *pixbuf;
-	gchar *path;
-
-	path = locate_data_file (file_name);
-	pixbuf = gdk_pixbuf_new_from_file (path, NULL);
-	g_free (path);
-
-	return pixbuf;
-}
 
 void
 pixmaps_init (void)
@@ -51,8 +32,4 @@ pixmaps_init (void)
 		gtk_icon_theme_prepend_search_path (theme, uninstalled_path);
 	}
 	g_free (uninstalled_path);
-
-	pix_op  = gtk_icon_theme_load_icon (theme, "xchat-gnome-status-operator", 16, 0, NULL);
-	pix_hop = gtk_icon_theme_load_icon (theme, "xchat-gnome-status-halfop", 16, 0, NULL);
-	pix_voice = pixbuf_new_from_file ("voice.png");
 }

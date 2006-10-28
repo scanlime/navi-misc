@@ -1,5 +1,17 @@
 2006-10-27  David Trowbridge  <trowbrds@gmail.com>
 
+	* src/fe-gnome/pixmaps.c:
+	* src/fe-gnome/pixmaps.h:
+	* src/fe-gnome/userlist-gui.c:
+	* src/fe-gnome/userlist.c:
+	D data/voice.png:
+	* data/Makefile.am:
+	A data/icons/hicolor/16x16/apps/xchat-gnome-status-voice.png:
+	* data/icons/hicolor/16x16/apps/Makefile.am:
+	  - Move (currently crapp) voice icon into the icon theme.
+
+2006-10-27  David Trowbridge  <trowbrds@gmail.com>
+
 	* configure.ac
 	D data/xchat-gnome-small.png
 	* data/icons/hicolor/Makefile.am
