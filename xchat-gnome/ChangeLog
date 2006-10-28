@@ -1,5 +1,11 @@
 2006-10-27  David Trowbridge  <trowbrds@gmail.com>
 
+	* src/fe-gnome/migration.c:
+	  - Fix a potential crasher with a null value in gconf during
+	    migration.
+
+2006-10-27  David Trowbridge  <trowbrds@gmail.com>
+
 	* configure.ac:
 	  - Bump to C99 on this branch too.
 
