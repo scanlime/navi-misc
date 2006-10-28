@@ -27,8 +27,6 @@
 
 GdkPixbuf *pix_op;
 GdkPixbuf *pix_hop;
-GdkPixbuf *pix_purple;
-GdkPixbuf *pix_red;
 GdkPixbuf *pix_voice;
 
 static GdkPixbuf *
@@ -56,7 +54,5 @@ pixmaps_init (void)
 
 	pix_op  = gtk_icon_theme_load_icon (theme, "xchat-gnome-status-operator", 16, 0, NULL);
 	pix_hop = gtk_icon_theme_load_icon (theme, "xchat-gnome-status-halfop", 16, 0, NULL);
-	pix_purple   = pixbuf_new_from_file ("purple.png");
-	pix_red      = pixbuf_new_from_file ("red.png");
-	pix_voice    = pixbuf_new_from_file ("voice.png");
+	pix_voice = pixbuf_new_from_file ("voice.png");
 }

@@ -24,15 +24,9 @@
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
-extern GdkPixbuf *pix_purple;
-extern GdkPixbuf *pix_red;
-extern GdkPixbuf *pix_op;
-extern GdkPixbuf *pix_hop;
 extern GdkPixbuf *pix_voice;
-
-extern GdkPixbuf *pix_newdata;
-extern GdkPixbuf *pix_nicksaid;
-extern GdkPixbuf *pix_msgsaid;
+extern GdkPixbuf *pix_hop;
+extern GdkPixbuf *pix_op;
 
 extern void pixmaps_init (void);
 
