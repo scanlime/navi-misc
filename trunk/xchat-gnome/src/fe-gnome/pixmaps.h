@@ -22,12 +22,6 @@
 #ifndef XCHAT_GNOME_PIXMAPS_H
 #define XCHAT_GNOME_PIXMAPS_H
 
-#include <gdk-pixbuf/gdk-pixbuf.h>
-
-extern GdkPixbuf *pix_voice;
-extern GdkPixbuf *pix_hop;
-extern GdkPixbuf *pix_op;
-
 extern void pixmaps_init (void);
 
 #endif

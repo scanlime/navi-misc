@@ -7,6 +7,7 @@ icon_DATA =					\
 	xchat-gnome-search-wrapped.png		\
 	xchat-gnome-status-halfop.png		\
 	xchat-gnome-status-operator.png		\
+	xchat-gnome-status-voice.png		\
 	xchat-gnome-users.png
 
 EXTRA_DIST = $(icon_DATA)

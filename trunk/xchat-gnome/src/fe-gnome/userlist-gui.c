@@ -93,7 +93,7 @@ initialize_userlist (void)
 	gtk_tree_view_set_hover_selection (GTK_TREE_VIEW (gui.userlist), TRUE);
 
 	icon_renderer = gtk_cell_renderer_pixbuf_new ();
-	icon_column = gtk_tree_view_column_new_with_attributes ("icon", icon_renderer, "pixbuf", 0, NULL);
+	icon_column = gtk_tree_view_column_new_with_attributes ("icon", icon_renderer, "icon-name", 0, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (gui.userlist), icon_column);
 	text_renderer = gtk_cell_renderer_text_new ();
 	text_column = gtk_tree_view_column_new_with_attributes ("name", text_renderer, "text", 1, "foreground-gdk", 3, NULL);
