@@ -1,5 +1,11 @@
 2006-10-27  David Trowbridge  <trowbrds@gmail.com>
 
+	D po/nl.po:
+	* po/LINGUAS:
+	  - Remove broken translation upon request from gnome-nl.
+
+2006-10-27  David Trowbridge  <trowbrds@gmail.com>
+
 	* data/icons/hicolor/22x22/apps/xchat-gnome-message-nickname-said.png:
 	A data/icons/hicolor/22x22/apps/xchat-gnome-status-halfop.svg:
 	A data/icons/hicolor/22x22/apps/xchat-gnome-message-new.svg:
