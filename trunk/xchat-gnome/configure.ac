@@ -436,6 +436,8 @@ data/icons/hicolor/22x22/Makefile
 data/icons/hicolor/22x22/apps/Makefile
 data/icons/hicolor/48x48/Makefile
 data/icons/hicolor/48x48/apps/Makefile
+data/icons/hicolor/128x128/Makefile
+data/icons/hicolor/128x128/apps/Makefile
 data/icons/hicolor/scalable/Makefile
 data/icons/hicolor/scalable/apps/Makefile
 help/Makefile
