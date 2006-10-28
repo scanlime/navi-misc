@@ -1,5 +1,15 @@
 2006-10-27  David Trowbridge  <trowbrds@gmail.com>
 
+	* src/fe-gnome/main-window.c:
+	* data/icons/hicolor/22x22/apps/Makefile.am:
+	A data/icons/hicolor/22x22/apps/xchat-gnome-users.png:
+	* data/icons/hicolor/16x16/apps/Makefile.am:
+	A data/icons/hicolor/16x16/apps/xchat-gnome-users.png:
+	  - Import the tango users icon into here, since the system icon theme
+	    doesn't have an icon with that name :(
+
+2006-10-27  David Trowbridge  <trowbrds@gmail.com>
+
 	* src/fe-gnome/preferences-page-plugins.c:
 	* src/fe-gnome/about.c:
 	* configure.ac:

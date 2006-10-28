@@ -280,11 +280,7 @@ initialize_main_window (void)
 	g_signal_connect (G_OBJECT (gui.userlist_toggle), "toggled", G_CALLBACK (on_users_toggled), NULL);
 
 	GtkIconTheme *theme = gtk_icon_theme_get_default ();
-	if (gtk_icon_theme_has_icon (theme, "system-config-users")) {
-		gtk_button_set_image (GTK_BUTTON (gui.userlist_toggle), gtk_image_new_from_icon_name ("system-config-users", GTK_ICON_SIZE_MENU));
-	} else if (gtk_icon_theme_has_icon (theme, "stock_people")) {
-		gtk_button_set_image (GTK_BUTTON (gui.userlist_toggle), gtk_image_new_from_icon_name ("stock_people", GTK_ICON_SIZE_MENU));
-	}
+	gtk_button_set_image (GTK_BUTTON (gui.userlist_toggle), gtk_image_new_from_icon_name ("xchat-gnome-users", GTK_ICON_SIZE_MENU));
 	gtk_size_group_add_widget (group, gui.userlist_toggle);
 	widget = glade_xml_get_widget (gui.xml, "entry hbox");
 	gtk_size_group_add_widget (group, widget);
