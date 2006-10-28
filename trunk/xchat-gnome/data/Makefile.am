@@ -7,7 +7,6 @@ xchat_gnome_DATA = 			\
 	dcc.png				\
 	irc-network-editor.glade	\
 	message.wav			\
-	plugin-manager.png		\
 	preferences-dialog.glade	\
 	setup-dialog.glade		\
 	topic-change.glade		\
