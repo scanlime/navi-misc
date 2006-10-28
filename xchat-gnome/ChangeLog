@@ -1,5 +1,24 @@
 2006-10-27  David Trowbridge  <trowbrds@gmail.com>
 
+	* src/fe-gnome/preferences-page-plugins.c:
+	* src/fe-gnome/about.c:
+	* configure.ac:
+	* data/Makefile.am:
+	D data/plugin-manager.png:
+	A data/icons/hicolor/22x22/apps/xchat-gnome-plugin.svg:
+	A data/icons/hicolor/22x22/apps/xchat-gnome-plugin.png:
+	A data/icons/hicolor/16x16/apps/xchat-gnome-plugin.svg:
+	A data/icons/hicolor/16x16/apps/xchat-gnome-plugin.png:
+	A data/icons/hicolor/scalable/Makefile.am:
+	A data/icons/hicolor/scalable:
+	A data/icons/hicolor/scalable/apps:
+	A data/icons/hicolor/scalable/apps/xchat-gnome-plugin.svg:
+	A data/icons/hicolor/scalable/apps/Makefile.am:
+	* data/icons/hicolor/Makefile.am:
+	  - Add Jones Lee's extension (plugin) icon
+
+2006-10-27  David Trowbridge  <trowbrds@gmail.com>
+
 	* src/fe-gnome/migration.c:
 	  - Fix a potential crasher with a null value in gconf during
 	    migration.

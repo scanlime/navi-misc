@@ -290,7 +290,7 @@ preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 	xchat_plugin *plugin;
 
 	const gchar *homedir;
-	gchar *xchatdir, *path;
+	gchar *xchatdir;
 
 #define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
 	GW(plugins_open);
@@ -307,9 +307,8 @@ preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 
 	gtk_widget_show (page->plugins_list);
 
-	path = locate_data_file ("plugin-manager.png");
-	page->icon = gdk_pixbuf_new_from_file (path, NULL);
-	g_free (path);
+	GtkIconTheme *theme = gtk_icon_theme_get_default ();
+	page->icon = gtk_icon_theme_load_icon (theme, "xchat-gnome-plugin", 16, 0, NULL);
 
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Scripts and Plugins"), 2, 5, -1);
