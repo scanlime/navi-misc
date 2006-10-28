@@ -41,16 +41,20 @@ run_migrations (void)
 static gint
 check_version (guint major, guint minor, guint micro)
 {
-	GConfClient *client;
-	gchar *version, **nbs;
-	guint effective[3], i, result;
 
-	client = gconf_client_get_default ();
-	version = gconf_client_get_string (client, "/apps/xchat/version", NULL);
+	GConfClient *client = gconf_client_get_default ();
+	gchar *version = gconf_client_get_string (client, "/apps/xchat/version", NULL);
 	g_object_unref (client);
 
-	nbs = g_strsplit (version, ".", 0);
-	for (i = 0; i < 3; i++) {
+	if (version == NULL) {
+		return 0;
+	}
+
+	guint effective[3];
+	guint result;
+
+	gchar **nbs = g_strsplit (version, ".", 0);
+	for (int i = 0; i < 3; i++) {
 		if (nbs[i]) {
 			if (g_str_has_suffix (nbs[i], "svn")) {
 				/* Remove "svn" */
