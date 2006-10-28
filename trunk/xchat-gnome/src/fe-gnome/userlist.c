@@ -123,41 +123,16 @@ create_userlist (Userlist *userlist, session *sess)
 static GdkPixbuf*
 get_user_icon (struct server *serv, struct User *user)
 {
-	char *pre;
-	int level;
-
 	if (!user) {
 		return NULL;
 	}
 
 	switch (user->prefix[0]) {
-	case '\0': return NULL;
-	case '@':  return pix_op;
-	case '%':  return pix_hop;
-	case '+':  return pix_voice;
+	case '@': return pix_op;
+	case '%': return pix_hop;
+	case '+': return pix_voice;
+	default:  return NULL;
 	}
-
-	/* find out how many levels above Operator this user is */
-	pre = strchr (serv->nick_prefixes, '@');
-	if (pre && pre != serv->nick_prefixes) {
-		pre--;
-		level = 0;
-		while (1) {
-			if (pre[0] == user->prefix[0]) {
-				switch (level) {
-				case 0: return pix_red;
-				case 1: return pix_purple;
-				}
-				break; /* 3+, no icons */
-			}
-			level++;
-			if (pre == serv->nick_prefixes) {
-				break;
-			}
-			pre--;
-		}
-	}
-	return NULL;
 }
 
 void

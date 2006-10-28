@@ -9,8 +9,6 @@ xchat_gnome_DATA = 			\
 	message.wav			\
 	plugin-manager.png		\
 	preferences-dialog.glade	\
-	purple.png			\
-	red.png				\
 	setup-dialog.glade		\
 	topic-change.glade		\
 	voice.png			\

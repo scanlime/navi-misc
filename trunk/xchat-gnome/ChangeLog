@@ -1,5 +1,16 @@
 2006-10-27  David Trowbridge  <trowbrds@gmail.com>
 
+	* src/fe-gnome/pixmaps.c:
+	* src/fe-gnome/pixmaps.h:
+	* src/fe-gnome/userlist.c:
+	* data/Makefile.am:
+	D data/purple.png:
+	D data/red.png:
+	  - No more owner/founder icons, since very few IRC servers use this
+	    anymore.
+
+2006-10-27  David Trowbridge  <trowbrds@gmail.com>
+
 	D po/nl.po:
 	* po/LINGUAS:
 	  - Remove broken translation upon request from gnome-nl.
