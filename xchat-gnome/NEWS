@@ -1,3 +1,7 @@
+0.15 "Because IRC is like the wild west" (28 October 2006)
+	* A couple important bugs fixed
+	* New themeable icons!
+
 0.14 "I dreamt I had to go to mars" (15 October 2006)
 	* No new features, just a mountain of bug fixes.
 	* Import Debian's manpage. Thanks to Marco Cabizza.
