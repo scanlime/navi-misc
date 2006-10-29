@@ -433,6 +433,9 @@ dcc_send_file (struct User *user)
 	GtkWidget *dialog;
 	GtkResponseType response;
 
+	if (user->nick == NULL)
+		return;
+
 	dialog = gtk_file_chooser_dialog_new (_("Send File..."),
 	                GTK_WINDOW (gui.main_window),
 	                GTK_FILE_CHOOSER_ACTION_OPEN,
