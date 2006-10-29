@@ -1,0 +1,19 @@
+<gconfschemafile>
+	<schemalist>
+		<schema>
+			<key>/schemas/apps/xchat/plugins/notification/level</key>
+			<applyto>/apps/xchat/plugins/notification/level</applyto>
+			<owner>xchat</owner>
+			<type>int</type>
+			<default>3</default>
+			<locale name="C">
+				<short>Level of the messages that require a notification</short>
+				<long>Messages are classified according to their importance. 
+				Select level of messages above which the notification icon will be displayed.
+				Valid values are: "0" (always displayed), "1" (all messages including information),
+				"2" (all channel messages), "3" (only private or highlighted messages).
+				</long>
+			</locale>
+		</schema>
+	</schemalist>
+</gconfschemafile>
