@@ -1,3 +1,9 @@
+2006-10-29  Guillaume Desmottes <cass@skynet.be>
+
+	A .bzrignore:
+	  - Add a bazaar ignore file for people using this
+	    VCS.
+
 2006-10-28  David Trowbridge  <trowbrds@gmail.com>
 
 	* configure.ac:
