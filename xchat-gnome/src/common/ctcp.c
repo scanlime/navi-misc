@@ -57,7 +57,6 @@ ctcp_check (session *sess, char *nick, char *word[], char *word_eol[],
 	int ret = 0;
 	char *po;
 	struct popup *pop;
-	GSList *list = ctcp_list;
 
 	po = strchr (ctcp, '\001');
 	if (po)
@@ -67,15 +66,13 @@ ctcp_check (session *sess, char *nick, char *word[], char *word_eol[],
 	if (po)
 		*po = 0;
 
-	while (list)
-	{
-		pop = (struct popup *) list->data;
+	for (GList *i = ctcp_list; i; i = g_list_next (i)) {
+		pop = (struct popup *) i->data;
 		if (!strcasecmp (ctcp, pop->name))
 		{
 			ctcp_reply (sess, nick, word, word_eol, pop->cmd);
 			ret = 1;
 		}
-		list = list->next;
 	}
 	return ret;
 }

@@ -29,6 +29,7 @@
 #include "text-entry.h"
 #include "userlist.h"
 #include "../common/outbound.h"
+#include "../common/xchatc.h"
 
 static void       text_entry_class_init        (TextEntryClass *klass);
 static void       text_entry_init              (TextEntry      *entry);
@@ -122,9 +123,7 @@ text_entry_init (TextEntry *entry)
 
 	/* Initialize & populate a GCompletion for commands */
 	entry->priv->command_completion = g_completion_new (NULL);
-	/* FIXME - need to convert command_list to a GList
 	g_completion_add_items (entry->priv->command_completion, command_list);
-	*/
 	for (i = 0; xc_cmds[i].name != NULL; i++) {
 		items = g_list_prepend (items, xc_cmds[i].name);
 	}
