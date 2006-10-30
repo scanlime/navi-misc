@@ -1,3 +1,15 @@
+2006-10-29  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/common/outbound.c:
+	* src/common/xchatc.h:
+	* src/common/cfgfiles.c:
+	* src/common/cfgfiles.h:
+	* src/common/xchat.c:
+	* src/common/ctcp.c:
+	* src/fe-gnome/text-entry.c:
+	  - Remove a bunch of code we're not using, convert a few things from
+	    GSList to GList, and make command tab-completion work.
+
 2006-10-29  Guillaume Desmottes <cass@skynet.be>
 
 	A .bzrignore:

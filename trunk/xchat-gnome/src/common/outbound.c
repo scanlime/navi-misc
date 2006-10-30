@@ -240,26 +240,6 @@ def:
 }
 
 static int
-cmd_addbutton (struct session *sess, char *tbuf, char *word[],
-					char *word_eol[])
-{
-	if (*word[2] && *word_eol[3])
-	{
-		if (sess->type == SESS_DIALOG)
-		{
-			list_addentry (&dlgbutton_list, word_eol[3], word[2]);
-			fe_dlgbuttons_update (sess);
-		} else
-		{
-			list_addentry (&button_list, word_eol[3], word[2]);
-			fe_buttons_update (sess);
-		}
-		return TRUE;
-	}
-	return FALSE;
-}
-
-static int
 cmd_allchannels (session *sess, char *tbuf, char *word[], char *word_eol[])
 {
 	GSList *list = sess_list;
@@ -910,26 +890,6 @@ cmd_debug (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 #endif  /* !MEMORY_DEBUG */
 
 	return TRUE;
-}
-
-static int
-cmd_delbutton (struct session *sess, char *tbuf, char *word[],
-					char *word_eol[])
-{
-	if (*word[2])
-	{
-		if (sess->type == SESS_DIALOG)
-		{
-			if (list_delentry (&dlgbutton_list, word[2]))
-				fe_dlgbuttons_update (sess);
-		} else
-		{
-			if (list_delentry (&button_list, word[2]))
-				fe_buttons_update (sess);
-		}
-		return TRUE;
-	}
-	return FALSE;
 }
 
 static int
@@ -2078,7 +2038,6 @@ cmd_help (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 {
 	int i = 0, longfmt = 0;
 	char *helpcmd = "";
-	GSList *list;
 
 	if (tbuf)
 		helpcmd = word[2];
@@ -2117,12 +2076,10 @@ cmd_help (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 		buf[2] = 0;
 		hl.t = 0;
 		hl.i = 0;
-		list = command_list;
-		while (list)
-		{
-			pop = list->data;
+
+		for (GList *i = command_list; i; i = g_list_next (i)) {
+			pop = i->data;
 			show_help_line (sess, &hl, pop->name, pop->cmd);
-			list = list->next;
 		}
 		strcat (buf, "\n");
 		PrintText (sess, buf);
@@ -3384,8 +3341,6 @@ cmd_voice (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 
 /* *MUST* be kept perfectly sorted for the bsearch to work */
 const struct commands xc_cmds[] = {
-	{"ADDBUTTON", cmd_addbutton, 0, 0, 1,
-	 N_("ADDBUTTON <name> <action>, adds a button under the user-list")},
 	{"ALLCHAN", cmd_allchannels, 0, 0, 1,
 	 N_("ALLCHAN <cmd>, sends a command to all channels you're in")},
 	{"ALLCHANL", cmd_allchannelslocal, 0, 0, 1,
@@ -3425,8 +3380,6 @@ const struct commands xc_cmds[] = {
 
 	{"DEHOP", cmd_dehop, 1, 1, 1,
 	 N_("DEHOP <nick>, removes chanhalf-op status from the nick on the current channel (needs chanop)")},
-	{"DELBUTTON", cmd_delbutton, 0, 0, 1,
-	 N_("DELBUTTON <name>, deletes a button from under the user-list")},
 	{"DEOP", cmd_deop, 1, 1, 1,
 	 N_("DEOP <nick>, removes chanop status from the nick on the current channel (needs chanop)")},
 	{"DEVOICE", cmd_devoice, 1, 1, 1,
@@ -4082,7 +4035,6 @@ handle_command (session *sess, char *cmd, int check_spch)
 {
 	struct popup *pop;
 	int user_cmd = FALSE;
-	GSList *list;
 	char *word[PDIWORDS];
 	char *word_eol[PDIWORDS];
 	static int command_level = 0;
@@ -4131,16 +4083,13 @@ handle_command (session *sess, char *cmd, int check_spch)
 		goto xit;
 
 	/* first see if it's a userCommand */
-	list = command_list;
-	while (list)
-	{
-		pop = (struct popup *) list->data;
+	for (GList *i = command_list; i; i = g_list_next (i)) {
+		pop = (struct popup *) i->data;
 		if (!strcasecmp (pop->name, word[1]))
 		{
 			user_command (sess, tbuf, pop->cmd, word, word_eol);
 			user_cmd = TRUE;
 		}
-		list = list->next;
 	}
 
 	if (user_cmd)

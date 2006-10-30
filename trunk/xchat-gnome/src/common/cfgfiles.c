@@ -39,7 +39,7 @@
 #define DEF_FONT "Monospace 9"
 
 void
-list_addentry (GSList ** list, char *cmd, char *name)
+list_addentry (GList ** list, char *cmd, char *name)
 {
 	struct popup *pop;
 	int cmd_len = 1, name_len;
@@ -58,13 +58,13 @@ list_addentry (GSList ** list, char *cmd, char *name)
 	else
 		pop->cmd[0] = 0;
 
-	*list = g_slist_append (*list, pop);
+	*list = g_list_prepend (*list, pop);
 }
 
 /* read it in from a buffer to our linked list */
 
 static void
-list_load_from_data (GSList ** list, char *ibuf, int size)
+list_load_from_data (GList ** list, char *ibuf, int size)
 {
 	char cmd[384];
 	char name[128];
@@ -94,10 +94,11 @@ list_load_from_data (GSList ** list, char *ibuf, int size)
 			}
 		}
 	}
+	*list = g_list_reverse (*list);
 }
 
 void
-list_loadconf (char *file, GSList ** list, char *defaultconf)
+list_loadconf (char *file, GList ** list, char *defaultconf)
 {
 	char filebuf[256];
 	char *ibuf;
@@ -128,7 +129,7 @@ list_loadconf (char *file, GSList ** list, char *defaultconf)
 }
 
 void
-list_free (GSList ** list)
+list_free (GList ** list)
 {
 	void *data;
 	while (*list)
@@ -140,17 +141,17 @@ list_free (GSList ** list)
 }
 
 int
-list_delentry (GSList ** list, char *name)
+list_delentry (GList ** list, char *name)
 {
 	struct popup *pop;
-	GSList *alist = *list;
+	GList *alist = *list;
 
 	while (alist)
 	{
 		pop = (struct popup *) alist->data;
 		if (!strcasecmp (name, pop->name))
 		{
-			*list = g_slist_remove (*list, pop);
+			*list = g_list_remove (*list, pop);
 			free (pop);
 			return 1;
 		}
