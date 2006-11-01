@@ -81,9 +81,6 @@ void *xchat_realloc (char *old, int len, char *file, int line);
 #define USERNAMELEN 10
 #define HIDDEN_CHAR	8			/* invisible character for xtext */
 
-#define safe_strcpy(dest,src,len)	{strncpy((dest),(src),(len)); \
-												(dest)[len-1] = 0;}
-
 #if defined(ENABLE_NLS) && !defined(_)
 #  include <libintl.h>
 #  define _(x) gettext(x)
@@ -389,7 +386,7 @@ typedef struct server
 	void (*p_action)(struct server *, char *channel, char *act);
 	void (*p_notice)(struct server *, char *channel, char *text);
 	void (*p_topic)(struct server *, char *channel, char *topic);
-	void (*p_list_channels)(struct server *, char *arg);
+	void (*p_list_channels)(struct server *, char *arg, int min_users);
 	void (*p_change_nick)(struct server *, char *new_nick);
 	void (*p_names)(struct server *, char *channel);
 	void (*p_ping)(struct server *, char *to, char *timestring);

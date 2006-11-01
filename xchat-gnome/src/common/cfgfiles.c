@@ -136,7 +136,7 @@ list_free (GList ** list)
 	{
 		data = (void *) (*list)->data;
 		free (data);
-		*list = g_slist_remove (*list, data);
+		*list = g_list_remove (*list, data);
 	}
 }
 

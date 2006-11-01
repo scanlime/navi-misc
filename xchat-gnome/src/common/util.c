@@ -273,7 +273,7 @@ path_part (char *file, char *path, int pathlen)
 }
 
 char *				/* like strstr(), but nocase */
-nocasestrstr (char *s, char *wanted)
+nocasestrstr (const char *s, const char *wanted)
 {
 	register const int len = strlen (wanted);
 
@@ -1655,4 +1655,41 @@ str_ihash (const unsigned char *key)
 			h = (h << 5) - h + rfc_tolowertab [(guint)*p];
 
 	return h;
+}
+
+/* features: 1. "src" must be valid, NULL terminated UTF-8 */
+/*           2. "dest" will be left with valid UTF-8 - no partial chars! */
+
+void
+safe_strcpy (char *dest, const char *src, int bytes_left)
+{
+	int mbl;
+
+	while (1)
+	{
+		mbl = g_utf8_skip[*((unsigned char *)src)];
+
+		if (bytes_left < (mbl + 1)) /* can't fit with NULL? */
+		{
+			*dest = 0;
+			break;
+		}
+
+		if (mbl == 1)	/* one byte char */
+		{
+			*dest = *src;
+			if (*src == 0)
+				break;	/* it all fit */
+			dest++;
+			src++;
+			bytes_left--;
+		}
+		else				/* multibyte char */
+		{
+			memcpy (dest, src, mbl);
+			dest += mbl;
+			src += mbl;
+			bytes_left -= mbl;
+		}
+	}
 }
