@@ -27,7 +27,7 @@ void for_files (char *dirname, char *mask, void callback (char *file));
 int rfc_casecmp (const char *, const char *);
 int rfc_ncasecmp (char *, char *, int);
 int buf_get_line (char *, char **, int *, int len);
-char *nocasestrstr (char *text, char *tofind);
+char *nocasestrstr (const char *text, const char *tofind);
 char *country (char *);
 void country_search (char *pattern, void *ud, void (*print)(void *, char *, ...));
 char *get_cpu_str (void);
@@ -47,5 +47,6 @@ int mkdir_utf8 (char *dir);
 int token_foreach (char *str, char sep, int (*callback) (char *str, void *ud), void *ud);
 guint32 str_hash (const char *key);
 guint32 str_ihash (const unsigned char *key);
+void safe_strcpy (char *dest, const char *src, int bytes_left);
 
 #endif

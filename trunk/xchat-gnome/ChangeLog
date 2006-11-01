@@ -1,3 +1,22 @@
+2006-11-01  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/common/outbound.c:
+	* src/common/ssl.c:
+	* src/common/servlist.c:
+	* src/common/dbus/CVS/Entries:
+	* src/common/util.c:
+	* src/common/proto-irc.c:
+	* src/common/cfgfiles.c:
+	* src/common/util.h:
+	* src/common/dcc.c:
+	* src/common/dcc.h:
+	* src/common/modes.c:
+	* src/common/xchat.c:
+	* src/common/CVS/Entries:
+	* src/common/xchat.h:
+	* src/fe-gnome/channel-list.c:
+	  - Sync from xchat CVS.
+
 2006-10-29  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/common/outbound.c:

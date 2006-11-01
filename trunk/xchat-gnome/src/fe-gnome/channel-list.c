@@ -149,7 +149,8 @@ chanlist_refresh (GtkWidget *button, channel_list_window *win)
 	filter = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
 	store = gtk_tree_model_filter_get_model (GTK_TREE_MODEL_FILTER (filter));
 	gtk_list_store_clear (GTK_LIST_STORE (store));
-	win->server->p_list_channels (win->server, "");
+	// FIXME: use min-users to optimize?
+	win->server->p_list_channels (win->server, "", 1);
 	win->empty = TRUE;
 
 	gtk_widget_set_sensitive (button, FALSE);
