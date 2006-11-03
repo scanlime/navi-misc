@@ -21,6 +21,8 @@
 #include <dswifi7.h>
 
 void SetLedState(int state);  // In dswifi's arm7 portion
+void Wifi_Stop();
+void Wifi_Shutdown();
 
 
 //---------------------------------------------------------------------------------
@@ -181,15 +183,17 @@ int main(int argc, char ** argv) {
     if (*(vuint32*)0x027FFE24 == 0x027FFE08) {
       uint32 addr;
 
-      /* Disable IRQs */
-      REG_IME = 0;
-      REG_IF = 0;
+      /* Turn off the wifi */
+      Wifi_Stop();
+      Wifi_Shutdown();
+      POWER_CR = 1;
 
       /* Stop blinking the LED */
       SetLedState(0);
 
-      /* Turn off the wifi */
-      POWER_CR = 1;
+      /* Disable IRQs */
+      REG_IME = 0;
+      REG_IF = 0;
       
       /* Zero out sound registers */
       for (addr = 0x04000400; addr <= 0x04000500; addr += 4) {
