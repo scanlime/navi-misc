@@ -74,8 +74,9 @@ void arm7_reboot()
     /* Stop blinking the LED */
     SetLedState(0);
 
-    /* Default backlight state */
-    writePowerManagement(0, PM_BACKLIGHT_TOP | PM_BACKLIGHT_BOTTOM);
+    /* Default power management state? */
+    writePowerManagement(0, PM_SOUND_PWR | PM_SOUND_VOL | 
+			 PM_BACKLIGHT_TOP | PM_BACKLIGHT_BOTTOM);
 
     /* Disable IRQs */
     REG_IME = 0;
