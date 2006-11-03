@@ -74,6 +74,9 @@ void arm7_reboot()
     /* Stop blinking the LED */
     SetLedState(0);
 
+    /* Default backlight state */
+    writePowerManagement(0, PM_BACKLIGHT_TOP | PM_BACKLIGHT_BOTTOM);
+
     /* Disable IRQs */
     REG_IME = 0;
     REG_IF = 0;
@@ -113,6 +116,9 @@ int main()
 {
     irqInit();
     REG_IPC_FIFO_CR = IPC_FIFO_ENABLE | IPC_FIFO_SEND_CLEAR;
+
+    /* We're using the top screen only */
+    writePowerManagement(0, PM_BACKLIGHT_TOP);
 
     /*
      * Initialize interrupts that can occur before Wifi is ready
