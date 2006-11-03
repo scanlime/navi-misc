@@ -94,6 +94,21 @@ void arm7_reboot()
     swiSoftReset();
 }
 
+void vblank_irq_handler()
+{
+    Wifi_Update();
+    IPC->buttons = REG_KEYXY;
+    IPC->heartbeat++;
+
+    /*
+     * If the ARM9 is stuck in its reboot loop,
+     * begin the ARM7's half of the reboot process.
+     */
+    if (BOOT_NDS_HEADER->arm9_execAddr == (void*) &BOOT_NDS_HEADER->arm9_loop) {
+	arm7_reboot();
+    }
+}
+
 int main()
 {
     irqInit();
@@ -102,7 +117,7 @@ int main()
     /*
      * Initialize interrupts that can occur before Wifi is ready
      */
-    irqSet(IRQ_VBLANK, Wifi_Update);
+    irqSet(IRQ_VBLANK, vblank_irq_handler);
     irqEnable(IRQ_VBLANK);
     irqSet(IRQ_WIFI, Wifi_Interrupt);
     irqEnable(IRQ_WIFI);
@@ -125,18 +140,11 @@ int main()
      */
     Wifi_SetSyncHandler(wifi_sync_handler);
 
+    /*
+     * Main loop. Everything from now on happens via an IRQ handler.
+     */
     while (1) {
 	swiWaitForVBlank();
-
-	IPC->buttons = REG_KEYXY;
-
-	/*
-	 * If the ARM9 is stuck in its reboot loop,
-	 * begin the ARM7's half of the reboot process.
-	 */
-	if (BOOT_NDS_HEADER->arm9_execAddr == (void*) &BOOT_NDS_HEADER->arm9_loop) {
-	    arm7_reboot();
-	}
     }
 }
 
