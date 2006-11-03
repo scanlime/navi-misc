@@ -169,6 +169,10 @@ void arm9_reboot(void)
     REG_IME = 0;
     REG_IF = 0;
 
+    /* A little video resetting */
+    videoSetMode(0);
+    videoSetModeSub(0);
+
     /*
      * Initialize the ARM9 loop.
      * Our ARM7 is polling for this- as soon as we set the
