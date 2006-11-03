@@ -73,23 +73,19 @@ void fifo_irq_handler()
     }
 }
 
+void vblank_irq_handler()
+{
+    Wifi_Update();
+}
+
 void video_init()
 {
     powerSET(POWER_LCD | POWER_2D_B);
-    lcdMainOnTop();
+    lcdMainOnBottom();
     videoSetMode(0);
     consoleDemoInit();
 
     iprintf("Wifi EZ4 Loader\nMicah Dowty <micah@navi.cx>\n\n");
-}
-
-void idle()
-{
-    /* Wait for vertical blanking */
-    while (REG_VCOUNT > 192);
-    while (REG_VCOUNT < 192);
-
-    /* Nothing else to do yet... */
 }
 
 void wifi_init()
@@ -102,11 +98,13 @@ void wifi_init()
      */
     REG_IPC_FIFO_TX = IPC_MSG_WIFI_INIT;
     REG_IPC_FIFO_TX = Wifi_Init(WIFIINIT_OPTION_USELED);
- 	
+
     /* Disable TIMER3 before setting up its IRQ handler */
     TIMER3_CR = 0;
 
     irqInit(); 
+    irqSet(IRQ_VBLANK, vblank_irq_handler);
+    irqEnable(IRQ_VBLANK);
     irqSet(IRQ_TIMER3, wifi_timer_handler);
     irqEnable(IRQ_TIMER3);
     irqSet(IRQ_FIFO_NOT_EMPTY, fifo_irq_handler);
@@ -121,7 +119,7 @@ void wifi_init()
 
     /* Poll for the ARM7 init to finish */
     while (!Wifi_CheckInit()) {
-	idle();
+	swiWaitForVBlank();
     }
 }
 
@@ -221,7 +219,7 @@ int main(void)
 	if (conn >= 0) {
 	    break;
 	}
-	idle();
+	swiWaitForVBlank();
     }
     ioctl(conn, FIONBIO, &nonblock);
     iprintf("Accepted %d.%d.%d.%d:%d\n",
@@ -242,7 +240,7 @@ int main(void)
 	    break;
 	}
 	if (result < 0) {
-	    idle();
+	    swiWaitForVBlank();
 	    continue;
 	}
 
