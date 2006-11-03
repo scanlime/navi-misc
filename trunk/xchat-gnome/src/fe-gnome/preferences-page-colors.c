@@ -30,6 +30,8 @@
 #include "xtext.h"
 #include "util.h"
 
+G_DEFINE_TYPE(PreferencesPageColors, preferences_page_colors, PREFERENCES_PAGE_TYPE)
+
 static int scheme;
 
 static void
@@ -110,7 +112,7 @@ set_palette_buttons (int selection, GtkWidget **palette_buttons)
 }
 
 static void
-colors_changed (GtkComboBox *combo_box, PreferencesColorsPage *page)
+colors_changed (GtkComboBox *combo_box, PreferencesPageColors *page)
 {
 	int i, selection;
 	GConfClient *client;
@@ -153,7 +155,7 @@ gconf_show_colors_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry
 }
 
 static void
-gconf_color_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, PreferencesColorsPage *page)
+gconf_color_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, PreferencesPageColors *page)
 {
 	int selection;
 	selection = gconf_client_get_int (client, entry->key, NULL);
@@ -164,10 +166,10 @@ gconf_color_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, Pref
 	set_palette_buttons (selection, page->palette_buttons);
 }
 
-PreferencesColorsPage *
+PreferencesPageColors *
 preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 {
-	PreferencesColorsPage *page = g_new0 (PreferencesColorsPage, 1);
+	PreferencesPageColors *page = g_object_new (PREFERENCES_PAGE_COLORS_TYPE, NULL);
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
 	GtkSizeGroup *group;
 	GtkTreeIter iter;
@@ -245,10 +247,10 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	g_signal_connect (G_OBJECT (page->color_buttons[2]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (34));
 	g_signal_connect (G_OBJECT (page->color_buttons[3]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (35));
 
-	page->icon = gtk_widget_render_icon (page->show_colors, GTK_STOCK_SELECT_COLOR, GTK_ICON_SIZE_MENU, NULL);
+	PREFERENCES_PAGE (page)->icon = gtk_widget_render_icon (page->show_colors, GTK_STOCK_SELECT_COLOR, GTK_ICON_SIZE_MENU, NULL);
 
 	gtk_list_store_append (p->page_store, &iter);
-	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Colors"), 2, 1, -1);
+	gtk_list_store_set (p->page_store, &iter, 0, PREFERENCES_PAGE (page)->icon, 1, _("Colors"), 2, 1, -1);
 
 	page->combo = gtk_combo_box_new_text ();
 	gtk_combo_box_append_text (GTK_COMBO_BOX (page->combo), _("Black on White"));
@@ -274,9 +276,23 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	return page;
 }
 
-void
-preferences_page_colors_free (PreferencesColorsPage *page)
+static void
+preferences_page_colors_init (PreferencesPageColors *page)
 {
+}
+
+static void
+preferences_page_colors_dispose (GObject *object)
+{
+	//PreferencesPageColors *page = (PreferencesPageColors *) object;
+
+	G_OBJECT_CLASS (preferences_page_colors_parent_class)->dispose (object);
+}	
+
+static void
+preferences_page_colors_finalize (GObject *object)
+{
+	PreferencesPageColors *page = (PreferencesPageColors *) object;
 	gint i;
 	GConfClient *client;
 
@@ -285,6 +301,15 @@ preferences_page_colors_free (PreferencesColorsPage *page)
 		gconf_client_notify_remove (client, page->nh[i]);
 	}
 	g_object_unref (client);
-	g_object_unref (page->icon);
-	g_free (page);
+
+	G_OBJECT_CLASS (preferences_page_colors_parent_class)->finalize (object);
+}
+
+static void
+preferences_page_colors_class_init (PreferencesPageColorsClass *klass)
+{
+	GObjectClass *object_class = (GObjectClass *) klass;
+
+	object_class->dispose = preferences_page_colors_dispose;
+	object_class->finalize = preferences_page_colors_finalize;
 }

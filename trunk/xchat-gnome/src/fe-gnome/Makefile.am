@@ -71,6 +71,8 @@ xchat_gnome_SOURCES =				\
 	preferences-page-plugins.h		\
 	preferences-page-spellcheck.c		\
 	preferences-page-spellcheck.h		\
+	preferences-page.h			\
+	preferences-page.c			\
 	preferences.c				\
 	preferences.h				\
 	setup-dialog.c				\

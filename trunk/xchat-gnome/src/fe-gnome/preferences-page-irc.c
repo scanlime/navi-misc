@@ -31,6 +31,8 @@
 #include "util.h"
 #include "conversation-panel.h"
 
+G_DEFINE_TYPE(PreferencesPageIrc, preferences_page_irc, PREFERENCES_PAGE_TYPE)
+
 extern struct xchatprefs prefs;
 
 static void
@@ -106,13 +108,13 @@ gconf_font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, GtkFo
 }
 
 static void
-sysfonts_changed (GtkToggleButton *toggle, PreferencesIrcPage *page)
+sysfonts_changed (GtkToggleButton *toggle, PreferencesPageIrc *page)
 {
 	gtk_widget_set_sensitive (page->font_selection, !gtk_toggle_button_get_active (toggle));
 }
 
 static void
-highlight_selection_changed (GtkTreeSelection *select, PreferencesIrcPage *page)
+highlight_selection_changed (GtkTreeSelection *select, PreferencesPageIrc *page)
 {
 	if (gtk_tree_selection_get_selected (select, NULL, NULL)) {
 		gtk_widget_set_sensitive (page->highlight_edit, TRUE);
@@ -124,7 +126,7 @@ highlight_selection_changed (GtkTreeSelection *select, PreferencesIrcPage *page)
 }
 
 static void
-save_highlight (PreferencesIrcPage *page)
+save_highlight (PreferencesPageIrc *page)
 {
 	GtkTreeIter iter;
 	gchar *highlight, *tmp1, *tmp2;
@@ -146,7 +148,7 @@ save_highlight (PreferencesIrcPage *page)
 }
 
 static void
-highlight_add (GtkButton *button, PreferencesIrcPage *page)
+highlight_add (GtkButton *button, PreferencesPageIrc *page)
 {
 	GtkTreeIter iter;
 	GtkTreePath *path;
@@ -158,7 +160,7 @@ highlight_add (GtkButton *button, PreferencesIrcPage *page)
 }
 
 static void
-highlight_edit (GtkButton *button, PreferencesIrcPage *page)
+highlight_edit (GtkButton *button, PreferencesPageIrc *page)
 {
 	GtkTreeSelection *select;
 	GtkTreeIter iter;
@@ -174,7 +176,7 @@ highlight_edit (GtkButton *button, PreferencesIrcPage *page)
 }
 
 static void
-highlight_remove (GtkButton *button, PreferencesIrcPage *page)
+highlight_remove (GtkButton *button, PreferencesPageIrc *page)
 {
 	GtkTreeSelection *select;
 	GtkTreeIter iter;
@@ -188,7 +190,7 @@ highlight_remove (GtkButton *button, PreferencesIrcPage *page)
 }
 
 static void
-highlight_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *newtext, PreferencesIrcPage *page)
+highlight_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *newtext, PreferencesPageIrc *page)
 {
 	GtkTreeSelection *selection;
 	GtkTreeModel *model;
@@ -206,7 +208,7 @@ highlight_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *newtext, Pr
 }
 
 static void
-highlight_canceled (GtkCellRendererText *renderer, PreferencesIrcPage *page)
+highlight_canceled (GtkCellRendererText *renderer, PreferencesPageIrc *page)
 {
 	GtkTreeSelection *selection;
 	GtkTreeModel *model;
@@ -263,14 +265,14 @@ show_marker_changed (GtkToggleButton *button, gpointer data)
 	}
 }
 
-PreferencesIrcPage *
+PreferencesPageIrc*
 preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 {
-	PreferencesIrcPage *page = g_new0 (PreferencesIrcPage, 1);
+	PreferencesPageIrc *page = g_object_new (PREFERENCES_PAGE_IRC_TYPE, NULL);
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
 	GtkTreeIter iter;
 	GtkCellRenderer *renderer;
-	gchar *text, *path;
+	gchar *text;
 	gboolean toggle;
 	GtkTreeSelection *select;
 	gchar **highlight_entries;
@@ -298,10 +300,10 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 #undef GW
 
 	GtkIconTheme *theme = gtk_icon_theme_get_default ();
-	page->icon = gtk_icon_theme_load_icon (theme, "preferences-system", 16, 0, NULL);
+	PREFERENCES_PAGE (page)->icon = gtk_icon_theme_load_icon (theme, "preferences-system", 16, 0, NULL);
 
 	gtk_list_store_append (p->page_store, &iter);
-	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("IRC Preferences"), 2, 0, -1);
+	gtk_list_store_set (p->page_store, &iter, 0, PREFERENCES_PAGE (page)->icon, 1, _("IRC Preferences"), 2, 0, -1);
 
 	g_signal_connect (G_OBJECT (page->nick_name),        "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/nickname");
 	g_signal_connect (G_OBJECT (page->real_name),        "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/realname");
@@ -409,9 +411,29 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	return page;
 }
 
-void
-preferences_page_irc_free (PreferencesIrcPage *page)
+static void
+preferences_page_irc_init (PreferencesPageIrc *page)
 {
+}
+
+static void
+preferences_page_irc_dispose (GObject *object)
+{
+	PreferencesPageIrc *page = (PreferencesPageIrc *) object;
+
+	if (page->highlight_store)
+	{
+		g_object_unref (page->highlight_store);
+		page->highlight_store = NULL;
+	}
+
+	G_OBJECT_CLASS (preferences_page_irc_parent_class)->dispose (object);
+}
+
+static void
+preferences_page_irc_finalize (GObject *object)
+{
+	PreferencesPageIrc *page = (PreferencesPageIrc *) object;
 	gint i;
 	GConfClient *client;
 
@@ -419,9 +441,17 @@ preferences_page_irc_free (PreferencesIrcPage *page)
 	for (i = 0; i < 8; i++) {
 		gconf_client_notify_remove (client, page->nh[i]);
 	}
+
 	g_object_unref (client);
 
-	g_object_unref (page->highlight_store);
-	g_object_unref (page->icon);
-	g_free (page);
+	G_OBJECT_CLASS (preferences_page_irc_parent_class)->finalize (object);
+}
+
+static void
+preferences_page_irc_class_init (PreferencesPageIrcClass *klass)
+{
+	GObjectClass *object_class = (GObjectClass *) klass;
+
+	object_class->dispose = preferences_page_irc_dispose;
+	object_class->finalize = preferences_page_irc_finalize;
 }

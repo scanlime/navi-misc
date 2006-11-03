@@ -20,6 +20,7 @@
  */
 
 #include "gui.h"
+#include "preferences-page.h"
 
 #ifndef XCHAT_GNOME_PREFERENCES_PAGE_PLUGINS_H
 #define XCHAT_GNOME_PREFERENCES_PAGE_PLUGINS_H
@@ -28,7 +29,7 @@ G_BEGIN_DECLS
 
 typedef struct _PreferencesPagePlugins      PreferencesPagePlugins;
 typedef struct _PreferencesPagePluginsClass PreferencesPagePluginsClass;
-#define PREFERENCES_PAGE_PLUGINS_TYPE            (preferences_plugins_page_get_type ());
+#define PREFERENCES_PAGE_PLUGINS_TYPE            (preferences_page_plugins_get_type ())
 #define PREFERENCES_PAGE_PLUGINS(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), PREFERENCES_PAGE_PLUGINS_TYPE, PreferencesPagePlugins))
 #define PREFERENCES_PAGE_PLUGINS_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), PREFERENCES_PAGE_PLUGINS_TYPE, PreferencesPagePluginsClass))
 #define IS_PREFERENCES_PAGE_PLUGINS(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), PREFERENCES_PAGE_PLUGINS_TYPE))
@@ -36,7 +37,7 @@ typedef struct _PreferencesPagePluginsClass PreferencesPagePluginsClass;
 
 struct _PreferencesPagePlugins 
 {
-	GObject parent;
+	PreferencesPage parent;
 
 	GtkWidget *plugins_list;
 	GtkWidget *plugins_open;
@@ -45,17 +46,23 @@ struct _PreferencesPagePlugins
 	GtkListStore *plugin_store;
 	GtkCellRenderer *text_renderer, *load_renderer;
 	GtkTreeViewColumn *text_column, *load_column;
-
-	GdkPixbuf *icon;
 };
 
 struct _PreferencesPagePluginsClass
 {
-	GObjectClass parent_class;
+	PreferencesPageClass parent_class;
+
+	/* signals */
+	void (* new_plugin_page)		(PreferencesPagePlugins *page,
+						 PreferencesPage *page_plugin);
+	void (* remove_plugin_page)		(PreferencesPagePlugins *page,
+						 gchar *plugin_name);
+
 };
 
 GType              	preferences_page_plugins_get_type (void) G_GNUC_CONST;
 PreferencesPagePlugins* preferences_page_plugins_new  (gpointer prefs_dialog, GladeXML *xml);
+void			preferences_page_plugins_check_plugins (PreferencesPagePlugins *page);
 
 G_END_DECLS
 

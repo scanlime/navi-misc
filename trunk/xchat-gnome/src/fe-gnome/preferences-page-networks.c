@@ -30,12 +30,14 @@
 #include "../common/xchat.h"
 #include "../common/servlist.h"
 
+G_DEFINE_TYPE(PreferencesPageNetworks, preferences_page_networks, PREFERENCES_PAGE_TYPE)
+
 /*******************************************************************************
  * CRUFT BARRIER ***************************************************************
  *******************************************************************************/
 
 static void
-populate (PreferencesNetworksPage *page)
+populate (PreferencesPageNetworks *page)
 {
 	GtkTreeIter iter;
 	ircnet *net;
@@ -54,7 +56,7 @@ populate (PreferencesNetworksPage *page)
 }
 
 static void
-add_clicked (GtkWidget *button, PreferencesNetworksPage *page)
+add_clicked (GtkWidget *button, PreferencesPageNetworks *page)
 {
 	IrcNetwork *n;
 	IrcNetworkEditor *e;
@@ -68,7 +70,7 @@ add_clicked (GtkWidget *button, PreferencesNetworksPage *page)
 }
 
 static void
-edit_clicked (GtkWidget *button, PreferencesNetworksPage *page)
+edit_clicked (GtkWidget *button, PreferencesPageNetworks *page)
 {
 	IrcNetwork *n;
 	IrcNetworkEditor *e;
@@ -92,7 +94,7 @@ edit_clicked (GtkWidget *button, PreferencesNetworksPage *page)
 }
 
 static void
-edit_activated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, PreferencesNetworksPage *page)
+edit_activated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, PreferencesPageNetworks *page)
 {
 	GtkTreeIter iter;
 	if (gtk_tree_model_get_iter (GTK_TREE_MODEL (page->sort_model), &iter, path)) {
@@ -101,7 +103,7 @@ edit_activated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *col
 }
 
 static void
-remove_clicked (GtkWidget *button, PreferencesNetworksPage *page)
+remove_clicked (GtkWidget *button, PreferencesPageNetworks *page)
 {
 	GtkTreeSelection *select;
 	GtkTreeIter iter;
@@ -133,7 +135,7 @@ remove_clicked (GtkWidget *button, PreferencesNetworksPage *page)
 }
 
 static void
-selection_changed (GtkTreeSelection *selection, PreferencesNetworksPage *page)
+selection_changed (GtkTreeSelection *selection, PreferencesPageNetworks *page)
 {
 	if (gtk_tree_selection_get_selected (selection, NULL, NULL)) {
 		gtk_widget_set_sensitive (page->network_edit, TRUE);
@@ -144,10 +146,10 @@ selection_changed (GtkTreeSelection *selection, PreferencesNetworksPage *page)
 	}
 }
 
-PreferencesNetworksPage *
+PreferencesPageNetworks *
 preferences_page_networks_new (gpointer prefs_dialog, GladeXML *xml)
 {
-	PreferencesNetworksPage *page = g_new0 (PreferencesNetworksPage, 1);
+	PreferencesPageNetworks *page = g_object_new (PREFERENCES_PAGE_NETWORKS_TYPE, NULL);
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
 	GtkTreeIter iter;
 	GtkCellRenderer *renderer;
@@ -164,10 +166,10 @@ preferences_page_networks_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_widget_set_sensitive (page->network_edit, FALSE);
 	gtk_widget_set_sensitive (page->network_remove, FALSE);
 
-	page->icon = gtk_widget_render_icon (page->network_edit, GTK_STOCK_NETWORK, GTK_ICON_SIZE_MENU, NULL);
+	PREFERENCES_PAGE (page)->icon = gtk_widget_render_icon (page->network_edit, GTK_STOCK_NETWORK, GTK_ICON_SIZE_MENU, NULL);
 
 	gtk_list_store_append (p->page_store, &iter);
-	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Networks"), 2, 4, -1);
+	gtk_list_store_set (p->page_store, &iter, 0, PREFERENCES_PAGE (page)->icon, 1, _("Networks"), 2, 4, -1);
 
 	page->network_store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_POINTER);
 	page->sort_model = GTK_TREE_MODEL_SORT (gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (page->network_store)));
@@ -192,11 +194,33 @@ preferences_page_networks_new (gpointer prefs_dialog, GladeXML *xml)
 	return page;
 }
 
-void
-preferences_page_networks_free (PreferencesNetworksPage *page)
+static void
+preferences_page_networks_init (PreferencesPageNetworks *page)
 {
-	g_object_unref (page->icon);
-	g_object_unref (page->sort_model);
-	g_object_unref (page->network_store);
-	g_free (page);
+}
+
+static void
+preferences_page_networks_dispose (GObject *object)
+{
+	PreferencesPageNetworks *page = (PreferencesPageNetworks *) object;
+
+	if (page->sort_model) {
+		g_object_unref (page->sort_model);
+		page->sort_model = NULL;
+	}
+
+	if (page->network_store) {
+		g_object_unref (page->network_store);
+		page->network_store = NULL;
+	}
+ 
+	G_OBJECT_CLASS (preferences_page_networks_parent_class)->dispose (object);
+}	
+
+static void
+preferences_page_networks_class_init (PreferencesPageNetworksClass *klass)
+{
+	GObjectClass *object_class = (GObjectClass *) klass;
+
+	object_class->dispose = preferences_page_networks_dispose;
 }

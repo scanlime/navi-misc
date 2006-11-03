@@ -20,12 +20,25 @@
  */
 
 #include "gui.h"
+#include "preferences-page.h"
 
 #ifndef XCHAT_GNOME_PREFERENCES_PAGE_EFFECTS_H
 #define XCHAT_GNOME_PREFERENCES_PAGE_EFFECTS_H
 
-typedef struct
+G_BEGIN_DECLS
+
+typedef struct _PreferencesPageEffects      PreferencesPageEffects;
+typedef struct _PreferencesPageEffectsClass PreferencesPageEffectsClass;
+#define PREFERENCES_PAGE_EFFECTS_TYPE            (preferences_page_effects_get_type ())
+#define PREFERENCES_PAGE_EFFECTS(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), PREFERENCES_PAGE_EFFECTS_TYPE, PreferencesPageEffects))
+#define PREFERENCES_PAGE_EFFECTS_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), PREFERENCES_PAGE_EFFECTS_TYPE, PreferencesPageEffectsClass))
+#define IS_PREFERENCES_PAGE_EFFECTS(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), PREFERENCES_PAGE_EFFECTS_TYPE))
+#define IS_PREFERENCES_PAGE_EFFECTS_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), PREFERENCES_PAGE_EFFECTS_TYPE))
+
+struct _PreferencesPageEffects
 {
+	PreferencesPage parent;
+
 	GtkWidget *background_none;
 	GtkWidget *background_image;
 	GtkWidget *background_transparent;
@@ -33,13 +46,18 @@ typedef struct
 	GtkWidget *background_transparency;
 	GtkWidget *image_preview;
 
-	GdkPixbuf *icon;
-
 	/* gconf notification handlers */
 	guint nh[3];
-} PreferencesEffectsPage;
+};
 
-PreferencesEffectsPage *preferences_page_effects_new  (gpointer prefs_dialog, GladeXML *xml);
-void                    preferences_page_effects_free (PreferencesEffectsPage *page);
+struct _PreferencesPageEffectsClass
+{
+	PreferencesPageClass parent_class;
+};
+
+GType              	preferences_page_effects_get_type (void) G_GNUC_CONST;
+PreferencesPageEffects* preferences_page_effects_new  (gpointer prefs_dialog, GladeXML *xml);
+
+G_END_DECLS
 
 #endif

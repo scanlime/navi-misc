@@ -1,3 +1,40 @@
+2006-11-02  Guillaume Desmottes <cass@skynet.be>
+
+	A src/fe-gnome/preferences-page.c:
+	A src/fe-gnome/preferences-page.h:
+	* src/fe-gnome/preferences-page-dcc.c:
+	* src/fe-gnome/preferences-page-dcc.h:
+	* src/fe-gnome/preferences-page-irc.c:
+	* src/fe-gnome/preferences-page-irc.h:
+	* src/fe-gnome/preferences-page-colors.c:
+	* src/fe-gnome/preferences-page-colors.h:
+	* src/fe-gnome/preferences-page-networks.c:
+	* src/fe-gnome/preferences-page-spellcheck.c:
+	* src/fe-gnome/preferences-page-networks.h:
+	* src/fe-gnome/preferences-page-spellcheck.h:
+	* src/fe-gnome/preferences-page-effects.c:
+	* src/fe-gnome/preferences-page-effects.h
+	* src/fe-gnome/Makefile.am:
+	  - GObjectize preferences pages.
+	  - Make them inherit from PreferencesPage.
+
+	* src/fe-gnome/preferences-page-plugins.c:
+	* src/fe-gnome/preferences-page-plugins.h:
+	* src/fe-gnome/preferences-dialog.c:
+	* src/fe-gnome/preferences-dialog.h:
+	  - Add the ability to plugins to have their own
+	    preferences page. (#321325)
+
+	A plugins/notification/preferences-notification.glade:
+	A plugins/notification/preferences-page-plugin-notification.h:
+	A plugins/notification/preferences-page-plugin-notification.c:
+	* plugins/notification/TODO:
+	* plugins/notification/notification.c:
+	* plugins/notification/Makefile.am:
+	* NEWS:
+	* po/POTFILES.in:
+	  - Add a preference page to configure the level of notification.
+
 2006-11-01  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/common/outbound.c:

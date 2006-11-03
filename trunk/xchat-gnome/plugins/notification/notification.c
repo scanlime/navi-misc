@@ -32,6 +32,7 @@
 #include "plugins.h"
 #include "xchat-plugin.h"
 #include "xg-plugin.h"
+#include "preferences-page-plugin-notification.h"
 
 #define NOTIFICATION_VERSION "0.1"
 
@@ -39,6 +40,8 @@ void xchat_plugin_get_info   (char **plugin_name, char **plugin_desc, char **plu
 int  xchat_plugin_init       (xchat_plugin *plugin_handle, char **plugin_name, char **plugin_desc, char **plugin_version, char *arg);
 int  xchat_plugin_deinit     (void);
 int  xchat_gnome_plugin_init (xchat_gnome_plugin *xg_plugin);
+PreferencesPage* xchat_plugin_get_preferences_page (void);
+
 
 /* Enumerated type of different status levels. */
 typedef enum
@@ -135,6 +138,12 @@ status_icon_activate_cb (GtkStatusIcon *icon, gpointer data)
 }
 
 /*** xchat-gnome plugin functions ***/
+PreferencesPage*
+xchat_plugin_get_preferences_page (void)
+{
+	return PREFERENCES_PAGE (preferences_page_plugin_notification_new ());
+}
+
 void
 xchat_plugin_get_info (char **plugin_name, char **plugin_desc, char **plugin_version, void **reserved)
 {
@@ -174,7 +183,6 @@ int
 xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plugin_desc, char **plugin_version, char *arg)
 {
 	GConfClient *client = gconf_client_get_default ();
-	guint i;
 
 	ph = plugin_handle;
 
@@ -214,7 +222,6 @@ int
 xchat_plugin_deinit (void)
 {
 	GConfClient *client = gconf_client_get_default ();
-	guint i;
 
 	/* Disconnect the signal handlers. */
 	g_signal_handlers_disconnect_by_func (main_window, G_CALLBACK (got_focus_cb), NULL);

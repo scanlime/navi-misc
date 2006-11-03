@@ -21,12 +21,25 @@
 
 #include <glade/glade-xml.h>
 #include "gui.h"
+#include "preferences-page.h"
 
 #ifndef XCHAT_GNOME_PREFERENCES_PAGE_COLORS_H
 #define XCHAT_GNOME_PREFERENCES_PAGE_COLORS_H
 
-typedef struct
+G_BEGIN_DECLS
+
+typedef struct _PreferencesPageColors      PreferencesPageColors;
+typedef struct _PreferencesPageColorsClass PreferencesPageColorsClass;
+#define PREFERENCES_PAGE_COLORS_TYPE            (preferences_page_colors_get_type ())
+#define PREFERENCES_PAGE_COLORS(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), PREFERENCES_PAGE_COLORS_TYPE, PreferencesPageColors))
+#define PREFERENCES_PAGE_COLORS_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), PREFERENCES_PAGE_COLORS_TYPE, PreferencesPageColorsClass))
+#define IS_PREFERENCES_PAGE_COLORS(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), PREFERENCES_PAGE_COLORS_TYPE))
+#define IS_PREFERENCES_PAGE_COLORS_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), PREFERENCES_PAGE_COLORS_TYPE))
+
+struct _PreferencesPageColors
 {
+	PreferencesPage parent;
+
 	GtkWidget *combo;
 
 	GtkWidget *show_colors;
@@ -50,12 +63,17 @@ typedef struct
 	GtkWidget *extra_colors_box;
 	GtkWidget *extra_palette_table;
 
-	GdkPixbuf *icon;
-
 	guint      nh[2];
-} PreferencesColorsPage;
+};
 
-PreferencesColorsPage *preferences_page_colors_new  (gpointer prefs_dialog, GladeXML *xml);
-void                   preferences_page_colors_free (PreferencesColorsPage *page);
+struct _PreferencesPageColorsClass
+{
+	PreferencesPageClass parent_class;
+};
+
+GType              	preferences_page_colors_get_type (void) G_GNUC_CONST;
+PreferencesPageColors* preferences_page_colors_new  (gpointer prefs_dialog, GladeXML *xml);
+
+G_END_DECLS
 
 #endif
