@@ -5,7 +5,9 @@ BUILT_SOURCES = notification.schemas
 DISTCLEANFILES = $(BUILT_SOURCES)
 
 notification_la_SOURCES =	\
-	notification.c
+	notification.c		\
+	preferences-page-plugin-notification.h \
+	preferences-page-plugin-notification.c
 
 notification_la_CPPFLAGS = \
 	-I$(top_srcdir)/src/fe-gnome		\
@@ -21,6 +23,11 @@ notification_la_LDFLAGS = \
 	-avoid-version	\
 	-module		\
 	$(AM_LDFLAGS)
+
+xchat_gnome_DATA = 			\
+	preferences-notification.glade
+
+xchat_gnomedir = $(datadir)/xchat-gnome
 
 schemadir	= $(GCONF_SCHEMA_FILE_DIR)
 schema_in_files	= notification.schemas.in

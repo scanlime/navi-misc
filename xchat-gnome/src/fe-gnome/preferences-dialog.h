@@ -54,13 +54,13 @@ struct _PreferencesDialog
 
 	GtkListStore *page_store;
 
-	PreferencesIrcPage        *irc_page;
-	PreferencesColorsPage     *colors_page;
-	PreferencesEffectsPage    *effects_page;
-	PreferencesDCCPage        *dcc_page;
-	PreferencesNetworksPage   *networks_page;
+	PreferencesPageIrc        *irc_page;
+	PreferencesPageColors     *colors_page;
+	PreferencesPageEffects    *effects_page;
+	PreferencesPageDCC        *dcc_page;
+	PreferencesPageNetworks   *networks_page;
 	PreferencesPagePlugins    *plugins_page;
-	PreferencesSpellcheckPage *spellcheck_page;
+	PreferencesPageSpellcheck *spellcheck_page;
 };
 
 struct _PreferencesDialogClass

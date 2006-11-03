@@ -25,26 +25,19 @@
 #include "pixmaps.h"
 #include "util.h"
 
+enum
+{
+	COL_ICON,
+	COL_TITLE,
+	COL_POS,
+};
+
 static GObjectClass *parent_class;
 
 static void
 preferences_dialog_finalize (GObject *object)
 {
-	PreferencesDialog *p = (PreferencesDialog *) object;
-
-	preferences_page_irc_free      (p->irc_page);
-	preferences_page_colors_free   (p->colors_page);
-	preferences_page_effects_free  (p->effects_page);
-	preferences_page_dcc_free      (p->dcc_page);
-	preferences_page_networks_free (p->networks_page);
-/*
-#ifdef USE_PLUGIN
-	preferences_page_plugins_free  (p->plugins_page);
-#endif
-*/
-#ifdef HAVE_LIBSEXY
-	preferences_page_spellcheck_free (p->spellcheck_page);
-#endif
+	//PreferencesDialog *p = (PreferencesDialog *) object;
 
 	parent_class->finalize (object);
 }
@@ -54,10 +47,42 @@ preferences_dialog_dispose (GObject *object)
 {
 	PreferencesDialog *p = (PreferencesDialog *) object;
 
+	if (p->irc_page) {
+		g_object_unref (p->irc_page);
+		p->irc_page = NULL;
+	}
+
+	if (p->colors_page) {
+		g_object_unref (p->colors_page);
+		p->colors_page = NULL;
+	}
+
+	if (p->effects_page) {
+		g_object_unref (p->effects_page);
+		p->effects_page = NULL;
+	}
+
+	if (p->dcc_page) {
+		g_object_unref (p->dcc_page);
+		p->dcc_page = NULL;
+	}
+
+	if (p->networks_page) {
+		g_object_unref (p->networks_page);
+		p->networks_page = NULL;
+	}
+
 #ifdef USE_PLUGIN
 	if (p->plugins_page) {
 		g_object_unref (p->plugins_page);
 		p->plugins_page = NULL;
+	}
+#endif
+
+#ifdef HAVE_LIBSEXY
+	if (p->spellcheck_page) {
+		g_object_unref (p->spellcheck_page);
+		p->spellcheck_page = NULL;
 	}
 #endif
 
@@ -112,6 +137,59 @@ preferences_response (GtkWidget *widget,
 }
 
 static void
+preferences_dialog_add_page (PreferencesDialog *p, PreferencesPage *page)
+{
+	gint pos;
+	GtkTreeIter iter;
+
+	/* If the page has is own vbox, widgets are not in the glade files and so have to be
+	 * added into the notebook */
+	if (page->vbox) {
+		pos = gtk_notebook_append_page (GTK_NOTEBOOK (p->settings_notebook), page->vbox, NULL);
+		gtk_list_store_append (p->page_store, &iter);
+		gtk_list_store_set (p->page_store, &iter,
+			COL_ICON, page->icon,
+			COL_TITLE, PREFERENCES_PAGE (page)->title,
+			COL_POS, pos,
+			-1);
+	}
+	// TODO : maybe use this to avoid the modification of page_store into each preferences-page-*.c
+}
+
+#ifdef USE_PLUGIN
+static void
+new_plugin_page (PreferencesPagePlugins *page, PreferencesPage *page_plugin, PreferencesDialog *p)
+{
+	preferences_dialog_add_page (p, page_plugin);
+}
+
+static void
+remove_plugin_page (PreferencesPagePlugins *page, PreferencesPage *page_plugin, PreferencesDialog *p)
+{
+	GtkTreeIter iter;
+	gboolean found = FALSE;
+	gchar *name;
+	gint pos;
+
+	gtk_tree_model_get_iter_first (GTK_TREE_MODEL (p->page_store), &iter);
+	do
+	{
+		gtk_tree_model_get (GTK_TREE_MODEL (p->page_store), &iter,
+					COL_TITLE, &name,
+					COL_POS, &pos, 
+					-1);
+		if (name && (strcmp (name, PREFERENCES_PAGE (page_plugin)->title) == 0))
+			found = TRUE;
+	} while (!found && gtk_tree_model_iter_next (GTK_TREE_MODEL (p->page_store), &iter));
+
+	if (found) {
+		gtk_notebook_remove_page (GTK_NOTEBOOK (p->settings_notebook), pos);
+		gtk_list_store_remove (p->page_store, &iter);
+	}
+}
+#endif // USE_PLUGIN
+
+static void
 preferences_dialog_init (PreferencesDialog *p)
 {
 	GtkCellRenderer *icon_renderer, *text_renderer;
@@ -146,7 +224,7 @@ preferences_dialog_init (PreferencesDialog *p)
 
 	gtk_notebook_set_show_tabs (GTK_NOTEBOOK (p->settings_notebook), FALSE);
 
-	p->page_store = gtk_list_store_new (3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT);
+	p->page_store = gtk_list_store_new (4, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT, G_TYPE_POINTER);
 	gtk_tree_view_set_model (GTK_TREE_VIEW (p->settings_page_list), GTK_TREE_MODEL (p->page_store));
 	column = gtk_tree_view_column_new ();
 	icon_renderer = gtk_cell_renderer_pixbuf_new ();
@@ -171,8 +249,13 @@ preferences_dialog_init (PreferencesDialog *p)
 	p->networks_page = preferences_page_networks_new (p, xml);
 #ifdef USE_PLUGIN
 	p->plugins_page  = preferences_page_plugins_new  (p, xml);
-#endif
 
+	g_signal_connect (p->plugins_page, "new-plugin-page",
+			  G_CALLBACK (new_plugin_page), p);
+	g_signal_connect (p->plugins_page, "remove-plugin-page",
+			  G_CALLBACK (remove_plugin_page), p);
+	preferences_page_plugins_check_plugins (p->plugins_page);
+#endif
 	g_object_unref (xml);
 }
 

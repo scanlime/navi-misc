@@ -21,13 +21,25 @@
 
 #include <glade/glade-xml.h>
 #include "gui.h"
+#include "preferences-page.h"
 
 #ifndef XCHAT_GNOME_PREFERENCES_PAGE_DCC_H
 #define XCHAT_GNOME_PREFERENCES_PAGE_DCC_H
 
-typedef struct
+G_BEGIN_DECLS
+
+typedef struct _PreferencesPageDCC      PreferencesPageDCC;
+typedef struct _PreferencesPageDCCClass PreferencesPageDCCClass;
+#define PREFERENCES_PAGE_DCC_TYPE            (preferences_page_dcc_get_type ())
+#define PREFERENCES_PAGE_DCC(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), PREFERENCES_PAGE_DCC_TYPE, PreferencesPageDCC))
+#define PREFERENCES_PAGE_DCC_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), PREFERENCES_PAGE_DCC_TYPE, PreferencesPageDCCClass))
+#define IS_PREFERENCES_PAGE_DCC(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), PREFERENCES_PAGE_DCC_TYPE))
+#define IS_PREFERENCES_PAGE_DCC_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), PREFERENCES_PAGE_DCC_TYPE))
+
+
+struct _PreferencesPageDCC
 {
-	GdkPixbuf *icon;
+	PreferencesPage parent;
 
 	GtkWidget *download_dir_button;
 	GtkWidget *completed_dir_button;
@@ -42,9 +54,16 @@ typedef struct
 	GtkWidget *global_send_throttle;
 	GtkWidget *individual_receive_throttle;
 	GtkWidget *global_receive_throttle;
-} PreferencesDCCPage;
+};
 
-PreferencesDCCPage *preferences_page_dcc_new  (gpointer prefs_dialog, GladeXML *xml);
-void                preferences_page_dcc_free (PreferencesDCCPage *page);
+struct _PreferencesPageDCCClass
+{
+	PreferencesPageClass parent_class;
+};
+
+GType              	preferences_page_dcc_get_type (void) G_GNUC_CONST;
+PreferencesPageDCC* preferences_page_dcc_new  (gpointer prefs_dialog, GladeXML *xml);
+
+G_END_DECLS
 
 #endif

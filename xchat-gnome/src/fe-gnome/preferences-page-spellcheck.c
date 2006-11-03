@@ -30,6 +30,8 @@
 #include "util.h"
 #include "gui.h"
 
+G_DEFINE_TYPE(PreferencesPageSpellcheck, preferences_page_spellcheck, PREFERENCES_PAGE_TYPE)
+
 enum
 {
 	COL_LANG_ACTIVATED = 0,
@@ -38,7 +40,7 @@ enum
 };
 
 static void
-enabled_changed (GtkToggleButton *button, PreferencesSpellcheckPage *page)
+enabled_changed (GtkToggleButton *button, PreferencesPageSpellcheck *page)
 {
 	GConfClient *client;
 	gboolean enabled;
@@ -53,7 +55,7 @@ enabled_changed (GtkToggleButton *button, PreferencesSpellcheckPage *page)
 }
 
 static void
-language_changed (GtkCellRendererToggle *toggle, gchar *pathstr, PreferencesSpellcheckPage *page)
+language_changed (GtkCellRendererToggle *toggle, gchar *pathstr, PreferencesPageSpellcheck *page)
 {
 	GtkTreePath *path;
 	GtkTreeIter iter;
@@ -162,21 +164,21 @@ gconf_languages_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, 
 	g_slist_free (new_languages);
 }
 
-PreferencesSpellcheckPage *
+PreferencesPageSpellcheck *
 preferences_page_spellcheck_new (gpointer prefs_dialog, GladeXML *xml)
 {
-	PreferencesSpellcheckPage *page = g_new0 (PreferencesSpellcheckPage, 1);
+	PreferencesPageSpellcheck *page = g_object_new (PREFERENCES_PAGE_SPELLCHECK_TYPE, NULL);
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
 	gboolean enabled;
 	GSList *languages, *l;
 	GtkWidget *contents_vbox, *page_vbox, *label, *swin;
 	page_vbox = glade_xml_get_widget (xml, "spell check");
 
-	page->icon = gtk_widget_render_icon (page_vbox, GTK_STOCK_SPELL_CHECK, GTK_ICON_SIZE_MENU, NULL);
+	PREFERENCES_PAGE (page)->icon = gtk_widget_render_icon (page_vbox, GTK_STOCK_SPELL_CHECK, GTK_ICON_SIZE_MENU, NULL);
 
 	GtkTreeIter iter;
 	gtk_list_store_append (p->page_store, &iter);
-	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Spell checking"), 2, 7, -1);
+	gtk_list_store_set (p->page_store, &iter, 0, PREFERENCES_PAGE (page)->icon, 1, _("Spell checking"), 2, 7, -1);
 
 	languages = sexy_spell_entry_get_languages (SEXY_SPELL_ENTRY (gui.text_entry));
 	if (languages == NULL) {
@@ -261,11 +263,30 @@ preferences_page_spellcheck_new (gpointer prefs_dialog, GladeXML *xml)
 	return page;
 }
 
-void
-preferences_page_spellcheck_free (PreferencesSpellcheckPage *page)
+static void
+preferences_page_spellcheck_init (PreferencesPageSpellcheck *page)
 {
+}
+
+static void
+preferences_page_spellcheck_dispose (GObject *object)
+{
+	PreferencesPageSpellcheck *page = (PreferencesPageSpellcheck *) object;
+
+	if (page->spellcheck_store) {
+		g_object_unref (page->spellcheck_store);
+		page->spellcheck_store = NULL;
+	}
+ 
+	G_OBJECT_CLASS (preferences_page_spellcheck_parent_class)->dispose (object);
+}	
+
+static void
+preferences_page_spellcheck_finalize (GObject *object)
+{
+	PreferencesPageSpellcheck *page = (PreferencesPageSpellcheck *) object;
 	gint i;
-	 GConfClient *client;
+	GConfClient *client;
 
 	client = gconf_client_get_default ();
 	for (i = 0; i < 2; i++) {
@@ -273,14 +294,16 @@ preferences_page_spellcheck_free (PreferencesSpellcheckPage *page)
 	}
 	g_object_unref (client);
 
-	if (page->icon) {
-		g_object_unref (page->icon);
-	}
+	G_OBJECT_CLASS (preferences_page_spellcheck_parent_class)->finalize (object);
+}
 
-	if (page->spellcheck_store) {
-		g_object_unref (page->spellcheck_store);
-	}
-	g_free (page);
+static void
+preferences_page_spellcheck_class_init (PreferencesPageSpellcheckClass *klass)
+{
+	GObjectClass *object_class = (GObjectClass *) klass;
+
+	object_class->dispose = preferences_page_spellcheck_dispose;
+	object_class->finalize = preferences_page_spellcheck_finalize;
 }
 
 #endif

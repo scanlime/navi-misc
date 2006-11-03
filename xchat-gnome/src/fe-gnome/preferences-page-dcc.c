@@ -28,6 +28,8 @@
 #include "../common/xchat.h"
 #include "../common/xchatc.h"
 
+G_DEFINE_TYPE(PreferencesPageDCC, preferences_page_dcc, PREFERENCES_PAGE_TYPE)
+
 static void
 download_dir_changed (GtkFileChooser *file_chooser, gpointer data)
 {
@@ -75,7 +77,7 @@ autoaccept_file_changed (GtkToggleButton *button, gpointer data)
 }
 
 static void
-get_ip_from_server_changed (GtkRadioButton *button, PreferencesDCCPage *page)
+get_ip_from_server_changed (GtkRadioButton *button, PreferencesPageDCC *page)
 {
 	gboolean on = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button));
 	gtk_widget_set_sensitive (page->special_ip_address, !on);
@@ -114,11 +116,11 @@ grt_changed (GtkSpinButton *button, gpointer data)
 	prefs.dcc_global_max_get_cps = gtk_spin_button_get_value_as_int (button);
 }
 
-PreferencesDCCPage *
+PreferencesPageDCC *
 preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 {
+	PreferencesPageDCC *page = g_object_new (PREFERENCES_PAGE_DCC_TYPE, NULL);
 	GtkTreeIter iter;
-	PreferencesDCCPage *page = g_new0 (PreferencesDCCPage, 1);
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
 
 #define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
@@ -179,17 +181,31 @@ preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 	g_signal_connect (G_OBJECT (page->global_receive_throttle),     "value-changed",     G_CALLBACK (grt_changed),                page);
 
 	GtkIconTheme *theme = gtk_icon_theme_get_default ();
-	page->icon = gtk_icon_theme_load_icon (theme, "xchat-gnome-dcc", 16, 0, NULL);
+	PREFERENCES_PAGE (page)->icon = gtk_icon_theme_load_icon (theme, "xchat-gnome-dcc", 16, 0, NULL);
 
 	gtk_list_store_append (p->page_store, &iter);
-	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("File Transfers & DCC"), 2, 3, -1);
+	gtk_list_store_set (p->page_store, &iter, 0, PREFERENCES_PAGE (page)->icon, 1, _("File Transfers & DCC"), 2, 3, -1);
 
 	return page;
 }
 
-void
-preferences_page_dcc_free (PreferencesDCCPage *page)
+static void
+preferences_page_dcc_init (PreferencesPageDCC *page)
 {
-	g_object_unref (page->icon);
-	g_free (page);
+}
+
+static void
+preferences_page_dcc_dispose (GObject *object)
+{
+	//PreferencesPageDCC *page = (PreferencesPageDCC *) object;
+
+	G_OBJECT_CLASS (preferences_page_dcc_parent_class)->dispose (object);
+}	
+
+static void
+preferences_page_dcc_class_init (PreferencesPageDCCClass *klass)
+{
+	GObjectClass *object_class = (GObjectClass *) klass;
+
+	object_class->dispose = preferences_page_dcc_dispose;
 }

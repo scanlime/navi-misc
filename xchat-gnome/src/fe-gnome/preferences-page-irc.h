@@ -21,12 +21,25 @@
 
 #include <glade/glade-xml.h>
 #include "gui.h"
+#include "preferences-page.h"
 
 #ifndef XCHAT_GNOME_PREFERENCES_PAGE_IRC_H
 #define XCHAT_GNOME_PREFERENCES_PAGE_IRC_H
 
-typedef struct
+G_BEGIN_DECLS
+
+typedef struct _PreferencesPageIrc      PreferencesPageIrc;
+typedef struct _PreferencesPageIrcClass PreferencesPageIrcClass;
+#define PREFERENCES_PAGE_IRC_TYPE            (preferences_page_irc_get_type ())
+#define PREFERENCES_PAGE_IRC(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), PREFERENCES_PAGE_IRC_TYPE, PreferencesPageIrc))
+#define PREFERENCES_PAGE_IRC_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), PREFERENCES_PAGE_IRC_TYPE, PreferencesPageIrcClass))
+#define IS_PREFERENCES_PAGE_IRC(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), PREFERENCES_PAGE_IRC_TYPE))
+#define IS_PREFERENCES_PAGE_IRC_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), PREFERENCES_PAGE_IRC_TYPE))
+
+struct _PreferencesPageIrc
 {
+	PreferencesPage parent;
+
 	GtkWidget *nick_name;
 	GtkWidget *real_name;
 	GtkWidget *quit_message;
@@ -46,15 +59,21 @@ typedef struct
 	GtkWidget *show_timestamps;
 	GtkWidget *show_marker;
 
-	GdkPixbuf *icon;
 	GtkListStore *highlight_store;
 	GtkTreeViewColumn *highlight_column;
 
 	/* gconf notification handlers */
 	guint nh[8];
-} PreferencesIrcPage;
+};
 
-PreferencesIrcPage *preferences_page_irc_new  (gpointer prefs_dialog, GladeXML *xml);
-void                preferences_page_irc_free (PreferencesIrcPage *page);
+struct _PreferencesPageIrcClass
+{
+	PreferencesPageClass parent_class;
+};
+
+GType              	preferences_page_irc_get_type (void) G_GNUC_CONST;
+PreferencesPageIrc* preferences_page_irc_new  (gpointer prefs_dialog, GladeXML *xml);
+
+G_END_DECLS
 
 #endif

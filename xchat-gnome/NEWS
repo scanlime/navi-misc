@@ -1,3 +1,7 @@
+0.16
+	* Plugins can have now their own preferences page.
+	* Add a preference page for the notification plugin.
+
 0.15 "Because IRC is like the wild west" (28 October 2006)
 	* A couple important bugs fixed
 	* New themeable icons!

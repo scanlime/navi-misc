@@ -12,6 +12,8 @@ plugins/autoaway/autoaway.c
 plugins/net-monitor/net-monitor.c
 plugins/notification/notification.c
 plugins/notification/notification.schemas.in
+plugins/notification/preferences-notification.glade
+plugins/notification/preferences-page-plugin-notification.c
 plugins/notify-osd/notify-osd.c
 plugins/url_scraper/urlscraper.c
 plugins/url_scraper/urlscraper.schemas.in
@@ -43,6 +45,7 @@ src/fe-gnome/irc-network.c
 src/fe-gnome/main-window.c
 src/fe-gnome/migration.c
 src/fe-gnome/navigation-tree.c
+src/fe-gnome/preferences-page.c
 src/fe-gnome/preferences-page-colors.c
 src/fe-gnome/preferences-page-dcc.c
 src/fe-gnome/preferences-page-effects.c

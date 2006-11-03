@@ -21,13 +21,25 @@
 
 #include <glade/glade-xml.h>
 #include "gui.h"
+#include "preferences-page.h"
 
 #ifndef XCHAT_GNOME_PREFERENCES_PAGE_SPELLCHECK_H
 #define XCHAT_GNOME_PREFERENCES_PAGE_SPELLCHECK_H
 
-typedef struct
+G_BEGIN_DECLS
+
+typedef struct _PreferencesPageSpellcheck      PreferencesPageSpellcheck;
+typedef struct _PreferencesPageSpellcheckClass PreferencesPageSpellcheckClass;
+#define PREFERENCES_PAGE_SPELLCHECK_TYPE            (preferences_page_spellcheck_get_type ())
+#define PREFERENCES_PAGE_SPELLCHECK(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), PREFERENCES_PAGE_SPELLCHECK_TYPE, PreferencesPageSpellcheck))
+#define PREFERENCES_PAGE_SPELLCHECK_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), PREFERENCES_PAGE_SPELLCHECK_TYPE, PreferencesPageSpellcheckClass))
+#define IS_PREFERENCES_PAGE_SPELLCHECK(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), PREFERENCES_PAGE_SPELLCHECK_TYPE))
+#define IS_PREFERENCES_PAGE_SPELLCHECK_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), PREFERENCES_PAGE_SPELLCHECK_TYPE))
+
+
+struct _PreferencesPageSpellcheck
 {
-	GdkPixbuf *icon;
+	PreferencesPage parent;
 
 	GtkWidget *enable_spellcheck;
 	GtkWidget *spellcheck_list;
@@ -37,9 +49,16 @@ typedef struct
 
 	/* gconf notification handlers */
 	guint nh[2];
-} PreferencesSpellcheckPage;
+};
 
-PreferencesSpellcheckPage *preferences_page_spellcheck_new  (gpointer prefs_dialog, GladeXML *xml);
-void                       preferences_page_spellcheck_free (PreferencesSpellcheckPage *page);
+struct _PreferencesPageSpellcheckClass
+{
+	PreferencesPageClass parent_class;
+};
+
+GType              	preferences_page_spellcheck_get_type (void) G_GNUC_CONST;
+PreferencesPageSpellcheck* preferences_page_spellcheck_new  (gpointer prefs_dialog, GladeXML *xml);
+
+G_END_DECLS
 
 #endif

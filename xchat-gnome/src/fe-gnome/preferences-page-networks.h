@@ -19,14 +19,27 @@
  *
  */
 
-#include "gui.h"
 #include <glade/glade-xml.h>
+#include "gui.h"
+#include "preferences-page.h"
 
 #ifndef XCHAT_GNOME_PREFERENCES_PAGE_NETWORKS_H
 #define XCHAT_GNOME_PREFERENCES_PAGE_NETWORKS_H
 
-typedef struct
+G_BEGIN_DECLS
+
+typedef struct _PreferencesPageNetworks      PreferencesPageNetworks;
+typedef struct _PreferencesPageNetworksClass PreferencesPageNetworksClass;
+#define PREFERENCES_PAGE_NETWORKS_TYPE            (preferences_page_networks_get_type ())
+#define PREFERENCES_PAGE_NETWORKS(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), PREFERENCES_PAGE_NETWORKS_TYPE, PreferencesPageNetworks))
+#define PREFERENCES_PAGE_NETWORKS_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), PREFERENCES_PAGE_NETWORKS_TYPE, PreferencesPageNetworksClass))
+#define IS_PREFERENCES_PAGE_NETWORKS(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), PREFERENCES_PAGE_NETWORKS_TYPE))
+#define IS_PREFERENCES_PAGE_NETWORKS_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), PREFERENCES_PAGE_NETWORKS_TYPE))
+
+struct _PreferencesPageNetworks
 {
+	PreferencesPage parent;
+
 	GtkWidget *network_list;
 	GtkWidget *network_add;
 	GtkWidget *network_edit;
@@ -34,11 +47,16 @@ typedef struct
 
 	GtkListStore *network_store;
 	GtkTreeModelSort *sort_model;
+};
 
-	GdkPixbuf *icon;
-} PreferencesNetworksPage;
+struct _PreferencesPageNetworksClass
+{
+	PreferencesPageClass parent_class;
+};
 
-PreferencesNetworksPage *preferences_page_networks_new  (gpointer prefs_dialog, GladeXML *xml);
-void                     preferences_page_networks_free (PreferencesNetworksPage *page);
+GType              	preferences_page_networks_get_type (void) G_GNUC_CONST;
+PreferencesPageNetworks* preferences_page_networks_new  (gpointer prefs_dialog, GladeXML *xml);
+
+G_END_DECLS
 
 #endif

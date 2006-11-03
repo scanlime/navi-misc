@@ -27,8 +27,10 @@
 #include "preferences-dialog.h"
 #include "util.h"
 
+G_DEFINE_TYPE(PreferencesPageEffects, preferences_page_effects, PREFERENCES_PAGE_TYPE)
+
 static void
-type_changed (GtkToggleButton *button, PreferencesEffectsPage *page)
+type_changed (GtkToggleButton *button, PreferencesPageEffects *page)
 {
 	GConfClient *client;
 	gint type;
@@ -53,7 +55,7 @@ type_changed (GtkToggleButton *button, PreferencesEffectsPage *page)
 }
 
 static void
-image_changed (GtkFileChooser *chooser, PreferencesEffectsPage *page)
+image_changed (GtkFileChooser *chooser, PreferencesPageEffects *page)
 {
 	GConfClient *client;
 	gchar *filename;
@@ -69,7 +71,7 @@ image_changed (GtkFileChooser *chooser, PreferencesEffectsPage *page)
 }
 
 static void
-transparency_changed (GtkRange *range, PreferencesEffectsPage *page)
+transparency_changed (GtkRange *range, PreferencesPageEffects *page)
 {
 	GConfClient *client;
 	gdouble value;
@@ -82,7 +84,7 @@ transparency_changed (GtkRange *range, PreferencesEffectsPage *page)
 }
 
 static void
-gconf_type_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, PreferencesEffectsPage *page)
+gconf_type_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, PreferencesPageEffects *page)
 {
 	gint type;
 
@@ -109,7 +111,7 @@ gconf_type_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, Prefe
 }
 
 static void
-gconf_image_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, PreferencesEffectsPage *page)
+gconf_image_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, PreferencesPageEffects *page)
 {
 	g_signal_handlers_block_by_func (G_OBJECT (page->background_image_file), G_CALLBACK (image_changed), page);
 	gchar *filename = gconf_client_get_string (client, entry->key, NULL);
@@ -121,7 +123,7 @@ gconf_image_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, Pref
 }
 
 static void
-gconf_transparency_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, PreferencesEffectsPage *page)
+gconf_transparency_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, PreferencesPageEffects *page)
 {
 	g_signal_handlers_block_by_func (G_OBJECT (page->background_transparency), G_CALLBACK (transparency_changed), page);
 	float value = gconf_client_get_float (client, entry->key, NULL);
@@ -130,7 +132,7 @@ gconf_transparency_changed (GConfClient *client, guint cnxn_id, GConfEntry *entr
 }
 
 static void
-update_preview (GtkFileChooser *file_chooser, PreferencesEffectsPage *page)
+update_preview (GtkFileChooser *file_chooser, PreferencesPageEffects *page)
 {
 	gchar *filename;
 	GdkPixbuf *pixbuf;
@@ -152,10 +154,10 @@ update_preview (GtkFileChooser *file_chooser, PreferencesEffectsPage *page)
 	gtk_file_chooser_set_preview_widget_active (file_chooser, have_preview);
 }
 
-PreferencesEffectsPage *
+PreferencesPageEffects*
 preferences_page_effects_new (gpointer prefs_dialog, GladeXML *xml)
 {
-	PreferencesEffectsPage *page = g_new0 (PreferencesEffectsPage, 1);
+	PreferencesPageEffects *page = g_object_new (PREFERENCES_PAGE_EFFECTS_TYPE, NULL);
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
 	GtkTreeIter iter;
 	int type;
@@ -172,10 +174,10 @@ preferences_page_effects_new (gpointer prefs_dialog, GladeXML *xml)
 
 	GtkIconTheme *theme = gtk_icon_theme_get_default ();
 	// FIXME: This needs a more appropriate/precise icon
-	page->icon = gtk_icon_theme_load_icon (theme, "applications-graphics", 16, 0, NULL);
+	PREFERENCES_PAGE (page)->icon = gtk_icon_theme_load_icon (theme, "applications-graphics", 16, 0, NULL);
 
 	gtk_list_store_append (p->page_store, &iter);
-	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Effects"), 2, 2, -1);
+	gtk_list_store_set (p->page_store, &iter, 0, PREFERENCES_PAGE (page)->icon, 1, _("Effects"), 2, 2, -1);
 
 	page->image_preview = gtk_image_new ();
 	gtk_file_chooser_set_preview_widget (GTK_FILE_CHOOSER (page->background_image_file), page->image_preview);
@@ -218,9 +220,23 @@ preferences_page_effects_new (gpointer prefs_dialog, GladeXML *xml)
 	return page;
 }
 
-void
-preferences_page_effects_free (PreferencesEffectsPage *page)
+static void
+preferences_page_effects_init (PreferencesPageEffects *page)
 {
+}
+
+static void
+preferences_page_effects_dispose (GObject *object)
+{
+	//PreferencesPageEffects *page = (PreferencesPageEffects *) object;
+ 
+	G_OBJECT_CLASS (preferences_page_effects_parent_class)->dispose (object);
+}	
+
+static void
+preferences_page_effects_finalize (GObject *object)
+{
+	PreferencesPageEffects *page = (PreferencesPageEffects *) object;
 	GConfClient *client;
 	gint i;
 
@@ -230,6 +246,14 @@ preferences_page_effects_free (PreferencesEffectsPage *page)
 	}
 	g_object_unref (client);
 
-	g_object_unref (page->icon);
-	g_free (page);
+	G_OBJECT_CLASS (preferences_page_effects_parent_class)->finalize (object);
+}
+
+static void
+preferences_page_effects_class_init (PreferencesPageEffectsClass *klass)
+{
+	GObjectClass *object_class = (GObjectClass *) klass;
+
+	object_class->dispose = preferences_page_effects_dispose;
+	object_class->finalize = preferences_page_effects_finalize;
 }

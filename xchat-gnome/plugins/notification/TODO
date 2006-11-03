@@ -4,7 +4,4 @@
 - Tooltips
 
 Preferences:
-  - Allow user to set a notify on hilight only option. So that the notification icon
-    only changes when the nick is said. Context menu still shows regular messages and
-    notifications.
   - configure types of events that cause tooltips

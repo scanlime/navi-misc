@@ -27,6 +27,7 @@
 #include <libsexy/sexy-tree-view.h>
 #endif
 
+#include "preferences-page.h"
 #include "preferences-page-plugins.h"
 #include "preferences-dialog.h"
 #include "plugins.h"
@@ -37,10 +38,12 @@ typedef struct session xchat_context;
 #include "../common/xchat-plugin.h"
 #include "../common/plugin.h"
 #include "../common/util.h"
+#include "xg-marshal.h"
 
 typedef int (xchat_init_func) (xchat_plugin *, char **, char **, char **, char *);
 typedef int (xchat_deinit_func) (xchat_plugin *);
 typedef void (xchat_plugin_get_info) (char **, char **, char **, char **);
+typedef PreferencesPage* (xchat_plugin_get_preferences_page) (void);
 
 extern GSList *plugin_list; 	// xchat's list of loaded plugins.
 extern GSList *enabled_plugins;	// Our list of loaded plugins.
@@ -58,10 +61,19 @@ enum
 	COL_DESC,
 	COL_FILENAME,
 	COL_LOADED,
-	COL_DISPLAY
+	COL_DISPLAY,
+	COL_PAGE
 };
 
-static GObjectClass *parent_class;
+enum
+{
+	NEW_PLUGIN_PAGE,
+	REMOVE_PLUGIN_PAGE,
+	LAST_SIGNAL
+};
+
+G_DEFINE_TYPE(PreferencesPagePlugins, preferences_page_plugins, PREFERENCES_PAGE_TYPE)
+static guint signals[LAST_SIGNAL];
 
 static void
 fe_plugin_add (char *filename)
@@ -95,7 +107,8 @@ fe_plugin_add (char *filename)
 
 	display = g_strdup_printf ("<b>%s</b>\n%s", name, desc);
 	gtk_list_store_set (pageref->plugin_store, &iter, COL_NAME, name, COL_VERSION, version,
-			    COL_DESC, desc, COL_FILENAME, filename, COL_DISPLAY, display, -1);
+			    COL_DESC, desc, COL_FILENAME, filename, COL_DISPLAY, display,
+			    COL_PAGE, NULL, -1);
 	g_free (display);
 
 	if (handle != NULL) {
@@ -107,6 +120,52 @@ static gint
 filename_test (gconstpointer a, gconstpointer b)
 {
 	return strcmp ((char*)a, (char*)b);
+}
+
+static gboolean
+get_plugin_infos (gchar *filename, gchar **name, gchar **desc, gchar **version, PreferencesPage **page_plugin)
+{
+	void *handle;
+	gpointer get_pref_func, info_func;
+
+	handle = g_module_open (filename, 0);
+	if (handle != NULL && g_module_symbol (handle, "xchat_plugin_get_preferences_page", &get_pref_func)
+			   && g_module_symbol (handle, "xchat_plugin_get_info", &info_func)) {
+		((xchat_plugin_get_info*) info_func) (name, desc, version, NULL);
+		if (page_plugin)
+			*page_plugin =  ((xchat_plugin_get_preferences_page*) get_pref_func) ();
+
+		g_module_close (handle);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static void
+preferences_page_plugins_add_page (PreferencesPagePlugins *page, gchar *filename, GtkTreeIter *iter)
+{
+	PreferencesPage *page_plugin;
+	gchar *name, *desc, *version;
+
+	/* We check if there is a plugin preference page and add it if needed */
+	if (get_plugin_infos (filename, &name, &desc, &version, &page_plugin)) {
+		g_signal_emit (G_OBJECT (page), signals[NEW_PLUGIN_PAGE], 0, page_plugin);
+		gtk_list_store_set (page->plugin_store, iter, COL_PAGE, page_plugin, -1);
+	}
+}
+
+static void
+preferences_page_plugins_remove_page (PreferencesPagePlugins *page, GtkTreeIter *iter)
+{
+	PreferencesPage *page_plugin;
+
+	gtk_tree_model_get (GTK_TREE_MODEL (page->plugin_store), iter, COL_PAGE, &page_plugin, -1);
+	if (page_plugin) {
+		g_signal_emit (G_OBJECT (page), signals[REMOVE_PLUGIN_PAGE], 0, page_plugin);
+		g_object_unref (page_plugin);
+		gtk_list_store_set (page->plugin_store, iter, COL_PAGE, NULL, -1);
+	}
 }
 
 static void
@@ -125,6 +184,7 @@ load_unload (char *filename, gboolean loaded, PreferencesPagePlugins *page, GtkT
 
 		if (err == 1) {
 			gtk_list_store_set (page->plugin_store, &iter, COL_LOADED, FALSE, -1);
+			preferences_page_plugins_remove_page (page, &iter);
 
 			if ((removed_plugin = g_slist_find_custom (enabled_plugins, filename, &filename_test)) != NULL) {
 				enabled_plugins = g_slist_delete_link (enabled_plugins, removed_plugin);
@@ -141,6 +201,7 @@ load_unload (char *filename, gboolean loaded, PreferencesPagePlugins *page, GtkT
 		if (err == NULL) {
 			gtk_list_store_set (page->plugin_store, &iter, COL_LOADED, TRUE, -1);
 			enabled_plugins = g_slist_append (enabled_plugins, filename);
+			preferences_page_plugins_add_page (page, filename, &iter);
 		} else {
 			error_dialog (_("Plugin Load Failed"), err);
 		}
@@ -164,7 +225,6 @@ load_toggled (GtkCellRendererToggle *toggle, gchar *pathstr, PreferencesPagePlug
 	if (gtk_tree_model_get_iter (GTK_TREE_MODEL (page->plugin_store), &iter, path)) {
 		gtk_tree_model_get (GTK_TREE_MODEL (page->plugin_store), &iter, COL_FILENAME, &filename,
 		                    COL_LOADED, &loaded, -1);
-
 
 		load_unload (filename, loaded, page, iter);
 	}
@@ -257,6 +317,34 @@ set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, 
 	return FALSE;
 }
 
+static gboolean
+add_plugin_page_if_loaded (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, PreferencesPagePlugins *page)
+{
+	gboolean loaded;
+	gchar *filename;
+
+	gtk_tree_model_get (model, iter, COL_LOADED, &loaded, COL_FILENAME, &filename, -1);
+
+	if (loaded)
+		preferences_page_plugins_add_page (page, filename, iter);
+
+	return FALSE;
+}
+
+static gboolean
+remove_page_if_exist (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, PreferencesPagePlugins *page)
+{
+	PreferencesPage *plugin_page;
+
+	gtk_tree_model_get (model, iter, COL_PAGE, &plugin_page, -1);
+	if (plugin_page) {
+		g_object_unref (plugin_page);
+		gtk_list_store_set (page->plugin_store, iter, COL_PAGE, NULL, -1);
+	}
+
+	return FALSE;
+}
+
 #ifdef HAVE_LIBSEXY
 static GtkWidget*
 get_plugin_tooltip (SexyTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, PreferencesPagePlugins *page)
@@ -281,18 +369,13 @@ get_plugin_tooltip (SexyTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn
 PreferencesPagePlugins*
 preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 {
-	PreferencesPagePlugins *page = g_object_new (preferences_page_plugins_get_type (), NULL);
+	PreferencesPagePlugins *page = g_object_new (PREFERENCES_PAGE_PLUGINS_TYPE, NULL);
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
 	GtkTreeIter iter;
 	GtkTreeSelection *select;
 	GtkWidget *scroll;
-	GSList *list;
-	xchat_plugin *plugin;
 
-	const gchar *homedir;
-	gchar *xchatdir;
-
-#define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
+	#define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
 	GW(plugins_open);
 	GW(plugins_remove);
 #undef GW
@@ -308,14 +391,14 @@ preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_widget_show (page->plugins_list);
 
 	GtkIconTheme *theme = gtk_icon_theme_get_default ();
-	page->icon = gtk_icon_theme_load_icon (theme, "xchat-gnome-plugin", 16, 0, NULL);
+	PREFERENCES_PAGE (page)->icon = gtk_icon_theme_load_icon (theme, "xchat-gnome-plugin", 16, 0, NULL);
 
 	gtk_list_store_append (p->page_store, &iter);
-	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Scripts and Plugins"), 2, 5, -1);
+	gtk_list_store_set (p->page_store, &iter, 0, PREFERENCES_PAGE (page)->icon, 1, _("Scripts and Plugins"), 2, 5, -1);
 
 	/*                                          name,          version,       description,   file,          loaded*/
-	page->plugin_store = gtk_list_store_new (6, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-	                                         G_TYPE_BOOLEAN, G_TYPE_STRING);
+	page->plugin_store = gtk_list_store_new (7, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+	                                         G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_POINTER);
 	gtk_tree_view_set_model (GTK_TREE_VIEW (page->plugins_list), GTK_TREE_MODEL (page->plugin_store));
 
 	page->load_renderer = gtk_cell_renderer_toggle_new ();
@@ -345,9 +428,25 @@ preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 	g_signal_connect (G_OBJECT (page->plugins_list),   "get-tooltip",   G_CALLBACK (get_plugin_tooltip),    page);
 #endif
 
+	pageref = page;
+	return page;
+}
+
+static void
+preferences_page_plugins_init (PreferencesPagePlugins *page)
+{
+}
+
+void
+preferences_page_plugins_check_plugins (PreferencesPagePlugins *page)
+{
+	const gchar *homedir;
+	gchar *xchatdir;
+	GSList *list;
+	xchat_plugin *plugin;
+
 	homedir = g_get_home_dir ();
 	xchatdir = g_strdup_printf ("%s/.xchat2/plugins", homedir);
-	pageref = page;
 	for_files (XCHATLIBDIR "/plugins", "*.so", fe_plugin_add);
 	for_files (XCHATLIBDIR "/plugins", "*.sl", fe_plugin_add);
 	for_files (XCHATLIBDIR "/plugins", "*.py", fe_plugin_add);
@@ -372,7 +471,8 @@ preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 		list = list->next;
 	}
 
-	return page;
+	/* Add plugin preference page for each plugin loaded */
+	gtk_tree_model_foreach (GTK_TREE_MODEL (page->plugin_store), (GtkTreeModelForeachFunc) add_plugin_page_if_loaded, page);
 }
 
 static void
@@ -380,17 +480,13 @@ preferences_page_plugins_dispose (GObject *object)
 {
 	PreferencesPagePlugins *page = (PreferencesPagePlugins *) object;
 
-	if (page->icon) {
-		g_object_unref (page->icon);
-		page->icon = NULL;
-	}
-
 	if (page->plugin_store) {
+		gtk_tree_model_foreach (GTK_TREE_MODEL (page->plugin_store), (GtkTreeModelForeachFunc) remove_page_if_exist, page);
 		g_object_unref (page->plugin_store);
 		page->plugin_store = NULL;
 	}
 
-	parent_class->dispose (object);
+	G_OBJECT_CLASS (preferences_page_plugins_parent_class)->dispose (object);
 }
 
 static void
@@ -398,27 +494,26 @@ preferences_page_plugins_class_init (PreferencesPagePluginsClass *klass)
 {
 	GObjectClass *object_class = (GObjectClass *) klass;
 
-	parent_class = g_type_class_peek_parent (klass);
-
 	object_class->dispose = preferences_page_plugins_dispose;
-}
 
-GType
-preferences_page_plugins_get_type (void)
-{
-	static GType preferences_page_plugins_type = 0;
-	if (G_UNLIKELY (preferences_page_plugins_type == 0)) {
-		static const GTypeInfo preferences_page_plugins_info = {
-			sizeof (PreferencesPagePluginsClass),
-			NULL, NULL,
-			(GClassInitFunc) preferences_page_plugins_class_init,
-			NULL, NULL,
-			sizeof (PreferencesPagePlugins),
-			0,
-			NULL,
-		};
-		preferences_page_plugins_type = g_type_register_static (G_TYPE_OBJECT, "PreferencesPagePlugins", &preferences_page_plugins_info, 0);
-	}
+	signals[NEW_PLUGIN_PAGE] =
+		g_signal_new (	"new-plugin-page",
+				G_OBJECT_CLASS_TYPE (object_class),
+				G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+				G_STRUCT_OFFSET (PreferencesPagePluginsClass, new_plugin_page),
+				NULL, NULL,
+				xg_marshal_VOID__POINTER,
+				G_TYPE_NONE,
+				1, G_TYPE_POINTER);
 
-	return preferences_page_plugins_type;
+	signals[REMOVE_PLUGIN_PAGE] =
+		g_signal_new (	"remove-plugin-page",
+				G_OBJECT_CLASS_TYPE (object_class),
+				G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+				G_STRUCT_OFFSET (PreferencesPagePluginsClass, remove_plugin_page),
+				NULL, NULL,
+				xg_marshal_VOID__POINTER,
+				G_TYPE_NONE,
+				1, G_TYPE_POINTER);
+
 }
