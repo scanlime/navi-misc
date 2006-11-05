@@ -35,6 +35,7 @@ void SetLedState(int state);
 void Wifi_Stop();
 void Wifi_Shutdown();
 
+static int gba_mode_flag = 0;
 
 void wifi_sync_handler()
 {
@@ -49,6 +50,11 @@ void fifo_irq_handler()
 
     case IPC_MSG_WIFI_SYNC:
 	Wifi_Sync();
+	break;
+
+    case IPC_MSG_GBA_MODE:
+	gba_mode_flag = 1;
+	break;
 
     }
 }
@@ -65,18 +71,30 @@ uint32 fifo_rx_wait()
 void arm7_reboot()
 {
     uint32 addr;
+    int pmflags;
     
     /* Turn off the wifi */
     Wifi_Stop();
     Wifi_Shutdown();
     POWER_CR = 1;
 
+    /* Default power management flags */
+    pmflags = PM_SOUND_PWR | PM_SOUND_VOL | 
+	PM_BACKLIGHT_TOP | PM_BACKLIGHT_BOTTOM;
+
+    if (gba_mode_flag) {
+	/* Turn off the unused screen in GBA mode */
+	if (PersonalData->gbaScreen) {
+	    pmflags &= ~PM_BACKLIGHT_TOP;
+	} else {
+	    pmflags &= ~PM_BACKLIGHT_BOTTOM;
+	}
+    }
+
+    writePowerManagement(0, pmflags);
+
     /* Stop blinking the LED */
     SetLedState(0);
-
-    /* Default power management state? */
-    writePowerManagement(0, PM_SOUND_PWR | PM_SOUND_VOL | 
-			 PM_BACKLIGHT_TOP | PM_BACKLIGHT_BOTTOM);
 
     /* Disable IRQs */
     REG_IME = 0;
@@ -92,10 +110,11 @@ void arm7_reboot()
 	*(vuint16*)addr = 0;
     }
 
-    /* Reset the ARM7 entry point to the GBA ROM, where the user's code is loaded */
-    BOOT_NDS_HEADER->arm7_execAddr = GBAROM;
-
-    swiSoftReset();
+    if (gba_mode_flag) {
+	swiSwitchToGBAMode();
+    } else {
+	swiSoftReset();
+    }
 }
 
 void vblank_irq_handler()
@@ -108,7 +127,7 @@ void vblank_irq_handler()
      * If the ARM9 is stuck in its reboot loop,
      * begin the ARM7's half of the reboot process.
      */
-    if (BOOT_NDS_HEADER->arm9_execAddr == (void*) &BOOT_NDS_HEADER->arm9_loop) {
+    if (NDSHeader.arm9executeAddress == (uint32) BOOT_ARM9_LOOP_ADDRESS) {
 	arm7_reboot();
     }
 }
