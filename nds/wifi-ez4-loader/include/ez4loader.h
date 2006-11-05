@@ -28,52 +28,32 @@
 #ifndef _EZ4LOADER_H_
 #define _EZ4LOADER_H_
 
+#include <nds/memory.h>
+
 /*
  * FIFO messages
  */
 #define IPC_MSG_WIFI_SYNC  0xCAFE0001
 #define IPC_MSG_WIFI_INIT  0xCAFE0002
+#define IPC_MSG_GBA_MODE   0xCAFE0003
 
 /*
- * Bootstrapping constants. All the critical addresses
- * for (re)booting the DS actually live inside a copy of
- * the NDS header which the BIOS makes near the top of
- * main RAM.
+ * All the critical addresses for (re)booting the DS actually
+ * live inside a copy of the NDS header which the BIOS makes
+ * near the top of main RAM. This is NDSHeader, as defined by
+ * nds/memory.h.
  *
  * We use the original entry point addresses in this header,
  * just as they were intended- but an unused portion of the
  * header (actually part of the game title) is home to
  * a single instruction of executable code which forms
  * a loop that the ARM9 runs in while the ARM7 bootstraps
- * the system.
+ * the system. This points to that instruction.
  */
-volatile struct {
-    unsigned char gameTitle[8];
-    uint32 arm9_loop;                // Actually still part of the title...
-                                     //   This is set to BOOT_ARM9_LOOP_INSTRUCTION.
-    unsigned char gameCode[4];
-    unsigned char makerCode[2];
-    unsigned char unitCode;
-    unsigned char deviceCode;
-    unsigned char cardSize;
-    unsigned char cardInfo[10];
-    unsigned char flags;
-    uint32 arm9_romOffset;
-    void* arm9_execAddr;
-    void* arm9_copyToAddr;
-    uint32 arm9_size;
-    uint32 arm7_romOffset;
-    void* arm7_execAddr;
-    void* arm7_copyToAddr;
-    uint32 arm7_size;
-    /*
-     * There's more to this header, but we don't care about the rest.
-     * See http://www.bottledlight.com/ds/index.php/FileFormats/NDSFormat
-     */
-} *BOOT_NDS_HEADER = (void*) 0x027FFE00;
+#define BOOT_ARM9_LOOP_ADDRESS  ((vuint32*) &NDSHeader.gameTitle[8])
 
 /*
- * When this is placed at BOOT_NDS_HEADER->arm9_loop (address 0x27FFE08)
+ * When this is placed at BOOT_ARM9_LOOP_ADDRESS (address 0x27FFE08)
  * it becomes a "ldr pc, 0x027FFE24" instruction. This points to
  * BOOT_NDS_HEADER->arm9_execAddr. When arm9_execAddr==&arm9_loop, the
  * ARM9 processor is stuck in this one-instruction infinite loop.
