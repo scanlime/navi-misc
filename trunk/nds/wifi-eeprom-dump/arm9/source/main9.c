@@ -41,7 +41,7 @@
 
 typedef struct {
     int fd;
-    unsigned char buffer[1024];
+    unsigned char buffer[512];
     int card_type;
     int card_size;
     int address;
@@ -201,7 +201,8 @@ int main(void)
     while (1) {
 	static Connection conn;
 	int i;
-
+	uint32 data_goal;
+	
 	connection_accept(&conn, server);
 
 	conn.card_type = cardmeGetType();
@@ -212,14 +213,30 @@ int main(void)
 	}
 
 	conn.card_size = cardmeSize(conn.card_type);
-	iprintf("%d bytes\n", conn.card_size);
+	iprintf("%d byte EEPROM\n", conn.card_size);
 
 	for (conn.address = 0;
 	     conn.address < conn.card_size;
 	     conn.address += sizeof conn.buffer) {
+	    int sent = 0;
 
 	    cardmeReadEeprom(conn.address, conn.buffer, sizeof conn.buffer, conn.card_type);
-	    send(conn.fd, conn.buffer, sizeof conn.buffer, 0);
+
+	    data_goal = Wifi_GetStats(WSTAT_TXDATABYTES) + sizeof conn.buffer;
+
+	    do {
+		sent += send(conn.fd, conn.buffer + sent, sizeof conn.buffer - sent, 0);
+	    } while (sent < sizeof conn.buffer);
+
+	    /*
+	     * dswifi's TCP stack is buggy... or sometihing. It's retransmitting every packet
+	     * several times. This seems to help a little. Also, this should help work around
+	     * the fact that dswifi doesn't flush any buffers on close().
+	     */	   
+	    while (Wifi_GetStats(WSTAT_TXDATABYTES) < data_goal) {
+		swiWaitForVBlank();
+	    }
+
 	    iprintf("(%d bytes)\x1b[60D", conn.address);
 	}	
 	iprintf("Complete.        \n");
