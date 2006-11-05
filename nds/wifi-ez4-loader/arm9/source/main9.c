@@ -398,7 +398,7 @@ void connection_identify_rom(Connection *self)
 		    sizeof self->header.gba.gamecode)) {
 	    image_type = ".gba";
 	    /* Let the ARM7 and ARM9 both know we'll be using GBA mode */
-	    gba_mode_flag = 0;
+	    gba_mode_flag = 1;
 	    REG_IPC_FIFO_TX = IPC_MSG_GBA_MODE;
 	} else {
 	    image_type = ".ds.gba";
@@ -490,8 +490,6 @@ void gbarom_init(void)
 
 void arm9_reboot(void)
 {
-    uint16 *vram;
-
     iprintf("Rebooting...\n");
 
     /* Yield the GBA bus to the ARM7 */
@@ -501,17 +499,22 @@ void arm9_reboot(void)
     REG_IME = 0;
     REG_IF = 0;
 
-    /*
-     * Clear some VRAM.
-     * This couldn't hurt when running NDS images, but it is essential
-     * to clear the border which will appear around GBA games: otherwise
-     * we'll get nasty flickering garbage.
-     */
-    for (vram = VRAM_A; vram < VRAM_C; vram++) {
-	*vram = 0;
+    if (gba_mode_flag) {
+	/*
+	 * Map and clear the VRAM, to eliminate nasty flickery border
+	 * artifacts in GBA mode.
+	 */
+	uint16 *vram;
+    
+	videoSetMode(MODE_FB0);
+	vramSetMainBanks(VRAM_A_LCD, VRAM_B_LCD, VRAM_C_LCD, VRAM_D_LCD);
+
+	for (vram = VRAM_A; vram < VRAM_E; vram++) {
+	    *vram = 0;
+	}
     }
 
-    /* A little video resetting */
+    /* Reset video modes */
     videoSetMode(0);
     videoSetModeSub(0);
 
