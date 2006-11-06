@@ -62,6 +62,8 @@ static void navigation_tree_dispose    (GObject *object);
 static void navigation_tree_finalize   (GObject *object);
 static gint tree_iter_sort_func_nocase (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer data);
 
+static void row_inserted (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, NavTree *tree);
+
 
 #define NAVTREE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), NAVTREE_TYPE, NavTreePriv))
 struct _NavTreePriv
@@ -173,6 +175,9 @@ navigation_tree_new (NavModel *model)
 {
 	NavTree *tree = NAVTREE (g_object_new (navigation_tree_get_type (), NULL));
 	gtk_tree_view_set_model (GTK_TREE_VIEW (tree), GTK_TREE_MODEL (model));
+
+	g_signal_connect (G_OBJECT (model), "row-inserted", G_CALLBACK (row_inserted), tree);
+
 	return tree;
 }
 
@@ -180,6 +185,23 @@ void
 navigation_tree_select_session (NavTree *tree, session *sess)
 {
 	// FIXME: implement
+}
+
+static void
+row_inserted (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, NavTree *tree)
+{
+	/*
+	 * If this is the first child of a server, expand that server.  This is
+	 * so things will be expanded by default, but if someone closes a
+	 * server, it won't override that any time there's a new channel opened.
+	 */
+	if (gtk_tree_path_get_depth (path) == 2) {
+		GtkTreeIter parent;
+		gtk_tree_model_iter_parent (model, &parent, iter);
+		if (gtk_tree_model_iter_n_children (model, &parent) == 1) {
+			gtk_tree_view_expand_to_path (GTK_TREE_VIEW (tree), path);
+		}
+	}
 }
 
 GType
@@ -250,7 +272,7 @@ navigation_model_new ()
 void
 navigation_model_add_server (NavModel *model, session *sess)
 {
-	GtkTreeIter   iter;
+	GtkTreeIter iter;
 	gtk_tree_store_append (GTK_TREE_STORE (model), &iter, NULL);
 
 	/* Set default values */
