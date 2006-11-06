@@ -451,22 +451,7 @@ on_network_disconnect_activate (GtkAction *action, gpointer data)
 static void
 on_network_close_activate (GtkAction *actoin, gpointer data)
 {
-	GtkTreeIter parent, *iter;
-	session *sess = gui.current_session;
-	if (sess == NULL)
-		return;
-
-	iter = navigation_model_get_unsorted_iter (gui.tree_model, sess);
-
-	sess->server->disconnect (sess, TRUE, -1);
-
-	if (gtk_tree_model_iter_parent (GTK_TREE_MODEL (gui.tree_model->store), &parent, iter)) {
-		gtk_tree_store_remove (gui.tree_model->store, &parent);
-	} else {
-		gtk_tree_store_remove (gui.tree_model->store, iter);
-	}
-
-	gtk_tree_iter_free (iter);
+	// FIXME: move to navtree actions
 }
 
 static void
@@ -540,31 +525,31 @@ on_discussion_bans_activate (GtkAction *action, gpointer data)
 static void
 on_go_previous_network_activate (GtkAction *action, gpointer data)
 {
-	navigation_tree_select_prev_network (gui.server_tree);
+	// FIXME: move to navtree actions
 }
 
 static void
 on_go_next_network_activate(GtkAction *action, gpointer data)
 {
-	navigation_tree_select_next_network (gui.server_tree);
+	// FIXME: move to navtree actions
 }
 
 static void
 on_go_previous_discussion_activate (GtkAction *action, gpointer data)
 {
-	navigation_tree_select_prev_channel (gui.server_tree);
+	// FIXME: move to navtree actions
 }
 
 static void
 on_go_next_discussion_activate (GtkAction *action, gpointer data)
 {
-	navigation_tree_select_next_channel (gui.server_tree);
+	// FIXME: move to navtree actions
 }
 
 static void
 on_discussion_jump_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data)
 {
-	navigation_tree_select_nth_channel (gui.server_tree, GPOINTER_TO_INT (data));
+	// FIXME: move to navtree actions
 }
 
 static void

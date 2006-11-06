@@ -70,6 +70,7 @@ dialog_response (ConnectDialog *dialog, gint response, gpointer data)
 		if (gtk_tree_selection_get_selected (select, &model, &iter)) {
 			session *s;
 			gboolean connected;
+			/* FIXME
 
 			s = navigation_tree_get_selected_session(&connected);
 			if (connected) {
@@ -81,6 +82,7 @@ dialog_response (ConnectDialog *dialog, gint response, gpointer data)
 				servlist_connect_by_netname (s, network, TRUE);
 			}
 			g_free (network);
+			*/
 			gtk_widget_destroy (GTK_WIDGET (dialog));
 		}
 	} else {
