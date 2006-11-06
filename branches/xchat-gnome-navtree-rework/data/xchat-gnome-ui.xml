@@ -67,8 +67,6 @@
 	</popup>
 
         <popup name="ServerPopup" action="PopupAction">
-                <menuitem name="ServerInformation" action="ServerInformation"/>
-                <separator name="ServerPopupSep0"/>
                 <menuitem name="ServerReconnect" action="ServerReconnect"/>
 		<menuitem name="ServerDisconnect" action="ServerDisconnect"/>
 		<menuitem name="ServerClose" action="ServerClose"/>

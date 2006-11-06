@@ -23,8 +23,8 @@
 #include <glib/gi18n.h>
 #include <string.h>
 #include "irc-network.h"
-#include "navigation-tree.h"
 #include "gui.h"
+#include "util.h"
 #include "../common/server.h"
 
 const char *encodings[] =
@@ -194,7 +194,7 @@ irc_network_save (IrcNetwork *network)
 	net->autojoin = g_strdup (network->autojoin);
 	net->encoding = g_strdup (encodings[network->encoding]);
 
-	serv = navigation_model_get_server (gui.tree_model, net);
+	serv = find_connected_server (net);
 	if (serv) {
 		server_set_encoding (serv, net->encoding);
 	}

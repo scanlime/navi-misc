@@ -38,6 +38,7 @@
 #include "status-bar.h"
 #include "topic-label.h"
 #include "connect-dialog.h"
+#include "text-entry.h"
 
 #include "palette.h"
 #include "preferences-page-plugins.h"
@@ -222,14 +223,17 @@ fe_new_window (struct session *sess, int focus)
 {
 	static gboolean loaded = FALSE;
 
-	if (focus) {
-		gui.current_session = sess;
-		topic_label_set_topic (TOPIC_LABEL (gui.topic_label), sess, sess->topic);
+	conversation_panel_add_session (CONVERSATION_PANEL (gui.conversation_panel), sess, (gboolean) focus);
+
+	switch (sess->type) {
+	case SESS_SERVER:
+		navigation_model_add_server (gui.tree_model, sess);
+		break;
+	case SESS_CHANNEL:
+		navigation_model_add_channel (gui.tree_model, sess);
 	}
 
-	conversation_panel_add_session (CONVERSATION_PANEL (gui.conversation_panel), sess, (gboolean) focus);
-	if (sess->type == SESS_SERVER) {
-		navigation_tree_create_new_network_entry (gui.server_tree, sess);
+	/* FIXME
 	} else if (sess->type == SESS_CHANNEL) {
 		navigation_tree_create_new_channel_entry (gui.server_tree, sess, (gboolean) focus);
 	} else if (sess->type == SESS_DIALOG) {
@@ -242,6 +246,12 @@ fe_new_window (struct session *sess, int focus)
 			topic_label_set_topic (TOPIC_LABEL (gui.topic_label), sess, user->hostname);
 		}
 	}
+	*/
+
+	if (focus) {
+		navigation_tree_select_session (gui.server_tree, sess);
+	}
+
 #ifdef USE_PLUGIN
 	if (!(opt_noplugins || loaded)) {
 		loaded = TRUE;
@@ -313,7 +323,9 @@ fe_set_topic (struct session *sess, char *topic)
 void
 fe_set_hilight (struct session *sess)
 {
+	/* FIXME
 	navigation_model_set_hilight (gui.tree_model, sess);
+	*/
 	fe_flash_window (sess);
 }
 
@@ -394,11 +406,13 @@ void
 fe_close_window (struct session *sess)
 {
 	if (!gui.quit) {
+		/* FIXME
 		if (sess->type == SESS_CHANNEL) {
 			navigation_tree_remove_channel (gui.server_tree, sess);
 		} else {
 			navigation_tree_remove_server (gui.server_tree, sess);
 		}
+		*/
 	}
 
 	session_free (sess);
@@ -421,7 +435,9 @@ fe_print_text (struct session *sess, char *text)
 {
 	conversation_panel_print (CONVERSATION_PANEL (gui.conversation_panel), sess, text, prefs.indent_nicks);
 	sess->new_data = TRUE;
+	/* FIXME
 	navigation_model_set_hilight (gui.tree_model, sess);
+	*/
 	if (sess->nick_said) {
 		if (!gtk_window_is_active (GTK_WINDOW (gui.main_window))) {
 			gtk_window_set_urgency_hint (GTK_WINDOW (gui.main_window), TRUE);
@@ -546,14 +562,22 @@ fe_dcc_open_chat_win (int passive)
 void
 fe_clear_channel (struct session *sess)
 {
+	/* FIXME
 	navigation_model_set_disconn (gui.tree_model, sess);
+	*/
 }
 
 void
 fe_session_callback (struct session *sess)
 {
-	/* this frees things */
-	/* FIXME: implement */
+	if (sess->type == SESS_SERVER) {
+		status_bar_remove_server (STATUS_BAR (gui.status_bar), sess->server);
+	}
+
+	conversation_panel_remove_session (CONVERSATION_PANEL (gui.conversation_panel), sess);
+	topic_label_remove_session (TOPIC_LABEL (gui.topic_label), sess);
+	text_entry_remove_session (TEXT_ENTRY (gui.text_entry), sess);
+	userlist_erase (u, sess);
 }
 
 void
@@ -595,7 +619,7 @@ fe_dcc_send_filereq (struct session *sess, char *nick, int maxcps, int passive)
 void
 fe_set_channel (struct session *sess)
 {
-    navigation_tree_set_channel_name (gui.server_tree, sess);
+	navigation_model_update (gui.tree_model, sess);
 }
 
 void
