@@ -68,14 +68,13 @@ const uint32 ndsmall_nds_offset = 0x01a8;
 #define  WIFI_TIMER_MS  50
 #define  TCP_PORT       6502
 
-static int gba_mode_flag = 0;
-
 typedef struct {
     int fd;
     unsigned char buffer[4096];
     uint32 buffer_len;
     uint32 bytes_received;
     uint32 header_len;
+    uint32 boot_mode;
     void *image_destination;
     union {
 	tNDSHeader nds;
@@ -354,15 +353,9 @@ int validate_gba_header(tGBAHeader *hdr)
 
 int validate_nds_header(tNDSHeader *hdr)
 {
-    if (hdr->romSize > (0x20000 << hdr->deviceSize)) {
-	return 0;
-    }
-    
-    if (hdr->headerSize < 0x100) {
-	return 0;
-    }
+    /* NB: Don't use romSize for validation, it's wrong on many PAlib games */
 
-    if (hdr->headerSize >= hdr->romSize) {
+    if (hdr->headerSize < sizeof *hdr) {
 	return 0;
     }
 
@@ -371,8 +364,23 @@ int validate_nds_header(tNDSHeader *hdr)
 	return 0;
     }
 
-    if (hdr->arm9romSource + hdr->arm9binarySize > hdr->romSize ||
-	hdr->arm7romSource + hdr->arm7binarySize > hdr->romSize) {
+    /* Make sure the execute addresses are within the copied images */
+    if (hdr->arm9executeAddress < hdr->arm9destination ||
+	hdr->arm9executeAddress >= (hdr->arm9destination + hdr->arm9binarySize) ||
+	hdr->arm7executeAddress < hdr->arm7destination ||
+	hdr->arm7executeAddress >= (hdr->arm7destination + hdr->arm7binarySize)) {
+	return 0;
+    }
+
+    /*
+     * Enforce that the load addresses are between 0x2000000 and 0x4000000.
+     * This allows code loaded into Main, shared, or private RAM and prevents
+     * a corrupted NDS header from clobbering registers.
+     */
+    if (hdr->arm9destination < 0x2000000 ||
+	(hdr->arm9destination + hdr->arm9binarySize) >= 0x4000000 ||
+	hdr->arm7destination < 0x2000000 ||
+	(hdr->arm7destination + hdr->arm7binarySize) >= 0x4000000) {
 	return 0;
     }
 
@@ -384,6 +392,7 @@ void connection_identify_rom(Connection *self)
     char *title, *image_type;
 
     self->image_destination = GBAROM;
+    self->boot_mode = IPC_MSG_REBOOT_NDS;
 
     if (validate_gba_header(&self->header.gba)) {
 	/*
@@ -397,9 +406,7 @@ void connection_identify_rom(Connection *self)
 	if (strncmp(self->header.gba.gamecode, "PASS", 
 		    sizeof self->header.gba.gamecode)) {
 	    image_type = ".gba";
-	    /* Let the ARM7 and ARM9 both know we'll be using GBA mode */
-	    gba_mode_flag = 1;
-	    REG_IPC_FIFO_TX = IPC_MSG_GBA_MODE;
+	    self->boot_mode = IPC_MSG_REBOOT_GBA;
 	} else {
 	    image_type = ".ds.gba";
 	}
@@ -485,10 +492,10 @@ void gbarom_init(void)
 {
     sysSetCartOwner(1);
     ezflash4_control(EZ4CTRL_GBAROM_WRITE_ENABLE);
-    iprintf("%d kB program space\n", gbarom_detect_writable_size() / 1024);
+    iprintf("%d kB program space\n\n", gbarom_detect_writable_size() / 1024);
 }
 
-void arm9_reboot(void)
+void arm9_reboot(uint32 boot_mode)
 {
     iprintf("Rebooting...\n");
 
@@ -499,7 +506,7 @@ void arm9_reboot(void)
     REG_IME = 0;
     REG_IF = 0;
 
-    if (gba_mode_flag) {
+    if (boot_mode == IPC_MSG_REBOOT_GBA) {
 	/*
 	 * Map and clear the VRAM, to eliminate nasty flickery border
 	 * artifacts in GBA mode.
@@ -518,7 +525,8 @@ void arm9_reboot(void)
     videoSetMode(0);
     videoSetModeSub(0);
 
-    if (PersonalData->gbaScreen && gba_mode_flag) {
+    if (boot_mode == IPC_MSG_REBOOT_GBA &&
+	PersonalData->gbaScreen) {
 	/* GBA on lower screen */
 	lcdMainOnBottom();
     } else {
@@ -530,11 +538,14 @@ void arm9_reboot(void)
 
     /*
      * Initialize the ARM9 loop.
-     * Our ARM7 is polling for this- as soon as we set the
-     * entry point address here, arm7_reboot() will begin.
+     * The BIOS will jump us to arm9executeAddress, which
+     * points to our loop instruction which jumps to arm9executeAddress...
      */
     *BOOT_ARM9_LOOP_ADDRESS = BOOT_ARM9_LOOP_INSTRUCTION;
     NDSHeader.arm9executeAddress = (uint32) BOOT_ARM9_LOOP_ADDRESS;
+
+    /* Tell the ARM7 to reboot now */
+    REG_IPC_FIFO_TX = boot_mode;
 
     swiSoftReset();
 }
@@ -565,7 +576,7 @@ int main(void)
 		scanKeys();
 	    } while (!keysHeld());
   
-	    arm9_reboot();
+	    arm9_reboot(conn.boot_mode);
 	}
 
 	close(conn.fd);

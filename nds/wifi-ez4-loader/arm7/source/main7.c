@@ -35,40 +35,13 @@ void SetLedState(int state);
 void Wifi_Stop();
 void Wifi_Shutdown();
 
-static int gba_mode_flag = 0;
-
 void wifi_sync_handler()
 {
     /* This is called by libdswifi in order to invoke Wifi_Sync() on the ARM9 */
     REG_IPC_FIFO_TX = IPC_MSG_WIFI_SYNC;
 }
 
-void fifo_irq_handler()
-{
-    uint32 message = REG_IPC_FIFO_RX;
-    switch (message) {
-
-    case IPC_MSG_WIFI_SYNC:
-	Wifi_Sync();
-	break;
-
-    case IPC_MSG_GBA_MODE:
-	gba_mode_flag = 1;
-	break;
-
-    }
-}
-
-uint32 fifo_rx_wait()
-{
-    /* Perform a blocking read from the FIFO */
-    while (REG_IPC_FIFO_CR & IPC_FIFO_RECV_EMPTY) {
-	swiWaitForVBlank();
-    }
-    return REG_IPC_FIFO_RX;
-}
-
-void arm7_reboot()
+void arm7_reboot(uint32 boot_mode)
 {
     uint32 addr;
     int pmflags;
@@ -82,7 +55,7 @@ void arm7_reboot()
     pmflags = PM_SOUND_PWR | PM_SOUND_VOL | 
 	PM_BACKLIGHT_TOP | PM_BACKLIGHT_BOTTOM;
 
-    if (gba_mode_flag) {
+    if (boot_mode == IPC_MSG_REBOOT_GBA) {
 	/* Turn off the unused screen in GBA mode */
 	if (PersonalData->gbaScreen) {
 	    pmflags &= ~PM_BACKLIGHT_TOP;
@@ -110,11 +83,37 @@ void arm7_reboot()
 	*(vuint16*)addr = 0;
     }
 
-    if (gba_mode_flag) {
+    if (boot_mode == IPC_MSG_REBOOT_GBA) {
 	swiSwitchToGBAMode();
     } else {
 	swiSoftReset();
     }
+}
+
+void fifo_irq_handler()
+{
+    uint32 message = REG_IPC_FIFO_RX;
+    switch (message) {
+
+    case IPC_MSG_WIFI_SYNC:
+	Wifi_Sync();
+	break;
+
+    case IPC_MSG_REBOOT_NDS:
+    case IPC_MSG_REBOOT_GBA:
+	arm7_reboot(message);
+	break;
+
+    }
+}
+
+uint32 fifo_rx_wait()
+{
+    /* Perform a blocking read from the FIFO */
+    while (REG_IPC_FIFO_CR & IPC_FIFO_RECV_EMPTY) {
+	swiWaitForVBlank();
+    }
+    return REG_IPC_FIFO_RX;
 }
 
 void vblank_irq_handler()
@@ -122,14 +121,6 @@ void vblank_irq_handler()
     Wifi_Update();
     IPC->buttons = REG_KEYXY;
     IPC->heartbeat++;
-
-    /*
-     * If the ARM9 is stuck in its reboot loop,
-     * begin the ARM7's half of the reboot process.
-     */
-    if (NDSHeader.arm9executeAddress == (uint32) BOOT_ARM9_LOOP_ADDRESS) {
-	arm7_reboot();
-    }
 }
 
 int main()
