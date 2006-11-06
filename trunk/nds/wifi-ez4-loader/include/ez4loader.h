@@ -36,8 +36,10 @@
 #define IPC_MSG_WIFI_SYNC  0xCAFE0001
 #define IPC_MSG_WIFI_INIT  0xCAFE0002
 #define IPC_MSG_REBOOT_GBA 0xCAFE0003
-#define IPC_MSG_REBOOT_NDS 0xCAFE0004 
-
+#define IPC_MSG_REBOOT_NDS 0xCAFE0004
+#define IPC_MSG_ACK_REBOOT 0xCAFE0005
+#define IPC_MSG_COPY_SELF  0xCAFE0006
+ 
 /*
  * All the critical addresses for (re)booting the DS actually
  * live inside a copy of the NDS header which the BIOS makes

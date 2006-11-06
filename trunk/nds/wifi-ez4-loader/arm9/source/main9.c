@@ -26,7 +26,6 @@
  */
 
 #include <nds.h>
-#include <nds/dma.h>
 #include <nds/arm9/console.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,7 +63,23 @@
 #include "ndsmall_bin.h"
 const uint32 ndsmall_nds_offset = 0x01a8;
 
-#define  DMA_CHANNEL    3
+/*
+ * This parameter block lets us communicate with the image we've loaded.
+ * It sits near the top of NDSHeader, in the reserved area. It's above
+ * the last address that ndsmall.bin copies.
+ *
+ * The loaded process can verify our presence by checking that
+ * entryPoint == ~entryPointComplement. It can jump back to the bootloader
+ * by resetting the ARM9 to a PassMe loop and the ARM7 to this address.
+ */
+struct {
+    uint32 entryPoint;
+    uint32 entryPointComplement;
+} *LoaderParameterBlock = (void*) 0x027FFF84;
+
+/* A copy of the ARM7 binary image, in memory that this processor can access */
+static unsigned char local_arm7_image[0x10000];
+
 #define  WIFI_TIMER_MS  50
 #define  TCP_PORT       6502
 
@@ -82,6 +97,8 @@ typedef struct {
     } __attribute__ ((__packed__)) header;
 } Connection;
 
+extern void sgIP_Init();
+
 
 void * sgIP_malloc(int size)
 { 
@@ -93,19 +110,19 @@ void sgIP_free(void * ptr)
     free(ptr);
 }
 
-void wifi_timer_handler(void)
+static void wifi_timer_handler(void)
 {
     Wifi_Timer(WIFI_TIMER_MS);
 }
 
-void wifi_sync_handler()
+static void wifi_sync_handler()
 {
     /* This is called by libdswifi in order to invoke Wifi_Sync() on the ARM7 */
     REG_IPC_FIFO_TX = IPC_MSG_WIFI_SYNC;
 }
 
 
-void fifo_irq_handler()
+static void fifo_irq_handler()
 {
     uint32 message = REG_IPC_FIFO_RX;
     switch (message) {
@@ -116,12 +133,19 @@ void fifo_irq_handler()
     }
 }
 
-void vblank_irq_handler()
+static void vblank_irq_handler()
 {
     Wifi_Update();
 }
 
-void video_init()
+static uint32 fifo_rx_wait()
+{
+    /* Perform a blocking read from the FIFO */
+    while (REG_IPC_FIFO_CR & IPC_FIFO_RECV_EMPTY);
+    return REG_IPC_FIFO_RX;
+}
+
+static void video_init()
 {
     powerSET(POWER_LCD | POWER_2D_B);
     lcdMainOnBottom();
@@ -131,16 +155,55 @@ void video_init()
     iprintf("Wifi EZ4 Loader\nMicah Dowty <micah@navi.cx>\n\n");
 }
 
-void wifi_init()
+uint32 Wifi_Init_Hack(uint32 flags)
+{
+    /*
+     * XXX: This is a reimplementation of dswifi's Wifi_Init().
+     *      For some reason, Wifi_Init() can crash after a soft-reboot.
+     *      This version doesn't- and the only noticeable difference
+     *      is that we use memset() rather than a for loop to clear
+     *      Wifi_Data_Struct.
+     */
+    struct WIFI_MAINSTRUCT {
+	u16 curChannel, reqChannel;
+	u16 curMode, reqMode;
+	u16 authlevel,authctr;
+	u32 flags9, flags7, reqPacketFlags;
+    };
+    extern struct WIFI_MAINSTRUCT Wifi_Data_Struct;
+    extern struct WIFI_MAINSTRUCT *WifiData;
+    uint32 wifiSize = 0x00009f04;
+
+    memset(&Wifi_Data_Struct, 0, wifiSize);
+    WifiData = (struct WIFI_MAINSTRUCT*) (((uint32) &Wifi_Data_Struct) | 0x00400000);
+    sgIP_Init();
+    WifiData->flags9 = 1 + WIFIINIT_OPTION_USELED;
+    return (uint32) &Wifi_Data_Struct;
+}
+
+static void wifi_init()
 {
     REG_IPC_FIFO_CR = IPC_FIFO_ENABLE | IPC_FIFO_SEND_CLEAR;
+
+    /*
+     * This is not wifi-related, obviously, but for convenience
+     * we're abusing the existing ARM7 handshaking here. Ask
+     * the ARM7 to make a copy of its own code into main memory.
+     */
+    REG_IPC_FIFO_TX = IPC_MSG_COPY_SELF;
+    REG_IPC_FIFO_TX = (uint32) local_arm7_image;
+
+    /*
+     * Wait until the ARM7 is ready for us to Wifi_Init()
+     */
+    while (fifo_rx_wait() != IPC_MSG_WIFI_INIT);
 
     /*
      * Our half of the ARM7 Wifi handshaking:
      * Send it a pointer to the shared memory area for Wifi.
      */
     REG_IPC_FIFO_TX = IPC_MSG_WIFI_INIT;
-    REG_IPC_FIFO_TX = Wifi_Init(WIFIINIT_OPTION_USELED);
+    REG_IPC_FIFO_TX = Wifi_Init_Hack(WIFIINIT_OPTION_USELED);
 
     /* Disable TIMER3 before setting up its IRQ handler */
     TIMER3_CR = 0;
@@ -166,7 +229,7 @@ void wifi_init()
     }
 }
 
-int wifi_connect()
+static int wifi_connect()
 {
     iprintf("Connecting with WFC settings...\n");
   
@@ -185,13 +248,12 @@ int wifi_connect()
     }
 }
 
-int wifi_listen()
+static int wifi_listen()
 {
-    struct sockaddr_in addr;
+    struct sockaddr_in addr = { 0 };
     int s;
     uint32 my_ip;
 
-    memset(&addr, 0, sizeof addr);
     addr.sin_family = AF_INET;
     addr.sin_port = htons(TCP_PORT);
     s = socket(AF_INET, SOCK_STREAM, 0);
@@ -209,12 +271,10 @@ int wifi_listen()
     return s;
 }
 
-void connection_accept(Connection *self, int socket)
+static void connection_accept(Connection *self, int socket)
 {
     struct sockaddr_in addr;
     int addrSize;
-
-    memset(self, 0, sizeof *self);
 
     self->fd = accept(socket, (struct sockaddr *) &addr, &addrSize);
     iprintf("\nAccepted %d.%d.%d.%d:%d\n",
@@ -225,7 +285,7 @@ void connection_accept(Connection *self, int socket)
 	    ntohs(addr.sin_port));
 }
 
-int connection_read_header(Connection *self)
+static int connection_read_header(Connection *self)
 {
     while (self->header_len != sizeof self->header) {
 	int result = recv(self->fd, 
@@ -242,16 +302,16 @@ int connection_read_header(Connection *self)
     return 1;
 }
 
-void connection_read_image(Connection *self)
+static void connection_read_image(Connection *self)
 {
     /*
-     * DMA the header followed by the rest of the ROM image into
+     * Copy the header followed by the rest of the ROM image into
      * self->image_destination, until the connection is closed.
      */
     
     /* This assumes our header is not an odd number of bytes */
-    dmaCopyHalfWords(DMA_CHANNEL, &self->header,
-		     self->image_destination, sizeof self->header);
+    swiCopy(&self->header, self->image_destination,
+	    COPY_MODE_HWORD | (sizeof self->header / sizeof(uint16)));
     self->image_destination += sizeof self->header;
 
     while (1) {
@@ -277,8 +337,8 @@ void connection_read_image(Connection *self)
 	block_size = result & ~1;
 	self->buffer_len = result & 1;
 
-	dmaCopyHalfWords(DMA_CHANNEL, self->buffer,
-			 self->image_destination, block_size);
+	swiCopy(self->buffer, self->image_destination,
+		COPY_MODE_HWORD | (block_size / sizeof(uint16)));
 	self->image_destination += block_size;
 
 	if (self->buffer_len) {
@@ -288,16 +348,15 @@ void connection_read_image(Connection *self)
 
     if (self->buffer_len) {
 	uint32 block_size = (self->buffer_len + 1) & ~1;
-	dmaCopyHalfWords(DMA_CHANNEL, self->buffer,
-			 self->image_destination,
-			 block_size);
+	swiCopy(self->buffer, self->image_destination,
+		COPY_MODE_HWORD | (block_size / sizeof(uint16)));
 	self->image_destination += block_size;
     }
       
     iprintf("Finished. (%d bytes)\n", self->bytes_received);
 }
 
-char *format_game_title(char *str, int len)
+static char *format_game_title(char *str, int len)
 {
     /*
      * Format a game title, given as a counted string,
@@ -338,7 +397,7 @@ char *format_game_title(char *str, int len)
     return "";
 }
 
-int validate_gba_header(tGBAHeader *hdr)
+static int validate_gba_header(tGBAHeader *hdr)
 {
     if (hdr->is96h != 0x96) {
 	return 0;
@@ -351,7 +410,7 @@ int validate_gba_header(tGBAHeader *hdr)
     return 1;
 }
 
-int validate_nds_header(tNDSHeader *hdr)
+static int validate_nds_header(tNDSHeader *hdr)
 {
     /* NB: Don't use romSize for validation, it's wrong on many PAlib games */
 
@@ -387,14 +446,30 @@ int validate_nds_header(tNDSHeader *hdr)
     return 1;
 }
 
-void connection_identify_rom(Connection *self)
+static void connection_identify_rom(Connection *self)
 {
     char *title, *image_type;
 
     self->image_destination = GBAROM;
     self->boot_mode = IPC_MSG_REBOOT_NDS;
 
-    if (validate_gba_header(&self->header.gba)) {
+    if (validate_nds_header(&self->header.nds)) {
+	/*
+	 * NDS header looks fine. Prepend our default GBA loader.
+	 *
+	 * Note: Currently it seems like a better idea to validate
+	 *       NDS headers first. By default, ndstool produces headers
+	 *       which look like both NDS and GBA headers, but are actually
+	 *       only useful as NDS.
+	 */
+	title = format_game_title(self->header.nds.gameTitle,
+				  sizeof self->header.nds.gameTitle);
+	image_type = ".nds";
+
+	swiCopy(ndsmall_bin, self->image_destination,
+		COPY_MODE_HWORD | (ndsmall_bin_size / sizeof(uint16)));
+	self->image_destination += ndsmall_bin_size;
+    } else if (validate_gba_header(&self->header.gba)) {
 	/*
 	 * GBA header seems valid. This will always load directly
 	 * to the GBAROM memory, but we should detect whether it's
@@ -403,26 +478,13 @@ void connection_identify_rom(Connection *self)
 	title = format_game_title(self->header.gba.title,
 				  sizeof self->header.gba.title);
 
-	if (strncmp(self->header.gba.gamecode, "PASS", 
-		    sizeof self->header.gba.gamecode)) {
+	if (memcmp(self->header.gba.gamecode, "PASS", 
+		   sizeof self->header.gba.gamecode)) {
 	    image_type = ".gba";
 	    self->boot_mode = IPC_MSG_REBOOT_GBA;
 	} else {
 	    image_type = ".ds.gba";
 	}
-    } else if (validate_nds_header(&self->header.nds)) {
-	/*
-	 * NDS header looks fine. Prepend our default GBA loader.
-	 */
-
-	title = format_game_title(self->header.nds.gameTitle,
-				  sizeof self->header.nds.gameTitle);
-	image_type = ".nds";
-
-	dmaCopyHalfWords(DMA_CHANNEL, ndsmall_bin,
-			 self->image_destination,
-			 ndsmall_bin_size);
-	self->image_destination += ndsmall_bin_size;
     } else {
 	/*
 	 * Unknown! Dump it to ROM and hope for the best- it
@@ -435,7 +497,7 @@ void connection_identify_rom(Connection *self)
     iprintf("Detected %s image\n%s\n\n", image_type, title);
 }
 
-uint32 gbarom_detect_writable_size(void)
+static uint32 gbarom_detect_writable_size(void)
 {
     /*
      * Perform a binary search to determine the amount of
@@ -478,7 +540,7 @@ uint32 gbarom_detect_writable_size(void)
     return byte_size;
 }
 
-void ezflash4_control(uint16 value)
+static void ezflash4_control(uint16 value)
 {
     GBA_BUS[0xff0000] = 0xd200;
     GBA_BUS[0x000000] = 0x1500;
@@ -488,19 +550,81 @@ void ezflash4_control(uint16 value)
     GBA_BUS[0xfe0000] = 0x1500;
 }
 
-void gbarom_init(void)
+static void gbarom_init(void)
 {
-    sysSetCartOwner(1);
+    static uint32 patched_loader[512 / sizeof(uint32)];
+    static tNDSHeader patched_header;
+    uint32 available_space;
+    uint32 loader_size;
+    void *loader_ptr;
+
+    sysSetCartOwner(BUS_OWNER_ARM9);
     ezflash4_control(EZ4CTRL_GBAROM_WRITE_ENABLE);
-    iprintf("%d kB program space\n\n", gbarom_detect_writable_size() / 1024);
+
+    available_space = gbarom_detect_writable_size();
+
+    /*
+     * Carve out a chunk of GBAROM space at the very top,
+     * and make a copy of ourselves there. We'll patch the
+     * ndsmall.bin bootloader in order to change its NDS
+     * source address, so that it can run in-place.
+     *
+     * We place the entry point address in an agreed-upon
+     * location in main RAM.
+     */
+    
+    /* First, calculate how much space we'll need, including extra for worst-case padding */
+    loader_size = ndsmall_bin_size + sizeof(tNDSHeader) +
+	NDSHeader.arm9binarySize + NDSHeader.arm7binarySize;
+    loader_size = (loader_size + 2*3) & ~3;
+    
+    /* Reserve that space at the very top of the GBAROM */
+    available_space -= loader_size;
+    loader_ptr = available_space + (void*)GBAROM;
+    iprintf("%d kB program space\n\n", available_space / 1024);
+
+    /* Store the entry point */
+    LoaderParameterBlock->entryPoint = (uint32) loader_ptr;
+    LoaderParameterBlock->entryPointComplement = ~(uint32) loader_ptr;
+
+    /* First in: a patched copy of the ndsmall bootloader */
+    swiCopy(ndsmall_bin, patched_loader,
+	    COPY_MODE_HWORD | (ndsmall_bin_size / sizeof(uint16)));
+    patched_loader[ndsmall_nds_offset / sizeof(patched_loader[0])] =
+	(uint32) (loader_ptr + ndsmall_bin_size);
+    swiCopy(patched_loader, loader_ptr,
+	    COPY_MODE_HWORD | (ndsmall_bin_size / sizeof(uint16)));
+    loader_ptr += ndsmall_bin_size;
+
+    /*
+     * Next, a patched copy of our NDS header. We change the ROM addresses,
+     * since we'll be copying the header, ARM7 code, and ARM9 code consecutively.
+     */
+    swiCopy(&NDSHeader, &patched_header,
+	    sizeof patched_header / sizeof(uint32));
+    patched_header.arm7binarySize = (patched_header.arm7binarySize + 3) & ~3;
+    patched_header.arm9binarySize = (patched_header.arm9binarySize + 3) & ~3;
+    patched_header.arm7romSource = sizeof patched_header;
+    patched_header.arm9romSource = patched_header.arm7romSource + patched_header.arm7binarySize;
+    swiCopy(&patched_header, loader_ptr,
+	    COPY_MODE_HWORD | (sizeof patched_header / sizeof(uint16)));
+    loader_ptr += sizeof patched_header;
+
+    /*
+     * Now we can copy in our own executable code
+     */
+    swiCopy(local_arm7_image, loader_ptr,
+	    COPY_MODE_HWORD | (patched_header.arm7binarySize / sizeof(uint16)));
+    loader_ptr += patched_header.arm7binarySize;
+    swiCopy((void*) patched_header.arm9destination, loader_ptr,
+	    COPY_MODE_HWORD | (patched_header.arm9binarySize / sizeof(uint16)));
 }
 
-void arm9_reboot(uint32 boot_mode)
+static void arm9_reboot(uint32 boot_mode)
 {
     iprintf("Rebooting...\n");
 
-    /* Yield the GBA bus to the ARM7 */
-    sysSetCartOwner(0);
+    sysSetCartOwner(BUS_OWNER_ARM7);
 
     /* Disable IRQs */
     REG_IME = 0;
@@ -544,26 +668,35 @@ void arm9_reboot(uint32 boot_mode)
     *BOOT_ARM9_LOOP_ADDRESS = BOOT_ARM9_LOOP_INSTRUCTION;
     NDSHeader.arm9executeAddress = (uint32) BOOT_ARM9_LOOP_ADDRESS;
 
-    /* Tell the ARM7 to reboot now */
+    DC_FlushAll();
+    IC_InvalidateAll();
+
+    /*
+     * Tell the ARM7 to reboot now, wait for it to acknowledge.
+     * This is mostly as a sanity check for arm7_reboot, so we
+     * don't end up rebooting one core but not the other.
+     */
     REG_IPC_FIFO_TX = boot_mode;
+    do {
+	while (REG_IPC_FIFO_CR & IPC_FIFO_RECV_EMPTY);
+    } while (REG_IPC_FIFO_RX != IPC_MSG_ACK_REBOOT);
 
     swiSoftReset();
 }
-
-
 
 int main(void)
 {
     int server;
 
     video_init();
-    gbarom_init();
     wifi_init();
+    gbarom_init();
+
     while (!wifi_connect());
     server = wifi_listen();
 
     while (1) {
-	static Connection conn;
+	static Connection conn = { 0 };
 	connection_accept(&conn, server);
 
 	if (connection_read_header(&conn)) {

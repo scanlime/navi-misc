@@ -35,17 +35,22 @@ void SetLedState(int state);
 void Wifi_Stop();
 void Wifi_Shutdown();
 
-void wifi_sync_handler()
+
+static void wifi_sync_handler()
 {
     /* This is called by libdswifi in order to invoke Wifi_Sync() on the ARM9 */
     REG_IPC_FIFO_TX = IPC_MSG_WIFI_SYNC;
 }
 
-void arm7_reboot(uint32 boot_mode)
+static void arm7_reboot(uint32 boot_mode)
 {
     uint32 addr;
     int pmflags;
-    
+
+    /* Disable IRQs */
+    REG_IME = 0;
+    REG_IF = 0;
+
     /* Turn off the wifi */
     Wifi_Stop();
     Wifi_Shutdown();
@@ -69,10 +74,6 @@ void arm7_reboot(uint32 boot_mode)
     /* Stop blinking the LED */
     SetLedState(0);
 
-    /* Disable IRQs */
-    REG_IME = 0;
-    REG_IF = 0;
-          
     /* Zero out DMA channel registers */
     for (addr = 0x040000B0; addr <= 0x040000E0; addr += 4) {
 	*(vuint32*)addr = 0;
@@ -83,6 +84,9 @@ void arm7_reboot(uint32 boot_mode)
 	*(vuint16*)addr = 0;
     }
 
+    /* Acknowledge reboot to ARM9 */
+    REG_IPC_FIFO_TX = IPC_MSG_ACK_REBOOT;
+
     if (boot_mode == IPC_MSG_REBOOT_GBA) {
 	swiSwitchToGBAMode();
     } else {
@@ -90,7 +94,7 @@ void arm7_reboot(uint32 boot_mode)
     }
 }
 
-void fifo_irq_handler()
+static void fifo_irq_handler()
 {
     uint32 message = REG_IPC_FIFO_RX;
     switch (message) {
@@ -107,16 +111,14 @@ void fifo_irq_handler()
     }
 }
 
-uint32 fifo_rx_wait()
+static uint32 fifo_rx_wait()
 {
     /* Perform a blocking read from the FIFO */
-    while (REG_IPC_FIFO_CR & IPC_FIFO_RECV_EMPTY) {
-	swiWaitForVBlank();
-    }
+    while (REG_IPC_FIFO_CR & IPC_FIFO_RECV_EMPTY);
     return REG_IPC_FIFO_RX;
 }
 
-void vblank_irq_handler()
+static void vblank_irq_handler()
 {
     Wifi_Update();
     IPC->buttons = REG_KEYXY;
@@ -128,8 +130,16 @@ int main()
     irqInit();
     REG_IPC_FIFO_CR = IPC_FIFO_ENABLE | IPC_FIFO_SEND_CLEAR;
 
-    /* We're using the top screen only */
+    /* We're using the top screen only, and no sound */
     writePowerManagement(0, PM_BACKLIGHT_TOP);
+
+    /*
+     * In case we were just soft-rebooted from a game which used the Wifi, reset it.
+     * If we don't do this, we might hang in the ARM9 Wifi initialization code.
+     */
+    Wifi_Stop();
+    Wifi_Shutdown();
+    POWER_CR = 1;
 
     /*
      * Initialize interrupts that can occur before Wifi is ready
@@ -140,8 +150,19 @@ int main()
     irqEnable(IRQ_WIFI);
 
     /*
-     * Initialization handshake with the ARM9
+     * Before wifi init, the ARM9 will ask us to copy our code to main memory
+     * so that it can later generate a bootable image in high GBAROM, for
+     * soft-rebooting back to the loader.
      */
+    while (fifo_rx_wait() != IPC_MSG_COPY_SELF);
+    swiCopy((void*) NDSHeader.arm7destination,
+	    (void*) fifo_rx_wait(),
+	    COPY_MODE_HWORD | (NDSHeader.arm7binarySize / sizeof(uint16)));
+
+    /*
+     * Wifi initialization handshake
+     */
+    REG_IPC_FIFO_TX = IPC_MSG_WIFI_INIT;
     while (fifo_rx_wait() != IPC_MSG_WIFI_INIT);
     Wifi_Init(fifo_rx_wait());
 
