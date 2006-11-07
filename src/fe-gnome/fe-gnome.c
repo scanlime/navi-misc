@@ -39,6 +39,7 @@
 #include "topic-label.h"
 #include "connect-dialog.h"
 #include "text-entry.h"
+#include "find-bar.h"
 
 #include "palette.h"
 #include "preferences-page-plugins.h"
@@ -435,9 +436,7 @@ fe_print_text (struct session *sess, char *text)
 {
 	conversation_panel_print (CONVERSATION_PANEL (gui.conversation_panel), sess, text, prefs.indent_nicks);
 	sess->new_data = TRUE;
-	/* FIXME
 	navigation_model_set_hilight (gui.tree_model, sess);
-	*/
 	if (sess->nick_said) {
 		if (!gtk_window_is_active (GTK_WINDOW (gui.main_window))) {
 			gtk_window_set_urgency_hint (GTK_WINDOW (gui.main_window), TRUE);
@@ -1078,4 +1077,38 @@ not_autoconnect (void)
 	}
 
 	return TRUE;
+}
+
+void
+fe_set_current (session *sess)
+{
+	// If find bar is open, hide it
+	find_bar_close (FIND_BAR (gui.find_bar));
+
+	// Notify parts of the UI that the current session has changed
+	conversation_panel_set_current (CONVERSATION_PANEL (gui.conversation_panel), sess);
+	topic_label_set_current (TOPIC_LABEL (gui.topic_label), sess);
+	text_entry_set_current (TEXT_ENTRY (gui.text_entry), sess);
+	status_bar_set_current (STATUS_BAR (gui.status_bar), sess->server);
+	navigation_model_set_current (gui.tree_model, sess);
+
+	// Change the window name
+	if (sess->server->network == NULL) {
+		rename_main_window (NULL, sess->channel);
+	} else {
+		ircnet *net = sess->server->network;
+		rename_main_window (net->name, sess->channel);
+	}
+
+	// Grab focus back to the text entry so users don't have to continually click on it
+	gtk_widget_grab_focus (gui.text_entry);
+
+	// Set nickname button
+	set_nickname (sess->server, NULL);
+
+	// Set the label of the user list button
+	userlist_set_user_button (u, sess);
+
+	// Emit "focus tab" event for plugins that rely on it
+	plugin_emit_dummy_print (sess, "Focus Tab");
 }

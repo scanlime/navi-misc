@@ -62,13 +62,17 @@ static void navigation_tree_dispose    (GObject *object);
 static void navigation_tree_finalize   (GObject *object);
 static gint tree_iter_sort_func_nocase (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer data);
 
-static void row_inserted (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, NavTree *tree);
+static void row_inserted      (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, NavTree *tree);
+static void selection_changed (GtkTreeSelection *selection, NavTree *tree);
 
 
 #define NAVTREE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), NAVTREE_TYPE, NavTreePriv))
 struct _NavTreePriv
 {
 	GtkActionGroup *action_group;
+
+	gint selection_changed_id;
+	GtkTreeRowReference *selected;
 };
 
 enum
@@ -79,6 +83,7 @@ enum
 	COLUMN_STATUS,
 	COLUMN_COLOR,
 	COLUMN_CONNECTED,
+	COLUMN_REFCOUNT,
 	N_COLUMNS
 };
 
@@ -141,6 +146,7 @@ navigation_tree_init (NavTree *navtree)
 
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_BROWSE);
+	navtree->priv->selection_changed_id = g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (selection_changed), navtree);
 
 	navtree->priv->action_group = gtk_action_group_new ("NavigationContext");
 	gtk_action_group_set_translation_domain (navtree->priv->action_group, GETTEXT_PACKAGE);
@@ -184,7 +190,15 @@ navigation_tree_new (NavModel *model)
 void
 navigation_tree_select_session (NavTree *tree, session *sess)
 {
-	// FIXME: implement
+	NavModel *model = NAVMODEL (gtk_tree_view_get_model (GTK_TREE_VIEW (tree)));
+
+	GtkTreeIter iter;
+	if (find_session (model, sess, &iter, NULL) == FALSE) {
+		return;
+	}
+
+	GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (tree));
+	gtk_tree_selection_select_iter (selection, &iter);
 }
 
 static void
@@ -201,6 +215,47 @@ row_inserted (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, NavTree
 		if (gtk_tree_model_iter_n_children (model, &parent) == 1) {
 			gtk_tree_view_expand_to_path (GTK_TREE_VIEW (tree), path);
 		}
+	}
+
+	/*
+	 * If there is no selection, select this row.
+	 */
+	GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (tree));
+	if (gtk_tree_selection_get_selected (selection, NULL, NULL) == FALSE) {
+		gtk_tree_selection_select_path (selection, path);
+	}
+}
+
+static void
+selection_changed (GtkTreeSelection *selection, NavTree *tree)
+{
+	GtkTreeIter   iter;
+	GtkTreeModel *model = gtk_tree_view_get_model (GTK_TREE_VIEW (tree));
+
+	if (tree->priv->selected && gtk_tree_row_reference_valid (tree->priv->selected)) {
+		GtkTreePath *path = gtk_tree_row_reference_get_path (tree->priv->selected);
+		gtk_tree_row_reference_free (tree->priv->selected);
+		tree->priv->selected = NULL;
+
+		gtk_tree_model_get_iter (model, &iter, path);
+
+		gint refcount;
+		gtk_tree_model_get (model, &iter, COLUMN_REFCOUNT, &refcount, -1);
+		gtk_tree_store_set (GTK_TREE_STORE (model), &iter, COLUMN_REFCOUNT, refcount - 1, -1);
+
+		gtk_tree_path_free (path);
+	}
+
+	if (gtk_tree_selection_get_selected (selection, NULL, &iter)) {
+		session *sess;
+		gtk_tree_model_get (model, &iter, COLUMN_SESSION, &sess, -1);
+		if (sess) {
+			fe_set_current (sess);
+		}
+
+		GtkTreePath *path = gtk_tree_model_get_path (model, &iter);
+		tree->priv->selected = gtk_tree_row_reference_new (model, path);
+		gtk_tree_path_free (path);
 	}
 }
 
@@ -237,6 +292,7 @@ navigation_model_init (NavModel *navmodel)
 		G_TYPE_INT,     // status value (for tracking highest state)
 		GDK_TYPE_COLOR, // status color (disconnected, etc.)
 		G_TYPE_BOOLEAN, // connected
+		G_TYPE_INT,     // reference count
 	};
 
 	gtk_tree_store_set_column_types (GTK_TREE_STORE (navmodel), N_COLUMNS, column_types);
@@ -283,6 +339,7 @@ navigation_model_add_server (NavModel *model, session *sess)
 	                    COLUMN_STATUS,    0,
 	                    COLUMN_COLOR,     NULL,
 	                    COLUMN_CONNECTED, FALSE,
+	                    COLUMN_REFCOUNT,  0,
 	                    -1);
 }
 
@@ -303,6 +360,7 @@ navigation_model_add_channel (NavModel *model, session *sess)
 	                    COLUMN_STATUS,    0,
 	                    COLUMN_COLOR,     NULL,
 	                    COLUMN_CONNECTED, TRUE,
+	                    COLUMN_REFCOUNT,  0,
 	                    -1);
 }
 
@@ -330,6 +388,60 @@ navigation_model_update (NavModel *model, session *sess)
 		                    -1);
 		break;
 	}
+}
+
+void
+navigation_model_set_hilight (NavModel *model, session *sess)
+{
+	GtkTreeIter iter;
+	if (find_session (model, sess, &iter, NULL) == FALSE) {
+		return;
+	}
+
+	gint shown_level, refcount;
+	gtk_tree_model_get (GTK_TREE_MODEL (model), &iter,
+	                    COLUMN_STATUS,   &shown_level,
+	                    COLUMN_REFCOUNT, &refcount,
+	                    -1);
+
+	if (refcount > 0) {
+		return;
+	}
+
+	if (sess->nick_said || (sess->msg_said && sess->type == SESS_DIALOG)) {
+		gtk_tree_store_set (GTK_TREE_STORE (model), &iter,
+		                    COLUMN_ICON,   "xchat-gnome-message-nickname-said",
+		                    COLUMN_STATUS, 3,
+		                    -1);
+	} else if (sess->msg_said && shown_level <= 1) {
+		gtk_tree_store_set (GTK_TREE_STORE (model), &iter,
+		                    COLUMN_ICON,   "xchat-gnome-message-new",
+		                    COLUMN_STATUS, 2,
+		                    -1);
+	} else if (sess->new_data && shown_level == 0) {
+		gtk_tree_store_set (GTK_TREE_STORE (model), &iter,
+		                    COLUMN_ICON,   "xchat-gnome-message-data",
+		                    COLUMN_STATUS, 1,
+		                    -1);
+	}
+}
+
+void
+navigation_model_set_current (NavModel *model, session *sess)
+{
+	GtkTreeIter iter;
+	if (find_session (model, sess, &iter, NULL) == FALSE) {
+		return;
+	}
+
+	gint refcount;
+	gtk_tree_model_get (model, &iter, COLUMN_REFCOUNT, &refcount, -1);
+
+	gtk_tree_store_set (GTK_TREE_STORE (model), &iter,
+	                    COLUMN_ICON,     NULL,
+	                    COLUMN_STATUS,   0,
+			    COLUMN_REFCOUNT, refcount + 1,
+	                    -1);
 }
 
 static gint
