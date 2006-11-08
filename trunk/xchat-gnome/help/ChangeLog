@@ -1,0 +1,4 @@
+2006-11-02  Joachim Noreiko  <jnoreiko@yahoo.com>
+
+  	* help/C/xchat-gnome.xml:
+    	  - replaced deprecated ghelp:gnome-feedback link with user guide link
