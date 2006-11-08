@@ -231,12 +231,11 @@ fe_new_window (struct session *sess, int focus)
 		navigation_model_add_server (gui.tree_model, sess);
 		break;
 	case SESS_CHANNEL:
+	case SESS_DIALOG:
 		navigation_model_add_channel (gui.tree_model, sess);
 	}
 
-	/* FIXME
-	} else if (sess->type == SESS_CHANNEL) {
-		navigation_tree_create_new_channel_entry (gui.server_tree, sess, (gboolean) focus);
+	/*
 	} else if (sess->type == SESS_DIALOG) {
 		struct User *user = NULL;
 
@@ -1099,9 +1098,6 @@ fe_set_current (session *sess)
 		ircnet *net = sess->server->network;
 		rename_main_window (net->name, sess->channel);
 	}
-
-	// Grab focus back to the text entry so users don't have to continually click on it
-	gtk_widget_grab_focus (gui.text_entry);
 
 	// Set nickname button
 	set_nickname (sess->server, NULL);
