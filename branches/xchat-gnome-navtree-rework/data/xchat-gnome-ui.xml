@@ -66,46 +66,46 @@
 		<menuitem name="UserlistIgnoreItem" action="UserlistIgnore"/>
 	</popup>
 
-        <popup name="ServerPopup" action="PopupAction">
-                <menuitem name="ServerReconnect" action="ServerReconnect"/>
-		<menuitem name="ServerDisconnect" action="ServerDisconnect"/>
-		<menuitem name="ServerClose" action="ServerClose"/>
-		<menuitem name="ServerAutoConnect" action="ServerAutoConnect"/>
-                <separator name="ServerPopupSep1"/>
-                <menuitem name="ServerChannels" action="ServerChannels"/>
+        <popup name="NetworkPopup" action="PopupAction">
+                <menuitem name="NetworkReconnect" action="NetworkReconnect"/>
+		<menuitem name="NetworkDisconnect" action="NetworkDisconnect"/>
+		<menuitem name="NetworkClose" action="NetworkClose"/>
+		<menuitem name="NetworkAutoConnect" action="NetworkAutoConnect"/>
+                <separator name="NetworkPopupSep1"/>
+                <menuitem name="NetworkChannels" action="NetworkChannels"/>
         </popup>
 
         <popup name="ChannelJoinedPopup" action="PopupAction">
-                <menuitem name="ChannelSave" action="ChannelSave"/>
+                <menuitem name="DiscussionSave" action="DiscussionSave"/>
                 <separator name="ChannelSep0"/>
-                <menuitem name="ChannelLeave" action="ChannelLeave"/>
-                <menuitem name="ChannelClose" action="ChannelClose"/>
-		<menuitem name="ChannelAutoJoin" action="ChannelAutoJoin"/>
-                <separator name="ChannelSep1"/>
-                <menuitem name="ChannelFind" action="ChannelFind"/>
-                <separator name="ChannelSep2"/>
-                <menuitem name="ChannelBans" action="ChannelBans"/>
+                <menuitem name="DiscussionLeave" action="DiscussionLeave"/>
+                <menuitem name="DiscussionClose" action="DiscussionClose"/>
+		<menuitem name="DiscussionAutoJoin" action="DiscussionAutoJoin"/>
+                <separator name="DiscussionSep1"/>
+                <menuitem name="DiscussionFind" action="DiscussionFind"/>
+                <separator name="DiscussionSep2"/>
+                <menuitem name="DiscussionBans" action="DiscussionBans"/>
         </popup>
 
 	<popup name="ChannelUnjoinedPopup" action="PopupAction">
-		<menuitem name="ChannelSave" action="ChannelSave"/>
-		<separator name="ChannelSep0"/>
-		<menuitem name="ChannelJoin" action="ChannelJoin"/>
-		<menuitem name="ChannelClose" action="ChannelClose"/>
-		<menuitem name="ChannelAutoJoin" action="ChannelAutoJoin"/>
-		<separator name="ChannelSep1"/>
-		<menuitem name="ChannelFind" action="ChannelFind"/>
+		<menuitem name="DiscussionSave" action="DiscussionSave"/>
+		<separator name="DiscussionSep0"/>
+		<menuitem name="DiscussionJoin" action="DiscussionJoin"/>
+		<menuitem name="DiscussionClose" action="DiscussionClose"/>
+		<menuitem name="DiscussionAutoJoin" action="DiscussionAutoJoin"/>
+		<separator name="DiscussionSep1"/>
+		<menuitem name="DiscussionFind" action="DiscussionFind"/>
 	</popup>
 
         <popup name="DialogPopup" action="PopupAction">
 		<menuitem name="DialogSendFile" action="UserlistSendFile"/>
 		<menuitem name="DialogIgnore" action="UserlistIgnore"/>
                 <separator name="DialogSep0"/>
-                <menuitem name="DialogSave" action="DialogSave"/>
+                <menuitem name="DiscussionSave" action="DiscussionSave"/>
                 <separator name="DialogSep0"/>
-                <menuitem name="DialogClose" action="DialogClose"/>
+                <menuitem name="DiscussionClose" action="DiscussionClose"/>
                 <separator name="DialogSep1"/>
-                <menuitem name="DialogFind" action="DialogFind"/>
+                <menuitem name="DiscussionFind" action="DiscussionFind"/>
         </popup>
 
         <popup name="TextURLPopup" action="PopupAction">

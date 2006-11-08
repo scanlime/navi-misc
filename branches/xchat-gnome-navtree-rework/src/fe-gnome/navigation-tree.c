@@ -26,32 +26,21 @@
 
 /***** Actions *****/
 static GtkActionEntry action_entries[] = {
-        // Server context menu
-	{"ServerReconnect",   GTK_STOCK_REFRESH,        N_("_Reconnect"),       "", NULL, NULL},
-	{"ServerDisconnect",  GTK_STOCK_STOP,           N_("_Disconnect"),      "", NULL, NULL},
-	{"ServerClose",       GTK_STOCK_CLOSE,          N_("_Close"),           "", NULL, NULL},
-	{"ServerChannels",    GTK_STOCK_INDEX,          N_("_Channels..."),     "", NULL, NULL},
-
-	// Channel context menu
-	{"ChannelSave",       GTK_STOCK_SAVE,           N_("_Save Transcript"), "", NULL, NULL},
-	{"ChannelLeave",      GTK_STOCK_QUIT,           N_("_Leave"),           "", NULL, NULL},
-	{"ChannelClose",      GTK_STOCK_CLOSE,          N_("_Close"),           "", NULL, NULL},
-	{"ChannelJoin",       GTK_STOCK_JUMP_TO,        N_("_Join"),            "", NULL, NULL},
-	{"ChannelFind",       GTK_STOCK_FIND,           N_("_Find..."),         "", NULL, NULL},
-	{"ChannelBans",       GTK_STOCK_DIALOG_WARNING, N_("_Bans..."),         "", NULL, NULL},
-
-	// Dialog context menu
-	{"DialogSave",        GTK_STOCK_SAVE,           N_("_Save Transcript"), "", NULL, NULL},
-	{"DialogClose",       GTK_STOCK_CLOSE,          N_("_Close"),           "", NULL, NULL},
-	{"DialogFind",        GTK_STOCK_FIND,           N_("_Find..."),         "", NULL, NULL}
+	// Discussion context menu
+	{"DiscussionSave",       GTK_STOCK_SAVE,           N_("_Save Transcript"), "", NULL, NULL},
+	{"DiscussionLeave",      GTK_STOCK_QUIT,           N_("_Leave"),           "", NULL, NULL},
+	{"DiscussionClose",      GTK_STOCK_CLOSE,          N_("_Close"),           "", NULL, NULL},
+	{"DiscussionJoin",       GTK_STOCK_JUMP_TO,        N_("_Join"),            "", NULL, NULL},
+	{"DiscussionFind",       GTK_STOCK_FIND,           N_("_Find..."),         "", NULL, NULL},
+	{"DiscussionBans",       GTK_STOCK_DIALOG_WARNING, N_("_Bans..."),         "", NULL, NULL},
 };
 
 static GtkToggleActionEntry toggle_action_entries[] = {
 	// Server context menu
-	{"ServerAutoConnect", NULL, N_("_Auto-connect on startup"), "", NULL, NULL, FALSE},
+	{"NetworkAutoConnect", NULL, N_("_Auto-connect on startup"), "", NULL, NULL, FALSE},
 
-	// Channel context menu
-	{"ChannelAutoJoin",   NULL, N_("_Auto-join on connect"),    "", NULL, NULL, FALSE}
+	// Discussion context menu
+	{"DiscussionAutoJoin",   NULL, N_("_Auto-join on connect"),    "", NULL, NULL, FALSE}
 };
 
 
@@ -62,8 +51,11 @@ static void navigation_tree_dispose    (GObject *object);
 static void navigation_tree_finalize   (GObject *object);
 static gint tree_iter_sort_func_nocase (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer data);
 
-static void row_inserted      (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, NavTree *tree);
-static void selection_changed (GtkTreeSelection *selection, NavTree *tree);
+static void     row_inserted      (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, NavTree *tree);
+static void     selection_changed (GtkTreeSelection *selection, NavTree *tree);
+static gboolean button_pressed    (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
+static gboolean button_released   (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
+static gboolean popup_menu        (GtkWidget *widget, GdkEventButton *event);
 
 
 #define NAVTREE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), NAVTREE_TYPE, NavTreePriv))
@@ -94,8 +86,11 @@ static void     navigation_model_class_init (NavModelClass * klass);
 static void     navigation_model_dispose    (GObject * object);
 static void     navigation_model_finalize   (GObject * object);
 
+/********** Utility **********/
+
 static gboolean find_server  (NavModel *model, server *server, GtkTreeIter *iter);
 static gboolean find_session (NavModel *model, session *sess, GtkTreeIter *iter, GtkTreeIter *parent);
+static gboolean channel_is_autojoin (session *sess);
 
 GType
 navigation_tree_get_type (void)
@@ -153,6 +148,10 @@ navigation_tree_init (NavTree *navtree)
 	gtk_action_group_add_actions (navtree->priv->action_group, action_entries, G_N_ELEMENTS (action_entries), NULL);
 	gtk_action_group_add_toggle_actions (navtree->priv->action_group, toggle_action_entries, G_N_ELEMENTS (toggle_action_entries), NULL);
 	gtk_ui_manager_insert_action_group (gui.manager, navtree->priv->action_group, -1);
+
+	g_signal_connect (G_OBJECT (navtree), "button_press_event", G_CALLBACK (button_pressed), NULL);
+	g_signal_connect (G_OBJECT (navtree), "button_release_event", G_CALLBACK (button_released), NULL);
+	g_signal_connect (G_OBJECT (navtree), "popup_menu", G_CALLBACK (popup_menu), NULL);
 }
 
 static void
@@ -179,6 +178,8 @@ navigation_tree_finalize (GObject *object)
 NavTree *
 navigation_tree_new (NavModel *model)
 {
+	g_return_val_if_fail (model != NULL, NULL);
+
 	NavTree *tree = NAVTREE (g_object_new (navigation_tree_get_type (), NULL));
 	gtk_tree_view_set_model (GTK_TREE_VIEW (tree), GTK_TREE_MODEL (model));
 
@@ -251,12 +252,118 @@ selection_changed (GtkTreeSelection *selection, NavTree *tree)
 		gtk_tree_model_get (model, &iter, COLUMN_SESSION, &sess, -1);
 		if (sess) {
 			fe_set_current (sess);
+
+			GtkAction *action;
+
+			action = gtk_action_group_get_action (tree->priv->action_group, "DiscussionAutoJoin");
+			gtk_action_set_sensitive (action, sess->server->network != NULL);
+			gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), channel_is_autojoin (sess));
+
+			ircnet *network = (ircnet*) sess->server->network;
+			if (network != NULL) {
+				action = gtk_action_group_get_action (tree->priv->action_group, "NetworkAutoConnect");
+				gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), network->flags & FLAG_AUTO_CONNECT);
+			}
 		}
 
 		GtkTreePath *path = gtk_tree_model_get_path (model, &iter);
 		tree->priv->selected = gtk_tree_row_reference_new (model, path);
 		gtk_tree_path_free (path);
 	}
+}
+
+static gboolean
+button_pressed (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
+{
+	if (event == NULL) {
+		return FALSE;
+	}
+
+	GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
+	if (gtk_tree_selection_get_selected (selection, NULL, NULL) == FALSE) {
+		// Corner case
+		return FALSE;
+	}
+
+	if (event->button == 3) {
+		GtkTreePath *path;
+		if (gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (widget), event->x, event->y, &path, 0, 0, 0)) {
+			gtk_tree_selection_unselect_all (selection);
+			gtk_tree_selection_select_path (selection, path);
+			gtk_tree_path_free (path);
+			popup_menu (widget, event);
+		}
+
+		return TRUE;
+	}
+
+	g_object_set (G_OBJECT (widget), "can-focus", FALSE, NULL);
+	return FALSE;
+}
+
+static gboolean
+button_released (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
+{
+	/*
+	 * Grab focus back to the text entry, so people don't have to re-focus
+	 * it after switching channels.  GtkEntry selects the entire thing when
+	 * it grabs focus, so this requires saving the cursor position first,
+	 * and restoring it after.
+	 */
+	gint position = gtk_editable_get_position (GTK_EDITABLE (gui.text_entry));
+	gtk_widget_grab_focus (gui.text_entry);
+	gtk_editable_set_position (GTK_EDITABLE (gui.text_entry), position);
+	g_object_set (G_OBJECT (widget), "can-focus", TRUE, NULL);
+	return FALSE;
+}
+
+static gboolean
+popup_menu (GtkWidget *widget, GdkEventButton *event)
+{
+	GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
+
+	GtkTreeModel *model;
+	GtkTreeIter   iter;
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		session *sess;
+		gtk_tree_model_get (model, &iter, COLUMN_SESSION, &sess, -1);
+
+		g_assert (sess != NULL);
+
+		GtkWidget *menu = NULL;
+
+		switch (sess->type) {
+		case SESS_SERVER:
+			menu = gtk_ui_manager_get_widget (gui.manager, "/NetworkPopup");
+			break;
+
+		case SESS_CHANNEL:
+			if (sess->total) {
+				menu = gtk_ui_manager_get_widget (gui.manager, "/ChannelJoinedPopup");
+			} else {
+				menu = gtk_ui_manager_get_widget (gui.manager, "/ChannelUnjoinedPopup");
+			}
+			break;
+
+		case SESS_DIALOG:
+			menu = gtk_ui_manager_get_widget (gui.manager, "/DialogPopup");
+			break;
+		}
+
+		g_assert (menu != NULL);
+
+		if (event) {
+			gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL,
+			                event->button, event->time);
+		} else {
+			gtk_menu_popup (GTK_MENU (menu), NULL, NULL,
+			                menu_position_under_tree_view, widget,
+			                0, gtk_get_current_event_time ());
+			gtk_menu_shell_select_first (GTK_MENU_SHELL (menu), FALSE);
+		}
+	}
+
+	return TRUE;
 }
 
 GType
@@ -435,7 +542,9 @@ navigation_model_set_current (NavModel *model, session *sess)
 	}
 
 	gint refcount;
-	gtk_tree_model_get (model, &iter, COLUMN_REFCOUNT, &refcount, -1);
+	gtk_tree_model_get (GTK_TREE_MODEL (model), &iter,
+	                    COLUMN_REFCOUNT, &refcount,
+	                    -1);
 
 	gtk_tree_store_set (GTK_TREE_STORE (model), &iter,
 	                    COLUMN_ICON,     NULL,
@@ -534,4 +643,30 @@ find_session (NavModel *model, session *sess, GtkTreeIter *iter, GtkTreeIter *pa
 	} while (gtk_tree_model_iter_next (GTK_TREE_MODEL (model), iter));
 
 	return FALSE;
+}
+
+static gboolean
+channel_is_autojoin (session *sess)
+{
+	ircnet *network = (ircnet *) sess->server->network;
+
+	if (network == NULL || network->autojoin == NULL) {
+		return FALSE;
+	}
+
+	gchar **autojoin = g_strsplit (network->autojoin, " ", 0);
+	gchar **channels = g_strsplit (autojoin[0], ",", 0);
+
+	gboolean found = FALSE;
+	for (int i = 0; channels[i]; i++) {
+		if (!strcmp (channels[i], sess->channel)) {
+			found = TRUE;
+			break;
+		}
+	}
+
+	g_strfreev (autojoin);
+	g_strfreev (channels);
+
+	return found;
 }
