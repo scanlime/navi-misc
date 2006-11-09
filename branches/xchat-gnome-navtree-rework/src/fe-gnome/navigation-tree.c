@@ -27,12 +27,7 @@
 /***** Actions *****/
 static GtkActionEntry action_entries[] = {
 	// Discussion context menu
-	{"DiscussionSave",       GTK_STOCK_SAVE,           N_("_Save Transcript"), "", NULL, NULL},
-	{"DiscussionLeave",      GTK_STOCK_QUIT,           N_("_Leave"),           "", NULL, NULL},
-	{"DiscussionClose",      GTK_STOCK_CLOSE,          N_("_Close"),           "", NULL, NULL},
 	{"DiscussionJoin",       GTK_STOCK_JUMP_TO,        N_("_Join"),            "", NULL, NULL},
-	{"DiscussionFind",       GTK_STOCK_FIND,           N_("_Find..."),         "", NULL, NULL},
-	{"DiscussionBans",       GTK_STOCK_DIALOG_WARNING, N_("_Bans..."),         "", NULL, NULL},
 };
 
 static GtkToggleActionEntry toggle_action_entries[] = {
