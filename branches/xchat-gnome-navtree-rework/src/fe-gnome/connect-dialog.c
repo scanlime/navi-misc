@@ -26,6 +26,7 @@
 #include "gui.h"
 #include "util.h"
 #include "../common/xchat.h"
+#include "../common/xchatc.h"
 #include "../common/servlist.h"
 
 static GtkDialogClass *parent_class;
@@ -64,25 +65,37 @@ dialog_response (ConnectDialog *dialog, gint response, gpointer data)
 		GtkTreeModel *model;
 		GtkTreeIter iter;
 		GtkTreeSelection *select;
-		gchar *network;
 
 		select = gtk_tree_view_get_selection (GTK_TREE_VIEW (dialog->server_list));
 		if (gtk_tree_selection_get_selected (select, &model, &iter)) {
-			session *s;
-			gboolean connected;
-			/* FIXME
+			session *s = NULL;
+			ircnet *net;
 
-			s = navigation_tree_get_selected_session(&connected);
-			if (connected) {
-				s = NULL;
+			// If the currently selected server is not connected, use it
+			// for the new session.
+			if (gui.current_session &&
+			    (gui.current_session->server == NULL ||
+			     gui.current_session->server->connected == FALSE)) {
+				s = gui.current_session;
 			}
 
-			gtk_tree_model_get (model, &iter, 0, &network, -1);
-			if (!navigation_tree_server_is_connected (gui.server_tree, network)) {
-				servlist_connect_by_netname (s, network, TRUE);
+			// Make sure that this network isn't already connected.
+			gtk_tree_model_get (model, &iter, 1, &net, -1);
+			gboolean found = FALSE;
+			for (GSList *i = sess_list; i; i = g_slist_next (i)) {
+				session *sess = (session *)(i->data);
+				if (sess->type == SESS_SERVER &&
+				    sess->server != NULL &&
+				    sess->server->network == net &&
+				    (sess->server->connected || sess->server->connecting)) {
+					found = TRUE;
+				}
 			}
-			g_free (network);
-			*/
+
+			if (!found) {
+				servlist_connect (s, net, TRUE);
+			}
+
 			gtk_widget_destroy (GTK_WIDGET (dialog));
 		}
 	} else {
@@ -130,7 +143,7 @@ connect_dialog_init (ConnectDialog *dialog)
 
 	g_object_unref (xml);
 
-	dialog->server_store = gtk_list_store_new (1, G_TYPE_STRING);
+	dialog->server_store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_POINTER);
 	gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->server_list), GTK_TREE_MODEL (dialog->server_store));
 
 	renderer = gtk_cell_renderer_text_new ();
@@ -153,7 +166,7 @@ connect_dialog_init (ConnectDialog *dialog)
 	while (netlist) {
 		net = netlist->data;
 		gtk_list_store_append (dialog->server_store, &iter);
-		gtk_list_store_set (dialog->server_store, &iter, 0, net->name, -1);
+		gtk_list_store_set (dialog->server_store, &iter, 0, net->name, 1, net, -1);
 		netlist = g_slist_next (netlist);
 	}
 
