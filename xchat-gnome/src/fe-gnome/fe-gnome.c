@@ -61,7 +61,7 @@ static GOptionEntry entries[] = {
 	{"no-auto",    'a', 0, G_OPTION_ARG_NONE,     &arg_dont_autoconnect, N_("Don't auto-connect to servers"),                   NULL},
 	{"no-plugins", 'n', 0, G_OPTION_ARG_NONE,     &opt_noplugins,        N_("Don't auto-load plugins"),                         NULL},
 	{"url",        'u', 0, G_OPTION_ARG_STRING,   &arg_url,              N_("Open an irc:// url"),                              "irc://server:port/channel"},
-	{"existing",   'e', 0, G_OPTION_ARG_NONE,     &arg_existing,         N_("Open URL in an existing xchat-gnome instance"),    NULL},
+	{"existing",   'e', 0, G_OPTION_ARG_NONE,     &arg_existing,         N_("Open URL in an existing XChat-GNOME instance"),    NULL},
 	{"version",    'v', 0, G_OPTION_ARG_NONE,     &opt_version,          N_("Show version information"),                        NULL},
 	{ NULL }
 };
