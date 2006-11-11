@@ -796,7 +796,7 @@ drag_data_received (GtkWidget *widget, GdkDragContext *context, gint x, gint y,
 		}
 
 		if (selection_data->format != 8 || selection_data->length == 0) {
-			g_printerr (_("URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"),
+			g_printerr (_("URI list dropped on XChat-GNOME had wrong format (%d) or length (%d)\n"),
 			            selection_data->format, selection_data->length);
 			return;
 		}

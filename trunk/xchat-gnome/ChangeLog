@@ -1,3 +1,11 @@
+2006-11-10  Guillaume Desmottes <cass@skynet.be>
+
+	* src/common/dbus/url_handler.schemas.in:
+	* src/fe-gnome/conversation-panel.c:
+	* src/fe-gnome/fe-gnome.c:
+	* data/setup-dialog.glade:
+	  - Replace some "xchat-gnome" to "XChat-GNOME"
+
 2006-11-02  Guillaume Desmottes <cass@skynet.be>
 
 	A src/fe-gnome/preferences-page.c:

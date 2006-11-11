@@ -36,7 +36,7 @@
 	  <child>
 	    <widget class="GtkLabel" id="label1">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">Welcome to xchat-gnome! Since this is your first time using this application, there are a couple things you'll need to configure before you can get started.
+	      <property name="label" translatable="yes">Welcome to XChat-GNOME! Since this is your first time using this application, there are a couple things you'll need to configure before you can get started.
 
 These are the names by which you'll be recognized on IRC. Your nick name is the name by which you'll be known, whereas the real name is useful for things such as registering with services. You do not have to use your real name if you do not want to.</property>
 	      <property name="use_underline">False</property>
