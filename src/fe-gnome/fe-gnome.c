@@ -1084,6 +1084,8 @@ fe_set_current (session *sess)
 	// If find bar is open, hide it
 	find_bar_close (FIND_BAR (gui.find_bar));
 
+	gui.current_session = sess;
+
 	// Notify parts of the UI that the current session has changed
 	conversation_panel_set_current (CONVERSATION_PANEL (gui.conversation_panel), sess);
 	topic_label_set_current (TOPIC_LABEL (gui.topic_label), sess);
