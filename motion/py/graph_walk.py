@@ -6,6 +6,7 @@ usage: graph_walk.py [options] <graph pickle>
 """
 
 from optparse import OptionParser
+from random import random
 from Dance import Sequence, MotionGraph
 from Graph.Data import AdjacencyList, VertexMap
 from Motion.Interpolate import spline
@@ -39,6 +40,21 @@ def clicheWalk (graph, len):
 
     return path
 
+def weightedWalk(graph, length):
+    vertexMap = graph.representations[VertexMap]
+
+    u = random.choice ([v for v in vertexMap])
+    path = [u.center]
+    for i in range (length):
+        edges = []
+        weight = random()
+        for edge in vertexMap.query (u):
+            if edge.u is u and weight < edge.weight:
+                edges.append (edge)
+        edges.sort(cmp=lambda x,y: cmp(x.weight, y.weight))
+        path.append(edges[0].v.center)
+
+    return path
 
 def randomWalk (graph, len):
     """Find a path in graph of langth len by following a random edge."""
@@ -59,33 +75,34 @@ def randomWalk (graph, len):
     return path
 
 
-parser = OptionParser ("usage: %prog [options] <graph pickle>")
-parser.add_option("--cliche", dest="cliche", default=False,
-                   action="store_true",
-                   help="Choose edges based on probability")
+parser = OptionParser ("%prog [options] <graph pickle>")
+parser.add_option("--type", dest="type", default='weighted',
+                   help="Select type of walk")
 parser.add_option("-l", "--len", dest="len", default=1000,
                    type="int", help="Set length of paths")
 parser.add_option("-q", "--quality", dest="quality", default=5,
                   type="int",
                   help="Set the number of points to insert during interpolation")
-parser.add_option("-i", "--interpolate", dest="interpolate",
+parser.add_option("-i", "--interpolate", dest="interpolate"
                   help="Interpolate the walk and save it to a file")
 
 opts, args = parser.parse_args()
 
-if len (args) != 1:
+if len (args) < 1:
     parser.error("graph file required")
 
 # print 'Reading graph'
-graphs = pickle.load(open(args[0]))
+graphs = pickle.load(open(args[-1]))
 bones = {}
 smoothed = {}
 
 for bone in graphs.keys ():
-    if opts.cliche:
+    if opts.type == 'cliche':
         bones[bone] = clicheWalk (graphs[bone], opts.len)
-    else:
+    elif opts.type == 'random':
         bones[bone] = randomWalk (graphs[bone], opts.len)
+    elif opts.type == 'weighted':
+        bones[bone] = weightedWalk (graphs[bone], opts.len)
 
     if hasattr(opts, "interpolate"):
         smoothed[bone] = spline(bones[bone], opts.quality)
