@@ -948,7 +948,85 @@ go_previous_discussion (GtkAction *action, gpointer data)
 	gtk_tree_selection_select_iter (selection, &iter);
 }
 
+/*
+ * FIXME: this doesn't skip un-expanded servers
+ */
 static void
 go_next_discussion (GtkAction *action, gpointer data)
 {
+	NavTree *navtree = gui.server_tree;
+
+	GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
+
+	// If nothing is currently selected, select the first visible channel.
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	if (!gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		select_nth_channel (navtree, 0);
+		return;
+	}
+
+	GtkTreeIter parent;
+	GtkTreePath *path = gtk_tree_model_get_path (model, &iter);
+	gint depth = gtk_tree_path_get_depth (path);
+	gtk_tree_path_free (path);
+
+
+	if (depth == 2) {
+		gtk_tree_model_iter_parent (model, &parent, &iter);
+
+		// Simple case
+		if (gtk_tree_model_iter_next (model, &iter)) {
+			gtk_tree_selection_select_iter (selection, &iter);
+			return;
+		}
+
+		if (!gtk_tree_model_iter_next (model, &parent)) {
+			gtk_tree_model_get_iter_first (model, &parent);
+		}
+
+		do {
+			/*
+			 * This can proceed indefinitely, because there is
+			 * definitely at least one channel joined.
+			 */
+			if (gtk_tree_model_iter_has_child (model, &parent)) {
+				gtk_tree_model_iter_children (model, &iter, &parent);
+				gtk_tree_selection_select_iter (selection, &iter);
+				return;
+			}
+
+			if (!gtk_tree_model_iter_next (model, &parent)) {
+				gtk_tree_model_get_iter_first (model, &parent);
+			}
+		} while (TRUE);
+	} else {
+		parent = iter;
+
+		GtkTreePath *current, *old;
+		old = gtk_tree_model_get_path (model, &iter);
+		do {
+			if (gtk_tree_model_iter_has_child (model, &parent)) {
+				gtk_tree_model_iter_children (model, &iter, &parent);
+				gtk_tree_selection_select_iter (selection, &iter);
+				return;
+			}
+
+			if (!gtk_tree_model_iter_next (model, &parent)) {
+				gtk_tree_model_get_iter_first (model, &parent);
+			}
+
+			/*
+			 * Since this search wraps, it's possible that it could
+			 * infinite loop if there are no channels joined.  Fix that.
+			 */
+			current = gtk_tree_model_get_path (model, &parent);
+			if (gtk_tree_path_compare (old, current) == 0) {
+				gtk_tree_path_free (old);
+				gtk_tree_path_free (current);
+				return;
+			}
+			gtk_tree_path_free (current);
+		} while (TRUE);
+	}
 }
