@@ -126,4 +126,6 @@ void fe_menu_update (menu_entry *);
 #define FE_SE_CONNECTING 4
 void fe_server_event (server *serv, int type, int arg);
 
+void fe_set_current (struct session *sess);
+
 #endif
