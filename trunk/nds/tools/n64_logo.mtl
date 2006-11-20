@@ -1,0 +1,42 @@
+# Blender MTL File: n64_logo.blend
+# Material Count: 4
+newmtl blue
+Ns 96.0
+Ka 0.0 0.0 0.0
+Kd 0.518467 0.58116 0.8
+Ks 0.5 0.5 0.5
+Ni 1.0
+d 1.0
+illum 2
+
+
+newmtl red
+Ns 96.0
+Ka 0.0 0.0 0.0
+Kd 0.8 0.510466 0.510466
+Ks 0.5 0.5 0.5
+Ni 1.0
+d 1.0
+illum 2
+
+
+newmtl yellow
+Ns 96.0
+Ka 0.0 0.0 0.0
+Kd 0.8 0.771987 0.548093
+Ks 0.5 0.5 0.5
+Ni 1.0
+d 1.0
+illum 2
+
+
+newmtl green
+Ns 96.0
+Ka 0.0 0.0 0.0
+Kd 0.495653 0.8 0.597006
+Ks 0.5 0.5 0.5
+Ni 1.0
+d 1.0
+illum 2
+
+

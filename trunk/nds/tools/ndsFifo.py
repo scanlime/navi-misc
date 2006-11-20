@@ -105,13 +105,14 @@ if __name__ == "__main__":
     # Simple Wavefront .obj to NDS display list converter
     #
 
+    import sys
     dl = DisplayList()
 
     vertices = []
     normals = []
     faces = []
 
-    for line in open("suzanne-subsurf.obj"):
+    for line in open(sys.argv[1]):
         tok = line.split()
 
         if tok[0] == 'v':
