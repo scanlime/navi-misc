@@ -52,6 +52,10 @@ static gboolean button_pressed    (GtkWidget *widget, GdkEventButton *event, gpo
 static gboolean button_released   (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 static gboolean popup_menu        (GtkWidget *widget, GdkEventButton *event);
 
+static void     init_accels        (NavTree *navtree);
+static void     jump_to_discussion (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
+static void     select_nth_channel (NavTree *navtree, gint num);
+
 
 #define NAVTREE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), NAVTREE_TYPE, NavTreePriv))
 struct _NavTreePriv
@@ -664,4 +668,109 @@ channel_is_autojoin (session *sess)
 	g_strfreev (channels);
 
 	return found;
+}
+
+void
+navigation_tree_add_accels (NavTree *navtree, GtkWindow *window)
+{
+	GtkAccelGroup *discussion_accel = gtk_accel_group_new ();
+	GClosure *closure;
+
+	/*
+	 * For alt-1 through alt-9 we just loop to set up the accelerators.
+	 * We want the data passed with the callback to be one less then the
+	 * button pressed (e.g. alt-1 requests the channel who's path is 0:0)
+	 * so we loop from 0 <= i < 1. We use i for the user data and the ascii
+	 * value of i+1 to get the keyval.
+	 */
+	for (int i = 0; i < 9; i++) {
+		// Set up our GClosure with user data set to i.
+		closure = g_cclosure_new (G_CALLBACK (jump_to_discussion), GINT_TO_POINTER (i), NULL);
+
+		// Connect up the accelerator.
+		gtk_accel_group_connect (discussion_accel, GDK_1 + i, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
+
+		// Delete the reference to the GClosure.
+		g_closure_unref (closure);
+	}
+
+	// Now we set up keypress alt-0 with user data 9.
+	closure = g_cclosure_new (G_CALLBACK (jump_to_discussion), GUINT_TO_POINTER (9), NULL);
+	gtk_accel_group_connect (discussion_accel, gdk_keyval_from_name ("0"), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
+	g_closure_unref (closure);
+
+	// alt+ and alt-
+	/* XXX: this should share code with stuff in main-window.c
+	closure = g_cclosure_new (G_CALLBACK (go_next_discussion), NULL, NULL);
+	gtk_accel_group_connect (discussion_accel, gdk_keyval_from_name ("equal"), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
+	g_closure_unref (closure);
+
+	closure = g_cclosure_new (G_CALLBACK (go_previous_discussion), NULL, NULL);
+	gtk_accel_group_connect (discussion_accel, gdk_keyval_from_name ("minus"), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
+	g_closure_unref (closure);
+	*/
+
+	/*
+	 * We've had a couple of requests to hook up Ctrl-Alt-PgUp and
+	 * Ctrl-Alt-PgDown to discussion navigation. As far as I can
+	 * tell this is not HIG compliant, but for the time being we'll
+	 * put it in. It's easy enough to delete it later.
+	 */
+	/* XXX: this should share code with stuff in main-window.c
+	closure = g_cclosure_new (G_CALLBACK (go_next_discussion), NULL, NULL);
+	gtk_accel_group_connect (discussion_accel, GDK_Page_Down, GDK_MOD1_MASK | GDK_CONTROL_MASK , GTK_ACCEL_VISIBLE, closure);
+	g_closure_unref (closure);
+
+	closure = g_cclosure_new (G_CALLBACK (go_previous_discussion), NULL, NULL);
+	gtk_accel_group_connect (discussion_accel, GDK_Page_Up, GDK_MOD1_MASK | GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, closure);
+	g_closure_unref (closure);
+	*/
+
+	// Add the accelgroup to the main window.
+	gtk_window_add_accel_group (window, discussion_accel);
+}
+
+static void
+jump_to_discussion (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data)
+{
+	select_nth_channel (gui.server_tree, GPOINTER_TO_INT (data));
+}
+
+static void
+select_nth_channel (NavTree *navtree, gint num)
+{
+	GtkTreeView *view = GTK_TREE_VIEW (navtree);
+	GtkTreeSelection *selection = gtk_tree_view_get_selection (view);
+	GtkTreeModel *model = gtk_tree_view_get_model (view);
+
+	// Make sure we get the an iter in the tree.
+	GtkTreeIter server;
+	if (model == NULL || gtk_tree_model_get_iter_first (model, &server) == FALSE) {
+		return;
+	}
+
+	// Loop until we run out of channels or until we find the one we're looking for.
+	do {
+		// Only count the channels in the server if the list is expanded.
+		GtkTreePath *path = gtk_tree_model_get_path (model, &server);
+		if (!gtk_tree_view_row_expanded (view, path)) {
+			continue;
+		}
+
+		gint kids = gtk_tree_model_iter_n_children (model, &server);
+		if (num < kids) {
+			GtkTreeIter child;
+			gtk_tree_model_iter_nth_child (model, &child, &server, num);
+			gtk_tree_selection_select_iter (selection, &child);
+			return;
+		}
+
+		/*
+		 * If our number wants a channel out of the range of this server
+		 * subtract the number of channels in the current server so that
+		 * when we find the server that contains the channel we want chan_num
+		 * will be the channel's position in the list.
+		 */
+		num -= kids;
+	} while (gtk_tree_model_iter_next (model, &server));
 }
