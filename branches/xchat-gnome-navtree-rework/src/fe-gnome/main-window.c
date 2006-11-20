@@ -208,71 +208,7 @@ initialize_main_window (void)
 		gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), pg_accel);
 	}
 
-	/* Hook up accelerators for alt-#. */
-	{
-		GtkAccelGroup *discussion_accel;
-		GClosure *closure;
-		int i;
-		gchar num[2] = {0,0}; /* Will be used to help determine the keyval. */
-
-		/* Create our accelerator group. */
-		discussion_accel = gtk_accel_group_new ();
-
-		/* For alt-1 through alt-9 we just loop to set up the accelerators.
-		 * We want the data passed with the callback to be one less then the
-		 * button pressed (e.g. alt-1 requests the channel who's path is 0:0)
-		 * so we loop from 0 <= i < 1. We use i for the user data and the ascii
-		 * value of i+1 to get the keyval.
-		 */
-		for (i = 0; i < 9; i++) {
-			/* num is a string containing the ascii value of i+1. */
-			num[0] = i + '1';
-
-			/* Set up our GClosure with user data set to i. */
-			closure = g_cclosure_new (G_CALLBACK (on_discussion_jump_activate), GINT_TO_POINTER (i), NULL);
-
-			/* Connect up the accelerator. */
-			gtk_accel_group_connect (discussion_accel, gdk_keyval_from_name (num), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
-
-			/* Delete the reference to the GClosure. */
-			g_closure_unref (closure);
-		}
-
-		/* Now we set up keypress alt-0 with user data 9. */
-		closure = g_cclosure_new (G_CALLBACK (on_discussion_jump_activate), GUINT_TO_POINTER (9), NULL);
-		gtk_accel_group_connect (discussion_accel, gdk_keyval_from_name ("0"), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
-		g_closure_unref (closure);
-
-		/* alt-+ */
-		closure = g_cclosure_new (G_CALLBACK (on_go_next_discussion_activate), NULL, NULL);
-		gtk_accel_group_connect (discussion_accel, gdk_keyval_from_name ("equal"), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
-		g_closure_unref (closure);
-
-		/* alt-- */
-		closure = g_cclosure_new (G_CALLBACK (on_go_previous_discussion_activate), NULL, NULL);
-		gtk_accel_group_connect (discussion_accel, gdk_keyval_from_name ("minus"), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
-		g_closure_unref (closure);
-
-		/* We've had a couple of calls to hook up Ctrl-Alt-PgUp and
-		 * Ctrl-Alt-PgDown to discussion navigation. As far as I can
-		 * tell this is not HIG compliant, but for the time being we'll
-		 * put it in. It's easy enough to delete it later.
-		 */
-		closure = g_cclosure_new (G_CALLBACK (on_go_next_discussion_activate), NULL, NULL);
-		gtk_accel_group_connect (discussion_accel, GDK_Page_Down,
-		                         GDK_MOD1_MASK | GDK_CONTROL_MASK , GTK_ACCEL_VISIBLE, closure);
-
-		g_closure_unref (closure);
-
-		closure = g_cclosure_new (G_CALLBACK (on_go_previous_discussion_activate), NULL, NULL);
-		gtk_accel_group_connect (discussion_accel, GDK_Page_Up,
-		                        GDK_MOD1_MASK | GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, closure);
-
-		g_closure_unref (closure);
-
-		/* Add the accelgroup to the main window. */
-		gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), discussion_accel);
-	}
+	navigation_tree_add_accels (gui.server_tree, GTK_WINDOW (gui.main_window));
 
 	/* Size group between users button and entry field */
 	group = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL);
