@@ -23,6 +23,7 @@
 #include <glib/gi18n.h>
 #include "navigation-tree.h"
 #include "util.h"
+#include "../common/fe.h"
 
 /***** NavTree *****/
 static void navigation_tree_init       (NavTree *navtree);
@@ -37,7 +38,6 @@ static gboolean button_pressed    (GtkWidget *widget, GdkEventButton *event, gpo
 static gboolean button_released   (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 static gboolean popup_menu        (GtkWidget *widget, GdkEventButton *event);
 
-static void     init_accels        (NavTree *navtree);
 static void     jump_to_discussion (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 static void     select_nth_channel (NavTree *navtree, gint num);
 static void     go_previous_network (GtkAction *action, gpointer data);
@@ -711,7 +711,6 @@ navigation_tree_add_accels (NavTree *navtree, GtkWindow *window)
 	g_closure_unref (closure);
 
 	// alt+ and alt-
-	/* XXX: this should share code with stuff in main-window.c
 	closure = g_cclosure_new (G_CALLBACK (go_next_discussion), NULL, NULL);
 	gtk_accel_group_connect (discussion_accel, gdk_keyval_from_name ("equal"), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
 	g_closure_unref (closure);
@@ -719,7 +718,6 @@ navigation_tree_add_accels (NavTree *navtree, GtkWindow *window)
 	closure = g_cclosure_new (G_CALLBACK (go_previous_discussion), NULL, NULL);
 	gtk_accel_group_connect (discussion_accel, gdk_keyval_from_name ("minus"), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
 	g_closure_unref (closure);
-	*/
 
 	/*
 	 * We've had a couple of requests to hook up Ctrl-Alt-PgUp and
@@ -727,7 +725,6 @@ navigation_tree_add_accels (NavTree *navtree, GtkWindow *window)
 	 * tell this is not HIG compliant, but for the time being we'll
 	 * put it in. It's easy enough to delete it later.
 	 */
-	/* XXX: this should share code with stuff in main-window.c
 	closure = g_cclosure_new (G_CALLBACK (go_next_discussion), NULL, NULL);
 	gtk_accel_group_connect (discussion_accel, GDK_Page_Down, GDK_MOD1_MASK | GDK_CONTROL_MASK , GTK_ACCEL_VISIBLE, closure);
 	g_closure_unref (closure);
@@ -735,7 +732,6 @@ navigation_tree_add_accels (NavTree *navtree, GtkWindow *window)
 	closure = g_cclosure_new (G_CALLBACK (go_previous_discussion), NULL, NULL);
 	gtk_accel_group_connect (discussion_accel, GDK_Page_Up, GDK_MOD1_MASK | GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, closure);
 	g_closure_unref (closure);
-	*/
 
 	// Add the accelgroup to the main window.
 	gtk_window_add_accel_group (window, discussion_accel);
@@ -859,6 +855,97 @@ go_next_network (GtkAction *action, gpointer data)
 static void
 go_previous_discussion (GtkAction *action, gpointer data)
 {
+	NavTree *navtree = gui.server_tree;
+
+	GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
+
+	/*
+	 * Try to get the currently selected item. Failing that, select the
+	 * first visible channel.
+	 */
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	if (!gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		navigation_tree_select_session (navtree, 0);
+		return;
+	}
+
+	GtkTreePath *path = gtk_tree_model_get_path (model, &iter);
+	gint depth = gtk_tree_path_get_depth (path);
+
+	if (depth == 2) {
+		// If a channel is selected...
+		if (!gtk_tree_path_prev (path)) {
+			/*
+			 * If it's the first channel on the server, pretend we've got
+			 * that server selected.
+			 */
+			depth = 1;
+			gtk_tree_path_up (path);
+		}
+	}
+
+	if (depth == 1) {
+		if (!gtk_tree_path_prev (path)) {
+			/*
+			 * If it's the first server, just move to the last
+			 * channel in the tree.
+			 */
+			gtk_tree_path_free (path);
+
+			GtkTreeIter parent;
+			gtk_tree_model_iter_nth_child (model, &parent, NULL, gtk_tree_model_iter_n_children (model, NULL) - 1);
+
+			GtkTreeIter child;
+			gtk_tree_model_iter_nth_child (model, &child, &parent, gtk_tree_model_iter_n_children (model, &parent) - 1);
+			path = gtk_tree_model_get_path (model, &child);
+		} else {
+			// Find a server somewhere above that has children.
+			do {
+				int children = 0;
+
+				gtk_tree_model_get_iter (model, &iter, path);
+				children = gtk_tree_model_iter_n_children (model, &iter);
+
+				/*
+				 * If the server has children and is expanded,
+				 * set the path to the last entry on this server.
+				 */
+				if (children > 0 && gtk_tree_view_row_expanded (GTK_TREE_VIEW (navtree), path)) {
+					gtk_tree_path_append_index (path, children-1);
+					break;
+				}
+			} while (gtk_tree_path_prev (path));
+
+			/*
+			 * If we haven't selected a channel at this point, we
+			 * need to select the last channel in the tree.
+			 */
+			if (gtk_tree_path_get_depth (path) == 1) {
+				gtk_tree_path_free (path);
+
+				GtkTreeIter parent;
+				gtk_tree_model_iter_nth_child (model, &parent, NULL, gtk_tree_model_iter_n_children (model, NULL) - 1);
+
+				GtkTreeIter child;
+				gtk_tree_model_iter_nth_child (model, &child, &parent, gtk_tree_model_iter_n_children (model, &parent) - 1);
+				path = gtk_tree_model_get_path (model, &child);
+			}
+		}
+	}
+
+	/*
+	 * At this point path should point to the correct channel for
+	 * selection.  If we can't get that iter for some reason, clean up
+	 * and bail out.
+	 */
+	if (!gtk_tree_model_get_iter (model, &iter, path)) {
+		gtk_tree_path_free (path);
+		return;
+	}
+
+	gtk_tree_path_free (path);
+	gtk_tree_selection_select_iter (selection, &iter);
 }
 
 static void
