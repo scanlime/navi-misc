@@ -24,21 +24,6 @@
 #include "navigation-tree.h"
 #include "util.h"
 
-/***** Actions *****/
-static GtkActionEntry action_entries[] = {
-	// Discussion context menu
-	{"DiscussionJoin",       GTK_STOCK_JUMP_TO,        N_("_Join"),            "", NULL, NULL},
-};
-
-static GtkToggleActionEntry toggle_action_entries[] = {
-	// Server context menu
-	{"NetworkAutoConnect", NULL, N_("_Auto-connect on startup"), "", NULL, NULL, FALSE},
-
-	// Discussion context menu
-	{"DiscussionAutoJoin",   NULL, N_("_Auto-join on connect"),    "", NULL, NULL, FALSE}
-};
-
-
 /***** NavTree *****/
 static void navigation_tree_init       (NavTree *navtree);
 static void navigation_tree_class_init (NavTreeClass *klass);
@@ -55,6 +40,10 @@ static gboolean popup_menu        (GtkWidget *widget, GdkEventButton *event);
 static void     init_accels        (NavTree *navtree);
 static void     jump_to_discussion (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 static void     select_nth_channel (NavTree *navtree, gint num);
+static void     go_previous_network (GtkAction *action, gpointer data);
+static void     go_next_network (GtkAction *action, gpointer data);
+static void     go_previous_discussion (GtkAction *action, gpointer data);
+static void     go_next_discussion (GtkAction *action, gpointer data);
 
 
 #define NAVTREE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), NAVTREE_TYPE, NavTreePriv))
@@ -90,6 +79,28 @@ static void     navigation_model_finalize   (GObject * object);
 static gboolean find_server  (NavModel *model, server *server, GtkTreeIter *iter);
 static gboolean find_session (NavModel *model, session *sess, GtkTreeIter *iter, GtkTreeIter *parent);
 static gboolean channel_is_autojoin (session *sess);
+
+
+/***** Actions *****/
+static GtkActionEntry action_entries[] = {
+	// Go menu
+	{ "GoPreviousNetwork",    NULL, N_("Pre_vious Network"),    "<control>Up",   NULL, G_CALLBACK (go_previous_network) },
+	{ "GoNextNetwork",        NULL, N_("Nex_t Network"),        "<control>Down", NULL, G_CALLBACK (go_next_network) },
+	{ "GoPreviousDiscussion", NULL, N_("_Previous Discussion"), "<alt>Up",       NULL, G_CALLBACK (go_previous_discussion) },
+	{ "GoNextDiscussion",     NULL, N_("_Next Discussion"),     "<alt>Down",     NULL, G_CALLBACK (go_next_discussion) },
+
+	// Discussion context menu
+	{"DiscussionJoin",       GTK_STOCK_JUMP_TO,        N_("_Join"),            "", NULL, NULL},
+};
+
+static GtkToggleActionEntry toggle_action_entries[] = {
+	// Server context menu
+	{"NetworkAutoConnect", NULL, N_("_Auto-connect on startup"), "", NULL, NULL, FALSE},
+
+	// Discussion context menu
+	{"DiscussionAutoJoin",   NULL, N_("_Auto-join on connect"),    "", NULL, NULL, FALSE}
+};
+
 
 GType
 navigation_tree_get_type (void)
@@ -773,4 +784,84 @@ select_nth_channel (NavTree *navtree, gint num)
 		 */
 		num -= kids;
 	} while (gtk_tree_model_iter_next (model, &server));
+}
+
+static void
+go_previous_network (GtkAction *action, gpointer data)
+{
+	NavTree *navtree = gui.server_tree;
+	NavTreePriv *priv = NAVTREE_GET_PRIVATE (navtree);
+
+	GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
+
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	GtkTreePath *path;
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		// If there is a selection set path to that point.
+		path = gtk_tree_model_get_path (model, &iter);
+	} else {
+		if (priv->selected) {
+			path = gtk_tree_row_reference_get_path (priv->selected);
+		} else {
+			return;
+		}
+	}
+
+	// If the path isn't a server move it up one.
+	if (gtk_tree_path_get_depth (path) == 2) {
+		gtk_tree_path_up (path);
+	}
+
+	if (gtk_tree_path_prev (path)) {
+		gtk_tree_selection_select_path (selection, path);
+	}
+
+	gtk_tree_path_free(path);
+}
+
+static void
+go_next_network (GtkAction *action, gpointer data)
+{
+	NavTree *navtree = gui.server_tree;
+	NavTreePriv *priv = NAVTREE_GET_PRIVATE (navtree);
+
+	GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
+
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	GtkTreePath *path;
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		// If there is a selection set path to that point.
+		path = gtk_tree_model_get_path (model, &iter);
+	} else {
+		if (priv->selected) {
+			path = gtk_tree_row_reference_get_path (priv->selected);
+		} else {
+			return;
+		}
+	}
+
+	// If the path isn't a server move it up one.
+	if (gtk_tree_path_get_depth (path) == 2) {
+		gtk_tree_path_up (path);
+	}
+
+	if (gtk_tree_model_get_iter (model, &iter, path)) {
+		if (gtk_tree_model_iter_next (model, &iter)) {
+			gtk_tree_selection_select_iter (selection, &iter);
+		}
+	}
+
+	gtk_tree_path_free(path);
+}
+
+static void
+go_previous_discussion (GtkAction *action, gpointer data)
+{
+}
+
+static void
+go_next_discussion (GtkAction *action, gpointer data)
+{
 }

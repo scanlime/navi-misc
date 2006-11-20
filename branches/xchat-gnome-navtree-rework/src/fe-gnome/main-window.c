@@ -51,7 +51,6 @@
 #include "../common/fe.h"
 
 static void on_main_window_close (GtkWidget *widget, GdkEvent *event, gpointer data);
-static void on_discussion_jump_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 static void on_pgup (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 static void on_pgdn (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 
@@ -74,10 +73,6 @@ static void on_discussion_find_activate (GtkAction *action, gpointer data);
 static void on_discussion_bans_activate (GtkAction *action, gpointer data);
 static void on_discussion_topic_change_activate (GtkButton *widget, gpointer data);
 static void on_discussion_users_activate (GtkAction *action, gpointer data);
-static void on_go_previous_network_activate (GtkAction *action, gpointer data);
-static void on_go_next_network_activate (GtkAction *action, gpointer data);
-static void on_go_previous_discussion_activate (GtkAction *action, gpointer data);
-static void on_go_next_discussion_activate (GtkAction *action, gpointer data);
 static void on_help_contents_activate (GtkAction *action, gpointer data);
 static void on_help_about_activate (GtkAction *action, gpointer data);
 static void on_nickname_clicked (GtkButton *widget, gpointer user_data);
@@ -130,12 +125,6 @@ static GtkActionEntry action_entries [] = {
 	{ "DiscussionChangeTopic", NULL,                     N_("Change _Topic"),    "<alt>T",     NULL, G_CALLBACK (on_discussion_topic_change_activate) },
 	{ "DiscussionBans",        GTK_STOCK_DIALOG_WARNING, N_("_Bans..."),         "<alt>B",     NULL, G_CALLBACK (on_discussion_bans_activate) },
 	{ "DiscussionUsers",       NULL,                     N_("_Users"),           "<control>U", NULL, G_CALLBACK (on_discussion_users_activate) },
-
-	/* Go menu */
-	{ "GoPreviousNetwork",    NULL, N_("Pre_vious Network"),    "<control>Up",   NULL, G_CALLBACK (on_go_previous_network_activate) },
-	{ "GoNextNetwork",        NULL, N_("Nex_t Network"),        "<control>Down", NULL, G_CALLBACK (on_go_next_network_activate) },
-	{ "GoPreviousDiscussion", NULL, N_("_Previous Discussion"), "<alt>Up",       NULL, G_CALLBACK (on_go_previous_discussion_activate) },
-	{ "GoNextDiscussion",     NULL, N_("_Next Discussion"),     "<alt>Down",     NULL, G_CALLBACK (on_go_next_discussion_activate) },
 
 	/* Help menu */
 	{ "HelpContents", GTK_STOCK_HELP,  N_("_Contents"), "F1", NULL, G_CALLBACK (on_help_contents_activate) },
@@ -456,36 +445,6 @@ static void
 on_discussion_bans_activate (GtkAction *action, gpointer data)
 {
 	/* FIXME: implement */
-}
-
-static void
-on_go_previous_network_activate (GtkAction *action, gpointer data)
-{
-	// FIXME: move to navtree actions
-}
-
-static void
-on_go_next_network_activate(GtkAction *action, gpointer data)
-{
-	// FIXME: move to navtree actions
-}
-
-static void
-on_go_previous_discussion_activate (GtkAction *action, gpointer data)
-{
-	// FIXME: move to navtree actions
-}
-
-static void
-on_go_next_discussion_activate (GtkAction *action, gpointer data)
-{
-	// FIXME: move to navtree actions
-}
-
-static void
-on_discussion_jump_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data)
-{
-	// FIXME: move to navtree actions
 }
 
 static void
