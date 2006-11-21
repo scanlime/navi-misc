@@ -7,7 +7,8 @@ usage: graph_walk.py [options] <graph pickle>
 
 from optparse import OptionParser
 from random import random
-from Dance import Sequence, MotionGraph
+from Dance import Sequence
+from Graph import MotionGraph
 from Graph.Data import AdjacencyList, VertexMap
 from Motion.Interpolate import spline
 import Motion, Numeric, pickle, random
@@ -83,7 +84,7 @@ parser.add_option("-l", "--len", dest="len", default=1000,
 parser.add_option("-q", "--quality", dest="quality", default=5,
                   type="int",
                   help="Set the number of points to insert during interpolation")
-parser.add_option("-i", "--interpolate", dest="interpolate"
+parser.add_option("-i", "--interpolate", dest="interpolate",
                   help="Interpolate the walk and save it to a file")
 
 opts, args = parser.parse_args()

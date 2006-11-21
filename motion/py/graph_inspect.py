@@ -74,6 +74,9 @@ for name in adjacency.data.keys ():
 # graphs.
 avgBranch /= avgNodes
 avgNodes /= len (nodes)
+combNodes = 1
+for n in nodes.itervalues ():
+    combNodes *= n
 
 # Assemble the output of the graph data
 output = 'Graph data'.center (44) + '\n\n  %s %s %s\n' % ('Graph'.center (10),
@@ -83,6 +86,7 @@ for name in nodes.iterkeys ():
     output += '  %-10s %10d %20f\n' % (name, nodes[name], branching[name])
 
 output += '\nGraphs %5d\n' % len (nodes)
+output += '\nTotal Combined Nodes %10d\n' % combNodes
 output += '\nAverages\n'
 output += '  %-15s %5f\n' % ('Nodes:', avgNodes)
 output += '  %-15s %5f\n' % ('Branch Factor:', avgBranch)
