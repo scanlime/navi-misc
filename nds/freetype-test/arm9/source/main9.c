@@ -1,21 +1,25 @@
 #include <nds.h>
 #include <nds/arm9/console.h>
+#include <nds/arm9/trig_lut.h>
 #include <stdio.h>
 #include <loader-exit.h>
-#include <ft2build.h>
-#include FT_FREETYPE_H
 #include "Vera_ttf.h"
 #include "debug.h"
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
-#define FPS_FREQUENCY  100
+#define FT_FLOOR(x)     (((x) & -64) / 64)
+#define FT_CEIL(x)      ((((x) + 63) & -64) / 64)
+#define FT_FIXED(x)     ((x) * 64)
+
+#define FPS_FREQUENCY  10
 #define FPS_RESOLUTION 3
 
 FT_Library ft_lib;
 FT_Face ft_face;
 unsigned int video_frame;
 uint16 *video_buffer;
-vuint32 video_fps_integer;
-vuint32 video_fps_hundredths;
+char video_fps[32];
 
 void fonts_init(void)
 {
@@ -34,9 +38,6 @@ void fonts_init(void)
     err = FT_Open_Face(ft_lib, &openArgs, 0, &ft_face);
     ASSERT_EQUAL(err, 0);
     ASSERT(ft_face != NULL);
-
-    err = FT_Set_Char_Size(ft_face, 0, 20 * 64, 0, 0);
-    ASSERT_EQUAL(err, 0);
 
     LOG("Done initializing freetype");
 }
@@ -64,8 +65,9 @@ void fps_timer_irq(void)
     fps_head = (fps_head + 1) % (sizeof fps_ring_buffer / sizeof fps_ring_buffer[0]);
 
     unsigned int fps = video_frame - prev_video_frame;
-    video_fps_integer = fps / FPS_RESOLUTION;
-    video_fps_hundredths = (fps * 100 / FPS_RESOLUTION) % 100;
+    sprintf(video_fps, "%d.%02d FPS",
+	    fps / FPS_RESOLUTION,
+	    (fps * 100 / FPS_RESOLUTION) % 100);
 }
 
 void video_init(void)
@@ -90,64 +92,111 @@ void video_init(void)
 		     VRAM_C_SUB_BG, VRAM_D_LCD);
 
     SUB_BG0_CR = BG_MAP_BASE(31);
+    BG_PALETTE_SUB[0] = RGB15(0, 0, 0);
     BG_PALETTE_SUB[255] = RGB15(31, 31, 31);
+
     consoleInitDefault((uint16*) SCREEN_BASE_BLOCK_SUB(31),
 		       (uint16*) CHAR_BASE_BLOCK_SUB(0), 16);
 }
 
-void video_draw_rect(int x, int y, int w, int h, uint16 color)
+void video_draw_ftbitmap(int x, int y, FT_Bitmap *bitmap)
 {
-    uint16 *p = video_buffer + x + SCREEN_WIDTH * y;
+    uint8 *src = bitmap->buffer;
+    uint16 *dest = video_buffer + x + SCREEN_WIDTH * y;
+    int width = bitmap->width / 3;
+    int height = bitmap->rows;
+    int dest_gap = SCREEN_WIDTH - width;
+    int src_gap = bitmap->pitch - bitmap->width;
     int i;
-    int gap = SCREEN_WIDTH - w;
 
-    while (h > 0) {
-	for (i=0; i<w; i++) {
-	    *(p++) = color;
+    while (height > 0) {
+
+	for (i=width; i; i--) {
+	    /*
+	     * Black text on a white background, BGR subpixel rendering
+	     */
+	    uint8 r = *(src++);
+	    uint8 g = *(src++);
+	    uint8 b = *(src++);
+
+	    if (r || g || b) {
+		*dest = RGB15((0xFF - b) >> 3,
+			      (0xFF - g) >> 3,
+			      (0xFF - r) >> 3);
+	    }
+	    dest++;
 	}
-	p += gap;
-	h--;
+
+	src += src_gap;
+	dest += dest_gap;
+	height--;
+    }
+
+}
+
+void video_draw_string(int x, int y, FT_Face face, const char *string)
+{
+    int ascent = FT_CEIL(FT_MulFix(face->bbox.yMax, face->size->metrics.y_scale));
+    y += ascent;
+
+    while (*string) {
+	FT_Load_Char(face, *string, FT_LOAD_RENDER | FT_LOAD_TARGET_LCD);
+	string++;
+
+	video_draw_ftbitmap(x + FT_FLOOR(face->glyph->metrics.horiBearingX),
+			    y - FT_FLOOR(face->glyph->metrics.horiBearingY),
+			    &face->glyph->bitmap);
+
+	x += FT_CEIL(face->glyph->metrics.horiAdvance);
     }
 }
 
-void video_draw_static(void)
-{
-    static unsigned int foo = 1;
-    int i;
-    for (i=0; i < (SCREEN_WIDTH * SCREEN_HEIGHT); i++) {
-	int g = (3 & foo);
-	g = (g << 3) | (g << 1) | (g >> 1);
-	video_buffer[i] = RGB15(g,g,g);
-	foo = (foo << 1) ^ (foo >> 15) ^ (1 & (foo >> 5)) ^ (1 & (foo >> 3));
-    }
-    foo++;
-}
 
 int main(void)
 {
+    int hello_size = FT_FIXED(20);
+
+    DEBUG_ONLY(setExceptionHandler(exception_handler));
     irqInit();
     video_init();
     fonts_init();
 
+    iprintf("\n[UP] / [DOWN] scales the font\n"
+	    "[X] disables VBL synch\n"
+	    "[Y] hilights background\n"
+	    "[A] disables background\n"
+	    "[Start] exits to loader\n");
+
     while (1) {
-	video_draw_static();
-	video_draw_rect(5,5,32,32, RGB15(0,0,0));
+	uint16 background = (keysHeld() & KEY_Y) ? 
+	    RGB15(15, 15, 15) : RGB15(31, 31, 31);
+	if (!(keysHeld() & KEY_A)) {
+	    swiCopy(&background, video_buffer, 
+		    COPY_MODE_HWORD | COPY_MODE_FILL | (SCREEN_WIDTH * SCREEN_HEIGHT));
+	}
 
-	LOG("Loading glyph\n");
-	FT_Load_Char(ft_face, 'A', 0);
-	LOG("Rendering glyph\n");
-	FT_Render_Glyph(&ft_face->glyph, 0);
+	FT_Set_Char_Size(ft_face, 0, hello_size, 0, 0);
+	video_draw_string(10, 10, ft_face, "Hello World!");
 
-	swiWaitForVBlank();
+	FT_Set_Char_Size(ft_face, 0, FT_FIXED(12), 0, 0);	
+	video_draw_string(10, SCREEN_HEIGHT - 25, ft_face, video_fps);
+
+	if (!(keysHeld() & KEY_X)) {
+	    swiWaitForVBlank();
+	}
 	video_flip();
 
 	scanKeys();
-	DEBUG_ONLY({
-	    if (keysHeld() == KEY_START) {
-		Loader_Exit9();
-		iprintf("No loader found!\n");
-	    }
-	});
+	if (keysHeld() == KEY_START) {
+	    Loader_Exit9();
+	    iprintf("No loader found!\n");
+	}
+	if (keysHeld() & KEY_UP) {
+	    hello_size += FT_FIXED(1) / 4;
+	}
+	if (keysHeld() & KEY_DOWN) {
+	    hello_size -= FT_FIXED(1) / 4;
+	}
     }
 
     return 0;

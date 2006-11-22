@@ -30,5 +30,7 @@
 #   define LOG(x, args...)
 #endif
 
+void exception_handler();
+
 #endif /* __DEBUG_H_ */
 
