@@ -28,7 +28,11 @@ DATA		:=	data
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-ARCH	:=	-mthumb -mthumb-interwork
+
+# XXX: There seems to be a bug in parameter passing with
+#      Thumb interwork, which is biting us at the top of
+#      ft_smooth_render_generic(). Disabling for now.
+ARCH	:=	# -mthumb -mthumb-interwork
 
 # note: arm9tdmi isn't the correct CPU arch, but anything newer and LD
 # *insists* it has a FPU or VFP, and it won't take no for an answer!
@@ -40,7 +44,7 @@ CFLAGS	:=	-g -Wall -O2\
 CFLAGS	+=	$(INCLUDE) -DARM9 -DFT2_BUILD_LIBRARY \
 		-DFT_CONFIG_MODULES_H="<nds-ftmodule.h>" \
 		-DFT_DEBUG_LEVEL_ERROR \
-		-DFT_DEBUG_LEVEL_TRACE
+                # -DFT_DEBUG_LEVEL_TRACE
 CXXFLAGS	:=	$(CFLAGS)
 
 ASFLAGS	:=	-g $(ARCH)
