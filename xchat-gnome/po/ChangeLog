@@ -1,4 +1,10 @@
+2006-11-24  David Trowbridge  <trowbrds@gmail.com>
+
+	* po/de.po:
+	* po/sv.po:
+	  - Update from rosetta.
+
 2006-08-31  Christian Persch  <chpe@cvs.gnome.org>
 
 	* POTFILES.in:
-	  - Remove missing file, add new one. Bug #353737.	
+	  - Remove missing file, add new one. Bug #353737.
