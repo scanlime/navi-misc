@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-09-24 22:03-0700\n"
+"POT-Creation-Date: 2006-11-24 13:14-0800\n"
 "PO-Revision-Date: 2006-06-21 08:24+0000\n"
 "Last-Translator: Roberto Saez <roberto_saez@bigfoot.com>\n"
 "Language-Team: Basque <translation-team-eu@lists.sourceforge.net>\n"
@@ -21,38 +21,46 @@ msgid "<span weight=\"bold\">List Filtering</span>"
 msgstr "<span weight=\"bold\">Zerrenda Filtroak</span>"
 
 #: ../data/channel-list.glade.h:2
-msgid "Apply Text Filter To:    "
-msgstr "Aplikatu testu filtroa:    "
-
-#: ../data/channel-list.glade.h:3
 msgid "Channel _Name"
 msgstr "Kanalaren izena"
 
-#: ../data/channel-list.glade.h:4
+#: ../data/channel-list.glade.h:3
 msgid "Channel _Topic"
 msgstr "Kanalaren_Gaia"
 
-#: ../data/channel-list.glade.h:5
+#: ../data/channel-list.glade.h:4
 msgid "Join Channel"
 msgstr "Sartu kanalera"
 
+#: ../data/channel-list.glade.h:5
+#, fuzzy
+msgid "Search for text:"
+msgstr "Bilaketa bufferra hutsik dago.\n"
+
 #: ../data/channel-list.glade.h:6
-msgid "Maximum Users:"
-msgstr "Gehienezko erabiltzaileak:"
+#, fuzzy
+msgid "Show channels with:"
+msgstr "Kanala"
 
 #: ../data/channel-list.glade.h:7
-msgid "Minimum Users:"
-msgstr "Gutxienezko erabiltzaileak:"
+#, fuzzy
+msgid "in:"
+msgstr "Bilatu:"
 
 #: ../data/channel-list.glade.h:8
-msgid "Text Filter:"
-msgstr "Testu Filtroa:"
+msgid "to"
+msgstr ""
 
-#: ../data/connect-dialog.glade.h:1
+#: ../data/channel-list.glade.h:9
+#, fuzzy
+msgid "users"
+msgstr "Erabiltzaileak"
+
+#: ../data/connect-dialog.glade.h:1 ../src/fe-gnome/connect-dialog.c:138
 msgid "C_onnect"
 msgstr "K_onektatu"
 
-#: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
+#: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:121
 msgid "File Transfers"
 msgstr "Fitxategi transferentziak"
 
@@ -361,8 +369,9 @@ msgid "spell checking"
 msgstr "Ortografia zuzentzailea"
 
 #: ../data/setup-dialog.glade.h:1
+#, fuzzy
 msgid ""
-"Welcome to xchat-gnome! Since this is your first time using this "
+"Welcome to XChat-GNOME! Since this is your first time using this "
 "application, there are a couple things you'll need to configure before you "
 "can get started.\n"
 "\n"
@@ -402,6 +411,7 @@ msgid "IRC Chat"
 msgstr "Berriketa"
 
 #: ../data/xchat-gnome.desktop.in.in.h:3
+#: ../src/fe-gnome/navigation-tree.c:1205
 msgid "XChat-GNOME IRC Chat"
 msgstr "XChat-GNOME IRC Chat"
 
@@ -416,36 +426,15 @@ msgid "Change _nickname to:"
 msgstr "Goitizen berria:"
 
 #: ../data/xchat-gnome.glade.h:3
-msgid "Close this discussion"
-msgstr "Elkarrizketa hau itxi"
-
-#: ../data/xchat-gnome.glade.h:4
 msgid "Mark as _away"
 msgstr "Kanpoan nagoela adierazi"
 
-#: ../data/xchat-gnome.glade.h:5 ../src/common/text.c:629
-#: ../src/common/text.c:635 ../src/common/text.c:642 ../src/common/text.c:709
-#: ../src/common/text.c:835 ../src/common/text.c:842 ../src/common/text.c:847
-#: ../src/common/text.c:852 ../src/common/text.c:857 ../src/common/text.c:863
-#: ../src/common/text.c:868 ../src/common/text.c:872 ../src/common/text.c:878
-#: ../src/common/text.c:884 ../src/common/text.c:930 ../src/common/text.c:940
-#: ../src/common/text.c:945 ../src/common/text.c:950 ../src/common/text.c:959
-#: ../src/common/text.c:970 ../src/common/text.c:977 ../src/common/text.c:983
-#: ../src/common/text.c:988 ../src/common/text.c:993 ../src/common/text.c:1000
-#: ../src/common/text.c:1006 ../src/common/text.c:1012
-#: ../src/common/text.c:1017 ../src/common/text.c:1022
-#: ../src/common/text.c:1026 ../src/common/text.c:1032
-#: ../src/common/text.c:1040 ../src/common/text.c:1074
-#: ../src/common/text.c:1079
-msgid "Nickname"
-msgstr "Ezizena"
-
-#: ../data/xchat-gnome.glade.h:6 ../src/common/text.c:907
-#: ../src/fe-gnome/channel-list.c:326 ../src/fe-gnome/userlist.c:325
+#: ../data/xchat-gnome.glade.h:4 ../src/common/text.c:907
+#: ../src/fe-gnome/channel-list.c:339 ../src/fe-gnome/userlist.c:303
 msgid "Users"
 msgstr "Erabiltzaileak"
 
-#: ../data/xchat-gnome.glade.h:7
+#: ../data/xchat-gnome.glade.h:5
 msgid "nickname"
 msgstr "Ezizena"
 
@@ -482,19 +471,20 @@ msgstr "NetworkManager konexio monitorea"
 msgid "%s loaded successfully\n"
 msgstr "%s egoki kargatua\n"
 
-#: ../plugins/notification/notification.c:139
+#: ../plugins/notification/notification.c:150
+#: ../plugins/notification/preferences-page-plugin-notification.c:133
 msgid "Notification"
 msgstr "Jakinarazpena"
 
-#: ../plugins/notification/notification.c:140
+#: ../plugins/notification/notification.c:151
 msgid "A notification area plugin."
 msgstr "Jakinarazpen area plugina."
 
-#: ../plugins/notification/notification.c:219
+#: ../plugins/notification/notification.c:216
 msgid "Notification plugin loaded.\n"
 msgstr "Jakinarazpen plugina kargaturik.\n"
 
-#: ../plugins/notification/notification.c:269
+#: ../plugins/notification/notification.c:237
 msgid "Notification plugin unloaded.\n"
 msgstr "Ez da alako plugin-ik aurkitu.\n"
 
@@ -513,6 +503,28 @@ msgstr ""
 "gainetik ohartarazteko ikonoa erakutsita izango dena. Baliozko balioak : \"0"
 "\" (beti erakusten da), \"1\" (mezu guztiak eta informazioa), \"2"
 "\" (kanalaren mezu guztiak), \"3\" (mezu pribatu edo argiztatuak)."
+
+#: ../plugins/notification/preferences-notification.glade.h:1
+#, fuzzy
+msgid "<span weight=\"bold\">Notification level</span>"
+msgstr "<span weight=\"bold\">Mugak</span>"
+
+#: ../plugins/notification/preferences-notification.glade.h:2
+msgid "Notify each _event"
+msgstr ""
+
+#: ../plugins/notification/preferences-notification.glade.h:3
+#, fuzzy
+msgid "Notify each _message"
+msgstr "Eskuineko mezua"
+
+#: ../plugins/notification/preferences-notification.glade.h:4
+msgid "Notify only _private messages"
+msgstr ""
+
+#: ../plugins/notification/preferences-notification.glade.h:5
+msgid "_Always display notification icon"
+msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:30
 msgid "On-screen display"
@@ -552,11 +564,11 @@ msgstr "%sren mezua"
 msgid "Private Message from %s"
 msgstr "Mezu pribatua %sgantik"
 
-#: ../plugins/notify-osd/notify-osd.c:211
+#: ../plugins/notify-osd/notify-osd.c:209
 msgid "OSD loaded\n"
 msgstr "OSD kargatua\n"
 
-#: ../plugins/notify-osd/notify-osd.c:215
+#: ../plugins/notify-osd/notify-osd.c:213
 msgid "OSD initialization failed\n"
 msgstr "Huts egin du OSD inizializazioa\n"
 
@@ -564,7 +576,7 @@ msgstr "Huts egin du OSD inizializazioa\n"
 msgid "xchat URL scraper"
 msgstr "X-Chat: URL hartzailea"
 
-#: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:858
+#: ../plugins/url_scraper/urlscraper.c:59
 msgid "Time"
 msgstr "Ordua"
 
@@ -573,8 +585,8 @@ msgid "Nick"
 msgstr "Ezizena"
 
 #: ../plugins/url_scraper/urlscraper.c:68 ../src/common/text.c:654
-#: ../src/common/text.c:658 ../src/common/text.c:1094
-#: ../src/fe-gnome/irc-network-editor.c:314
+#: ../src/common/text.c:658 ../src/common/text.c:1095
+#: ../src/fe-gnome/irc-network-editor.c:320
 msgid "Channel"
 msgstr "Kanala"
 
@@ -639,19 +651,19 @@ msgstr "Soinu-abisuaren plugina kargatua.\n"
 msgid "Sound-notification plugin unloaded.\n"
 msgstr "Soinu-abisuaren plugina deskargatua.\n"
 
-#: ../src/common/cfgfiles.c:350
+#: ../src/common/cfgfiles.c:351
 msgid "Cannot create ~/.xchat2"
 msgstr "Ezin da ~/.xchat2 sortu"
 
-#: ../src/common/cfgfiles.c:685
+#: ../src/common/cfgfiles.c:687
 msgid "I'm busy"
 msgstr "Lanpetuta nabil"
 
-#: ../src/common/cfgfiles.c:686
+#: ../src/common/cfgfiles.c:688
 msgid "Leaving"
 msgstr "Irteten"
 
-#: ../src/common/cfgfiles.c:732
+#: ../src/common/cfgfiles.c:734
 msgid ""
 "* Running IRC as root is stupid! You should\n"
 "  create a User Account and use that to login.\n"
@@ -679,7 +691,7 @@ msgid "Done"
 msgstr "Eginda"
 
 #. green
-#: ../src/common/dcc.c:71 ../src/fe-gnome/connect-dialog.c:155
+#: ../src/common/dcc.c:71 ../src/fe-gnome/connect-dialog.c:160
 msgid "Connect"
 msgstr "Konektatu"
 
@@ -688,26 +700,26 @@ msgstr "Konektatu"
 msgid "Aborted"
 msgstr "Abortatuta"
 
-#: ../src/common/dcc.c:1887 ../src/common/outbound.c:2309
+#: ../src/common/dcc.c:1905 ../src/common/outbound.c:2324
 #, c-format
 msgid "Cannot access %s\n"
 msgstr "Ezin da %s-ra sartu\n"
 
 #. ! if (osvi.dwMajorVersion >= 5)
 #. fallback to error number
-#: ../src/common/dcc.c:1888 ../src/common/text.c:916 ../src/common/text.c:953
-#: ../src/common/text.c:964 ../src/common/text.c:971 ../src/common/text.c:984
-#: ../src/common/text.c:1001 ../src/common/text.c:1101
+#: ../src/common/dcc.c:1906 ../src/common/text.c:916 ../src/common/text.c:954
+#: ../src/common/text.c:965 ../src/common/text.c:972 ../src/common/text.c:985
+#: ../src/common/text.c:1002 ../src/common/text.c:1102
 #: ../src/common/util.c:352
 msgid "Error"
 msgstr "Errorea"
 
-#: ../src/common/dcc.c:2376
+#: ../src/common/dcc.c:2394
 #, c-format
 msgid "%s is offering \"%s\". Do you want to accept?"
 msgstr ""
 
-#: ../src/common/dcc.c:2587
+#: ../src/common/dcc.c:2605
 msgid "No active DCCs\n"
 msgstr "Ez dago DCC aktiborik\n"
 
@@ -738,12 +750,12 @@ msgstr ""
 "MSG ugariegi jasotzen ari zara %s(r)engandik, gui_elkarrizeketa_auto_ireki "
 "OFFen ezarri da.\n"
 
-#: ../src/common/notify.c:396
+#: ../src/common/notify.c:449
 #, c-format
 msgid "  %-20s online\n"
 msgstr "  %-20s online\n"
 
-#: ../src/common/notify.c:398
+#: ../src/common/notify.c:451
 #, c-format
 msgid "  %-20s offline\n"
 msgstr "  %-20s offline\n"
@@ -756,62 +768,56 @@ msgstr "Kanaletara sartu gabe. Saiatu /join #<kanala>-rekin\n"
 msgid "Not connected. Try /server <host> [<port>]\n"
 msgstr "Konektatu gabe. Saiatu /server <ostalaria> [<ataka>]-rekin\n"
 
-#: ../src/common/outbound.c:1730
+#: ../src/common/outbound.c:1690
 msgid "I need /bin/sh to run!\n"
 msgstr "/bin/sh behar dut abiatzeko!\n"
 
-#: ../src/common/outbound.c:2046
+#: ../src/common/outbound.c:2059
 msgid "Commands Available:"
 msgstr "Erabil daitezkeen Aginduak:"
 
-#: ../src/common/outbound.c:2060
+#: ../src/common/outbound.c:2073
 msgid "User defined commands:"
 msgstr "Erabiltzaileak definitutako aginduak:"
 
-#: ../src/common/outbound.c:2076
+#: ../src/common/outbound.c:2087
 msgid "Plugin defined commands:"
 msgstr "Pluginek definitutako aginduak:"
 
-#: ../src/common/outbound.c:2087
+#: ../src/common/outbound.c:2098
 msgid "Type /HELP <command> for more information, or /HELP -l"
 msgstr "Idatzi /HELP <agindua> informazio gehiagorako, edo /HELP -l"
 
-#: ../src/common/outbound.c:2162
+#: ../src/common/outbound.c:2173
 #, c-format
 msgid "Unknown arg '%s' ignored."
 msgstr "Argumentu ezezaguna '%s', ezikusia."
 
-#: ../src/common/outbound.c:3049
+#: ../src/common/outbound.c:3071
 msgid "No such plugin found.\n"
 msgstr "Ez da alako plugin-ik aurkitu.\n"
 
-#: ../src/common/outbound.c:3054
+#: ../src/common/outbound.c:3076
 msgid "That plugin is refusing to unload.\n"
 msgstr "Plugin hori kargatzeari uko egiten ari da.\n"
 
-#: ../src/common/outbound.c:3323
-msgid "ADDBUTTON <name> <action>, adds a button under the user-list"
-msgstr ""
-"ADDBUTTON <izena> <ekintza>, botoi bat gehitzen du erabiltzaile zerrendaren "
-"azpian"
-
-#: ../src/common/outbound.c:3325
+#: ../src/common/outbound.c:3345
 msgid "ALLCHAN <cmd>, sends a command to all channels you're in"
 msgstr "ALLCHAN <komandoa>, zauden kanal guztietara komando bat bidaltzen du"
 
-#: ../src/common/outbound.c:3327
+#: ../src/common/outbound.c:3347
 msgid "ALLCHANL <cmd>, sends a command to all channels you're in"
 msgstr "ALLCHANL <agindua>, zauden kanal guztietara agindu bat bidaltzen du"
 
-#: ../src/common/outbound.c:3329
+#: ../src/common/outbound.c:3349
 msgid "ALLSERV <cmd>, sends a command to all servers you're in"
 msgstr "ALLSERV <cmd>, zauden zerbitzari guztietara komando bat bidaltzen du"
 
-#: ../src/common/outbound.c:3330
+#: ../src/common/outbound.c:3350
 msgid "AWAY [<reason>], sets you away"
 msgstr "AWAY [<arrazoia>], aldendua jartzen zaitu"
 
-#: ../src/common/outbound.c:3332
+#: ../src/common/outbound.c:3352
 msgid ""
 "BAN <mask> [<bantype>], bans everyone matching the mask from the current "
 "channel. If they are already on the channel this doesn't kick them (needs "
@@ -821,7 +827,7 @@ msgstr ""
 "debekatzen die, dagoenekoz kanalean baleude ez ditu botatzen (chanop behar "
 "du)"
 
-#: ../src/common/outbound.c:3334
+#: ../src/common/outbound.c:3354
 msgid ""
 "Set per channel options\n"
 "CHANOPT CONFMODE ON|OFF - Toggle conf mode/showing of join and part "
@@ -830,20 +836,20 @@ msgid ""
 "CHANOPT BEEP ON|OFF - Toggle beep on message"
 msgstr ""
 
-#: ../src/common/outbound.c:3340
+#: ../src/common/outbound.c:3360
 msgid "CLEAR [ALL|HISTORY], Clears the current text window or command history"
 msgstr ""
 
-#: ../src/common/outbound.c:3341
+#: ../src/common/outbound.c:3361
 msgid "CLOSE, Closes the current window/tab"
 msgstr "CLOSE, uneko leiho/fitxa itxitzen du"
 
-#: ../src/common/outbound.c:3344
+#: ../src/common/outbound.c:3364
 msgid "COUNTRY [-s] <code|wildcard>, finds a country code, eg: au = australia"
 msgstr ""
 "COUNTRY [-s] <kodea>, herrialde kode bat aurkitzen du, adib.: au = australia"
 
-#: ../src/common/outbound.c:3346
+#: ../src/common/outbound.c:3366
 msgid ""
 "CTCP <nick> <message>, send the CTCP message to nick, common messages are "
 "VERSION and USERINFO"
@@ -851,11 +857,11 @@ msgstr ""
 "CTCP <goitizena> <mezua>, CTCP mezua bidaltzen dio goitizen-i, ohiko mezuak "
 "dira VERSION eta USERINFO"
 
-#: ../src/common/outbound.c:3348
+#: ../src/common/outbound.c:3368
 msgid "CYCLE, parts current channel and immediately rejoins"
 msgstr "CYCLE, kanaletik irten eta segituan birkonektatu"
 
-#: ../src/common/outbound.c:3350
+#: ../src/common/outbound.c:3370
 msgid ""
 "\n"
 "DCC GET <nick>                      - accept an offered file\n"
@@ -878,7 +884,7 @@ msgstr ""
 "DCC CLOSE <mota> <ezizena> <artxiboa> adibidea:\n"
 "        /dcc close send johnsmith file.tar.gz"
 
-#: ../src/common/outbound.c:3362
+#: ../src/common/outbound.c:3382
 msgid ""
 "DEHOP <nick>, removes chanhalf-op status from the nick on the current "
 "channel (needs chanop)"
@@ -886,12 +892,7 @@ msgstr ""
 "DEHOP <ezizena>, chanhalf-op statusa kenzen dio kanal honi (kanal operadore "
 "maila behar da)"
 
-#: ../src/common/outbound.c:3364
-msgid "DELBUTTON <name>, deletes a button from under the user-list"
-msgstr ""
-"DELBUTTON <izena>, erabiltzaile zerrendaren azpitik botoi bat ezabatzen du"
-
-#: ../src/common/outbound.c:3366
+#: ../src/common/outbound.c:3384
 msgid ""
 "DEOP <nick>, removes chanop status from the nick on the current channel "
 "(needs chanop)"
@@ -899,7 +900,7 @@ msgstr ""
 "DEOP <ezizena>, uneko kanalean chanop egoera kentzen dio aukeratutako "
 "ezizenari (chanop egoera behar da)"
 
-#: ../src/common/outbound.c:3368
+#: ../src/common/outbound.c:3386
 msgid ""
 "DEVOICE <nick>, removes voice status from the nick on the current channel "
 "(needs chanop)"
@@ -907,19 +908,19 @@ msgstr ""
 "DEVOICE <ezizena>, uneko kanalean voice egoera kentzen dio aukeratutako "
 "ezizenari <chanop egoera behar da>"
 
-#: ../src/common/outbound.c:3369
+#: ../src/common/outbound.c:3387
 msgid "DISCON, Disconnects from server"
 msgstr "DISCON, zerbitzaritik deskonektatzen da"
 
-#: ../src/common/outbound.c:3370
+#: ../src/common/outbound.c:3388
 msgid "DNS <nick|host|ip>, Finds a users IP number"
 msgstr "DNS <ezizena|ostalaria|ip-a>, erabiltzaile baten IPa aurkitzen du"
 
-#: ../src/common/outbound.c:3371
+#: ../src/common/outbound.c:3389
 msgid "ECHO <text>, Prints text locally"
 msgstr "ECHO <testua>, testua lokalki inprimatzen du"
 
-#: ../src/common/outbound.c:3374
+#: ../src/common/outbound.c:3392
 msgid ""
 "EXEC [-o] <command>, runs the command. If -o flag is used then output is "
 "sent to current channel, else is printed to current text box"
@@ -928,11 +929,11 @@ msgstr ""
 "erabilitako kanalera bidaltzen du. Bestela aukeratutako testu kaxean "
 "inprimatzen da."
 
-#: ../src/common/outbound.c:3376
+#: ../src/common/outbound.c:3394
 msgid "EXECCONT, sends the process SIGCONT"
 msgstr "EXECCONT, prozesuari SIGCONT seinalea igortzen dio"
 
-#: ../src/common/outbound.c:3379
+#: ../src/common/outbound.c:3397
 msgid ""
 "EXECKILL [-9], kills a running exec in the current session. If -9 is given "
 "the process is SIGKILL'ed"
@@ -940,38 +941,38 @@ msgstr ""
 "EXEKILL [-9], oraingo sesioko prozesua hiltzen du. -9 erabiltzen bada "
 "SIGKILL seinalea bidaltzen da"
 
-#: ../src/common/outbound.c:3381
+#: ../src/common/outbound.c:3399
 msgid "EXECSTOP, sends the process SIGSTOP"
 msgstr "EXECSTOP,  SIGSTOP seinalea bidaltzen dio prozesuari"
 
-#: ../src/common/outbound.c:3382
+#: ../src/common/outbound.c:3400
 msgid "EXECWRITE, sends data to the processes stdin"
 msgstr "EXECWRITE, prozesuen stdin-era datuak bidaltzen ditu"
 
-#: ../src/common/outbound.c:3386
+#: ../src/common/outbound.c:3404
 msgid "FLUSHQ, flushes the current server's send queue"
 msgstr "FLUSHQ, uneko zerbitzariaren bidalketa ilara bidali arazten du"
 
-#: ../src/common/outbound.c:3388
+#: ../src/common/outbound.c:3406
 msgid "GATE <host> [<port>], proxies through a host, port defaults to 23"
 msgstr ""
 "GATE <ostalaria> [<portua>], ostalaria erabiltzen du bitarteko (proxy) "
 "moduan, portu lehenetsia 23 da."
 
-#: ../src/common/outbound.c:3391
+#: ../src/common/outbound.c:3410
 msgid "GHOST <nick> <password>, Kills a ghosted nickname"
 msgstr "GHOST <ezizena> <pasahitza>, ezizenaren mamua (ghost) hiltzen du"
 
-#: ../src/common/outbound.c:3396
+#: ../src/common/outbound.c:3415
 msgid "HOP <nick>, gives chanhalf-op status to the nick (needs chanop)"
 msgstr ""
 "HOP <goitizena>, erdi-operadore estatusa ematen du (operadore izan behar da)"
 
-#: ../src/common/outbound.c:3397
+#: ../src/common/outbound.c:3416
 msgid "ID <password>, identifies yourself to nickserv"
 msgstr "ID <pasahitza>, zu identifikatzen zaitu nickserv-en"
 
-#: ../src/common/outbound.c:3399
+#: ../src/common/outbound.c:3418
 msgid ""
 "IGNORE <mask> <types..> <options..>\n"
 "    mask - host mask to ignore, eg: *!*@*.aol.com\n"
@@ -986,7 +987,7 @@ msgstr ""
 "            PRIV, CHAN, NOTI, CTCP, DCC, INVI, ALL\n"
 "    aukerak - NOSAVE, QUIET"
 
-#: ../src/common/outbound.c:3406
+#: ../src/common/outbound.c:3425
 msgid ""
 "INVITE <nick> [<channel>], invites someone to a channel, by default the "
 "current channel (needs chanop)"
@@ -994,17 +995,17 @@ msgstr ""
 "INVITE <ezizena> [<kanala>], norbaiti kanal batera gonbidatzeko, kanala "
 "zehazten ezbada aukeratutakoa (kanal operadore izan behar da)"
 
-#: ../src/common/outbound.c:3407
+#: ../src/common/outbound.c:3426
 msgid "JOIN <channel>, joins the channel"
 msgstr "JOIN <kanala>, kanalera sartzen da"
 
-#: ../src/common/outbound.c:3409
+#: ../src/common/outbound.c:3428
 msgid "KICK <nick>, kicks the nick from the current channel (needs chanop)"
 msgstr ""
 "KICK <ezizena>, uneko kanaletik aukeratutako ezizena kanporatzen du (kanalop-"
 "a behar da)"
 
-#: ../src/common/outbound.c:3411
+#: ../src/common/outbound.c:3430
 msgid ""
 "KICKBAN <nick>, bans then kicks the nick from the current channel (needs "
 "chanop)"
@@ -1012,32 +1013,32 @@ msgstr ""
 "KICKBAN <ezizena>, lehenik debekatu eta gero ostikatu egiten du kanaletik "
 "(kanal operadorea behar)"
 
-#: ../src/common/outbound.c:3414
+#: ../src/common/outbound.c:3433
 msgid "LAGCHECK, forces a new lag check"
 msgstr "LAGCHECK, berandutze indizea (lag) neurtarazten du"
 
-#: ../src/common/outbound.c:3416
+#: ../src/common/outbound.c:3435
 msgid "LASTLOG <string>, searches for a string in the buffer"
 msgstr "LASTLOG <katea>, buferrean katea bilatzen du"
 
-#: ../src/common/outbound.c:3418
+#: ../src/common/outbound.c:3437
 msgid "LOAD [-e] <file>, loads a plugin or script"
 msgstr "LOAD <fitxategia>, plugin edo skript bat kargatzen du"
 
-#: ../src/common/outbound.c:3421
+#: ../src/common/outbound.c:3440
 msgid ""
 "MDEHOP, Mass deop's all chanhalf-ops in the current channel (needs chanop)"
 msgstr ""
 "MDEHOP, Erdi-operadore estatusa masiboki kentzen du kanalean (operadore izan "
 "behar da)"
 
-#: ../src/common/outbound.c:3423
+#: ../src/common/outbound.c:3442
 msgid "MDEOP, Mass deop's all chanops in the current channel (needs chanop)"
 msgstr ""
 "MDEOP, Masiboki operadore estatusa kentzen du kanalean (operadore izan behar "
 "da)"
 
-#: ../src/common/outbound.c:3425
+#: ../src/common/outbound.c:3444
 msgid ""
 "ME <action>, sends the action to the current channel (actions are written in "
 "the 3rd person, like /me jumps)"
@@ -1045,39 +1046,39 @@ msgstr ""
 "ME <ekintza>, aukeratutako kanalera ekintza bidaltzen du (ekintzak 3. "
 "pertsonan irakurrita daude, /me jauziak bezela)"
 
-#: ../src/common/outbound.c:3428
+#: ../src/common/outbound.c:3447
 msgid ""
 "MKICK, Mass kicks everyone except you in the current channel (needs chanop)"
 msgstr ""
 "MKICK, Guztiak masiboki bota kanal aktibokoak izan ezik (chanop behar da)"
 
-#: ../src/common/outbound.c:3431
+#: ../src/common/outbound.c:3450
 msgid "MOP, Mass op's all users in the current channel (needs chanop)"
 msgstr ""
 "MOP, masiboki kanal honetako erabiltzaile guztiak operatzaile bihurtu "
 "(chanop behar da)"
 
-#: ../src/common/outbound.c:3432
+#: ../src/common/outbound.c:3451
 msgid "MSG <nick> <message>, sends a private message"
 msgstr "MSG <nick> <mezua>, mezu pribatu bat bidaltzen du"
 
-#: ../src/common/outbound.c:3435
+#: ../src/common/outbound.c:3454
 msgid "NAMES, Lists the nicks on the current channel"
 msgstr "NAMES, aukeratutako kanalaren ezizen guztiak zerrendatzen ditu"
 
-#: ../src/common/outbound.c:3437
+#: ../src/common/outbound.c:3456
 msgid "NCTCP <nick> <message>, Sends a CTCP notice"
 msgstr "NCTCP <ezizena> <mezua>, CTCP mezua bidaltzen dio ezizenari"
 
-#: ../src/common/outbound.c:3438
+#: ../src/common/outbound.c:3457
 msgid "NEWSERVER [-noconnect] <hostname> [<port>]"
 msgstr "NEWSERVER <ostalaria> [<ataka>]"
 
-#: ../src/common/outbound.c:3439
+#: ../src/common/outbound.c:3458
 msgid "NICK <nickname>, sets your nick"
 msgstr "NICK <ezizena>, zure ezizena ezartzen du"
 
-#: ../src/common/outbound.c:3442
+#: ../src/common/outbound.c:3461
 msgid ""
 "NOTICE <nick/channel> <message>, sends a notice. Notices are a type of "
 "message that should be auto reacted to"
@@ -1085,40 +1086,43 @@ msgstr ""
 "NOTICE <ezizena/kanala> <mezua>, ohar bat bidaltzen du. Oharrak erreakzio "
 "automatikoa behar duten mezu mota bat dira"
 
-#: ../src/common/outbound.c:3444
-msgid "NOTIFY [<nick>], lists your notify list or adds someone to it"
+#: ../src/common/outbound.c:3463
+#, fuzzy
+msgid ""
+"NOTIFY [-n network1[,network2,...]] [<nick>], displays your notify list or "
+"adds someone to it"
 msgstr ""
 "NOTIFY [<ezizena>], norbait zure notifikazio zerrendan sartu edo zure "
 "notifikazio guztiak zerrendatu"
 
-#: ../src/common/outbound.c:3446
+#: ../src/common/outbound.c:3465
 msgid "OP <nick>, gives chanop status to the nick (needs chanop)"
 msgstr ""
 "OP <ezizena>, chanop egoera ematen dio erabiltzaileari (chanop behar da)"
 
-#: ../src/common/outbound.c:3448
+#: ../src/common/outbound.c:3467
 msgid ""
 "PART [<channel>] [<reason>], leaves the channel, by default the current one"
 msgstr ""
 "PART [<kanala>] [<arrazoia>], kanaletik irteten da, unekotik lehenetsita"
 
-#: ../src/common/outbound.c:3450
+#: ../src/common/outbound.c:3469
 msgid "PING <nick | channel>, CTCP pings nick or channel"
 msgstr "PING <ezizena | kanala>, CTCP ping egin ezizen edo kanalari"
 
-#: ../src/common/outbound.c:3452
+#: ../src/common/outbound.c:3471
 msgid "QUERY [-nofocus] <nick>, opens up a new privmsg window to someone"
 msgstr ""
 
-#: ../src/common/outbound.c:3454
+#: ../src/common/outbound.c:3473
 msgid "QUIT [<reason>], disconnects from the current server"
 msgstr "QUIT [<arrazoia>], deskonektatu egiten da uneko zerbitzaritik"
 
-#: ../src/common/outbound.c:3456
+#: ../src/common/outbound.c:3475
 msgid "QUOTE <text>, sends the text in raw form to the server"
 msgstr "QUOTE <mezua>, mezua era lauean bidaltzen dio zerbitzariari"
 
-#: ../src/common/outbound.c:3459
+#: ../src/common/outbound.c:3478
 msgid ""
 "RECONNECT [-ssl] [<host>] [<port>] [<password>], Can be called just as /"
 "RECONNECT to reconnect to the current server or with /RECONNECT ALL to "
@@ -1128,7 +1132,7 @@ msgstr ""
 "aktiboa birkonektatzeko /RECONNECT erabili daiteke. Erabili /RECONNECT ALL "
 "irekitako zerbitzari guztiekin birkonektatzeko"
 
-#: ../src/common/outbound.c:3462
+#: ../src/common/outbound.c:3481
 msgid ""
 "RECONNECT [<host>] [<port>] [<password>], Can be called just as /RECONNECT "
 "to reconnect to the current server or with /RECONNECT ALL to reconnect to "
@@ -1138,31 +1142,31 @@ msgstr ""
 "aktiboa birkonektatzeko /RECONNECT erabili daiteke. Erabili /RECONNECT ALL "
 "irekitako zerbitzari guztiekin birkonektatzeko"
 
-#: ../src/common/outbound.c:3464
+#: ../src/common/outbound.c:3483
 msgid ""
 "RECV <text>, send raw data to xchat, as if it was received from the irc "
 "server"
 msgstr ""
 "RECV <testua>, xchati datu gordinak bidali zerbitzaritik jasoak balira bezela"
 
-#: ../src/common/outbound.c:3467
+#: ../src/common/outbound.c:3486
 msgid "SAY <text>, sends the text to the object in the current window"
 msgstr "SAY <testua>, uneko leihoko objektuari testua bidaltzen dio"
 
-#: ../src/common/outbound.c:3468
+#: ../src/common/outbound.c:3487
 msgid "SEND <nick> [<file>]"
 msgstr "SEND <ezizena> [<artxiboa>]"
 
-#: ../src/common/outbound.c:3471
+#: ../src/common/outbound.c:3490
 msgid "SERVCHAN [-ssl] <host> <port> <channel>, connects and joins a channel"
 msgstr ""
 "SERVCHAN [-ssl] <ostalaria> <portua> <kanala>, kanalean konektatu eta sartu"
 
-#: ../src/common/outbound.c:3474
+#: ../src/common/outbound.c:3493
 msgid "SERVCHAN <host> <port> <channel>, connects and joins a channel"
 msgstr "SERVCHAN <host> <port> <channel>, kanal batean konektatu eta sartzeko"
 
-#: ../src/common/outbound.c:3478
+#: ../src/common/outbound.c:3497
 msgid ""
 "SERVER [-ssl] <host> [<port>] [<password>], connects to a server, the "
 "default port is 6667 for normal connections, and 9999 for ssl connections"
@@ -1171,7 +1175,7 @@ msgstr ""
 "konektatu, konexio arrutentzat 6667 portutik, eta 9999 portutik SSL "
 "konexioentzat"
 
-#: ../src/common/outbound.c:3481
+#: ../src/common/outbound.c:3500
 msgid ""
 "SERVER <host> [<port>] [<password>], connects to a server, the default port "
 "is 6667"
@@ -1179,64 +1183,65 @@ msgstr ""
 "SERVER <ostalaria> [<ataka>] [<pasahitza>], zerbitzari batera konektatzen "
 "da, lehenetsitako ataka 6667 da"
 
-#: ../src/common/outbound.c:3483
-msgid "SET [-quiet] <variable> [<value>]"
+#: ../src/common/outbound.c:3502
+#, fuzzy
+msgid "SET [-e] [-quiet] <variable> [<value>]"
 msgstr "SET [-quiet] <bariablea> [<balorea>]"
 
-#: ../src/common/outbound.c:3484
+#: ../src/common/outbound.c:3503
 msgid "SETCURSOR [-|+]<position>"
 msgstr "SETCURSOR [-|+] <kokapena>"
 
-#: ../src/common/outbound.c:3489
+#: ../src/common/outbound.c:3508
 msgid ""
 "TOPIC [<topic>], sets the topic if one is given, else shows the current topic"
 msgstr ""
 "TOPIC [<gaia>], zerbait ematen bada gaia hori ezartzen du, bestela uneko "
 "gaia erakusten du"
 
-#: ../src/common/outbound.c:3491
+#: ../src/common/outbound.c:3510
 msgid "UNBAN <mask> [<mask>...], unbans the specified masks."
 msgstr ""
 "UNBAN <maskara> [<maskara>...], espezifikatutako maskarei debekua kentzen die"
 
-#: ../src/common/outbound.c:3492
+#: ../src/common/outbound.c:3511
 msgid "UNIGNORE <mask> [QUIET]"
 msgstr "UNIGNORE <maskara> [IXILIK]"
 
-#: ../src/common/outbound.c:3493
+#: ../src/common/outbound.c:3512
 msgid "UNLOAD <name>, unloads a plugin or script"
 msgstr "UNLOAD <izena>, plugin edo skript-a deskargatzen du"
 
-#: ../src/common/outbound.c:3494
+#: ../src/common/outbound.c:3513
 msgid "URL <url>, opens a URL in your browser"
 msgstr "URL <helbidea>, zure nabigatzailean helbide bat zabaltzen du"
 
-#: ../src/common/outbound.c:3496
+#: ../src/common/outbound.c:3515
 msgid ""
 "USELECT [-a] [-s] <nick1> <nick2> etc, highlights nick(s) in channel userlist"
 msgstr ""
 "USELECT [-a] [-s] <nick1> <nick2> etab., erabiltzaileen zerrendan goitizenak "
 "nabarmentzen ditu"
 
-#: ../src/common/outbound.c:3499
+#: ../src/common/outbound.c:3518
 msgid "VOICE <nick>, gives voice status to someone (needs chanop)"
 msgstr "VOICE <ezizena>, ahots egoera ematen dio norbaiti (chanop-a behar da)"
 
-#: ../src/common/outbound.c:3501
+#: ../src/common/outbound.c:3520
 msgid "WALLCHAN <message>, writes the message to all channels"
 msgstr "WALLCHAN <mezua>, mezua kanal guztietan idazten du"
 
-#: ../src/common/outbound.c:3503
+#: ../src/common/outbound.c:3522
 msgid ""
 "WALLCHOP <message>, sends the message to all chanops on the current channel"
 msgstr "WALLCHOP <mezua>, uneko kanaleko chanop guztiei mezua bidaltzen die"
 
-#: ../src/common/outbound.c:3536
+#: ../src/common/outbound.c:3555
 #, c-format
 msgid "Usage: %s\n"
 msgstr "Erabilera: %s\n"
 
-#: ../src/common/outbound.c:3541
+#: ../src/common/outbound.c:3560
 msgid ""
 "\n"
 "No help available on that command.\n"
@@ -1244,19 +1249,19 @@ msgstr ""
 "\n"
 "Ez dago laguntzarik eskuragarri komando horrentzat.\n"
 
-#: ../src/common/outbound.c:3547
+#: ../src/common/outbound.c:3566
 msgid "No such command.\n"
 msgstr "Ez dago honelako komandorik.\n"
 
-#: ../src/common/outbound.c:3874
+#: ../src/common/outbound.c:3896
 msgid "Bad arguments for user command.\n"
 msgstr "Argumentu akastunak erabiltzaile komandoentzat.\n"
 
-#: ../src/common/outbound.c:4030
+#: ../src/common/outbound.c:4051
 msgid "Too many recursive usercommands, aborting."
 msgstr "Erabiltzailearen gehiegizko agindu errekurtsibo, eteten."
 
-#: ../src/common/outbound.c:4107
+#: ../src/common/outbound.c:4125
 msgid "Unknown Command. Try /help\n"
 msgstr "Komando ezezaguna. Saiatu /help ekin\n"
 
@@ -1264,11 +1269,11 @@ msgstr "Komando ezezaguna. Saiatu /help ekin\n"
 msgid "No xchat_plugin_init symbol; is this really an xchat plugin?"
 msgstr "Ez dago xchat_plugin_init symbol;ik benetan al da xchat plugin bat?"
 
-#: ../src/common/server.c:621
+#: ../src/common/server.c:627
 msgid "Are you sure this is a SSL capable server and port?\n"
 msgstr "Ziur zaude SSL erabiltzeko gai den zerbitzari eta ataka dela?\n"
 
-#: ../src/common/server.c:1012
+#: ../src/common/server.c:1018
 #, c-format
 msgid ""
 "Cannot resolve hostname %s\n"
@@ -1277,16 +1282,16 @@ msgstr ""
 "Ezin da ebatzi %s ostalari-izena\n"
 "Egiaztatu zure IP ezarpenak!\n"
 
-#: ../src/common/server.c:1017
+#: ../src/common/server.c:1023
 msgid "Proxy traversal failed.\n"
 msgstr "Proxy trasbersalak huts egin du.\n"
 
-#: ../src/common/servlist.c:644
+#: ../src/common/servlist.c:645
 #, c-format
 msgid "Cycling to next server in %s...\n"
 msgstr "Hurrengo zerbitzarira %s-n ziklatzen...\n"
 
-#: ../src/common/servlist.c:1068
+#: ../src/common/servlist.c:1076
 #, c-format
 msgid ""
 "Warning: \"%s\" character set is unknown. No conversion will be applied for "
@@ -1334,6 +1339,22 @@ msgstr "Sartzen hari den kanala"
 msgid "The host of the person"
 msgstr "Pertsonaren ostalaria"
 
+#: ../src/common/text.c:629 ../src/common/text.c:635 ../src/common/text.c:642
+#: ../src/common/text.c:709 ../src/common/text.c:835 ../src/common/text.c:842
+#: ../src/common/text.c:847 ../src/common/text.c:852 ../src/common/text.c:857
+#: ../src/common/text.c:863 ../src/common/text.c:868 ../src/common/text.c:872
+#: ../src/common/text.c:878 ../src/common/text.c:884 ../src/common/text.c:930
+#: ../src/common/text.c:941 ../src/common/text.c:946 ../src/common/text.c:951
+#: ../src/common/text.c:960 ../src/common/text.c:971 ../src/common/text.c:978
+#: ../src/common/text.c:984 ../src/common/text.c:989 ../src/common/text.c:994
+#: ../src/common/text.c:1001 ../src/common/text.c:1007
+#: ../src/common/text.c:1013 ../src/common/text.c:1018
+#: ../src/common/text.c:1023 ../src/common/text.c:1027
+#: ../src/common/text.c:1033 ../src/common/text.c:1041
+#: ../src/common/text.c:1075 ../src/common/text.c:1080
+msgid "Nickname"
+msgstr "Ezizena"
+
 #: ../src/common/text.c:630
 msgid "The action"
 msgstr "akzioa"
@@ -1368,7 +1389,7 @@ msgid "Nick of person who changed the topic"
 msgstr "Gaia aldatu duenaren ezizena"
 
 #: ../src/common/text.c:653 ../src/common/text.c:659
-#: ../src/fe-gnome/channel-list.c:331
+#: ../src/fe-gnome/channel-list.c:344
 msgid "Topic"
 msgstr "Gaia"
 
@@ -1402,7 +1423,7 @@ msgstr "Ordua"
 msgid "The creator"
 msgstr "Sortzailea"
 
-#: ../src/common/text.c:688 ../src/common/text.c:946
+#: ../src/common/text.c:688 ../src/common/text.c:947
 msgid "Reason"
 msgstr "Arrazoia"
 
@@ -1587,7 +1608,7 @@ msgid "Away reason"
 msgstr "Aldentzearen arrazoia"
 
 #: ../src/common/text.c:873 ../src/common/text.c:879 ../src/common/text.c:887
-#: ../src/common/text.c:1066
+#: ../src/common/text.c:1067
 msgid "Message"
 msgstr "Mezua"
 
@@ -1604,17 +1625,17 @@ msgid "Real IP"
 msgstr "Benetazko IPa"
 
 #: ../src/common/text.c:891 ../src/common/text.c:900 ../src/common/text.c:906
-#: ../src/common/text.c:935 ../src/common/text.c:1089
-#: ../src/fe-gnome/channel-list.c:321
+#: ../src/common/text.c:936 ../src/common/text.c:1090
+#: ../src/fe-gnome/channel-list.c:334
 msgid "Channel Name"
 msgstr "Kanalaren izena"
 
-#: ../src/common/text.c:895 ../src/common/text.c:1052
+#: ../src/common/text.c:895 ../src/common/text.c:1053
 msgid "Text"
 msgstr "Testua"
 
 #: ../src/common/text.c:896 ../src/common/text.c:902 ../src/common/text.c:931
-#: ../src/common/text.c:1048 ../src/common/text.c:1090
+#: ../src/common/text.c:1049 ../src/common/text.c:1091
 msgid "Server Name"
 msgstr "Zerbitzariaren izena"
 
@@ -1630,112 +1651,113 @@ msgstr "Ezizena erabilita"
 msgid "Nick being tried"
 msgstr "Saiatzen hari den ezizena"
 
-#: ../src/common/text.c:921 ../src/common/text.c:1056
+#: ../src/common/text.c:921 ../src/common/text.c:1057
 msgid "IP"
 msgstr "IP"
 
-#: ../src/common/text.c:922 ../src/common/text.c:952
+#: ../src/common/text.c:922 ../src/common/text.c:953
 msgid "Port"
 msgstr "Ataka"
 
-#: ../src/common/text.c:926
-msgid "PID"
-msgstr "PID"
+#: ../src/common/text.c:932
+#, fuzzy
+msgid "Network"
+msgstr "Sarea"
 
-#: ../src/common/text.c:936 ../src/common/text.c:941
+#: ../src/common/text.c:937 ../src/common/text.c:942
 msgid "Modes string"
 msgstr "Moduen katea"
 
-#: ../src/common/text.c:951 ../src/common/text.c:989 ../src/common/text.c:994
-#: ../src/common/text.c:1035
+#: ../src/common/text.c:952 ../src/common/text.c:990 ../src/common/text.c:995
+#: ../src/common/text.c:1036
 msgid "IP address"
 msgstr "IP helbidea"
 
-#: ../src/common/text.c:957 ../src/common/text.c:982
+#: ../src/common/text.c:958 ../src/common/text.c:983
 msgid "DCC Type"
 msgstr "DCC mota"
 
-#: ../src/common/text.c:958 ../src/common/text.c:963 ../src/common/text.c:968
-#: ../src/common/text.c:975 ../src/common/text.c:995 ../src/common/text.c:999
-#: ../src/common/text.c:1005 ../src/common/text.c:1011
-#: ../src/common/text.c:1018 ../src/common/text.c:1027
-#: ../src/common/text.c:1033
+#: ../src/common/text.c:959 ../src/common/text.c:964 ../src/common/text.c:969
+#: ../src/common/text.c:976 ../src/common/text.c:996 ../src/common/text.c:1000
+#: ../src/common/text.c:1006 ../src/common/text.c:1012
+#: ../src/common/text.c:1019 ../src/common/text.c:1028
+#: ../src/common/text.c:1034
 msgid "Filename"
 msgstr "Fitxategi-izena"
 
-#: ../src/common/text.c:969 ../src/common/text.c:976
+#: ../src/common/text.c:970 ../src/common/text.c:977
 msgid "Destination filename"
 msgstr "Helmuga fitxategia"
 
-#: ../src/common/text.c:978 ../src/common/text.c:1007
+#: ../src/common/text.c:979 ../src/common/text.c:1008
 msgid "CPS"
 msgstr "CPS"
 
-#: ../src/common/text.c:1013
+#: ../src/common/text.c:1014
 msgid "Pathname"
 msgstr "Bide-izena"
 
-#: ../src/common/text.c:1028
+#: ../src/common/text.c:1029
 msgid "Position"
 msgstr "Posizioa"
 
-#: ../src/common/text.c:1034
+#: ../src/common/text.c:1035
 msgid "Size"
 msgstr "Tamainua"
 
-#: ../src/common/text.c:1039
+#: ../src/common/text.c:1040
 msgid "DCC String"
 msgstr "DCC katea"
 
-#: ../src/common/text.c:1044
+#: ../src/common/text.c:1045
 msgid "Number of notify items"
 msgstr "Notifikazio kopurua"
 
-#: ../src/common/text.c:1060
+#: ../src/common/text.c:1061
 msgid "Old Filename"
 msgstr "Fitxategi zaharra"
 
-#: ../src/common/text.c:1061
+#: ../src/common/text.c:1062
 msgid "New Filename"
 msgstr "Fitxategi berria"
 
-#: ../src/common/text.c:1065
+#: ../src/common/text.c:1066
 msgid "Receiver"
 msgstr "Jasotzailea"
 
-#: ../src/common/text.c:1070
+#: ../src/common/text.c:1071
 msgid "Hostmask"
 msgstr "Ostalariaren maskara"
 
-#: ../src/common/text.c:1075
+#: ../src/common/text.c:1076
 msgid "Hostname"
 msgstr "Ostalariaren izena"
 
-#: ../src/common/text.c:1080
+#: ../src/common/text.c:1081
 msgid "The Packet"
 msgstr "Paketea"
 
-#: ../src/common/text.c:1084
+#: ../src/common/text.c:1085
 msgid "Seconds"
 msgstr "Segunduak"
 
-#: ../src/common/text.c:1088
+#: ../src/common/text.c:1089
 msgid "Nick of person who have been invited"
 msgstr "Gonbidatua izan denaren ezizena"
 
-#: ../src/common/text.c:1095
+#: ../src/common/text.c:1096
 msgid "Banmask"
 msgstr "Debeku maskara"
 
-#: ../src/common/text.c:1096
+#: ../src/common/text.c:1097
 msgid "Who set the ban"
 msgstr "Nork ezarri duen debekua"
 
-#: ../src/common/text.c:1097
+#: ../src/common/text.c:1098
 msgid "Ban time"
 msgstr "Debekuaren denbora"
 
-#: ../src/common/text.c:1137
+#: ../src/common/text.c:1138
 #, c-format
 msgid ""
 "Error parsing event %s.\n"
@@ -1744,7 +1766,7 @@ msgstr ""
 "Akatsak gertakaria parseatzerakoan %s\n"
 "Aurrekoa kargatzen"
 
-#: ../src/common/text.c:1818
+#: ../src/common/text.c:1819
 #, c-format
 msgid ""
 "Cannot read sound file:\n"
@@ -3378,232 +3400,9 @@ msgid "Zimbabwe"
 msgstr "Zimbabwe"
 
 #: ../src/common/util.c:1110 ../src/common/util.c:1120
-#: ../src/fe-gnome/userlist-gui.c:414
+#: ../src/fe-gnome/userlist-gui.c:427
 msgid "Unknown"
 msgstr "Ezezaguna"
-
-#: ../src/common/xchat.c:767 ../src/common/xchat.c:893
-msgid "Open Dialog Window"
-msgstr "Ireki elkarrizketa leihoa"
-
-#: ../src/common/xchat.c:768
-msgid "Send a File"
-msgstr "Bidali fitxategia"
-
-#: ../src/common/xchat.c:769
-msgid "User Info (WHOIS)"
-msgstr "Erabiltzailearen informazioa (WHOIS)"
-
-#: ../src/common/xchat.c:770
-msgid "Operator Actions"
-msgstr "Aukerak"
-
-#: ../src/common/xchat.c:772 ../src/common/xchat.c:863
-msgid "Give Ops"
-msgstr "Eman Opak"
-
-#: ../src/common/xchat.c:773 ../src/common/xchat.c:864
-msgid "Take Ops"
-msgstr "Hartu Op"
-
-#: ../src/common/xchat.c:774 ../src/common/xchat.c:867
-msgid "Give Voice"
-msgstr "Eman ahotsa"
-
-#: ../src/common/xchat.c:775 ../src/common/xchat.c:868
-msgid "Take Voice"
-msgstr "Hartu ahotsa"
-
-#: ../src/common/xchat.c:777 ../src/common/xchat.c:872
-msgid "Kick/Ban"
-msgstr "Kanporatu/debekatu"
-
-#: ../src/common/xchat.c:778 ../src/common/xchat.c:873
-#: ../src/common/xchat.c:922
-msgid "Kick"
-msgstr "Kanporatu"
-
-#: ../src/common/xchat.c:779 ../src/common/xchat.c:780
-#: ../src/common/xchat.c:781 ../src/common/xchat.c:782
-#: ../src/common/xchat.c:783 ../src/common/xchat.c:874
-#: ../src/common/xchat.c:875 ../src/common/xchat.c:876
-#: ../src/common/xchat.c:877 ../src/common/xchat.c:878
-#: ../src/common/xchat.c:921
-msgid "Ban"
-msgstr "Debekatu"
-
-#: ../src/common/xchat.c:784 ../src/common/xchat.c:785
-#: ../src/common/xchat.c:786 ../src/common/xchat.c:787
-#: ../src/common/xchat.c:879 ../src/common/xchat.c:880
-#: ../src/common/xchat.c:881 ../src/common/xchat.c:882
-msgid "KickBan"
-msgstr "Kanporatu-debekatu"
-
-#: ../src/common/xchat.c:850
-msgid "Direct client-to-client"
-msgstr "Bezerotik-bezerora zuzenean"
-
-#: ../src/common/xchat.c:851
-msgid "Send File"
-msgstr "Bidali fitxategia"
-
-#: ../src/common/xchat.c:852
-msgid "Offer Chat"
-msgstr "Eskeini berriketa"
-
-#: ../src/common/xchat.c:853
-msgid "Abort Chat"
-msgstr "Abortatu berriketa"
-
-#: ../src/common/xchat.c:854
-msgid "Version"
-msgstr "Bertsioa"
-
-#: ../src/common/xchat.c:855
-msgid "Userinfo"
-msgstr "Erabiltzailearen Informazioa"
-
-#: ../src/common/xchat.c:856
-msgid "Clientinfo"
-msgstr "Bezeroaren informazioa"
-
-#: ../src/common/xchat.c:857 ../src/common/xchat.c:891
-#: ../src/common/xchat.c:939
-msgid "Ping"
-msgstr "Ping"
-
-#: ../src/common/xchat.c:859
-msgid "Finger"
-msgstr "Finger"
-
-#: ../src/common/xchat.c:860
-msgid "Oper"
-msgstr "Operatzailea"
-
-#: ../src/common/xchat.c:861
-msgid "Kill this user"
-msgstr "Hil erabiltzaile hau"
-
-#: ../src/common/xchat.c:862
-msgid "Mode"
-msgstr "Modua"
-
-#: ../src/common/xchat.c:865
-msgid "Give Half-Ops"
-msgstr "Eman erdi-Op-ak"
-
-#: ../src/common/xchat.c:866
-msgid "Take Half-Ops"
-msgstr "Hartu erdi-Op-ak"
-
-#: ../src/common/xchat.c:869 ../src/fe-gnome/userlist-gui.c:65
-msgid "Ignore"
-msgstr "Ezikusi"
-
-#: ../src/common/xchat.c:870
-msgid "Ignore User"
-msgstr "Ezikusi erabiltzailea"
-
-#: ../src/common/xchat.c:871
-msgid "UnIgnore User"
-msgstr "Ez-ignoratu erabiltzailea"
-
-#: ../src/common/xchat.c:883
-msgid "Info"
-msgstr "Informazioa"
-
-#: ../src/common/xchat.c:884
-msgid "Who"
-msgstr "Who"
-
-#: ../src/common/xchat.c:885 ../src/common/xchat.c:935
-msgid "WhoIs"
-msgstr "WhoIs"
-
-#: ../src/common/xchat.c:886
-msgid "DNS Lookup"
-msgstr "DNS bilaketa"
-
-#: ../src/common/xchat.c:887
-msgid "Trace"
-msgstr "Trace"
-
-#: ../src/common/xchat.c:888
-msgid "UserHost"
-msgstr "Erabiltzaile-ostalaria"
-
-#: ../src/common/xchat.c:889
-msgid "External"
-msgstr "Kanpoko"
-
-#: ../src/common/xchat.c:890
-msgid "Traceroute"
-msgstr "Traceroute"
-
-#: ../src/common/xchat.c:892
-msgid "Telnet"
-msgstr "Telnet"
-
-#: ../src/common/xchat.c:904
-msgid "Leave Channel"
-msgstr "Irten kanaletik"
-
-#: ../src/common/xchat.c:905
-msgid "Join Channel..."
-msgstr "Sartu kanalera..."
-
-#: ../src/common/xchat.c:906
-msgid "Enter Channel to Join:"
-msgstr "Sartu elkartu nahi duzun kanalaren izena:"
-
-#: ../src/common/xchat.c:907
-msgid "Server Links"
-msgstr "Zerbitzari estekak"
-
-#: ../src/common/xchat.c:908
-msgid "Ping Server"
-msgstr "Ping egin zerbitzariari"
-
-#: ../src/common/xchat.c:909
-msgid "Hide Version"
-msgstr "Ezkutatu bertsioa"
-
-#: ../src/common/xchat.c:919
-msgid "Op"
-msgstr "Op"
-
-#: ../src/common/xchat.c:920
-msgid "DeOp"
-msgstr "OP kendu"
-
-#: ../src/common/xchat.c:923
-msgid "bye"
-msgstr "agur"
-
-#: ../src/common/xchat.c:924
-#, c-format
-msgid "Enter reason to kick %s:"
-msgstr "Sartu %s botatzeko arrazoia:"
-
-#: ../src/common/xchat.c:925
-msgid "Sendfile"
-msgstr "Bidali fitxategia"
-
-#: ../src/common/xchat.c:926
-msgid "Dialog"
-msgstr "Elkarrizketa"
-
-#: ../src/common/xchat.c:936
-msgid "Send"
-msgstr "Bidali"
-
-#: ../src/common/xchat.c:937
-msgid "Chat"
-msgstr "Berriketa"
-
-#: ../src/common/xchat.c:938
-msgid "Clear"
-msgstr "Garbitu"
 
 #: ../src/common/dbus/dbus-plugin.c:30
 #, fuzzy
@@ -3630,7 +3429,8 @@ msgid "%s loaded successfully!\n"
 msgstr "%s egoki kargaturik!\n"
 
 #: ../src/common/dbus/url_handler.schemas.in.h:1
-msgid "Run xchat-gnome in a terminal?"
+#, fuzzy
+msgid "Run XChat-GNOME in a terminal?"
 msgstr "xchat-gnome terminal batean exekutatu?"
 
 #: ../src/common/dbus/url_handler.schemas.in.h:2
@@ -3641,7 +3441,7 @@ msgstr "TRUE jarri aktibaturik nahi baduzu"
 msgid "The handler for \"irc://\" URLs"
 msgstr "\"irc://\" URLen maneiatzailea"
 
-#: ../src/fe-gnome/about.c:74
+#: ../src/fe-gnome/about.c:63
 msgid ""
 "X-Chat GNOME is free software; you can redistribute it and/or modify it "
 "under the terms of the GNU General Public License as published by the Free "
@@ -3652,7 +3452,7 @@ msgstr ""
 "argitaratutako GNU General Public License azpian banatu edo aldatu dezakezu; "
 "bai lizentziaren 2 bertsioa, edo (zuk erabaki) edozein bertsio berriagoa."
 
-#: ../src/fe-gnome/about.c:78
+#: ../src/fe-gnome/about.c:67
 msgid ""
 "X-Chat GNOME is distributed in the hope that it will be useful, but WITHOUT "
 "ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
@@ -3664,7 +3464,7 @@ msgstr ""
 "BATETARAKO EGOKITASUNA izango duenaren garantia suposatua. Ikus GNUren "
 "Lizentzia Publiko Orokorra informazio gehiago lortzeko."
 
-#: ../src/fe-gnome/about.c:82
+#: ../src/fe-gnome/about.c:71
 msgid ""
 "You should have received a copy of the GNU General Public License along with "
 "X-Chat GNOME; if not, write to the Free Software Foundation, Inc., 59 Temple "
@@ -3674,7 +3474,7 @@ msgstr ""
 "GNOMErekin batera; hala izango ez balitz, \"Free Software Foundation Inc., "
 "59 Temple Place, Suite 330, Boston MA 02111-1307 USA\" ra idatzi"
 
-#: ../src/fe-gnome/about.c:97
+#: ../src/fe-gnome/about.c:81
 msgid "Copyright © 2004-2006"
 msgstr "Copyright © 2004-2006"
 
@@ -3683,13 +3483,13 @@ msgstr "Copyright © 2004-2006"
 #. * be or replace it with something funny (but inoffensive)
 #. * in your own language, but don't translate it literally.
 #.
-#: ../src/fe-gnome/about.c:103
+#: ../src/fe-gnome/about.c:87
 msgid ""
 "It has been well observed that a trombone is not a suitable instrument for a "
 "gentleman"
 msgstr "Tronboia zaldunentzako tresna egokia ez dela gauza jakina da"
 
-#: ../src/fe-gnome/about.c:107
+#: ../src/fe-gnome/about.c:91
 msgid "XChat-GNOME Web Site"
 msgstr "XChat-GNOME Web Lekua"
 
@@ -3702,7 +3502,7 @@ msgstr "XChat-GNOME Web Lekua"
 #. * write each of them on a separated line seperated by
 #. * newlines (\n).
 #.
-#: ../src/fe-gnome/about.c:121
+#: ../src/fe-gnome/about.c:105
 msgid "translator-credits"
 msgstr "itzulpena-kredituak"
 
@@ -3803,14 +3603,10 @@ msgstr "Lehio nagusiaren Y kokapena pantailan"
 msgid "xchat configuration version"
 msgstr "xchat konfigurazioaren bertsioa"
 
-#: ../src/fe-gnome/channel-list.c:296
+#: ../src/fe-gnome/channel-list.c:309
 #, c-format
 msgid "%s Channel List"
 msgstr "%s Kanal zerrenda"
-
-#: ../src/fe-gnome/connect-dialog.c:133
-msgid "_Connect"
-msgstr "Konektatu"
 
 #: ../src/fe-gnome/conversation-panel.c:170
 msgid "_Open Link in Browser"
@@ -3848,64 +3644,64 @@ msgstr "Utzi"
 msgid "_Copy"
 msgstr "Kopiatu"
 
-#: ../src/fe-gnome/conversation-panel.c:788
-#, c-format
-msgid "URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"
+#: ../src/fe-gnome/conversation-panel.c:799
+#, fuzzy, c-format
+msgid "URI list dropped on XChat-GNOME had wrong format (%d) or length (%d)\n"
 msgstr ""
 "URI zerrenda ezabatuta xchat-gnome-ren okerreko formatua (%d) edo luzera (%"
 "d) zuen\n"
 
-#: ../src/fe-gnome/conversation-panel.c:886
+#: ../src/fe-gnome/conversation-panel.c:897
 #, c-format
 msgid "Error reading file \"%s\": %s\n"
 msgstr "Akatsak \"%s\" fitxategia irakurtzerakoan: %s\n"
 
-#: ../src/fe-gnome/conversation-panel.c:901
+#: ../src/fe-gnome/conversation-panel.c:912
 #, c-format
 msgid "Error converting URI \"%s\" into filename: %s\n"
 msgstr "Akatsak \"%s\" URIa fitxategi izen bihurtzean: %s\n"
 
-#: ../src/fe-gnome/conversation-panel.c:944
+#: ../src/fe-gnome/conversation-panel.c:955
 #, c-format
 msgid "Error retrieving file information for \"%s\": %s\n"
 msgstr "Akatsak \"%s\"ri buruzko informazioa jasotzerakoan: %s\n"
 
-#: ../src/fe-gnome/conversation-panel.c:1029
+#: ../src/fe-gnome/conversation-panel.c:1044
 msgid "Save Transcript"
 msgstr "Transkripzioa gorde"
 
-#: ../src/fe-gnome/conversation-panel.c:1055
-#: ../src/fe-gnome/conversation-panel.c:1065
+#: ../src/fe-gnome/conversation-panel.c:1070
+#: ../src/fe-gnome/conversation-panel.c:1080
 #, c-format
 msgid "Error saving %s"
 msgstr "Errorea %s grabatzen"
 
-#: ../src/fe-gnome/conversation-panel.c:1197
+#: ../src/fe-gnome/conversation-panel.c:1212
 msgid "Search buffer is empty.\n"
 msgstr "Bilaketa bufferra hutsik dago.\n"
 
 #. File completion percent
-#: ../src/fe-gnome/dcc-window.c:143
+#: ../src/fe-gnome/dcc-window.c:146
 msgid "%"
 msgstr "%"
 
-#: ../src/fe-gnome/dcc-window.c:144
+#: ../src/fe-gnome/dcc-window.c:147
 msgid "File"
 msgstr "Fitxategia"
 
-#: ../src/fe-gnome/dcc-window.c:145
+#: ../src/fe-gnome/dcc-window.c:148
 msgid "Remaining"
 msgstr "Irteten"
 
-#: ../src/fe-gnome/dcc-window.c:225
+#: ../src/fe-gnome/dcc-window.c:223
 msgid "Incoming File Transfer"
 msgstr "Fitxategi transferentzia sartzen"
 
-#: ../src/fe-gnome/dcc-window.c:226 ../src/fe-gnome/fe-gnome.c:493
+#: ../src/fe-gnome/dcc-window.c:224 ../src/fe-gnome/fe-gnome.c:483
 msgid "_Accept"
 msgstr "Onartu"
 
-#: ../src/fe-gnome/dcc-window.c:227
+#: ../src/fe-gnome/dcc-window.c:225
 #, c-format
 msgid ""
 "%s is attempting to send you a file named \"%s\". Do you wish to accept the "
@@ -3914,7 +3710,7 @@ msgstr ""
 "%sk \"%s\" izeneko fitxategia zuri bidaltzen saiatzen ari da. Bidalketa "
 "onartu nahi al duzu?"
 
-#: ../src/fe-gnome/dcc-window.c:247
+#: ../src/fe-gnome/dcc-window.c:245
 #, c-format
 msgid ""
 "<b>%s</b>\n"
@@ -3925,11 +3721,11 @@ msgstr ""
 "<small>%s gandik</small>\n"
 "%s %stik"
 
-#: ../src/fe-gnome/dcc-window.c:258
+#: ../src/fe-gnome/dcc-window.c:256
 msgid "starting"
 msgstr "Itxaroten"
 
-#: ../src/fe-gnome/dcc-window.c:288
+#: ../src/fe-gnome/dcc-window.c:287
 #, c-format
 msgid ""
 "<b>%s</b>\n"
@@ -3940,71 +3736,71 @@ msgstr ""
 "<small>%s</small>\n"
 "%s %stik %s/sko"
 
-#: ../src/fe-gnome/dcc-window.c:295
+#: ../src/fe-gnome/dcc-window.c:294
 msgid "queued"
 msgstr "errenkadan"
 
-#: ../src/fe-gnome/dcc-window.c:300
+#: ../src/fe-gnome/dcc-window.c:299
 #, c-format
 msgid "Transfer of %s to %s failed"
 msgstr "%sdik %sra bidalketak huts egin du"
 
-#: ../src/fe-gnome/dcc-window.c:302
+#: ../src/fe-gnome/dcc-window.c:301
 #, c-format
 msgid "Transfer of %s from %s failed"
 msgstr "%sren bidalketak huts egin du %sgandik"
 
-#: ../src/fe-gnome/dcc-window.c:303
+#: ../src/fe-gnome/dcc-window.c:302
 msgid "Transfer failed"
 msgstr "Transferentzia eten da"
 
-#: ../src/fe-gnome/dcc-window.c:311
+#: ../src/fe-gnome/dcc-window.c:310
 msgid "aborted"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:314
+#: ../src/fe-gnome/dcc-window.c:313
 msgid "stalled"
 msgstr "Huts egin da"
 
-#: ../src/fe-gnome/dcc-window.c:318
+#: ../src/fe-gnome/dcc-window.c:317
 #, c-format
 msgid "%.2d:%.2d:%.2d"
 msgstr "%.2d:%.2d:%.2d"
 
-#: ../src/fe-gnome/dcc-window.c:320
+#: ../src/fe-gnome/dcc-window.c:319
 #, c-format
 msgid "%.2d:%.2d"
 msgstr "%.2d:%.2d"
 
-#: ../src/fe-gnome/dcc-window.c:433
+#: ../src/fe-gnome/dcc-window.c:439
 msgid "Send File..."
 msgstr "Bidali fitxategia"
 
-#: ../src/fe-gnome/fe-gnome.c:61
+#: ../src/fe-gnome/fe-gnome.c:60
 msgid "Use directory instead of the default config dir"
 msgstr "Direktorioa erabili hasierako hobespenen direktorioa erabili beharrean"
 
-#: ../src/fe-gnome/fe-gnome.c:63
+#: ../src/fe-gnome/fe-gnome.c:61
 msgid "Don't auto-connect to servers"
 msgstr "Automatikoki birkonektatu zerbitzarira"
 
-#: ../src/fe-gnome/fe-gnome.c:65
+#: ../src/fe-gnome/fe-gnome.c:62
 msgid "Don't auto-load plugins"
 msgstr "ez kargatu automatikoki plugin-ak"
 
-#: ../src/fe-gnome/fe-gnome.c:67
+#: ../src/fe-gnome/fe-gnome.c:63
 msgid "Open an irc:// url"
 msgstr "irc:// URLa ireki"
 
-#: ../src/fe-gnome/fe-gnome.c:69
-msgid "Open URL in an existing xchat-gnome instance"
+#: ../src/fe-gnome/fe-gnome.c:64
+msgid "Open URL in an existing XChat-GNOME instance"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:71
+#: ../src/fe-gnome/fe-gnome.c:65
 msgid "Show version information"
 msgstr "erakutsi bertsioari buruzko informazioa"
 
-#: ../src/fe-gnome/fe-gnome.c:126
+#: ../src/fe-gnome/fe-gnome.c:107
 #, c-format
 msgid ""
 "xchat-gnome: %s\n"
@@ -4013,11 +3809,11 @@ msgstr ""
 "xchat-gnome: %s\n"
 "Saiatu `xchat-gnome --help' informazio gehiago izateko\n"
 
-#: ../src/fe-gnome/fe-gnome.c:491
+#: ../src/fe-gnome/fe-gnome.c:481
 msgid "Incoming DCC Chat"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:496
+#: ../src/fe-gnome/fe-gnome.c:486
 #, fuzzy, c-format
 msgid ""
 "%s is attempting to create a direct chat. Do you wish to accept the "
@@ -4026,30 +3822,30 @@ msgstr ""
 "%sk \"%s\" izeneko fitxategia zuri bidaltzen saiatzen ari da. Bidalketa "
 "onartu nahi al duzu?"
 
-#: ../src/fe-gnome/fe-gnome.c:912
+#: ../src/fe-gnome/fe-gnome.c:908
 #, c-format
 msgid "Unable to show '%s'"
 msgstr "Ezin da '%s' erakutsi"
 
-#: ../src/fe-gnome/find-bar.c:97
+#: ../src/fe-gnome/find-bar.c:96
 msgid "Find:"
 msgstr "Bilatu:"
 
-#: ../src/fe-gnome/find-bar.c:99
+#: ../src/fe-gnome/find-bar.c:98
 msgid "_Previous"
 msgstr "_Aurrekoa"
 
-#: ../src/fe-gnome/find-bar.c:101
+#: ../src/fe-gnome/find-bar.c:100
 msgid "_Next"
 msgstr "Testua"
 
-#: ../src/fe-gnome/find-bar.c:221
+#: ../src/fe-gnome/find-bar.c:219
 msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
 msgstr ""
 "<span foreground=\"dark grey\">Bukaeraraino iritsita, hasieratik jarraitzen</"
 "span>"
 
-#: ../src/fe-gnome/find-bar.c:228
+#: ../src/fe-gnome/find-bar.c:226
 msgid ""
 "<span foreground=\"dark grey\">Reached beginning, continuing from bottom</"
 "span>"
@@ -4057,51 +3853,51 @@ msgstr ""
 "<span foreground=\"dark grey\">Hasierara iritsita, bukaeratik jarraitzen</"
 "span>"
 
-#: ../src/fe-gnome/find-bar.c:235
+#: ../src/fe-gnome/find-bar.c:233
 msgid "<span foreground=\"red\">Search string not found</span>"
 msgstr "<span foreground=\"red\">Bilatutako katea ez da aurkitu</span>"
 
-#: ../src/fe-gnome/irc-network-editor.c:309
+#: ../src/fe-gnome/irc-network-editor.c:315
 msgid "Server"
 msgstr "Zerbitzaria"
 
-#: ../src/fe-gnome/irc-network-editor.c:318
+#: ../src/fe-gnome/irc-network-editor.c:324
 msgid "Key"
 msgstr ""
 
 #. We're creating a new network. Don't populate things from the structure
-#: ../src/fe-gnome/irc-network-editor.c:448
+#: ../src/fe-gnome/irc-network-editor.c:455
 msgid "New Network"
 msgstr "Sare berria"
 
-#: ../src/fe-gnome/irc-network-editor.c:456
+#: ../src/fe-gnome/irc-network-editor.c:463
 #, c-format
 msgid "%s Network Properties"
 msgstr "%s sareko ezarpenak"
 
-#: ../src/fe-gnome/irc-network-editor.c:582
-#: ../src/fe-gnome/irc-network-editor.c:589
-#: ../src/fe-gnome/irc-network-editor.c:595
+#: ../src/fe-gnome/irc-network-editor.c:591
+#: ../src/fe-gnome/irc-network-editor.c:598
+#: ../src/fe-gnome/irc-network-editor.c:604
 msgid "Invalid input"
 msgstr "Sarrera baliogabea"
 
-#: ../src/fe-gnome/irc-network-editor.c:582
+#: ../src/fe-gnome/irc-network-editor.c:591
 msgid "You must enter a network name"
 msgstr "Sarearen izena sartu behar duzu"
 
-#: ../src/fe-gnome/irc-network-editor.c:589
+#: ../src/fe-gnome/irc-network-editor.c:598
 msgid "You must enter a nick name"
 msgstr "Sartu ezizen berria:"
 
-#: ../src/fe-gnome/irc-network-editor.c:595
+#: ../src/fe-gnome/irc-network-editor.c:604
 msgid "You must enter a real name"
 msgstr "Benetako izena sartu behar duzu"
 
-#: ../src/fe-gnome/irc-network-editor.c:602
+#: ../src/fe-gnome/irc-network-editor.c:611
 msgid "No Servers"
 msgstr "Zerbitzariak"
 
-#: ../src/fe-gnome/irc-network-editor.c:602
+#: ../src/fe-gnome/irc-network-editor.c:611
 msgid "You must add at least one server for this network"
 msgstr "Erabili SSL sare hontako zerbitzari guztietan"
 
@@ -4295,15 +4091,15 @@ msgstr "_Edukia"
 msgid "_About"
 msgstr "_Honi buruz"
 
-#: ../src/fe-gnome/main-window.c:505 ../src/fe-gnome/navigation-tree.c:1676
+#: ../src/fe-gnome/main-window.c:507 ../src/fe-gnome/navigation-tree.c:1769
 msgid "Ex-Chat"
 msgstr "Berriketa"
 
-#: ../src/fe-gnome/main-window.c:586
+#: ../src/fe-gnome/main-window.c:589
 msgid "Error showing help"
 msgstr "Errorea laguntza erakusterakoan"
 
-#: ../src/fe-gnome/migration.c:117
+#: ../src/fe-gnome/migration.c:126
 #, c-format
 msgid ""
 "The way the D-Bus plugin works has changed.\n"
@@ -4312,7 +4108,7 @@ msgid ""
 "<b>Please delete %s</b>"
 msgstr ""
 
-#: ../src/fe-gnome/migration.c:119
+#: ../src/fe-gnome/migration.c:128
 msgid "D-Bus plugin is still installed"
 msgstr ""
 
@@ -4340,208 +4136,206 @@ msgstr "_Auto-konektatu hasieratik"
 msgid "_Auto-join on connect"
 msgstr "K_onektatu"
 
-#. Add the new server to the model. By default connected is false.
-#: ../src/fe-gnome/navigation-tree.c:361
-#: ../src/fe-gnome/navigation-tree.c:1305
+#: ../src/fe-gnome/navigation-tree.c:1344
 msgid "<none>"
 msgstr "<bat ere ez>"
 
-#: ../src/fe-gnome/preferences-page-colors.c:251
+#: ../src/fe-gnome/preferences-page-colors.c:253
 msgid "Colors"
 msgstr "Koloreak"
 
-#: ../src/fe-gnome/preferences-page-colors.c:254
+#: ../src/fe-gnome/preferences-page-colors.c:256
 msgid "Black on White"
 msgstr "Beltza zuriaren gainean"
 
-#: ../src/fe-gnome/preferences-page-colors.c:255
+#: ../src/fe-gnome/preferences-page-colors.c:257
 msgid "White on Black"
 msgstr "Zuria beltzaren gainean"
 
-#: ../src/fe-gnome/preferences-page-colors.c:256
+#: ../src/fe-gnome/preferences-page-colors.c:258
 msgid "Custom"
 msgstr "Pertsonalizatua"
 
-#: ../src/fe-gnome/preferences-page-colors.c:257
+#: ../src/fe-gnome/preferences-page-colors.c:259
 msgid "System Theme Colors"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-dcc.c:186
+#: ../src/fe-gnome/preferences-page-dcc.c:187
 msgid "File Transfers & DCC"
 msgstr "Fitxategi transferentziak"
 
-#: ../src/fe-gnome/preferences-page-effects.c:177
+#: ../src/fe-gnome/preferences-page-effects.c:180
 msgid "Effects"
 msgstr "Efektuak"
 
-#: ../src/fe-gnome/preferences-page-irc.c:301
+#: ../src/fe-gnome/preferences-page-irc.c:306
 msgid "IRC Preferences"
 msgstr "X-Chat: Hobespenak"
 
-#: ../src/fe-gnome/preferences-page-networks.c:116
+#: ../src/fe-gnome/preferences-page-networks.c:121
 #, c-format
 msgid "Really remove network \"%s\" and all of its servers?"
 msgstr "Benetan ezabatu nahi duzu \"%s\" eta honen zerbitzari guztiak?"
 
-#: ../src/fe-gnome/preferences-page-networks.c:170
+#: ../src/fe-gnome/preferences-page-networks.c:172
 msgid "Networks"
 msgstr "Sareak"
 
-#: ../src/fe-gnome/preferences-page-networks.c:178
+#: ../src/fe-gnome/preferences-page-networks.c:180
 msgid "Name"
 msgstr "Izena"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:92
-#: ../src/fe-gnome/preferences-page-plugins.c:93
+#: ../src/fe-gnome/preferences-page-plugins.c:104
+#: ../src/fe-gnome/preferences-page-plugins.c:105
 msgid "unknown"
 msgstr "Ezezaguna"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:133
-#, c-format
-msgid "An error occured unloading %s"
+#: ../src/fe-gnome/preferences-page-plugins.c:194
+#, fuzzy, c-format
+msgid "An error occurred unloading %s"
 msgstr "Errorea gertatu da %s kargatzerakoan"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:134
+#: ../src/fe-gnome/preferences-page-plugins.c:195
 msgid "Plugin Unload Failed"
 msgstr "Plugin deskarga okerra"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:145
+#: ../src/fe-gnome/preferences-page-plugins.c:206
 msgid "Plugin Load Failed"
 msgstr "Plugin karga okerra"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:184
+#: ../src/fe-gnome/preferences-page-plugins.c:244
 msgid "Open Plugin"
 msgstr "Ireki elkarrizketak hemen:"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:316
+#: ../src/fe-gnome/preferences-page-plugins.c:397
 msgid "Scripts and Plugins"
 msgstr "Script eta plugin-ak"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:329
-#: ../src/fe-gnome/preferences-page-spellcheck.c:225
+#: ../src/fe-gnome/preferences-page-plugins.c:410
+#: ../src/fe-gnome/preferences-page-spellcheck.c:219
 msgid "Enable"
 msgstr "Gaitu"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:331
+#: ../src/fe-gnome/preferences-page-plugins.c:412
 msgid "Plugin"
 msgstr "Ping"
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:102
+#: ../src/fe-gnome/preferences-page-spellcheck.c:99
 #, c-format
 msgid "Error in language %s activation: %s\n"
 msgstr "Errorea %s hizkuntza aktibatzerakoan: %s\n"
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:141
+#: ../src/fe-gnome/preferences-page-spellcheck.c:139
 #, c-format
 msgid "Error in spell checking configuration: %s\n"
 msgstr "Errorea ortografia zuzenketaren konfigurazioan: %s\n"
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:188
+#: ../src/fe-gnome/preferences-page-spellcheck.c:181
 msgid "Spell checking"
 msgstr "Ortografia zuzenketa"
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:192
+#: ../src/fe-gnome/preferences-page-spellcheck.c:185
 msgid ""
 "In order to get spell-checking, you need to have libenchant installed with "
 "at least one dictionary."
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:203
+#: ../src/fe-gnome/preferences-page-spellcheck.c:196
 msgid "_Check spelling"
 msgstr "Ortografia _zuzendu"
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:204
+#: ../src/fe-gnome/preferences-page-spellcheck.c:197
 msgid "Choose languages to use for spellcheck:"
 msgstr "Ortografia zuzentzeko hizkuntza aukeratu:"
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:230
+#: ../src/fe-gnome/preferences-page-spellcheck.c:224
 msgid "Language"
 msgstr "Hizkuntza"
 
-#: ../src/fe-gnome/status-bar.c:92
+#: ../src/fe-gnome/status-bar.c:93
 #, c-format
 msgid "%s%.1fs lag"
 msgstr "%s%.1fs lag"
 
-#: ../src/fe-gnome/status-bar.c:106
+#: ../src/fe-gnome/status-bar.c:107
 #, c-format
 msgid "%d bytes buffered"
 msgstr "%d byte"
 
-#: ../src/fe-gnome/text-entry.c:146
+#: ../src/fe-gnome/text-entry.c:145
 #, c-format
 msgid "Error in spellchecking configuration: %s\n"
 msgstr "Errorea ortografia hobespenetan: %s\n"
 
-#: ../src/fe-gnome/text-entry.c:358
+#: ../src/fe-gnome/text-entry.c:367
 msgid "I_nsert Color Code"
 msgstr "Txertatu kolore kodea"
 
-#: ../src/fe-gnome/text-entry.c:365
+#: ../src/fe-gnome/text-entry.c:374
 msgid "Black"
 msgstr "Beltza"
 
-#: ../src/fe-gnome/text-entry.c:369
+#: ../src/fe-gnome/text-entry.c:378
 msgid "Dark Blue"
 msgstr "Urdin iluna"
 
-#: ../src/fe-gnome/text-entry.c:373
+#: ../src/fe-gnome/text-entry.c:382
 msgid "Dark Green"
 msgstr "Berde iluna"
 
-#: ../src/fe-gnome/text-entry.c:377
+#: ../src/fe-gnome/text-entry.c:386
 msgid "Red"
 msgstr "Gorria"
 
-#: ../src/fe-gnome/text-entry.c:381
+#: ../src/fe-gnome/text-entry.c:390
 msgid "Brown"
 msgstr "Marroia"
 
-#: ../src/fe-gnome/text-entry.c:385
+#: ../src/fe-gnome/text-entry.c:394
 msgid "Purple"
 msgstr "Morea"
 
-#: ../src/fe-gnome/text-entry.c:389
+#: ../src/fe-gnome/text-entry.c:398
 msgid "Orange"
 msgstr "Laranja"
 
-#: ../src/fe-gnome/text-entry.c:393
+#: ../src/fe-gnome/text-entry.c:402
 msgid "Yellow"
 msgstr "Horia"
 
-#: ../src/fe-gnome/text-entry.c:397
+#: ../src/fe-gnome/text-entry.c:406
 msgid "Light Green"
 msgstr "Berde argia"
 
-#: ../src/fe-gnome/text-entry.c:401
+#: ../src/fe-gnome/text-entry.c:410
 msgid "Aqua"
 msgstr "Ur kolorea"
 
-#: ../src/fe-gnome/text-entry.c:405
+#: ../src/fe-gnome/text-entry.c:414
 msgid "Light Blue"
 msgstr "Urdin argia"
 
-#: ../src/fe-gnome/text-entry.c:409
+#: ../src/fe-gnome/text-entry.c:418
 msgid "Blue"
 msgstr "Urdina"
 
-#: ../src/fe-gnome/text-entry.c:413
+#: ../src/fe-gnome/text-entry.c:422
 msgid "Violet"
 msgstr "Bioleta"
 
-#: ../src/fe-gnome/text-entry.c:417
+#: ../src/fe-gnome/text-entry.c:426
 msgid "Grey"
 msgstr "Grisa"
 
-#: ../src/fe-gnome/text-entry.c:421
+#: ../src/fe-gnome/text-entry.c:430
 msgid "Light Grey"
 msgstr "Gris argia"
 
-#: ../src/fe-gnome/text-entry.c:425
+#: ../src/fe-gnome/text-entry.c:434
 msgid "White"
 msgstr "Zuria"
 
-#: ../src/fe-gnome/topic-label.c:277
+#: ../src/fe-gnome/topic-label.c:293
 #, c-format
 msgid "Changing topic for %s"
 msgstr "%sren gaia aldatu"
@@ -4562,11 +4356,15 @@ msgstr "Kanporatu"
 msgid "_Ban"
 msgstr "Debekatu"
 
+#: ../src/fe-gnome/userlist-gui.c:65
+msgid "Ignore"
+msgstr "Ezikusi"
+
 #: ../src/fe-gnome/userlist-gui.c:66
 msgid "_Op"
 msgstr ""
 
-#: ../src/fe-gnome/userlist-gui.c:409
+#: ../src/fe-gnome/userlist-gui.c:422
 #, c-format
 msgid ""
 "%s\n"
@@ -4575,7 +4373,7 @@ msgstr ""
 "%s\n"
 "<span weight=\"bold\">Izena:</span> %s"
 
-#: ../src/fe-gnome/userlist-gui.c:416
+#: ../src/fe-gnome/userlist-gui.c:429
 #, c-format
 msgid ""
 "%s\n"
@@ -4584,7 +4382,7 @@ msgstr ""
 "%s\n"
 "<span weight=\"bold\">Herria:</span> %s"
 
-#: ../src/fe-gnome/userlist-gui.c:426
+#: ../src/fe-gnome/userlist-gui.c:439
 #, fuzzy, c-format
 msgid ""
 "%s\n"
@@ -4599,7 +4397,7 @@ msgstr[1] ""
 "%s\n"
 "<span weight=\"bold\">Azken mezua:</span> orain dela %d minutu"
 
-#: ../src/fe-gnome/userlist-gui.c:437
+#: ../src/fe-gnome/userlist-gui.c:450
 #, c-format
 msgid ""
 "%s\n"
@@ -4608,12 +4406,198 @@ msgstr ""
 "%s\n"
 "<span weight=\"bold\">Kanporako mezua:</span> %s"
 
-#: ../src/fe-gnome/userlist.c:320
+#: ../src/fe-gnome/userlist.c:299
 #, c-format
 msgid "%d User"
 msgid_plural "%d Users"
 msgstr[0] ""
 msgstr[1] ""
+
+#~ msgid "Apply Text Filter To:    "
+#~ msgstr "Aplikatu testu filtroa:    "
+
+#~ msgid "Maximum Users:"
+#~ msgstr "Gehienezko erabiltzaileak:"
+
+#~ msgid "Minimum Users:"
+#~ msgstr "Gutxienezko erabiltzaileak:"
+
+#~ msgid "Text Filter:"
+#~ msgstr "Testu Filtroa:"
+
+#~ msgid "Close this discussion"
+#~ msgstr "Elkarrizketa hau itxi"
+
+#~ msgid "ADDBUTTON <name> <action>, adds a button under the user-list"
+#~ msgstr ""
+#~ "ADDBUTTON <izena> <ekintza>, botoi bat gehitzen du erabiltzaile "
+#~ "zerrendaren azpian"
+
+#~ msgid "DELBUTTON <name>, deletes a button from under the user-list"
+#~ msgstr ""
+#~ "DELBUTTON <izena>, erabiltzaile zerrendaren azpitik botoi bat ezabatzen du"
+
+#~ msgid "PID"
+#~ msgstr "PID"
+
+#~ msgid "Open Dialog Window"
+#~ msgstr "Ireki elkarrizketa leihoa"
+
+#~ msgid "Send a File"
+#~ msgstr "Bidali fitxategia"
+
+#~ msgid "User Info (WHOIS)"
+#~ msgstr "Erabiltzailearen informazioa (WHOIS)"
+
+#~ msgid "Operator Actions"
+#~ msgstr "Aukerak"
+
+#~ msgid "Give Ops"
+#~ msgstr "Eman Opak"
+
+#~ msgid "Take Ops"
+#~ msgstr "Hartu Op"
+
+#~ msgid "Give Voice"
+#~ msgstr "Eman ahotsa"
+
+#~ msgid "Take Voice"
+#~ msgstr "Hartu ahotsa"
+
+#~ msgid "Kick/Ban"
+#~ msgstr "Kanporatu/debekatu"
+
+#~ msgid "Kick"
+#~ msgstr "Kanporatu"
+
+#~ msgid "Ban"
+#~ msgstr "Debekatu"
+
+#~ msgid "KickBan"
+#~ msgstr "Kanporatu-debekatu"
+
+#~ msgid "Direct client-to-client"
+#~ msgstr "Bezerotik-bezerora zuzenean"
+
+#~ msgid "Send File"
+#~ msgstr "Bidali fitxategia"
+
+#~ msgid "Offer Chat"
+#~ msgstr "Eskeini berriketa"
+
+#~ msgid "Abort Chat"
+#~ msgstr "Abortatu berriketa"
+
+#~ msgid "Version"
+#~ msgstr "Bertsioa"
+
+#~ msgid "Userinfo"
+#~ msgstr "Erabiltzailearen Informazioa"
+
+#~ msgid "Clientinfo"
+#~ msgstr "Bezeroaren informazioa"
+
+#~ msgid "Ping"
+#~ msgstr "Ping"
+
+#~ msgid "Finger"
+#~ msgstr "Finger"
+
+#~ msgid "Oper"
+#~ msgstr "Operatzailea"
+
+#~ msgid "Kill this user"
+#~ msgstr "Hil erabiltzaile hau"
+
+#~ msgid "Mode"
+#~ msgstr "Modua"
+
+#~ msgid "Give Half-Ops"
+#~ msgstr "Eman erdi-Op-ak"
+
+#~ msgid "Take Half-Ops"
+#~ msgstr "Hartu erdi-Op-ak"
+
+#~ msgid "Ignore User"
+#~ msgstr "Ezikusi erabiltzailea"
+
+#~ msgid "UnIgnore User"
+#~ msgstr "Ez-ignoratu erabiltzailea"
+
+#~ msgid "Info"
+#~ msgstr "Informazioa"
+
+#~ msgid "Who"
+#~ msgstr "Who"
+
+#~ msgid "WhoIs"
+#~ msgstr "WhoIs"
+
+#~ msgid "DNS Lookup"
+#~ msgstr "DNS bilaketa"
+
+#~ msgid "Trace"
+#~ msgstr "Trace"
+
+#~ msgid "UserHost"
+#~ msgstr "Erabiltzaile-ostalaria"
+
+#~ msgid "External"
+#~ msgstr "Kanpoko"
+
+#~ msgid "Traceroute"
+#~ msgstr "Traceroute"
+
+#~ msgid "Telnet"
+#~ msgstr "Telnet"
+
+#~ msgid "Leave Channel"
+#~ msgstr "Irten kanaletik"
+
+#~ msgid "Join Channel..."
+#~ msgstr "Sartu kanalera..."
+
+#~ msgid "Enter Channel to Join:"
+#~ msgstr "Sartu elkartu nahi duzun kanalaren izena:"
+
+#~ msgid "Server Links"
+#~ msgstr "Zerbitzari estekak"
+
+#~ msgid "Ping Server"
+#~ msgstr "Ping egin zerbitzariari"
+
+#~ msgid "Hide Version"
+#~ msgstr "Ezkutatu bertsioa"
+
+#~ msgid "Op"
+#~ msgstr "Op"
+
+#~ msgid "DeOp"
+#~ msgstr "OP kendu"
+
+#~ msgid "bye"
+#~ msgstr "agur"
+
+#~ msgid "Enter reason to kick %s:"
+#~ msgstr "Sartu %s botatzeko arrazoia:"
+
+#~ msgid "Sendfile"
+#~ msgstr "Bidali fitxategia"
+
+#~ msgid "Dialog"
+#~ msgstr "Elkarrizketa"
+
+#~ msgid "Send"
+#~ msgstr "Bidali"
+
+#~ msgid "Chat"
+#~ msgstr "Berriketa"
+
+#~ msgid "Clear"
+#~ msgstr "Garbitu"
+
+#~ msgid "_Connect"
+#~ msgstr "Konektatu"
 
 #~ msgid "Nick Name:"
 #~ msgstr "Ezizena:"

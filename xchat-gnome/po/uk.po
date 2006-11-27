@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-09-24 22:03-0700\n"
+"POT-Creation-Date: 2006-11-24 13:14-0800\n"
 "PO-Revision-Date: 2006-06-21 08:43+0000\n"
 "Last-Translator: Serhey Kusyumoff <gpalco@gmail.com>\n"
 "Language-Team: Ukrainian <translation-team-uk@lists.sourceforge.net>\n"
@@ -24,38 +24,46 @@ msgid "<span weight=\"bold\">List Filtering</span>"
 msgstr ""
 
 #: ../data/channel-list.glade.h:2
-msgid "Apply Text Filter To:    "
-msgstr "Застосувати фільтр до тексту:    "
-
-#: ../data/channel-list.glade.h:3
 msgid "Channel _Name"
 msgstr "Назва каналу"
 
-#: ../data/channel-list.glade.h:4
+#: ../data/channel-list.glade.h:3
 msgid "Channel _Topic"
 msgstr "Канал"
 
-#: ../data/channel-list.glade.h:5
+#: ../data/channel-list.glade.h:4
 msgid "Join Channel"
 msgstr "Зайти на канал"
 
+#: ../data/channel-list.glade.h:5
+#, fuzzy
+msgid "Search for text:"
+msgstr "Буфер пошуку порожній.\n"
+
 #: ../data/channel-list.glade.h:6
-msgid "Maximum Users:"
-msgstr "Макс. користувачів:"
+#, fuzzy
+msgid "Show channels with:"
+msgstr "Канал"
 
 #: ../data/channel-list.glade.h:7
-msgid "Minimum Users:"
-msgstr "Мін. користувачів:"
+#, fuzzy
+msgid "in:"
+msgstr "Знайти:"
 
 #: ../data/channel-list.glade.h:8
-msgid "Text Filter:"
-msgstr "Друкувати текстовий файл"
+msgid "to"
+msgstr ""
 
-#: ../data/connect-dialog.glade.h:1
+#: ../data/channel-list.glade.h:9
+#, fuzzy
+msgid "users"
+msgstr "Користувачі"
+
+#: ../data/connect-dialog.glade.h:1 ../src/fe-gnome/connect-dialog.c:138
 msgid "C_onnect"
 msgstr "З'_єднатися"
 
-#: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
+#: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:121
 msgid "File Transfers"
 msgstr "Передача файлів"
 
@@ -357,7 +365,7 @@ msgstr ""
 
 #: ../data/setup-dialog.glade.h:1
 msgid ""
-"Welcome to xchat-gnome! Since this is your first time using this "
+"Welcome to XChat-GNOME! Since this is your first time using this "
 "application, there are a couple things you'll need to configure before you "
 "can get started.\n"
 "\n"
@@ -389,6 +397,7 @@ msgid "IRC Chat"
 msgstr "Розмова"
 
 #: ../data/xchat-gnome.desktop.in.in.h:3
+#: ../src/fe-gnome/navigation-tree.c:1205
 msgid "XChat-GNOME IRC Chat"
 msgstr ""
 
@@ -402,36 +411,15 @@ msgid "Change _nickname to:"
 msgstr "Нове прізвисько"
 
 #: ../data/xchat-gnome.glade.h:3
-msgid "Close this discussion"
-msgstr "Закрити вкладку/вікно"
-
-#: ../data/xchat-gnome.glade.h:4
 msgid "Mark as _away"
 msgstr ""
 
-#: ../data/xchat-gnome.glade.h:5 ../src/common/text.c:629
-#: ../src/common/text.c:635 ../src/common/text.c:642 ../src/common/text.c:709
-#: ../src/common/text.c:835 ../src/common/text.c:842 ../src/common/text.c:847
-#: ../src/common/text.c:852 ../src/common/text.c:857 ../src/common/text.c:863
-#: ../src/common/text.c:868 ../src/common/text.c:872 ../src/common/text.c:878
-#: ../src/common/text.c:884 ../src/common/text.c:930 ../src/common/text.c:940
-#: ../src/common/text.c:945 ../src/common/text.c:950 ../src/common/text.c:959
-#: ../src/common/text.c:970 ../src/common/text.c:977 ../src/common/text.c:983
-#: ../src/common/text.c:988 ../src/common/text.c:993 ../src/common/text.c:1000
-#: ../src/common/text.c:1006 ../src/common/text.c:1012
-#: ../src/common/text.c:1017 ../src/common/text.c:1022
-#: ../src/common/text.c:1026 ../src/common/text.c:1032
-#: ../src/common/text.c:1040 ../src/common/text.c:1074
-#: ../src/common/text.c:1079
-msgid "Nickname"
-msgstr "Прізвисько"
-
-#: ../data/xchat-gnome.glade.h:6 ../src/common/text.c:907
-#: ../src/fe-gnome/channel-list.c:326 ../src/fe-gnome/userlist.c:325
+#: ../data/xchat-gnome.glade.h:4 ../src/common/text.c:907
+#: ../src/fe-gnome/channel-list.c:339 ../src/fe-gnome/userlist.c:303
 msgid "Users"
 msgstr "Користувачі"
 
-#: ../data/xchat-gnome.glade.h:7
+#: ../data/xchat-gnome.glade.h:5
 msgid "nickname"
 msgstr "Прізвисько"
 
@@ -468,19 +456,20 @@ msgstr ""
 msgid "%s loaded successfully\n"
 msgstr ""
 
-#: ../plugins/notification/notification.c:139
+#: ../plugins/notification/notification.c:150
+#: ../plugins/notification/preferences-page-plugin-notification.c:133
 msgid "Notification"
 msgstr "Позиція"
 
-#: ../plugins/notification/notification.c:140
+#: ../plugins/notification/notification.c:151
 msgid "A notification area plugin."
 msgstr ""
 
-#: ../plugins/notification/notification.c:219
+#: ../plugins/notification/notification.c:216
 msgid "Notification plugin loaded.\n"
 msgstr "Модуль не знайдено.\n"
 
-#: ../plugins/notification/notification.c:269
+#: ../plugins/notification/notification.c:237
 msgid "Notification plugin unloaded.\n"
 msgstr "Модуль не знайдено.\n"
 
@@ -494,6 +483,28 @@ msgid ""
 "messages above which the notification icon will be displayed. Valid values "
 "are: \"0\" (always displayed), \"1\" (all messages including information), "
 "\"2\" (all channel messages), \"3\" (only private or highlighted messages)."
+msgstr ""
+
+#: ../plugins/notification/preferences-notification.glade.h:1
+#, fuzzy
+msgid "<span weight=\"bold\">Notification level</span>"
+msgstr "<span weight=\"bold\">Загальне</span>"
+
+#: ../plugins/notification/preferences-notification.glade.h:2
+msgid "Notify each _event"
+msgstr ""
+
+#: ../plugins/notification/preferences-notification.glade.h:3
+#, fuzzy
+msgid "Notify each _message"
+msgstr "Повідомлення справа"
+
+#: ../plugins/notification/preferences-notification.glade.h:4
+msgid "Notify only _private messages"
+msgstr ""
+
+#: ../plugins/notification/preferences-notification.glade.h:5
+msgid "_Always display notification icon"
 msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:30
@@ -533,11 +544,11 @@ msgstr ""
 msgid "Private Message from %s"
 msgstr ""
 
-#: ../plugins/notify-osd/notify-osd.c:211
+#: ../plugins/notify-osd/notify-osd.c:209
 msgid "OSD loaded\n"
 msgstr ""
 
-#: ../plugins/notify-osd/notify-osd.c:215
+#: ../plugins/notify-osd/notify-osd.c:213
 msgid "OSD initialization failed\n"
 msgstr ""
 
@@ -545,7 +556,7 @@ msgstr ""
 msgid "xchat URL scraper"
 msgstr "X-Chat: Захоплювач URL"
 
-#: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:858
+#: ../plugins/url_scraper/urlscraper.c:59
 msgid "Time"
 msgstr "Час"
 
@@ -554,8 +565,8 @@ msgid "Nick"
 msgstr "Прізвисько"
 
 #: ../plugins/url_scraper/urlscraper.c:68 ../src/common/text.c:654
-#: ../src/common/text.c:658 ../src/common/text.c:1094
-#: ../src/fe-gnome/irc-network-editor.c:314
+#: ../src/common/text.c:658 ../src/common/text.c:1095
+#: ../src/fe-gnome/irc-network-editor.c:320
 msgid "Channel"
 msgstr "Канал"
 
@@ -612,19 +623,19 @@ msgstr ""
 msgid "Sound-notification plugin unloaded.\n"
 msgstr ""
 
-#: ../src/common/cfgfiles.c:350
+#: ../src/common/cfgfiles.c:351
 msgid "Cannot create ~/.xchat2"
 msgstr "Не вдається створити ~/.xchat2"
 
-#: ../src/common/cfgfiles.c:685
+#: ../src/common/cfgfiles.c:687
 msgid "I'm busy"
 msgstr "Я зайнятий"
 
-#: ../src/common/cfgfiles.c:686
+#: ../src/common/cfgfiles.c:688
 msgid "Leaving"
 msgstr "Покидаю"
 
-#: ../src/common/cfgfiles.c:732
+#: ../src/common/cfgfiles.c:734
 msgid ""
 "* Running IRC as root is stupid! You should\n"
 "  create a User Account and use that to login.\n"
@@ -652,7 +663,7 @@ msgid "Done"
 msgstr "Виконано"
 
 #. green
-#: ../src/common/dcc.c:71 ../src/fe-gnome/connect-dialog.c:155
+#: ../src/common/dcc.c:71 ../src/fe-gnome/connect-dialog.c:160
 msgid "Connect"
 msgstr "З'єднання"
 
@@ -661,26 +672,26 @@ msgstr "З'єднання"
 msgid "Aborted"
 msgstr "Припинено"
 
-#: ../src/common/dcc.c:1887 ../src/common/outbound.c:2309
+#: ../src/common/dcc.c:1905 ../src/common/outbound.c:2324
 #, c-format
 msgid "Cannot access %s\n"
 msgstr "Немає доступу до %s\n"
 
 #. ! if (osvi.dwMajorVersion >= 5)
 #. fallback to error number
-#: ../src/common/dcc.c:1888 ../src/common/text.c:916 ../src/common/text.c:953
-#: ../src/common/text.c:964 ../src/common/text.c:971 ../src/common/text.c:984
-#: ../src/common/text.c:1001 ../src/common/text.c:1101
+#: ../src/common/dcc.c:1906 ../src/common/text.c:916 ../src/common/text.c:954
+#: ../src/common/text.c:965 ../src/common/text.c:972 ../src/common/text.c:985
+#: ../src/common/text.c:1002 ../src/common/text.c:1102
 #: ../src/common/util.c:352
 msgid "Error"
 msgstr "Помилка"
 
-#: ../src/common/dcc.c:2376
+#: ../src/common/dcc.c:2394
 #, c-format
 msgid "%s is offering \"%s\". Do you want to accept?"
 msgstr ""
 
-#: ../src/common/dcc.c:2587
+#: ../src/common/dcc.c:2605
 msgid "No active DCCs\n"
 msgstr "Немає активних каналів даних (DCC)\n"
 
@@ -708,12 +719,12 @@ msgstr "Вас наводнюють CTCP запитами з %s, %s ігнору
 msgid "You are being MSG flooded from %s, setting gui_auto_open_dialog OFF.\n"
 msgstr "Вас наводнюють повідомленнями від %s, автодіалог вимикається.\n"
 
-#: ../src/common/notify.c:396
+#: ../src/common/notify.c:449
 #, c-format
 msgid "  %-20s online\n"
 msgstr "  %-20s на каналі\n"
 
-#: ../src/common/notify.c:398
+#: ../src/common/notify.c:451
 #, c-format
 msgid "  %-20s offline\n"
 msgstr "  %-20s відсутній\n"
@@ -726,61 +737,57 @@ msgstr "Не зайшли на канал. Спробуйте /join #<канал
 msgid "Not connected. Try /server <host> [<port>]\n"
 msgstr "Немає з'єднання. Спробуйте /server <вузол> [<порт>]\n"
 
-#: ../src/common/outbound.c:1730
+#: ../src/common/outbound.c:1690
 msgid "I need /bin/sh to run!\n"
 msgstr "Для запуску необхідна програма /bin/sh !\n"
 
-#: ../src/common/outbound.c:2046
+#: ../src/common/outbound.c:2059
 msgid "Commands Available:"
 msgstr "Доступні команди:"
 
-#: ../src/common/outbound.c:2060
+#: ../src/common/outbound.c:2073
 msgid "User defined commands:"
 msgstr "Визначені користувачем команди:"
 
-#: ../src/common/outbound.c:2076
+#: ../src/common/outbound.c:2087
 msgid "Plugin defined commands:"
 msgstr "Визначені користувачем команди:"
 
-#: ../src/common/outbound.c:2087
+#: ../src/common/outbound.c:2098
 msgid "Type /HELP <command> for more information, or /HELP -l"
 msgstr ""
 "Напишіть /HELP <команда> щоб отримати докладнішу інформацію, або /HELP -l"
 
-#: ../src/common/outbound.c:2162
+#: ../src/common/outbound.c:2173
 #, c-format
 msgid "Unknown arg '%s' ignored."
 msgstr "Невідомий аргумент '%s' проігноровано."
 
-#: ../src/common/outbound.c:3049
+#: ../src/common/outbound.c:3071
 msgid "No such plugin found.\n"
 msgstr "Модуль не знайдено.\n"
 
-#: ../src/common/outbound.c:3054
+#: ../src/common/outbound.c:3076
 msgid "That plugin is refusing to unload.\n"
 msgstr "Не вдається вивантажити модуль.\n"
 
-#: ../src/common/outbound.c:3323
-msgid "ADDBUTTON <name> <action>, adds a button under the user-list"
-msgstr "ADDBUTTON <ім'я> <дія>, додати кнопку над списком користувачів"
-
-#: ../src/common/outbound.c:3325
+#: ../src/common/outbound.c:3345
 msgid "ALLCHAN <cmd>, sends a command to all channels you're in"
 msgstr "ALLCHAN <команда>, надіслати команду до всіх каналів, на які ви зайшли"
 
-#: ../src/common/outbound.c:3327
+#: ../src/common/outbound.c:3347
 msgid "ALLCHANL <cmd>, sends a command to all channels you're in"
 msgstr "ALLCHAN <команда>, надіслати команду до всіх каналів, на які ви зайшли"
 
-#: ../src/common/outbound.c:3329
+#: ../src/common/outbound.c:3349
 msgid "ALLSERV <cmd>, sends a command to all servers you're in"
 msgstr "ALLSERV <cmd>, надіслати команду до всіх серверів, з якими ви з'єднані"
 
-#: ../src/common/outbound.c:3330
+#: ../src/common/outbound.c:3350
 msgid "AWAY [<reason>], sets you away"
 msgstr "AWAY [<підстава>], встановити статус \"відсутній\""
 
-#: ../src/common/outbound.c:3332
+#: ../src/common/outbound.c:3352
 msgid ""
 "BAN <mask> [<bantype>], bans everyone matching the mask from the current "
 "channel. If they are already on the channel this doesn't kick them (needs "
@@ -790,7 +797,7 @@ msgstr ""
 "вказаній масці. Якщо користувачі вже з'єднані з каналом, вони не будуть "
 "відключені (для цього потрібно бути оператором каналу)"
 
-#: ../src/common/outbound.c:3334
+#: ../src/common/outbound.c:3354
 msgid ""
 "Set per channel options\n"
 "CHANOPT CONFMODE ON|OFF - Toggle conf mode/showing of join and part "
@@ -799,19 +806,19 @@ msgid ""
 "CHANOPT BEEP ON|OFF - Toggle beep on message"
 msgstr ""
 
-#: ../src/common/outbound.c:3340
+#: ../src/common/outbound.c:3360
 msgid "CLEAR [ALL|HISTORY], Clears the current text window or command history"
 msgstr ""
 
-#: ../src/common/outbound.c:3341
+#: ../src/common/outbound.c:3361
 msgid "CLOSE, Closes the current window/tab"
 msgstr "CLOSE, закрити поточне вікно/вкладку"
 
-#: ../src/common/outbound.c:3344
+#: ../src/common/outbound.c:3364
 msgid "COUNTRY [-s] <code|wildcard>, finds a country code, eg: au = australia"
 msgstr "COUNTRY <код>, знайти код країни, наприклад: au = australia"
 
-#: ../src/common/outbound.c:3346
+#: ../src/common/outbound.c:3366
 msgid ""
 "CTCP <nick> <message>, send the CTCP message to nick, common messages are "
 "VERSION and USERINFO"
@@ -819,11 +826,11 @@ msgstr ""
 "CTCP <прізвисько> <повідомлення>, надіслати повідомлення CTCP до користувача "
 "із вказаним ім'ям, звичайними повідомленнями є VERSION та USERINFO"
 
-#: ../src/common/outbound.c:3348
+#: ../src/common/outbound.c:3368
 msgid "CYCLE, parts current channel and immediately rejoins"
 msgstr "CYCLE, вийти з поточного каналу й одразу зайти знову"
 
-#: ../src/common/outbound.c:3350
+#: ../src/common/outbound.c:3370
 msgid ""
 "\n"
 "DCC GET <nick>                      - accept an offered file\n"
@@ -843,7 +850,7 @@ msgstr ""
 "DCC CLOSE <тип> <прізвисько> <файл>        приклад:\n"
 "         /dcc close send johnsmith file.tar.gz"
 
-#: ../src/common/outbound.c:3362
+#: ../src/common/outbound.c:3382
 msgid ""
 "DEHOP <nick>, removes chanhalf-op status from the nick on the current "
 "channel (needs chanop)"
@@ -851,11 +858,7 @@ msgstr ""
 "DEHOP <прізвисько>, зняти статус напівоператор каналу (chanhalf-op) у особи "
 "на поточному каналі (потребує прав адміністратора каналу)"
 
-#: ../src/common/outbound.c:3364
-msgid "DELBUTTON <name>, deletes a button from under the user-list"
-msgstr "DELBUTTON <ім'я>, видалити кнопку зі списку користувачів"
-
-#: ../src/common/outbound.c:3366
+#: ../src/common/outbound.c:3384
 msgid ""
 "DEOP <nick>, removes chanop status from the nick on the current channel "
 "(needs chanop)"
@@ -863,7 +866,7 @@ msgstr ""
 "DEOP <прізвисько>, зняти права оператора (chanop) у вказаної особи на "
 "поточному каналі (потребує прав адміністратора каналу)"
 
-#: ../src/common/outbound.c:3368
+#: ../src/common/outbound.c:3386
 msgid ""
 "DEVOICE <nick>, removes voice status from the nick on the current channel "
 "(needs chanop)"
@@ -871,19 +874,19 @@ msgstr ""
 "DEVOICE <прізвисько>, зняти право голосу у вказаної особи на поточному "
 "каналі (потребує прав адміністратора каналу)"
 
-#: ../src/common/outbound.c:3369
+#: ../src/common/outbound.c:3387
 msgid "DISCON, Disconnects from server"
 msgstr "DISCON, від'єднатися від сервера"
 
-#: ../src/common/outbound.c:3370
+#: ../src/common/outbound.c:3388
 msgid "DNS <nick|host|ip>, Finds a users IP number"
 msgstr "DNS <прізвисько|вузол|ip>, знайти IP адресу користувача"
 
-#: ../src/common/outbound.c:3371
+#: ../src/common/outbound.c:3389
 msgid "ECHO <text>, Prints text locally"
 msgstr "ECHO <текст>, вивести текст на локальній машині"
 
-#: ../src/common/outbound.c:3374
+#: ../src/common/outbound.c:3392
 msgid ""
 "EXEC [-o] <command>, runs the command. If -o flag is used then output is "
 "sent to current channel, else is printed to current text box"
@@ -892,11 +895,11 @@ msgstr ""
 "буде надіслано до поточного каналу, інакше він буде виведений в поточному "
 "вікні"
 
-#: ../src/common/outbound.c:3376
+#: ../src/common/outbound.c:3394
 msgid "EXECCONT, sends the process SIGCONT"
 msgstr "EXECCONT, надіслати процесу сигнал SIGCONT"
 
-#: ../src/common/outbound.c:3379
+#: ../src/common/outbound.c:3397
 msgid ""
 "EXECKILL [-9], kills a running exec in the current session. If -9 is given "
 "the process is SIGKILL'ed"
@@ -904,37 +907,37 @@ msgstr ""
 "EXECKILL [-9], перервати виконання процесу у поточному сеансі. Якщо задано "
 "параметр -9 процес буде припинено за допомогою SIGKILL"
 
-#: ../src/common/outbound.c:3381
+#: ../src/common/outbound.c:3399
 msgid "EXECSTOP, sends the process SIGSTOP"
 msgstr "EXECSTOP, надіслати процесу сигнал SIGSTOP"
 
-#: ../src/common/outbound.c:3382
+#: ../src/common/outbound.c:3400
 msgid "EXECWRITE, sends data to the processes stdin"
 msgstr "EXECWRITE, надіслати дані в стандартний ввід процесу"
 
-#: ../src/common/outbound.c:3386
+#: ../src/common/outbound.c:3404
 msgid "FLUSHQ, flushes the current server's send queue"
 msgstr "FLUSHQ, скинути поточну чергу відправлення на поточному сервері"
 
-#: ../src/common/outbound.c:3388
+#: ../src/common/outbound.c:3406
 msgid "GATE <host> [<port>], proxies through a host, port defaults to 23"
 msgstr "GATE <вузол> [<порт>], під'єднуватися через проксі, типовий порт 23"
 
-#: ../src/common/outbound.c:3391
+#: ../src/common/outbound.c:3410
 msgid "GHOST <nick> <password>, Kills a ghosted nickname"
 msgstr ""
 
-#: ../src/common/outbound.c:3396
+#: ../src/common/outbound.c:3415
 msgid "HOP <nick>, gives chanhalf-op status to the nick (needs chanop)"
 msgstr ""
 "HOP <прізвисько>, надати стан напівоператора (chanhalf-op) вказаній особі "
 "(потребує прав оператора)"
 
-#: ../src/common/outbound.c:3397
+#: ../src/common/outbound.c:3416
 msgid "ID <password>, identifies yourself to nickserv"
 msgstr ""
 
-#: ../src/common/outbound.c:3399
+#: ../src/common/outbound.c:3418
 msgid ""
 "IGNORE <mask> <types..> <options..>\n"
 "    mask - host mask to ignore, eg: *!*@*.aol.com\n"
@@ -948,7 +951,7 @@ msgstr ""
 "                PRIV, CHAN, NOTI, CTCP, INVI, ALL\n"
 "    параметри - NOSAVE, QUIET"
 
-#: ../src/common/outbound.c:3406
+#: ../src/common/outbound.c:3425
 msgid ""
 "INVITE <nick> [<channel>], invites someone to a channel, by default the "
 "current channel (needs chanop)"
@@ -956,17 +959,17 @@ msgstr ""
 "INVITE <прізвисько> [<канал>], запросити когось до каналу, за замовчанням до "
 "поточного каналу (потребує прав оператора каналу)"
 
-#: ../src/common/outbound.c:3407
+#: ../src/common/outbound.c:3426
 msgid "JOIN <channel>, joins the channel"
 msgstr "JOIN <канал>, зайти до вказаного каналу"
 
-#: ../src/common/outbound.c:3409
+#: ../src/common/outbound.c:3428
 msgid "KICK <nick>, kicks the nick from the current channel (needs chanop)"
 msgstr ""
 "KICK <прізвисько>, викинути особу з поточного каналу (потребує прав "
 "оператора)"
 
-#: ../src/common/outbound.c:3411
+#: ../src/common/outbound.c:3430
 msgid ""
 "KICKBAN <nick>, bans then kicks the nick from the current channel (needs "
 "chanop)"
@@ -974,32 +977,32 @@ msgstr ""
 "KICKBAN <прізвисько>, заборонити й викинути особу з поточного каналу "
 "(потребує прав оператора каналу)"
 
-#: ../src/common/outbound.c:3414
+#: ../src/common/outbound.c:3433
 msgid "LAGCHECK, forces a new lag check"
 msgstr "LAGCHECK, виконати перевірку сигналу"
 
-#: ../src/common/outbound.c:3416
+#: ../src/common/outbound.c:3435
 msgid "LASTLOG <string>, searches for a string in the buffer"
 msgstr "LASTLOG <рядок>, шукати рядок у буфері"
 
-#: ../src/common/outbound.c:3418
+#: ../src/common/outbound.c:3437
 msgid "LOAD [-e] <file>, loads a plugin or script"
 msgstr "LOAD <файл>, завантажити модуль або сценарій"
 
-#: ../src/common/outbound.c:3421
+#: ../src/common/outbound.c:3440
 msgid ""
 "MDEHOP, Mass deop's all chanhalf-ops in the current channel (needs chanop)"
 msgstr ""
 "MDEHOP, видалити статус напівоператора з усіх користувачів в поточному "
 "каналі (потребує прав оператора)"
 
-#: ../src/common/outbound.c:3423
+#: ../src/common/outbound.c:3442
 msgid "MDEOP, Mass deop's all chanops in the current channel (needs chanop)"
 msgstr ""
 "MDEOP, видалити статус оператора з усіх користувачів каналу (потребує прав "
 "оператора)"
 
-#: ../src/common/outbound.c:3425
+#: ../src/common/outbound.c:3444
 msgid ""
 "ME <action>, sends the action to the current channel (actions are written in "
 "the 3rd person, like /me jumps)"
@@ -1007,39 +1010,39 @@ msgstr ""
 "ME <дія>, надіслати подію до поточного каналу (події пишеться від третьої "
 "особи,наприклад /me стрибає)"
 
-#: ../src/common/outbound.c:3428
+#: ../src/common/outbound.c:3447
 msgid ""
 "MKICK, Mass kicks everyone except you in the current channel (needs chanop)"
 msgstr ""
 "MKICK, викинути всіх окрім вас з поточного каналу (потребує прав оператора)"
 
-#: ../src/common/outbound.c:3431
+#: ../src/common/outbound.c:3450
 msgid "MOP, Mass op's all users in the current channel (needs chanop)"
 msgstr ""
 "MDEOP, надати всім користувачам поточного каналу права оператора (потребує "
 "прав оператора)"
 
-#: ../src/common/outbound.c:3432
+#: ../src/common/outbound.c:3451
 msgid "MSG <nick> <message>, sends a private message"
 msgstr "MSG <прізвисько> <повідомлення>, надіслати особисте повідомлення"
 
-#: ../src/common/outbound.c:3435
+#: ../src/common/outbound.c:3454
 msgid "NAMES, Lists the nicks on the current channel"
 msgstr "NAMES, вивести список усіх користувачів поточного каналу"
 
-#: ../src/common/outbound.c:3437
+#: ../src/common/outbound.c:3456
 msgid "NCTCP <nick> <message>, Sends a CTCP notice"
 msgstr "NCTCP <прізвисько> <повідомлення>, надіслати CTCP повідомлення"
 
-#: ../src/common/outbound.c:3438
+#: ../src/common/outbound.c:3457
 msgid "NEWSERVER [-noconnect] <hostname> [<port>]"
 msgstr "NEWSERVER <назва вузла> [<порт>]"
 
-#: ../src/common/outbound.c:3439
+#: ../src/common/outbound.c:3458
 msgid "NICK <nickname>, sets your nick"
 msgstr "NICK <прізвисько>, змінити прізвисько"
 
-#: ../src/common/outbound.c:3442
+#: ../src/common/outbound.c:3461
 msgid ""
 "NOTICE <nick/channel> <message>, sends a notice. Notices are a type of "
 "message that should be auto reacted to"
@@ -1047,39 +1050,42 @@ msgstr ""
 "NOTICE <прізвисько/канал> <повідомлення>, надіслати сповіщення. Сповіщення - "
 "це тип повідомлень, на які слід автоматично реагувати"
 
-#: ../src/common/outbound.c:3444
-msgid "NOTIFY [<nick>], lists your notify list or adds someone to it"
+#: ../src/common/outbound.c:3463
+#, fuzzy
+msgid ""
+"NOTIFY [-n network1[,network2,...]] [<nick>], displays your notify list or "
+"adds someone to it"
 msgstr ""
 "NOTIFY [<прізвисько>], вивести список сповіщень або додає до нього когось"
 
-#: ../src/common/outbound.c:3446
+#: ../src/common/outbound.c:3465
 msgid "OP <nick>, gives chanop status to the nick (needs chanop)"
 msgstr ""
 "OP <прізвисько>, надати вказаній особі права оператора каналу (потребує прав "
 "оператора)"
 
-#: ../src/common/outbound.c:3448
+#: ../src/common/outbound.c:3467
 msgid ""
 "PART [<channel>] [<reason>], leaves the channel, by default the current one"
 msgstr "PART [<канал>] [<привід>], вийти з каналу, типово - з поточного каналу"
 
-#: ../src/common/outbound.c:3450
+#: ../src/common/outbound.c:3469
 msgid "PING <nick | channel>, CTCP pings nick or channel"
 msgstr "PING <прізвисько | канал>, CTCP-пінг особи або каналу"
 
-#: ../src/common/outbound.c:3452
+#: ../src/common/outbound.c:3471
 msgid "QUERY [-nofocus] <nick>, opens up a new privmsg window to someone"
 msgstr ""
 
-#: ../src/common/outbound.c:3454
+#: ../src/common/outbound.c:3473
 msgid "QUIT [<reason>], disconnects from the current server"
 msgstr "QUIT [<підстава>], від'єднатися від поточного сервера"
 
-#: ../src/common/outbound.c:3456
+#: ../src/common/outbound.c:3475
 msgid "QUOTE <text>, sends the text in raw form to the server"
 msgstr "QUOTE <текст>, надіслати текст у необробленій формі до сервера"
 
-#: ../src/common/outbound.c:3459
+#: ../src/common/outbound.c:3478
 msgid ""
 "RECONNECT [-ssl] [<host>] [<port>] [<password>], Can be called just as /"
 "RECONNECT to reconnect to the current server or with /RECONNECT ALL to "
@@ -1089,7 +1095,7 @@ msgstr ""
 "як/RECONNECT, щоб переприєднатися до поточного сервера або /RECONNECT ALL, "
 "щоб переприєднатися до усіх відкритих серверів"
 
-#: ../src/common/outbound.c:3462
+#: ../src/common/outbound.c:3481
 msgid ""
 "RECONNECT [<host>] [<port>] [<password>], Can be called just as /RECONNECT "
 "to reconnect to the current server or with /RECONNECT ALL to reconnect to "
@@ -1099,7 +1105,7 @@ msgstr ""
 "RECONNECT, щоб переприєднатися до поточного сервера або /RECONNECT ALL, "
 "переприєднатися до усіх відкритих серверів"
 
-#: ../src/common/outbound.c:3464
+#: ../src/common/outbound.c:3483
 msgid ""
 "RECV <text>, send raw data to xchat, as if it was received from the irc "
 "server"
@@ -1107,27 +1113,27 @@ msgstr ""
 "RECV <текст>, надіслати дані в необробленому форматі до xchat, як "
 "відправлені з irc сервера"
 
-#: ../src/common/outbound.c:3467
+#: ../src/common/outbound.c:3486
 msgid "SAY <text>, sends the text to the object in the current window"
 msgstr "SAY <текст>, надіслати текст до об'єкта в поточному вікні"
 
-#: ../src/common/outbound.c:3468
+#: ../src/common/outbound.c:3487
 msgid "SEND <nick> [<file>]"
 msgstr ""
 
-#: ../src/common/outbound.c:3471
+#: ../src/common/outbound.c:3490
 msgid "SERVCHAN [-ssl] <host> <port> <channel>, connects and joins a channel"
 msgstr ""
 "SERVCHAN [-ssl] <вузол> <порт> <канал>, встановити з'єднання з сервером та "
 "зайти до каналу"
 
-#: ../src/common/outbound.c:3474
+#: ../src/common/outbound.c:3493
 msgid "SERVCHAN <host> <port> <channel>, connects and joins a channel"
 msgstr ""
 "SERVCHAN <вузол> <порт> <канал>, встановити з'єднання з сервером та зайти до "
 "каналу"
 
-#: ../src/common/outbound.c:3478
+#: ../src/common/outbound.c:3497
 msgid ""
 "SERVER [-ssl] <host> [<port>] [<password>], connects to a server, the "
 "default port is 6667 for normal connections, and 9999 for ssl connections"
@@ -1135,7 +1141,7 @@ msgstr ""
 "SERVER [-ssl] <вузол> [<порт>] [<пароль>], встановити з'єднання із сервером. "
 "Типовий порт для звичайних з'єднань 6667, 9999 - для ssl з'єднань"
 
-#: ../src/common/outbound.c:3481
+#: ../src/common/outbound.c:3500
 msgid ""
 "SERVER <host> [<port>] [<password>], connects to a server, the default port "
 "is 6667"
@@ -1143,68 +1149,69 @@ msgstr ""
 "SERVER <вузол> [<порт>] [<пароль>], під'єднатися до сервера, типовий порт "
 "6667"
 
-#: ../src/common/outbound.c:3483
-msgid "SET [-quiet] <variable> [<value>]"
+#: ../src/common/outbound.c:3502
+#, fuzzy
+msgid "SET [-e] [-quiet] <variable> [<value>]"
 msgstr "SET [-quiet] <змінна> [<значення>]"
 
-#: ../src/common/outbound.c:3484
+#: ../src/common/outbound.c:3503
 msgid "SETCURSOR [-|+]<position>"
 msgstr ""
 
-#: ../src/common/outbound.c:3489
+#: ../src/common/outbound.c:3508
 msgid ""
 "TOPIC [<topic>], sets the topic if one is given, else shows the current topic"
 msgstr ""
 "TOPIC [<тема>], встановити тему, якщо вона вказана. У іншому випадку "
 "відображає поточну тему"
 
-#: ../src/common/outbound.c:3491
+#: ../src/common/outbound.c:3510
 msgid "UNBAN <mask> [<mask>...], unbans the specified masks."
 msgstr ""
 "UNBAN <маска> [<маска>...], скасувати заборону доступу до каналу всім, хто "
 "відповідає масці."
 
-#: ../src/common/outbound.c:3492
+#: ../src/common/outbound.c:3511
 msgid "UNIGNORE <mask> [QUIET]"
 msgstr ""
 "UNIGNORE <маска> [QUIET] - скасувати ігнорування повідомлень з певною маскою"
 
-#: ../src/common/outbound.c:3493
+#: ../src/common/outbound.c:3512
 msgid "UNLOAD <name>, unloads a plugin or script"
 msgstr "UNLOAD <назва>, вивантажити модуль або сценарій"
 
-#: ../src/common/outbound.c:3494
+#: ../src/common/outbound.c:3513
 msgid "URL <url>, opens a URL in your browser"
 msgstr ""
 
-#: ../src/common/outbound.c:3496
+#: ../src/common/outbound.c:3515
 msgid ""
 "USELECT [-a] [-s] <nick1> <nick2> etc, highlights nick(s) in channel userlist"
 msgstr ""
 
-#: ../src/common/outbound.c:3499
+#: ../src/common/outbound.c:3518
 msgid "VOICE <nick>, gives voice status to someone (needs chanop)"
 msgstr ""
 "VOICE <прізвисько>, надати право голосу особі (потребує прав оператора "
 "каналу)"
 
-#: ../src/common/outbound.c:3501
+#: ../src/common/outbound.c:3520
 msgid "WALLCHAN <message>, writes the message to all channels"
 msgstr "WALLCHAN <повідомлення>, надіслати повідомлення до всіх каналів"
 
-#: ../src/common/outbound.c:3503
+#: ../src/common/outbound.c:3522
 msgid ""
 "WALLCHOP <message>, sends the message to all chanops on the current channel"
 msgstr ""
 "WALLCHOP <повідомлення>, надіслати повідомлення до усіх операторів на "
 "поточному каналі"
 
-#: ../src/common/outbound.c:3536
+#: ../src/common/outbound.c:3555
 #, c-format
 msgid "Usage: %s\n"
 msgstr "Використання: %s\n"
 
-#: ../src/common/outbound.c:3541
+#: ../src/common/outbound.c:3560
 msgid ""
 "\n"
 "No help available on that command.\n"
@@ -1212,19 +1219,19 @@ msgstr ""
 "\n"
 "Немає довідки для цієї команди.\n"
 
-#: ../src/common/outbound.c:3547
+#: ../src/common/outbound.c:3566
 msgid "No such command.\n"
 msgstr "Такої команди не існує.\n"
 
-#: ../src/common/outbound.c:3874
+#: ../src/common/outbound.c:3896
 msgid "Bad arguments for user command.\n"
 msgstr "Неправильні аргументи команди користувача.\n"
 
-#: ../src/common/outbound.c:4030
+#: ../src/common/outbound.c:4051
 msgid "Too many recursive usercommands, aborting."
 msgstr "Надто багато рекурсивних команд користувача, зупиняємо."
 
-#: ../src/common/outbound.c:4107
+#: ../src/common/outbound.c:4125
 msgid "Unknown Command. Try /help\n"
 msgstr "Невідома команда. Спробуйте /help\n"
 
@@ -1232,11 +1239,11 @@ msgstr "Невідома команда. Спробуйте /help\n"
 msgid "No xchat_plugin_init symbol; is this really an xchat plugin?"
 msgstr "На знайдено символ xchat_plugin_init; це дійсно модуль xchat?"
 
-#: ../src/common/server.c:621
+#: ../src/common/server.c:627
 msgid "Are you sure this is a SSL capable server and port?\n"
 msgstr "Ви впевнені це що сумісний з SSL сервер?\n"
 
-#: ../src/common/server.c:1012
+#: ../src/common/server.c:1018
 #, c-format
 msgid ""
 "Cannot resolve hostname %s\n"
@@ -1245,16 +1252,16 @@ msgstr ""
 "Неможливо визначити назву вузла %s\n"
 "Перевірте настройки мережі!\n"
 
-#: ../src/common/server.c:1017
+#: ../src/common/server.c:1023
 msgid "Proxy traversal failed.\n"
 msgstr "Не вдається зв'язатися через проксі.\n"
 
-#: ../src/common/servlist.c:644
+#: ../src/common/servlist.c:645
 #, c-format
 msgid "Cycling to next server in %s...\n"
 msgstr "Перемикання на наступний сервер %s...\n"
 
-#: ../src/common/servlist.c:1068
+#: ../src/common/servlist.c:1076
 #, c-format
 msgid ""
 "Warning: \"%s\" character set is unknown. No conversion will be applied for "
@@ -1302,6 +1309,22 @@ msgstr "Підключено до каналу"
 msgid "The host of the person"
 msgstr "Назва комп'ютера особи"
 
+#: ../src/common/text.c:629 ../src/common/text.c:635 ../src/common/text.c:642
+#: ../src/common/text.c:709 ../src/common/text.c:835 ../src/common/text.c:842
+#: ../src/common/text.c:847 ../src/common/text.c:852 ../src/common/text.c:857
+#: ../src/common/text.c:863 ../src/common/text.c:868 ../src/common/text.c:872
+#: ../src/common/text.c:878 ../src/common/text.c:884 ../src/common/text.c:930
+#: ../src/common/text.c:941 ../src/common/text.c:946 ../src/common/text.c:951
+#: ../src/common/text.c:960 ../src/common/text.c:971 ../src/common/text.c:978
+#: ../src/common/text.c:984 ../src/common/text.c:989 ../src/common/text.c:994
+#: ../src/common/text.c:1001 ../src/common/text.c:1007
+#: ../src/common/text.c:1013 ../src/common/text.c:1018
+#: ../src/common/text.c:1023 ../src/common/text.c:1027
+#: ../src/common/text.c:1033 ../src/common/text.c:1041
+#: ../src/common/text.c:1075 ../src/common/text.c:1080
+msgid "Nickname"
+msgstr "Прізвисько"
+
 #: ../src/common/text.c:630
 msgid "The action"
 msgstr "Дія"
@@ -1336,7 +1359,7 @@ msgid "Nick of person who changed the topic"
 msgstr "Прізвисько особи, що змінила тему"
 
 #: ../src/common/text.c:653 ../src/common/text.c:659
-#: ../src/fe-gnome/channel-list.c:331
+#: ../src/fe-gnome/channel-list.c:344
 msgid "Topic"
 msgstr "Теми"
 
@@ -1370,7 +1393,7 @@ msgstr "Час"
 msgid "The creator"
 msgstr "Засновник"
 
-#: ../src/common/text.c:688 ../src/common/text.c:946
+#: ../src/common/text.c:688 ../src/common/text.c:947
 msgid "Reason"
 msgstr "Підстава"
 
@@ -1555,7 +1578,7 @@ msgid "Away reason"
 msgstr "Підстава для виходу"
 
 #: ../src/common/text.c:873 ../src/common/text.c:879 ../src/common/text.c:887
-#: ../src/common/text.c:1066
+#: ../src/common/text.c:1067
 msgid "Message"
 msgstr "Повідомлення"
 
@@ -1572,17 +1595,17 @@ msgid "Real IP"
 msgstr "Реальний IP"
 
 #: ../src/common/text.c:891 ../src/common/text.c:900 ../src/common/text.c:906
-#: ../src/common/text.c:935 ../src/common/text.c:1089
-#: ../src/fe-gnome/channel-list.c:321
+#: ../src/common/text.c:936 ../src/common/text.c:1090
+#: ../src/fe-gnome/channel-list.c:334
 msgid "Channel Name"
 msgstr "Назва каналу"
 
-#: ../src/common/text.c:895 ../src/common/text.c:1052
+#: ../src/common/text.c:895 ../src/common/text.c:1053
 msgid "Text"
 msgstr "Текст"
 
 #: ../src/common/text.c:896 ../src/common/text.c:902 ../src/common/text.c:931
-#: ../src/common/text.c:1048 ../src/common/text.c:1090
+#: ../src/common/text.c:1049 ../src/common/text.c:1091
 msgid "Server Name"
 msgstr "Назва сервера"
 
@@ -1598,112 +1621,113 @@ msgstr "Прізвисько використовується"
 msgid "Nick being tried"
 msgstr "Пробуємо прізвисько"
 
-#: ../src/common/text.c:921 ../src/common/text.c:1056
+#: ../src/common/text.c:921 ../src/common/text.c:1057
 msgid "IP"
 msgstr "IP"
 
-#: ../src/common/text.c:922 ../src/common/text.c:952
+#: ../src/common/text.c:922 ../src/common/text.c:953
 msgid "Port"
 msgstr "Порт"
 
-#: ../src/common/text.c:926
-msgid "PID"
-msgstr "PID"
+#: ../src/common/text.c:932
+#, fuzzy
+msgid "Network"
+msgstr "Мережа"
 
-#: ../src/common/text.c:936 ../src/common/text.c:941
+#: ../src/common/text.c:937 ../src/common/text.c:942
 msgid "Modes string"
 msgstr "Рядок режимів"
 
-#: ../src/common/text.c:951 ../src/common/text.c:989 ../src/common/text.c:994
-#: ../src/common/text.c:1035
+#: ../src/common/text.c:952 ../src/common/text.c:990 ../src/common/text.c:995
+#: ../src/common/text.c:1036
 msgid "IP address"
 msgstr "IP адреса"
 
-#: ../src/common/text.c:957 ../src/common/text.c:982
+#: ../src/common/text.c:958 ../src/common/text.c:983
 msgid "DCC Type"
 msgstr "Тип DCC"
 
-#: ../src/common/text.c:958 ../src/common/text.c:963 ../src/common/text.c:968
-#: ../src/common/text.c:975 ../src/common/text.c:995 ../src/common/text.c:999
-#: ../src/common/text.c:1005 ../src/common/text.c:1011
-#: ../src/common/text.c:1018 ../src/common/text.c:1027
-#: ../src/common/text.c:1033
+#: ../src/common/text.c:959 ../src/common/text.c:964 ../src/common/text.c:969
+#: ../src/common/text.c:976 ../src/common/text.c:996 ../src/common/text.c:1000
+#: ../src/common/text.c:1006 ../src/common/text.c:1012
+#: ../src/common/text.c:1019 ../src/common/text.c:1028
+#: ../src/common/text.c:1034
 msgid "Filename"
 msgstr "Назва файлу"
 
-#: ../src/common/text.c:969 ../src/common/text.c:976
+#: ../src/common/text.c:970 ../src/common/text.c:977
 msgid "Destination filename"
 msgstr "Назва файлу у отримувача"
 
-#: ../src/common/text.c:978 ../src/common/text.c:1007
+#: ../src/common/text.c:979 ../src/common/text.c:1008
 msgid "CPS"
 msgstr "CPS"
 
-#: ../src/common/text.c:1013
+#: ../src/common/text.c:1014
 msgid "Pathname"
 msgstr "Шлях"
 
-#: ../src/common/text.c:1028
+#: ../src/common/text.c:1029
 msgid "Position"
 msgstr "Позиція"
 
-#: ../src/common/text.c:1034
+#: ../src/common/text.c:1035
 msgid "Size"
 msgstr "Розмір"
 
-#: ../src/common/text.c:1039
+#: ../src/common/text.c:1040
 msgid "DCC String"
 msgstr "DCC Рядок"
 
-#: ../src/common/text.c:1044
+#: ../src/common/text.c:1045
 msgid "Number of notify items"
 msgstr "Кількість сповіщень"
 
-#: ../src/common/text.c:1060
+#: ../src/common/text.c:1061
 msgid "Old Filename"
 msgstr "Стара назва файлу"
 
-#: ../src/common/text.c:1061
+#: ../src/common/text.c:1062
 msgid "New Filename"
 msgstr "Нова назва файлу"
 
-#: ../src/common/text.c:1065
+#: ../src/common/text.c:1066
 msgid "Receiver"
 msgstr "Отримувач"
 
-#: ../src/common/text.c:1070
+#: ../src/common/text.c:1071
 msgid "Hostmask"
 msgstr "Маска комп'ютера"
 
-#: ../src/common/text.c:1075
+#: ../src/common/text.c:1076
 msgid "Hostname"
 msgstr "Назва комп'ютера"
 
-#: ../src/common/text.c:1080
+#: ../src/common/text.c:1081
 msgid "The Packet"
 msgstr "Пакет"
 
-#: ../src/common/text.c:1084
+#: ../src/common/text.c:1085
 msgid "Seconds"
 msgstr "Секунди"
 
-#: ../src/common/text.c:1088
+#: ../src/common/text.c:1089
 msgid "Nick of person who have been invited"
 msgstr "Прізвисько запрошеної особи"
 
-#: ../src/common/text.c:1095
+#: ../src/common/text.c:1096
 msgid "Banmask"
 msgstr "Маска заборони"
 
-#: ../src/common/text.c:1096
+#: ../src/common/text.c:1097
 msgid "Who set the ban"
 msgstr "Особа, що встановила заборону"
 
-#: ../src/common/text.c:1097
+#: ../src/common/text.c:1098
 msgid "Ban time"
 msgstr "Час заборони"
 
-#: ../src/common/text.c:1137
+#: ../src/common/text.c:1138
 #, c-format
 msgid ""
 "Error parsing event %s.\n"
@@ -1712,7 +1736,7 @@ msgstr ""
 "Помилка аналізу події %s.\n"
 "Завантажується типова."
 
-#: ../src/common/text.c:1818
+#: ../src/common/text.c:1819
 #, c-format
 msgid ""
 "Cannot read sound file:\n"
@@ -3334,232 +3358,9 @@ msgid "Zimbabwe"
 msgstr "Зімбабве"
 
 #: ../src/common/util.c:1110 ../src/common/util.c:1120
-#: ../src/fe-gnome/userlist-gui.c:414
+#: ../src/fe-gnome/userlist-gui.c:427
 msgid "Unknown"
 msgstr "Невідомий"
-
-#: ../src/common/xchat.c:767 ../src/common/xchat.c:893
-msgid "Open Dialog Window"
-msgstr "Відкрити діалогове вікно"
-
-#: ../src/common/xchat.c:768
-msgid "Send a File"
-msgstr "Надіслати файл"
-
-#: ../src/common/xchat.c:769
-msgid "User Info (WHOIS)"
-msgstr ""
-
-#: ../src/common/xchat.c:770
-msgid "Operator Actions"
-msgstr "Параметри"
-
-#: ../src/common/xchat.c:772 ../src/common/xchat.c:863
-msgid "Give Ops"
-msgstr "Надати оператора"
-
-#: ../src/common/xchat.c:773 ../src/common/xchat.c:864
-msgid "Take Ops"
-msgstr "Відібрати оператора"
-
-#: ../src/common/xchat.c:774 ../src/common/xchat.c:867
-msgid "Give Voice"
-msgstr "Надати голос"
-
-#: ../src/common/xchat.c:775 ../src/common/xchat.c:868
-msgid "Take Voice"
-msgstr "Відібрати голос"
-
-#: ../src/common/xchat.c:777 ../src/common/xchat.c:872
-msgid "Kick/Ban"
-msgstr "Викинути/Заборонити"
-
-#: ../src/common/xchat.c:778 ../src/common/xchat.c:873
-#: ../src/common/xchat.c:922
-msgid "Kick"
-msgstr "Викинути"
-
-#: ../src/common/xchat.c:779 ../src/common/xchat.c:780
-#: ../src/common/xchat.c:781 ../src/common/xchat.c:782
-#: ../src/common/xchat.c:783 ../src/common/xchat.c:874
-#: ../src/common/xchat.c:875 ../src/common/xchat.c:876
-#: ../src/common/xchat.c:877 ../src/common/xchat.c:878
-#: ../src/common/xchat.c:921
-msgid "Ban"
-msgstr "Заборонити"
-
-#: ../src/common/xchat.c:784 ../src/common/xchat.c:785
-#: ../src/common/xchat.c:786 ../src/common/xchat.c:787
-#: ../src/common/xchat.c:879 ../src/common/xchat.c:880
-#: ../src/common/xchat.c:881 ../src/common/xchat.c:882
-msgid "KickBan"
-msgstr "Викинути+Заборонити"
-
-#: ../src/common/xchat.c:850
-msgid "Direct client-to-client"
-msgstr "Безпосереднє з'єднання"
-
-#: ../src/common/xchat.c:851
-msgid "Send File"
-msgstr "Надіслати файл"
-
-#: ../src/common/xchat.c:852
-msgid "Offer Chat"
-msgstr "Запропонувати бесіду"
-
-#: ../src/common/xchat.c:853
-msgid "Abort Chat"
-msgstr "Перервати бесіду"
-
-#: ../src/common/xchat.c:854
-msgid "Version"
-msgstr "Версія"
-
-#: ../src/common/xchat.c:855
-msgid "Userinfo"
-msgstr "Інформація про користувача"
-
-#: ../src/common/xchat.c:856
-msgid "Clientinfo"
-msgstr "Інформація про клієнта"
-
-#: ../src/common/xchat.c:857 ../src/common/xchat.c:891
-#: ../src/common/xchat.c:939
-msgid "Ping"
-msgstr "Ping"
-
-#: ../src/common/xchat.c:859
-msgid "Finger"
-msgstr "Finger"
-
-#: ../src/common/xchat.c:860
-msgid "Oper"
-msgstr "Операція"
-
-#: ../src/common/xchat.c:861
-msgid "Kill this user"
-msgstr "Знищити цього користувача"
-
-#: ../src/common/xchat.c:862
-msgid "Mode"
-msgstr "Режим"
-
-#: ../src/common/xchat.c:865
-msgid "Give Half-Ops"
-msgstr "Надати напівоператора"
-
-#: ../src/common/xchat.c:866
-msgid "Take Half-Ops"
-msgstr "Відібрати напівоператора"
-
-#: ../src/common/xchat.c:869 ../src/fe-gnome/userlist-gui.c:65
-msgid "Ignore"
-msgstr "Ігнорувати"
-
-#: ../src/common/xchat.c:870
-msgid "Ignore User"
-msgstr "Ігнорувати користувача"
-
-#: ../src/common/xchat.c:871
-msgid "UnIgnore User"
-msgstr "Зняти ігнорування користувача"
-
-#: ../src/common/xchat.c:883
-msgid "Info"
-msgstr "Інформація"
-
-#: ../src/common/xchat.c:884
-msgid "Who"
-msgstr "Хто"
-
-#: ../src/common/xchat.c:885 ../src/common/xchat.c:935
-msgid "WhoIs"
-msgstr "Хто є"
-
-#: ../src/common/xchat.c:886
-msgid "DNS Lookup"
-msgstr "Перегляд DNS"
-
-#: ../src/common/xchat.c:887
-msgid "Trace"
-msgstr "Трасування"
-
-#: ../src/common/xchat.c:888
-msgid "UserHost"
-msgstr "Комп'ютер користувача"
-
-#: ../src/common/xchat.c:889
-msgid "External"
-msgstr "Зовнішні"
-
-#: ../src/common/xchat.c:890
-msgid "Traceroute"
-msgstr "Traceroute"
-
-#: ../src/common/xchat.c:892
-msgid "Telnet"
-msgstr "Telnet"
-
-#: ../src/common/xchat.c:904
-msgid "Leave Channel"
-msgstr "Залишити канал"
-
-#: ../src/common/xchat.c:905
-msgid "Join Channel..."
-msgstr "Зайти на канал"
-
-#: ../src/common/xchat.c:906
-msgid "Enter Channel to Join:"
-msgstr "Введіть канал для входу:"
-
-#: ../src/common/xchat.c:907
-msgid "Server Links"
-msgstr "Посилання сервера"
-
-#: ../src/common/xchat.c:908
-msgid "Ping Server"
-msgstr "Ping-увати сервер"
-
-#: ../src/common/xchat.c:909
-msgid "Hide Version"
-msgstr "Приховувати версію"
-
-#: ../src/common/xchat.c:919
-msgid "Op"
-msgstr "Оператор"
-
-#: ../src/common/xchat.c:920
-msgid "DeOp"
-msgstr "Скасувати Опер."
-
-#: ../src/common/xchat.c:923
-msgid "bye"
-msgstr "бувай"
-
-#: ../src/common/xchat.c:924
-#, c-format
-msgid "Enter reason to kick %s:"
-msgstr "Введіть підставу для викидання %s:"
-
-#: ../src/common/xchat.c:925
-msgid "Sendfile"
-msgstr "Надіслати файл"
-
-#: ../src/common/xchat.c:926
-msgid "Dialog"
-msgstr "Діалог"
-
-#: ../src/common/xchat.c:936
-msgid "Send"
-msgstr "Надіслати"
-
-#: ../src/common/xchat.c:937
-msgid "Chat"
-msgstr "Розмова"
-
-#: ../src/common/xchat.c:938
-msgid "Clear"
-msgstr "Очистити"
 
 #: ../src/common/dbus/dbus-plugin.c:30
 #, fuzzy
@@ -3586,7 +3387,7 @@ msgid "%s loaded successfully!\n"
 msgstr ""
 
 #: ../src/common/dbus/url_handler.schemas.in.h:1
-msgid "Run xchat-gnome in a terminal?"
+msgid "Run XChat-GNOME in a terminal?"
 msgstr ""
 
 #: ../src/common/dbus/url_handler.schemas.in.h:2
@@ -3597,7 +3398,7 @@ msgstr ""
 msgid "The handler for \"irc://\" URLs"
 msgstr ""
 
-#: ../src/fe-gnome/about.c:74
+#: ../src/fe-gnome/about.c:63
 msgid ""
 "X-Chat GNOME is free software; you can redistribute it and/or modify it "
 "under the terms of the GNU General Public License as published by the Free "
@@ -3605,7 +3406,7 @@ msgid ""
 "any later version."
 msgstr ""
 
-#: ../src/fe-gnome/about.c:78
+#: ../src/fe-gnome/about.c:67
 msgid ""
 "X-Chat GNOME is distributed in the hope that it will be useful, but WITHOUT "
 "ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
@@ -3613,14 +3414,14 @@ msgid ""
 "more details."
 msgstr ""
 
-#: ../src/fe-gnome/about.c:82
+#: ../src/fe-gnome/about.c:71
 msgid ""
 "You should have received a copy of the GNU General Public License along with "
 "X-Chat GNOME; if not, write to the Free Software Foundation, Inc., 59 Temple "
 "Place, Suite 330, Boston, MA  02111-1307  USA"
 msgstr ""
 
-#: ../src/fe-gnome/about.c:97
+#: ../src/fe-gnome/about.c:81
 msgid "Copyright © 2004-2006"
 msgstr ""
 
@@ -3629,13 +3430,13 @@ msgstr ""
 #. * be or replace it with something funny (but inoffensive)
 #. * in your own language, but don't translate it literally.
 #.
-#: ../src/fe-gnome/about.c:103
+#: ../src/fe-gnome/about.c:87
 msgid ""
 "It has been well observed that a trombone is not a suitable instrument for a "
 "gentleman"
 msgstr ""
 
-#: ../src/fe-gnome/about.c:107
+#: ../src/fe-gnome/about.c:91
 msgid "XChat-GNOME Web Site"
 msgstr ""
 
@@ -3648,7 +3449,7 @@ msgstr ""
 #. * write each of them on a separated line seperated by
 #. * newlines (\n).
 #.
-#: ../src/fe-gnome/about.c:121
+#: ../src/fe-gnome/about.c:105
 msgid "translator-credits"
 msgstr ""
 
@@ -3748,14 +3549,10 @@ msgstr ""
 msgid "xchat configuration version"
 msgstr ""
 
-#: ../src/fe-gnome/channel-list.c:296
+#: ../src/fe-gnome/channel-list.c:309
 #, c-format
 msgid "%s Channel List"
 msgstr ""
-
-#: ../src/fe-gnome/connect-dialog.c:133
-msgid "_Connect"
-msgstr "З'єднання"
 
 #: ../src/fe-gnome/conversation-panel.c:170
 msgid "_Open Link in Browser"
@@ -3793,70 +3590,70 @@ msgstr "Скасувати"
 msgid "_Copy"
 msgstr "Копіювати"
 
-#: ../src/fe-gnome/conversation-panel.c:788
+#: ../src/fe-gnome/conversation-panel.c:799
 #, c-format
-msgid "URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"
+msgid "URI list dropped on XChat-GNOME had wrong format (%d) or length (%d)\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:886
+#: ../src/fe-gnome/conversation-panel.c:897
 #, c-format
 msgid "Error reading file \"%s\": %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:901
+#: ../src/fe-gnome/conversation-panel.c:912
 #, c-format
 msgid "Error converting URI \"%s\" into filename: %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:944
+#: ../src/fe-gnome/conversation-panel.c:955
 #, c-format
 msgid "Error retrieving file information for \"%s\": %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:1029
+#: ../src/fe-gnome/conversation-panel.c:1044
 msgid "Save Transcript"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:1055
-#: ../src/fe-gnome/conversation-panel.c:1065
+#: ../src/fe-gnome/conversation-panel.c:1070
+#: ../src/fe-gnome/conversation-panel.c:1080
 #, c-format
 msgid "Error saving %s"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:1197
+#: ../src/fe-gnome/conversation-panel.c:1212
 msgid "Search buffer is empty.\n"
 msgstr "Буфер пошуку порожній.\n"
 
 #. File completion percent
-#: ../src/fe-gnome/dcc-window.c:143
+#: ../src/fe-gnome/dcc-window.c:146
 msgid "%"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:144
+#: ../src/fe-gnome/dcc-window.c:147
 msgid "File"
 msgstr "Файл"
 
-#: ../src/fe-gnome/dcc-window.c:145
+#: ../src/fe-gnome/dcc-window.c:148
 msgid "Remaining"
 msgstr "Покидаю"
 
-#: ../src/fe-gnome/dcc-window.c:225
+#: ../src/fe-gnome/dcc-window.c:223
 #, fuzzy
 msgid "Incoming File Transfer"
 msgstr "Передача файлів"
 
-#: ../src/fe-gnome/dcc-window.c:226 ../src/fe-gnome/fe-gnome.c:493
+#: ../src/fe-gnome/dcc-window.c:224 ../src/fe-gnome/fe-gnome.c:483
 msgid "_Accept"
 msgstr "Прийняти"
 
-#: ../src/fe-gnome/dcc-window.c:227
+#: ../src/fe-gnome/dcc-window.c:225
 #, c-format
 msgid ""
 "%s is attempting to send you a file named \"%s\". Do you wish to accept the "
 "transfer?"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:247
+#: ../src/fe-gnome/dcc-window.c:245
 #, c-format
 msgid ""
 "<b>%s</b>\n"
@@ -3864,11 +3661,11 @@ msgid ""
 "%s of %s"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:258
+#: ../src/fe-gnome/dcc-window.c:256
 msgid "starting"
 msgstr "Очікування"
 
-#: ../src/fe-gnome/dcc-window.c:288
+#: ../src/fe-gnome/dcc-window.c:287
 #, c-format
 msgid ""
 "<b>%s</b>\n"
@@ -3876,161 +3673,161 @@ msgid ""
 "%s of %s at %s/s"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:295
+#: ../src/fe-gnome/dcc-window.c:294
 msgid "queued"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:300
+#: ../src/fe-gnome/dcc-window.c:299
 #, c-format
 msgid "Transfer of %s to %s failed"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:302
+#: ../src/fe-gnome/dcc-window.c:301
 #, c-format
 msgid "Transfer of %s from %s failed"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:303
+#: ../src/fe-gnome/dcc-window.c:302
 msgid "Transfer failed"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:311
+#: ../src/fe-gnome/dcc-window.c:310
 msgid "aborted"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:314
+#: ../src/fe-gnome/dcc-window.c:313
 msgid "stalled"
 msgstr "Помилка"
 
-#: ../src/fe-gnome/dcc-window.c:318
+#: ../src/fe-gnome/dcc-window.c:317
 #, c-format
 msgid "%.2d:%.2d:%.2d"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:320
+#: ../src/fe-gnome/dcc-window.c:319
 #, c-format
 msgid "%.2d:%.2d"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:433
+#: ../src/fe-gnome/dcc-window.c:439
 msgid "Send File..."
 msgstr "Надіслати файл"
 
-#: ../src/fe-gnome/fe-gnome.c:61
+#: ../src/fe-gnome/fe-gnome.c:60
 msgid "Use directory instead of the default config dir"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:63
+#: ../src/fe-gnome/fe-gnome.c:61
 msgid "Don't auto-connect to servers"
 msgstr "Автоматично приєднуватись до сервера"
 
-#: ../src/fe-gnome/fe-gnome.c:65
+#: ../src/fe-gnome/fe-gnome.c:62
 msgid "Don't auto-load plugins"
 msgstr "не завантажувати автоматично модулі"
 
-#: ../src/fe-gnome/fe-gnome.c:67
+#: ../src/fe-gnome/fe-gnome.c:63
 msgid "Open an irc:// url"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:69
-msgid "Open URL in an existing xchat-gnome instance"
+#: ../src/fe-gnome/fe-gnome.c:64
+msgid "Open URL in an existing XChat-GNOME instance"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:71
+#: ../src/fe-gnome/fe-gnome.c:65
 msgid "Show version information"
 msgstr "вивести інформацію про версію"
 
-#: ../src/fe-gnome/fe-gnome.c:126
+#: ../src/fe-gnome/fe-gnome.c:107
 #, c-format
 msgid ""
 "xchat-gnome: %s\n"
 "Try `xchat-gnome --help' for more information\n"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:491
+#: ../src/fe-gnome/fe-gnome.c:481
 msgid "Incoming DCC Chat"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:496
+#: ../src/fe-gnome/fe-gnome.c:486
 #, c-format
 msgid ""
 "%s is attempting to create a direct chat. Do you wish to accept the "
 "connection?"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:912
+#: ../src/fe-gnome/fe-gnome.c:908
 #, c-format
 msgid "Unable to show '%s'"
 msgstr ""
 
-#: ../src/fe-gnome/find-bar.c:97
+#: ../src/fe-gnome/find-bar.c:96
 msgid "Find:"
 msgstr "Знайти:"
 
-#: ../src/fe-gnome/find-bar.c:99
+#: ../src/fe-gnome/find-bar.c:98
 msgid "_Previous"
 msgstr ""
 
-#: ../src/fe-gnome/find-bar.c:101
+#: ../src/fe-gnome/find-bar.c:100
 msgid "_Next"
 msgstr "Текст"
 
-#: ../src/fe-gnome/find-bar.c:221
+#: ../src/fe-gnome/find-bar.c:219
 msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
 msgstr ""
 
-#: ../src/fe-gnome/find-bar.c:228
+#: ../src/fe-gnome/find-bar.c:226
 msgid ""
 "<span foreground=\"dark grey\">Reached beginning, continuing from bottom</"
 "span>"
 msgstr ""
 
-#: ../src/fe-gnome/find-bar.c:235
+#: ../src/fe-gnome/find-bar.c:233
 msgid "<span foreground=\"red\">Search string not found</span>"
 msgstr ""
 
-#: ../src/fe-gnome/irc-network-editor.c:309
+#: ../src/fe-gnome/irc-network-editor.c:315
 msgid "Server"
 msgstr "Сервер"
 
-#: ../src/fe-gnome/irc-network-editor.c:318
+#: ../src/fe-gnome/irc-network-editor.c:324
 msgid "Key"
 msgstr ""
 
 #. We're creating a new network. Don't populate things from the structure
-#: ../src/fe-gnome/irc-network-editor.c:448
+#: ../src/fe-gnome/irc-network-editor.c:455
 #, fuzzy
 msgid "New Network"
 msgstr "Нова мережа"
 
-#: ../src/fe-gnome/irc-network-editor.c:456
+#: ../src/fe-gnome/irc-network-editor.c:463
 #, c-format
 msgid "%s Network Properties"
 msgstr ""
 
-#: ../src/fe-gnome/irc-network-editor.c:582
-#: ../src/fe-gnome/irc-network-editor.c:589
-#: ../src/fe-gnome/irc-network-editor.c:595
+#: ../src/fe-gnome/irc-network-editor.c:591
+#: ../src/fe-gnome/irc-network-editor.c:598
+#: ../src/fe-gnome/irc-network-editor.c:604
 msgid "Invalid input"
 msgstr ""
 
-#: ../src/fe-gnome/irc-network-editor.c:582
+#: ../src/fe-gnome/irc-network-editor.c:591
 msgid "You must enter a network name"
 msgstr ""
 
-#: ../src/fe-gnome/irc-network-editor.c:589
+#: ../src/fe-gnome/irc-network-editor.c:598
 msgid "You must enter a nick name"
 msgstr "Введіть нове прізвисько:"
 
-#: ../src/fe-gnome/irc-network-editor.c:595
+#: ../src/fe-gnome/irc-network-editor.c:604
 msgid "You must enter a real name"
 msgstr ""
 
-#: ../src/fe-gnome/irc-network-editor.c:602
+#: ../src/fe-gnome/irc-network-editor.c:611
 msgid "No Servers"
 msgstr "Сервер"
 
-#: ../src/fe-gnome/irc-network-editor.c:602
+#: ../src/fe-gnome/irc-network-editor.c:611
 msgid "You must add at least one server for this network"
 msgstr "Використовувати SSL для всіх серверів у цій мережі"
 
@@ -4222,15 +4019,15 @@ msgstr "_Зміст"
 msgid "_About"
 msgstr "_Про програму"
 
-#: ../src/fe-gnome/main-window.c:505 ../src/fe-gnome/navigation-tree.c:1676
+#: ../src/fe-gnome/main-window.c:507 ../src/fe-gnome/navigation-tree.c:1769
 msgid "Ex-Chat"
 msgstr "Розмова"
 
-#: ../src/fe-gnome/main-window.c:586
+#: ../src/fe-gnome/main-window.c:589
 msgid "Error showing help"
 msgstr ""
 
-#: ../src/fe-gnome/migration.c:117
+#: ../src/fe-gnome/migration.c:126
 #, c-format
 msgid ""
 "The way the D-Bus plugin works has changed.\n"
@@ -4239,7 +4036,7 @@ msgid ""
 "<b>Please delete %s</b>"
 msgstr ""
 
-#: ../src/fe-gnome/migration.c:119
+#: ../src/fe-gnome/migration.c:128
 msgid "D-Bus plugin is still installed"
 msgstr ""
 
@@ -4268,208 +4065,206 @@ msgstr "Під'_єднатися"
 msgid "_Auto-join on connect"
 msgstr "Під'_єднатися"
 
-#. Add the new server to the model. By default connected is false.
-#: ../src/fe-gnome/navigation-tree.c:361
-#: ../src/fe-gnome/navigation-tree.c:1305
+#: ../src/fe-gnome/navigation-tree.c:1344
 msgid "<none>"
 msgstr "<немає>"
 
-#: ../src/fe-gnome/preferences-page-colors.c:251
+#: ../src/fe-gnome/preferences-page-colors.c:253
 msgid "Colors"
 msgstr "Кольори"
 
-#: ../src/fe-gnome/preferences-page-colors.c:254
+#: ../src/fe-gnome/preferences-page-colors.c:256
 msgid "Black on White"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-colors.c:255
+#: ../src/fe-gnome/preferences-page-colors.c:257
 msgid "White on Black"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-colors.c:256
+#: ../src/fe-gnome/preferences-page-colors.c:258
 msgid "Custom"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-colors.c:257
+#: ../src/fe-gnome/preferences-page-colors.c:259
 msgid "System Theme Colors"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-dcc.c:186
+#: ../src/fe-gnome/preferences-page-dcc.c:187
 msgid "File Transfers & DCC"
 msgstr "Передача файлів"
 
-#: ../src/fe-gnome/preferences-page-effects.c:177
+#: ../src/fe-gnome/preferences-page-effects.c:180
 msgid "Effects"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-irc.c:301
+#: ../src/fe-gnome/preferences-page-irc.c:306
 msgid "IRC Preferences"
 msgstr "X-Chat: Настройки"
 
-#: ../src/fe-gnome/preferences-page-networks.c:116
+#: ../src/fe-gnome/preferences-page-networks.c:121
 #, c-format
 msgid "Really remove network \"%s\" and all of its servers?"
 msgstr "Дійсно видалити мережу \"%s\" та усі її сервери?"
 
-#: ../src/fe-gnome/preferences-page-networks.c:170
+#: ../src/fe-gnome/preferences-page-networks.c:172
 msgid "Networks"
 msgstr "Мережа"
 
-#: ../src/fe-gnome/preferences-page-networks.c:178
+#: ../src/fe-gnome/preferences-page-networks.c:180
 msgid "Name"
 msgstr "Назва"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:92
-#: ../src/fe-gnome/preferences-page-plugins.c:93
+#: ../src/fe-gnome/preferences-page-plugins.c:104
+#: ../src/fe-gnome/preferences-page-plugins.c:105
 msgid "unknown"
 msgstr "Невідомий"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:133
+#: ../src/fe-gnome/preferences-page-plugins.c:194
 #, c-format
-msgid "An error occured unloading %s"
+msgid "An error occurred unloading %s"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-plugins.c:134
+#: ../src/fe-gnome/preferences-page-plugins.c:195
 msgid "Plugin Unload Failed"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-plugins.c:145
+#: ../src/fe-gnome/preferences-page-plugins.c:206
 msgid "Plugin Load Failed"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-plugins.c:184
+#: ../src/fe-gnome/preferences-page-plugins.c:244
 msgid "Open Plugin"
 msgstr "Відкривати діалоги у:"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:316
+#: ../src/fe-gnome/preferences-page-plugins.c:397
 msgid "Scripts and Plugins"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-plugins.c:329
-#: ../src/fe-gnome/preferences-page-spellcheck.c:225
+#: ../src/fe-gnome/preferences-page-plugins.c:410
+#: ../src/fe-gnome/preferences-page-spellcheck.c:219
 msgid "Enable"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-plugins.c:331
+#: ../src/fe-gnome/preferences-page-plugins.c:412
 msgid "Plugin"
 msgstr "Ping"
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:102
+#: ../src/fe-gnome/preferences-page-spellcheck.c:99
 #, c-format
 msgid "Error in language %s activation: %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:141
+#: ../src/fe-gnome/preferences-page-spellcheck.c:139
 #, c-format
 msgid "Error in spell checking configuration: %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:188
+#: ../src/fe-gnome/preferences-page-spellcheck.c:181
 msgid "Spell checking"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:192
+#: ../src/fe-gnome/preferences-page-spellcheck.c:185
 msgid ""
 "In order to get spell-checking, you need to have libenchant installed with "
 "at least one dictionary."
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:203
+#: ../src/fe-gnome/preferences-page-spellcheck.c:196
 msgid "_Check spelling"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:204
+#: ../src/fe-gnome/preferences-page-spellcheck.c:197
 msgid "Choose languages to use for spellcheck:"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:230
+#: ../src/fe-gnome/preferences-page-spellcheck.c:224
 msgid "Language"
 msgstr ""
 
-#: ../src/fe-gnome/status-bar.c:92
+#: ../src/fe-gnome/status-bar.c:93
 #, c-format
 msgid "%s%.1fs lag"
 msgstr ""
 
-#: ../src/fe-gnome/status-bar.c:106
+#: ../src/fe-gnome/status-bar.c:107
 #, c-format
 msgid "%d bytes buffered"
 msgstr "%d байт"
 
-#: ../src/fe-gnome/text-entry.c:146
+#: ../src/fe-gnome/text-entry.c:145
 #, c-format
 msgid "Error in spellchecking configuration: %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:358
+#: ../src/fe-gnome/text-entry.c:367
 msgid "I_nsert Color Code"
 msgstr "Вставити код кольору"
 
-#: ../src/fe-gnome/text-entry.c:365
+#: ../src/fe-gnome/text-entry.c:374
 msgid "Black"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:369
+#: ../src/fe-gnome/text-entry.c:378
 msgid "Dark Blue"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:373
+#: ../src/fe-gnome/text-entry.c:382
 msgid "Dark Green"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:377
+#: ../src/fe-gnome/text-entry.c:386
 msgid "Red"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:381
+#: ../src/fe-gnome/text-entry.c:390
 msgid "Brown"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:385
+#: ../src/fe-gnome/text-entry.c:394
 msgid "Purple"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:389
+#: ../src/fe-gnome/text-entry.c:398
 msgid "Orange"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:393
+#: ../src/fe-gnome/text-entry.c:402
 msgid "Yellow"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:397
+#: ../src/fe-gnome/text-entry.c:406
 msgid "Light Green"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:401
+#: ../src/fe-gnome/text-entry.c:410
 msgid "Aqua"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:405
+#: ../src/fe-gnome/text-entry.c:414
 msgid "Light Blue"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:409
+#: ../src/fe-gnome/text-entry.c:418
 msgid "Blue"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:413
+#: ../src/fe-gnome/text-entry.c:422
 msgid "Violet"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:417
+#: ../src/fe-gnome/text-entry.c:426
 msgid "Grey"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:421
+#: ../src/fe-gnome/text-entry.c:430
 msgid "Light Grey"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:425
+#: ../src/fe-gnome/text-entry.c:434
 msgid "White"
 msgstr ""
 
-#: ../src/fe-gnome/topic-label.c:277
+#: ../src/fe-gnome/topic-label.c:293
 #, c-format
 msgid "Changing topic for %s"
 msgstr ""
@@ -4490,25 +4285,29 @@ msgstr "Викинути"
 msgid "_Ban"
 msgstr "Заборонити"
 
+#: ../src/fe-gnome/userlist-gui.c:65
+msgid "Ignore"
+msgstr "Ігнорувати"
+
 #: ../src/fe-gnome/userlist-gui.c:66
 msgid "_Op"
 msgstr ""
 
-#: ../src/fe-gnome/userlist-gui.c:409
+#: ../src/fe-gnome/userlist-gui.c:422
 #, c-format
 msgid ""
 "%s\n"
 "<span weight=\"bold\">Name:</span> %s"
 msgstr ""
 
-#: ../src/fe-gnome/userlist-gui.c:416
+#: ../src/fe-gnome/userlist-gui.c:429
 #, c-format
 msgid ""
 "%s\n"
 "<span weight=\"bold\">Country:</span> %s"
 msgstr ""
 
-#: ../src/fe-gnome/userlist-gui.c:426
+#: ../src/fe-gnome/userlist-gui.c:439
 #, c-format
 msgid ""
 "%s\n"
@@ -4520,20 +4319,200 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: ../src/fe-gnome/userlist-gui.c:437
+#: ../src/fe-gnome/userlist-gui.c:450
 #, c-format
 msgid ""
 "%s\n"
 "<span weight=\"bold\">Away message:</span> %s"
 msgstr ""
 
-#: ../src/fe-gnome/userlist.c:320
+#: ../src/fe-gnome/userlist.c:299
 #, c-format
 msgid "%d User"
 msgid_plural "%d Users"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+
+#~ msgid "Apply Text Filter To:    "
+#~ msgstr "Застосувати фільтр до тексту:    "
+
+#~ msgid "Maximum Users:"
+#~ msgstr "Макс. користувачів:"
+
+#~ msgid "Minimum Users:"
+#~ msgstr "Мін. користувачів:"
+
+#~ msgid "Text Filter:"
+#~ msgstr "Друкувати текстовий файл"
+
+#~ msgid "Close this discussion"
+#~ msgstr "Закрити вкладку/вікно"
+
+#~ msgid "ADDBUTTON <name> <action>, adds a button under the user-list"
+#~ msgstr "ADDBUTTON <ім'я> <дія>, додати кнопку над списком користувачів"
+
+#~ msgid "DELBUTTON <name>, deletes a button from under the user-list"
+#~ msgstr "DELBUTTON <ім'я>, видалити кнопку зі списку користувачів"
+
+#~ msgid "PID"
+#~ msgstr "PID"
+
+#~ msgid "Open Dialog Window"
+#~ msgstr "Відкрити діалогове вікно"
+
+#~ msgid "Send a File"
+#~ msgstr "Надіслати файл"
+
+#~ msgid "Operator Actions"
+#~ msgstr "Параметри"
+
+#~ msgid "Give Ops"
+#~ msgstr "Надати оператора"
+
+#~ msgid "Take Ops"
+#~ msgstr "Відібрати оператора"
+
+#~ msgid "Give Voice"
+#~ msgstr "Надати голос"
+
+#~ msgid "Take Voice"
+#~ msgstr "Відібрати голос"
+
+#~ msgid "Kick/Ban"
+#~ msgstr "Викинути/Заборонити"
+
+#~ msgid "Kick"
+#~ msgstr "Викинути"
+
+#~ msgid "Ban"
+#~ msgstr "Заборонити"
+
+#~ msgid "KickBan"
+#~ msgstr "Викинути+Заборонити"
+
+#~ msgid "Direct client-to-client"
+#~ msgstr "Безпосереднє з'єднання"
+
+#~ msgid "Send File"
+#~ msgstr "Надіслати файл"
+
+#~ msgid "Offer Chat"
+#~ msgstr "Запропонувати бесіду"
+
+#~ msgid "Abort Chat"
+#~ msgstr "Перервати бесіду"
+
+#~ msgid "Version"
+#~ msgstr "Версія"
+
+#~ msgid "Userinfo"
+#~ msgstr "Інформація про користувача"
+
+#~ msgid "Clientinfo"
+#~ msgstr "Інформація про клієнта"
+
+#~ msgid "Ping"
+#~ msgstr "Ping"
+
+#~ msgid "Finger"
+#~ msgstr "Finger"
+
+#~ msgid "Oper"
+#~ msgstr "Операція"
+
+#~ msgid "Kill this user"
+#~ msgstr "Знищити цього користувача"
+
+#~ msgid "Mode"
+#~ msgstr "Режим"
+
+#~ msgid "Give Half-Ops"
+#~ msgstr "Надати напівоператора"
+
+#~ msgid "Take Half-Ops"
+#~ msgstr "Відібрати напівоператора"
+
+#~ msgid "Ignore User"
+#~ msgstr "Ігнорувати користувача"
+
+#~ msgid "UnIgnore User"
+#~ msgstr "Зняти ігнорування користувача"
+
+#~ msgid "Info"
+#~ msgstr "Інформація"
+
+#~ msgid "Who"
+#~ msgstr "Хто"
+
+#~ msgid "WhoIs"
+#~ msgstr "Хто є"
+
+#~ msgid "DNS Lookup"
+#~ msgstr "Перегляд DNS"
+
+#~ msgid "Trace"
+#~ msgstr "Трасування"
+
+#~ msgid "UserHost"
+#~ msgstr "Комп'ютер користувача"
+
+#~ msgid "External"
+#~ msgstr "Зовнішні"
+
+#~ msgid "Traceroute"
+#~ msgstr "Traceroute"
+
+#~ msgid "Telnet"
+#~ msgstr "Telnet"
+
+#~ msgid "Leave Channel"
+#~ msgstr "Залишити канал"
+
+#~ msgid "Join Channel..."
+#~ msgstr "Зайти на канал"
+
+#~ msgid "Enter Channel to Join:"
+#~ msgstr "Введіть канал для входу:"
+
+#~ msgid "Server Links"
+#~ msgstr "Посилання сервера"
+
+#~ msgid "Ping Server"
+#~ msgstr "Ping-увати сервер"
+
+#~ msgid "Hide Version"
+#~ msgstr "Приховувати версію"
+
+#~ msgid "Op"
+#~ msgstr "Оператор"
+
+#~ msgid "DeOp"
+#~ msgstr "Скасувати Опер."
+
+#~ msgid "bye"
+#~ msgstr "бувай"
+
+#~ msgid "Enter reason to kick %s:"
+#~ msgstr "Введіть підставу для викидання %s:"
+
+#~ msgid "Sendfile"
+#~ msgstr "Надіслати файл"
+
+#~ msgid "Dialog"
+#~ msgstr "Діалог"
+
+#~ msgid "Send"
+#~ msgstr "Надіслати"
+
+#~ msgid "Chat"
+#~ msgstr "Розмова"
+
+#~ msgid "Clear"
+#~ msgstr "Очистити"
+
+#~ msgid "_Connect"
+#~ msgstr "З'єднання"
 
 #~ msgid "Nick Name:"
 #~ msgstr "П_різвисько:"

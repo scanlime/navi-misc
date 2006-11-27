@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-09-24 22:03-0700\n"
+"POT-Creation-Date: 2006-11-24 13:14-0800\n"
 "PO-Revision-Date: 2006-06-21 08:19+0000\n"
 "Last-Translator: fahad.shaon <fahad.shaon@gmail.com>\n"
 "Language-Team: Bengali <core@bengalinux.org>\n"
@@ -21,38 +21,46 @@ msgid "<span weight=\"bold\">List Filtering</span>"
 msgstr "<span weight=\"bold\">ফিল্টারিং তালিকা</span>"
 
 #: ../data/channel-list.glade.h:2
-msgid "Apply Text Filter To:    "
-msgstr "টেক্সট ফিল্টারে প্রয়োগ করো:    "
-
-#: ../data/channel-list.glade.h:3
 msgid "Channel _Name"
 msgstr "চ্যানেল নাম (_N)"
 
-#: ../data/channel-list.glade.h:4
+#: ../data/channel-list.glade.h:3
 msgid "Channel _Topic"
 msgstr "চ্যানেল বিষয়বস্তু (_T)"
 
-#: ../data/channel-list.glade.h:5
+#: ../data/channel-list.glade.h:4
 msgid "Join Channel"
 msgstr "চ্যানেল যোগদান করো"
 
+#: ../data/channel-list.glade.h:5
+#, fuzzy
+msgid "Search for text:"
+msgstr "অনুসন্ধান বাফার ফাঁকা।\n"
+
 #: ../data/channel-list.glade.h:6
-msgid "Maximum Users:"
-msgstr "সর্বোচ্চ ব্যবহারকারী:"
+#, fuzzy
+msgid "Show channels with:"
+msgstr "চ্যানেল"
 
 #: ../data/channel-list.glade.h:7
-msgid "Minimum Users:"
-msgstr "ন্যুনতম ব্যবহারকারী:"
+#, fuzzy
+msgid "in:"
+msgstr "খুঁজে পাও:"
 
 #: ../data/channel-list.glade.h:8
-msgid "Text Filter:"
-msgstr "টেক্সট ফিল্টার:"
+msgid "to"
+msgstr ""
 
-#: ../data/connect-dialog.glade.h:1
+#: ../data/channel-list.glade.h:9
+#, fuzzy
+msgid "users"
+msgstr "ব্যবহারকারী"
+
+#: ../data/connect-dialog.glade.h:1 ../src/fe-gnome/connect-dialog.c:138
 msgid "C_onnect"
 msgstr "সংযোগ করো (_o)"
 
-#: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
+#: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:121
 msgid "File Transfers"
 msgstr "ফাইল স্থানান্তর"
 
@@ -368,7 +376,7 @@ msgstr "বানান পরীক্ষা করা"
 #: ../data/setup-dialog.glade.h:1
 #, fuzzy
 msgid ""
-"Welcome to xchat-gnome! Since this is your first time using this "
+"Welcome to XChat-GNOME! Since this is your first time using this "
 "application, there are a couple things you'll need to configure before you "
 "can get started.\n"
 "\n"
@@ -408,6 +416,7 @@ msgid "IRC Chat"
 msgstr "আই-আর-সি চ্যাট করো"
 
 #: ../data/xchat-gnome.desktop.in.in.h:3
+#: ../src/fe-gnome/navigation-tree.c:1205
 msgid "XChat-GNOME IRC Chat"
 msgstr "এক্সচ্যাট-গনোম আই-আর-সি চ্যাট"
 
@@ -422,36 +431,15 @@ msgid "Change _nickname to:"
 msgstr "ডাকনাম পরিবর্তন:"
 
 #: ../data/xchat-gnome.glade.h:3
-msgid "Close this discussion"
-msgstr "এই আলোচনাটি বন্ধ করো"
-
-#: ../data/xchat-gnome.glade.h:4
 msgid "Mark as _away"
 msgstr "চিহ্ন যত দূরে (_a)"
 
-#: ../data/xchat-gnome.glade.h:5 ../src/common/text.c:629
-#: ../src/common/text.c:635 ../src/common/text.c:642 ../src/common/text.c:709
-#: ../src/common/text.c:835 ../src/common/text.c:842 ../src/common/text.c:847
-#: ../src/common/text.c:852 ../src/common/text.c:857 ../src/common/text.c:863
-#: ../src/common/text.c:868 ../src/common/text.c:872 ../src/common/text.c:878
-#: ../src/common/text.c:884 ../src/common/text.c:930 ../src/common/text.c:940
-#: ../src/common/text.c:945 ../src/common/text.c:950 ../src/common/text.c:959
-#: ../src/common/text.c:970 ../src/common/text.c:977 ../src/common/text.c:983
-#: ../src/common/text.c:988 ../src/common/text.c:993 ../src/common/text.c:1000
-#: ../src/common/text.c:1006 ../src/common/text.c:1012
-#: ../src/common/text.c:1017 ../src/common/text.c:1022
-#: ../src/common/text.c:1026 ../src/common/text.c:1032
-#: ../src/common/text.c:1040 ../src/common/text.c:1074
-#: ../src/common/text.c:1079
-msgid "Nickname"
-msgstr "ডাকনাম"
-
-#: ../data/xchat-gnome.glade.h:6 ../src/common/text.c:907
-#: ../src/fe-gnome/channel-list.c:326 ../src/fe-gnome/userlist.c:325
+#: ../data/xchat-gnome.glade.h:4 ../src/common/text.c:907
+#: ../src/fe-gnome/channel-list.c:339 ../src/fe-gnome/userlist.c:303
 msgid "Users"
 msgstr "ব্যবহারকারী"
 
-#: ../data/xchat-gnome.glade.h:7
+#: ../data/xchat-gnome.glade.h:5
 msgid "nickname"
 msgstr "ডাকনাম"
 
@@ -492,19 +480,20 @@ msgstr ""
 "%s\n"
 "সফলভাবে লোডকৃত\n"
 
-#: ../plugins/notification/notification.c:139
+#: ../plugins/notification/notification.c:150
+#: ../plugins/notification/preferences-page-plugin-notification.c:133
 msgid "Notification"
 msgstr "বিজ্ঞপ্তি"
 
-#: ../plugins/notification/notification.c:140
+#: ../plugins/notification/notification.c:151
 msgid "A notification area plugin."
 msgstr "একটি বিজ্ঞপ্তি ক্ষেত্র প্লাগিন।"
 
-#: ../plugins/notification/notification.c:219
+#: ../plugins/notification/notification.c:216
 msgid "Notification plugin loaded.\n"
 msgstr "বিজ্ঞপ্তি প্লাগিন লোডকৃত।\n"
 
-#: ../plugins/notification/notification.c:269
+#: ../plugins/notification/notification.c:237
 #, fuzzy
 msgid "Notification plugin unloaded.\n"
 msgstr "বিজ্ঞপ্তি প্লাগিন unloaded।\n"
@@ -524,6 +513,28 @@ msgstr ""
 "বার্তা তাদের গুরুত্বে অনযায়ী সাজানো হল। ওপরের বার্তার নির্বাচিত স্তর যেটি বিজ্ঞপ্তি "
 "আইকন প্রদর্শন করা হবে। বৈধ মান are:\"০\"(সবসময় প্রদর্শিত),\"১\"(সমস্ত বার্তা সহ "
 "তথ্য),\"২\"(সমস্ত চ্যানেল বার্তা),\"৩\"(মাত্র ব্যক্তিগত অথবা চিহ্নিত বার্তা)।"
+
+#: ../plugins/notification/preferences-notification.glade.h:1
+#, fuzzy
+msgid "<span weight=\"bold\">Notification level</span>"
+msgstr "<span weight=\"bold\">Throttling</span>"
+
+#: ../plugins/notification/preferences-notification.glade.h:2
+msgid "Notify each _event"
+msgstr ""
+
+#: ../plugins/notification/preferences-notification.glade.h:3
+#, fuzzy
+msgid "Notify each _message"
+msgstr "ঠিক বার্তা"
+
+#: ../plugins/notification/preferences-notification.glade.h:4
+msgid "Notify only _private messages"
+msgstr ""
+
+#: ../plugins/notification/preferences-notification.glade.h:5
+msgid "_Always display notification icon"
+msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:30
 msgid "On-screen display"
@@ -563,13 +574,13 @@ msgstr "%s থেকে বার্তা"
 msgid "Private Message from %s"
 msgstr "%s থেকে ব্যক্তিগত বার্তা"
 
-#: ../plugins/notify-osd/notify-osd.c:211
+#: ../plugins/notify-osd/notify-osd.c:209
 msgid "OSD loaded\n"
 msgstr ""
 "ওএসডি\n"
 "লোড করা হয়েছে\n"
 
-#: ../plugins/notify-osd/notify-osd.c:215
+#: ../plugins/notify-osd/notify-osd.c:213
 #, fuzzy
 msgid "OSD initialization failed\n"
 msgstr ""
@@ -580,7 +591,7 @@ msgstr ""
 msgid "xchat URL scraper"
 msgstr "xchat ইউআরএল scraper"
 
-#: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:858
+#: ../plugins/url_scraper/urlscraper.c:59
 msgid "Time"
 msgstr "সময়"
 
@@ -589,8 +600,8 @@ msgid "Nick"
 msgstr "ডাকনাম"
 
 #: ../plugins/url_scraper/urlscraper.c:68 ../src/common/text.c:654
-#: ../src/common/text.c:658 ../src/common/text.c:1094
-#: ../src/fe-gnome/irc-network-editor.c:314
+#: ../src/common/text.c:658 ../src/common/text.c:1095
+#: ../src/fe-gnome/irc-network-editor.c:320
 msgid "Channel"
 msgstr "চ্যানেল"
 
@@ -656,19 +667,19 @@ msgstr "Sound-notification প্লাগিন লোড করা হয়ে�
 msgid "Sound-notification plugin unloaded.\n"
 msgstr "Sound-notification প্লাগিন unloaded।\n"
 
-#: ../src/common/cfgfiles.c:350
+#: ../src/common/cfgfiles.c:351
 msgid "Cannot create ~/.xchat2"
 msgstr "~/.xchat2 বানাতে পারলাম না"
 
-#: ../src/common/cfgfiles.c:685
+#: ../src/common/cfgfiles.c:687
 msgid "I'm busy"
 msgstr "ব্যাস্ত আছি"
 
-#: ../src/common/cfgfiles.c:686
+#: ../src/common/cfgfiles.c:688
 msgid "Leaving"
 msgstr "আমি আসি"
 
-#: ../src/common/cfgfiles.c:732
+#: ../src/common/cfgfiles.c:734
 msgid ""
 "* Running IRC as root is stupid! You should\n"
 "  create a User Account and use that to login.\n"
@@ -696,7 +707,7 @@ msgid "Done"
 msgstr "হয়ে গেছে"
 
 #. green
-#: ../src/common/dcc.c:71 ../src/fe-gnome/connect-dialog.c:155
+#: ../src/common/dcc.c:71 ../src/fe-gnome/connect-dialog.c:160
 msgid "Connect"
 msgstr "সংযোগ করো"
 
@@ -705,7 +716,7 @@ msgstr "সংযোগ করো"
 msgid "Aborted"
 msgstr "বাতিলকৃত"
 
-#: ../src/common/dcc.c:1887 ../src/common/outbound.c:2309
+#: ../src/common/dcc.c:1905 ../src/common/outbound.c:2324
 #, fuzzy, c-format
 msgid "Cannot access %s\n"
 msgstr ""
@@ -714,20 +725,20 @@ msgstr ""
 
 #. ! if (osvi.dwMajorVersion >= 5)
 #. fallback to error number
-#: ../src/common/dcc.c:1888 ../src/common/text.c:916 ../src/common/text.c:953
-#: ../src/common/text.c:964 ../src/common/text.c:971 ../src/common/text.c:984
-#: ../src/common/text.c:1001 ../src/common/text.c:1101
+#: ../src/common/dcc.c:1906 ../src/common/text.c:916 ../src/common/text.c:954
+#: ../src/common/text.c:965 ../src/common/text.c:972 ../src/common/text.c:985
+#: ../src/common/text.c:1002 ../src/common/text.c:1102
 #: ../src/common/util.c:352
 #, fuzzy
 msgid "Error"
 msgstr "ত্রুটি"
 
-#: ../src/common/dcc.c:2376
+#: ../src/common/dcc.c:2394
 #, c-format
 msgid "%s is offering \"%s\". Do you want to accept?"
 msgstr ""
 
-#: ../src/common/dcc.c:2587
+#: ../src/common/dcc.c:2605
 #, fuzzy
 msgid "No active DCCs\n"
 msgstr ""
@@ -762,12 +773,12 @@ msgstr ""
 "আপনাকে %s, মানসমূহ guiautoopendialog OFF থেকে MSG বন্যাওয়া হচ্ছে।\n"
 "(_d)\n"
 
-#: ../src/common/notify.c:396
+#: ../src/common/notify.c:449
 #, c-format
 msgid "  %-20s online\n"
 msgstr "  %-20s অনলাইন\n"
 
-#: ../src/common/notify.c:398
+#: ../src/common/notify.c:451
 #, c-format
 msgid "  %-20s offline\n"
 msgstr "  %-20s অফলাইন\n"
@@ -780,69 +791,64 @@ msgstr "কোনও চ্যানেলে যোগদান করা ন�
 msgid "Not connected. Try /server <host> [<port>]\n"
 msgstr "সংযুক্ত না। চেষ্টা /server<host>[<port>]\n"
 
-#: ../src/common/outbound.c:1730
+#: ../src/common/outbound.c:1690
 msgid "I need /bin/sh to run!\n"
 msgstr "আমি /bin/sh চালাতে প্রয়োজন বোধ করি!\n"
 
-#: ../src/common/outbound.c:2046
+#: ../src/common/outbound.c:2059
 msgid "Commands Available:"
 msgstr "কম্যান্ড পাওয়া যাচ্ছে:"
 
-#: ../src/common/outbound.c:2060
+#: ../src/common/outbound.c:2073
 msgid "User defined commands:"
 msgstr "ব্যবহারকারী সংজ্ঞায়িত কমান্ড:"
 
-#: ../src/common/outbound.c:2076
+#: ../src/common/outbound.c:2087
 #, fuzzy
 msgid "Plugin defined commands:"
 msgstr "প্লাগিন কম্যান্ড সংজ্ঞায়িত করল:"
 
-#: ../src/common/outbound.c:2087
+#: ../src/common/outbound.c:2098
 #, fuzzy
 msgid "Type /HELP <command> for more information, or /HELP -l"
 msgstr "ধরন /HELP<command>আরও বেশি তথ্য, অথবা /HELP -lএর জন্য"
 
-#: ../src/common/outbound.c:2162
+#: ../src/common/outbound.c:2173
 #, fuzzy, c-format
 msgid "Unknown arg '%s' ignored."
 msgstr "অজানা arg '%s' অগ্রাহ্য করা।"
 
-#: ../src/common/outbound.c:3049
+#: ../src/common/outbound.c:3071
 #, fuzzy
 msgid "No such plugin found.\n"
 msgstr "কোনও যেমন প্লাগিন পাওয়া গেছে না।\n"
 
-#: ../src/common/outbound.c:3054
+#: ../src/common/outbound.c:3076
 #, fuzzy
 msgid "That plugin is refusing to unload.\n"
 msgstr "ঔটি প্লাগিন unloadতে অস্বীকার করছে।\n"
 
-#: ../src/common/outbound.c:3323
-#, fuzzy
-msgid "ADDBUTTON <name> <action>, adds a button under the user-list"
-msgstr "ADDBUTTON<name><action>, user-listএর অধীনে একটি বাটন যোগ করে"
-
-#: ../src/common/outbound.c:3325
+#: ../src/common/outbound.c:3345
 #, fuzzy
 msgid "ALLCHAN <cmd>, sends a command to all channels you're in"
 msgstr "ALLCHAN<cmd>, পাঠায় সমস্ত চ্যানেল আপনিতে একটি কম্যান্ড 're তে"
 
-#: ../src/common/outbound.c:3327
+#: ../src/common/outbound.c:3347
 #, fuzzy
 msgid "ALLCHANL <cmd>, sends a command to all channels you're in"
 msgstr "ALLCHANL<cmd>, পাঠায় সমস্ত চ্যানেল আপনিতে একটি কম্যান্ড 're তে"
 
-#: ../src/common/outbound.c:3329
+#: ../src/common/outbound.c:3349
 #, fuzzy
 msgid "ALLSERV <cmd>, sends a command to all servers you're in"
 msgstr "ALLSERV<cmd>, পাঠায় সমস্ত সার্ভার আপনিতে একটি কম্যান্ড 're তে"
 
-#: ../src/common/outbound.c:3330
+#: ../src/common/outbound.c:3350
 #, fuzzy
 msgid "AWAY [<reason>], sets you away"
 msgstr "দূরে [<reason>], আপনাকে নিযুক্ত কর দূরিই"
 
-#: ../src/common/outbound.c:3332
+#: ../src/common/outbound.c:3352
 #, fuzzy
 msgid ""
 "BAN <mask> [<bantype>], bans everyone matching the mask from the current "
@@ -852,7 +858,7 @@ msgstr ""
 "নিষেধ<mask>[<bantype>], বর্তমান চ্যানেল থেকে নিষেধ সবাই অনুরূপ mask। যদি তারা "
 "চ্যানেল এই তাদেরকে টি ইতিমধ্যে kickয় না (প্রয়োজন chanop)"
 
-#: ../src/common/outbound.c:3334
+#: ../src/common/outbound.c:3354
 msgid ""
 "Set per channel options\n"
 "CHANOPT CONFMODE ON|OFF - Toggle conf mode/showing of join and part "
@@ -861,21 +867,21 @@ msgid ""
 "CHANOPT BEEP ON|OFF - Toggle beep on message"
 msgstr ""
 
-#: ../src/common/outbound.c:3340
+#: ../src/common/outbound.c:3360
 msgid "CLEAR [ALL|HISTORY], Clears the current text window or command history"
 msgstr ""
 
-#: ../src/common/outbound.c:3341
+#: ../src/common/outbound.c:3361
 #, fuzzy
 msgid "CLOSE, Closes the current window/tab"
 msgstr "বন্ধ করা, বর্তমান window/tab বন্ধ করে"
 
-#: ../src/common/outbound.c:3344
+#: ../src/common/outbound.c:3364
 #, fuzzy
 msgid "COUNTRY [-s] <code|wildcard>, finds a country code, eg: au = australia"
 msgstr "দেশ [-s]<code|wildcard>, একটি দেশ কোড খুঁজে পায়, eg: au = অষ্ট্রেলিয়া"
 
-#: ../src/common/outbound.c:3346
+#: ../src/common/outbound.c:3366
 #, fuzzy
 msgid ""
 "CTCP <nick> <message>, send the CTCP message to nick, common messages are "
@@ -884,12 +890,12 @@ msgstr ""
 "CTCP<nick><message>, ডাকনামতে CTCP বার্তা পাঠায়, সাধারণ বার্তা আছে সংস্করণ এবং "
 "USERINFO"
 
-#: ../src/common/outbound.c:3348
+#: ../src/common/outbound.c:3368
 #, fuzzy
 msgid "CYCLE, parts current channel and immediately rejoins"
 msgstr "চক্র, অংশ বর্তমান চ্যানেল এবং তাত্‍ক্ষণিকভাবে rejoinয়"
 
-#: ../src/common/outbound.c:3350
+#: ../src/common/outbound.c:3370
 #, fuzzy
 msgid ""
 "\n"
@@ -913,7 +919,7 @@ msgstr ""
 "DCC নিকট চ্যাট করো<type><nick><file>উদাহরণ:\n"
 "/dcc বন্ধ করা johnsmith file.tar.gz পাঠাও"
 
-#: ../src/common/outbound.c:3362
+#: ../src/common/outbound.c:3382
 #, fuzzy
 msgid ""
 "DEHOP <nick>, removes chanhalf-op status from the nick on the current "
@@ -922,12 +928,7 @@ msgstr ""
 "DEHOP<nick>, বর্তমান চ্যানেলে ডাকনাম থেকে chanhalf-op অবস্থা বাদ দেয় (প্রয়োজন "
 "chanop)"
 
-#: ../src/common/outbound.c:3364
-#, fuzzy
-msgid "DELBUTTON <name>, deletes a button from under the user-list"
-msgstr "DELBUTTON<name>, user-listএর অধীনে থেকে একটি বাটন মুছে ফেলে"
-
-#: ../src/common/outbound.c:3366
+#: ../src/common/outbound.c:3384
 #, fuzzy
 msgid ""
 "DEOP <nick>, removes chanop status from the nick on the current channel "
@@ -935,7 +936,7 @@ msgid ""
 msgstr ""
 "DEOP<nick>, বর্তমান চ্যানেলে ডাকনাম থেকে chanop অবস্থা বাদ দেয় (প্রয়োজন chanop)"
 
-#: ../src/common/outbound.c:3368
+#: ../src/common/outbound.c:3386
 #, fuzzy
 msgid ""
 "DEVOICE <nick>, removes voice status from the nick on the current channel "
@@ -943,22 +944,22 @@ msgid ""
 msgstr ""
 "devoiceো<nick>, বর্তমান চ্যানেলে ডাকনাম থেকে স্বর অবস্থা বাদ দেয় (প্রয়োজন chanop)"
 
-#: ../src/common/outbound.c:3369
+#: ../src/common/outbound.c:3387
 #, fuzzy
 msgid "DISCON, Disconnects from server"
 msgstr "DISCON, সার্ভার থেকে সংযোগ বিচ্ছিন্ন করে"
 
-#: ../src/common/outbound.c:3370
+#: ../src/common/outbound.c:3388
 #, fuzzy
 msgid "DNS <nick|host|ip>, Finds a users IP number"
 msgstr "ডি.এন.এস.<nick|host|ip>, একটি ব্যবহারকারী অাই.পি. সংখ্যা খুঁজে পায়"
 
-#: ../src/common/outbound.c:3371
+#: ../src/common/outbound.c:3389
 #, fuzzy
 msgid "ECHO <text>, Prints text locally"
 msgstr "ECHO<text>, মুদ্রিত করে টেক্সট locally"
 
-#: ../src/common/outbound.c:3374
+#: ../src/common/outbound.c:3392
 #, fuzzy
 msgid ""
 "EXEC [-o] <command>, runs the command. If -o flag is used then output is "
@@ -967,12 +968,12 @@ msgstr ""
 "EXEC [-oয়]<command>, কম্যান্ড চালায়। যদি -o ফ্ল্যাগ ব্যবহার করা হল তারপর আউটপুট "
 "বর্তমান চ্যানেলে পাঠাওয়া হল, বর্তমান টেক্সট বাক্সে অন্যথায় প্রিন্ট করা হল"
 
-#: ../src/common/outbound.c:3376
+#: ../src/common/outbound.c:3394
 #, fuzzy
 msgid "EXECCONT, sends the process SIGCONT"
 msgstr "EXECCONT, প্রসেস SIGCONT পাঠায়"
 
-#: ../src/common/outbound.c:3379
+#: ../src/common/outbound.c:3397
 #, fuzzy
 msgid ""
 "EXECKILL [-9], kills a running exec in the current session. If -9 is given "
@@ -981,42 +982,42 @@ msgstr ""
 "EXECKILL [-৯], বর্তমান অধিবেশনে একটি চলন্ত exec হত্যা করে। যদি -৯ দে প্রসেস "
 "SIGKILL'ed"
 
-#: ../src/common/outbound.c:3381
+#: ../src/common/outbound.c:3399
 #, fuzzy
 msgid "EXECSTOP, sends the process SIGSTOP"
 msgstr "EXECSTOP, প্রসেস SIGSTOP পাঠায়"
 
-#: ../src/common/outbound.c:3382
+#: ../src/common/outbound.c:3400
 #, fuzzy
 msgid "EXECWRITE, sends data to the processes stdin"
 msgstr "EXECWRITE, প্রসেস সমূহ stdinতে তথ্য পাঠায়"
 
-#: ../src/common/outbound.c:3386
+#: ../src/common/outbound.c:3404
 #, fuzzy
 msgid "FLUSHQ, flushes the current server's send queue"
 msgstr "FLUSHQ, flushয় বর্তমান সার্ভার সারি পাঠায়"
 
-#: ../src/common/outbound.c:3388
+#: ../src/common/outbound.c:3406
 #, fuzzy
 msgid "GATE <host> [<port>], proxies through a host, port defaults to 23"
 msgstr "GATE<host>[<port>], একটি হোস্টের মধ্য দিয়ে প্রক্সি, ২৩তে পোর্ট ডিফল্ট অবস্থায়"
 
-#: ../src/common/outbound.c:3391
+#: ../src/common/outbound.c:3410
 #, fuzzy
 msgid "GHOST <nick> <password>, Kills a ghosted nickname"
 msgstr "ভূত<nick><password>, একটি ghosted ডাকনাম হত্যা করে"
 
-#: ../src/common/outbound.c:3396
+#: ../src/common/outbound.c:3415
 #, fuzzy
 msgid "HOP <nick>, gives chanhalf-op status to the nick (needs chanop)"
 msgstr "HOP<nick>, ডাকনামে chanhalf-op অবস্থা দেয় (প্রয়োজন chanop)"
 
-#: ../src/common/outbound.c:3397
+#: ../src/common/outbound.c:3416
 #, fuzzy
 msgid "ID <password>, identifies yourself to nickserv"
 msgstr "আই.ডি.<password>, nickservতে নিজে সনাক্ত করে"
 
-#: ../src/common/outbound.c:3399
+#: ../src/common/outbound.c:3418
 #, fuzzy
 msgid ""
 "IGNORE <mask> <types..> <options..>\n"
@@ -1031,7 +1032,7 @@ msgstr ""
 "PRIV, CHAN, NOTI, CTCP, DCC, INVI, সমস্ত\n"
 "অপশনস- NOSAVE, QUIET"
 
-#: ../src/common/outbound.c:3406
+#: ../src/common/outbound.c:3425
 #, fuzzy
 msgid ""
 "INVITE <nick> [<channel>], invites someone to a channel, by default the "
@@ -1040,17 +1041,17 @@ msgstr ""
 "INVITE<nick>[<channel>], একটি চ্যানেলে কোন একজন আমন্ত্রণ করে, ডিফল্ট বর্তমান "
 "চ্যানেলের মধ্যে (প্রয়োজন chanop)"
 
-#: ../src/common/outbound.c:3407
+#: ../src/common/outbound.c:3426
 #, fuzzy
 msgid "JOIN <channel>, joins the channel"
 msgstr "যোগাদান করো<channel>, চ্যানেল যোগাদান করে"
 
-#: ../src/common/outbound.c:3409
+#: ../src/common/outbound.c:3428
 #, fuzzy
 msgid "KICK <nick>, kicks the nick from the current channel (needs chanop)"
 msgstr "KICK<nick>, বর্তমান চ্যানেল থেকে ডাকনাম kickয় (প্রয়োজন chanop)"
 
-#: ../src/common/outbound.c:3411
+#: ../src/common/outbound.c:3430
 #, fuzzy
 msgid ""
 "KICKBAN <nick>, bans then kicks the nick from the current channel (needs "
@@ -1058,33 +1059,33 @@ msgid ""
 msgstr ""
 "KICKBAN<nick>, নিষেধ তারপর বর্তমান চ্যানেল থেকে ডাকনাম kickয় (প্রয়োজন chanop)"
 
-#: ../src/common/outbound.c:3414
+#: ../src/common/outbound.c:3433
 #, fuzzy
 msgid "LAGCHECK, forces a new lag check"
 msgstr "LAGCHECK, একটি নতুন lag পরীক্ষা করা বলে"
 
-#: ../src/common/outbound.c:3416
+#: ../src/common/outbound.c:3435
 #, fuzzy
 msgid "LASTLOG <string>, searches for a string in the buffer"
 msgstr "LASTLOG<string>, বাফারে একটি পংক্তির জন্য অনুসন্ধান করে"
 
-#: ../src/common/outbound.c:3418
+#: ../src/common/outbound.c:3437
 #, fuzzy
 msgid "LOAD [-e] <file>, loads a plugin or script"
 msgstr "লোড [-eো]<file>, লোড একটি প্লাগিন অথবা লিপি"
 
-#: ../src/common/outbound.c:3421
+#: ../src/common/outbound.c:3440
 #, fuzzy
 msgid ""
 "MDEHOP, Mass deop's all chanhalf-ops in the current channel (needs chanop)"
 msgstr "MDEHOP, Mass deop 's বর্তমান চ্যানেলে সমস্ত chanhalf-ops (প্রয়োজন chanop)"
 
-#: ../src/common/outbound.c:3423
+#: ../src/common/outbound.c:3442
 #, fuzzy
 msgid "MDEOP, Mass deop's all chanops in the current channel (needs chanop)"
 msgstr "MDEOP, Mass deop 's বর্তমান চ্যানেলে সমস্ত chanops (প্রয়োজন chanop)"
 
-#: ../src/common/outbound.c:3425
+#: ../src/common/outbound.c:3444
 #, fuzzy
 msgid ""
 "ME <action>, sends the action to the current channel (actions are written in "
@@ -1093,43 +1094,43 @@ msgstr ""
 "আমাকে<action>, পাঠায় বর্তমান চ্যানেলে ক্রিয়া (ক্রিয়া ৩য় ব্যক্তিতে লেখা হল, /me লাফ "
 "দেয়ের মত)"
 
-#: ../src/common/outbound.c:3428
+#: ../src/common/outbound.c:3447
 #, fuzzy
 msgid ""
 "MKICK, Mass kicks everyone except you in the current channel (needs chanop)"
 msgstr "MKICK, Mass বর্তমান চ্যানেলে সবাই ছাড়া আপনাকে kickয় (প্রয়োজন chanop)"
 
-#: ../src/common/outbound.c:3431
+#: ../src/common/outbound.c:3450
 #, fuzzy
 msgid "MOP, Mass op's all users in the current channel (needs chanop)"
 msgstr "mopো, Mass op 's বর্তমান চ্যানেলে সমস্ত ব্যবহারকারী (প্রয়োজন chanop)"
 
-#: ../src/common/outbound.c:3432
+#: ../src/common/outbound.c:3451
 #, fuzzy
 msgid "MSG <nick> <message>, sends a private message"
 msgstr "MSG<nick><message>, একটি ব্যক্তিগত বার্তা পাঠায়"
 
-#: ../src/common/outbound.c:3435
+#: ../src/common/outbound.c:3454
 #, fuzzy
 msgid "NAMES, Lists the nicks on the current channel"
 msgstr "নামগুলো, বর্তমান চ্যানেলে ডাকনাম তালিকাভুক্ত করে"
 
-#: ../src/common/outbound.c:3437
+#: ../src/common/outbound.c:3456
 #, fuzzy
 msgid "NCTCP <nick> <message>, Sends a CTCP notice"
 msgstr "NCTCP<nick><message>, একটি CTCP নোটিস পাঠায়"
 
-#: ../src/common/outbound.c:3438
+#: ../src/common/outbound.c:3457
 #, fuzzy
 msgid "NEWSERVER [-noconnect] <hostname> [<port>]"
 msgstr "NEWSERVER [-noconnect]<hostname>[<port>]"
 
-#: ../src/common/outbound.c:3439
+#: ../src/common/outbound.c:3458
 #, fuzzy
 msgid "NICK <nickname>, sets your nick"
 msgstr "ডাকনাম<nickname>, আপনার ডাকনাম নিযুক্ত করে"
 
-#: ../src/common/outbound.c:3442
+#: ../src/common/outbound.c:3461
 #, fuzzy
 msgid ""
 "NOTICE <nick/channel> <message>, sends a notice. Notices are a type of "
@@ -1138,45 +1139,47 @@ msgstr ""
 "নোটিস<nick/channel><message>, একটি নোটিস পাঠায়। নোটিস আছে বার্তার একটি ধরন যে "
 "তে স্বয়ংক্রিয় প্রতিক্রিয়া ব্যক্ত করা উচিত"
 
-#: ../src/common/outbound.c:3444
+#: ../src/common/outbound.c:3463
 #, fuzzy
-msgid "NOTIFY [<nick>], lists your notify list or adds someone to it"
+msgid ""
+"NOTIFY [-n network1[,network2,...]] [<nick>], displays your notify list or "
+"adds someone to it"
 msgstr ""
 "ঘোষণা করে [<nick>], তালিকাভুক্ত করে আপনার তালিকা ঘোষণা করে অথবা এইটিতে কোন "
 "একজন যোগ করে"
 
-#: ../src/common/outbound.c:3446
+#: ../src/common/outbound.c:3465
 #, fuzzy
 msgid "OP <nick>, gives chanop status to the nick (needs chanop)"
 msgstr "OP<nick>, ডাকনামে chanop অবস্থা দেয় (প্রয়োজন chanop)"
 
-#: ../src/common/outbound.c:3448
+#: ../src/common/outbound.c:3467
 #, fuzzy
 msgid ""
 "PART [<channel>] [<reason>], leaves the channel, by default the current one"
 msgstr ""
 "অংশ [<channel>] [<reason>], চ্যানেল ছেড়ে চলে যায়, ডিফল্ট বর্তমান একের মধ্যে"
 
-#: ../src/common/outbound.c:3450
+#: ../src/common/outbound.c:3469
 #, fuzzy
 msgid "PING <nick | channel>, CTCP pings nick or channel"
 msgstr "PING<nick | channel>, CTCP ডাকনাম অথবা চ্যানেল pingয়"
 
-#: ../src/common/outbound.c:3452
+#: ../src/common/outbound.c:3471
 msgid "QUERY [-nofocus] <nick>, opens up a new privmsg window to someone"
 msgstr ""
 
-#: ../src/common/outbound.c:3454
+#: ../src/common/outbound.c:3473
 #, fuzzy
 msgid "QUIT [<reason>], disconnects from the current server"
 msgstr "প্রস্থান করে [<reason>], বর্তমান সার্ভার থেকে সংযোগ বিচ্ছিন্ন করে"
 
-#: ../src/common/outbound.c:3456
+#: ../src/common/outbound.c:3475
 #, fuzzy
 msgid "QUOTE <text>, sends the text in raw form to the server"
 msgstr "উদ্ধৃত করা<text>, সার্ভারে খাঁটি আকারে টেক্সট পাঠায়"
 
-#: ../src/common/outbound.c:3459
+#: ../src/common/outbound.c:3478
 #, fuzzy
 msgid ""
 "RECONNECT [-ssl] [<host>] [<port>] [<password>], Can be called just as /"
@@ -1187,7 +1190,7 @@ msgstr ""
 "করতে /RECONNECT হিসেবে শুধু ডাক দেওয়া যাবে অথবা সমস্ত খোলা সার্ভারে পুনঃসংযোগ "
 "করতে /RECONNECT সমস্তের সঙ্গে"
 
-#: ../src/common/outbound.c:3462
+#: ../src/common/outbound.c:3481
 #, fuzzy
 msgid ""
 "RECONNECT [<host>] [<port>] [<password>], Can be called just as /RECONNECT "
@@ -1198,7 +1201,7 @@ msgstr ""
 "RECONNECT হিসেবে শুধু ডাক দেওয়া যাবে অথবা সমস্ত খোলা সার্ভারে পুনঃসংযোগ করতে /"
 "RECONNECT সমস্তের সঙ্গে"
 
-#: ../src/common/outbound.c:3464
+#: ../src/common/outbound.c:3483
 #, fuzzy
 msgid ""
 "RECV <text>, send raw data to xchat, as if it was received from the irc "
@@ -1207,28 +1210,28 @@ msgstr ""
 "RECV<text>, xchatতে খাঁটি তথ্য পাঠায়, যত যদি এইটি আই-আর-সি সার্ভার থেকে গ্রহন "
 "করা হয়েছিল"
 
-#: ../src/common/outbound.c:3467
+#: ../src/common/outbound.c:3486
 #, fuzzy
 msgid "SAY <text>, sends the text to the object in the current window"
 msgstr "বলো<text>, বর্তমান উইন্ডোতে বস্তুতে টেক্সট পাঠায়"
 
-#: ../src/common/outbound.c:3468
+#: ../src/common/outbound.c:3487
 #, fuzzy
 msgid "SEND <nick> [<file>]"
 msgstr "পাঠাও<nick>[<file>]"
 
-#: ../src/common/outbound.c:3471
+#: ../src/common/outbound.c:3490
 #, fuzzy
 msgid "SERVCHAN [-ssl] <host> <port> <channel>, connects and joins a channel"
 msgstr ""
 "SERVCHAN [-sslো]<host><port><channel>, সংযোগ করে এবং একটি চ্যানেল যোগাদান করে"
 
-#: ../src/common/outbound.c:3474
+#: ../src/common/outbound.c:3493
 #, fuzzy
 msgid "SERVCHAN <host> <port> <channel>, connects and joins a channel"
 msgstr "SERVCHAN<host><port><channel>, সংযোগ করে এবং একটি চ্যানেল যোগাদান করে"
 
-#: ../src/common/outbound.c:3478
+#: ../src/common/outbound.c:3497
 #, fuzzy
 msgid ""
 "SERVER [-ssl] <host> [<port>] [<password>], connects to a server, the "
@@ -1237,7 +1240,7 @@ msgstr ""
 "সার্ভার [-sslো]<host>[<port>] [<password>], একটি সার্ভারে সংযোগ করে, ডিফল্ট "
 "পোর্ট স্বাভাবিক সংযোগ,এর জন্য ৬৬৬৭ এবং এসএসএল সংযোগের জন্য ৯৯৯৯"
 
-#: ../src/common/outbound.c:3481
+#: ../src/common/outbound.c:3500
 #, fuzzy
 msgid ""
 "SERVER <host> [<port>] [<password>], connects to a server, the default port "
@@ -1245,17 +1248,17 @@ msgid ""
 msgstr ""
 "সার্ভার<host>[<port>] [<password>], একটি সার্ভারে সংযোগ করে, ডিফল্ট পোর্ট ৬৬৬৭"
 
-#: ../src/common/outbound.c:3483
+#: ../src/common/outbound.c:3502
 #, fuzzy
-msgid "SET [-quiet] <variable> [<value>]"
+msgid "SET [-e] [-quiet] <variable> [<value>]"
 msgstr "সেট [-quietো]<variable>[<value>]"
 
-#: ../src/common/outbound.c:3484
+#: ../src/common/outbound.c:3503
 #, fuzzy
 msgid "SETCURSOR [-|+]<position>"
 msgstr "SETCURSOR [-|+]<position>"
 
-#: ../src/common/outbound.c:3489
+#: ../src/common/outbound.c:3508
 #, fuzzy
 msgid ""
 "TOPIC [<topic>], sets the topic if one is given, else shows the current topic"
@@ -1263,55 +1266,55 @@ msgstr ""
 "বিষয়বস্তু [<topic>], বিষয়বস্তু নিযুক্ত করে যদি এক দে, বর্তমান বিষয়বস্তু অন্যথায় প্রদর্শন "
 "করে"
 
-#: ../src/common/outbound.c:3491
+#: ../src/common/outbound.c:3510
 #, fuzzy
 msgid "UNBAN <mask> [<mask>...], unbans the specified masks."
 msgstr "UNBAN<mask>[<mask>...], উল্লেখিত masks unbansয়।"
 
-#: ../src/common/outbound.c:3492
+#: ../src/common/outbound.c:3511
 #, fuzzy
 msgid "UNIGNORE <mask> [QUIET]"
 msgstr "UNIGNORE<mask>[quietো]"
 
-#: ../src/common/outbound.c:3493
+#: ../src/common/outbound.c:3512
 #, fuzzy
 msgid "UNLOAD <name>, unloads a plugin or script"
 msgstr "unloadো<name>, একটি প্লাগিন অথবা লিপি unloadয়"
 
-#: ../src/common/outbound.c:3494
+#: ../src/common/outbound.c:3513
 #, fuzzy
 msgid "URL <url>, opens a URL in your browser"
 msgstr "ইউআরএল<url>, আপনার ব্রাউজারে একটি ইউআরএল খোলে"
 
-#: ../src/common/outbound.c:3496
+#: ../src/common/outbound.c:3515
 #, fuzzy
 msgid ""
 "USELECT [-a] [-s] <nick1> <nick2> etc, highlights nick(s) in channel userlist"
 msgstr ""
 "USELECT [-aয়] [-s]<nick1><nick2>ইত্যাদি, nick(s highlightয়) চ্যানেল userlistতে"
 
-#: ../src/common/outbound.c:3499
+#: ../src/common/outbound.c:3518
 #, fuzzy
 msgid "VOICE <nick>, gives voice status to someone (needs chanop)"
 msgstr "স্বর<nick>, কোন একজনে স্বর অবস্থা দেয় (প্রয়োজন chanop)"
 
-#: ../src/common/outbound.c:3501
+#: ../src/common/outbound.c:3520
 #, fuzzy
 msgid "WALLCHAN <message>, writes the message to all channels"
 msgstr "WALLCHAN<message>, সমস্ত চ্যানেলে বার্তা লেখে"
 
-#: ../src/common/outbound.c:3503
+#: ../src/common/outbound.c:3522
 #, fuzzy
 msgid ""
 "WALLCHOP <message>, sends the message to all chanops on the current channel"
 msgstr "WALLCHOP<message>, বর্তমান চ্যানেলে সমস্ত chanopsতে বার্তা পাঠায়"
 
-#: ../src/common/outbound.c:3536
+#: ../src/common/outbound.c:3555
 #, fuzzy, c-format
 msgid "Usage: %s\n"
 msgstr "ব্যবহারের রীতি-নীতি: %s\n"
 
-#: ../src/common/outbound.c:3541
+#: ../src/common/outbound.c:3560
 #, fuzzy
 msgid ""
 "\n"
@@ -1321,22 +1324,22 @@ msgstr ""
 "ে\n"
 "কোনও সাহায্য পাওয়া যাচ্ছে না ঔটি কম্যান্ড।\n"
 
-#: ../src/common/outbound.c:3547
+#: ../src/common/outbound.c:3566
 #, fuzzy
 msgid "No such command.\n"
 msgstr "কোনও যেমন কম্যান্ড না।\n"
 
-#: ../src/common/outbound.c:3874
+#: ../src/common/outbound.c:3896
 #, fuzzy
 msgid "Bad arguments for user command.\n"
 msgstr "ব্যবহারকারী কম্যান্ডের জন্য খারাপ প্রেরিত মান।\n"
 
-#: ../src/common/outbound.c:4030
+#: ../src/common/outbound.c:4051
 #, fuzzy
 msgid "Too many recursive usercommands, aborting."
 msgstr "খুব অনেক পুনরাবৃত্ত usercommands, বাতিল করা হচ্ছে।"
 
-#: ../src/common/outbound.c:4107
+#: ../src/common/outbound.c:4125
 #, fuzzy
 msgid "Unknown Command. Try /help\n"
 msgstr ""
@@ -1348,12 +1351,12 @@ msgstr ""
 msgid "No xchat_plugin_init symbol; is this really an xchat plugin?"
 msgstr "কোনও xchatplugininit চিহ্ন না; এই একটি xchat প্লাগিন সত্যি? (_i)"
 
-#: ../src/common/server.c:621
+#: ../src/common/server.c:627
 #, fuzzy
 msgid "Are you sure this is a SSL capable server and port?\n"
 msgstr "আপনাকে কি নিশ্চিত এই একটি এসএসএল সক্ষম সার্ভার এবং পোর্ট আছি?\n"
 
-#: ../src/common/server.c:1012
+#: ../src/common/server.c:1018
 #, fuzzy, c-format
 msgid ""
 "Cannot resolve hostname %s\n"
@@ -1362,19 +1365,19 @@ msgstr ""
 "স্থিরসঙ্কল্প করতে পারে না হোস্টনাম %s\n"
 "আপনার অাই.পি. মানসমূহ পরীক্ষা করো!\n"
 
-#: ../src/common/server.c:1017
+#: ../src/common/server.c:1023
 #, fuzzy
 msgid "Proxy traversal failed.\n"
 msgstr "প্রক্সি traversal ব্যর্থ।\n"
 
-#: ../src/common/servlist.c:644
+#: ../src/common/servlist.c:645
 #, fuzzy, c-format
 msgid "Cycling to next server in %s...\n"
 msgstr ""
 "%s...\n"
 "তে পরবর্তী সার্ভারে Cycling\n"
 
-#: ../src/common/servlist.c:1068
+#: ../src/common/servlist.c:1076
 #, fuzzy, c-format
 msgid ""
 "Warning: \"%s\" character set is unknown. No conversion will be applied for "
@@ -1431,6 +1434,22 @@ msgstr "চ্যানেল joined হওয়া"
 msgid "The host of the person"
 msgstr "ব্যক্তির হোস্ট"
 
+#: ../src/common/text.c:629 ../src/common/text.c:635 ../src/common/text.c:642
+#: ../src/common/text.c:709 ../src/common/text.c:835 ../src/common/text.c:842
+#: ../src/common/text.c:847 ../src/common/text.c:852 ../src/common/text.c:857
+#: ../src/common/text.c:863 ../src/common/text.c:868 ../src/common/text.c:872
+#: ../src/common/text.c:878 ../src/common/text.c:884 ../src/common/text.c:930
+#: ../src/common/text.c:941 ../src/common/text.c:946 ../src/common/text.c:951
+#: ../src/common/text.c:960 ../src/common/text.c:971 ../src/common/text.c:978
+#: ../src/common/text.c:984 ../src/common/text.c:989 ../src/common/text.c:994
+#: ../src/common/text.c:1001 ../src/common/text.c:1007
+#: ../src/common/text.c:1013 ../src/common/text.c:1018
+#: ../src/common/text.c:1023 ../src/common/text.c:1027
+#: ../src/common/text.c:1033 ../src/common/text.c:1041
+#: ../src/common/text.c:1075 ../src/common/text.c:1080
+msgid "Nickname"
+msgstr "ডাকনাম"
+
 #: ../src/common/text.c:630
 #, fuzzy
 msgid "The action"
@@ -1473,7 +1492,7 @@ msgid "Nick of person who changed the topic"
 msgstr "ব্যক্তির ডাকনাম যে বিষয়বস্তু পরিবর্তন করল"
 
 #: ../src/common/text.c:653 ../src/common/text.c:659
-#: ../src/fe-gnome/channel-list.c:331
+#: ../src/fe-gnome/channel-list.c:344
 #, fuzzy
 msgid "Topic"
 msgstr "বিষয়বস্তু"
@@ -1515,7 +1534,7 @@ msgstr "সময়"
 msgid "The creator"
 msgstr "creator"
 
-#: ../src/common/text.c:688 ../src/common/text.c:946
+#: ../src/common/text.c:688 ../src/common/text.c:947
 #, fuzzy
 msgid "Reason"
 msgstr "কারণ"
@@ -1746,7 +1765,7 @@ msgid "Away reason"
 msgstr "কারণ দূরে"
 
 #: ../src/common/text.c:873 ../src/common/text.c:879 ../src/common/text.c:887
-#: ../src/common/text.c:1066
+#: ../src/common/text.c:1067
 #, fuzzy
 msgid "Message"
 msgstr "বার্তা"
@@ -1767,19 +1786,19 @@ msgid "Real IP"
 msgstr "প্রকৃত অাই.পি."
 
 #: ../src/common/text.c:891 ../src/common/text.c:900 ../src/common/text.c:906
-#: ../src/common/text.c:935 ../src/common/text.c:1089
-#: ../src/fe-gnome/channel-list.c:321
+#: ../src/common/text.c:936 ../src/common/text.c:1090
+#: ../src/fe-gnome/channel-list.c:334
 #, fuzzy
 msgid "Channel Name"
 msgstr "চ্যানেল নাম"
 
-#: ../src/common/text.c:895 ../src/common/text.c:1052
+#: ../src/common/text.c:895 ../src/common/text.c:1053
 #, fuzzy
 msgid "Text"
 msgstr "টেক্সট"
 
 #: ../src/common/text.c:896 ../src/common/text.c:902 ../src/common/text.c:931
-#: ../src/common/text.c:1048 ../src/common/text.c:1090
+#: ../src/common/text.c:1049 ../src/common/text.c:1091
 #, fuzzy
 msgid "Server Name"
 msgstr "সার্ভার নাম"
@@ -1799,137 +1818,137 @@ msgstr "ব্যবহারে ডাকনাম"
 msgid "Nick being tried"
 msgstr "ডাকনাম tried হওয়া"
 
-#: ../src/common/text.c:921 ../src/common/text.c:1056
+#: ../src/common/text.c:921 ../src/common/text.c:1057
 #, fuzzy
 msgid "IP"
 msgstr "অাই.পি."
 
-#: ../src/common/text.c:922 ../src/common/text.c:952
+#: ../src/common/text.c:922 ../src/common/text.c:953
 #, fuzzy
 msgid "Port"
 msgstr "পোর্ট"
 
-#: ../src/common/text.c:926
+#: ../src/common/text.c:932
 #, fuzzy
-msgid "PID"
-msgstr "পি-আই-ডি"
+msgid "Network"
+msgstr "নেটওয়ার্ক (_N)"
 
-#: ../src/common/text.c:936 ../src/common/text.c:941
+#: ../src/common/text.c:937 ../src/common/text.c:942
 #, fuzzy
 msgid "Modes string"
 msgstr "মোড পংক্তি"
 
-#: ../src/common/text.c:951 ../src/common/text.c:989 ../src/common/text.c:994
-#: ../src/common/text.c:1035
+#: ../src/common/text.c:952 ../src/common/text.c:990 ../src/common/text.c:995
+#: ../src/common/text.c:1036
 #, fuzzy
 msgid "IP address"
 msgstr "অাই.পি. ঠিকানা"
 
-#: ../src/common/text.c:957 ../src/common/text.c:982
+#: ../src/common/text.c:958 ../src/common/text.c:983
 #, fuzzy
 msgid "DCC Type"
 msgstr "DCC ধরন"
 
-#: ../src/common/text.c:958 ../src/common/text.c:963 ../src/common/text.c:968
-#: ../src/common/text.c:975 ../src/common/text.c:995 ../src/common/text.c:999
-#: ../src/common/text.c:1005 ../src/common/text.c:1011
-#: ../src/common/text.c:1018 ../src/common/text.c:1027
-#: ../src/common/text.c:1033
+#: ../src/common/text.c:959 ../src/common/text.c:964 ../src/common/text.c:969
+#: ../src/common/text.c:976 ../src/common/text.c:996 ../src/common/text.c:1000
+#: ../src/common/text.c:1006 ../src/common/text.c:1012
+#: ../src/common/text.c:1019 ../src/common/text.c:1028
+#: ../src/common/text.c:1034
 #, fuzzy
 msgid "Filename"
 msgstr "ফাইলের নাম"
 
-#: ../src/common/text.c:969 ../src/common/text.c:976
+#: ../src/common/text.c:970 ../src/common/text.c:977
 #, fuzzy
 msgid "Destination filename"
 msgstr "গন্তব্য ফাইলের নাম"
 
-#: ../src/common/text.c:978 ../src/common/text.c:1007
+#: ../src/common/text.c:979 ../src/common/text.c:1008
 #, fuzzy
 msgid "CPS"
 msgstr "CPS"
 
-#: ../src/common/text.c:1013
+#: ../src/common/text.c:1014
 #, fuzzy
 msgid "Pathname"
 msgstr "Pathname"
 
-#: ../src/common/text.c:1028
+#: ../src/common/text.c:1029
 #, fuzzy
 msgid "Position"
 msgstr "অবস্থান"
 
-#: ../src/common/text.c:1034
+#: ../src/common/text.c:1035
 #, fuzzy
 msgid "Size"
 msgstr "আকার"
 
-#: ../src/common/text.c:1039
+#: ../src/common/text.c:1040
 #, fuzzy
 msgid "DCC String"
 msgstr "DCC পংক্তি"
 
-#: ../src/common/text.c:1044
+#: ../src/common/text.c:1045
 #, fuzzy
 msgid "Number of notify items"
 msgstr "বস্তু ঘোষণা করার সংখ্যা"
 
-#: ../src/common/text.c:1060
+#: ../src/common/text.c:1061
 #, fuzzy
 msgid "Old Filename"
 msgstr "পুরনো ফাইলের নাম"
 
-#: ../src/common/text.c:1061
+#: ../src/common/text.c:1062
 #, fuzzy
 msgid "New Filename"
 msgstr "নিউ ফাইলের নাম"
 
-#: ../src/common/text.c:1065
+#: ../src/common/text.c:1066
 #, fuzzy
 msgid "Receiver"
 msgstr "Receiver"
 
-#: ../src/common/text.c:1070
+#: ../src/common/text.c:1071
 #, fuzzy
 msgid "Hostmask"
 msgstr "Hostmask"
 
-#: ../src/common/text.c:1075
+#: ../src/common/text.c:1076
 #, fuzzy
 msgid "Hostname"
 msgstr "হোস্টনাম"
 
-#: ../src/common/text.c:1080
+#: ../src/common/text.c:1081
 #, fuzzy
 msgid "The Packet"
 msgstr "প্যাকেট"
 
-#: ../src/common/text.c:1084
+#: ../src/common/text.c:1085
 #, fuzzy
 msgid "Seconds"
 msgstr "সেকেন্ড"
 
-#: ../src/common/text.c:1088
+#: ../src/common/text.c:1089
 #, fuzzy
 msgid "Nick of person who have been invited"
 msgstr "ব্যক্তির ডাকনাম যে আমন্ত্রণ করা হয়েছে"
 
-#: ../src/common/text.c:1095
+#: ../src/common/text.c:1096
 #, fuzzy
 msgid "Banmask"
 msgstr "Banmask"
 
-#: ../src/common/text.c:1096
+#: ../src/common/text.c:1097
 #, fuzzy
 msgid "Who set the ban"
 msgstr "নিষেধ কে নিযুক্ত করল"
 
-#: ../src/common/text.c:1097
+#: ../src/common/text.c:1098
 #, fuzzy
 msgid "Ban time"
 msgstr "নিষেধ সময়"
 
-#: ../src/common/text.c:1137
+#: ../src/common/text.c:1138
 #, fuzzy, c-format
 msgid ""
 "Error parsing event %s.\n"
@@ -1938,7 +1957,7 @@ msgstr ""
 "ত্রুটি parsing ঘটনা %s।\n"
 "লোড করা হচ্ছে ডিফল্ট।"
 
-#: ../src/common/text.c:1818
+#: ../src/common/text.c:1819
 #, fuzzy, c-format
 msgid ""
 "Cannot read sound file:\n"
@@ -3704,250 +3723,9 @@ msgid "Zimbabwe"
 msgstr "জিম্বাবুয়ে"
 
 #: ../src/common/util.c:1110 ../src/common/util.c:1120
-#: ../src/fe-gnome/userlist-gui.c:414
+#: ../src/fe-gnome/userlist-gui.c:427
 msgid "Unknown"
 msgstr "অজানা"
-
-#: ../src/common/xchat.c:767 ../src/common/xchat.c:893
-msgid "Open Dialog Window"
-msgstr "ডায়ালগ উইন্ডো খোলা"
-
-#: ../src/common/xchat.c:768
-msgid "Send a File"
-msgstr "একটি ফাইল পাঠাও"
-
-#: ../src/common/xchat.c:769
-msgid "User Info (WHOIS)"
-msgstr "ব্যবহারকারী তথ্য (WHOIS)"
-
-#: ../src/common/xchat.c:770
-msgid "Operator Actions"
-msgstr "অপারেটর ক্রিয়া"
-
-#: ../src/common/xchat.c:772 ../src/common/xchat.c:863
-#, fuzzy
-msgid "Give Ops"
-msgstr "Ops দাও"
-
-#: ../src/common/xchat.c:773 ../src/common/xchat.c:864
-#, fuzzy
-msgid "Take Ops"
-msgstr "Ops গ্রহণ করো"
-
-#: ../src/common/xchat.c:774 ../src/common/xchat.c:867
-msgid "Give Voice"
-msgstr "স্বর দাও"
-
-#: ../src/common/xchat.c:775 ../src/common/xchat.c:868
-msgid "Take Voice"
-msgstr "স্বর গ্রহণ করো"
-
-#: ../src/common/xchat.c:777 ../src/common/xchat.c:872
-#, fuzzy
-msgid "Kick/Ban"
-msgstr "Kick/Ban"
-
-#: ../src/common/xchat.c:778 ../src/common/xchat.c:873
-#: ../src/common/xchat.c:922
-#, fuzzy
-msgid "Kick"
-msgstr "Kick"
-
-#: ../src/common/xchat.c:779 ../src/common/xchat.c:780
-#: ../src/common/xchat.c:781 ../src/common/xchat.c:782
-#: ../src/common/xchat.c:783 ../src/common/xchat.c:874
-#: ../src/common/xchat.c:875 ../src/common/xchat.c:876
-#: ../src/common/xchat.c:877 ../src/common/xchat.c:878
-#: ../src/common/xchat.c:921
-msgid "Ban"
-msgstr "নিষেধ"
-
-#: ../src/common/xchat.c:784 ../src/common/xchat.c:785
-#: ../src/common/xchat.c:786 ../src/common/xchat.c:787
-#: ../src/common/xchat.c:879 ../src/common/xchat.c:880
-#: ../src/common/xchat.c:881 ../src/common/xchat.c:882
-#, fuzzy
-msgid "KickBan"
-msgstr "KickBan"
-
-#: ../src/common/xchat.c:850
-#, fuzzy
-msgid "Direct client-to-client"
-msgstr "সরাসরি client-to-client"
-
-#: ../src/common/xchat.c:851
-msgid "Send File"
-msgstr "ফাইল পাঠাও"
-
-#: ../src/common/xchat.c:852
-msgid "Offer Chat"
-msgstr "চ্যাট প্রস্তাব দাও"
-
-#: ../src/common/xchat.c:853
-msgid "Abort Chat"
-msgstr "চ্যাট বাতিল করো"
-
-#: ../src/common/xchat.c:854
-msgid "Version"
-msgstr "সংস্করণ"
-
-#: ../src/common/xchat.c:855
-#, fuzzy
-msgid "Userinfo"
-msgstr "Userinfo"
-
-#: ../src/common/xchat.c:856
-#, fuzzy
-msgid "Clientinfo"
-msgstr "Clientinfo"
-
-#: ../src/common/xchat.c:857 ../src/common/xchat.c:891
-#: ../src/common/xchat.c:939
-msgid "Ping"
-msgstr "Ping"
-
-#: ../src/common/xchat.c:859
-#, fuzzy
-msgid "Finger"
-msgstr "Finger"
-
-#: ../src/common/xchat.c:860
-#, fuzzy
-msgid "Oper"
-msgstr "Oper"
-
-#: ../src/common/xchat.c:861
-msgid "Kill this user"
-msgstr "এই ব্যবহারকারীটি হত্যা করো"
-
-#: ../src/common/xchat.c:862
-msgid "Mode"
-msgstr "মোড"
-
-#: ../src/common/xchat.c:865
-#, fuzzy
-msgid "Give Half-Ops"
-msgstr "Half-Ops দাও"
-
-#: ../src/common/xchat.c:866
-#, fuzzy
-msgid "Take Half-Ops"
-msgstr "Half-Ops গ্রহণ করো"
-
-#: ../src/common/xchat.c:869 ../src/fe-gnome/userlist-gui.c:65
-msgid "Ignore"
-msgstr "উপেক্ষা করো"
-
-#: ../src/common/xchat.c:870
-msgid "Ignore User"
-msgstr "ব্যবহারকারী উপেক্ষা করো"
-
-#: ../src/common/xchat.c:871
-#, fuzzy
-msgid "UnIgnore User"
-msgstr "UnIgnore ব্যবহারকারী"
-
-#: ../src/common/xchat.c:883
-msgid "Info"
-msgstr "তথ্য"
-
-#: ../src/common/xchat.c:884
-msgid "Who"
-msgstr "কে"
-
-#: ../src/common/xchat.c:885 ../src/common/xchat.c:935
-msgid "WhoIs"
-msgstr "WhoIs"
-
-#: ../src/common/xchat.c:886
-msgid "DNS Lookup"
-msgstr "ডি.এন.এস. অনুসন্ধান"
-
-#: ../src/common/xchat.c:887
-#, fuzzy
-msgid "Trace"
-msgstr "Trace"
-
-#: ../src/common/xchat.c:888
-msgid "UserHost"
-msgstr "UserHost"
-
-#: ../src/common/xchat.c:889
-msgid "External"
-msgstr "বাহ্যিক"
-
-#: ../src/common/xchat.c:890
-#, fuzzy
-msgid "Traceroute"
-msgstr "Traceroute"
-
-#: ../src/common/xchat.c:892
-msgid "Telnet"
-msgstr "টেলনেট"
-
-#: ../src/common/xchat.c:904
-msgid "Leave Channel"
-msgstr "চ্যানেল ছেড়ে চলে যাও"
-
-#: ../src/common/xchat.c:905
-msgid "Join Channel..."
-msgstr "চ্যানেল যোগাদান করো..."
-
-#: ../src/common/xchat.c:906
-msgid "Enter Channel to Join:"
-msgstr "যোগাদান করতে চ্যানেল ঢোকাও:"
-
-#: ../src/common/xchat.c:907
-msgid "Server Links"
-msgstr "সার্ভার লিঙ্ক"
-
-#: ../src/common/xchat.c:908
-msgid "Ping Server"
-msgstr "Ping সার্ভার"
-
-#: ../src/common/xchat.c:909
-msgid "Hide Version"
-msgstr "গোপন সংস্করণ"
-
-#: ../src/common/xchat.c:919
-#, fuzzy
-msgid "Op"
-msgstr "Op"
-
-#: ../src/common/xchat.c:920
-#, fuzzy
-msgid "DeOp"
-msgstr "DeOp"
-
-#: ../src/common/xchat.c:923
-msgid "bye"
-msgstr "বিদায়"
-
-#: ../src/common/xchat.c:924
-#, fuzzy, c-format
-msgid "Enter reason to kick %s:"
-msgstr "%s kickতে কারণ ঢোকাও:"
-
-#: ../src/common/xchat.c:925
-#, fuzzy
-msgid "Sendfile"
-msgstr "Sendfile"
-
-#: ../src/common/xchat.c:926
-msgid "Dialog"
-msgstr "ডায়ালগ"
-
-#: ../src/common/xchat.c:936
-msgid "Send"
-msgstr "পাঠাও"
-
-#: ../src/common/xchat.c:937
-msgid "Chat"
-msgstr "চ্যাট করো"
-
-#: ../src/common/xchat.c:938
-msgid "Clear"
-msgstr "পরিষ্কার"
 
 #: ../src/common/dbus/dbus-plugin.c:30
 #, fuzzy
@@ -3975,7 +3753,8 @@ msgid "%s loaded successfully!\n"
 msgstr "%s সফলভাবে লোড হল!\n"
 
 #: ../src/common/dbus/url_handler.schemas.in.h:1
-msgid "Run xchat-gnome in a terminal?"
+#, fuzzy
+msgid "Run XChat-GNOME in a terminal?"
 msgstr "একটি টার্মিনালে চালাও xchat-gnome?"
 
 #: ../src/common/dbus/url_handler.schemas.in.h:2
@@ -3987,7 +3766,7 @@ msgstr "নিযুক্ত করো সত্যিতে এইটি য�
 msgid "The handler for \"irc://\" URLs"
 msgstr "\"আই-আর-সির জন্য প্রক্রিয়াকারক: / /\"ইউ.আর.এল"
 
-#: ../src/fe-gnome/about.c:74
+#: ../src/fe-gnome/about.c:63
 #, fuzzy
 msgid ""
 "X-Chat GNOME is free software; you can redistribute it and/or modify it "
@@ -4000,7 +3779,7 @@ msgstr ""
 "অধীনে এইটি পরিবর্তন করো; লাইসেন্স,এর হয় সংস্করণ ২ অথবা (আপনার অপশনে) যেকোন "
 "পরবর্তী কালে সংস্করণ।"
 
-#: ../src/fe-gnome/about.c:78
+#: ../src/fe-gnome/about.c:67
 #, fuzzy
 msgid ""
 "X-Chat GNOME is distributed in the hope that it will be useful, but WITHOUT "
@@ -4012,7 +3791,7 @@ msgstr ""
 "ব্যতীত; MERCHANTABILITYএর জোড় implied warranty ব্যতীত অথবা একটি বিশেষ উদ্দেশ্যের "
 "জন্য FITNESS। আরও বেশি বিস্তারিতের জন্য GNU সাধারণ জনগণ লাইসেন্স দেখো।"
 
-#: ../src/fe-gnome/about.c:82
+#: ../src/fe-gnome/about.c:71
 #, fuzzy
 msgid ""
 "You should have received a copy of the GNU General Public License along with "
@@ -4023,7 +3802,7 @@ msgstr ""
 "যদি না, মুক্ত সফটওয়্যার ফাউন্ডেশন, Inc., ৫৯ মন্দির স্থান, Suite ৩৩০, বোস্টন, MA "
 "০২১১১-১৩০৭ মার্কিন যুক্তরাষ্ট্রে লেখো"
 
-#: ../src/fe-gnome/about.c:97
+#: ../src/fe-gnome/about.c:81
 msgid "Copyright © 2004-2006"
 msgstr "কপিরাইট © ২০০৪-২০০৬"
 
@@ -4032,7 +3811,7 @@ msgstr "কপিরাইট © ২০০৪-২০০৬"
 #. * be or replace it with something funny (but inoffensive)
 #. * in your own language, but don't translate it literally.
 #.
-#: ../src/fe-gnome/about.c:103
+#: ../src/fe-gnome/about.c:87
 #, fuzzy
 msgid ""
 "It has been well observed that a trombone is not a suitable instrument for a "
@@ -4041,7 +3820,7 @@ msgstr ""
 "এইটি ভাল পর্যবেক্ষণা হয়েছে যে একটি trombone না একটি ভদ্রলোকের জন্য একটি উপযুক্ত "
 "instrument"
 
-#: ../src/fe-gnome/about.c:107
+#: ../src/fe-gnome/about.c:91
 msgid "XChat-GNOME Web Site"
 msgstr "এক্সচ্যাট-গনোম ওয়েব স্থান"
 
@@ -4054,7 +3833,7 @@ msgstr "এক্সচ্যাট-গনোম ওয়েব স্থান"
 #. * write each of them on a separated line seperated by
 #. * newlines (\n).
 #.
-#: ../src/fe-gnome/about.c:121
+#: ../src/fe-gnome/about.c:105
 msgid "translator-credits"
 msgstr "খন্দকার মুজাহিদুল ইসলাম সুজন <suzan@bengalinux.org>/n অঙ্কুর গ্রুপের পক্ষ থেকে"
 
@@ -4173,15 +3952,10 @@ msgstr "পর্দা প্রধান উইন্ডোর Y অবস্�
 msgid "xchat configuration version"
 msgstr "xchat কনফিগারেশন সংস্করণ"
 
-#: ../src/fe-gnome/channel-list.c:296
+#: ../src/fe-gnome/channel-list.c:309
 #, fuzzy, c-format
 msgid "%s Channel List"
 msgstr "%s.Channel.List"
-
-#: ../src/fe-gnome/connect-dialog.c:133
-#, fuzzy
-msgid "_Connect"
-msgstr "সংযোগ করো (_C)"
 
 #: ../src/fe-gnome/conversation-panel.c:170
 #, fuzzy
@@ -4223,63 +3997,63 @@ msgstr "বাতিল করো (_C)"
 msgid "_Copy"
 msgstr "কপি (_C)"
 
-#: ../src/fe-gnome/conversation-panel.c:788
+#: ../src/fe-gnome/conversation-panel.c:799
 #, fuzzy, c-format
-msgid "URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"
+msgid "URI list dropped on XChat-GNOME had wrong format (%d) or length (%d)\n"
 msgstr ""
 "ইউআরআই তালিকা ফেলে দিল xchat-gnomeে ছিল ভূল ফরম্যাট (%d) অথবা দৈর্ঘ্য (%d)\n"
 
-#: ../src/fe-gnome/conversation-panel.c:886
+#: ../src/fe-gnome/conversation-panel.c:897
 #, fuzzy, c-format
 msgid "Error reading file \"%s\": %s\n"
 msgstr "ত্রুটি পড়তে থাকা ফাইল \"%s\" : %s\n"
 
-#: ../src/fe-gnome/conversation-panel.c:901
+#: ../src/fe-gnome/conversation-panel.c:912
 #, fuzzy, c-format
 msgid "Error converting URI \"%s\" into filename: %s\n"
 msgstr "ফাইলের নামের দিকে ত্রুটি converting ইউআরআই \"%s\" : %s\n"
 
-#: ../src/fe-gnome/conversation-panel.c:944
+#: ../src/fe-gnome/conversation-panel.c:955
 #, c-format
 msgid "Error retrieving file information for \"%s\": %s\n"
 msgstr "\"%s\" এর জন্য ত্রুটি পুনরুদ্ধার করা হচ্ছে ফাইল তথ্য: %s\n"
 
-#: ../src/fe-gnome/conversation-panel.c:1029
+#: ../src/fe-gnome/conversation-panel.c:1044
 msgid "Save Transcript"
 msgstr "Transcript সংরক্ষণ করো"
 
-#: ../src/fe-gnome/conversation-panel.c:1055
-#: ../src/fe-gnome/conversation-panel.c:1065
+#: ../src/fe-gnome/conversation-panel.c:1070
+#: ../src/fe-gnome/conversation-panel.c:1080
 #, c-format
 msgid "Error saving %s"
 msgstr "ত্রুটি সেভ করতে %s"
 
-#: ../src/fe-gnome/conversation-panel.c:1197
+#: ../src/fe-gnome/conversation-panel.c:1212
 msgid "Search buffer is empty.\n"
 msgstr "অনুসন্ধান বাফার ফাঁকা।\n"
 
 #. File completion percent
-#: ../src/fe-gnome/dcc-window.c:143
+#: ../src/fe-gnome/dcc-window.c:146
 msgid "%"
 msgstr "%"
 
-#: ../src/fe-gnome/dcc-window.c:144
+#: ../src/fe-gnome/dcc-window.c:147
 msgid "File"
 msgstr "ফাইল"
 
-#: ../src/fe-gnome/dcc-window.c:145
+#: ../src/fe-gnome/dcc-window.c:148
 msgid "Remaining"
 msgstr "অবশিষ্ট"
 
-#: ../src/fe-gnome/dcc-window.c:225
+#: ../src/fe-gnome/dcc-window.c:223
 msgid "Incoming File Transfer"
 msgstr "আগমনরত ফাইল স্থানান্তর"
 
-#: ../src/fe-gnome/dcc-window.c:226 ../src/fe-gnome/fe-gnome.c:493
+#: ../src/fe-gnome/dcc-window.c:224 ../src/fe-gnome/fe-gnome.c:483
 msgid "_Accept"
 msgstr "গ্রহণ করো (_A)"
 
-#: ../src/fe-gnome/dcc-window.c:227
+#: ../src/fe-gnome/dcc-window.c:225
 #, c-format
 msgid ""
 "%s is attempting to send you a file named \"%s\". Do you wish to accept the "
@@ -4288,7 +4062,7 @@ msgstr ""
 "%s পেতে চেষ্টা করছে আপনি একটি পাঠাতে নামাঙ্কিত \"%s\" দাখিল করান। স্থানান্তর "
 "গ্রহণ করতে আপনি কি ইচ্ছা করুন?"
 
-#: ../src/fe-gnome/dcc-window.c:247
+#: ../src/fe-gnome/dcc-window.c:245
 #, c-format
 msgid ""
 "<b>%s</b>\n"
@@ -4299,11 +4073,11 @@ msgstr ""
 "<small>%s থেকে</small>%sএর\n"
 "%s"
 
-#: ../src/fe-gnome/dcc-window.c:258
+#: ../src/fe-gnome/dcc-window.c:256
 msgid "starting"
 msgstr "শুরু করা হচ্ছে"
 
-#: ../src/fe-gnome/dcc-window.c:288
+#: ../src/fe-gnome/dcc-window.c:287
 #, c-format
 msgid ""
 "<b>%s</b>\n"
@@ -4314,73 +4088,73 @@ msgstr ""
 "<small>%s থেকে</small>%s/sতে %sএর\n"
 "%s"
 
-#: ../src/fe-gnome/dcc-window.c:295
+#: ../src/fe-gnome/dcc-window.c:294
 msgid "queued"
 msgstr "সারিবদ্ধ"
 
-#: ../src/fe-gnome/dcc-window.c:300
+#: ../src/fe-gnome/dcc-window.c:299
 #, c-format
 msgid "Transfer of %s to %s failed"
 msgstr "%s ব্যর্থে %sএর স্থানান্তর"
 
-#: ../src/fe-gnome/dcc-window.c:302
+#: ../src/fe-gnome/dcc-window.c:301
 #, c-format
 msgid "Transfer of %s from %s failed"
 msgstr "%s থেকে %sএর স্থানান্তর ব্যর্থ হল"
 
-#: ../src/fe-gnome/dcc-window.c:303
+#: ../src/fe-gnome/dcc-window.c:302
 msgid "Transfer failed"
 msgstr "স্থানান্তর ব্যর্থ হল"
 
-#: ../src/fe-gnome/dcc-window.c:311
+#: ../src/fe-gnome/dcc-window.c:310
 msgid "aborted"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:314
+#: ../src/fe-gnome/dcc-window.c:313
 msgid "stalled"
 msgstr "স্থগিত"
 
-#: ../src/fe-gnome/dcc-window.c:318
+#: ../src/fe-gnome/dcc-window.c:317
 #, c-format
 msgid "%.2d:%.2d:%.2d"
 msgstr "%.2d:%.2d:%.2d"
 
-#: ../src/fe-gnome/dcc-window.c:320
+#: ../src/fe-gnome/dcc-window.c:319
 #, c-format
 msgid "%.2d:%.2d"
 msgstr "%.2d:%.2d"
 
-#: ../src/fe-gnome/dcc-window.c:433
+#: ../src/fe-gnome/dcc-window.c:439
 msgid "Send File..."
 msgstr "ফাইল পাঠাও..."
 
-#: ../src/fe-gnome/fe-gnome.c:61
+#: ../src/fe-gnome/fe-gnome.c:60
 msgid "Use directory instead of the default config dir"
 msgstr "ডিফল্ট কনফিগ ডিরেক্টরীর পরিবর্তে ডিরেক্টরী ব্যবহার করো"
 
-#: ../src/fe-gnome/fe-gnome.c:63
+#: ../src/fe-gnome/fe-gnome.c:61
 #, fuzzy
 msgid "Don't auto-connect to servers"
 msgstr "সার্ভারে auto-connectয় না"
 
-#: ../src/fe-gnome/fe-gnome.c:65
+#: ../src/fe-gnome/fe-gnome.c:62
 #, fuzzy
 msgid "Don't auto-load plugins"
 msgstr "প্লাগিন auto-loadয় না"
 
-#: ../src/fe-gnome/fe-gnome.c:67
+#: ../src/fe-gnome/fe-gnome.c:63
 msgid "Open an irc:// url"
 msgstr "একটি আই-আর-সি খোলো: / / ইউআরএল"
 
-#: ../src/fe-gnome/fe-gnome.c:69
-msgid "Open URL in an existing xchat-gnome instance"
+#: ../src/fe-gnome/fe-gnome.c:64
+msgid "Open URL in an existing XChat-GNOME instance"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:71
+#: ../src/fe-gnome/fe-gnome.c:65
 msgid "Show version information"
 msgstr "দেখান সংস্করণ তথ্য"
 
-#: ../src/fe-gnome/fe-gnome.c:126
+#: ../src/fe-gnome/fe-gnome.c:107
 #, fuzzy, c-format
 msgid ""
 "xchat-gnome: %s\n"
@@ -4390,11 +4164,11 @@ msgstr ""
 "আরও বেশি তথ্য\n"
 "এর জন্য ` xchat-gnome --help' চেষ্টা করে\n"
 
-#: ../src/fe-gnome/fe-gnome.c:491
+#: ../src/fe-gnome/fe-gnome.c:481
 msgid "Incoming DCC Chat"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:496
+#: ../src/fe-gnome/fe-gnome.c:486
 #, fuzzy, c-format
 msgid ""
 "%s is attempting to create a direct chat. Do you wish to accept the "
@@ -4403,81 +4177,81 @@ msgstr ""
 "%s পেতে চেষ্টা করছে আপনি একটি পাঠাতে নামাঙ্কিত \"%s\" দাখিল করান। স্থানান্তর "
 "গ্রহণ করতে আপনি কি ইচ্ছা করুন?"
 
-#: ../src/fe-gnome/fe-gnome.c:912
+#: ../src/fe-gnome/fe-gnome.c:908
 #, c-format
 msgid "Unable to show '%s'"
 msgstr "'%s' প্রদর্শন করতে অক্ষম"
 
-#: ../src/fe-gnome/find-bar.c:97
+#: ../src/fe-gnome/find-bar.c:96
 msgid "Find:"
 msgstr "খুঁজে পাও:"
 
-#: ../src/fe-gnome/find-bar.c:99
+#: ../src/fe-gnome/find-bar.c:98
 msgid "_Previous"
 msgstr "পূর্ববর্তী (_P)"
 
-#: ../src/fe-gnome/find-bar.c:101
+#: ../src/fe-gnome/find-bar.c:100
 msgid "_Next"
 msgstr "পরবর্তী (_N)"
 
-#: ../src/fe-gnome/find-bar.c:221
+#: ../src/fe-gnome/find-bar.c:219
 #, fuzzy
 msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
 msgstr "<span foreground=\"dark grey\">মুখ্য থেকে পৌঁছেছে শেষ, চলমান</span>"
 
-#: ../src/fe-gnome/find-bar.c:228
+#: ../src/fe-gnome/find-bar.c:226
 #, fuzzy
 msgid ""
 "<span foreground=\"dark grey\">Reached beginning, continuing from bottom</"
 "span>"
 msgstr "<span foreground=\"dark grey\">তলা থেকে পৌঁছেছে শুরু, চলমান</span>"
 
-#: ../src/fe-gnome/find-bar.c:235
+#: ../src/fe-gnome/find-bar.c:233
 #, fuzzy
 msgid "<span foreground=\"red\">Search string not found</span>"
 msgstr "<span foreground=\"red\">অনুসন্ধান পংক্তি খুঁজে পেল না</span>"
 
-#: ../src/fe-gnome/irc-network-editor.c:309
+#: ../src/fe-gnome/irc-network-editor.c:315
 msgid "Server"
 msgstr "সার্ভার"
 
-#: ../src/fe-gnome/irc-network-editor.c:318
+#: ../src/fe-gnome/irc-network-editor.c:324
 msgid "Key"
 msgstr ""
 
 #. We're creating a new network. Don't populate things from the structure
-#: ../src/fe-gnome/irc-network-editor.c:448
+#: ../src/fe-gnome/irc-network-editor.c:455
 msgid "New Network"
 msgstr "নতুন নেটওয়ার্ক"
 
-#: ../src/fe-gnome/irc-network-editor.c:456
+#: ../src/fe-gnome/irc-network-editor.c:463
 #, fuzzy, c-format
 msgid "%s Network Properties"
 msgstr "%s.Network বৈশিষ্ট্যাবলী"
 
-#: ../src/fe-gnome/irc-network-editor.c:582
-#: ../src/fe-gnome/irc-network-editor.c:589
-#: ../src/fe-gnome/irc-network-editor.c:595
+#: ../src/fe-gnome/irc-network-editor.c:591
+#: ../src/fe-gnome/irc-network-editor.c:598
+#: ../src/fe-gnome/irc-network-editor.c:604
 msgid "Invalid input"
 msgstr "অবৈধ ইনপুট"
 
-#: ../src/fe-gnome/irc-network-editor.c:582
+#: ../src/fe-gnome/irc-network-editor.c:591
 msgid "You must enter a network name"
 msgstr "আপনি একটি নেটওয়ার্ক নাম অবশ্যই ঢোকাবেন"
 
-#: ../src/fe-gnome/irc-network-editor.c:589
+#: ../src/fe-gnome/irc-network-editor.c:598
 msgid "You must enter a nick name"
 msgstr "আপনি একটি ডাক নাম অবশ্যই ঢোকাবেন"
 
-#: ../src/fe-gnome/irc-network-editor.c:595
+#: ../src/fe-gnome/irc-network-editor.c:604
 msgid "You must enter a real name"
 msgstr "আপনি একটি প্রকৃত নাম অবশ্যই ঢোকাবেন"
 
-#: ../src/fe-gnome/irc-network-editor.c:602
+#: ../src/fe-gnome/irc-network-editor.c:611
 msgid "No Servers"
 msgstr "কোনও সার্ভার না"
 
-#: ../src/fe-gnome/irc-network-editor.c:602
+#: ../src/fe-gnome/irc-network-editor.c:611
 msgid "You must add at least one server for this network"
 msgstr "আপনি এই নেটওয়ার্কটির জন্য অন্তত এক সার্ভারে অবশ্যই যোগ করবেন"
 
@@ -4672,17 +4446,17 @@ msgstr "অভ্যন্তরস্থ বস্তু (_C)"
 msgid "_About"
 msgstr "পরিচিতি (_A)"
 
-#: ../src/fe-gnome/main-window.c:505 ../src/fe-gnome/navigation-tree.c:1676
+#: ../src/fe-gnome/main-window.c:507 ../src/fe-gnome/navigation-tree.c:1769
 #, fuzzy
 msgid "Ex-Chat"
 msgstr "Ex-Chatো"
 
-#: ../src/fe-gnome/main-window.c:586
+#: ../src/fe-gnome/main-window.c:589
 #, fuzzy
 msgid "Error showing help"
 msgstr "ত্রুটি প্রদর্শন করা সাহায্য"
 
-#: ../src/fe-gnome/migration.c:117
+#: ../src/fe-gnome/migration.c:126
 #, c-format
 msgid ""
 "The way the D-Bus plugin works has changed.\n"
@@ -4691,7 +4465,7 @@ msgid ""
 "<b>Please delete %s</b>"
 msgstr ""
 
-#: ../src/fe-gnome/migration.c:119
+#: ../src/fe-gnome/migration.c:128
 msgid "D-Bus plugin is still installed"
 msgstr ""
 
@@ -4720,214 +4494,212 @@ msgstr "সূচনা Auto-connectো (_A)"
 msgid "_Auto-join on connect"
 msgstr "সূচনা Auto-joinো (_A)"
 
-#. Add the new server to the model. By default connected is false.
-#: ../src/fe-gnome/navigation-tree.c:361
-#: ../src/fe-gnome/navigation-tree.c:1305
+#: ../src/fe-gnome/navigation-tree.c:1344
 msgid "<none>"
 msgstr "<none>"
 
-#: ../src/fe-gnome/preferences-page-colors.c:251
+#: ../src/fe-gnome/preferences-page-colors.c:253
 msgid "Colors"
 msgstr "রং"
 
-#: ../src/fe-gnome/preferences-page-colors.c:254
+#: ../src/fe-gnome/preferences-page-colors.c:256
 msgid "Black on White"
 msgstr "সাদার উপর কাল"
 
-#: ../src/fe-gnome/preferences-page-colors.c:255
+#: ../src/fe-gnome/preferences-page-colors.c:257
 msgid "White on Black"
 msgstr "কালোর উপর সাদা"
 
-#: ../src/fe-gnome/preferences-page-colors.c:256
+#: ../src/fe-gnome/preferences-page-colors.c:258
 msgid "Custom"
 msgstr "স্বনির্বাচিত"
 
-#: ../src/fe-gnome/preferences-page-colors.c:257
+#: ../src/fe-gnome/preferences-page-colors.c:259
 msgid "System Theme Colors"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-dcc.c:186
+#: ../src/fe-gnome/preferences-page-dcc.c:187
 msgid "File Transfers & DCC"
 msgstr "ফাইল ডিসিসি স্থানান্তর করে (&)"
 
-#: ../src/fe-gnome/preferences-page-effects.c:177
+#: ../src/fe-gnome/preferences-page-effects.c:180
 msgid "Effects"
 msgstr "প্রভাব"
 
-#: ../src/fe-gnome/preferences-page-irc.c:301
+#: ../src/fe-gnome/preferences-page-irc.c:306
 msgid "IRC Preferences"
 msgstr "আই-আর-সি পছন্দসমূহ"
 
-#: ../src/fe-gnome/preferences-page-networks.c:116
+#: ../src/fe-gnome/preferences-page-networks.c:121
 #, c-format
 msgid "Really remove network \"%s\" and all of its servers?"
 msgstr "নেটওয়ার্ক \"%s\" সত্যি বাদ দেয় এবং এর সার্ভারের সমস্ত?"
 
-#: ../src/fe-gnome/preferences-page-networks.c:170
+#: ../src/fe-gnome/preferences-page-networks.c:172
 msgid "Networks"
 msgstr "নেটওয়ার্ক"
 
-#: ../src/fe-gnome/preferences-page-networks.c:178
+#: ../src/fe-gnome/preferences-page-networks.c:180
 msgid "Name"
 msgstr "নাম"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:92
-#: ../src/fe-gnome/preferences-page-plugins.c:93
+#: ../src/fe-gnome/preferences-page-plugins.c:104
+#: ../src/fe-gnome/preferences-page-plugins.c:105
 msgid "unknown"
 msgstr "অজানা"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:133
+#: ../src/fe-gnome/preferences-page-plugins.c:194
 #, fuzzy, c-format
-msgid "An error occured unloading %s"
+msgid "An error occurred unloading %s"
 msgstr "একটি ত্রুটি unloading %s occureল"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:134
+#: ../src/fe-gnome/preferences-page-plugins.c:195
 #, fuzzy
 msgid "Plugin Unload Failed"
 msgstr "প্লাগিন ব্যর্থ unloadো"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:145
+#: ../src/fe-gnome/preferences-page-plugins.c:206
 msgid "Plugin Load Failed"
 msgstr "প্লাগিন লোড ব্যর্থ হল"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:184
+#: ../src/fe-gnome/preferences-page-plugins.c:244
 msgid "Open Plugin"
 msgstr "প্লাগিন খোলো"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:316
+#: ../src/fe-gnome/preferences-page-plugins.c:397
 msgid "Scripts and Plugins"
 msgstr "স্ক্রিপ্ট এবং প্লাগিন"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:329
-#: ../src/fe-gnome/preferences-page-spellcheck.c:225
+#: ../src/fe-gnome/preferences-page-plugins.c:410
+#: ../src/fe-gnome/preferences-page-spellcheck.c:219
 msgid "Enable"
 msgstr "সক্রিয় করো"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:331
+#: ../src/fe-gnome/preferences-page-plugins.c:412
 msgid "Plugin"
 msgstr "প্লাগিন"
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:102
+#: ../src/fe-gnome/preferences-page-spellcheck.c:99
 #, c-format
 msgid "Error in language %s activation: %s\n"
 msgstr "ভাষা %s সক্রিয়করণে ত্রুটি: %s\n"
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:141
+#: ../src/fe-gnome/preferences-page-spellcheck.c:139
 #, c-format
 msgid "Error in spell checking configuration: %s\n"
 msgstr "বানান পরীক্ষা করা কনফিগারেশনে ত্রুটি: %s\n"
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:188
+#: ../src/fe-gnome/preferences-page-spellcheck.c:181
 msgid "Spell checking"
 msgstr "বানান পরীক্ষা করা"
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:192
+#: ../src/fe-gnome/preferences-page-spellcheck.c:185
 msgid ""
 "In order to get spell-checking, you need to have libenchant installed with "
 "at least one dictionary."
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:203
+#: ../src/fe-gnome/preferences-page-spellcheck.c:196
 msgid "_Check spelling"
 msgstr "বানান পরীক্ষা করো (_C)"
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:204
+#: ../src/fe-gnome/preferences-page-spellcheck.c:197
 msgid "Choose languages to use for spellcheck:"
 msgstr "বানান পরীক্ষণের জন্য ব্যবহার করতে ভাষা বেছে নাও:"
 
-#: ../src/fe-gnome/preferences-page-spellcheck.c:230
+#: ../src/fe-gnome/preferences-page-spellcheck.c:224
 msgid "Language"
 msgstr "ভাষা"
 
-#: ../src/fe-gnome/status-bar.c:92
+#: ../src/fe-gnome/status-bar.c:93
 #, fuzzy, c-format
 msgid "%s%.1fs lag"
 msgstr "%s%.1fs lagয়"
 
-#: ../src/fe-gnome/status-bar.c:106
+#: ../src/fe-gnome/status-bar.c:107
 #, c-format
 msgid "%d bytes buffered"
 msgstr "%d বাইট বাফার করা হল"
 
-#: ../src/fe-gnome/text-entry.c:146
+#: ../src/fe-gnome/text-entry.c:145
 #, fuzzy, c-format
 msgid "Error in spellchecking configuration: %s\n"
 msgstr "spellchecking কনফিগারেশনে ত্রুটি: %s\n"
 
-#: ../src/fe-gnome/text-entry.c:358
+#: ../src/fe-gnome/text-entry.c:367
 #, fuzzy
 msgid "I_nsert Color Code"
 msgstr "I_nsert রং কোড"
 
-#: ../src/fe-gnome/text-entry.c:365
+#: ../src/fe-gnome/text-entry.c:374
 msgid "Black"
 msgstr "কালো"
 
-#: ../src/fe-gnome/text-entry.c:369
+#: ../src/fe-gnome/text-entry.c:378
 msgid "Dark Blue"
 msgstr "আঁধার নীল"
 
-#: ../src/fe-gnome/text-entry.c:373
+#: ../src/fe-gnome/text-entry.c:382
 msgid "Dark Green"
 msgstr "ঘন সবুজ"
 
-#: ../src/fe-gnome/text-entry.c:377
+#: ../src/fe-gnome/text-entry.c:386
 msgid "Red"
 msgstr "লাল"
 
-#: ../src/fe-gnome/text-entry.c:381
+#: ../src/fe-gnome/text-entry.c:390
 msgid "Brown"
 msgstr "খয়েরী"
 
-#: ../src/fe-gnome/text-entry.c:385
+#: ../src/fe-gnome/text-entry.c:394
 msgid "Purple"
 msgstr "রক্তবেগুনী"
 
-#: ../src/fe-gnome/text-entry.c:389
+#: ../src/fe-gnome/text-entry.c:398
 msgid "Orange"
 msgstr "অরেঞ্জ"
 
-#: ../src/fe-gnome/text-entry.c:393
+#: ../src/fe-gnome/text-entry.c:402
 msgid "Yellow"
 msgstr "হলদে"
 
-#: ../src/fe-gnome/text-entry.c:397
+#: ../src/fe-gnome/text-entry.c:406
 msgid "Light Green"
 msgstr "হালকা গ্রিন"
 
-#: ../src/fe-gnome/text-entry.c:401
+#: ../src/fe-gnome/text-entry.c:410
 #, fuzzy
 msgid "Aqua"
 msgstr "Aqua"
 
-#: ../src/fe-gnome/text-entry.c:405
+#: ../src/fe-gnome/text-entry.c:414
 #, fuzzy
 msgid "Light Blue"
 msgstr "হালকা নীল"
 
-#: ../src/fe-gnome/text-entry.c:409
+#: ../src/fe-gnome/text-entry.c:418
 msgid "Blue"
 msgstr "নীল"
 
-#: ../src/fe-gnome/text-entry.c:413
+#: ../src/fe-gnome/text-entry.c:422
 msgid "Violet"
 msgstr "বেগুনী"
 
-#: ../src/fe-gnome/text-entry.c:417
+#: ../src/fe-gnome/text-entry.c:426
 #, fuzzy
 msgid "Grey"
 msgstr "Grey"
 
-#: ../src/fe-gnome/text-entry.c:421
+#: ../src/fe-gnome/text-entry.c:430
 #, fuzzy
 msgid "Light Grey"
 msgstr "আলো Grey"
 
-#: ../src/fe-gnome/text-entry.c:425
+#: ../src/fe-gnome/text-entry.c:434
 msgid "White"
 msgstr "সাদা"
 
-#: ../src/fe-gnome/topic-label.c:277
+#: ../src/fe-gnome/topic-label.c:293
 #, c-format
 msgid "Changing topic for %s"
 msgstr "%sএর জন্য পরিবর্তনশীল বিষয়বস্তু"
@@ -4949,11 +4721,15 @@ msgstr "kickো (_K)"
 msgid "_Ban"
 msgstr "নিষিদ্ধ করো (_B)"
 
+#: ../src/fe-gnome/userlist-gui.c:65
+msgid "Ignore"
+msgstr "উপেক্ষা করো"
+
 #: ../src/fe-gnome/userlist-gui.c:66
 msgid "_Op"
 msgstr ""
 
-#: ../src/fe-gnome/userlist-gui.c:409
+#: ../src/fe-gnome/userlist-gui.c:422
 #, c-format
 msgid ""
 "%s\n"
@@ -4962,7 +4738,7 @@ msgstr ""
 "%s\n"
 "<span weight=\"bold\">নাম:</span>%s"
 
-#: ../src/fe-gnome/userlist-gui.c:416
+#: ../src/fe-gnome/userlist-gui.c:429
 #, c-format
 msgid ""
 "%s\n"
@@ -4971,7 +4747,7 @@ msgstr ""
 "%s\n"
 "<span weight=\"bold\">দেশ:</span>%s"
 
-#: ../src/fe-gnome/userlist-gui.c:426
+#: ../src/fe-gnome/userlist-gui.c:439
 #, fuzzy, c-format
 msgid ""
 "%s\n"
@@ -4986,7 +4762,7 @@ msgstr[1] ""
 "%s\n"
 "<span weight=\"bold\">শেষ বার্তা:</span>%d মিনিট আগে"
 
-#: ../src/fe-gnome/userlist-gui.c:437
+#: ../src/fe-gnome/userlist-gui.c:450
 #, c-format
 msgid ""
 "%s\n"
@@ -4995,12 +4771,218 @@ msgstr ""
 "%s\n"
 "<span weight=\"bold\">বার্তা দূরে:</span>%s"
 
-#: ../src/fe-gnome/userlist.c:320
+#: ../src/fe-gnome/userlist.c:299
 #, c-format
 msgid "%d User"
 msgid_plural "%d Users"
 msgstr[0] ""
 msgstr[1] ""
+
+#~ msgid "Apply Text Filter To:    "
+#~ msgstr "টেক্সট ফিল্টারে প্রয়োগ করো:    "
+
+#~ msgid "Maximum Users:"
+#~ msgstr "সর্বোচ্চ ব্যবহারকারী:"
+
+#~ msgid "Minimum Users:"
+#~ msgstr "ন্যুনতম ব্যবহারকারী:"
+
+#~ msgid "Text Filter:"
+#~ msgstr "টেক্সট ফিল্টার:"
+
+#~ msgid "Close this discussion"
+#~ msgstr "এই আলোচনাটি বন্ধ করো"
+
+#, fuzzy
+#~ msgid "ADDBUTTON <name> <action>, adds a button under the user-list"
+#~ msgstr "ADDBUTTON<name><action>, user-listএর অধীনে একটি বাটন যোগ করে"
+
+#, fuzzy
+#~ msgid "DELBUTTON <name>, deletes a button from under the user-list"
+#~ msgstr "DELBUTTON<name>, user-listএর অধীনে থেকে একটি বাটন মুছে ফেলে"
+
+#, fuzzy
+#~ msgid "PID"
+#~ msgstr "পি-আই-ডি"
+
+#~ msgid "Open Dialog Window"
+#~ msgstr "ডায়ালগ উইন্ডো খোলা"
+
+#~ msgid "Send a File"
+#~ msgstr "একটি ফাইল পাঠাও"
+
+#~ msgid "User Info (WHOIS)"
+#~ msgstr "ব্যবহারকারী তথ্য (WHOIS)"
+
+#~ msgid "Operator Actions"
+#~ msgstr "অপারেটর ক্রিয়া"
+
+#, fuzzy
+#~ msgid "Give Ops"
+#~ msgstr "Ops দাও"
+
+#, fuzzy
+#~ msgid "Take Ops"
+#~ msgstr "Ops গ্রহণ করো"
+
+#~ msgid "Give Voice"
+#~ msgstr "স্বর দাও"
+
+#~ msgid "Take Voice"
+#~ msgstr "স্বর গ্রহণ করো"
+
+#, fuzzy
+#~ msgid "Kick/Ban"
+#~ msgstr "Kick/Ban"
+
+#, fuzzy
+#~ msgid "Kick"
+#~ msgstr "Kick"
+
+#~ msgid "Ban"
+#~ msgstr "নিষেধ"
+
+#, fuzzy
+#~ msgid "KickBan"
+#~ msgstr "KickBan"
+
+#, fuzzy
+#~ msgid "Direct client-to-client"
+#~ msgstr "সরাসরি client-to-client"
+
+#~ msgid "Send File"
+#~ msgstr "ফাইল পাঠাও"
+
+#~ msgid "Offer Chat"
+#~ msgstr "চ্যাট প্রস্তাব দাও"
+
+#~ msgid "Abort Chat"
+#~ msgstr "চ্যাট বাতিল করো"
+
+#~ msgid "Version"
+#~ msgstr "সংস্করণ"
+
+#, fuzzy
+#~ msgid "Userinfo"
+#~ msgstr "Userinfo"
+
+#, fuzzy
+#~ msgid "Clientinfo"
+#~ msgstr "Clientinfo"
+
+#~ msgid "Ping"
+#~ msgstr "Ping"
+
+#, fuzzy
+#~ msgid "Finger"
+#~ msgstr "Finger"
+
+#, fuzzy
+#~ msgid "Oper"
+#~ msgstr "Oper"
+
+#~ msgid "Kill this user"
+#~ msgstr "এই ব্যবহারকারীটি হত্যা করো"
+
+#~ msgid "Mode"
+#~ msgstr "মোড"
+
+#, fuzzy
+#~ msgid "Give Half-Ops"
+#~ msgstr "Half-Ops দাও"
+
+#, fuzzy
+#~ msgid "Take Half-Ops"
+#~ msgstr "Half-Ops গ্রহণ করো"
+
+#~ msgid "Ignore User"
+#~ msgstr "ব্যবহারকারী উপেক্ষা করো"
+
+#, fuzzy
+#~ msgid "UnIgnore User"
+#~ msgstr "UnIgnore ব্যবহারকারী"
+
+#~ msgid "Info"
+#~ msgstr "তথ্য"
+
+#~ msgid "Who"
+#~ msgstr "কে"
+
+#~ msgid "WhoIs"
+#~ msgstr "WhoIs"
+
+#~ msgid "DNS Lookup"
+#~ msgstr "ডি.এন.এস. অনুসন্ধান"
+
+#, fuzzy
+#~ msgid "Trace"
+#~ msgstr "Trace"
+
+#~ msgid "UserHost"
+#~ msgstr "UserHost"
+
+#~ msgid "External"
+#~ msgstr "বাহ্যিক"
+
+#, fuzzy
+#~ msgid "Traceroute"
+#~ msgstr "Traceroute"
+
+#~ msgid "Telnet"
+#~ msgstr "টেলনেট"
+
+#~ msgid "Leave Channel"
+#~ msgstr "চ্যানেল ছেড়ে চলে যাও"
+
+#~ msgid "Join Channel..."
+#~ msgstr "চ্যানেল যোগাদান করো..."
+
+#~ msgid "Enter Channel to Join:"
+#~ msgstr "যোগাদান করতে চ্যানেল ঢোকাও:"
+
+#~ msgid "Server Links"
+#~ msgstr "সার্ভার লিঙ্ক"
+
+#~ msgid "Ping Server"
+#~ msgstr "Ping সার্ভার"
+
+#~ msgid "Hide Version"
+#~ msgstr "গোপন সংস্করণ"
+
+#, fuzzy
+#~ msgid "Op"
+#~ msgstr "Op"
+
+#, fuzzy
+#~ msgid "DeOp"
+#~ msgstr "DeOp"
+
+#~ msgid "bye"
+#~ msgstr "বিদায়"
+
+#, fuzzy
+#~ msgid "Enter reason to kick %s:"
+#~ msgstr "%s kickতে কারণ ঢোকাও:"
+
+#, fuzzy
+#~ msgid "Sendfile"
+#~ msgstr "Sendfile"
+
+#~ msgid "Dialog"
+#~ msgstr "ডায়ালগ"
+
+#~ msgid "Send"
+#~ msgstr "পাঠাও"
+
+#~ msgid "Chat"
+#~ msgstr "চ্যাট করো"
+
+#~ msgid "Clear"
+#~ msgstr "পরিষ্কার"
+
+#, fuzzy
+#~ msgid "_Connect"
+#~ msgstr "সংযোগ করো (_C)"
 
 #~ msgid "Nick Name:"
 #~ msgstr "ডাক নাম:"
