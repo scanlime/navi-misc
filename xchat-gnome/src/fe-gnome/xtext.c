@@ -3715,7 +3715,7 @@ xtext_remove_top (xtext_buffer *buffer)
 	textentry *ent;
 
 	ent = buffer->text_first;
-	if (!ent) {
+	if (!ent || !ent->next) {
 		return;
 	}
 	buffer->num_lines -= ent->lines_taken;

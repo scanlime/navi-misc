@@ -1,5 +1,11 @@
 2006-11-26  David Trowbridge <trowbrds@gmail.com>
 
+	* src/fe-gnome/xtext.c:
+	  - Fix a potential crash in a bizzare edge case.  Fix your
+	    scrollback configuration! (#367953).
+
+2006-11-26  David Trowbridge <trowbrds@gmail.com>
+
 	* src/fe-gnome/irc-network-editor.c:
 	  - Fix a potential crasher, maybe. (#372871)
 
