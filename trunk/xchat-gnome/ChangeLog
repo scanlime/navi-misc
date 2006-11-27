@@ -1,3 +1,8 @@
+2006-11-26  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/irc-network-editor.c:
+	  - Fix a potential crasher, maybe. (#372871)
+
 2006-11-10  Guillaume Desmottes <cass@skynet.be>
 
 	* src/common/dbus/url_handler.schemas.in:
