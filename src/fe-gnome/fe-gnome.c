@@ -53,6 +53,7 @@
 #include "../common/fe.h"
 #include "../common/util.h"
 #include "../common/cfgfiles.h"
+#include "../common/plugin.h"
 
 static gboolean  opt_version   = FALSE;
 static gboolean  opt_noplugins = FALSE;
@@ -405,14 +406,25 @@ fe_text_clear (struct session *sess)
 void
 fe_close_window (struct session *sess)
 {
-	if (!gui.quit) {
-		/* FIXME
-		if (sess->type == SESS_CHANNEL) {
-			navigation_tree_remove_channel (gui.server_tree, sess);
-		} else {
-			navigation_tree_remove_server (gui.server_tree, sess);
-		}
-		*/
+	/*
+	 * There's really no point in doing all of this if the user is
+	 * quitting the app.  It makes it slow (as they watch individual
+	 * channels and servers disappear), and the OS is about to free
+	 * everything much more efficiently than we ever could.
+	 *
+	 * If we ever choose to run on Windows ME, this could be a problem :)
+	 */
+	if (gui.quit) {
+		session_free (sess);
+		return;
+	}
+
+	navigation_tree_remove_session (gui.server_tree, sess);
+	conversation_panel_remove_session (CONVERSATION_PANEL (gui.conversation_panel), sess);
+	topic_label_remove_session (TOPIC_LABEL (gui.topic_label), sess);
+	text_entry_remove_session (TEXT_ENTRY (gui.text_entry), sess);
+	if (sess->type == SESS_SERVER) {
+		status_bar_remove_server (STATUS_BAR (gui.status_bar), sess->server);
 	}
 
 	session_free (sess);
@@ -979,8 +991,12 @@ fe_server_event (server *serv, int type, int arg)
 				if (arg == 0) {
 					/* No auto-join channels */
 					create_channel_list (sess);
-					break;
 				}
+				break;
+			case FE_SE_DISCONNECT:
+				// FIXME: set disconnected state in navtree
+				// XXX: do channels need to be marked parted or not?
+				break;
 			}
 		}
 		list = list->next;

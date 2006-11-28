@@ -64,11 +64,10 @@ static void on_edit_paste_activate (GtkAction *action, gpointer data);
 static void on_edit_preferences_activate (GtkAction *action, gpointer data);
 static void on_network_reconnect_activate (GtkAction *action, gpointer data);
 static void on_network_disconnect_activate (GtkAction *action, gpointer data);
-static void on_network_close_activate (GtkAction *action, gpointer data);
 static void on_network_channels_activate (GtkAction *action, gpointer data);
 static void on_discussion_save_activate (GtkAction *action, gpointer data);
 static void on_discussion_leave_activate (GtkAction *action, gpointer data);
-static void on_discussion_close_activate (GtkAction *action, gpointer data);
+static void on_close_activate (GtkAction *action, gpointer data);
 static void on_discussion_find_activate (GtkAction *action, gpointer data);
 static void on_discussion_bans_activate (GtkAction *action, gpointer data);
 static void on_discussion_topic_change_activate (GtkButton *widget, gpointer data);
@@ -114,13 +113,13 @@ static GtkActionEntry action_entries [] = {
 	/* Network menu */
 	{ "NetworkReconnect",   GTK_STOCK_REFRESH,     N_("_Reconnect"),   "<control>R",        NULL, G_CALLBACK (on_network_reconnect_activate) },
 	{ "NetworkDisconnect",  GTK_STOCK_DISCONNECT,  N_("_Disconnect"),  "",                  NULL, G_CALLBACK (on_network_disconnect_activate) },
-	{ "NetworkClose",       GTK_STOCK_CLOSE,       N_("_Close"),       "<shift><control>W", NULL, G_CALLBACK (on_network_close_activate) },
+	{ "NetworkClose",       GTK_STOCK_CLOSE,       N_("_Close"),       "<shift><control>W", NULL, G_CALLBACK (on_close_activate) },
 	{ "NetworkChannels",    NULL,                  N_("_Channels..."), "<alt>C",            NULL, G_CALLBACK (on_network_channels_activate) },
 
 	/* Discussion menu */
 	{ "DiscussionSave",        GTK_STOCK_SAVE,           N_("_Save Transcript"), "<control>S", NULL, G_CALLBACK (on_discussion_save_activate) },
 	{ "DiscussionLeave",       GTK_STOCK_QUIT,           N_("_Leave"),           "",           NULL, G_CALLBACK (on_discussion_leave_activate) },
-	{ "DiscussionClose",       GTK_STOCK_CLOSE,          N_("Cl_ose"),           "<control>W", NULL, G_CALLBACK (on_discussion_close_activate) },
+	{ "DiscussionClose",       GTK_STOCK_CLOSE,          N_("Cl_ose"),           "<control>W", NULL, G_CALLBACK (on_close_activate) },
 	{ "DiscussionFind",        GTK_STOCK_FIND,           N_("_Find"),            "<control>F", NULL, G_CALLBACK (on_discussion_find_activate) },
 	{ "DiscussionChangeTopic", NULL,                     N_("Change _Topic"),    "<alt>T",     NULL, G_CALLBACK (on_discussion_topic_change_activate) },
 	{ "DiscussionBans",        GTK_STOCK_DIALOG_WARNING, N_("_Bans..."),         "<alt>B",     NULL, G_CALLBACK (on_discussion_bans_activate) },
@@ -164,7 +163,8 @@ initialize_main_window (void)
 	gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), gtk_ui_manager_get_accel_group (gui.manager));
 
 	close = glade_xml_get_widget (gui.xml, "close discussion");
-	g_signal_connect (close, "clicked", G_CALLBACK (on_discussion_close_activate), NULL);
+	action = gtk_action_group_get_action (gui.action_group, "DiscussionClose");
+	gtk_action_connect_proxy (action, close);
 
 #define GW(name) ((gui.name) = glade_xml_get_widget (gui.xml, #name))
 	GW(conversation_panel);
@@ -204,7 +204,6 @@ initialize_main_window (void)
 	gui.userlist_toggle = glade_xml_get_widget (gui.xml, "userlist_toggle");
 	g_signal_connect (G_OBJECT (gui.userlist_toggle), "toggled", G_CALLBACK (on_users_toggled), NULL);
 
-	GtkIconTheme *theme = gtk_icon_theme_get_default ();
 	gtk_button_set_image (GTK_BUTTON (gui.userlist_toggle), gtk_image_new_from_icon_name ("xchat-gnome-users", GTK_ICON_SIZE_MENU));
 	gtk_size_group_add_widget (group, gui.userlist_toggle);
 	widget = glade_xml_get_widget (gui.xml, "entry hbox");
@@ -374,12 +373,6 @@ on_network_disconnect_activate (GtkAction *action, gpointer data)
 }
 
 static void
-on_network_close_activate (GtkAction *actoin, gpointer data)
-{
-	// FIXME: move to navtree actions
-}
-
-static void
 on_irc_downloads_activate (GtkAction *action, gpointer data)
 {
 	gtk_window_present (GTK_WINDOW (gui.dcc));
@@ -423,16 +416,36 @@ on_discussion_leave_activate (GtkAction *action, gpointer data)
 }
 
 static void
-on_discussion_close_activate (GtkAction *action, gpointer data)
+on_close_activate (GtkAction *action, gpointer data)
 {
 	session *s = gui.current_session;
 	if (s == NULL) {
 		return;
 	}
+
+	switch (s->type) {
+	case SESS_CHANNEL:
+	{
+		GConfClient *client = gconf_client_get_default ();
+		gchar *text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
+		if (text == NULL) {
+			text = g_strdup (_("Ex-Chat"));
+		}
+
+		s->server->p_part (s->server, s->channel, text);
+
+		g_object_unref (client);
+		g_free (text);
+
+		break;
+	}
+
+	case SESS_SERVER:
+		s->server->disconnect (s, TRUE, -1);
+		break;
+	}
+
 	fe_close_window (s);
-	conversation_panel_remove_session (CONVERSATION_PANEL (gui.conversation_panel), s);
-	topic_label_remove_session        (TOPIC_LABEL        (gui.topic_label),        s);
-	text_entry_remove_session         (TEXT_ENTRY         (gui.text_entry),         s);
 }
 
 static void

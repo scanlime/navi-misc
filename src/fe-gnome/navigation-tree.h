@@ -56,6 +56,7 @@ struct _NavTreeClass
 GType    navigation_tree_get_type       (void) G_GNUC_CONST;
 NavTree *navigation_tree_new            (NavModel *model);
 void     navigation_tree_select_session (NavTree *tree, session *sess);
+void     navigation_tree_remove_session (NavTree *tree, session *sess);
 void     navigation_tree_add_accels     (NavTree *navtree, GtkWindow *window);
 
 
