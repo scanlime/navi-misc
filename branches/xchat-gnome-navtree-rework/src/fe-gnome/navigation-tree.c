@@ -202,6 +202,7 @@ void
 navigation_tree_select_session (NavTree *tree, session *sess)
 {
 	NavModel *model = NAVMODEL (gtk_tree_view_get_model (GTK_TREE_VIEW (tree)));
+	g_assert (model != NULL);
 
 	GtkTreeIter iter;
 	if (find_session (model, sess, &iter, NULL) == FALSE) {
@@ -210,6 +211,37 @@ navigation_tree_select_session (NavTree *tree, session *sess)
 
 	GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (tree));
 	gtk_tree_selection_select_iter (selection, &iter);
+}
+
+void
+navigation_tree_remove_session (NavTree *tree, session *sess)
+{
+	NavModel *model = NAVMODEL (gtk_tree_view_get_model (GTK_TREE_VIEW (tree)));
+	g_assert (model != NULL);
+
+	GtkTreeIter iter;
+	if (find_session (model, sess, &iter, NULL) == FALSE) {
+		return;
+	}
+
+	if (gtk_tree_model_iter_has_child (model, &iter)) {
+		GtkTreeIter child;
+
+		/*
+		 * This will cause navigation_tree_remove_session to get
+		 * called for each child, invalidating the child iter.  To
+		 * get around this, just iterate until the parent iter has
+		 * no children.
+		 */
+		while (gtk_tree_model_iter_children (model, &child, &iter)) {
+			session *sess;
+			gtk_tree_model_get (model, &child, COLUMN_SESSION, &sess, -1);
+			fe_close_window (sess);
+		}
+	}
+
+	// FIXME: fix selection
+	gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
 }
 
 static void
@@ -948,9 +980,6 @@ go_previous_discussion (GtkAction *action, gpointer data)
 	gtk_tree_selection_select_iter (selection, &iter);
 }
 
-/*
- * FIXME: this doesn't skip un-expanded servers
- */
 static void
 go_next_discussion (GtkAction *action, gpointer data)
 {
@@ -989,12 +1018,19 @@ go_next_discussion (GtkAction *action, gpointer data)
 			/*
 			 * This can proceed indefinitely, because there is
 			 * definitely at least one channel joined.
+			 *
+			 * FIXME: however, it's possible that said channel is
+			 * inside an un-expanded server.  That'd be bad.
 			 */
-			if (gtk_tree_model_iter_has_child (model, &parent)) {
+			GtkTreePath *path = gtk_tree_model_get_path (model, &parent);
+			if (gtk_tree_model_iter_has_child (model, &parent) &&
+			    gtk_tree_view_row_expanded (GTK_TREE_VIEW (navtree), path)) {
 				gtk_tree_model_iter_children (model, &iter, &parent);
 				gtk_tree_selection_select_iter (selection, &iter);
+				gtk_tree_path_free (path);
 				return;
 			}
+			gtk_tree_path_free (path);
 
 			if (!gtk_tree_model_iter_next (model, &parent)) {
 				gtk_tree_model_get_iter_first (model, &parent);
@@ -1006,11 +1042,15 @@ go_next_discussion (GtkAction *action, gpointer data)
 		GtkTreePath *current, *old;
 		old = gtk_tree_model_get_path (model, &iter);
 		do {
-			if (gtk_tree_model_iter_has_child (model, &parent)) {
+			GtkTreePath *path = gtk_tree_model_get_path (model, &parent);
+			if (gtk_tree_model_iter_has_child (model, &parent) &&
+			    gtk_tree_view_row_expanded (GTK_TREE_VIEW (navtree), path)) {
 				gtk_tree_model_iter_children (model, &iter, &parent);
 				gtk_tree_selection_select_iter (selection, &iter);
+				gtk_tree_path_free (path);
 				return;
 			}
+			gtk_tree_path_free (path);
 
 			if (!gtk_tree_model_iter_next (model, &parent)) {
 				gtk_tree_model_get_iter_first (model, &parent);

@@ -63,7 +63,7 @@ static GtkActionEntry popup_action_entries[] = {
 	{ "UserlistKick",       NULL, N_("_Kick"),         "",   NULL, G_CALLBACK (user_kick_activate) },
 	{ "UserlistBan",        NULL, N_("_Ban"),          "",   NULL, G_CALLBACK (user_ban_activate) },
 	{ "UserlistIgnore",     NULL, N_("Ignore"),        "",   NULL, G_CALLBACK (user_ignore_activate) },
-	{ "UserlistOp",	        NULL, N_("_Op"),           "",   NULL, G_CALLBACK (user_op_activate) },
+	{ "UserlistOp",	        NULL, N_("_Op"),           "",   NULL, G_CALLBACK (user_op_activate) }
 };
 
 struct User     *current_user;
@@ -110,7 +110,10 @@ initialize_userlist (void)
 	g_signal_connect(G_OBJECT (gui.userlist), "get-tooltip", G_CALLBACK (get_user_tooltip), NULL);
 #endif
 
-	gtk_action_group_add_actions (gui.action_group, popup_action_entries, G_N_ELEMENTS (popup_action_entries), NULL);
+	GtkActionGroup *group = gtk_action_group_new ("UserlistPopup");
+	gtk_action_group_set_translation_domain (group, GETTEXT_PACKAGE);
+	gtk_action_group_add_actions (group, popup_action_entries, G_N_ELEMENTS (popup_action_entries), NULL);
+	gtk_ui_manager_insert_action_group (gui.manager, group, -1);
 }
 
 struct User*
