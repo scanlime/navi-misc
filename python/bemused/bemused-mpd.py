@@ -34,46 +34,88 @@ import bemused
 import mpdclient2
 
 
-class PathNode(bemused.FileNode):
+class PathNode(bemused.CachedFileNode):
     """A FileNode representing a path in MPD's filesystem, either a
        file or directory.
        """
     _isLeaf = False
     
-    def __init__(self, player, name, path=''):
-        self.player = player
+    def __init__(self, name, path=''):
         self.path = path
-        bemused.FileNode.__init__(self, name)
+        bemused.CachedFileNode.__init__(self, name)
 
     def isLeaf(self):
         return self._isLeaf
 
-    def getChild(self, name):
-        if self.path and not self.path.endswith("/"):
-            path = self.path + "/"
-        else:
-            path = self.path
-        return PathNode(self.player, name, path + name)
+    def getIdentity(self):
+        return "MPD:" + self.path
 
-    def getChildren(self):
+    def _getChildren(self, player):
         children = []
-        for info in self.player.mpd.lsinfo(self.path):
+        for info in player.mpd.lsinfo(self.path):
             type = info.type
             path = info[type]
-
-            # XXX: We really should convert the text encoding of the
-            #      name here, but that would leave us with a hard
-            #      problem to solve in getChild() where we need to
-            #      convert a Bemused path back to an MPD path.
-            name = path.rsplit("/", 1)[-1]
-
-            child = PathNode(self.player, name, path)
+            name = unicode(path.rsplit("/", 1)[-1], 'utf-8')
+            child = PathNode(name, path)
             child._isLeaf = type == "file"
             children.append(child)
         return children
 
     def add(self, player):
         player.mpd.add(self.path)
+
+
+class AlbumTracksNode(bemused.CachedFileNode):
+    """A FileNode that represents a list of tracks from one album.
+       The tracks are queried using the MPD 'find' command, and the
+       results are sorted by track number.
+       """
+    def __init__(self, name, album):
+        self.findQuery = ('album', album)
+        bemused.CachedFileNode.__init__(self, name)
+
+    def getIdentity(self):
+        return "Album:" + repr(self.findQuery)
+
+    def _getChildren(self, player):
+        children = []
+        for info in player.mpd.find(*self.findQuery):
+
+            # Name each result using the metadata title, with Unicode support.
+            # The client appears to do its own sorting, so prepend the track
+            # number so it's used as the primary sort key.
+            name = unicode(info.title, 'utf-8')
+            if 'track' in info:
+                name = "%02d. %s" % (int(info.track.split('/')[0]), name)
+
+            child = PathNode(name, info.file)
+            child._isLeaf = True
+            children.append(child)
+        return children
+
+
+class AlbumListNode(bemused.CachedFileNode):
+    """Represents a list of albums, optionally restricted by artist."""
+    def __init__(self, name, artist=None):
+        if artist:
+            self.listQuery = ('album', 'artist', artist)
+        else:
+            self.listQuery = ('album',)
+        bemused.CachedFileNode.__init__(self, name)
+
+    def getIdentity(self):
+        return "List:" + repr(self.listQuery)
+        
+    def _getChildren(self, player):
+        return [AlbumTracksNode(unicode(info.album, 'utf-8'), info.album)
+                for info in player.mpd.list(*self.listQuery)]
+
+
+class ArtistListNode(bemused.CachedFileNode):
+    """Represents a list of artists, each of which contains a list of albums"""
+    def _getChildren(self, player):
+        return [AlbumListNode(unicode(info.artist, 'utf-8'), info.artist)
+                for info in player.mpd.list('artist')]
 
 
 class MPDPlaylist(bemused.Playlist):
@@ -91,10 +133,11 @@ class MPDPlaylist(bemused.Playlist):
 
     def _getTitleFromMetadata(self, metadata):
         if 'title' in metadata:
-            return self.player.encodeText("%s (%s, %s)" % (
-                metadata.title,
-                metadata.get('artist', 'None'),
-                metadata.get('album', 'None')))
+            return unicode("%s (%s, %s)" % (
+                            metadata.title,
+                            metadata.get('artist', 'None'),
+                            metadata.get('album', 'None')),
+                           'utf-8')
         else:
             return 'None'
 
@@ -115,8 +158,9 @@ class MPDPlayer(bemused.MediaPlayer):
 
         root = self.rootDirectory = bemused.StaticDirectory()
 
-        #root.append(bemused.StaticDirectory("Browse Artists"))
-        root.append(PathNode(self, "Browse Filesystem"))
+        root.append(ArtistListNode("Artists"))
+        root.append(AlbumListNode("Albums"))
+        root.append(PathNode("Filesystem"))
         #root.append(bemused.StaticDirectory("Outputs"))
         
     def connect(self):
@@ -162,12 +206,6 @@ class MPDPlayer(bemused.MediaPlayer):
 
     def stop(self):
         self.mpd.stop()
-            
-    def encodeText(self, text):
-        # Looks like MPD is giving us UTF-8, but S60 Bemused client
-        # is using latin-1. Try to convert the encoding, but don't
-        # worry about getting it perfect.
-        return text.decode("utf-8", "replace").encode("latin-1", "replace")
 
 
 if __name__ == "__main__":

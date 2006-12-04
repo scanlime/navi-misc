@@ -61,85 +61,93 @@ ONE = 1
 MANY = 2
 
 plitem_delim = ["file", "directory", "playlist"]
+no_mix = {'file': ['directory'], 'directory': ['file']}
 
 commands = {
-    # (name, nargs): (format string, nresults, results_type_name, delimiter_key)
+    # (name, nargs): (format string, nresults, results_type_name, delimiter_key, no_mix_delims)
 
     # delimiter key is for commands that return multiple results.  we use this
     # string to detect the beginning of a new result object.
+    
+    # no_mix_delims specifies keys that can't appear in a certain type.  This is
+    # needed for commands like lsinfo which can return both directories and files
+    # at the same time.  (This is horrible, why couldn't the mpd protocol have real
+    # delimiters?!?)
 
     # if results_type_name is empty, the result object's .type will be set to
     # the key of the first key/val pair in it; otherwise, it will be set to
     # results_type_name.
 
-    ("kill",          0): ('%s', ZERO, '', []),
+    ("kill",          0): ('%s', ZERO, '', [], {}),
     ("outputs",       0): ('%s', MANY, 'outputs', ['outputid']),
-    ("clear",         0): ('%s', ZERO, '', []),
-    ("currentsong",   0): ('%s', ONE, '', []),
-    ("shuffle",       0): ('%s', ZERO, '', []),
-    ("next",          0): ('%s', ZERO, '', []),
-    ("previous",      0): ('%s', ZERO, '', []),
-    ("stop",          0): ('%s', ZERO, '', []),
-    ("clearerror",    0): ('%s', ZERO, '', []),
-    ("close",         0): ('%s', ZERO, '', []),
-    ("commands",      0): ('%s', MANY, 'commands', ['command']),
-    ("notcommands",   0): ('%s', MANY, 'notcommands', ['command']),
-    ("ping",          0): ('%s', ZERO, '', []),
-    ("stats",         0): ('%s', ONE, 'stats', []),
-    ("status",        0): ('%s', ONE, 'status', []),
-    ("play",          0): ('%s', ZERO, '', []),
-    ("playlistinfo",  0): ('%s', MANY, '', plitem_delim),
-    ("playlistid",    0): ('%s', MANY, '', plitem_delim),
-    ("lsinfo",        0): ('%s', MANY, '', plitem_delim),
-    ("update",        0): ('%s', ZERO, '', []),
-    ("listall",       0): ('%s', MANY, '', plitem_delim),
-    ("listallinfo",   0): ('%s', MANY, '', plitem_delim),
+    ("clear",         0): ('%s', ZERO, '', [], {}),
+    ("currentsong",   0): ('%s', ONE, '', [], {}),
+    ("shuffle",       0): ('%s', ZERO, '', [], {}),
+    ("next",          0): ('%s', ZERO, '', [], {}),
+    ("previous",      0): ('%s', ZERO, '', [], {}),
+    ("stop",          0): ('%s', ZERO, '', [], {}),
+    ("clearerror",    0): ('%s', ZERO, '', [], {}),
+    ("close",         0): ('%s', ZERO, '', [], {}),
+    ("commands",      0): ('%s', MANY, 'commands', ['command'], {}),
+    ("notcommands",   0): ('%s', MANY, 'notcommands', ['command'], {}),
+    ("ping",          0): ('%s', ZERO, '', [], {}),
+    ("stats",         0): ('%s', ONE, 'stats', [], {}),
+    ("status",        0): ('%s', ONE, 'status', [], {}),
+    ("play",          0): ('%s', ZERO, '', [], {}),
+    ("playlistinfo",  0): ('%s', MANY, '', plitem_delim, {}),
+    ("playlistid",    0): ('%s', MANY, '', plitem_delim, {}),
+    ("lsinfo",        0): ('%s', MANY, '', plitem_delim, no_mix),
+    ("update",        0): ('%s', ZERO, '', [], {}),
+    ("listall",       0): ('%s', MANY, '', plitem_delim, {}),
+    ("listallinfo",   0): ('%s', MANY, '', plitem_delim, {}),
 
-    ("disableoutput", 1): ("%s %d", ZERO, '', []),
-    ("enableoutput",  1): ("%s %d", ZERO, '', []),
-    ("delete",        1): ('%s %d', ZERO, '', []), # <int song>
-    ("deleteid",      1): ('%s %d', ZERO, '', []), # <int songid>
-    ("playlistinfo",  1): ('%s %d', MANY, '', plitem_delim), # <int song>
-    ("playlistid",    1): ('%s %d', MANY, '', plitem_delim), # <int songid>
-    ("crossfade",     1): ('%s %d', ZERO, '', []), # <int seconds>
-    ("play",          1): ('%s %d', ZERO, '', []), # <int song>
-    ("playid",        1): ('%s %d', ZERO, '', []), # <int songid>
-    ("random",        1): ('%s %d', ZERO, '', []), # <int state>
-    ("repeat",        1): ('%s %d', ZERO, '', []), # <int state>
-    ("setvol",        1): ('%s %d', ZERO, '', []), # <int vol>
-    ("plchanges",     1): ('%s %d', MANY, '', plitem_delim), # <playlist version>
-    ("pause",         1): ('%s %d', ZERO, '', []), # <bool pause>
+    ("disableoutput", 1): ("%s %d", ZERO, '', [], {}),
+    ("enableoutput",  1): ("%s %d", ZERO, '', [], {}),
+    ("delete",        1): ('%s %d', ZERO, '', [], {}), # <int song>
+    ("deleteid",      1): ('%s %d', ZERO, '', [], {}), # <int songid>
+    ("playlistinfo",  1): ('%s %d', MANY, '', plitem_delim, {}), # <int song>
+    ("playlistid",    1): ('%s %d', MANY, '', plitem_delim, {}), # <int songid>
+    ("crossfade",     1): ('%s %d', ZERO, '', [], {}), # <int seconds>
+    ("play",          1): ('%s %d', ZERO, '', [], {}), # <int song>
+    ("playid",        1): ('%s %d', ZERO, '', [], {}), # <int songid>
+    ("random",        1): ('%s %d', ZERO, '', [], {}), # <int state>
+    ("repeat",        1): ('%s %d', ZERO, '', [], {}), # <int state>
+    ("setvol",        1): ('%s %d', ZERO, '', [], {}), # <int vol>
+    ("plchanges",     1): ('%s %d', MANY, '', plitem_delim, {}), # <playlist version>
+    ("pause",         1): ('%s %d', ZERO, '', [], {}), # <bool pause>
 
-    ("update",      1): ('%s "%s"', ONE, 'update', []), # <string path>
-    ("listall",     1): ('%s "%s"', MANY, '', plitem_delim), # <string path>
-    ("listallinfo", 1): ('%s "%s"', MANY, '', plitem_delim), # <string path>
-    ("lsinfo",      1): ('%s "%s"', MANY, '', plitem_delim), # <string directory>
-    ("add",         1): ('%s "%s"', ZERO, '', []), # <string>
-    ("load",        1): ('%s "%s"', ZERO, '', []), # <string name>
-    ("rm",          1): ('%s "%s"', ZERO, '', []), # <string name>
-    ("save",        1): ('%s "%s"', ZERO, '', []), # <string playlist name>
-    ("password",    1): ('%s "%s"', ZERO, '', []), # <string password>
+    ("update",      1): ('%s "%s"', ONE, 'update', [], {}), # <string path>
+    ("listall",     1): ('%s "%s"', MANY, '', plitem_delim, {}), # <string path>
+    ("listallinfo", 1): ('%s "%s"', MANY, '', plitem_delim, {}), # <string path>
+    ("lsinfo",      1): ('%s "%s"', MANY, '', plitem_delim, no_mix), # <string directory>
+    ("add",         1): ('%s "%s"', ZERO, '', [], {}), # <string>
+    ("load",        1): ('%s "%s"', ZERO, '', [], {}), # <string name>
+    ("rm",          1): ('%s "%s"', ZERO, '', [], {}), # <string name>
+    ("save",        1): ('%s "%s"', ZERO, '', [], {}), # <string playlist name>
+    ("password",    1): ('%s "%s"', ZERO, '', [], {}), # <string password>
 
-    ("move",   2): ("%s %d %d", ZERO, '', []), # <int from> <int to>
-    ("moveid", 2): ("%s %d %d", ZERO, '', []), # <int songid from> <int to>
-    ("swap",   2): ("%s %d %d", ZERO, '', []), # <int song1> <int song2>
-    ("swapid", 2): ("%s %d %d", ZERO, '', []), # <int songid1> <int songid2>
-    ("seek",   2): ("%s %d %d", ZERO, '', []), # <int song> <int time>
-    ("seekid", 2): ("%s %d %d", ZERO, '', []), # <int songid> <int time>
-
-    # <string type> <string what>
-    ("find",   2): ('%s "%s" "%s"', MANY, '', plitem_delim),
+    ("move",   2): ("%s %d %d", ZERO, '', [], {}), # <int from> <int to>
+    ("moveid", 2): ("%s %d %d", ZERO, '', [], {}), # <int songid from> <int to>
+    ("swap",   2): ("%s %d %d", ZERO, '', [], {}), # <int song1> <int song2>
+    ("swapid", 2): ("%s %d %d", ZERO, '', [], {}), # <int songid1> <int songid2>
+    ("seek",   2): ("%s %d %d", ZERO, '', [], {}), # <int song> <int time>
+    ("seekid", 2): ("%s %d %d", ZERO, '', [], {}), # <int songid> <int time>
 
     # <string type> <string what>
-    ("search", 2): ('%s "%s" "%s"', MANY, '', plitem_delim),
+    ("find",   2): ('%s "%s" "%s"', MANY, '', plitem_delim, {}),
+
+    # <string type> <string what>
+    ("search", 2): ('%s "%s" "%s"', MANY, '', plitem_delim, {}),
 
     # list <metadata arg1> [<metadata arg2> <search term>]
 
     # <metadata arg1>
-    ("list", 1): ('%s "%s"', MANY, '', plitem_delim),
+    ("list", 1): ('%s "%s"', MANY, '', ['album','artist','genre'], {}),
 
-    # <metadata arg1> <metadata arg2> <search term>
-    ("list", 3): ('%s "%s" "%s" "%s"', MANY, '', plitem_delim),
+    # <metadata arg1> <search term>
+    ("list", 2): ('%s "%s" "%s"', MANY, '', ['album','artist','genre'], {}),
+    ("list", 3): ('%s "%s" "%s" "%s"', MANY, '', ['album','artist','genre'], {}),
+    ("list", 5): ('%s "%s" "%s" "%s" "%s" "%s"', MANY, '', ['album','artist','genre'], {}),
 }
 
 def is_command(cmd):
@@ -176,17 +184,17 @@ class sender_n_fetcher(object):
 
     def send_n_fetch(self, cmd, args):
         getattr(self.sender, cmd)(*args)
-        junk, howmany, type, keywords = get_command(cmd, args)
+        junk, howmany, type, keywords, no_mix = get_command(cmd, args)
 
         if howmany == ZERO:
             self.fetcher.clear()
             return
 
         if howmany == ONE:
-            return self.fetcher.one_object(keywords, type)
+            return self.fetcher.one_object(keywords, type, no_mix)
 
         assert howmany == MANY
-        result = self.fetcher.all_objects(keywords, type)
+        result = self.fetcher.all_objects(keywords, type, no_mix)
 
         if not self.iterate:
             result = list(result)
@@ -219,7 +227,7 @@ class response_fetcher(object):
             self.talker.get_line()
         self.talker.current_line = ''
 
-    def one_object(self, keywords, type):
+    def one_object(self, keywords, type, no_mix):
         # if type isn't empty, then the object's type is set to it.  otherwise
         # the type is set to the key of the first key/val pair.
 
@@ -243,6 +251,9 @@ class response_fetcher(object):
 
             if key in keywords and key in entity.keys():
                 return entity
+        
+            if entity.has_key('type') and no_mix.has_key(entity['type']) and key in no_mix[entity['type']]:
+                    return entity
 
             if not type and 'type' not in entity.keys():
                 entity['type'] = key
@@ -252,9 +263,9 @@ class response_fetcher(object):
 
         return entity
 
-    def all_objects(self, keywords, type):
+    def all_objects(self, keywords, type, no_mix):
         while 1:
-            obj = self.one_object(keywords, type)
+            obj = self.one_object(keywords, type, no_mix)
             if not obj:
                 raise StopIteration
             yield obj
@@ -267,10 +278,7 @@ class response_fetcher(object):
 
 class dictobj(dict):
     def __getattr__(self, attr):
-        try:
-            return self[attr]
-        except KeyError:
-            raise AttributeError
+        return self[attr]
     def __repr__(self):
         # <mpdclient2.dictobj at 0x12345678 ..
         #   {
@@ -330,4 +338,3 @@ def connect(**kw):
     if password:
         conn.password(password)
     return conn
-

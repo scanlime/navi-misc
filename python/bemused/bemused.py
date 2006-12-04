@@ -27,6 +27,7 @@ from __future__ import division
 import bluetooth, syslog
 import sys, os, traceback
 import struct, time
+import shelve, atexit
 
 
 class DefaultLogger:
@@ -50,6 +51,15 @@ class DefaultLogger:
             syslog.syslog(line)
 
 logger = DefaultLogger()
+
+def getDefaultCache():
+    global defaultCache
+    if not defaultCache:
+        defaultCache = shelve.open("bemused.cache")
+        atexit.register(defaultCache.close)
+    return defaultCache
+
+defaultCache = None
 
 
 def simpleSPPServer(name, clientHandler):
@@ -93,7 +103,7 @@ class FileNode:
         """Look up a child node, by name."""
         return None
 
-    def getChildren(self):
+    def getChildren(self, player):
         """Returns all valid child FileNodes below this directory"""
         return []
 
@@ -122,8 +132,40 @@ class FileNode:
         player.playlist.select(newIndex)
 
     def add(self, player):
-        """Add this file or directory to the end of the current playlist."""
-        pass
+        """Add this file or directory to the end of the current playlist.
+           The default implementation is a sorted recursive add of all children.
+           This must be overridden for leaf nodes.
+           """
+        assert not self.isLeaf()
+        items = [(child.name, child) for child in self.getChildren(player)]
+        items.sort()
+        for name, child in items:
+            child.add(player)
+
+
+class CachedFileNode(FileNode):
+    """This is a FileNode for which we cache a map of our children,
+       so that getChild() can be implemented efficiently even if there
+       is no way to determine a node's internal state given only its path.
+
+       This is often the case when the music player and Bemused need
+       different representations of the node. This could include
+       different string encodings, or filename vs. ID3 tags.
+       """
+    def getIdentity(self):
+        """Returns a string which represents this node's internal state uniquely."""
+        return "%s:%s" % (self.__class__.__name__, self.name)
+
+    def getChildren(self, player):
+        children = self._getChildren(player)
+        map = {}
+        for child in children:
+            map[child.name] = child
+        getDefaultCache()[self.getIdentity()] = map
+        return children
+
+    def getChild(self, name):
+        return getDefaultCache()[self.getIdentity()][name]
 
 
 class StaticDirectory(FileNode):
@@ -136,7 +178,7 @@ class StaticDirectory(FileNode):
     def getChild(self, name):
         return self._childMap[name]
 
-    def getChildren(self):
+    def getChildren(self, player):
         return self._childList
 
     def append(self, child):
@@ -273,6 +315,7 @@ class ProtocolHandler:
        media player is represented by a supplied MediaPlayer instance.
        """
     version = (1, 73)
+    encoding = 'latin-1'
     trace = bool(os.environ.get("BEMUSED_TRACE"))
 
     def __init__(self, player):
@@ -318,7 +361,7 @@ class ProtocolHandler:
 
     def receiveFilename(self):
         """Receive a filename: a counted string prefixed by a 2-byte length"""
-        return self.receive(self.receiveStruct(">H")[0])
+        return unicode(self.receive(self.receiveStruct(">H")[0]), self.encoding)
 
     def run(self, client):
         """Until the connection dies, keep processing commands from the client."""
@@ -339,7 +382,7 @@ class ProtocolHandler:
         assert not root.isLeaf()
         self.sendTreeNode(relation | TYPE_DIRECTORY, root.name)
 
-        children = root.getChildren()
+        children = root.getChildren(self.player)
         numChildren = len(children)
         for index in xrange(numChildren):
 
@@ -363,7 +406,7 @@ class ProtocolHandler:
                 self.sendTreeNode(TYPE_UNEXPANDED | relation, child.name)
 
     def sendTreeNode(self, flags, name):
-        self.reply(chr(flags) + name + chr(0))
+        self.reply(chr(flags) + unicode(name).encode(self.encoding, 'replace') + chr(0))
 
     def cmd_CHCK(self):
         self.reply("Y")
@@ -405,7 +448,8 @@ class ProtocolHandler:
                          int(self.player.currentTime),
                          int(self.player.shuffleMode),
                          int(self.player.repeatMode))
-        self.reply(self.player.playlist.getSelectionTitle())
+        self.reply(unicode(self.player.playlist.getSelectionTitle())
+                   .encode(self.encoding, 'replace'))
 
     def cmd_INF2(self):
         self.cmd_INFO()
@@ -435,8 +479,8 @@ class ProtocolHandler:
 
     def cmd_PLST(self):
         self.replyStruct(">7sH", "PLSTACK", self.player.playlist.getSelection())
-        self.reply("\n".join(self.player.playlist.getTitles()) +
-                   "\n\0")
+        self.reply(unicode("\n".join(self.player.playlist.getTitles()) +
+                           "\n\0").encode(self.encoding, 'replace'))
 
     def cmd_PREV(self):
         self.player.playlist.selectRel(-1)
