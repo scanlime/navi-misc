@@ -240,7 +240,18 @@ navigation_tree_remove_session (NavTree *tree, session *sess)
 		}
 	}
 
-	// FIXME: fix selection
+	// Try to find an appropriate item to select.
+	GtkTreeIter new_selection = iter;
+	GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (tree));
+	if (gtk_tree_model_iter_next (model, &new_selection)) {
+		gtk_tree_selection_select_iter (selection, &new_selection);
+	} else {
+		// Try to select the first item.
+		if (gtk_tree_model_get_iter_first (model, &new_selection)) {
+			gtk_tree_selection_select_iter (selection, &new_selection);
+		}
+	}
+
 	gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
 }
 
