@@ -12,14 +12,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-11-24 13:14-0800\n"
+"POT-Creation-Date: 2006-12-04 01:19+0100\n"
 "PO-Revision-Date: 2006-08-08 22:36+0000\n"
-"Last-Translator: olive <olive@picapo.net>\n"
+"Last-Translator: Olivier Lê Thanh Duong <olivier@lethanh.be>\n"
 "Language-Team: French <olivier@lethanh.be>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n > 1\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
 #: ../data/channel-list.glade.h:1
 msgid "<span weight=\"bold\">List Filtering</span>"
@@ -38,26 +38,22 @@ msgid "Join Channel"
 msgstr "Rejoindre le canal"
 
 #: ../data/channel-list.glade.h:5
-#, fuzzy
 msgid "Search for text:"
-msgstr "Le cache de recherche est vide.\n"
+msgstr "Rechercher le texte :"
 
 #: ../data/channel-list.glade.h:6
-#, fuzzy
 msgid "Show channels with:"
-msgstr "Le canal"
+msgstr "Afficher les canaux avec :"
 
 #: ../data/channel-list.glade.h:7
-#, fuzzy
 msgid "in:"
-msgstr "Rechercher :"
+msgstr "dans"
 
 #: ../data/channel-list.glade.h:8
 msgid "to"
-msgstr ""
+msgstr "jusque"
 
 #: ../data/channel-list.glade.h:9
-#, fuzzy
 msgid "users"
 msgstr "Utilisateurs"
 
@@ -78,16 +74,14 @@ msgid "<span weight=\"bold\">User Info</span>"
 msgstr "<span weight=\"bold\">Informations utilisateur</span>"
 
 #: ../data/irc-network-editor.glade.h:3
-#, fuzzy
 msgid "Accept invalid _SSL certificate"
-msgstr "Accepter un certificat SSL _invalide"
+msgstr "Accepter un certificat _SSL non valide"
 
 #: ../data/irc-network-editor.glade.h:4
 msgid "Character _encoding:"
 msgstr "_Encodage des caractères :"
 
 #: ../data/irc-network-editor.glade.h:5
-#, fuzzy
 msgid "Cycle _until connected"
 msgstr "_Cycler jusqu'à la connexion"
 
@@ -96,12 +90,10 @@ msgid "Network Settings"
 msgstr "Configuration réseau"
 
 #: ../data/irc-network-editor.glade.h:7
-#, fuzzy
 msgid "Nickser_v password:"
-msgstr "Mot de passe du pseudonyme (nickser_v):"
+msgstr "Mot de passe du pseudonyme (nickser_v) :"
 
 #: ../data/irc-network-editor.glade.h:8
-#, fuzzy
 msgid "Server _password:"
 msgstr "Mot de _passe du serveur :"
 
@@ -194,12 +186,10 @@ msgid "A_way message:"
 msgstr "Message d'a_bsence :"
 
 #: ../data/preferences-dialog.glade.h:14
-#, fuzzy
 msgid "Auto-accept DCC c_hat"
 msgstr "Accepter automatiquement les discussions DCC"
 
 #: ../data/preferences-dialog.glade.h:15
-#, fuzzy
 msgid "Auto-accept DCC file tr_ansfers"
 msgstr "Accepter automatiquement les _transferts de fichier DCC"
 
@@ -212,7 +202,6 @@ msgid "Buil_t-in schemes:"
 msgstr "Thèmes prédéfinis :"
 
 #: ../data/preferences-dialog.glade.h:18
-#, fuzzy
 msgid "Convert spaces to _underscores in filenames"
 msgstr "Convertir les espaces en tirets dans les noms de fichiers."
 
@@ -229,34 +218,28 @@ msgid "Foreground mark:"
 msgstr "Marque d'avant-plan :"
 
 #: ../data/preferences-dialog.glade.h:22
-#, fuzzy
 msgid "Get IP address from _server"
 msgstr "Obtenir l'adresse IP depuis le serveur"
 
 #: ../data/preferences-dialog.glade.h:23
-#, fuzzy
 msgid "Glo_bal receive KB/s: "
-msgstr "Réception totale Ko/s : "
+msgstr "Réce_ption totale Ko/s : "
 
 #: ../data/preferences-dialog.glade.h:24
-#, fuzzy
 msgid "I_mage file:"
 msgstr "_Image :"
 
 #: ../data/preferences-dialog.glade.h:25
-#, fuzzy
 msgid "In_dividual send KB/s: "
-msgstr "Envoi individuel Ko/s : "
+msgstr "_Envoi individuel Ko/s : "
 
 #: ../data/preferences-dialog.glade.h:26
-#, fuzzy
 msgid "Indi_vidual receive KB/s: "
-msgstr "Réception individuelle Ko/s : "
+msgstr "_Réception individuelle Ko/s : "
 
 #: ../data/preferences-dialog.glade.h:27
-#, fuzzy
 msgid "Move co_mpleted files to:"
-msgstr "Déplacer les téléchargements terminés vers :"
+msgstr "Déplacer les téléchargements _terminés vers :"
 
 #: ../data/preferences-dialog.glade.h:28
 msgid "Preferences"
@@ -267,9 +250,8 @@ msgid "Real na_me:"
 msgstr "Nom _réel :"
 
 #: ../data/preferences-dialog.glade.h:30
-#, fuzzy
 msgid "Save sender _nickname in filenames"
-msgstr "Enregistrer le pseudo de l'expéditeur dans les noms des fichiers"
+msgstr "Enregistrer le _pseudo de l'expéditeur dans les noms des fichiers"
 
 #: ../data/preferences-dialog.glade.h:31
 msgid "Select A File"
@@ -300,33 +282,28 @@ msgstr ""
 "tapez le nouveau raccourci, ou pressez Retour Arrière pour effacer."
 
 #: ../data/preferences-dialog.glade.h:37
-#, fuzzy
 msgid "Use _system terminal font"
-msgstr "Utiliser la police de terminal du système"
+msgstr "Utiliser la police de terminal du _système"
 
 #: ../data/preferences-dialog.glade.h:38
-#, fuzzy
 msgid "Use t_his IP address:"
-msgstr "Utiliser cette adresse IP :"
+msgstr "Utiliser cette adresse _IP :"
 
 #: ../data/preferences-dialog.glade.h:39
-#, fuzzy
 msgid "Use this f_ont:"
-msgstr "Utiliser cette police :"
+msgstr "Utiliser _cette police :"
 
 #: ../data/preferences-dialog.glade.h:40
 msgid "_Background color:"
 msgstr "Couleur d'arriè_re-plan :"
 
 #: ../data/preferences-dialog.glade.h:41
-#, fuzzy
 msgid "_Background image"
 msgstr "_Image d'arrière-plan"
 
 #: ../data/preferences-dialog.glade.h:42
-#, fuzzy
 msgid "_Download files to:"
-msgstr "Télécharger les fichiers vers :"
+msgstr "_Télécharger les fichiers vers :"
 
 #: ../data/preferences-dialog.glade.h:43 ../src/fe-gnome/main-window.c:100
 msgid "_Edit"
@@ -337,7 +314,6 @@ msgid "_Foreground color:"
 msgstr "Couleur d'a_vant-plan :"
 
 #: ../data/preferences-dialog.glade.h:45
-#, fuzzy
 msgid "_Global send KB/s: "
 msgstr "Envoi total Ko/s : "
 
@@ -374,7 +350,6 @@ msgid "spell checking"
 msgstr "correction orthographique"
 
 #: ../data/setup-dialog.glade.h:1
-#, fuzzy
 msgid ""
 "Welcome to XChat-GNOME! Since this is your first time using this "
 "application, there are a couple things you'll need to configure before you "
@@ -385,7 +360,7 @@ msgid ""
 "things such as registering with services. You do not have to use your real "
 "name if you do not want to."
 msgstr ""
-"Bienvenue dans xchat-gnome ! Puisque c'est la première fois que vous "
+"Bienvenue dans XChat-Gnome ! Puisque c'est la première fois que vous "
 "utilisez cette application, il est nécessaire de configurer certaines choses "
 "avant de pouvoir continuer.\n"
 "\n"
@@ -399,7 +374,6 @@ msgid "XChat-GNOME Setup"
 msgstr "Configuration IRC XChat-GNOME"
 
 #: ../data/setup-dialog.glade.h:6
-#, fuzzy
 msgid "_Real name:"
 msgstr "Nom _réel :"
 
@@ -421,14 +395,12 @@ msgid "XChat-GNOME IRC Chat"
 msgstr "Discussion IRC XChat-GNOME"
 
 #: ../data/xchat-gnome.glade.h:1
-#, fuzzy
 msgid "Apply on all _servers"
 msgstr "Sur _tout les serveurs"
 
 #: ../data/xchat-gnome.glade.h:2
-#, fuzzy
 msgid "Change _nickname to:"
-msgstr "Changer le pseudonyme en :"
+msgstr "Changer le _pseudonyme en :"
 
 #: ../data/xchat-gnome.glade.h:3
 msgid "Mark as _away"
@@ -511,26 +483,24 @@ msgstr ""
 "surbrillance)."
 
 #: ../plugins/notification/preferences-notification.glade.h:1
-#, fuzzy
 msgid "<span weight=\"bold\">Notification level</span>"
-msgstr "<span weight=\"bold\">Limitation</span>"
+msgstr "<span weight=\"bold\">Niveau de notification</span>"
 
 #: ../plugins/notification/preferences-notification.glade.h:2
 msgid "Notify each _event"
-msgstr ""
+msgstr "Tout les _évènement"
 
 #: ../plugins/notification/preferences-notification.glade.h:3
-#, fuzzy
 msgid "Notify each _message"
-msgstr "Message droit"
+msgstr "Chaque _message"
 
 #: ../plugins/notification/preferences-notification.glade.h:4
 msgid "Notify only _private messages"
-msgstr ""
+msgstr "Message _privé uniquement"
 
 #: ../plugins/notification/preferences-notification.glade.h:5
 msgid "_Always display notification icon"
-msgstr ""
+msgstr "_Toujours afficher l'icône de notification"
 
 #: ../plugins/notify-osd/notify-osd.c:30
 msgid "On-screen display"
@@ -1101,12 +1071,12 @@ msgstr ""
 "sont un type de message auquel on devrait réagir automatiquement"
 
 #: ../src/common/outbound.c:3463
-#, fuzzy
 msgid ""
 "NOTIFY [-n network1[,network2,...]] [<nick>], displays your notify list or "
 "adds someone to it"
 msgstr ""
-"NOTIFY [<pseudo>], liste votre liste de notifications et y ajoute quelqu'un"
+"NOTIFY [-n network1,[,network2,...]], [<pseudonyme>], liste votre liste de "
+"notifications ou y ajoute quelqu'un"
 
 #: ../src/common/outbound.c:3465
 msgid "OP <nick>, gives chanop status to the nick (needs chanop)"
@@ -1197,9 +1167,8 @@ msgstr ""
 "défaut est 6667"
 
 #: ../src/common/outbound.c:3502
-#, fuzzy
 msgid "SET [-e] [-quiet] <variable> [<value>]"
-msgstr "SET [-quiet] <variable> [<valeur>] (-quiet = silencieusement)"
+msgstr "SET [-e] [-quiet] <variable> [<valeur>] (-quiet = silencieusement)"
 
 #: ../src/common/outbound.c:3503
 msgid "SETCURSOR [-|+]<position>"
@@ -1673,9 +1642,8 @@ msgid "Port"
 msgstr "Port"
 
 #: ../src/common/text.c:932
-#, fuzzy
 msgid "Network"
-msgstr "_Réseau"
+msgstr "Réseau"
 
 #: ../src/common/text.c:937 ../src/common/text.c:942
 msgid "Modes string"
@@ -3415,17 +3383,15 @@ msgid "Unknown"
 msgstr "Inconnu"
 
 #: ../src/common/dbus/dbus-plugin.c:30
-#, fuzzy
 msgid "remote access"
 msgstr "Contrôle à distance de XChat-GNOME"
 
 #: ../src/common/dbus/dbus-plugin.c:31
-#, fuzzy
 msgid "plugin for remote access using DBUS"
 msgstr "Greffon pour contrôler XChat-gnome via DBUS"
 
 #: ../src/common/dbus/dbus-plugin.c:897
-#, fuzzy, c-format
+#, c-format
 msgid "Couldn't connect to session bus: %s\n"
 msgstr "Impossible de se connecter au bus de session : %s\n"
 
@@ -3440,7 +3406,6 @@ msgid "%s loaded successfully!\n"
 msgstr "Chargement de %s réussi !\n"
 
 #: ../src/common/dbus/url_handler.schemas.in.h:1
-#, fuzzy
 msgid "Run XChat-GNOME in a terminal?"
 msgstr "Lancer xchat-gnome dans un terminal ?"
 
@@ -3662,7 +3627,7 @@ msgid "_Copy"
 msgstr "_Copier"
 
 #: ../src/fe-gnome/conversation-panel.c:799
-#, fuzzy, c-format
+#, c-format
 msgid "URI list dropped on XChat-GNOME had wrong format (%d) or length (%d)\n"
 msgstr ""
 "La liste d'URI déposée sur xchat-gnome a un mauvais format (%d) ou longueur "
@@ -3812,7 +3777,7 @@ msgstr "Ouvrir une url irc://"
 
 #: ../src/fe-gnome/fe-gnome.c:64
 msgid "Open URL in an existing XChat-GNOME instance"
-msgstr ""
+msgstr "Ouvrir une URL dans une instance de XChat-GNOME existante"
 
 #: ../src/fe-gnome/fe-gnome.c:65
 msgid "Show version information"
@@ -3884,38 +3849,38 @@ msgid "Key"
 msgstr "Clé"
 
 #. We're creating a new network. Don't populate things from the structure
-#: ../src/fe-gnome/irc-network-editor.c:455
+#: ../src/fe-gnome/irc-network-editor.c:458
 msgid "New Network"
 msgstr "Nouveau réseau"
 
-#: ../src/fe-gnome/irc-network-editor.c:463
+#: ../src/fe-gnome/irc-network-editor.c:466
 #, c-format
 msgid "%s Network Properties"
 msgstr "Configuration du réseau %s"
 
-#: ../src/fe-gnome/irc-network-editor.c:591
-#: ../src/fe-gnome/irc-network-editor.c:598
-#: ../src/fe-gnome/irc-network-editor.c:604
+#: ../src/fe-gnome/irc-network-editor.c:594
+#: ../src/fe-gnome/irc-network-editor.c:601
+#: ../src/fe-gnome/irc-network-editor.c:607
 msgid "Invalid input"
 msgstr "Entrée invalide"
 
-#: ../src/fe-gnome/irc-network-editor.c:591
+#: ../src/fe-gnome/irc-network-editor.c:594
 msgid "You must enter a network name"
 msgstr "Vous devez entrer un nom de réseau"
 
-#: ../src/fe-gnome/irc-network-editor.c:598
+#: ../src/fe-gnome/irc-network-editor.c:601
 msgid "You must enter a nick name"
 msgstr "Vous devez entrer un pseudo"
 
-#: ../src/fe-gnome/irc-network-editor.c:604
+#: ../src/fe-gnome/irc-network-editor.c:607
 msgid "You must enter a real name"
 msgstr "Vous devez entrer un vrai nom"
 
-#: ../src/fe-gnome/irc-network-editor.c:611
+#: ../src/fe-gnome/irc-network-editor.c:614
 msgid "No Servers"
 msgstr "Pas de serveurs"
 
-#: ../src/fe-gnome/irc-network-editor.c:611
+#: ../src/fe-gnome/irc-network-editor.c:614
 msgid "You must add at least one server for this network"
 msgstr "Vous devez spécifier au moins un serveur pour le réseau"
 
@@ -4006,9 +3971,8 @@ msgstr "_Aide"
 
 #. IRC menu
 #: ../src/fe-gnome/main-window.c:109
-#, fuzzy
 msgid "_Connect..."
-msgstr "_Connecter"
+msgstr "_Connecter..."
 
 #: ../src/fe-gnome/main-window.c:110
 msgid "_File Transfers"
@@ -4123,10 +4087,14 @@ msgid ""
 "\n"
 "<b>Please delete %s</b>"
 msgstr ""
+"Le fonctionnement du greffon D-Bus a changé.\n"
+"Pour éviter tout problème, il est conseillé d'enlever l'ancien greffon.\n"
+"\n"
+"<b>S'il vous plait, veuillez supprimer %s</b>"
 
 #: ../src/fe-gnome/migration.c:128
 msgid "D-Bus plugin is still installed"
-msgstr ""
+msgstr "Le greffon D-Bus est toujours installé"
 
 #. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:82
@@ -4208,7 +4176,7 @@ msgid "unknown"
 msgstr "inconnu"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:194
-#, fuzzy, c-format
+#, c-format
 msgid "An error occurred unloading %s"
 msgstr "Une erreur est survenue lors du déchargement du greffon %s"
 
