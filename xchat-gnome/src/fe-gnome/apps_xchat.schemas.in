@@ -238,7 +238,7 @@
 			<type>int</type>
 			<default>640</default>
 			<locale name="C">
-				<short>Height of the channel list</short>
+				<short>Width of the channel list</short>
 			</locale>
 		</schema>
 
