@@ -254,6 +254,19 @@
 		</schema>
 
 		<schema>
+			<key>/schemas/apps/xchat/channel_list/auto_popup</key>
+			<applyto>/apps/xchat/channel_list/auto_popup</applyto>
+			<owner>xchat</owner>
+			<type>bool</type>
+			<default>true</default>
+			<locale name="C">
+				<short>Automatically display the channel list dialog</short>
+				<long>If set to true, when you join a server without automatically
+				joining a channel, the channel list dialog will be displayed</long>
+			</locale>
+		</schema>
+
+		<schema>
 			<key>/schemas/apps/xchat/plugins/loaded</key>
 			<applyto>/apps/xchat/plugins/loaded</applyto>
 			<owner>xchat</owner>

@@ -41,7 +41,7 @@
 
 #include "palette.h"
 #include "preferences-page-plugins.h"
-#include "channel-list.h"
+#include "channel-list-window.h"
 #include "util.h"
 #include "plugins.h"
 #include "../common/xchat.h"
@@ -956,7 +956,16 @@ fe_server_event (server *serv, int type, int arg)
 			case FE_SE_LOGGEDIN:
 				if (arg == 0) {
 					/* No auto-join channels */
-					create_channel_list (sess);
+					GConfClient *client;
+					gboolean popup_channel_list;
+
+					client = gconf_client_get_default ();
+					popup_channel_list = gconf_client_get_bool (client,
+							"/apps/xchat/channel_list/auto_popup",  NULL);
+					g_object_unref (client);
+
+					if (popup_channel_list)
+						create_channel_list_window (sess, FALSE);
 					break;
 				}
 			}

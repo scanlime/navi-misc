@@ -31,7 +31,7 @@
 #include <fcntl.h>
 
 #include "about.h"
-#include "channel-list.h"
+#include "channel-list-window.h"
 #include "connect-dialog.h"
 #include "gui.h"
 #include "main-window.h"
@@ -478,7 +478,7 @@ on_irc_downloads_activate (GtkAction *action, gpointer data)
 static void
 on_network_channels_activate (GtkAction *action, gpointer data)
 {
-	create_channel_list (gui.current_session);
+	create_channel_list_window (gui.current_session, TRUE);
 }
 
 static void
