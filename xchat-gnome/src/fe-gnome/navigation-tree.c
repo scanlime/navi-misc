@@ -29,7 +29,7 @@
 #include "userlist.h"
 #include "pixmaps.h"
 #include "palette.h"
-#include "channel-list.h"
+#include "channel-list-window.h"
 #include "main-window.h"
 
 #include "conversation-panel.h"
@@ -1702,7 +1702,7 @@ on_server_channel_list (GtkAction * action, gpointer data)
 
 	s = navigation_tree_get_selected_session (NULL);
 	if (s) {
-		create_channel_list (s);
+		create_channel_list_window (s, TRUE);
 	}
 }
 

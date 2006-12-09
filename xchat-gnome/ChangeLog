@@ -1,3 +1,24 @@
+2006-12-08  Guillaume Desmottes <cass@skynet.be>
+
+	D src/fe-gnome/channel-list.c:
+	A src/fe-gnome/channel-list-window.c:
+	D src/fe-gnome/channel-list.h:
+	A src/fe-gnome/channel-list-window.h:
+	* src/fe-gnome/main-window.c:
+	* src/fe-gnome/navigation-tree.c:
+	* src/fe-gnome/Makefile.am:
+	* data/channel-list.glade:
+	* NEWS
+	  - GObjectize the channel list window
+	  - Rename it to be more "GObject spirit"
+	  - New sexy design of the channel list window
+
+	* src/fe-gnome/apps_xchat.schemas.in:
+	* src/fe-gnome/fe-gnome.c:
+	  - Add a gconf key disabling the auto popup of the
+	    channel list window.
+
+	
 2006-11-26  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/xtext.c:

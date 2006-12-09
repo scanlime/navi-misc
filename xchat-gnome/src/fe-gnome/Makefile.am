@@ -24,8 +24,8 @@ xchat_gnome_SOURCES =				\
 	$(mmx_cmod_h)				\
 	about.c					\
 	about.h					\
-	channel-list.c				\
-	channel-list.h				\
+	channel-list-window.c			\
+	channel-list-window.h				\
 	connect-dialog.c			\
 	connect-dialog.h			\
 	conversation-panel.c			\
