@@ -34,14 +34,12 @@ msgid "Channel _Topic"
 msgstr "_Sujet du canal"
 
 #: ../data/channel-list.glade.h:4
-#, fuzzy
 msgid "Channels list"
-msgstr "%s Liste des canaux"
+msgstr "Liste des canaux"
 
 #: ../data/channel-list.glade.h:5
-#, fuzzy
 msgid "Join channel:"
-msgstr "Rejoindre le canal"
+msgstr "Rejoindre le canal :"
 
 #: ../data/channel-list.glade.h:6
 msgid "Search for text:"
@@ -52,9 +50,8 @@ msgid "Show channels with:"
 msgstr "Afficher les canaux avec :"
 
 #: ../data/channel-list.glade.h:8
-#, fuzzy
 msgid "_Join Channel"
-msgstr "Rejoindre le canal"
+msgstr "Re_joindre le canal"
 
 #: ../data/channel-list.glade.h:9
 msgid "in:"
@@ -1966,7 +1963,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:150
 msgid "-%C10-%C11-%O$tOffering %C11$1 %Cto %C11$2%O"
-msgstr "-%C10-%C11-%O$tProposition %C11$1%O à %C11$2%O"
+msgstr "-%C10-%C11-%O$tProposition %C11$1 %Cà %C11$2%O"
 
 #: ../src/common/textevents.h:153
 msgid "-%C10-%C11-%O$tNo such DCC offer."
@@ -2028,7 +2025,7 @@ msgstr "-%C10-%C11-%O$tDCC SEND connexion établie à %C11$1 %C14[%O$2%C14]%O"
 #: ../src/common/textevents.h:186
 msgid "-%C10-%C11-%O$tDCC SEND %C11$1%O failed. Connection to %C11$2%O lost."
 msgstr ""
-"-%C10-%C11-%O$tDCC SEND %C11$2%O interrompu. Connexion vers %C11$2%O perdue."
+"-%C10-%C11-%O$tDCC SEND %C11$1%O interrompu. Connexion vers %C11$2%O perdue."
 
 #: ../src/common/textevents.h:189
 msgid "-%C10-%C11-%O$t%C11$1 %Chas offered %C11$2 %C(%C11$3 %Cbytes)"
@@ -3591,9 +3588,8 @@ msgid "Use system fonts"
 msgstr "Utiliser les polices du système"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:23
-#, fuzzy
 msgid "Width of the channel list"
-msgstr "Hauteur de la liste des canaux"
+msgstr "Largeur de la liste des canaux"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:24
 msgid "Width of the main window"

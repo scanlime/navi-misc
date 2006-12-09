@@ -34,7 +34,7 @@ msgstr "Kanal_ämne"
 #: ../data/channel-list.glade.h:4
 #, fuzzy
 msgid "Channels list"
-msgstr "Kanallista för %s"
+msgstr "Kanallista"
 
 #: ../data/channel-list.glade.h:5
 #, fuzzy
@@ -2042,7 +2042,6 @@ msgstr ""
 #: ../src/common/textevents.h:186
 msgid "-%C10-%C11-%O$tDCC SEND %C11$1%O failed. Connection to %C11$2%O lost."
 msgstr ""
-"-%C10-%C11-%O$tDCC RECV $1 ($2) misslyckades. Anslutningen till $3 avbruten."
 
 #: ../src/common/textevents.h:189
 msgid "-%C10-%C11-%O$t%C11$1 %Chas offered %C11$2 %C(%C11$3 %Cbytes)"
