@@ -10,14 +10,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-11-24 13:14-0800\n"
-"PO-Revision-Date: 2006-09-01 18:36+0000\n"
-"Last-Translator: Alexandre Coster <acoster@inf.ufrgs.br>\n"
+"POT-Creation-Date: 2006-12-08 23:15+0100\n"
+"PO-Revision-Date: 2006-12-02 17:37+0000\n"
+"Last-Translator: Goedson Teixeira Paixão <goedson@debian.org>\n"
 "Language-Team: GNOME Brasil <gnome-l10n-br@listas.cipsga.org.br>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n > 1\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rosetta-Export-Date: 2006-12-02 17:48+0000\n"
 
 #: ../data/channel-list.glade.h:1
 msgid "<span weight=\"bold\">List Filtering</span>"
@@ -32,29 +33,40 @@ msgid "Channel _Topic"
 msgstr "_Tópico do Canal"
 
 #: ../data/channel-list.glade.h:4
-msgid "Join Channel"
-msgstr "Entrar no Canal"
+#, fuzzy
+msgid "Channels list"
+msgstr "%s Lista de Canais"
 
 #: ../data/channel-list.glade.h:5
+#, fuzzy
+msgid "Join channel:"
+msgstr "Entrar no Canal"
+
+#: ../data/channel-list.glade.h:6
 #, fuzzy
 msgid "Search for text:"
 msgstr "Memória de procura vazia.\n"
 
-#: ../data/channel-list.glade.h:6
+#: ../data/channel-list.glade.h:7
 #, fuzzy
 msgid "Show channels with:"
 msgstr "O canal"
 
-#: ../data/channel-list.glade.h:7
+#: ../data/channel-list.glade.h:8
+#, fuzzy
+msgid "_Join Channel"
+msgstr "Entrar no Canal"
+
+#: ../data/channel-list.glade.h:9
 #, fuzzy
 msgid "in:"
 msgstr "Pesquisar:"
 
-#: ../data/channel-list.glade.h:8
+#: ../data/channel-list.glade.h:10
 msgid "to"
 msgstr ""
 
-#: ../data/channel-list.glade.h:9
+#: ../data/channel-list.glade.h:11
 #, fuzzy
 msgid "users"
 msgstr "Usuários"
@@ -188,8 +200,9 @@ msgid "<span weight=\"bold\">mIRC Colors</span>"
 msgstr "<span weight=\"bold\">Cores do mIRC</span>"
 
 #: ../data/preferences-dialog.glade.h:13
+#, fuzzy
 msgid "A_way message:"
-msgstr "Mensagem de a_usente:"
+msgstr "Mensagem de A_usência:"
 
 #: ../data/preferences-dialog.glade.h:14
 #, fuzzy
@@ -223,16 +236,15 @@ msgid "Enter extra words to trigger highlighting"
 msgstr "Coloque mais palavras para ativar o destaque:"
 
 #: ../data/preferences-dialog.glade.h:21
+#, fuzzy
 msgid "Foreground mark:"
-msgstr "Frente:"
+msgstr "Marca de frente:"
 
 #: ../data/preferences-dialog.glade.h:22
-#, fuzzy
 msgid "Get IP address from _server"
 msgstr "Obter meu IP do servidor"
 
 #: ../data/preferences-dialog.glade.h:23
-#, fuzzy
 msgid "Glo_bal receive KB/s: "
 msgstr "KB/s recebidos no total: "
 
@@ -352,6 +364,7 @@ msgid "_None (use solid color)"
 msgstr "_Nenhum (utilizar cor sólida)"
 
 #: ../data/preferences-dialog.glade.h:49
+#, fuzzy
 msgid "_Part message:"
 msgstr "Mensagem de saída:"
 
@@ -433,7 +446,7 @@ msgid "Mark as _away"
 msgstr "Marcar como _ausente"
 
 #: ../data/xchat-gnome.glade.h:4 ../src/common/text.c:907
-#: ../src/fe-gnome/channel-list.c:339 ../src/fe-gnome/userlist.c:303
+#: ../src/fe-gnome/channel-list-window.c:455 ../src/fe-gnome/userlist.c:303
 msgid "Users"
 msgstr "Usuários"
 
@@ -1398,7 +1411,7 @@ msgid "Nick of person who changed the topic"
 msgstr "Apelido do usuário que mudou o tópico"
 
 #: ../src/common/text.c:653 ../src/common/text.c:659
-#: ../src/fe-gnome/channel-list.c:344
+#: ../src/fe-gnome/channel-list-window.c:460
 msgid "Topic"
 msgstr "Tópico"
 
@@ -1635,7 +1648,7 @@ msgstr "IP real"
 
 #: ../src/common/text.c:891 ../src/common/text.c:900 ../src/common/text.c:906
 #: ../src/common/text.c:936 ../src/common/text.c:1090
-#: ../src/fe-gnome/channel-list.c:334
+#: ../src/fe-gnome/channel-list-window.c:450
 msgid "Channel Name"
 msgstr "Nome do Canal"
 
@@ -3519,102 +3532,117 @@ msgstr ""
 "Weiden<fernanda@softwarelivre.org>\\n e todo o time de tradução Ubuntu-br."
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:1
+msgid "Automatically display the channel list dialog"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:2
 msgid "Background image filename"
 msgstr "Imagem de fundo:"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:2
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:3
 msgid "Background transparency"
 msgstr "Imagem de fundo:"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:3
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:4
 msgid "Default nickname used by servers without special options set"
 msgstr "Apelido padrão usado por servidores sem nenhuma opção especial"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:4
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:5
 msgid "Default real name used by servers without special options set"
 msgstr "Nome verdadeiro padrão usado por servidores sem opções especiais"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:5
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:6
 msgid "Display redundant nickstamps"
 msgstr "Mostrar nicks redundantes"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:6
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:7
 msgid "Enable spellchecking"
 msgstr "Habilitar verificação ortográfica"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:7
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:8
 msgid "Font for the main window"
 msgstr "Fonte para a janela principal"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:8
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:9
 msgid "Height of the channel list"
 msgstr "Altura da lista de canais"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:9
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:10
 msgid "Height of the main window"
 msgstr "Altura da janela principal"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:10
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:11
+msgid ""
+"If set to true, when you join a server without automatically joining a "
+"channel, the channel list dialog will be displayed"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:12
 msgid "Languages to use for spellchecking"
 msgstr "Línguas para usar no verificador ortográfico"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:11
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:13
 msgid "List of enabled plugins"
 msgstr "Lista de plugins ativados"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:12
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:14
 msgid "Message sent on away"
 msgstr "Mensagem"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:13
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:15
 msgid "Message sent on channel part"
 msgstr "Mensagem enviada ao sair do canal"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:14
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:16
 msgid "Message sent on quit"
 msgstr "Mensagem"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:15
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:17
 msgid "Position of the horizontal pane in the main window"
 msgstr "Posição da divisão horizontal na janela principal"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:16
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:18
 msgid "Selected background type"
 msgstr "Tipo de fundo selecionado"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:17
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:19
 msgid "Selected color scheme"
 msgstr "Esquema de cores selecionado"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:18
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:20
 msgid "Show colors in the main window"
 msgstr "Mostrar cores na janela principal"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:19
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:21
 msgid "Show timestamps in the main window"
 msgstr "Inserir hora das mensagens"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:20
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:22
 msgid "Use system fonts"
 msgstr "Utilizar um servidor proxy"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:21
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:23
+#, fuzzy
+msgid "Width of the channel list"
+msgstr "Altura da lista de canais"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:24
 msgid "Width of the main window"
 msgstr "Largura da janela principal"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:22
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:25
 msgid "X position of the main window on the screen"
 msgstr "Posição X da janela principal na tela"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:23
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:26
 msgid "Y position of the main window on the screen"
 msgstr "Posição Y da janela principal na tela"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:24
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:27
 msgid "xchat configuration version"
 msgstr "Versão da configuração do xchat"
 
-#: ../src/fe-gnome/channel-list.c:309
+#: ../src/fe-gnome/channel-list-window.c:418
 #, c-format
 msgid "%s Channel List"
 msgstr "%s Lista de Canais"
@@ -3804,8 +3832,9 @@ msgid "Open an irc:// url"
 msgstr "Abrir uma URL irc://"
 
 #: ../src/fe-gnome/fe-gnome.c:64
+#, fuzzy
 msgid "Open URL in an existing XChat-GNOME instance"
-msgstr ""
+msgstr "Abrir URL em uma instância existente do xchat-gnome"
 
 #: ../src/fe-gnome/fe-gnome.c:65
 msgid "Show version information"
@@ -3875,38 +3904,38 @@ msgid "Key"
 msgstr "Senha"
 
 #. We're creating a new network. Don't populate things from the structure
-#: ../src/fe-gnome/irc-network-editor.c:455
+#: ../src/fe-gnome/irc-network-editor.c:458
 msgid "New Network"
 msgstr "Nova rede"
 
-#: ../src/fe-gnome/irc-network-editor.c:463
+#: ../src/fe-gnome/irc-network-editor.c:466
 #, c-format
 msgid "%s Network Properties"
 msgstr "%s Propriedades da Rede"
 
-#: ../src/fe-gnome/irc-network-editor.c:591
-#: ../src/fe-gnome/irc-network-editor.c:598
-#: ../src/fe-gnome/irc-network-editor.c:604
+#: ../src/fe-gnome/irc-network-editor.c:594
+#: ../src/fe-gnome/irc-network-editor.c:601
+#: ../src/fe-gnome/irc-network-editor.c:607
 msgid "Invalid input"
 msgstr "Entrada inválida"
 
-#: ../src/fe-gnome/irc-network-editor.c:591
+#: ../src/fe-gnome/irc-network-editor.c:594
 msgid "You must enter a network name"
 msgstr "Você deve especificar um nome de rede"
 
-#: ../src/fe-gnome/irc-network-editor.c:598
+#: ../src/fe-gnome/irc-network-editor.c:601
 msgid "You must enter a nick name"
 msgstr "Digite o novo nick:"
 
-#: ../src/fe-gnome/irc-network-editor.c:604
+#: ../src/fe-gnome/irc-network-editor.c:607
 msgid "You must enter a real name"
 msgstr "Você deve especificar um nome verdadeiro"
 
-#: ../src/fe-gnome/irc-network-editor.c:611
+#: ../src/fe-gnome/irc-network-editor.c:614
 msgid "No Servers"
 msgstr "Nenhum servidor"
 
-#: ../src/fe-gnome/irc-network-editor.c:611
+#: ../src/fe-gnome/irc-network-editor.c:614
 msgid "You must add at least one server for this network"
 msgstr "Usar SSL para todos os servidores desta rede"
 
@@ -4114,10 +4143,14 @@ msgid ""
 "\n"
 "<b>Please delete %s</b>"
 msgstr ""
+"A forma como o plugin D-Bus funciona mudou.\n"
+"Para evitar problemas, você deve remover o arquivo de plugin antigo.\n"
+"\n"
+"<b>Por favor remova %s</b>"
 
 #: ../src/fe-gnome/migration.c:128
 msgid "D-Bus plugin is still installed"
-msgstr ""
+msgstr "o plugin D-Bus ainda está instalado"
 
 #. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:82

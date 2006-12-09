@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-11-24 13:14-0800\n"
+"POT-Creation-Date: 2006-12-08 23:15+0100\n"
 "PO-Revision-Date: 2006-06-21 08:39+0000\n"
 "Last-Translator: krojc <krojc@email.si>\n"
 "Language-Team: Slovenian <translation-team-sl@lists.sourceforge.net>\n"
@@ -31,29 +31,40 @@ msgid "Channel _Topic"
 msgstr "Kanal"
 
 #: ../data/channel-list.glade.h:4
-msgid "Join Channel"
-msgstr "Pridruži se kanalu"
+#, fuzzy
+msgid "Channels list"
+msgstr "Kanal"
 
 #: ../data/channel-list.glade.h:5
+#, fuzzy
+msgid "Join channel:"
+msgstr "Pridruži se kanalu"
+
+#: ../data/channel-list.glade.h:6
 #, fuzzy
 msgid "Search for text:"
 msgstr "Iskalni niz je prazen.\n"
 
-#: ../data/channel-list.glade.h:6
+#: ../data/channel-list.glade.h:7
 #, fuzzy
 msgid "Show channels with:"
 msgstr "Kanal"
 
-#: ../data/channel-list.glade.h:7
+#: ../data/channel-list.glade.h:8
+#, fuzzy
+msgid "_Join Channel"
+msgstr "Pridruži se kanalu"
+
+#: ../data/channel-list.glade.h:9
 #, fuzzy
 msgid "in:"
 msgstr "Poišči:"
 
-#: ../data/channel-list.glade.h:8
+#: ../data/channel-list.glade.h:10
 msgid "to"
 msgstr ""
 
-#: ../data/channel-list.glade.h:9
+#: ../data/channel-list.glade.h:11
 #, fuzzy
 msgid "users"
 msgstr "Uporabniki"
@@ -413,7 +424,7 @@ msgid "Mark as _away"
 msgstr ""
 
 #: ../data/xchat-gnome.glade.h:4 ../src/common/text.c:907
-#: ../src/fe-gnome/channel-list.c:339 ../src/fe-gnome/userlist.c:303
+#: ../src/fe-gnome/channel-list-window.c:455 ../src/fe-gnome/userlist.c:303
 msgid "Users"
 msgstr "Uporabniki"
 
@@ -1354,7 +1365,7 @@ msgid "Nick of person who changed the topic"
 msgstr "Vzdevek osebe, ki je spremenila temo"
 
 #: ../src/common/text.c:653 ../src/common/text.c:659
-#: ../src/fe-gnome/channel-list.c:344
+#: ../src/fe-gnome/channel-list-window.c:460
 msgid "Topic"
 msgstr "Tema"
 
@@ -1591,7 +1602,7 @@ msgstr "Pravi IP"
 
 #: ../src/common/text.c:891 ../src/common/text.c:900 ../src/common/text.c:906
 #: ../src/common/text.c:936 ../src/common/text.c:1090
-#: ../src/fe-gnome/channel-list.c:334
+#: ../src/fe-gnome/channel-list-window.c:450
 msgid "Channel Name"
 msgstr "Ime kanala"
 
@@ -3453,102 +3464,116 @@ msgid "translator-credits"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:1
+msgid "Automatically display the channel list dialog"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:2
 msgid "Background image filename"
 msgstr "Slika za ozadje:"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:2
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:3
 msgid "Background transparency"
 msgstr "Slika za ozadje:"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:3
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:4
 msgid "Default nickname used by servers without special options set"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:4
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:5
 msgid "Default real name used by servers without special options set"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:5
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:6
 msgid "Display redundant nickstamps"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:6
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:7
 msgid "Enable spellchecking"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:7
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:8
 msgid "Font for the main window"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:8
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:9
 msgid "Height of the channel list"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:9
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:10
 msgid "Height of the main window"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:10
-msgid "Languages to use for spellchecking"
-msgstr ""
-
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:11
-msgid "List of enabled plugins"
+msgid ""
+"If set to true, when you join a server without automatically joining a "
+"channel, the channel list dialog will be displayed"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:12
-msgid "Message sent on away"
-msgstr "Sporočilo"
+msgid "Languages to use for spellchecking"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:13
-msgid "Message sent on channel part"
+msgid "List of enabled plugins"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:14
-msgid "Message sent on quit"
+msgid "Message sent on away"
 msgstr "Sporočilo"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:15
-msgid "Position of the horizontal pane in the main window"
+msgid "Message sent on channel part"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:16
-msgid "Selected background type"
-msgstr ""
+msgid "Message sent on quit"
+msgstr "Sporočilo"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:17
-msgid "Selected color scheme"
+msgid "Position of the horizontal pane in the main window"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:18
-msgid "Show colors in the main window"
+msgid "Selected background type"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:19
+msgid "Selected color scheme"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:20
+msgid "Show colors in the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:21
 msgid "Show timestamps in the main window"
 msgstr "Dnevnike opremi s časom"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:20
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:22
 msgid "Use system fonts"
 msgstr "Seznam uporabnikov"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:21
-msgid "Width of the main window"
-msgstr ""
-
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:22
-msgid "X position of the main window on the screen"
-msgstr ""
-
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:23
-msgid "Y position of the main window on the screen"
+msgid "Width of the channel list"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:24
+msgid "Width of the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:25
+msgid "X position of the main window on the screen"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:26
+msgid "Y position of the main window on the screen"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:27
 msgid "xchat configuration version"
 msgstr ""
 
-#: ../src/fe-gnome/channel-list.c:309
+#: ../src/fe-gnome/channel-list-window.c:418
 #, c-format
 msgid "%s Channel List"
 msgstr ""
@@ -3794,39 +3819,39 @@ msgid "Key"
 msgstr ""
 
 #. We're creating a new network. Don't populate things from the structure
-#: ../src/fe-gnome/irc-network-editor.c:455
+#: ../src/fe-gnome/irc-network-editor.c:458
 #, fuzzy
 msgid "New Network"
 msgstr "Novo omrežje"
 
-#: ../src/fe-gnome/irc-network-editor.c:463
+#: ../src/fe-gnome/irc-network-editor.c:466
 #, c-format
 msgid "%s Network Properties"
 msgstr ""
 
-#: ../src/fe-gnome/irc-network-editor.c:591
-#: ../src/fe-gnome/irc-network-editor.c:598
-#: ../src/fe-gnome/irc-network-editor.c:604
+#: ../src/fe-gnome/irc-network-editor.c:594
+#: ../src/fe-gnome/irc-network-editor.c:601
+#: ../src/fe-gnome/irc-network-editor.c:607
 msgid "Invalid input"
 msgstr ""
 
-#: ../src/fe-gnome/irc-network-editor.c:591
+#: ../src/fe-gnome/irc-network-editor.c:594
 msgid "You must enter a network name"
 msgstr ""
 
-#: ../src/fe-gnome/irc-network-editor.c:598
+#: ../src/fe-gnome/irc-network-editor.c:601
 msgid "You must enter a nick name"
 msgstr "Vnesite nov vzdevek:"
 
-#: ../src/fe-gnome/irc-network-editor.c:604
+#: ../src/fe-gnome/irc-network-editor.c:607
 msgid "You must enter a real name"
 msgstr ""
 
-#: ../src/fe-gnome/irc-network-editor.c:611
+#: ../src/fe-gnome/irc-network-editor.c:614
 msgid "No Servers"
 msgstr "Strežnik"
 
-#: ../src/fe-gnome/irc-network-editor.c:611
+#: ../src/fe-gnome/irc-network-editor.c:614
 msgid "You must add at least one server for this network"
 msgstr "Uporabi povezavo SSL do vseh strežnikov v omrežju"
 

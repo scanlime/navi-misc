@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-12-04 01:19+0100\n"
+"POT-Creation-Date: 2006-12-08 23:15+0100\n"
 "PO-Revision-Date: 2006-08-08 22:36+0000\n"
 "Last-Translator: Olivier Lê Thanh Duong <olivier@lethanh.be>\n"
 "Language-Team: French <olivier@lethanh.be>\n"
@@ -34,26 +34,37 @@ msgid "Channel _Topic"
 msgstr "_Sujet du canal"
 
 #: ../data/channel-list.glade.h:4
-msgid "Join Channel"
-msgstr "Rejoindre le canal"
+#, fuzzy
+msgid "Channels list"
+msgstr "%s Liste des canaux"
 
 #: ../data/channel-list.glade.h:5
+#, fuzzy
+msgid "Join channel:"
+msgstr "Rejoindre le canal"
+
+#: ../data/channel-list.glade.h:6
 msgid "Search for text:"
 msgstr "Rechercher le texte :"
 
-#: ../data/channel-list.glade.h:6
+#: ../data/channel-list.glade.h:7
 msgid "Show channels with:"
 msgstr "Afficher les canaux avec :"
 
-#: ../data/channel-list.glade.h:7
+#: ../data/channel-list.glade.h:8
+#, fuzzy
+msgid "_Join Channel"
+msgstr "Rejoindre le canal"
+
+#: ../data/channel-list.glade.h:9
 msgid "in:"
 msgstr "dans"
 
-#: ../data/channel-list.glade.h:8
+#: ../data/channel-list.glade.h:10
 msgid "to"
 msgstr "jusque"
 
-#: ../data/channel-list.glade.h:9
+#: ../data/channel-list.glade.h:11
 msgid "users"
 msgstr "Utilisateurs"
 
@@ -407,7 +418,7 @@ msgid "Mark as _away"
 msgstr "Marquer comme _absent"
 
 #: ../data/xchat-gnome.glade.h:4 ../src/common/text.c:907
-#: ../src/fe-gnome/channel-list.c:339 ../src/fe-gnome/userlist.c:303
+#: ../src/fe-gnome/channel-list-window.c:455 ../src/fe-gnome/userlist.c:303
 msgid "Users"
 msgstr "Utilisateurs"
 
@@ -1371,7 +1382,7 @@ msgid "Nick of person who changed the topic"
 msgstr "Pseudo de la personne qui a changé le sujet"
 
 #: ../src/common/text.c:653 ../src/common/text.c:659
-#: ../src/fe-gnome/channel-list.c:344
+#: ../src/fe-gnome/channel-list-window.c:460
 msgid "Topic"
 msgstr "Sujet"
 
@@ -1608,7 +1619,7 @@ msgstr "IP réelle"
 
 #: ../src/common/text.c:891 ../src/common/text.c:900 ../src/common/text.c:906
 #: ../src/common/text.c:936 ../src/common/text.c:1090
-#: ../src/fe-gnome/channel-list.c:334
+#: ../src/fe-gnome/channel-list-window.c:450
 msgid "Channel Name"
 msgstr "Nom du canal"
 
@@ -3488,104 +3499,119 @@ msgstr ""
 "Christophe Bliard <christophe.bliard@trux.info>"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:1
+msgid "Automatically display the channel list dialog"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:2
 msgid "Background image filename"
 msgstr "Nom de fichier de l'image d'arrière-plan"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:2
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:3
 msgid "Background transparency"
 msgstr "Transparence de l'arrière-plan"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:3
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:4
 msgid "Default nickname used by servers without special options set"
 msgstr ""
 "Pseudonyme par défaut utilisé par les serveurs sans définition d'options "
 "spéciales"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:4
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:5
 msgid "Default real name used by servers without special options set"
 msgstr "Nom réel utilisé par les serveurs sans défition d'options spéciales"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:5
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:6
 msgid "Display redundant nickstamps"
 msgstr "Afficher les afficheurs de noms redondants"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:6
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:7
 msgid "Enable spellchecking"
 msgstr "Activer la correction orthographique"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:7
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:8
 msgid "Font for the main window"
 msgstr "Police de la fenêtre principale"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:8
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:9
 msgid "Height of the channel list"
 msgstr "Hauteur de la liste des canaux"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:9
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:10
 msgid "Height of the main window"
 msgstr "Hauteur de la fenêtre principale"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:10
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:11
+msgid ""
+"If set to true, when you join a server without automatically joining a "
+"channel, the channel list dialog will be displayed"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:12
 msgid "Languages to use for spellchecking"
 msgstr "Langue(s) à corriger"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:11
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:13
 msgid "List of enabled plugins"
 msgstr "Liste des greffons activés"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:12
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:14
 msgid "Message sent on away"
 msgstr "Message envoyé lors d'une absence"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:13
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:15
 msgid "Message sent on channel part"
 msgstr "Message envoyé en quittant un canal"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:14
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:16
 msgid "Message sent on quit"
 msgstr "Message envoyé à la déconnexion"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:15
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:17
 msgid "Position of the horizontal pane in the main window"
 msgstr "Position du panneau horizontal dans la fenêtre principale"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:16
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:18
 msgid "Selected background type"
 msgstr "Type d'arrière-plan sélectionné"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:17
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:19
 msgid "Selected color scheme"
 msgstr "Thème de couleurs sélectionné"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:18
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:20
 msgid "Show colors in the main window"
 msgstr "Afficher les couleurs dans la fenêtre principale"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:19
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:21
 msgid "Show timestamps in the main window"
 msgstr "Afficher les marques de temps dans la fenêtre principale"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:20
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:22
 msgid "Use system fonts"
 msgstr "Utiliser les polices du système"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:21
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:23
+#, fuzzy
+msgid "Width of the channel list"
+msgstr "Hauteur de la liste des canaux"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:24
 msgid "Width of the main window"
 msgstr "Largeur de la fenêtre principale"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:22
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:25
 msgid "X position of the main window on the screen"
 msgstr "Position X de la fenêtre principale sur l'écran"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:23
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:26
 msgid "Y position of the main window on the screen"
 msgstr "Y position de la fenêtre principale sur l'écran"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:24
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:27
 msgid "xchat configuration version"
 msgstr "version de la configuration xchat"
 
-#: ../src/fe-gnome/channel-list.c:309
+#: ../src/fe-gnome/channel-list-window.c:418
 #, c-format
 msgid "%s Channel List"
 msgstr "%s Liste des canaux"
