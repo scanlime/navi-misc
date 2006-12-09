@@ -3263,9 +3263,8 @@ msgid "Unknown"
 msgstr "Nén cnoxhou"
 
 #: ../src/common/dbus/dbus-plugin.c:30
-#, fuzzy
 msgid "remote access"
-msgstr "Dji n' sai acceder a %s\n"
+msgstr ""
 
 #: ../src/common/dbus/dbus-plugin.c:31
 msgid "plugin for remote access using DBUS"
