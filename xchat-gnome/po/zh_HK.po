@@ -20,7 +20,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome 0.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-11-24 13:14-0800\n"
+"POT-Creation-Date: 2006-12-08 23:15+0100\n"
 "PO-Revision-Date: 2006-06-21 08:45+0000\n"
 "Last-Translator: Abel Cheung <abelcheung@gmail.com>\n"
 "Language-Team: Chinese (Hong Kong) <community@linuxhall.org>\n"
@@ -42,28 +42,39 @@ msgid "Channel _Topic"
 msgstr "聊天室標題(_T)"
 
 #: ../data/channel-list.glade.h:4
-msgid "Join Channel"
-msgstr "加入聊天室"
+#, fuzzy
+msgid "Channels list"
+msgstr "%s 聊天室清單"
 
 #: ../data/channel-list.glade.h:5
+#, fuzzy
+msgid "Join channel:"
+msgstr "加入聊天室"
+
+#: ../data/channel-list.glade.h:6
 msgid "Search for text:"
 msgstr ""
 
-#: ../data/channel-list.glade.h:6
+#: ../data/channel-list.glade.h:7
 #, fuzzy
 msgid "Show channels with:"
 msgstr "聊天室"
 
-#: ../data/channel-list.glade.h:7
+#: ../data/channel-list.glade.h:8
+#, fuzzy
+msgid "_Join Channel"
+msgstr "加入聊天室"
+
+#: ../data/channel-list.glade.h:9
 #, fuzzy
 msgid "in:"
 msgstr "尋找："
 
-#: ../data/channel-list.glade.h:8
+#: ../data/channel-list.glade.h:10
 msgid "to"
 msgstr ""
 
-#: ../data/channel-list.glade.h:9
+#: ../data/channel-list.glade.h:11
 #, fuzzy
 msgid "users"
 msgstr "用戶"
@@ -440,7 +451,7 @@ msgid "Mark as _away"
 msgstr "標記為暫時離開(_A)"
 
 #: ../data/xchat-gnome.glade.h:4 ../src/common/text.c:907
-#: ../src/fe-gnome/channel-list.c:339 ../src/fe-gnome/userlist.c:303
+#: ../src/fe-gnome/channel-list-window.c:455 ../src/fe-gnome/userlist.c:303
 msgid "Users"
 msgstr "用戶"
 
@@ -1315,7 +1326,7 @@ msgid "Nick of person who changed the topic"
 msgstr "更改標題的人的網名"
 
 #: ../src/common/text.c:653 ../src/common/text.c:659
-#: ../src/fe-gnome/channel-list.c:344
+#: ../src/fe-gnome/channel-list-window.c:460
 msgid "Topic"
 msgstr "標題"
 
@@ -1552,7 +1563,7 @@ msgstr "真實 IP"
 
 #: ../src/common/text.c:891 ../src/common/text.c:900 ../src/common/text.c:906
 #: ../src/common/text.c:936 ../src/common/text.c:1090
-#: ../src/fe-gnome/channel-list.c:334
+#: ../src/fe-gnome/channel-list-window.c:450
 msgid "Channel Name"
 msgstr "聊天室名稱"
 
@@ -3405,102 +3416,117 @@ msgstr ""
 "Abel Cheung <abel@oaka.org>, 2006"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:1
+msgid "Automatically display the channel list dialog"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:2
 msgid "Background image filename"
 msgstr "背景圖片檔案名稱"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:2
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:3
 msgid "Background transparency"
 msgstr "背景透明度"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:3
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:4
 msgid "Default nickname used by servers without special options set"
 msgstr "當沒有特別指定時，伺服器預設使用的網名"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:4
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:5
 msgid "Default real name used by servers without special options set"
 msgstr "當沒有特別指定時，伺服器預設使用的真實名稱"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:5
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:6
 msgid "Display redundant nickstamps"
 msgstr ""
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:6
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:7
 msgid "Enable spellchecking"
 msgstr "啟用拼字檢查"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:7
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:8
 msgid "Font for the main window"
 msgstr "主視窗的字型"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:8
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:9
 msgid "Height of the channel list"
 msgstr "聊天室清單的高度"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:9
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:10
 msgid "Height of the main window"
 msgstr "主視窗高度"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:10
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:11
+msgid ""
+"If set to true, when you join a server without automatically joining a "
+"channel, the channel list dialog will be displayed"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:12
 msgid "Languages to use for spellchecking"
 msgstr "拼字檢查使用哪種語言"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:11
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:13
 msgid "List of enabled plugins"
 msgstr "所有啟用了的外掛程式"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:12
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:14
 msgid "Message sent on away"
 msgstr "當暫時離開時送出的訊息"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:13
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:15
 msgid "Message sent on channel part"
 msgstr "當退出聊天室時送出的訊息"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:14
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:16
 msgid "Message sent on quit"
 msgstr "當結束程式時送出的訊息"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:15
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:17
 msgid "Position of the horizontal pane in the main window"
 msgstr "水平窗格在主視窗中的位置"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:16
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:18
 msgid "Selected background type"
 msgstr "背景的類型"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:17
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:19
 msgid "Selected color scheme"
 msgstr "選定的色彩組合"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:18
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:20
 msgid "Show colors in the main window"
 msgstr "在主視窗中顯示色彩"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:19
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:21
 msgid "Show timestamps in the main window"
 msgstr "在主視窗中顯示時間戳記"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:20
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:22
 msgid "Use system fonts"
 msgstr "使用系統預設字型"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:21
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:23
+#, fuzzy
+msgid "Width of the channel list"
+msgstr "聊天室清單的高度"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:24
 msgid "Width of the main window"
 msgstr "主視窗寬度"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:22
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:25
 msgid "X position of the main window on the screen"
 msgstr "主視窗在畫面中的水平位置"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:23
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:26
 msgid "Y position of the main window on the screen"
 msgstr "主視窗在畫面中的垂直位置"
 
-#: ../src/fe-gnome/apps_xchat.schemas.in.h:24
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:27
 msgid "xchat configuration version"
 msgstr "xchat 設定檔版本"
 
-#: ../src/fe-gnome/channel-list.c:309
+#: ../src/fe-gnome/channel-list-window.c:418
 #, c-format
 msgid "%s Channel List"
 msgstr "%s 聊天室清單"
@@ -3753,38 +3779,38 @@ msgid "Key"
 msgstr ""
 
 #. We're creating a new network. Don't populate things from the structure
-#: ../src/fe-gnome/irc-network-editor.c:455
+#: ../src/fe-gnome/irc-network-editor.c:458
 msgid "New Network"
 msgstr ""
 
-#: ../src/fe-gnome/irc-network-editor.c:463
+#: ../src/fe-gnome/irc-network-editor.c:466
 #, c-format
 msgid "%s Network Properties"
 msgstr "%s 網絡偏好設定"
 
-#: ../src/fe-gnome/irc-network-editor.c:591
-#: ../src/fe-gnome/irc-network-editor.c:598
-#: ../src/fe-gnome/irc-network-editor.c:604
+#: ../src/fe-gnome/irc-network-editor.c:594
+#: ../src/fe-gnome/irc-network-editor.c:601
+#: ../src/fe-gnome/irc-network-editor.c:607
 msgid "Invalid input"
 msgstr "輸入資料無效"
 
-#: ../src/fe-gnome/irc-network-editor.c:591
+#: ../src/fe-gnome/irc-network-editor.c:594
 msgid "You must enter a network name"
 msgstr "你必須輸入網絡名稱"
 
-#: ../src/fe-gnome/irc-network-editor.c:598
+#: ../src/fe-gnome/irc-network-editor.c:601
 msgid "You must enter a nick name"
 msgstr "你必須輸入網名"
 
-#: ../src/fe-gnome/irc-network-editor.c:604
+#: ../src/fe-gnome/irc-network-editor.c:607
 msgid "You must enter a real name"
 msgstr "你必須輸入真實名稱"
 
-#: ../src/fe-gnome/irc-network-editor.c:611
+#: ../src/fe-gnome/irc-network-editor.c:614
 msgid "No Servers"
 msgstr "未填上伺服器"
 
-#: ../src/fe-gnome/irc-network-editor.c:611
+#: ../src/fe-gnome/irc-network-editor.c:614
 msgid "You must add at least one server for this network"
 msgstr "你必須為這個網絡加上至少一部伺服器的位置"
 

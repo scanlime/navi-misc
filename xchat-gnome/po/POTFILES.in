@@ -34,7 +34,7 @@ src/common/dbus/dbus-plugin.c
 src/common/dbus/url_handler.schemas.in
 src/fe-gnome/about.c
 src/fe-gnome/apps_xchat.schemas.in
-src/fe-gnome/channel-list.c
+src/fe-gnome/channel-list-window.c
 src/fe-gnome/connect-dialog.c
 src/fe-gnome/conversation-panel.c
 src/fe-gnome/dcc-window.c

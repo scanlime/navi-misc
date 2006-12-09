@@ -1,3 +1,14 @@
+2006-12-08  Guillaume Desmottes  <cass@skynet.be>
+
+	* POTFILES.in:
+	  - Rename channel-list.c to channel-list-window.c
+	* en_GB.po:
+	* pt_BR.po:
+	* en_AU.po:
+	  - Update from rosetta.
+	* all po:
+	  - intltool-update -r
+
 2006-11-24  David Trowbridge  <trowbrds@gmail.com>
 
 	* po/de.po:
