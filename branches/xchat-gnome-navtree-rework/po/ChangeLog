@@ -1,4 +1,0 @@
-2006-08-31  Christian Persch  <chpe@cvs.gnome.org>
-
-	* POTFILES.in:
-	  - Remove missing file, add new one. Bug #353737.	
