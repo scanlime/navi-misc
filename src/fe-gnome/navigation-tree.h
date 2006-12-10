@@ -77,14 +77,15 @@ struct _NavModelClass
 	GtkTreeStoreClass parent;
 };
 
-GType     navigation_model_get_type    (void) G_GNUC_CONST;
-NavModel *navigation_model_new         (void);
+GType     navigation_model_get_type         (void) G_GNUC_CONST;
+NavModel *navigation_model_new              (void);
 
-void      navigation_model_add_server  (NavModel *model, session *sess);
-void      navigation_model_add_channel (NavModel *model, session *sess);
-void      navigation_model_update      (NavModel *model, session *sess);
-void      navigation_model_set_hilight (NavModel *model, session *sess);
-void      navigation_model_set_current (NavModel *model, session *sess);
+void      navigation_model_add_server       (NavModel *model, session *sess);
+void      navigation_model_add_channel      (NavModel *model, session *sess);
+void      navigation_model_update           (NavModel *model, session *sess);
+void      navigation_model_set_disconnected (NavModel *model, session *sess);
+void      navigation_model_set_hilight      (NavModel *model, session *sess);
+void      navigation_model_set_current      (NavModel *model, session *sess);
 
 G_END_DECLS
 

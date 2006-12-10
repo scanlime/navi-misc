@@ -572,9 +572,7 @@ fe_dcc_open_chat_win (int passive)
 void
 fe_clear_channel (struct session *sess)
 {
-	/* FIXME
-	navigation_model_set_disconn (gui.tree_model, sess);
-	*/
+	navigation_model_set_disconnected (gui.tree_model, sess);
 }
 
 void
@@ -994,8 +992,7 @@ fe_server_event (server *serv, int type, int arg)
 				}
 				break;
 			case FE_SE_DISCONNECT:
-				// FIXME: set disconnected state in navtree
-				// XXX: do channels need to be marked parted or not?
+				navigation_model_set_disconnected (gui.tree_model, sess);
 				break;
 			}
 		}
