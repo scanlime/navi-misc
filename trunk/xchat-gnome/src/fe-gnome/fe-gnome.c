@@ -38,6 +38,8 @@
 #include "status-bar.h"
 #include "topic-label.h"
 #include "connect-dialog.h"
+#include "text-entry.h"
+#include "find-bar.h"
 
 #include "palette.h"
 #include "preferences-page-plugins.h"
@@ -51,6 +53,7 @@
 #include "../common/fe.h"
 #include "../common/util.h"
 #include "../common/cfgfiles.h"
+#include "../common/plugin.h"
 
 static gboolean  opt_version   = FALSE;
 static gboolean  opt_noplugins = FALSE;
@@ -222,16 +225,18 @@ fe_new_window (struct session *sess, int focus)
 {
 	static gboolean loaded = FALSE;
 
-	if (focus) {
-		gui.current_session = sess;
-		topic_label_set_topic (TOPIC_LABEL (gui.topic_label), sess, sess->topic);
+	conversation_panel_add_session (CONVERSATION_PANEL (gui.conversation_panel), sess, (gboolean) focus);
+
+	switch (sess->type) {
+	case SESS_SERVER:
+		navigation_model_add_server (gui.tree_model, sess);
+		break;
+	case SESS_CHANNEL:
+	case SESS_DIALOG:
+		navigation_model_add_channel (gui.tree_model, sess);
 	}
 
-	conversation_panel_add_session (CONVERSATION_PANEL (gui.conversation_panel), sess, (gboolean) focus);
-	if (sess->type == SESS_SERVER) {
-		navigation_tree_create_new_network_entry (gui.server_tree, sess);
-	} else if (sess->type == SESS_CHANNEL) {
-		navigation_tree_create_new_channel_entry (gui.server_tree, sess, (gboolean) focus);
+	/*
 	} else if (sess->type == SESS_DIALOG) {
 		struct User *user = NULL;
 
@@ -242,6 +247,12 @@ fe_new_window (struct session *sess, int focus)
 			topic_label_set_topic (TOPIC_LABEL (gui.topic_label), sess, user->hostname);
 		}
 	}
+	*/
+
+	if (focus) {
+		navigation_tree_select_session (gui.server_tree, sess);
+	}
+
 #ifdef USE_PLUGIN
 	if (!(opt_noplugins || loaded)) {
 		loaded = TRUE;
@@ -313,7 +324,9 @@ fe_set_topic (struct session *sess, char *topic)
 void
 fe_set_hilight (struct session *sess)
 {
+	/* FIXME
 	navigation_model_set_hilight (gui.tree_model, sess);
+	*/
 	fe_flash_window (sess);
 }
 
@@ -393,12 +406,25 @@ fe_text_clear (struct session *sess)
 void
 fe_close_window (struct session *sess)
 {
-	if (!gui.quit) {
-		if (sess->type == SESS_CHANNEL) {
-			navigation_tree_remove_channel (gui.server_tree, sess);
-		} else {
-			navigation_tree_remove_server (gui.server_tree, sess);
-		}
+	/*
+	 * There's really no point in doing all of this if the user is
+	 * quitting the app.  It makes it slow (as they watch individual
+	 * channels and servers disappear), and the OS is about to free
+	 * everything much more efficiently than we ever could.
+	 *
+	 * If we ever choose to run on Windows ME, this could be a problem :)
+	 */
+	if (gui.quit) {
+		session_free (sess);
+		return;
+	}
+
+	navigation_tree_remove_session (gui.server_tree, sess);
+	conversation_panel_remove_session (CONVERSATION_PANEL (gui.conversation_panel), sess);
+	topic_label_remove_session (TOPIC_LABEL (gui.topic_label), sess);
+	text_entry_remove_session (TEXT_ENTRY (gui.text_entry), sess);
+	if (sess->type == SESS_SERVER) {
+		status_bar_remove_server (STATUS_BAR (gui.status_bar), sess->server);
 	}
 
 	session_free (sess);
@@ -546,14 +572,20 @@ fe_dcc_open_chat_win (int passive)
 void
 fe_clear_channel (struct session *sess)
 {
-	navigation_model_set_disconn (gui.tree_model, sess);
+	navigation_model_set_disconnected (gui.tree_model, sess);
 }
 
 void
 fe_session_callback (struct session *sess)
 {
-	/* this frees things */
-	/* FIXME: implement */
+	if (sess->type == SESS_SERVER) {
+		status_bar_remove_server (STATUS_BAR (gui.status_bar), sess->server);
+	}
+
+	conversation_panel_remove_session (CONVERSATION_PANEL (gui.conversation_panel), sess);
+	topic_label_remove_session (TOPIC_LABEL (gui.topic_label), sess);
+	text_entry_remove_session (TEXT_ENTRY (gui.text_entry), sess);
+	userlist_erase (u, sess);
 }
 
 void
@@ -595,7 +627,7 @@ fe_dcc_send_filereq (struct session *sess, char *nick, int maxcps, int passive)
 void
 fe_set_channel (struct session *sess)
 {
-    navigation_tree_set_channel_name (gui.server_tree, sess);
+	navigation_model_update (gui.tree_model, sess);
 }
 
 void
@@ -966,8 +998,11 @@ fe_server_event (server *serv, int type, int arg)
 
 					if (popup_channel_list)
 						create_channel_list_window (sess, FALSE);
-					break;
 				}
+				break;
+			case FE_SE_DISCONNECT:
+				navigation_model_set_disconnected (gui.tree_model, sess);
+				break;
 			}
 		}
 		list = list->next;
@@ -1063,4 +1098,37 @@ not_autoconnect (void)
 	}
 
 	return TRUE;
+}
+
+void
+fe_set_current (session *sess)
+{
+	// If find bar is open, hide it
+	find_bar_close (FIND_BAR (gui.find_bar));
+
+	gui.current_session = sess;
+
+	// Notify parts of the UI that the current session has changed
+	conversation_panel_set_current (CONVERSATION_PANEL (gui.conversation_panel), sess);
+	topic_label_set_current (TOPIC_LABEL (gui.topic_label), sess);
+	text_entry_set_current (TEXT_ENTRY (gui.text_entry), sess);
+	status_bar_set_current (STATUS_BAR (gui.status_bar), sess->server);
+	navigation_model_set_current (gui.tree_model, sess);
+
+	// Change the window name
+	if (sess->server->network == NULL) {
+		rename_main_window (NULL, sess->channel);
+	} else {
+		ircnet *net = sess->server->network;
+		rename_main_window (net->name, sess->channel);
+	}
+
+	// Set nickname button
+	set_nickname (sess->server, NULL);
+
+	// Set the label of the user list button
+	userlist_set_user_button (u, sess);
+
+	// Emit "focus tab" event for plugins that rely on it
+	plugin_emit_dummy_print (sess, "Focus Tab");
 }

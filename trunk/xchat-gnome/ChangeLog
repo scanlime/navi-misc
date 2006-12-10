@@ -1,5 +1,24 @@
 2006-12-09  David Trowbridge <trowbrds@gmail.com>
 
+	* src/common/fe.h:
+	* src/fe-gnome/navigation-tree.h:
+	* src/fe-gnome/conversation-panel.c:
+	* src/fe-gnome/util.c:
+	* src/fe-gnome/util.h:
+	* src/fe-gnome/main-window.c:
+	* src/fe-gnome/userlist-gui.c:
+	* src/fe-gnome/fe-gnome.c:
+	* src/fe-gnome/irc-network.c:
+	* src/fe-gnome/gui.c:
+	* src/fe-gnome/topic-label.c:
+	* src/fe-gnome/connect-dialog.c:
+	* src/fe-gnome/userlist.c:
+	* src/fe-gnome/navigation-tree.c:
+	* data/xchat-gnome-ui.xml:
+	  - Merge r10989:11029 from navtree-rework branch.
+
+2006-12-09  David Trowbridge <trowbrds@gmail.com>
+
 	* plugins/notify-osd/notify-osd.c:
 	  - "Xchat OSD" -> "XChat-GNOME OSD"
 

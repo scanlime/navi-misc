@@ -262,8 +262,9 @@ void
 userlist_erase (Userlist *userlist, session *sess)
 {
 	Store *store = g_hash_table_lookup (userlist->stores, sess);
-
-	g_assert (store != NULL);
+	if (store == NULL) {
+		return;
+	}
 
 	g_object_unref (store->liststore);
 	g_completion_free (store->completion);
