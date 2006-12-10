@@ -22,6 +22,7 @@
 #include <config.h>
 #include <glib/gi18n.h>
 #include "navigation-tree.h"
+#include "palette.h"
 #include "util.h"
 #include "../common/fe.h"
 
@@ -224,7 +225,7 @@ navigation_tree_remove_session (NavTree *tree, session *sess)
 		return;
 	}
 
-	if (gtk_tree_model_iter_has_child (model, &iter)) {
+	if (gtk_tree_model_iter_has_child (GTK_TREE_MODEL (model), &iter)) {
 		GtkTreeIter child;
 
 		/*
@@ -233,9 +234,9 @@ navigation_tree_remove_session (NavTree *tree, session *sess)
 		 * get around this, just iterate until the parent iter has
 		 * no children.
 		 */
-		while (gtk_tree_model_iter_children (model, &child, &iter)) {
+		while (gtk_tree_model_iter_children (GTK_TREE_MODEL (model), &child, &iter)) {
 			session *sess;
-			gtk_tree_model_get (model, &child, COLUMN_SESSION, &sess, -1);
+			gtk_tree_model_get (GTK_TREE_MODEL (model), &child, COLUMN_SESSION, &sess, -1);
 			fe_close_window (sess);
 		}
 	}
@@ -243,11 +244,11 @@ navigation_tree_remove_session (NavTree *tree, session *sess)
 	// Try to find an appropriate item to select.
 	GtkTreeIter new_selection = iter;
 	GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (tree));
-	if (gtk_tree_model_iter_next (model, &new_selection)) {
+	if (gtk_tree_model_iter_next (GTK_TREE_MODEL (model), &new_selection)) {
 		gtk_tree_selection_select_iter (selection, &new_selection);
 	} else {
 		// Try to select the first item.
-		if (gtk_tree_model_get_iter_first (model, &new_selection)) {
+		if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (model), &new_selection)) {
 			gtk_tree_selection_select_iter (selection, &new_selection);
 		}
 	}
@@ -548,6 +549,20 @@ navigation_model_update (NavModel *model, session *sess)
 		                    -1);
 		break;
 	}
+}
+
+void
+navigation_model_set_disconnected (NavModel *model, session *sess)
+{
+	GtkTreeIter iter;
+	if (find_session (model, sess, &iter, NULL) == FALSE) {
+		return;
+	}
+
+	gtk_tree_store_set (GTK_TREE_STORE (model), &iter,
+	                    COLUMN_COLOR,     &colors[40],
+	                    COLUMN_CONNECTED, FALSE,
+	                    -1);
 }
 
 void
