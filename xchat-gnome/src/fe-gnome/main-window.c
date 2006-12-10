@@ -51,7 +51,6 @@
 #include "../common/fe.h"
 
 static void on_main_window_close (GtkWidget *widget, GdkEvent *event, gpointer data);
-static void on_discussion_jump_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 static void on_pgup (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 static void on_pgdn (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 
@@ -65,19 +64,14 @@ static void on_edit_paste_activate (GtkAction *action, gpointer data);
 static void on_edit_preferences_activate (GtkAction *action, gpointer data);
 static void on_network_reconnect_activate (GtkAction *action, gpointer data);
 static void on_network_disconnect_activate (GtkAction *action, gpointer data);
-static void on_network_close_activate (GtkAction *action, gpointer data);
 static void on_network_channels_activate (GtkAction *action, gpointer data);
 static void on_discussion_save_activate (GtkAction *action, gpointer data);
 static void on_discussion_leave_activate (GtkAction *action, gpointer data);
-static void on_discussion_close_activate (GtkAction *action, gpointer data);
+static void on_close_activate (GtkAction *action, gpointer data);
 static void on_discussion_find_activate (GtkAction *action, gpointer data);
 static void on_discussion_bans_activate (GtkAction *action, gpointer data);
 static void on_discussion_topic_change_activate (GtkButton *widget, gpointer data);
 static void on_discussion_users_activate (GtkAction *action, gpointer data);
-static void on_go_previous_network_activate (GtkAction *action, gpointer data);
-static void on_go_next_network_activate (GtkAction *action, gpointer data);
-static void on_go_previous_discussion_activate (GtkAction *action, gpointer data);
-static void on_go_next_discussion_activate (GtkAction *action, gpointer data);
 static void on_help_contents_activate (GtkAction *action, gpointer data);
 static void on_help_about_activate (GtkAction *action, gpointer data);
 static void on_nickname_clicked (GtkButton *widget, gpointer user_data);
@@ -119,23 +113,17 @@ static GtkActionEntry action_entries [] = {
 	/* Network menu */
 	{ "NetworkReconnect",   GTK_STOCK_REFRESH,     N_("_Reconnect"),   "<control>R",        NULL, G_CALLBACK (on_network_reconnect_activate) },
 	{ "NetworkDisconnect",  GTK_STOCK_DISCONNECT,  N_("_Disconnect"),  "",                  NULL, G_CALLBACK (on_network_disconnect_activate) },
-	{ "NetworkClose",       GTK_STOCK_CLOSE,       N_("_Close"),       "<shift><control>W", NULL, G_CALLBACK (on_network_close_activate) },
+	{ "NetworkClose",       GTK_STOCK_CLOSE,       N_("_Close"),       "<shift><control>W", NULL, G_CALLBACK (on_close_activate) },
 	{ "NetworkChannels",    NULL,                  N_("_Channels..."), "<alt>C",            NULL, G_CALLBACK (on_network_channels_activate) },
 
 	/* Discussion menu */
 	{ "DiscussionSave",        GTK_STOCK_SAVE,           N_("_Save Transcript"), "<control>S", NULL, G_CALLBACK (on_discussion_save_activate) },
 	{ "DiscussionLeave",       GTK_STOCK_QUIT,           N_("_Leave"),           "",           NULL, G_CALLBACK (on_discussion_leave_activate) },
-	{ "DiscussionClose",       GTK_STOCK_CLOSE,          N_("Cl_ose"),           "<control>W", NULL, G_CALLBACK (on_discussion_close_activate) },
+	{ "DiscussionClose",       GTK_STOCK_CLOSE,          N_("Cl_ose"),           "<control>W", NULL, G_CALLBACK (on_close_activate) },
 	{ "DiscussionFind",        GTK_STOCK_FIND,           N_("_Find"),            "<control>F", NULL, G_CALLBACK (on_discussion_find_activate) },
 	{ "DiscussionChangeTopic", NULL,                     N_("Change _Topic"),    "<alt>T",     NULL, G_CALLBACK (on_discussion_topic_change_activate) },
 	{ "DiscussionBans",        GTK_STOCK_DIALOG_WARNING, N_("_Bans..."),         "<alt>B",     NULL, G_CALLBACK (on_discussion_bans_activate) },
 	{ "DiscussionUsers",       NULL,                     N_("_Users"),           "<control>U", NULL, G_CALLBACK (on_discussion_users_activate) },
-
-	/* Go menu */
-	{ "GoPreviousNetwork",    NULL, N_("Pre_vious Network"),    "<control>Up",   NULL, G_CALLBACK (on_go_previous_network_activate) },
-	{ "GoNextNetwork",        NULL, N_("Nex_t Network"),        "<control>Down", NULL, G_CALLBACK (on_go_next_network_activate) },
-	{ "GoPreviousDiscussion", NULL, N_("_Previous Discussion"), "<alt>Up",       NULL, G_CALLBACK (on_go_previous_discussion_activate) },
-	{ "GoNextDiscussion",     NULL, N_("_Next Discussion"),     "<alt>Down",     NULL, G_CALLBACK (on_go_next_discussion_activate) },
 
 	/* Help menu */
 	{ "HelpContents", GTK_STOCK_HELP,  N_("_Contents"), "F1", NULL, G_CALLBACK (on_help_contents_activate) },
@@ -175,7 +163,8 @@ initialize_main_window (void)
 	gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), gtk_ui_manager_get_accel_group (gui.manager));
 
 	close = glade_xml_get_widget (gui.xml, "close discussion");
-	g_signal_connect (close, "clicked", G_CALLBACK (on_discussion_close_activate), NULL);
+	action = gtk_action_group_get_action (gui.action_group, "DiscussionClose");
+	gtk_action_connect_proxy (action, close);
 
 #define GW(name) ((gui.name) = glade_xml_get_widget (gui.xml, #name))
 	GW(conversation_panel);
@@ -208,78 +197,13 @@ initialize_main_window (void)
 		gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), pg_accel);
 	}
 
-	/* Hook up accelerators for alt-#. */
-	{
-		GtkAccelGroup *discussion_accel;
-		GClosure *closure;
-		int i;
-		gchar num[2] = {0,0}; /* Will be used to help determine the keyval. */
-
-		/* Create our accelerator group. */
-		discussion_accel = gtk_accel_group_new ();
-
-		/* For alt-1 through alt-9 we just loop to set up the accelerators.
-		 * We want the data passed with the callback to be one less then the
-		 * button pressed (e.g. alt-1 requests the channel who's path is 0:0)
-		 * so we loop from 0 <= i < 1. We use i for the user data and the ascii
-		 * value of i+1 to get the keyval.
-		 */
-		for (i = 0; i < 9; i++) {
-			/* num is a string containing the ascii value of i+1. */
-			num[0] = i + '1';
-
-			/* Set up our GClosure with user data set to i. */
-			closure = g_cclosure_new (G_CALLBACK (on_discussion_jump_activate), GINT_TO_POINTER (i), NULL);
-
-			/* Connect up the accelerator. */
-			gtk_accel_group_connect (discussion_accel, gdk_keyval_from_name (num), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
-
-			/* Delete the reference to the GClosure. */
-			g_closure_unref (closure);
-		}
-
-		/* Now we set up keypress alt-0 with user data 9. */
-		closure = g_cclosure_new (G_CALLBACK (on_discussion_jump_activate), GUINT_TO_POINTER (9), NULL);
-		gtk_accel_group_connect (discussion_accel, gdk_keyval_from_name ("0"), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
-		g_closure_unref (closure);
-
-		/* alt-+ */
-		closure = g_cclosure_new (G_CALLBACK (on_go_next_discussion_activate), NULL, NULL);
-		gtk_accel_group_connect (discussion_accel, gdk_keyval_from_name ("equal"), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
-		g_closure_unref (closure);
-
-		/* alt-- */
-		closure = g_cclosure_new (G_CALLBACK (on_go_previous_discussion_activate), NULL, NULL);
-		gtk_accel_group_connect (discussion_accel, gdk_keyval_from_name ("minus"), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
-		g_closure_unref (closure);
-
-		/* We've had a couple of calls to hook up Ctrl-Alt-PgUp and
-		 * Ctrl-Alt-PgDown to discussion navigation. As far as I can
-		 * tell this is not HIG compliant, but for the time being we'll
-		 * put it in. It's easy enough to delete it later.
-		 */
-		closure = g_cclosure_new (G_CALLBACK (on_go_next_discussion_activate), NULL, NULL);
-		gtk_accel_group_connect (discussion_accel, GDK_Page_Down,
-		                         GDK_MOD1_MASK | GDK_CONTROL_MASK , GTK_ACCEL_VISIBLE, closure);
-
-		g_closure_unref (closure);
-
-		closure = g_cclosure_new (G_CALLBACK (on_go_previous_discussion_activate), NULL, NULL);
-		gtk_accel_group_connect (discussion_accel, GDK_Page_Up,
-		                        GDK_MOD1_MASK | GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, closure);
-
-		g_closure_unref (closure);
-
-		/* Add the accelgroup to the main window. */
-		gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), discussion_accel);
-	}
+	navigation_tree_add_accels (gui.server_tree, GTK_WINDOW (gui.main_window));
 
 	/* Size group between users button and entry field */
 	group = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL);
 	gui.userlist_toggle = glade_xml_get_widget (gui.xml, "userlist_toggle");
 	g_signal_connect (G_OBJECT (gui.userlist_toggle), "toggled", G_CALLBACK (on_users_toggled), NULL);
 
-	GtkIconTheme *theme = gtk_icon_theme_get_default ();
 	gtk_button_set_image (GTK_BUTTON (gui.userlist_toggle), gtk_image_new_from_icon_name ("xchat-gnome-users", GTK_ICON_SIZE_MENU));
 	gtk_size_group_add_widget (group, gui.userlist_toggle);
 	widget = glade_xml_get_widget (gui.xml, "entry hbox");
@@ -449,27 +373,6 @@ on_network_disconnect_activate (GtkAction *action, gpointer data)
 }
 
 static void
-on_network_close_activate (GtkAction *actoin, gpointer data)
-{
-	GtkTreeIter parent, *iter;
-	session *sess = gui.current_session;
-	if (sess == NULL)
-		return;
-
-	iter = navigation_model_get_unsorted_iter (gui.tree_model, sess);
-
-	sess->server->disconnect (sess, TRUE, -1);
-
-	if (gtk_tree_model_iter_parent (GTK_TREE_MODEL (gui.tree_model->store), &parent, iter)) {
-		gtk_tree_store_remove (gui.tree_model->store, &parent);
-	} else {
-		gtk_tree_store_remove (gui.tree_model->store, iter);
-	}
-
-	gtk_tree_iter_free (iter);
-}
-
-static void
 on_irc_downloads_activate (GtkAction *action, gpointer data)
 {
 	gtk_window_present (GTK_WINDOW (gui.dcc));
@@ -513,16 +416,36 @@ on_discussion_leave_activate (GtkAction *action, gpointer data)
 }
 
 static void
-on_discussion_close_activate (GtkAction *action, gpointer data)
+on_close_activate (GtkAction *action, gpointer data)
 {
 	session *s = gui.current_session;
 	if (s == NULL) {
 		return;
 	}
+
+	switch (s->type) {
+	case SESS_CHANNEL:
+	{
+		GConfClient *client = gconf_client_get_default ();
+		gchar *text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
+		if (text == NULL) {
+			text = g_strdup (_("Ex-Chat"));
+		}
+
+		s->server->p_part (s->server, s->channel, text);
+
+		g_object_unref (client);
+		g_free (text);
+
+		break;
+	}
+
+	case SESS_SERVER:
+		s->server->disconnect (s, TRUE, -1);
+		break;
+	}
+
 	fe_close_window (s);
-	conversation_panel_remove_session (CONVERSATION_PANEL (gui.conversation_panel), s);
-	topic_label_remove_session        (TOPIC_LABEL        (gui.topic_label),        s);
-	text_entry_remove_session         (TEXT_ENTRY         (gui.text_entry),         s);
 }
 
 static void
@@ -535,36 +458,6 @@ static void
 on_discussion_bans_activate (GtkAction *action, gpointer data)
 {
 	/* FIXME: implement */
-}
-
-static void
-on_go_previous_network_activate (GtkAction *action, gpointer data)
-{
-	navigation_tree_select_prev_network (gui.server_tree);
-}
-
-static void
-on_go_next_network_activate(GtkAction *action, gpointer data)
-{
-	navigation_tree_select_next_network (gui.server_tree);
-}
-
-static void
-on_go_previous_discussion_activate (GtkAction *action, gpointer data)
-{
-	navigation_tree_select_prev_channel (gui.server_tree);
-}
-
-static void
-on_go_next_discussion_activate (GtkAction *action, gpointer data)
-{
-	navigation_tree_select_next_channel (gui.server_tree);
-}
-
-static void
-on_discussion_jump_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data)
-{
-	navigation_tree_select_nth_channel (gui.server_tree, GPOINTER_TO_INT (data));
 }
 
 static void

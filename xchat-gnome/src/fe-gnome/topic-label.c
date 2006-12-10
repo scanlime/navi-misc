@@ -96,7 +96,6 @@ topic_label_init (TopicLabel *label)
 	priv->sizing_label = gtk_label_new (NULL);
 #endif
 	gtk_expander_set_expanded (GTK_EXPANDER (priv->expander), FALSE);
-	gtk_expander_set_use_markup (GTK_EXPANDER (priv->expander), TRUE);
 	gtk_label_set_ellipsize (GTK_LABEL (priv->label), PANGO_ELLIPSIZE_END);
 	gtk_label_set_selectable (GTK_LABEL (priv->label), TRUE);
 	gtk_misc_set_alignment (GTK_MISC (priv->label), 0.0, 0.0);

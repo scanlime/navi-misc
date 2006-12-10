@@ -63,8 +63,8 @@ initialize_gui_2 (void)
 	gui.tree_model = navigation_model_new ();
 	gui.server_tree = navigation_tree_new (gui.tree_model);
 	pixmaps_init ();
-	initialize_main_window ();
 	initialize_userlist ();
+	initialize_main_window ();
 
 	widget = glade_xml_get_widget (gui.xml, "server channel list");
 	gtk_widget_show (GTK_WIDGET (gui.server_tree));
