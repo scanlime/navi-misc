@@ -197,7 +197,7 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 
 	ph = plugin_handle;
 
-	if (notify_init ("Xchat OSD")) {
+	if (notify_init ("XChat-GNOME OSD")) {
 		GtkIconTheme *theme = gtk_icon_theme_get_default ();
 		notify_icon = gtk_icon_theme_load_icon (theme, "xchat-gnome", 48, 0, NULL);
 
