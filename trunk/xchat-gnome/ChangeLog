@@ -1,5 +1,12 @@
 2006-12-09  David Trowbridge <trowbrds@gmail.com>
 
+	* src/fe-gnome/fe-gnome.c:
+	* src/fe-gnome/navigation-tree.h:
+	* src/fe-gnome/navigation-tree.c:
+	  - Implement a couple more loose ends from the navtree rework.
+
+2006-12-09  David Trowbridge <trowbrds@gmail.com>
+
 	* src/fe-gnome/conversation-panel.c:
 	  - Open existing channels/queries when clicking on them in the
 	    conversation panel.

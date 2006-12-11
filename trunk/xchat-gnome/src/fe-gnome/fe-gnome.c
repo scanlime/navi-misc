@@ -324,9 +324,7 @@ fe_set_topic (struct session *sess, char *topic)
 void
 fe_set_hilight (struct session *sess)
 {
-	/* FIXME
 	navigation_model_set_hilight (gui.tree_model, sess);
-	*/
 	fe_flash_window (sess);
 }
 
