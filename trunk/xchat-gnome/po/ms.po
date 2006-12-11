@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-12-08 23:15+0100\n"
+"POT-Creation-Date: 2006-12-10 20:17+0100\n"
 "PO-Revision-Date: 2006-06-21 08:33+0000\n"
 "Last-Translator: Hasbullah Bin Pit <sebol@ikhlas.com>\n"
 "Language-Team: Malay <translation-team-ms@lists.sourceforge.net>\n"
@@ -1705,16 +1705,15 @@ msgstr "-%C10-%C11-%O$tSaluran $1 dicipta pada $2"
 
 #: ../src/common/textevents.h:33
 msgid "-%C10-%C11-%O$t$1 removes channel half-operator status from $2"
-msgstr ""
-"-%C10-%C11-%O$t%C11$1%O membuang status semi-operator saluran drpd %C11$2"
+msgstr "-%C10-%C11-%O$t$1 membuang status semi-operator saluran drpd $2"
 
 #: ../src/common/textevents.h:36
 msgid "-%C10-%C11-%O$t$1 removes channel operator status from $2"
-msgstr "-%C10-%C11-%O$t%C11$1%O membuang status operator saluran drpd %C11$2"
+msgstr "-%C10-%C11-%O$t$1 membuang status operator saluran drpd $2"
 
 #: ../src/common/textevents.h:39
 msgid "-%C10-%C11-%O$t$1 removes voice from $2"
-msgstr "-%C10-%C11-%O$t%C11$1%O membuang voice drpd %C11$2"
+msgstr "-%C10-%C11-%O$t$1 membuang voice drpd $2"
 
 #: ../src/common/textevents.h:42
 msgid "-%C10-%C11-%O$t$1 sets exempt on $2"
@@ -1722,7 +1721,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:45
 msgid "-%C10-%C11-%O$t$1 gives channel half-operator status to $2"
-msgstr "-%C10-%C11-%O$t%C11$1%O memberi status operator saluran kepada %C11$2"
+msgstr "-%C10-%C11-%O$t$1 memberi status operator saluran kepada $2"
 
 #: ../src/common/textevents.h:48
 msgid "-%C10-%C11-%O$t$1 sets invite on $2"
@@ -1754,7 +1753,7 @@ msgstr "%C12-%C13$1/$2%C12-%O$t$3%O"
 
 #: ../src/common/textevents.h:69
 msgid "-%C10-%C11-%O$t$1 gives channel operator status to $2"
-msgstr "-%C10-%C11-%O$t%C11$1%O memberi status operator saluran kepada %C11$2"
+msgstr "-%C10-%C11-%O$t$1 memberi status operator saluran kepada $2"
 
 #: ../src/common/textevents.h:72
 msgid "-%C10-%C11-%O$t$1 removes exempt on $2"
@@ -1786,7 +1785,7 @@ msgstr "-%C10-%C11-%O$t$1 membuang ban pada $2"
 
 #: ../src/common/textevents.h:93
 msgid "-%C10-%C11-%O$t$1 gives voice to $2"
-msgstr "-%C10-%C11-%O$t%C11$1%O memberi voice kepada %C11$2"
+msgstr "-%C10-%C11-%O$t$1 memberi voice kepada $2"
 
 #: ../src/common/textevents.h:96
 msgid "-%C10-%C11-%O$tConnected. Now logging in.."
@@ -1819,7 +1818,7 @@ msgstr "-%C10-%C11-%O$tMenerima CTCP Sound $1 drpd $2"
 
 #: ../src/common/textevents.h:117
 msgid "%C22*%O$tReceived a CTCP Sound $1 from $2 (to $3)"
-msgstr "-%C10-%C11-%O$tMenerima CTCP $1 drpd $2 (ke $3)"
+msgstr "%C22*%O$tMenerima CTCP $1 drpd $2 (ke $3)"
 
 #: ../src/common/textevents.h:120
 msgid "-%C10-%C11-%O$tDCC CHAT to %C11$1%O aborted."
@@ -1835,7 +1834,7 @@ msgstr ""
 msgid ""
 "-%C10-%C11-%O$tDCC CHAT failed. Connection to $1 %C14[%O$2:$3%C14]%O lost."
 msgstr ""
-"-%C10-%C11-%O$tSambungan DCC CHAT terjalin dengan %C11$1 %C14[%O$2%C14]%O"
+"-%C10-%C11-%O$tSambungan DCC CHAT terjalin dengan $1 %C14[%O$2:$3%C14]%O"
 
 #: ../src/common/textevents.h:129
 msgid "-%C10-%C11-%O$tReceived a DCC CHAT offer from $1"
@@ -1892,12 +1891,14 @@ msgid ""
 msgstr ""
 
 #: ../src/common/textevents.h:165
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC RECV $1 ($2) failed. Connection to $3 lost."
 msgstr "-%C10-%C11-%O$t$1 ditambah ke senarai notifikasi."
 
 #: ../src/common/textevents.h:168
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC RECV: Cannot open $1 for writing ($2)."
-msgstr "-%C10-%C11-%O$tDCC CHAT dengan %C11$1%O hilang. $4."
+msgstr "-%C10-%C11-%O$tDCC CHAT dengan $1%O hilang. $4."
 
 #: ../src/common/textevents.h:171
 msgid ""
@@ -1925,6 +1926,7 @@ msgid ""
 msgstr ""
 
 #: ../src/common/textevents.h:186
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC SEND %C11$1%O failed. Connection to %C11$2%O lost."
 msgstr "-%C10-%C11-%O$t%C11$1%O memberi voice kepada %C11$2"
 
@@ -2137,7 +2139,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:360
 msgid "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
-msgstr "-%C10-%C11-%O$t%C11$1%O memberi voice kepada %C11$2"
+msgstr "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
 
 #: ../src/common/textevents.h:363
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %Cis away %C14(%O$2%O%C14)"
@@ -2153,7 +2155,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:372
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C$2"
-msgstr "-%C10-%C11-%O$t%C11$1%O memberi voice kepada %C11$2"
+msgstr "-%C10-%C11-%O$t%C12[%O$1%C12] %C$2"
 
 #: ../src/common/textevents.h:375
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O"
@@ -2178,7 +2180,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:390
 msgid "%C22*%O$t%C28[%O$1%C28]%O $2"
-msgstr "%C13*%O$t%C8%B$1%B%O $2%O"
+msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:393
 msgid "-%C10-%C11>%O$t%BYou%B are now talking on %C11$2%O"
@@ -3506,6 +3508,7 @@ msgid "_Copy Address"
 msgstr "Alamat IP"
 
 #: ../src/fe-gnome/conversation-panel.c:180
+#, fuzzy
 msgid "_Send File"
 msgstr "Kirim fail kepada %s"
 
@@ -3645,6 +3648,7 @@ msgid "%.2d:%.2d"
 msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:439
+#, fuzzy
 msgid "Send File..."
 msgstr "Kirim fail kepada %s"
 
@@ -4205,6 +4209,7 @@ msgid "Changing topic for %s"
 msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:61
+#, fuzzy
 msgid "_Send File..."
 msgstr "Kirim fail kepada %s"
 
