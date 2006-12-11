@@ -1,6 +1,6 @@
 AC_INIT([XChat-GNOME IRC Chat],[0.16svn],[http://bugzilla.gnome.org/enter_bug.cgi?product=xchat-gnome],[xchat-gnome])
 
-AC_PREREQ([2.59])
+AC_PREREQ([2.60])
 
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
