@@ -1,4 +1,8 @@
-icondir = $(datadir)/icons/hicolor/16x16/apps
+themedir = $(pkgdatadir)/icons/hicolor
+category = apps
+size = 16x16
+
+icondir = $(themedir)/$(size)/$(category)
 icon_DATA =					\
 	xchat-gnome-dcc.png			\
 	xchat-gnome-message-data.png		\

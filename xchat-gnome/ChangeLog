@@ -1,3 +1,17 @@
+2006-12-10  Christian Persch  <chpe@cvs.gnome.org>
+
+	* data/icons/hicolor/128x128/apps/Makefile.am:
+	* data/icons/hicolor/16x16/apps/Makefile.am:
+	* data/icons/hicolor/22x22/apps/Makefile.am:
+	* data/icons/hicolor/48x48/apps/Makefile.am:
+	* data/icons/hicolor/scalable/apps/Makefile.am:
+	  - Install the icons in the app sharedir, not the global one.
+
+	* src/fe-gnome/Makefile.am:
+	* src/fe-gnome/pixmaps.c: (pixmaps_init):
+	  - Append the app icon dir to the theme directories, so xchat-gnome
+	    can find its icons. Bug #384160.
+
 2006-12-10  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/navigation-tree.h:
