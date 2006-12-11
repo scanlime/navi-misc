@@ -47,6 +47,7 @@ typedef struct
 	GtkWidget *userlist;
 	GtkWidget *userlist_toggle;
 	session *current_session;
+	gboolean initialized;
 	gboolean quit;
 
 	GtkWidget *conversation_panel;

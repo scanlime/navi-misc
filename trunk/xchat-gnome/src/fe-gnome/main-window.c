@@ -214,10 +214,6 @@ initialize_main_window (void)
 	gtk_button_set_use_underline (GTK_BUTTON (gui.nick_button), FALSE);
 	g_signal_connect (G_OBJECT (gui.nick_button), "clicked",   G_CALLBACK (on_nickname_clicked), NULL);
 	g_signal_connect (G_OBJECT (GTK_BIN (gui.nick_button)->child), "style-set", G_CALLBACK (nickname_style_set),  NULL);
-
-	/* Temporarily disable menu items */
-	action = gtk_action_group_get_action (gui.action_group, "DiscussionBans");
-	gtk_action_set_sensitive (action, FALSE);
 }
 
 void
