@@ -41,10 +41,12 @@ static gboolean popup_menu        (GtkWidget *widget, GdkEventButton *event);
 
 static void     jump_to_discussion (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 static void     select_nth_channel (NavTree *navtree, gint num);
-static void     go_previous_network (GtkAction *action, gpointer data);
-static void     go_next_network (GtkAction *action, gpointer data);
+
+static void     go_previous_network    (GtkAction *action, gpointer data);
+static void     go_next_network        (GtkAction *action, gpointer data);
 static void     go_previous_discussion (GtkAction *action, gpointer data);
-static void     go_next_discussion (GtkAction *action, gpointer data);
+static void     go_next_discussion     (GtkAction *action, gpointer data);
+static void     join_channel           (GtkAction *action, gpointer data);
 
 
 #define NAVTREE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), NAVTREE_TYPE, NavTreePriv))
@@ -91,7 +93,7 @@ static GtkActionEntry action_entries[] = {
 	{ "GoNextDiscussion",     NULL, N_("_Next Discussion"),     "<alt>Down",     NULL, G_CALLBACK (go_next_discussion) },
 
 	// Discussion context menu
-	{"DiscussionJoin",       GTK_STOCK_JUMP_TO,        N_("_Join"),            "", NULL, NULL},
+	{"DiscussionJoin", GTK_STOCK_JUMP_TO, N_("_Join"), "", NULL, G_CALLBACK (join_channel) },
 };
 
 static GtkToggleActionEntry toggle_action_entries[] = {
@@ -307,9 +309,7 @@ selection_changed (GtkTreeSelection *selection, NavTree *tree)
 		if (sess) {
 			fe_set_current (sess);
 
-			GtkAction *action;
-
-			action = gtk_action_group_get_action (tree->priv->action_group, "DiscussionAutoJoin");
+			GtkAction *action = gtk_action_group_get_action (tree->priv->action_group, "DiscussionAutoJoin");
 			gtk_action_set_sensitive (action, sess->server->network != NULL);
 			gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), channel_is_autojoin (sess));
 
@@ -1065,8 +1065,7 @@ go_next_discussion (GtkAction *action, gpointer data)
 	} else {
 		parent = iter;
 
-		GtkTreePath *current, *old;
-		old = gtk_tree_model_get_path (model, &iter);
+		GtkTreePath *old = gtk_tree_model_get_path (model, &iter);
 		do {
 			GtkTreePath *path = gtk_tree_model_get_path (model, &parent);
 			if (gtk_tree_model_iter_has_child (model, &parent) &&
@@ -1083,10 +1082,10 @@ go_next_discussion (GtkAction *action, gpointer data)
 			}
 
 			/*
-			 * Since this search wraps, it's possible that it could
+			 * FIXME: Since this search wraps, it's possible that it could
 			 * infinite loop if there are no channels joined.  Fix that.
 			 */
-			current = gtk_tree_model_get_path (model, &parent);
+			GtkTreePath *current = gtk_tree_model_get_path (model, &parent);
 			if (gtk_tree_path_compare (old, current) == 0) {
 				gtk_tree_path_free (old);
 				gtk_tree_path_free (current);
@@ -1095,4 +1094,58 @@ go_next_discussion (GtkAction *action, gpointer data)
 			gtk_tree_path_free (current);
 		} while (TRUE);
 	}
+}
+
+static void
+join_channel (GtkAction *action, gpointer data)
+{
+	NavTree *navtree = gui.server_tree;
+
+	GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
+
+	// If nothing is currently selected, bail out
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	if (!gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		return;
+	}
+
+	session *sess;
+	gchar *channel;
+	gboolean connected;
+	gtk_tree_model_get (model, &iter,
+	                    COLUMN_NAME,      &channel,
+	                    COLUMN_SESSION,   &sess,
+	                    COLUMN_CONNECTED, &connected,
+	                    -1);
+	g_assert (sess->type == SESS_CHANNEL);
+	g_assert (sess->server != NULL);
+	g_assert (sess->server->connected == TRUE);
+	sess->server->p_join(sess->server, channel, sess->channelkey);
+	g_free (channel);
+}
+
+static void
+set_action_state (NavTree *navtree)
+{
+	GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
+
+	// If nothing is currently selected, very few things will work
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	if (!gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		gtk_action_set_sensitive (gtk_action_group_get_action (navtree->priv->action_group, "DiscussionJoin"),     FALSE);
+		gtk_action_set_sensitive (gtk_action_group_get_action (navtree->priv->action_group, "NetworkAutoConnect"), FALSE);
+		gtk_action_set_sensitive (gtk_action_group_get_action (navtree->priv->action_group, "DiscussionAutoJoin"), FALSE);
+
+		return;
+	}
+
+	session *sess;
+	gboolean connected;
+	gtk_tree_model_get (model, &iter,
+	                    COLUMN_SESSION,   &sess,
+	                    COLUMN_CONNECTED, &connected,
+	                    -1);
+
 }
