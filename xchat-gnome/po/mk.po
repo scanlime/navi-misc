@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-12-08 23:15+0100\n"
+"POT-Creation-Date: 2006-12-10 20:17+0100\n"
 "PO-Revision-Date: 2006-06-21 08:33+0000\n"
 "Last-Translator: Арангел Ангов <ufo@linux.net.mk>\n"
 "Language-Team: Macedonian <ufo@linux.net.mk>\n"
@@ -1759,7 +1759,7 @@ msgstr "-%C10-%C11-%O$t$1 е познат како $2"
 
 #: ../src/common/textevents.h:21
 msgid "%C13*%O$t$1 $2%O"
-msgstr "%C13*%O$t$1%O $2%O"
+msgstr "%C13*%O$t$1 $2%O"
 
 #: ../src/common/textevents.h:24
 msgid "%C13*%O$t%C8%B$1%B%O $2%O"
@@ -1775,15 +1775,15 @@ msgstr "-%C10-%C11-%O$tChannel $1 создаден на $2"
 
 #: ../src/common/textevents.h:33
 msgid "-%C10-%C11-%O$t$1 removes channel half-operator status from $2"
-msgstr "-%C10-%C11-%O$t%C11$1%O одзема полу-операторски статус на %C11$2"
+msgstr "-%C10-%C11-%O$t$1 одзема полу-операторски статус на $2"
 
 #: ../src/common/textevents.h:36
 msgid "-%C10-%C11-%O$t$1 removes channel operator status from $2"
-msgstr "-%C10-%C11-%O$t%C11$1%O одзема операторски статус на %C11$2"
+msgstr "-%C10-%C11-%O$t$1 одзема операторски статус на $2"
 
 #: ../src/common/textevents.h:39
 msgid "-%C10-%C11-%O$t$1 removes voice from $2"
-msgstr "-%C10-%C11-%O$t%C11$1%O отстранува глас од %C11$2"
+msgstr "-%C10-%C11-%O$t$1 отстранува глас од $2"
 
 #: ../src/common/textevents.h:42
 msgid "-%C10-%C11-%O$t$1 sets exempt on $2"
@@ -1791,7 +1791,7 @@ msgstr "-%C10-%C11-%O$t$1 подесува exempt на $2"
 
 #: ../src/common/textevents.h:45
 msgid "-%C10-%C11-%O$t$1 gives channel half-operator status to $2"
-msgstr "-%C10-%C11-%O$t%C11$1%O дава полу-операторски статус на %C11$2"
+msgstr "-%C10-%C11-%O$t$1 дава полу-операторски статус на $2"
 
 #: ../src/common/textevents.h:48
 msgid "-%C10-%C11-%O$t$1 sets invite on $2"
@@ -1823,7 +1823,7 @@ msgstr "%C12-%C13$1/$2%C12-%O$t$3%O"
 
 #: ../src/common/textevents.h:69
 msgid "-%C10-%C11-%O$t$1 gives channel operator status to $2"
-msgstr "-%C10-%C11-%O$t%C11$1%O дава операторски статус на %C11$2"
+msgstr "-%C10-%C11-%O$t$1 дава операторски статус на $2"
 
 #: ../src/common/textevents.h:72
 msgid "-%C10-%C11-%O$t$1 removes exempt on $2"
@@ -1855,7 +1855,7 @@ msgstr "-%C10-%C11-%O$t$1 го отстранува банот на $2"
 
 #: ../src/common/textevents.h:93
 msgid "-%C10-%C11-%O$t$1 gives voice to $2"
-msgstr "-%C10-%C11-%O$t%C11$1%O дава глас на %C11$2"
+msgstr "-%C10-%C11-%O$t$1 дава глас на $2"
 
 #: ../src/common/textevents.h:96
 msgid "-%C10-%C11-%O$tConnected. Now logging in.."
@@ -1888,7 +1888,7 @@ msgstr "-%C10-%C11-%O$tДоби CTCP звук $1 од1 $2"
 
 #: ../src/common/textevents.h:117
 msgid "%C22*%O$tReceived a CTCP Sound $1 from $2 (to $3)"
-msgstr "-%C10-%C11-%O$tДоби CTCP $1 од $2 (to $3)"
+msgstr "%C22*%O$tДоби CTCP $1 од $2 (to $3)"
 
 #: ../src/common/textevents.h:120
 msgid "-%C10-%C11-%O$tDCC CHAT to %C11$1%O aborted."
@@ -1902,7 +1902,7 @@ msgstr "-%C10-%C11-%O$tDCC CHAT врска со %C11$1 %C14[%O$2%C14]%O"
 #: ../src/common/textevents.h:126
 msgid ""
 "-%C10-%C11-%O$tDCC CHAT failed. Connection to $1 %C14[%O$2:$3%C14]%O lost."
-msgstr "-%C10-%C11-%O$tDCC CHAT врска со %C11$1 %C14[%O$2%C14]%O"
+msgstr "-%C10-%C11-%O$tDCC CHAT врска со $1 %C14[%O$2:$3%C14]%O"
 
 #: ../src/common/textevents.h:129
 msgid "-%C10-%C11-%O$tReceived a DCC CHAT offer from $1"
@@ -1965,8 +1965,9 @@ msgstr ""
 "-%C10-%C11-%O$tDCC примање, врската е воспоставена со %C11$1 %C14[%O$2%C14]%O"
 
 #: ../src/common/textevents.h:165
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC RECV $1 ($2) failed. Connection to $3 lost."
-msgstr "-%C10-%C11-%O$tDCC примањето %C11$1%O од %C11$3%O е неуспешно. $4."
+msgstr "-%C10-%C11-%O$tDCC примањето $1 ($2) од $3 е неуспешно."
 
 #: ../src/common/textevents.h:168
 msgid "-%C10-%C11-%O$tDCC RECV: Cannot open $1 for writing ($2)."
@@ -2004,7 +2005,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:186
 msgid "-%C10-%C11-%O$tDCC SEND %C11$1%O failed. Connection to %C11$2%O lost."
-msgstr "-%C10-%C11-%O$tDCC праќањето %C11$1%O to %C11$2%O е неуспшено. $3"
+msgstr "-%C10-%C11-%O$tDCC праќањето %C11$1%O to %C11$2%O е неуспшено."
 
 #: ../src/common/textevents.h:189
 msgid "-%C10-%C11-%O$t%C11$1 %Chas offered %C11$2 %C(%C11$3 %Cbytes)"
@@ -2220,7 +2221,7 @@ msgstr "-%C10-%C11-%O$t%C11Корисници на $1:%C $2"
 
 #: ../src/common/textevents.h:360
 msgid "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
-msgstr "-%C10-%C11-%O$t%C12[%O$1%C12] %O$2 %C11$3%O"
+msgstr "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
 
 #: ../src/common/textevents.h:363
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %Cis away %C14(%O$2%O%C14)"
@@ -2236,7 +2237,7 @@ msgstr "-%C10-%C11-%O$t%C12[%O$1%C12] %CКрај на WHOIS листата."
 
 #: ../src/common/textevents.h:372
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C$2"
-msgstr "-%C10-%C11-%O$t%C12[%O$1%C12] %O$2"
+msgstr "-%C10-%C11-%O$t%C12[%O$1%C12] %C$2"
 
 #: ../src/common/textevents.h:375
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O"
@@ -2264,7 +2265,7 @@ msgstr "-%C10-%C11-%O$t%C12[%O$1%C12]%O $2"
 
 #: ../src/common/textevents.h:390
 msgid "%C22*%O$t%C28[%O$1%C28]%O $2"
-msgstr "-%C10-%C11-%O$t%C12[%O$1%C12]%O $2"
+msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:393
 msgid "-%C10-%C11>%O$t%BYou%B are now talking on %C11$2%O"

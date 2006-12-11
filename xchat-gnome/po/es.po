@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-12-08 23:15+0100\n"
+"POT-Creation-Date: 2006-12-10 20:16+0100\n"
 "PO-Revision-Date: 2006-06-21 08:23+0000\n"
 "Last-Translator: Ricardo Pérez López <ricardo@iesdonana.org>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -1814,7 +1814,7 @@ msgstr "-%C10-%C11-%O$t$1 es ahora conocido como $2"
 
 #: ../src/common/textevents.h:21
 msgid "%C13*%O$t$1 $2%O"
-msgstr "%C13*%O$t$1%O $2%O"
+msgstr "%C13*%O$t$1 $2%O"
 
 #: ../src/common/textevents.h:24
 msgid "%C13*%O$t%C8%B$1%B%O $2%O"
@@ -1830,12 +1830,11 @@ msgstr "-%C10-%C11-%O$tCanal $1 creado en $2"
 
 #: ../src/common/textevents.h:33
 msgid "-%C10-%C11-%O$t$1 removes channel half-operator status from $2"
-msgstr ""
-"-%C10-%C11-%O$t%C11$1%O quita el estado de semi-operador del canal a %C11$2"
+msgstr "-%C10-%C11-%O$t$1 quita el estado de semi-operador del canal a $2"
 
 #: ../src/common/textevents.h:36
 msgid "-%C10-%C11-%O$t$1 removes channel operator status from $2"
-msgstr "-%C10-%C11-%O$t%C11$1%O quita el estado de operador del canal a %C11$2"
+msgstr "-%C10-%C11-%O$t$1 quita el estado de operador del canal a $2"
 
 #: ../src/common/textevents.h:39
 msgid "-%C10-%C11-%O$t$1 removes voice from $2"
@@ -1911,7 +1910,7 @@ msgstr "-%C10-%C11-%O$t$1 quita veto a $2"
 
 #: ../src/common/textevents.h:93
 msgid "-%C10-%C11-%O$t$1 gives voice to $2"
-msgstr "-%C10-%C11-%O$t%C11$1%O da voz a %C11$2"
+msgstr "-%C10-%C11-%O$t$1 da voz a $2"
 
 #: ../src/common/textevents.h:96
 msgid "-%C10-%C11-%O$tConnected. Now logging in.."
@@ -1999,6 +1998,7 @@ msgstr ""
 "%C11-%O$tContenidos del paquete: $2"
 
 #: ../src/common/textevents.h:150
+#, fuzzy
 msgid "-%C10-%C11-%O$tOffering %C11$1 %Cto %C11$2%O"
 msgstr "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
 
@@ -2190,9 +2190,7 @@ msgstr "-%C10-%C11-%O$tLa lista de notificaciones está vacía."
 
 #: ../src/common/textevents.h:276
 msgid "%C24,18 %B  Notify List                           "
-msgstr ""
-"%C24,18 %B Lisa de avisos                                                  %"
-"O                           "
+msgstr "%C24,18 %B Lisa de avisos                           "
 
 #: ../src/common/textevents.h:279
 msgid "-%C10-%C11-%O$t$1 users in notify list."
@@ -2207,8 +2205,9 @@ msgid "-%C10-%C11-%O$tNotify: $1 is online ($2)."
 msgstr "-%C10-%C11-%O$tNotificación: $1 se ha conectado ($2)."
 
 #: ../src/common/textevents.h:291
+#, fuzzy
 msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3"
-msgstr "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
+msgstr "<%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
 
 #: ../src/common/textevents.h:294
 msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3 %C14(%O$4%C14)%O"
@@ -2232,6 +2231,7 @@ msgid "-%C10-%C11-%O$tA process is already running"
 msgstr "-%C10-%C11-%O$tYa se está ejecutando un proceso"
 
 #: ../src/common/textevents.h:312
+#, fuzzy
 msgid "<%C10-%C11-%O$t$1 has quit %C14(%O$2%O%C14)%O"
 msgstr "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
 
@@ -2248,10 +2248,12 @@ msgid "-%C10-%C11-%O$tLooking up IP number for%C11 $1%O.."
 msgstr "-%C10-%C11-%O$tBuscando número de IP para%C11 $1%O.."
 
 #: ../src/common/textevents.h:324
+#, fuzzy
 msgid "-%C10-%C11-%O$tConnected."
 msgstr "-%C10-%C11-%O$t$1%O"
 
 #: ../src/common/textevents.h:330
+#, fuzzy
 msgid "-%C10-%C11-%O$tLooking up %C11$1%C.."
 msgstr "-%C10-%C11-%O$t$1%O"
 
@@ -2260,6 +2262,7 @@ msgid "-%C10-%C11-%O$tStopped previous connection attempt (pid=$1)"
 msgstr "-%C10-%C11-%O$tSe paró el anterior intento de conexión (pid=$1)"
 
 #: ../src/common/textevents.h:342
+#, fuzzy
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C is %C11$2%O"
 msgstr "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
 
@@ -2305,6 +2308,7 @@ msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C$2"
 msgstr "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
 
 #: ../src/common/textevents.h:375
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O"
 msgstr "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
 
@@ -2332,6 +2336,7 @@ msgid "%C22*%O$t%C28[%O$1%C28]%O $2"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:393
+#, fuzzy
 msgid "-%C10-%C11>%O$t%BYou%B are now talking on %C11$2%O"
 msgstr "-%C10-%C11-%O$tEs ahora conocido como $2"
 
