@@ -324,6 +324,8 @@ selection_changed (GtkTreeSelection *selection, NavTree *tree)
 		tree->priv->selected = gtk_tree_row_reference_new (model, path);
 		gtk_tree_path_free (path);
 	}
+
+	set_action_state(tree);
 }
 
 static gboolean
@@ -392,11 +394,7 @@ popup_menu (GtkWidget *widget, GdkEventButton *event)
 			break;
 
 		case SESS_CHANNEL:
-			if (sess->total) {
-				menu = gtk_ui_manager_get_widget (gui.manager, "/ChannelJoinedPopup");
-			} else {
-				menu = gtk_ui_manager_get_widget (gui.manager, "/ChannelUnjoinedPopup");
-			}
+			menu = gtk_ui_manager_get_widget (gui.manager, "/ChannelPopup");
 			break;
 
 		case SESS_DIALOG:
@@ -563,6 +561,7 @@ navigation_model_set_disconnected (NavModel *model, session *sess)
 	                    COLUMN_COLOR,     &colors[40],
 	                    COLUMN_CONNECTED, FALSE,
 	                    -1);
+	set_action_state(gui.server_tree);
 }
 
 void
@@ -1112,11 +1111,9 @@ join_channel (GtkAction *action, gpointer data)
 
 	session *sess;
 	gchar *channel;
-	gboolean connected;
 	gtk_tree_model_get (model, &iter,
 	                    COLUMN_NAME,      &channel,
 	                    COLUMN_SESSION,   &sess,
-	                    COLUMN_CONNECTED, &connected,
 	                    -1);
 	g_assert (sess->type == SESS_CHANNEL);
 	g_assert (sess->server != NULL);
@@ -1125,18 +1122,50 @@ join_channel (GtkAction *action, gpointer data)
 	g_free (channel);
 }
 
-static void
+void
 set_action_state (NavTree *navtree)
 {
+	if (!gui.initialized) {
+		return;
+	}
+
 	GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
+
+	GtkAction *discussion_save         = gtk_ui_manager_get_action (gui.manager, "/menubar/DiscussionMenu/DiscussionSave");
+	GtkAction *discussion_close        = gtk_ui_manager_get_action (gui.manager, "/menubar/DiscussionMenu/DiscussionClose");
+	GtkAction *discussion_join         = gtk_ui_manager_get_action (gui.manager, "/ChannelPopup/DiscussionJoin");
+	GtkAction *discussion_leave        = gtk_ui_manager_get_action (gui.manager, "/ChannelPopup/DiscussionLeave");
+	GtkAction *discussion_auto_join    = gtk_ui_manager_get_action (gui.manager, "/ChannelPopup/DiscussionAutoJoin");
+	GtkAction *discussion_change_topic = gtk_ui_manager_get_action (gui.manager, "/menubar/DiscussionMenu/DiscussionChangeTopic");
+	GtkAction *discussion_users        = gtk_ui_manager_get_action (gui.manager, "/menubar/DiscussionMenu/DiscussionUsers");
+	GtkAction *discussion_bans         = gtk_ui_manager_get_action (gui.manager, "/menubar/DiscussionMenu/DiscussionBans");
+	GtkAction *discussion_find         = gtk_ui_manager_get_action (gui.manager, "/menubar/DiscussionMenu/DiscussionFind");
+
+	GtkAction *network_close           = gtk_ui_manager_get_action (gui.manager, "/menubar/NetworkMenu/NetworkClose");
+	GtkAction *network_reconnect       = gtk_ui_manager_get_action (gui.manager, "/menubar/NetworkMenu/NetworkReconnect");
+	GtkAction *network_disconnect      = gtk_ui_manager_get_action (gui.manager, "/menubar/NetworkMenu/NetworkDisconnect");
+	GtkAction *network_channels        = gtk_ui_manager_get_action (gui.manager, "/menubar/NetworkMenu/NetworkChannels");
+	GtkAction *network_auto_connect    = gtk_ui_manager_get_action (gui.manager, "/NetworkPopup/NetworkAutoConnect");
 
 	// If nothing is currently selected, very few things will work
 	GtkTreeIter iter;
 	GtkTreeModel *model;
 	if (!gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		gtk_action_set_sensitive (gtk_action_group_get_action (navtree->priv->action_group, "DiscussionJoin"),     FALSE);
-		gtk_action_set_sensitive (gtk_action_group_get_action (navtree->priv->action_group, "NetworkAutoConnect"), FALSE);
-		gtk_action_set_sensitive (gtk_action_group_get_action (navtree->priv->action_group, "DiscussionAutoJoin"), FALSE);
+		gtk_action_set_sensitive (discussion_save,         FALSE);
+		gtk_action_set_sensitive (discussion_close,        FALSE);
+		gtk_action_set_sensitive (discussion_join,         FALSE);
+		gtk_action_set_sensitive (discussion_leave,        FALSE);
+		gtk_action_set_sensitive (discussion_auto_join,    FALSE);
+		gtk_action_set_sensitive (discussion_change_topic, FALSE);
+		gtk_action_set_sensitive (discussion_users,        FALSE);
+		gtk_action_set_sensitive (discussion_bans,         FALSE);
+		gtk_action_set_sensitive (discussion_find,         FALSE);
+
+		gtk_action_set_sensitive (network_close,           FALSE);
+		gtk_action_set_sensitive (network_reconnect,       FALSE);
+		gtk_action_set_sensitive (network_disconnect,      FALSE);
+		gtk_action_set_sensitive (network_channels,        FALSE);
+		gtk_action_set_sensitive (network_auto_connect,    FALSE);
 
 		return;
 	}
@@ -1148,4 +1177,69 @@ set_action_state (NavTree *navtree)
 	                    COLUMN_CONNECTED, &connected,
 	                    -1);
 
+	if (NULL == sess) {
+		return;
+	}
+
+	switch (sess->type) {
+	case SESS_SERVER:
+		gtk_action_set_sensitive (discussion_save,         TRUE);
+		gtk_action_set_sensitive (discussion_close,        FALSE);
+		gtk_action_set_sensitive (discussion_join,         FALSE);
+		gtk_action_set_sensitive (discussion_leave,        FALSE);
+		gtk_action_set_sensitive (discussion_auto_join,    FALSE);
+		gtk_action_set_sensitive (discussion_change_topic, FALSE);
+		gtk_action_set_sensitive (discussion_users,        FALSE);
+		gtk_action_set_sensitive (discussion_bans,         FALSE);
+		gtk_action_set_sensitive (discussion_find,         TRUE);
+
+		gtk_action_set_sensitive (network_close,           TRUE);
+		gtk_action_set_sensitive (network_reconnect,       TRUE);
+		gtk_action_set_sensitive (network_disconnect,      (connected == TRUE));
+		gtk_action_set_sensitive (network_channels,        (connected == TRUE));
+		gtk_action_set_sensitive (network_auto_connect,    TRUE);
+
+		break;
+
+	case SESS_CHANNEL:
+		gtk_action_set_sensitive (discussion_save,         TRUE);
+		gtk_action_set_sensitive (discussion_close,        TRUE);
+		gtk_action_set_sensitive (discussion_join,         (connected == FALSE && sess->server->connected == TRUE));
+		gtk_action_set_sensitive (discussion_leave,        (connected == TRUE));
+		gtk_action_set_sensitive (discussion_auto_join,    TRUE);
+		gtk_action_set_sensitive (discussion_change_topic, TRUE);
+		gtk_action_set_sensitive (discussion_users,        TRUE);
+		gtk_action_set_sensitive (discussion_bans,         FALSE);
+		gtk_action_set_sensitive (discussion_find,         TRUE);
+
+		gtk_action_set_sensitive (network_close,           TRUE);
+		gtk_action_set_sensitive (network_reconnect,       TRUE);
+		gtk_action_set_sensitive (network_disconnect,      (sess->server->connected == TRUE));
+		gtk_action_set_sensitive (network_channels,        (sess->server->connected == TRUE));
+		gtk_action_set_sensitive (network_auto_connect,    FALSE);
+
+		break;
+
+	case SESS_DIALOG:
+		gtk_action_set_sensitive (discussion_save,         TRUE);
+		gtk_action_set_sensitive (discussion_close,        TRUE);
+		gtk_action_set_sensitive (discussion_join,         FALSE);
+		gtk_action_set_sensitive (discussion_leave,        FALSE);
+		gtk_action_set_sensitive (discussion_auto_join,    FALSE);
+		gtk_action_set_sensitive (discussion_change_topic, FALSE);
+		gtk_action_set_sensitive (discussion_users,        FALSE);
+		gtk_action_set_sensitive (discussion_bans,         FALSE);
+		gtk_action_set_sensitive (discussion_find,         TRUE);
+
+		gtk_action_set_sensitive (network_close,           TRUE);
+		gtk_action_set_sensitive (network_reconnect,       TRUE);
+		gtk_action_set_sensitive (network_disconnect,      (sess->server->connected == TRUE));
+		gtk_action_set_sensitive (network_channels,        (sess->server->connected == TRUE));
+		gtk_action_set_sensitive (network_auto_connect,    FALSE);
+
+		break;
+
+	default:
+		break;
+	}
 }

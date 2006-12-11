@@ -39,13 +39,14 @@ Userlist *u;
 gboolean
 initialize_gui_1 (void)
 {
-	gchar *path;
+	gui.initialized = FALSE;
 
 	gui.manager = gtk_ui_manager_new ();
 
-	path = locate_data_file ("xchat-gnome.glade");
+	gchar *path = locate_data_file ("xchat-gnome.glade");
 	gui.xml = glade_xml_new (path, NULL, NULL);
 	g_free (path);
+
 	if (!gui.xml) {
 		return FALSE;
 	}
@@ -71,6 +72,10 @@ initialize_gui_2 (void)
 	gtk_container_add (GTK_CONTAINER (widget), GTK_WIDGET (gui.server_tree));
 
 	gui.dcc = dcc_window_new ();
+
+	gui.initialized = TRUE;
+
+	set_action_state (gui.server_tree);
 
 	return TRUE;
 }

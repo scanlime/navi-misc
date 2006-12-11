@@ -59,7 +59,7 @@ void     navigation_tree_select_session (NavTree *tree, session *sess);
 void     navigation_tree_remove_session (NavTree *tree, session *sess);
 void     navigation_tree_add_accels     (NavTree *navtree, GtkWindow *window);
 
-void     initialize_navtree_actions     (void);
+void     set_action_state               (NavTree *navtree);
 
 
 /***** NavModel *****/

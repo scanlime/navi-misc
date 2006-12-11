@@ -1105,7 +1105,7 @@ conversation_panel_print_line (ConversationPanel *panel, xtext_buffer *buffer, g
 	unsigned char *tab;
 
 	if (len == 0) {
-		len = 1;
+		return;
 	}
 
 	if (indent == FALSE) {
@@ -1147,6 +1147,10 @@ conversation_panel_print (ConversationPanel *panel, struct session *sess, guchar
 	xtext_buffer *buffer;
 	guchar       *last_text = text;
 	int           len       = 0;
+
+	if (strlen (text) == 0) {
+		return;
+	}
 
 	buffer = g_hash_table_lookup (panel->priv->buffers, sess);
 	if (buffer == NULL) {
