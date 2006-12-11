@@ -97,12 +97,14 @@ xchat_gnome_SOURCES =				\
 xchat_gnome_CPPFLAGS = \
 	-DTOPSRCDIR="\"$(top_srcdir)\""		\
 	-DSYSCONFDIR="\"$(sysconfdir)\""	\
+	-DICONDIR="\"$(pkgdatadir)/icons\""	\
 	-DDATADIR="\"$(pkgdatadir)\""		\
 	-DXCHATSHAREDIR="\"$(pkgdatadir)\""	\
 	-DLIBDIR="\"$(pkglibdir)\""		\
 	-DPREFIX="\"$(prefix)\""		\
 	-DXCHATLIBDIR="\"$(pkglibdir)\""	\
 	-DGNOMELOCALEDIR="\"$(datadir)/locale\""\
+	-I$(srcdir)/../common			\
 	$(AM_CPPFLAGS)
 
 xchat_gnome_CFLAGS = \
