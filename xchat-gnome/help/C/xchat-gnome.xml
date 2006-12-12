@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
   <!ENTITY legal SYSTEM "legal.xml">
-  <!ENTITY appversion "0.6">
+  <!ENTITY appversion "0.16">
   <!ENTITY manrevision "2.0">
   <!ENTITY date "November 2005">
   <!ENTITY app "<application>XChat-GNOME</application>">
@@ -103,12 +103,12 @@
       </revision>
     </revhistory>
 
-    <releaseinfo>This manual describes version 0.6 of XChat-GNOME.</releaseinfo>
+    <releaseinfo>This manual describes version &appversion; of XChat-GNOME.</releaseinfo>
     <legalnotice>
       <title>Feedback</title>
       <para>To report a bug or make a suggestion regarding the <application>&app;</application>
-        application or this manual, follow the directions in the
-        <ulink url="ghelp:gnome-feedback" type="help">GNOME Feedback Page</ulink>.
+        application or this manual, follow the directions in the Feedback section of the
+      <ulink url="ghelp:user-guide?feedback-bugs" type="help">GNOME User Guide</ulink>.
       </para>
 <!-- Translators may also add here feedback address for translations -->
     </legalnotice>
@@ -149,11 +149,6 @@
 	<para>Adherence to GNOME Human Interface Guidelines (HIG)</para>
       </listitem>
     </itemizedlist>
-    <note>
-      <para>Please note that this project is quite young, at the moment it is not extremely
-        trivial to build, run or debug.
-      </para>
-    </note>
   </sect1>
 
 <!-- =========== Getting Started ============================== -->
@@ -168,7 +163,7 @@
   <sect1 id="xchat-gnome-getting-started">
     <title>Getting Started</title>
     <sect2 id="xchat-gnome-start">
-    <title>To Start <application>&app;</application></title>
+    <title>Starting <application>&app;</application></title>
     <para>You can start <application>&app;</application> in the following ways:
     </para>
     <variablelist>
@@ -241,9 +236,9 @@
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term>User Pane</term>
+	  <term>User Button</term>
 	  <listitem>
-	    <para>The User Pane shows the users present in the selected Channel.</para>
+	    <para>The User Button shows the number of users present in the selected Channel. Click the User Button to show a list of users.</para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
@@ -251,6 +246,7 @@
 	  <listitem>
 	    <para>The Discussion Area presents the discussion occurring in the
               selected Channel.</para>
+      <para>Type into the message input line at the bottom of the discussion area to chat in the selected Channel.</para>
 	  </listitem>
 	</varlistentry>
       </variablelist>
@@ -264,7 +260,7 @@
 
     <!-- ================ Usage Subsection ================================ -->
     <sect2 id="xchat-gnome-connect">
-      <title>To Connect to an Internet Relay Chat (IRC) Server</title>
+      <title>Connecting to an Internet Relay Chat (IRC) Server</title>
       <para>To connect to an Internet Relay Chat (IRC) Server, choose
 	<menuchoice>
 	  <guimenu>IRC</guimenu>
@@ -277,7 +273,7 @@
     </sect2>
     <!-- ================ Usage Subsection ================================ -->
     <sect2 id="xchat-gnome-transfers">
-      <title>To View Direct Client-To-Client (DCC) File Transfers Information</title>
+      <title>Viewing Direct Client-To-Client (DCC) File Transfers Information</title>
       <para>To view Direct Client-To-Client (DCC) file transfer information, choose
 	<menuchoice>
 	  <guimenu>IRC</guimenu>
@@ -287,7 +283,7 @@
     </sect2>
     <!-- ================ Usage Subsection ================================ -->
     <sect2 id="xchat-gnome-edit-text">
-      <title>To Edit Text</title>
+      <title>Editing Text</title>
       <para>You can edit text in the following ways:</para>
       <itemizedlist>
 	<listitem>
@@ -316,7 +312,7 @@
     </sect2>
     <!-- ================ Usage Subsection ================================ -->
     <sect2 id="xchat-gnome-network-reconnect">
-      <title>To Reconnect A Internet Relay Chat (IRC) Server</title>
+      <title>Reconnecting to a Server</title>
       <para>To reconnect <application>&app;</application> to an Internet Relay Chat (IRC)
         server, choose
         <menuchoice>
@@ -327,7 +323,7 @@
     </sect2>
     <!-- ================ Usage Subsection ================================ -->
     <sect2 id="xchat-gnome-network-disconnect">
-      <title>To Disconnect From An Internet Relay Chat (IRC) Server</title>
+      <title>Disconnecting from a Server</title>
       <para>To disconnect <application>&app;</application> from an Internet Relay Chat (IRC)
         server, choose
         <menuchoice>
@@ -338,7 +334,7 @@
     </sect2>
     <!-- ================ Usage Subsection ================================ -->
     <sect2 id="xchat-gnome-discussion-save">
-      <title>To Save A Channel Transcript</title>
+      <title>Saving a Channel Transcript</title>
       <para>To save a transcript of a Channel, choose
         <menuchoice>
 	  <shortcut>
@@ -351,11 +347,11 @@
 	  <guimenuitem>Save Transcript</guimenuitem>
 	</menuchoice>.
       </para>
-      <note><para>This feature has not been implemented yet.</para></note>
     </sect2>
     <!-- ================ Usage Subsection ================================ -->
     <sect2 id="xchat-gnome-discussion-leave">
-      <title>To Leave A Channel</title>
+      <title>Leaving a Channel</title>
+      <para>When you leave a channel, you are removed from the participants and can no longer chat in it, but the discussion up to that point remains in the Server Pane.</para>
       <para>To leave a Channel, choose
         <menuchoice>
 	  <shortcut>
@@ -371,7 +367,8 @@
     </sect2>
     <!-- ================ Usage Subsection ================================ -->
     <sect2 id="xchat-gnome-discussion-close">
-      <title>To Close A Channel</title>
+      <title>Closing a Channel</title>
+      <para>When you close a channel, the channel is removed from the list in the Server Pane.</para>
       <para>To close a Channel, choose
         <menuchoice>
 	  <shortcut>
@@ -387,7 +384,7 @@
     </sect2>
     <!-- ================ Usage Subsection ================================ -->
     <sect2 id="xchat-gnome-discussion-navigate">
-      <title>To Navigate Through Channels</title>
+      <title>Navigating through Channels</title>
       <itemizedlist>
 	<listitem>
 	  <para>To view previous channel, choose
@@ -421,7 +418,7 @@
     </sect2>
     <!-- ================ Usage Subsection ================================ -->
     <sect2 id="xchat-gnome-network-navigate">
-      <title>To Navigate Through Servers</title>
+      <title>Navigating Through Servers</title>
       <itemizedlist>
 	<listitem>
 	  <para>To view previous server, choose
@@ -455,7 +452,7 @@
     </sect2>
     <!-- ================ Usage Subsection ================================ -->
     <sect2 id="xchat-gnome-quit">
-      <title>To Quit &app;</title>
+      <title>Quitting &app;</title>
       <para>To quit <application>&app;</application>, choose
         <menuchoice>
           <shortcut>
@@ -500,17 +497,15 @@
               (IRC) channel.</para>
 	    <para>Enter your <guilabel>Real Name</guilabel>, which is displayed on
               <command>/whois</command> requests.</para>
-	    <para>Enter the <guilabel>Quit Message</guilabel> you wish to be shown when leaving
-              an Internet Relay Chat (IRC) channel.</para>
-	    <para>TODO: Need to write <guilabel>Part Message</guilabel>.</para>
-	    <para>Enter the <guilabel>Away Message</guilabel> you wish to be shown when you are
-              away.</para>
+	    <para>Enter the <guilabel>Quit Message</guilabel> you wish to be shown to other users when you leave an Internet Relay Chat (IRC) network.</para>
+	    <para>Enter the <guilabel>Part Message</guilabel> you wish to be shown to other users when you leave an Internet Relay Chat (IRC) channel but remain connected to that channel's network.</para>
+	    <para>Enter the <guilabel>Away Message</guilabel> you wish to be shown to people who try to contact you when you are away.</para>
           </listitem>
 	</varlistentry>
 	<varlistentry>
 	  <term><guilabel>Highlighting</guilabel></term>
 	  <listitem>
-	    <para>TODO: Needs to be written.</para>
+	    <para>Specify words or phrases that should be highlighted in a different text colour when another chat user says them. This is in addition to your nickname, which is always highlighted.</para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
