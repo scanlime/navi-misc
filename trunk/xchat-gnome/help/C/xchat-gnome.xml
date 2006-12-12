@@ -2,8 +2,8 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
   <!ENTITY legal SYSTEM "legal.xml">
   <!ENTITY appversion "0.16">
-  <!ENTITY manrevision "2.0">
-  <!ENTITY date "November 2005">
+  <!ENTITY manrevision "2.1">
+  <!ENTITY date "December 2006">
   <!ENTITY app "<application>XChat-GNOME</application>">
   <!-- Information about the entities
        The legal.xml file contains legal information, there is no need to edit the file.
@@ -31,6 +31,10 @@
       <year>2005-2006</year>
       <holder>Brian Pepple</holder>
     </copyright>
+    <copyright>
+      <year>2006</year>
+      <holder>Joachim Noreiko</holder>
+    </copyright>
 <!-- translators: uncomment this:
 
   <copyright>
@@ -56,8 +60,16 @@
 	<firstname>Brian</firstname>
 	<surname>Pepple</surname>
 	<affiliation>
-	  <orgname>Fedora Extras Project</orgname>
-	  <address> <email>bdpepple@gmail.com</email> </address>
+	  <orgname>Fedora Project</orgname>
+	  <address> <email>bpepple@fedoraproject.org</email> </address>
+	</affiliation>
+      </author>
+      <author>
+	<firstname>Joachim</firstname>
+	<surname>Noreiko</surname>
+	<affiliation>
+	  <orgname>GNOME Documentation Project</orgname>
+	  <address> <email>jnoreiko@yahoo.com</email> </address>
 	</affiliation>
       </author>
 
@@ -92,11 +104,21 @@
 <!-- to V3.0, and so on. -->
     <revhistory>
       <revision>
-	<revnumber>XChat-GNOME Manual V2.0</revnumber>
+        <revnumber>&app; Manual &manrevision;</revnumber>
 	<date>&date;</date>
 	<revdescription>
+	  <para role="author">Joachim Noreiko
+	    <email>jnoreiko@yahoo.com</email>
+	  </para>
+	  <para role="publisher">GNOME Documentation Project</para>
+	  </revdescription>
+      </revision>
+      <revision>
+	<revnumber>XChat-GNOME Manual V2.0</revnumber>
+	<date>November 2005</date>
+	<revdescription>
 	  <para role="author">Brian Pepple
-	    <email>bdpepple@gmail.com</email>
+	    <email>bpepple@fedoraproject.org</email>
 	  </para>
 	  <para role="publisher">GNOME Documentation Project</para>
 	</revdescription>
