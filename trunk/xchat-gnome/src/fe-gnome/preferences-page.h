@@ -23,7 +23,6 @@
 #define XCHAT_GNOME_PREFERENCES_PAGE_H
 
 #include <glib-object.h>
-#include <glib/gi18n.h>
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS

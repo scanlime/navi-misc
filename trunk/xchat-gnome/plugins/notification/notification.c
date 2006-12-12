@@ -62,6 +62,7 @@ static NotifStatus         status = NOTIF_NONE; /* Current status level. */
 static xchat_gnome_plugin* xgph;                /* xchat gnome plugin handle. */
 static xchat_plugin*       ph;                  /* Plugin handle. */
 static guint		   gconf_notify_id;
+
 static const char *images[N_NOTIF] = {
 	"xchat-gnome",
 	"xchat-gnome-message-data",
@@ -81,6 +82,9 @@ static gboolean
 got_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 {
 	focused = TRUE;
+
+	if (status == NOTIF_NONE)
+		return FALSE;
 
 	/* Reset the status. */
 	status = NOTIF_NONE;
@@ -111,14 +115,6 @@ new_msg_cb (char *word[], void *statusptr)
 	}
 
 	return 0;
-}
-
-static gboolean
-status_icon_size_changed_cb (GtkStatusIcon *icon, gint size, gpointer user_data)
-{
-	update_tray ();
-
-	return TRUE;
 }
 
 static void
@@ -199,7 +195,6 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 	/* Create the notification icon. */
 	status_icon = gtk_status_icon_new ();
 	g_signal_connect (status_icon, "activate", G_CALLBACK (status_icon_activate_cb), NULL);
-	g_signal_connect (status_icon, "size-changed", G_CALLBACK (status_icon_size_changed_cb), NULL);
 	update_tray ();
 
 	/* Hook up our callbacks. */
