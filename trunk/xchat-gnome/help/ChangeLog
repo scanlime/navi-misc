@@ -1,3 +1,29 @@
+2006-12-10  Joachim Noreiko  <jnoreiko@yahoo.com>
+
+  	* help/C/xchat-gnome.xml: 
+  	  update version number of app
+  	  gerundize titles
+  	  describe 'leave' and 'close', but badly
+  	  User Button instead of User Pane
+  	  Add term message input line to description of UI. #373761
+    * help/C/figures/xchat-gnome_main_window.png:
+      updated screenshot for 0.16 (and now without dropshadow)  	  
+
+2006-11-13  Joachim Noreiko  <jnoreiko@yahoo.com>
+
+  	* help/C/xchat-gnome.xml: 
+  	  improve definition of 'away message'. Partly fixes #373064.
+  	  remove 'not been implemented yet' for Save command.  	
+
+2006-11-11  Joachim Noreiko  <jnoreiko@yahoo.com>
+
+  	* help/C/xchat-gnome.xml: removing 'young project' caveat. Fixes #373068.
+  	Documented 'Part Message' preference. Fixes #373061.
+
+2006-11-09  Joachim Noreiko  <jnoreiko@yahoo.com>
+
+  	* help/C/xchat-gnome.xml: Documented highlighting preferences. Fixes #372953.
+
 2006-11-02  Joachim Noreiko  <jnoreiko@yahoo.com>
 
   	* help/C/xchat-gnome.xml:
