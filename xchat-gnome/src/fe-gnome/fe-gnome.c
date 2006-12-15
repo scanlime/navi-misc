@@ -1126,7 +1126,13 @@ fe_set_current (session *sess)
 
 	// Set the label of the user list button
 	userlist_set_user_button (u, sess);
+	gtk_widget_set_sensitive (GTK_WIDGET (gui.userlist_toggle), sess->type == SESS_CHANNEL);
+
+	// FIXME: Userlist should be more encapsulated
+	gtk_tree_view_set_model (GTK_TREE_VIEW (gui.userlist), GTK_TREE_MODEL (userlist_get_store (u, sess)));
 
 	// Emit "focus tab" event for plugins that rely on it
 	plugin_emit_dummy_print (sess, "Focus Tab");
+
+	gtk_widget_grab_focus (GTK_WIDGET (gui.text_entry));
 }
