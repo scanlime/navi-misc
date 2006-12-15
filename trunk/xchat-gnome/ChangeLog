@@ -1,3 +1,10 @@
+2006-12-14  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/fe-gnome.c:
+	* src/fe-gnome/navigation-tree.c:
+	  - Fix a couple navtree-related regressions with hilighting and
+	    the userlist. Bug #385515.
+
 2006-12-10  David Trowbridge <trowbrds@gmail.com>
 
 	* configure.ac:

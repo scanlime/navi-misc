@@ -319,6 +319,8 @@ selection_changed (GtkTreeSelection *selection, NavTree *tree)
 				action = gtk_action_group_get_action (tree->priv->action_group, "NetworkAutoConnect");
 				gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), network->flags & FLAG_AUTO_CONNECT);
 			}
+
+			sess->nick_said = FALSE;
 		}
 
 		GtkTreePath *path = gtk_tree_model_get_path (model, &iter);
@@ -580,6 +582,7 @@ navigation_model_set_hilight (NavModel *model, session *sess)
 	                    -1);
 
 	if (refcount > 0) {
+		sess->nick_said = FALSE;
 		return;
 	}
 
