@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-12-08 23:15+0100\n"
+"POT-Creation-Date: 2006-12-16 17:54+0100\n"
 "PO-Revision-Date: 2006-08-07 20:12+0000\n"
 "Last-Translator: fheinonen <fheinonen@gmail.com>\n"
 "Language-Team: Finnish <translation-team-fi@lists.sourceforge.net>\n"
@@ -70,7 +70,7 @@ msgstr ""
 msgid "users"
 msgstr "Käyttäjät"
 
-#: ../data/connect-dialog.glade.h:1 ../src/fe-gnome/connect-dialog.c:138
+#: ../data/connect-dialog.glade.h:1 ../src/fe-gnome/connect-dialog.c:153
 msgid "C_onnect"
 msgstr "_Yhdistä"
 
@@ -337,7 +337,7 @@ msgstr "Tausta_kuva:"
 msgid "_Download files to:"
 msgstr "Lataa hakemistoon:"
 
-#: ../data/preferences-dialog.glade.h:43 ../src/fe-gnome/main-window.c:100
+#: ../data/preferences-dialog.glade.h:43 ../src/fe-gnome/main-window.c:94
 msgid "_Edit"
 msgstr "_Muokkaa"
 
@@ -424,7 +424,6 @@ msgid "IRC Chat"
 msgstr "IRC-keskustelu"
 
 #: ../data/xchat-gnome.desktop.in.in.h:3
-#: ../src/fe-gnome/navigation-tree.c:1205
 msgid "XChat-GNOME IRC Chat"
 msgstr "XChat-GNOME IRC-keskustelu"
 
@@ -443,7 +442,7 @@ msgid "Mark as _away"
 msgstr "Siirry _poissaolotilaan"
 
 #: ../data/xchat-gnome.glade.h:4 ../src/common/text.c:907
-#: ../src/fe-gnome/channel-list-window.c:455 ../src/fe-gnome/userlist.c:303
+#: ../src/fe-gnome/channel-list-window.c:455 ../src/fe-gnome/userlist.c:304
 msgid "Users"
 msgstr "Käyttäjät"
 
@@ -484,20 +483,20 @@ msgstr "Internet-yhteyden seuranta (NetworkManager)"
 msgid "%s loaded successfully\n"
 msgstr "%s ladattu onnistuneesti\n"
 
-#: ../plugins/notification/notification.c:150
+#: ../plugins/notification/notification.c:146
 #: ../plugins/notification/preferences-page-plugin-notification.c:133
 msgid "Notification"
 msgstr "Sijainti"
 
-#: ../plugins/notification/notification.c:151
+#: ../plugins/notification/notification.c:147
 msgid "A notification area plugin."
 msgstr "Ilmoitusalueliitännäinen."
 
-#: ../plugins/notification/notification.c:216
+#: ../plugins/notification/notification.c:211
 msgid "Notification plugin loaded.\n"
 msgstr "Ilmoitusliitännäinen ladattu.\n"
 
-#: ../plugins/notification/notification.c:237
+#: ../plugins/notification/notification.c:232
 msgid "Notification plugin unloaded.\n"
 msgstr "Ilmoitusliitännäinen poistettu käytöstä.\n"
 
@@ -703,7 +702,7 @@ msgid "Done"
 msgstr "Valmis"
 
 #. green
-#: ../src/common/dcc.c:71 ../src/fe-gnome/connect-dialog.c:160
+#: ../src/common/dcc.c:71 ../src/fe-gnome/connect-dialog.c:175
 msgid "Connect"
 msgstr "Yhdistä"
 
@@ -1786,61 +1785,75 @@ msgstr ""
 "%s"
 
 #: ../src/common/textevents.h:6
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 added to notify list."
 msgstr "%C22*%O$t$1 lisättiin ilmoitusluetteloon."
 
 #: ../src/common/textevents.h:9
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 Banlist: %C3$4 %C4$2 %C5$3%O"
 msgstr "%C22*%O$t$1 Banniluettelo: %C19$4 %C20$2 %C21$3"
 
 #: ../src/common/textevents.h:12
+#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(You are banned)."
 msgstr "%C22*%O$tEi voi liittyä kanavalle %C26%B$1%O (sinut on estetty)."
 
 #: ../src/common/textevents.h:18
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 is now known as $2"
 msgstr "%C22*%O$t%C26$1%O tunnetaan nyt nimellä %C26$2%O."
 
 #: ../src/common/textevents.h:21
+#, fuzzy
 msgid "%C13*%O$t$1 $2%O"
 msgstr "%C16*%O$t$1%O"
 
 #: ../src/common/textevents.h:24
+#, fuzzy
 msgid "%C13*%O$t%C8%B$1%B%O $2%O"
 msgstr "%C21*%O$t%C21%B$1%O %C21$2"
 
 #: ../src/common/textevents.h:27
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets ban on $2"
 msgstr "%C22*%O$t$1 asettaa eston $2"
 
 #: ../src/common/textevents.h:30
+#, fuzzy
 msgid "-%C10-%C11-%O$tChannel $1 created on $2"
 msgstr "%C22*%O$tKanava $1 luotu $2"
 
 #: ../src/common/textevents.h:33
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes channel half-operator status from $2"
 msgstr ""
 "%C22*%O$t%C26$1%O poistaa puolioperaattorin oikeudet käyttäjältä %C26$2%O."
 
 #: ../src/common/textevents.h:36
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes channel operator status from $2"
 msgstr ""
 "%C22*%O$t%C26$1%O poistaa kanavaoperaattorin oikeudet käyttäjältä %C26$2%O."
 
 #: ../src/common/textevents.h:39
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes voice from $2"
 msgstr "%C22*%O$t%C26$1%O poistaa puheoikeuden käyttäjältä %C26$2%O."
 
 #: ../src/common/textevents.h:42
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets exempt on $2"
 msgstr "%C22*%O$t$1 asettaa erivapauden $2."
 
 #: ../src/common/textevents.h:45
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 gives channel half-operator status to $2"
 msgstr ""
 "%C22*%O$t%C26$1%O antaa puolioperaattorin oikeudet käyttäjälle %C26$2%O."
 
 #: ../src/common/textevents.h:48
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets invite on $2"
 msgstr "%C22*%O$t%C26$1%O asettaa kutsun käyttäjälle %C26$2%O."
 
@@ -1853,83 +1866,103 @@ msgid "%C2<%O$1%C2>%O$t$2%O"
 msgstr "%C2<%O$1%C2>%O$t$2%O"
 
 #: ../src/common/textevents.h:57
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets mode $2$3 $4"
 msgstr "%C22*%O$t%C26$1%O asettaa tilan $2$3 $4"
 
 #: ../src/common/textevents.h:60
+#, fuzzy
 msgid "-%C10-%C11-%O$tChannel $1 modes: $2"
 msgstr "%C22*%O$t%C22Kanavan $1 tilat: $2"
 
 #: ../src/common/textevents.h:63
+#, fuzzy
 msgid "%C2<%C8%B$1%B%C2>%O$t$2%O"
 msgstr "%C2<%O$1%C2>%O$t$2%O"
 
 #: ../src/common/textevents.h:66
+#, fuzzy
 msgid "%C12-%C13$1/$2%C12-%O$t$3%O"
 msgstr "%C28-%C29$1/$2%C28-%O$t$3"
 
 #: ../src/common/textevents.h:69
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 gives channel operator status to $2"
 msgstr ""
 "%C22*%O$t%C26$1%O antaa kanavaoperaattorin oikeudet käyttäjälle %C26$2%O."
 
 #: ../src/common/textevents.h:72
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes exempt on $2"
 msgstr "%C22*%O$t%C26$1%O poistaa erivapauden $2."
 
 #: ../src/common/textevents.h:75
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes invite on $2"
 msgstr "%C22*%O$t%C26$1%O poistaa kutsun $2."
 
 #: ../src/common/textevents.h:78
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes channel keyword"
 msgstr "%C22*%O$t%C26$1%O poistaa kanavan tunnussanan."
 
 #: ../src/common/textevents.h:81
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes user limit"
 msgstr "%C22*%O$t%C26$1%O poistaa käyttäjärajan."
 
 #: ../src/common/textevents.h:84
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets channel keyword to $2"
 msgstr "%C22*%O$t%C26$1%O asettaa kanavan tunnussanaksi %C26$2%O."
 
 #: ../src/common/textevents.h:87
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets channel limit to $2"
 msgstr "%C22*%O$t%C26$1%O asettaa kanavan käyttäjärajaksi $2."
 
 #: ../src/common/textevents.h:90
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes ban on $2"
 msgstr "%C22*%O$t%C26$1%O poistaa bannin $2."
 
 #: ../src/common/textevents.h:93
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 gives voice to $2"
 msgstr "%C22*%O$t%C26$1%O antaa puheoikeuden käyttäjälle %C26$2%O."
 
 #: ../src/common/textevents.h:96
+#, fuzzy
 msgid "-%C10-%C11-%O$tConnected. Now logging in.."
 msgstr "%C22*%O$t%C22Yhdistetty. Kirjaudutaan sisään..."
 
 #: ../src/common/textevents.h:99
+#, fuzzy
 msgid "-%C10-%C11-%O$tConnecting to %C11$1 %C14(%C11$2%C14)%C port %C11$3%C.."
 msgstr "%C22*%O$t%C22Yhdistetään palvelimelle $1 ($2) porttiin $3%O..."
 
 #: ../src/common/textevents.h:102
+#, fuzzy
 msgid "-%C10-%C11-%O$tConnection failed. Error: $1"
 msgstr "%C21*%O$t%C21Yhdistäminen epäonnistui. Virhe: $1"
 
 #: ../src/common/textevents.h:105
+#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2"
 msgstr "%C22*%O$tVastaanotettiin CTCP $1 käyttäjältä $2."
 
 #: ../src/common/textevents.h:108
+#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2 (to $3)"
 msgstr "%C22*%O$tVastaanotettiin CTCP $1 käyttäjältä $2 (kanavalle $3)."
 
 #: ../src/common/textevents.h:111
+#, fuzzy
 msgid "%C3>%O$1%C3<%O$tCTCP $2%O"
 msgstr "%C19>%O$1%C19<%O$tCTCP $2"
 
 #: ../src/common/textevents.h:114
+#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP Sound $1 from $2"
 msgstr "%C22*%O$tVastaanotettiin CTCP-ääni $1 käyttäjältä $2."
 
@@ -1938,16 +1971,19 @@ msgid "%C22*%O$tReceived a CTCP Sound $1 from $2 (to $3)"
 msgstr "%C22*%O$tVastaanotettiin CTCP-ääni $1 käyttäjältä $2 (kanavalle $3)."
 
 #: ../src/common/textevents.h:120
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC CHAT to %C11$1%O aborted."
 msgstr "%C22*%O$tDCC-keskustelu käyttäjän %C26$1%O kanssa keskeytetty."
 
 #: ../src/common/textevents.h:123
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC CHAT connection established to %C11$1 %C14[%O$2%C14]%O"
 msgstr ""
 "%C22*%O$tDCC-keskustelu avattu käyttäjän %C26$1%O kanssa. %C14[%O$2%C14]%O"
 
 #: ../src/common/textevents.h:126
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC CHAT failed. Connection to $1 %C14[%O$2:$3%C14]%O lost."
 msgstr ""
@@ -1955,22 +1991,27 @@ msgstr ""
 "katkesi."
 
 #: ../src/common/textevents.h:129
+#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a DCC CHAT offer from $1"
 msgstr "%C22*%O$tKäyttäjä %C26$1%O ehdottaa DCC-keskustelua."
 
 #: ../src/common/textevents.h:132
+#, fuzzy
 msgid "-%C10-%C11-%O$tOffering DCC CHAT to $1"
 msgstr "%C22*%O$tEhdotetaan DCC-keskustelua käyttäjälle %C26$1%O."
 
 #: ../src/common/textevents.h:135
+#, fuzzy
 msgid "-%C10-%C11-%O$tAlready offering CHAT to $1"
 msgstr "%C22*%O$tDCC-keskustelua on jo ehdotettu käyttäjälle %C26$1%O."
 
 #: ../src/common/textevents.h:138
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC $1 connect attempt to %C11$2%O failed (err=$3)."
 msgstr "%C22*%O$tDCC $1 -yhteyttä ei saatu käyttäjään %C26$2%O (virhe=$3)."
 
 #: ../src/common/textevents.h:141
+#, fuzzy
 msgid "-%C10-%C11-%O$tReceived '$1%O' from $2"
 msgstr "%C22*%O$tVastaanotettiin \"$1%O\" käyttäjältä %C26$2%O."
 
@@ -1980,6 +2021,7 @@ msgid "%C24,18 Type  To/From    Status  Size    Pos     File         "
 msgstr "%C24,18Tyyppi Vastapää   Tila    Koko    Paikka  Tiedosto         "
 
 #: ../src/common/textevents.h:147
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tReceived a malformed DCC request from %C11$1%O.%010-%C10-%C11-"
 "%O$tContents of packet: $2"
@@ -1988,18 +2030,22 @@ msgstr ""
 "$tPaketin sisältö: $2"
 
 #: ../src/common/textevents.h:150
+#, fuzzy
 msgid "-%C10-%C11-%O$tOffering %C11$1 %Cto %C11$2%O"
 msgstr "-%C10-%C11-%O$t%C12[%O$1%C12] %O$2"
 
 #: ../src/common/textevents.h:153
+#, fuzzy
 msgid "-%C10-%C11-%O$tNo such DCC offer."
 msgstr "%C22*%O$tTuollaista DCC-lähetystä ei ole tarjottu."
 
 #: ../src/common/textevents.h:156
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC RECV %C11$2%O to %C11$1%O aborted."
 msgstr "%C22*%O$tDCC RECV %C26$2%O käyttäjältä %C26$1%O keskeytetty."
 
 #: ../src/common/textevents.h:159
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC RECV %C11$1%O from %C11$3%O complete %C14[%C11$4%O cps%"
 "C14]%O."
@@ -2008,6 +2054,7 @@ msgstr ""
 "C30]%O."
 
 #: ../src/common/textevents.h:162
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC RECV connection established to %C11$1 %C14[%O$2%C14]%O"
 msgstr ""
@@ -2020,10 +2067,12 @@ msgstr ""
 "menetettiin."
 
 #: ../src/common/textevents.h:168
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC RECV: Cannot open $1 for writing ($2)."
 msgstr "%C22*%O$tDCC RECV: Tiedostoon %C26$1%O ei voi kirjoittaa ($2)."
 
 #: ../src/common/textevents.h:171
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tThe file %C11$1%C already exists, saving it as %C11$2%O "
 "instead."
@@ -2032,16 +2081,19 @@ msgstr ""
 "O."
 
 #: ../src/common/textevents.h:174
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C11$1 %Chas requested to resume %C11$2 %Cfrom %C11$3%C."
 msgstr ""
 "%C22*%O$t%C26$1%O pyytää jatkamaan tiedoston %C26$2%O siirtoa kohdasta %C26"
 "$3%O."
 
 #: ../src/common/textevents.h:177
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC SEND %C11$2%O to %C11$1%O aborted."
 msgstr "%C22*%O$tDCC SEND %C26$2%O käyttäjälle %C26$1%O keskeytetty."
 
 #: ../src/common/textevents.h:180
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC SEND %C11$1%O to %C11$2%O complete %C14[%C11$3%O cps%C14]%"
 "O."
@@ -2050,6 +2102,7 @@ msgstr ""
 "C30]%O."
 
 #: ../src/common/textevents.h:183
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC SEND connection established to %C11$1 %C14[%O$2%C14]%O"
 msgstr ""
@@ -2062,28 +2115,34 @@ msgstr ""
 "kadotettiin."
 
 #: ../src/common/textevents.h:189
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C11$1 %Chas offered %C11$2 %C(%C11$3 %Cbytes)"
 msgstr "%C22*%O$t%C26$1%O tarjoaa tiedostoa %C26$2%O (%C26$3%O tavua)."
 
 #: ../src/common/textevents.h:192
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Cstalled - aborting."
 msgstr ""
 "%C22*%O$tDCC $1 %C26$2%O käyttäjälle %C26$3%O pysähtynyt - keskeytetään."
 
 #: ../src/common/textevents.h:195
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Ctimed out - aborting."
 msgstr ""
 "%C22*%O$tDCC $1 %C26$2%O käyttäjälle %C26$3%O aikakatkaistu - keskeytetään."
 
 #: ../src/common/textevents.h:198
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 deleted from notify list."
 msgstr "%C22*%O$t$1 poistettu ilmoitusluettelosta."
 
 #: ../src/common/textevents.h:201
+#, fuzzy
 msgid "-%C10-%C11-%O$tDisconnected ($1)."
 msgstr "%C22*%O$tYhteys katkaistu ($1)."
 
 #: ../src/common/textevents.h:204
+#, fuzzy
 msgid "-%C10-%C11-%O$tFound your IP: [$1]"
 msgstr "%C22*%O$tOma IP löytyi: [$1]"
 
@@ -2092,10 +2151,12 @@ msgid "$1$t$2"
 msgstr "$1$t$2"
 
 #: ../src/common/textevents.h:210
+#, fuzzy
 msgid "%O%C11$1%O added to ignore list."
 msgstr "%O%C26$1%O lisätty huomioimattomuusluetteloon."
 
 #: ../src/common/textevents.h:213
+#, fuzzy
 msgid "Ignore on %C11$1%O changed."
 msgstr "Huomioimattomuutta %C26$1%O muutettu."
 
@@ -2110,6 +2171,7 @@ msgid "%C24,18 Hostmask                  PRIV NOTI CHAN CTCP DCC  INVI UNIG "
 msgstr "%C24,18 Isännän peite             PRIV NOTI CHAN CTCP DCC  INVI UNIG "
 
 #: ../src/common/textevents.h:222
+#, fuzzy
 msgid "%O%C11$1%O removed from ignore list."
 msgstr "%O%C26$1%O poistettu huomioimattomuusluettelosta."
 
@@ -2118,30 +2180,37 @@ msgid "  Ignore list is empty."
 msgstr "  Huomioimattomuusluettelo on tyhjä."
 
 #: ../src/common/textevents.h:228
+#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Channel is invite only)."
 msgstr "%C22*%O$tKanavalle %C26%B$1%O ei voi liittyä (vain kutsutuille)."
 
 #: ../src/common/textevents.h:231
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been invited to %C11$1%C by %C11$2%C (%C11$3%C)"
 msgstr "%C22*%O$t%C26$2%O kutsuu sinut kanavalle %C26$1%O (%C26$3%O)"
 
 #: ../src/common/textevents.h:234
+#, fuzzy
 msgid "-%C10-%C11>%O$t%B$1%B %C14(%C10$3%C14)%C has joined $2"
 msgstr "%C19*%O$t%C19%B$1%B ($3) liittyi kanavalle $2."
 
 #: ../src/common/textevents.h:237
+#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Requires keyword)."
 msgstr "%C22*%O$tKanavalle %C26%B$1%O ei voi liittyä (vaatii tunnussanan)."
 
 #: ../src/common/textevents.h:240
+#, fuzzy
 msgid "<%C10-%C11-%O$t$1 has kicked $2 from $3 ($4%O)"
 msgstr "%C21*%O$t%C21$1 potkaisi käyttäjän $2 kanavalta $3 ($4%O%C21)."
 
 #: ../src/common/textevents.h:243
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been killed by $1 ($2%O)"
 msgstr "%C22*%O$t$1 ($2%O) tappoi sinut."
 
 #: ../src/common/textevents.h:246 ../src/common/textevents.h:270
+#, fuzzy
 msgid "%C3>%O$1%C3<%O$t$2%O"
 msgstr "%C19>%O$1%C19<%O$t$2"
 
@@ -2151,31 +2220,38 @@ msgid "-%C10-%C11-%O$t$1%O"
 msgstr "-%C10-%C11-%O$t$1%O"
 
 #: ../src/common/textevents.h:252
+#, fuzzy
 msgid "-%C10-%C11-%O$tMOTD Skipped."
 msgstr "%C22*%O$t%C22MOTD ohitettu."
 
 #: ../src/common/textevents.h:255
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 already in use. Retrying with $2.."
 msgstr "%C22*%O$t$1 on jo käytössä. Kokeillaan kutsumanimeä $2..."
 
 #: ../src/common/textevents.h:258
+#, fuzzy
 msgid "-%C10-%C11-%O$tNickname already in use. Use /NICK to try another."
 msgstr ""
 "%C22*%O$tKutsumanimi on jo käytössä. Kokeile jotain muuta komennolla /NICK."
 
 #: ../src/common/textevents.h:261
+#, fuzzy
 msgid "-%C10-%C11-%O$tNo such DCC."
 msgstr "%C22*%O$tTuollaista DCC:tä ei ole."
 
 #: ../src/common/textevents.h:264
+#, fuzzy
 msgid "-%C10-%C11-%O$tNo process is currently running"
 msgstr "%C22*%O$tProsesseja ei ole käynnissä."
 
 #: ../src/common/textevents.h:267
+#, fuzzy
 msgid "%C12-%C13$1%C12-%O$t$2%O"
 msgstr "%C28-%C29$1%C28-%O$t$2"
 
 #: ../src/common/textevents.h:273
+#, fuzzy
 msgid "-%C10-%C11-%O$tNotify list is empty."
 msgstr "$tIlmoitusluettelo on tyhjä."
 
@@ -2184,18 +2260,22 @@ msgid "%C24,18 %B  Notify List                           "
 msgstr "%C24,18 %B  Ilmoitusluettelo                           "
 
 #: ../src/common/textevents.h:279
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 users in notify list."
 msgstr "%C22*%O$tIlmoitusluettelossa on $1 käyttäjä(ä)."
 
 #: ../src/common/textevents.h:282
+#, fuzzy
 msgid "-%C10-%C11-%O$tNotify: $1 is offline ($2)."
 msgstr "%C22*%O$tIlmoitus: $1 on tavoittamattomissa ($2)."
 
 #: ../src/common/textevents.h:285
+#, fuzzy
 msgid "-%C10-%C11-%O$tNotify: $1 is online ($2)."
 msgstr "%C22*%O$tIlmoitus: $1 on tavoitettavissa ($2)."
 
 #: ../src/common/textevents.h:291
+#, fuzzy
 msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3"
 msgstr ""
 "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C poistui kanavalta $3 %C14(%O$4%C14)%O"
@@ -2206,72 +2286,89 @@ msgstr ""
 "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C poistui kanavalta $3 %C14(%O$4%C14)%O"
 
 #: ../src/common/textevents.h:297
+#, fuzzy
 msgid "-%C10-%C11-%O$tPing reply from $1 : $2 second(s)"
 msgstr "%C22*%O$tPing-vastaus käyttäjältä $1: $2 sekunti(a)."
 
 #: ../src/common/textevents.h:300
+#, fuzzy
 msgid "-%C10-%C11-%O$tNo ping reply for $1 seconds, disconnecting."
 msgstr "%C22*%O$tPingiin ei ole vastattu $1 sekuntiin, katkaistaan yhteys."
 
 #: ../src/common/textevents.h:303
+#, fuzzy
 msgid "%C12*%C13$1%C12*$t%O$2%O"
 msgstr "%C28*%C29$1%C28*$t%O$2"
 
 #: ../src/common/textevents.h:309
+#, fuzzy
 msgid "-%C10-%C11-%O$tA process is already running"
 msgstr "%C22*%O$tProsessi on jo käynnissä."
 
 #: ../src/common/textevents.h:312
+#, fuzzy
 msgid "<%C10-%C11-%O$t$1 has quit %C14(%O$2%O%C14)%O"
 msgstr ""
 "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C poistui kanavalta $3 %C14(%O$4%C14)%O"
 
 #: ../src/common/textevents.h:315
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets modes%B %C14[%O$2%B%C14]%O"
 msgstr "%C22*%O$t$1 asettaa tilat %B%C30[%O$2%B%C30]."
 
 #: ../src/common/textevents.h:318
+#, fuzzy
 msgid "%C12-%C13$1/Wallops%C12-%O$t$2%O"
 msgstr "%C28-%C29$1/Wallops%C28-%O$t$2"
 
 #: ../src/common/textevents.h:321
+#, fuzzy
 msgid "-%C10-%C11-%O$tLooking up IP number for%C11 $1%O.."
 msgstr "%C22*%O$tEtsitään IP-osoitetta nimelle %C26$1%O..."
 
 #: ../src/common/textevents.h:324
+#, fuzzy
 msgid "-%C10-%C11-%O$tConnected."
 msgstr "-%C10-%C11-%O$t$1%O"
 
 #: ../src/common/textevents.h:330
+#, fuzzy
 msgid "-%C10-%C11-%O$tLooking up %C11$1%C.."
 msgstr "-%C10-%C11-%O$t$1%O"
 
 #: ../src/common/textevents.h:339
+#, fuzzy
 msgid "-%C10-%C11-%O$tStopped previous connection attempt (pid=$1)"
 msgstr "%C22*%O$tPysäytettiin edellinen yhteysyritys (pid=$1)"
 
 #: ../src/common/textevents.h:342
+#, fuzzy
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C is %C11$2%O"
 msgstr "-%C10-%C11-%O$t%C12[%O$1%C12] %O$2"
 
 #: ../src/common/textevents.h:345
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 has changed the topic to: $2%O"
 msgstr "%C22*%O$t$1 vaihtoi aiheeksi: $2"
 
 #: ../src/common/textevents.h:348
+#, fuzzy
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C set by %C11$2%C at %C11$3%O"
 msgstr "%C29*%O$t%C29Aiheen kanavalle $1%C %C29on asettanut $2%C %C29$3."
 
 #: ../src/common/textevents.h:351
+#, fuzzy
 msgid "-%C10-%C11-%O$tUnknown host. Maybe you misspelled it?"
 msgstr "%C22*%O$tTuntematon isäntä. Onkohan se kirjoitettu väärin?"
 
 #: ../src/common/textevents.h:354
+#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(User limit reached)."
 msgstr ""
 "%C22*%O$tKanavalle %C26%B$1%O ei voi liittyä (Käyttäjäraja saavutettu)."
 
 #: ../src/common/textevents.h:357
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C11Users on $1:%C $2"
 msgstr "%C22*%O$t%C26Käyttäjät kanavalla $1:%C $2"
 
@@ -2280,6 +2377,7 @@ msgid "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O $2 %C27$3"
 
 #: ../src/common/textevents.h:363
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %Cis away %C14(%O$2%O%C14)"
 msgstr "%C22*%O$t%C28[%O$1%C28]%C on poissa %C30(%O$2%O%C30)"
 
@@ -2288,26 +2386,32 @@ msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
 msgstr "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
 
 #: ../src/common/textevents.h:369
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %CEnd of WHOIS list."
 msgstr "%C22*%O$t%C28[%O$1%C28]%O WHOIS-luettelon loppu."
 
 #: ../src/common/textevents.h:372
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C$2"
 msgstr "-%C10-%C11-%O$t%C12[%O$1%C12] %O$2"
 
 #: ../src/common/textevents.h:375
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O"
 msgstr "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
 
 #: ../src/common/textevents.h:378
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O, signon: %C11$3%O"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O jouten %C26$2%O, kirjautunut: %C26$3"
 
 #: ../src/common/textevents.h:381
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C14(%O$2@$3%C14) %O: $4%O"
 msgstr "-%C10-%C11-%O$t%C12[%O$1%C12] %O$2"
 
 #: ../src/common/textevents.h:384
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$t%C12[%O$1%C12] %Oreal user@host %C11$2%O, real IP %C11$3%O"
 msgstr ""
@@ -2323,23 +2427,28 @@ msgid "%C22*%O$t%C28[%O$1%C28]%O $2"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:393
+#, fuzzy
 msgid "-%C10-%C11>%O$t%BYou%B are now talking on %C11$2%O"
 msgstr "%C23*$tOlet nyt kanavalla %C11$2%O"
 
 #: ../src/common/textevents.h:396
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been kicked from $2 by $3 ($4%O)"
 msgstr "%C23*$t$3 potkaisi sinut kanavalta $2 ($4%O%C23)."
 
 #: ../src/common/textevents.h:399
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou have left channel $3"
 msgstr "%C23*$tPoistuit kanavalta $3."
 
 #: ../src/common/textevents.h:402
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou have left channel $3 %C14(%O$4%C14)%O"
 msgstr ""
 "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C poistui kanavalta $3 %C14(%O$4%C14)%O"
 
 #: ../src/common/textevents.h:405
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou're inviting %C11$1%C to %C11$2%C (%C11$3%C)"
 msgstr "%C22*%O$tKutsut käyttäjää %C26$1%O kanavalle %C26$2%O (%C26$3%O)."
 
@@ -2348,6 +2457,7 @@ msgid "%C6<%O$1%C6>%O$t$2%O"
 msgstr "%C6<%O$1%C6>%O$t$2%O"
 
 #: ../src/common/textevents.h:411
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou are now known as $2"
 msgstr "%C22*%O$tKutsumanimesi on nyt $2."
 
@@ -3422,7 +3532,7 @@ msgid "Zimbabwe"
 msgstr "Zimbabwe"
 
 #: ../src/common/util.c:1110 ../src/common/util.c:1120
-#: ../src/fe-gnome/userlist-gui.c:427
+#: ../src/fe-gnome/userlist-gui.c:430
 msgid "Unknown"
 msgstr "Tuntematon"
 
@@ -3669,7 +3779,7 @@ msgstr "Liitä tiedoston_nimi"
 msgid "_Cancel"
 msgstr "_Peru"
 
-#: ../src/fe-gnome/conversation-panel.c:187 ../src/fe-gnome/main-window.c:115
+#: ../src/fe-gnome/conversation-panel.c:187 ../src/fe-gnome/main-window.c:109
 msgid "_Copy"
 msgstr "_Kopioi"
 
@@ -3705,7 +3815,7 @@ msgstr "Tallenna keskustelu"
 msgid "Error saving %s"
 msgstr "Virhe tallennettaessa tiedostoa %s"
 
-#: ../src/fe-gnome/conversation-panel.c:1212
+#: ../src/fe-gnome/conversation-panel.c:1216
 msgid "Search buffer is empty.\n"
 msgstr "Hakupuskuri on tyhjä.\n"
 
@@ -3726,7 +3836,7 @@ msgstr "Lähdössä"
 msgid "Incoming File Transfer"
 msgstr "Tiedoston vastaanotto"
 
-#: ../src/fe-gnome/dcc-window.c:224 ../src/fe-gnome/fe-gnome.c:483
+#: ../src/fe-gnome/dcc-window.c:224 ../src/fe-gnome/fe-gnome.c:507
 msgid "_Accept"
 msgstr "_Hyväksy"
 
@@ -3804,31 +3914,31 @@ msgstr "%.2d:%.2d"
 msgid "Send File..."
 msgstr "Lähetä tiedosto..."
 
-#: ../src/fe-gnome/fe-gnome.c:60
+#: ../src/fe-gnome/fe-gnome.c:63
 msgid "Use directory instead of the default config dir"
 msgstr "Käytä tätä hakemistoa oletusasetushakemiston sijaan"
 
-#: ../src/fe-gnome/fe-gnome.c:61
+#: ../src/fe-gnome/fe-gnome.c:64
 msgid "Don't auto-connect to servers"
 msgstr "Älä ota automaattisesti yhteyttä palvelimiin"
 
-#: ../src/fe-gnome/fe-gnome.c:62
+#: ../src/fe-gnome/fe-gnome.c:65
 msgid "Don't auto-load plugins"
 msgstr "Älä lataa automaattisesti liitännäisiä"
 
-#: ../src/fe-gnome/fe-gnome.c:63
+#: ../src/fe-gnome/fe-gnome.c:66
 msgid "Open an irc:// url"
 msgstr "Avaa URLin (irc://)"
 
-#: ../src/fe-gnome/fe-gnome.c:64
+#: ../src/fe-gnome/fe-gnome.c:67
 msgid "Open URL in an existing XChat-GNOME instance"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:65
+#: ../src/fe-gnome/fe-gnome.c:68
 msgid "Show version information"
 msgstr "Näytä versiotiedot"
 
-#: ../src/fe-gnome/fe-gnome.c:107
+#: ../src/fe-gnome/fe-gnome.c:110
 #, c-format
 msgid ""
 "xchat-gnome: %s\n"
@@ -3837,11 +3947,11 @@ msgstr ""
 "xchat-remote: %s\n"
 "Lisätietoa saa komennolla \"xchat-remote --help\"\n"
 
-#: ../src/fe-gnome/fe-gnome.c:481
+#: ../src/fe-gnome/fe-gnome.c:505
 msgid "Incoming DCC Chat"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:486
+#: ../src/fe-gnome/fe-gnome.c:510
 #, fuzzy, c-format
 msgid ""
 "%s is attempting to create a direct chat. Do you wish to accept the "
@@ -3849,7 +3959,7 @@ msgid ""
 msgstr ""
 "%s haluaa lähettää sinulle tiedoston \"%s\". Haluatko hyväksyä siirron?"
 
-#: ../src/fe-gnome/fe-gnome.c:908
+#: ../src/fe-gnome/fe-gnome.c:938
 #, c-format
 msgid "Unable to show '%s'"
 msgstr "'%s':ää ei voida näyttää."
@@ -3989,138 +4099,117 @@ msgid "TIS-620 (Thai)"
 msgstr ""
 
 #. Toplevel
-#: ../src/fe-gnome/main-window.c:99
+#: ../src/fe-gnome/main-window.c:93
 msgid "_IRC"
 msgstr "_IRC"
 
-#: ../src/fe-gnome/main-window.c:101
+#: ../src/fe-gnome/main-window.c:95
 msgid "In_sert"
 msgstr "_Lisää"
 
-#: ../src/fe-gnome/main-window.c:102
+#: ../src/fe-gnome/main-window.c:96
 msgid "_Network"
 msgstr "Verkko"
 
-#: ../src/fe-gnome/main-window.c:103
+#: ../src/fe-gnome/main-window.c:97
 msgid "_Discussion"
 msgstr "_Keskustelu"
 
-#: ../src/fe-gnome/main-window.c:104
+#: ../src/fe-gnome/main-window.c:98
 msgid "_Go"
 msgstr "_Siirry"
 
-#: ../src/fe-gnome/main-window.c:105
+#: ../src/fe-gnome/main-window.c:99
 msgid "_Help"
 msgstr "_Ohje"
 
 #. IRC menu
-#: ../src/fe-gnome/main-window.c:109
+#: ../src/fe-gnome/main-window.c:103
 #, fuzzy
 msgid "_Connect..."
 msgstr "_Yhdistä"
 
-#: ../src/fe-gnome/main-window.c:110
+#: ../src/fe-gnome/main-window.c:104
 msgid "_File Transfers"
 msgstr "_Tiedostonsiirrot"
 
-#: ../src/fe-gnome/main-window.c:111
+#: ../src/fe-gnome/main-window.c:105
 msgid "_Quit"
 msgstr "Lopeta"
 
 #. Edit menu
-#: ../src/fe-gnome/main-window.c:114
+#: ../src/fe-gnome/main-window.c:108
 msgid "Cu_t"
 msgstr "Lei_kkaa"
 
-#: ../src/fe-gnome/main-window.c:116
+#: ../src/fe-gnome/main-window.c:110
 msgid "_Paste"
 msgstr "L_iitä"
 
-#: ../src/fe-gnome/main-window.c:117
+#: ../src/fe-gnome/main-window.c:111
 msgid "Prefere_nces"
 msgstr "Aset_ukset"
 
 #. Network menu
-#: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:83
+#: ../src/fe-gnome/main-window.c:114
 msgid "_Reconnect"
 msgstr "Yhdistä _uudelleen"
 
-#: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:84
+#: ../src/fe-gnome/main-window.c:115
 msgid "_Disconnect"
 msgstr "_Katkaise yhteys"
 
-#: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:85
-#: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
+#: ../src/fe-gnome/main-window.c:116
 msgid "_Close"
 msgstr "_Sulje"
 
-#: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:86
+#: ../src/fe-gnome/main-window.c:117
 msgid "_Channels..."
 msgstr "Kanava_luettelo..."
 
 #. Discussion menu
-#. Channel context menu
-#. Dialog context menu
-#: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:89
-#: ../src/fe-gnome/navigation-tree.c:97
+#: ../src/fe-gnome/main-window.c:120
 msgid "_Save Transcript"
 msgstr "_Tallenna keskustelu"
 
-#: ../src/fe-gnome/main-window.c:127 ../src/fe-gnome/navigation-tree.c:90
+#: ../src/fe-gnome/main-window.c:121
 msgid "_Leave"
 msgstr "P_oistu"
 
-#: ../src/fe-gnome/main-window.c:128
+#: ../src/fe-gnome/main-window.c:122
 msgid "Cl_ose"
 msgstr "Sulje"
 
-#: ../src/fe-gnome/main-window.c:129
+#: ../src/fe-gnome/main-window.c:123
 msgid "_Find"
 msgstr "Etsi"
 
-#: ../src/fe-gnome/main-window.c:130
+#: ../src/fe-gnome/main-window.c:124
 msgid "Change _Topic"
 msgstr "Vaihda _otsikko"
 
-#: ../src/fe-gnome/main-window.c:131 ../src/fe-gnome/navigation-tree.c:94
+#: ../src/fe-gnome/main-window.c:125
 msgid "_Bans..."
 msgstr "_Estot..."
 
-#: ../src/fe-gnome/main-window.c:132
+#: ../src/fe-gnome/main-window.c:126
 msgid "_Users"
 msgstr "Käyttäjiä"
 
-#. Go menu
-#: ../src/fe-gnome/main-window.c:135
-msgid "Pre_vious Network"
-msgstr "Ede_llinen verkko"
-
-#: ../src/fe-gnome/main-window.c:136
-msgid "Nex_t Network"
-msgstr "Seu_raava verkko"
-
-#: ../src/fe-gnome/main-window.c:137
-msgid "_Previous Discussion"
-msgstr "_Edellinen keskustelu"
-
-#: ../src/fe-gnome/main-window.c:138
-msgid "_Next Discussion"
-msgstr "_Seuraava keskustelu"
-
 #. Help menu
-#: ../src/fe-gnome/main-window.c:141
+#: ../src/fe-gnome/main-window.c:129
 msgid "_Contents"
 msgstr "_Sisältö"
 
-#: ../src/fe-gnome/main-window.c:142
+#: ../src/fe-gnome/main-window.c:130
 msgid "_About"
 msgstr "_Tietoja"
 
-#: ../src/fe-gnome/main-window.c:507 ../src/fe-gnome/navigation-tree.c:1769
+#: ../src/fe-gnome/main-window.c:406 ../src/fe-gnome/main-window.c:428
 msgid "Ex-Chat"
 msgstr "Keskustelu"
 
-#: ../src/fe-gnome/main-window.c:589
+#: ../src/fe-gnome/main-window.c:478
 msgid "Error showing help"
 msgstr "Virhe näytettäessä ohjetta"
 
@@ -4137,31 +4226,40 @@ msgstr ""
 msgid "D-Bus plugin is still installed"
 msgstr ""
 
-#. Server context menu
-#: ../src/fe-gnome/navigation-tree.c:82
-msgid "_Information"
-msgstr "_Tietoja"
+#. Go menu
+#: ../src/fe-gnome/navigation-tree.c:91
+msgid "Pre_vious Network"
+msgstr "Ede_llinen verkko"
 
 #: ../src/fe-gnome/navigation-tree.c:92
+msgid "Nex_t Network"
+msgstr "Seu_raava verkko"
+
+#: ../src/fe-gnome/navigation-tree.c:93
+msgid "_Previous Discussion"
+msgstr "_Edellinen keskustelu"
+
+#: ../src/fe-gnome/navigation-tree.c:94
+msgid "_Next Discussion"
+msgstr "_Seuraava keskustelu"
+
+#. Discussion context menu
+#: ../src/fe-gnome/navigation-tree.c:97
 msgid "_Join"
 msgstr "_Liity"
 
-#: ../src/fe-gnome/navigation-tree.c:93 ../src/fe-gnome/navigation-tree.c:99
-msgid "_Find..."
-msgstr "_Etsi..."
-
 #. Server context menu
-#: ../src/fe-gnome/navigation-tree.c:104
+#: ../src/fe-gnome/navigation-tree.c:102
 msgid "_Auto-connect on startup"
 msgstr "_Yhdistä automaattisesti käynnistettäessä"
 
-#. Channel context menu
-#: ../src/fe-gnome/navigation-tree.c:107
+#. Discussion context menu
+#: ../src/fe-gnome/navigation-tree.c:105
 #, fuzzy
 msgid "_Auto-join on connect"
 msgstr "Yhdistä uudelleen"
 
-#: ../src/fe-gnome/navigation-tree.c:1344
+#: ../src/fe-gnome/navigation-tree.c:500
 msgid "<none>"
 msgstr "<ei mitään>"
 
@@ -4360,7 +4458,7 @@ msgstr "Vaaleanharmaa"
 msgid "White"
 msgstr "Valkoinen"
 
-#: ../src/fe-gnome/topic-label.c:293
+#: ../src/fe-gnome/topic-label.c:292
 #, c-format
 msgid "Changing topic for %s"
 msgstr "Vaihdetaan aihe kanavalle %s"
@@ -4389,7 +4487,7 @@ msgstr "Jätä huomiotta"
 msgid "_Op"
 msgstr ""
 
-#: ../src/fe-gnome/userlist-gui.c:422
+#: ../src/fe-gnome/userlist-gui.c:425
 #, c-format
 msgid ""
 "%s\n"
@@ -4398,7 +4496,7 @@ msgstr ""
 "%s\n"
 "<span weight=\"bold\">Nimi:</span> %s"
 
-#: ../src/fe-gnome/userlist-gui.c:429
+#: ../src/fe-gnome/userlist-gui.c:432
 #, c-format
 msgid ""
 "%s\n"
@@ -4407,7 +4505,7 @@ msgstr ""
 "%s\n"
 "<span weight=\"bold\">Maa:</span> %s"
 
-#: ../src/fe-gnome/userlist-gui.c:439
+#: ../src/fe-gnome/userlist-gui.c:442
 #, fuzzy, c-format
 msgid ""
 "%s\n"
@@ -4422,7 +4520,7 @@ msgstr[1] ""
 "%s\n"
 "<span weight=\"bold\">Viimeinen viesti:</span> %d minuuttia sitten"
 
-#: ../src/fe-gnome/userlist-gui.c:450
+#: ../src/fe-gnome/userlist-gui.c:453
 #, c-format
 msgid ""
 "%s\n"
@@ -4431,12 +4529,18 @@ msgstr ""
 "%s\n"
 "<span weight=\"bold\">Poissaoloviesti:</span> %s"
 
-#: ../src/fe-gnome/userlist.c:299
+#: ../src/fe-gnome/userlist.c:300
 #, c-format
 msgid "%d User"
 msgid_plural "%d Users"
 msgstr[0] ""
 msgstr[1] ""
+
+#~ msgid "_Information"
+#~ msgstr "_Tietoja"
+
+#~ msgid "_Find..."
+#~ msgstr "_Etsi..."
 
 #~ msgid "Apply Text Filter To:    "
 #~ msgstr "Käytä tekstisuodatinta kohteeseen:    "
