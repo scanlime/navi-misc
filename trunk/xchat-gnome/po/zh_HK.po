@@ -20,7 +20,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome 0.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-12-08 23:15+0100\n"
+"POT-Creation-Date: 2006-12-16 17:45+0100\n"
 "PO-Revision-Date: 2006-06-21 08:45+0000\n"
 "Last-Translator: Abel Cheung <abelcheung@gmail.com>\n"
 "Language-Team: Chinese (Hong Kong) <community@linuxhall.org>\n"
@@ -79,7 +79,7 @@ msgstr ""
 msgid "users"
 msgstr "用戶"
 
-#: ../data/connect-dialog.glade.h:1 ../src/fe-gnome/connect-dialog.c:138
+#: ../data/connect-dialog.glade.h:1 ../src/fe-gnome/connect-dialog.c:153
 msgid "C_onnect"
 msgstr "連接(_O)"
 
@@ -346,7 +346,7 @@ msgstr "背景圖片(_I)"
 msgid "_Download files to:"
 msgstr "存檔位置："
 
-#: ../data/preferences-dialog.glade.h:43 ../src/fe-gnome/main-window.c:100
+#: ../data/preferences-dialog.glade.h:43 ../src/fe-gnome/main-window.c:94
 msgid "_Edit"
 msgstr "編輯(_E)"
 
@@ -432,7 +432,6 @@ msgid "IRC Chat"
 msgstr "IRC"
 
 #: ../data/xchat-gnome.desktop.in.in.h:3
-#: ../src/fe-gnome/navigation-tree.c:1205
 msgid "XChat-GNOME IRC Chat"
 msgstr "XChat-GNOME IRC 交談軟件"
 
@@ -451,7 +450,7 @@ msgid "Mark as _away"
 msgstr "標記為暫時離開(_A)"
 
 #: ../data/xchat-gnome.glade.h:4 ../src/common/text.c:907
-#: ../src/fe-gnome/channel-list-window.c:455 ../src/fe-gnome/userlist.c:303
+#: ../src/fe-gnome/channel-list-window.c:455 ../src/fe-gnome/userlist.c:304
 msgid "Users"
 msgstr "用戶"
 
@@ -492,20 +491,20 @@ msgstr ""
 msgid "%s loaded successfully\n"
 msgstr "已成功載入 %s\n"
 
-#: ../plugins/notification/notification.c:150
+#: ../plugins/notification/notification.c:146
 #: ../plugins/notification/preferences-page-plugin-notification.c:133
 msgid "Notification"
 msgstr "訊息通知"
 
-#: ../plugins/notification/notification.c:151
+#: ../plugins/notification/notification.c:147
 msgid "A notification area plugin."
 msgstr "使用系統匣作為訊息通知的外掛程式。"
 
-#: ../plugins/notification/notification.c:216
+#: ../plugins/notification/notification.c:211
 msgid "Notification plugin loaded.\n"
 msgstr "已載入「訊息通知」外掛程式。\n"
 
-#: ../plugins/notification/notification.c:237
+#: ../plugins/notification/notification.c:232
 msgid "Notification plugin unloaded.\n"
 msgstr "已取消載入「訊息通知」外掛程式。\n"
 
@@ -699,7 +698,7 @@ msgid "Done"
 msgstr "完成"
 
 #. green
-#: ../src/common/dcc.c:71 ../src/fe-gnome/connect-dialog.c:160
+#: ../src/common/dcc.c:71 ../src/fe-gnome/connect-dialog.c:175
 msgid "Connect"
 msgstr "連線"
 
@@ -1839,6 +1838,7 @@ msgid "-%C10-%C11-%O$tConnection failed. Error: $1"
 msgstr "-%C10-%C11-%O$t連線失敗，錯誤為：$1"
 
 #: ../src/common/textevents.h:105
+#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2"
 msgstr "-%C10-%C11-%O$t收到來自 $2 的 CTCP $1"
 
@@ -1889,6 +1889,7 @@ msgid "-%C10-%C11-%O$tDCC $1 connect attempt to %C11$2%O failed (err=$3)."
 msgstr ""
 
 #: ../src/common/textevents.h:141
+#, fuzzy
 msgid "-%C10-%C11-%O$tReceived '$1%O' from $2"
 msgstr "-%C10-%C11-%O$t由 $2 收到 '$1%O'"
 
@@ -1941,6 +1942,7 @@ msgid ""
 msgstr "-%C10-%C11-%O$t檔案 %C11$1%C 已經存在，會改為儲存在 %C11$2%O。"
 
 #: ../src/common/textevents.h:174
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C11$1 %Chas requested to resume %C11$2 %Cfrom %C11$3%C."
 msgstr "-%C10-%C11-%O$t%C11$1 %C要求繼續由 %C11$3%C 傳送 %C11$2。"
 
@@ -2022,6 +2024,7 @@ msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Channel is invite only)."
 msgstr "-%C10-%C11-%O$t無法加入%C11 %B$1 %O(只有被邀請的人方可進入)。"
 
 #: ../src/common/textevents.h:231
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been invited to %C11$1%C by %C11$2%C (%C11$3%C)"
 msgstr "-%C10-%C11-%O$t你被 %C11$2%C 邀請加入 %C11$1%C (%C11$3%C)"
 
@@ -2155,6 +2158,7 @@ msgid "-%C10-%C11-%O$t$1 has changed the topic to: $2%O"
 msgstr "-%C10-%C11-%O$t$1 已將標題更改為 $2%O"
 
 #: ../src/common/textevents.h:348
+#, fuzzy
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C set by %C11$2%C at %C11$3%O"
 msgstr "-%C10-%C11-%O$t%C11$2%C 在 %C11$3%C 設定了 %C11$1%C 的標題%O"
 
@@ -2220,6 +2224,7 @@ msgid "-%C10-%C11>%O$t%BYou%B are now talking on %C11$2%O"
 msgstr "-%C10-%C11>%O$t%B你%B已經加入了 %C11$2%O"
 
 #: ../src/common/textevents.h:396
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been kicked from $2 by $3 ($4%O)"
 msgstr "-%C10-%C11-%O$t你被 $3 踢出 $2 了 ($4%O)"
 
@@ -3314,7 +3319,7 @@ msgid "Zimbabwe"
 msgstr "津巴布韋"
 
 #: ../src/common/util.c:1110 ../src/common/util.c:1120
-#: ../src/fe-gnome/userlist-gui.c:427
+#: ../src/fe-gnome/userlist-gui.c:430
 msgid "Unknown"
 msgstr "未知"
 
@@ -3563,7 +3568,7 @@ msgstr "貼上檔案名稱(_N)"
 msgid "_Cancel"
 msgstr "取消(_C)"
 
-#: ../src/fe-gnome/conversation-panel.c:187 ../src/fe-gnome/main-window.c:115
+#: ../src/fe-gnome/conversation-panel.c:187 ../src/fe-gnome/main-window.c:109
 msgid "_Copy"
 msgstr "複製(_C)"
 
@@ -3597,7 +3602,7 @@ msgstr "儲存對話內容"
 msgid "Error saving %s"
 msgstr "儲存 %s 時出錯"
 
-#: ../src/fe-gnome/conversation-panel.c:1212
+#: ../src/fe-gnome/conversation-panel.c:1216
 msgid "Search buffer is empty.\n"
 msgstr ""
 
@@ -3618,7 +3623,7 @@ msgstr "剩餘"
 msgid "Incoming File Transfer"
 msgstr "有檔案給你"
 
-#: ../src/fe-gnome/dcc-window.c:224 ../src/fe-gnome/fe-gnome.c:483
+#: ../src/fe-gnome/dcc-window.c:224 ../src/fe-gnome/fe-gnome.c:507
 msgid "_Accept"
 msgstr "接受(_A)"
 
@@ -3665,7 +3670,7 @@ msgid "Transfer of %s to %s failed"
 msgstr "檔案 %s 無法成功傳送至 %s"
 
 #: ../src/fe-gnome/dcc-window.c:301
-#, c-format
+#, fuzzy, c-format
 msgid "Transfer of %s from %s failed"
 msgstr "%2$s 無法將檔案 %1$s 成功傳送"
 
@@ -3695,31 +3700,31 @@ msgstr "%.2d:%.2d"
 msgid "Send File..."
 msgstr "傳送檔案…"
 
-#: ../src/fe-gnome/fe-gnome.c:60
+#: ../src/fe-gnome/fe-gnome.c:63
 msgid "Use directory instead of the default config dir"
 msgstr "使用指定目錄代替預設的設定檔目錄"
 
-#: ../src/fe-gnome/fe-gnome.c:61
+#: ../src/fe-gnome/fe-gnome.c:64
 msgid "Don't auto-connect to servers"
 msgstr "不要自動連接至伺服器"
 
-#: ../src/fe-gnome/fe-gnome.c:62
+#: ../src/fe-gnome/fe-gnome.c:65
 msgid "Don't auto-load plugins"
 msgstr "不自動載入任何外掛程式"
 
-#: ../src/fe-gnome/fe-gnome.c:63
+#: ../src/fe-gnome/fe-gnome.c:66
 msgid "Open an irc:// url"
 msgstr "開啟 irc:// 形式的 URL"
 
-#: ../src/fe-gnome/fe-gnome.c:64
+#: ../src/fe-gnome/fe-gnome.c:67
 msgid "Open URL in an existing XChat-GNOME instance"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:65
+#: ../src/fe-gnome/fe-gnome.c:68
 msgid "Show version information"
 msgstr "顯示版本"
 
-#: ../src/fe-gnome/fe-gnome.c:107
+#: ../src/fe-gnome/fe-gnome.c:110
 #, c-format
 msgid ""
 "xchat-gnome: %s\n"
@@ -3728,18 +3733,18 @@ msgstr ""
 "xchat-gnome：%s\n"
 "請執行‘xchat-gnome --help’顯示詳細用法\n"
 
-#: ../src/fe-gnome/fe-gnome.c:481
+#: ../src/fe-gnome/fe-gnome.c:505
 msgid "Incoming DCC Chat"
 msgstr ""
 
-#: ../src/fe-gnome/fe-gnome.c:486
+#: ../src/fe-gnome/fe-gnome.c:510
 #, fuzzy, c-format
 msgid ""
 "%s is attempting to create a direct chat. Do you wish to accept the "
 "connection?"
 msgstr "%s 正準備將「%s」檔案傳送給你。你是否接受？"
 
-#: ../src/fe-gnome/fe-gnome.c:908
+#: ../src/fe-gnome/fe-gnome.c:938
 #, c-format
 msgid "Unable to show '%s'"
 msgstr "無法顯示「%s」"
@@ -3877,138 +3882,117 @@ msgid "TIS-620 (Thai)"
 msgstr ""
 
 #. Toplevel
-#: ../src/fe-gnome/main-window.c:99
+#: ../src/fe-gnome/main-window.c:93
 msgid "_IRC"
 msgstr "IR_C"
 
-#: ../src/fe-gnome/main-window.c:101
+#: ../src/fe-gnome/main-window.c:95
 msgid "In_sert"
 msgstr "插入(_S)"
 
-#: ../src/fe-gnome/main-window.c:102
+#: ../src/fe-gnome/main-window.c:96
 msgid "_Network"
 msgstr "網絡(_N)"
 
-#: ../src/fe-gnome/main-window.c:103
+#: ../src/fe-gnome/main-window.c:97
 msgid "_Discussion"
 msgstr "對話(_D)"
 
-#: ../src/fe-gnome/main-window.c:104
+#: ../src/fe-gnome/main-window.c:98
 msgid "_Go"
 msgstr "前往(_G)"
 
-#: ../src/fe-gnome/main-window.c:105
+#: ../src/fe-gnome/main-window.c:99
 msgid "_Help"
 msgstr "求助(_H)"
 
 #. IRC menu
-#: ../src/fe-gnome/main-window.c:109
+#: ../src/fe-gnome/main-window.c:103
 #, fuzzy
 msgid "_Connect..."
 msgstr "連接(_C)"
 
-#: ../src/fe-gnome/main-window.c:110
+#: ../src/fe-gnome/main-window.c:104
 msgid "_File Transfers"
 msgstr "檔案傳送(_F)"
 
-#: ../src/fe-gnome/main-window.c:111
+#: ../src/fe-gnome/main-window.c:105
 msgid "_Quit"
 msgstr "結束程式(_Q)"
 
 #. Edit menu
-#: ../src/fe-gnome/main-window.c:114
+#: ../src/fe-gnome/main-window.c:108
 msgid "Cu_t"
 msgstr "剪下(_T)"
 
-#: ../src/fe-gnome/main-window.c:116
+#: ../src/fe-gnome/main-window.c:110
 msgid "_Paste"
 msgstr "貼上(_P)"
 
-#: ../src/fe-gnome/main-window.c:117
+#: ../src/fe-gnome/main-window.c:111
 msgid "Prefere_nces"
 msgstr "偏好設定(_N)"
 
 #. Network menu
-#: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:83
+#: ../src/fe-gnome/main-window.c:114
 msgid "_Reconnect"
 msgstr "重新連線(_R)"
 
-#: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:84
+#: ../src/fe-gnome/main-window.c:115
 msgid "_Disconnect"
 msgstr "中斷連線(_D)"
 
-#: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:85
-#: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
+#: ../src/fe-gnome/main-window.c:116
 msgid "_Close"
 msgstr "關閉(_C)"
 
-#: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:86
+#: ../src/fe-gnome/main-window.c:117
 msgid "_Channels..."
 msgstr "聊天室(_C)…"
 
 #. Discussion menu
-#. Channel context menu
-#. Dialog context menu
-#: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:89
-#: ../src/fe-gnome/navigation-tree.c:97
+#: ../src/fe-gnome/main-window.c:120
 msgid "_Save Transcript"
 msgstr "儲存對話內容(_S)"
 
-#: ../src/fe-gnome/main-window.c:127 ../src/fe-gnome/navigation-tree.c:90
+#: ../src/fe-gnome/main-window.c:121
 msgid "_Leave"
 msgstr "退出聊天室(_L)"
 
-#: ../src/fe-gnome/main-window.c:128
+#: ../src/fe-gnome/main-window.c:122
 msgid "Cl_ose"
 msgstr "關閉視窗(_O)"
 
-#: ../src/fe-gnome/main-window.c:129
+#: ../src/fe-gnome/main-window.c:123
 msgid "_Find"
 msgstr "尋找(_F)"
 
-#: ../src/fe-gnome/main-window.c:130
+#: ../src/fe-gnome/main-window.c:124
 msgid "Change _Topic"
 msgstr "更改標題(_T)"
 
-#: ../src/fe-gnome/main-window.c:131 ../src/fe-gnome/navigation-tree.c:94
+#: ../src/fe-gnome/main-window.c:125
 msgid "_Bans..."
 msgstr "禁制(_B)…"
 
-#: ../src/fe-gnome/main-window.c:132
+#: ../src/fe-gnome/main-window.c:126
 msgid "_Users"
 msgstr "用戶(_U)"
 
-#. Go menu
-#: ../src/fe-gnome/main-window.c:135
-msgid "Pre_vious Network"
-msgstr "上一個網絡(_V)"
-
-#: ../src/fe-gnome/main-window.c:136
-msgid "Nex_t Network"
-msgstr "下一個網絡(_T)"
-
-#: ../src/fe-gnome/main-window.c:137
-msgid "_Previous Discussion"
-msgstr "上一個聊天室(_P)"
-
-#: ../src/fe-gnome/main-window.c:138
-msgid "_Next Discussion"
-msgstr "下一個聊天室(_P)"
-
 #. Help menu
-#: ../src/fe-gnome/main-window.c:141
+#: ../src/fe-gnome/main-window.c:129
 msgid "_Contents"
 msgstr "內容(_C)"
 
-#: ../src/fe-gnome/main-window.c:142
+#: ../src/fe-gnome/main-window.c:130
 msgid "_About"
 msgstr "關於(_A)"
 
-#: ../src/fe-gnome/main-window.c:507 ../src/fe-gnome/navigation-tree.c:1769
+#: ../src/fe-gnome/main-window.c:406 ../src/fe-gnome/main-window.c:428
 msgid "Ex-Chat"
 msgstr "不再聊天"
 
-#: ../src/fe-gnome/main-window.c:589
+#: ../src/fe-gnome/main-window.c:478
 msgid "Error showing help"
 msgstr "顯示說明文件時發生錯誤"
 
@@ -4025,31 +4009,40 @@ msgstr ""
 msgid "D-Bus plugin is still installed"
 msgstr ""
 
-#. Server context menu
-#: ../src/fe-gnome/navigation-tree.c:82
-msgid "_Information"
-msgstr "資料(_I)"
+#. Go menu
+#: ../src/fe-gnome/navigation-tree.c:91
+msgid "Pre_vious Network"
+msgstr "上一個網絡(_V)"
 
 #: ../src/fe-gnome/navigation-tree.c:92
+msgid "Nex_t Network"
+msgstr "下一個網絡(_T)"
+
+#: ../src/fe-gnome/navigation-tree.c:93
+msgid "_Previous Discussion"
+msgstr "上一個聊天室(_P)"
+
+#: ../src/fe-gnome/navigation-tree.c:94
+msgid "_Next Discussion"
+msgstr "下一個聊天室(_P)"
+
+#. Discussion context menu
+#: ../src/fe-gnome/navigation-tree.c:97
 msgid "_Join"
 msgstr ""
 
-#: ../src/fe-gnome/navigation-tree.c:93 ../src/fe-gnome/navigation-tree.c:99
-msgid "_Find..."
-msgstr "尋找(_F)…"
-
 #. Server context menu
-#: ../src/fe-gnome/navigation-tree.c:104
+#: ../src/fe-gnome/navigation-tree.c:102
 msgid "_Auto-connect on startup"
 msgstr "啟動程式時自動連線(_A)"
 
-#. Channel context menu
-#: ../src/fe-gnome/navigation-tree.c:107
+#. Discussion context menu
+#: ../src/fe-gnome/navigation-tree.c:105
 #, fuzzy
 msgid "_Auto-join on connect"
 msgstr "程式啟動時自動加入(_A)"
 
-#: ../src/fe-gnome/navigation-tree.c:1344
+#: ../src/fe-gnome/navigation-tree.c:500
 msgid "<none>"
 msgstr "<無>"
 
@@ -4248,7 +4241,7 @@ msgstr "淺灰色"
 msgid "White"
 msgstr "白色"
 
-#: ../src/fe-gnome/topic-label.c:293
+#: ../src/fe-gnome/topic-label.c:292
 #, c-format
 msgid "Changing topic for %s"
 msgstr "更改 %s 的標題"
@@ -4277,7 +4270,7 @@ msgstr "忽略"
 msgid "_Op"
 msgstr ""
 
-#: ../src/fe-gnome/userlist-gui.c:422
+#: ../src/fe-gnome/userlist-gui.c:425
 #, c-format
 msgid ""
 "%s\n"
@@ -4286,7 +4279,7 @@ msgstr ""
 "%s\n"
 "<span weight=\"bold\">名稱：</span> %s"
 
-#: ../src/fe-gnome/userlist-gui.c:429
+#: ../src/fe-gnome/userlist-gui.c:432
 #, c-format
 msgid ""
 "%s\n"
@@ -4295,7 +4288,7 @@ msgstr ""
 "%s\n"
 "<span weight=\"bold\">國家：</span> %s"
 
-#: ../src/fe-gnome/userlist-gui.c:439
+#: ../src/fe-gnome/userlist-gui.c:442
 #, fuzzy, c-format
 msgid ""
 "%s\n"
@@ -4307,7 +4300,7 @@ msgstr[0] ""
 "%s\n"
 "<span weight=\"bold\">最後訊息：</span> %d 分鐘前"
 
-#: ../src/fe-gnome/userlist-gui.c:450
+#: ../src/fe-gnome/userlist-gui.c:453
 #, c-format
 msgid ""
 "%s\n"
@@ -4316,11 +4309,17 @@ msgstr ""
 "%s\n"
 "<span weight=\"bold\">表示暫時離開的訊息：</span> %s"
 
-#: ../src/fe-gnome/userlist.c:299
+#: ../src/fe-gnome/userlist.c:300
 #, c-format
 msgid "%d User"
 msgid_plural "%d Users"
 msgstr[0] ""
+
+#~ msgid "_Information"
+#~ msgstr "資料(_I)"
+
+#~ msgid "_Find..."
+#~ msgstr "尋找(_F)…"
 
 #~ msgid "Apply Text Filter To:    "
 #~ msgstr "要篩選的文字屬於：    "
