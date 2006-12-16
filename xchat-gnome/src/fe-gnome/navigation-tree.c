@@ -583,6 +583,8 @@ navigation_model_set_hilight (NavModel *model, session *sess)
 
 	if (refcount > 0) {
 		sess->nick_said = FALSE;
+		sess->msg_said = FALSE;
+		sess->new_data = FALSE;
 		return;
 	}
 
