@@ -1,6 +1,11 @@
 2006-12-15  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/navigation-tree.c:
+	  - This time I really mean it.
+
+2006-12-15  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/navigation-tree.c:
 	  - Actually fix hilighting.  For real this time.
 
 2006-12-14  David Trowbridge <trowbrds@gmail.com>

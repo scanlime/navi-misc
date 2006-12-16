@@ -321,6 +321,8 @@ selection_changed (GtkTreeSelection *selection, NavTree *tree)
 			}
 
 			sess->nick_said = FALSE;
+			sess->msg_said = FALSE;
+			sess->new_data = FALSE;
 		}
 
 		GtkTreePath *path = gtk_tree_model_get_path (model, &iter);
