@@ -698,8 +698,15 @@ open_url (GtkAction *action, ConversationPanel *panel)
 static void
 copy_text (GtkAction *action, ConversationPanel *panel)
 {
-	GtkClipboard *clipboard = gtk_widget_get_clipboard (GTK_WIDGET (panel), GDK_SELECTION_CLIPBOARD);
-        gtk_clipboard_set_text (clipboard, panel->priv->selected_word, -1);
+	GdkDisplay *display;
+	GtkClipboard *clipboard;
+
+	display = gtk_widget_get_display (GTK_WIDGET (panel));
+
+	clipboard = gtk_clipboard_get_for_display (display, GDK_SELECTION_PRIMARY);
+	gtk_clipboard_set_text (clipboard, panel->priv->selected_word, -1);
+	clipboard = gtk_clipboard_get_for_display (display, GDK_SELECTION_CLIPBOARD);
+	gtk_clipboard_set_text (clipboard, panel->priv->selected_word, -1);
 }
 
 static void
