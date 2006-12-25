@@ -1,0 +1,15 @@
+{% extends "recipes/edit_base.html" %}
+{% block title %}New Recipe{% endblock %}
+
+{% block pageheader %}
+<h1>Create a new recipe</h1>
+{% endblock %}
+
+{% block formopen %}
+<form action="/recipes/new/" method="post">
+{% endblock %}
+
+{% block formclose %}
+<input type="Submit" value="create"/>
+</form>
+{% endblock %}

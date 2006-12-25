@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>{% block title %}{% endblock %} | Bon Vivant</title>
+  <link rel="stylesheet" type="text/css" href="/site_media/css/main.css" />
+  <script type="text/javascript" src="/site_media/js/main.js"></script>
+  {% block extrahead %}{% endblock %}
+</head>
+<body>
+
+
+<!--
+<div id="top">
+{% if user.is_authenticated %}
+  <span id="welcome">{{ user.username }}</span>
+{% else %}
+  <a href="login">login</a>
+  <a href="register">register</a>
+{% endif %}
+</div>
+
+<div id="credentialsback"></div>
+<div id="credentials">
+  <div id="register">
+    <form action="/register/" method="post">
+      <span class="fieldlabel">Username:</span>
+      <input type="text" name="username" maxlength="30"/>
+
+      <span class="fieldlabel">Password:</span>
+      <input type="password" name="password" />
+
+      <span class="fieldlabel">Verify password:</span>
+      <input type="password" name="password_verify"/>
+
+    </form>
+  </div>
+  <div id="login">
+    <form action="/login/" method="post">
+      <span class="fieldlabel">Username:</span>
+      <input type="text" name="username" maxlength="30"/>
+
+      <span class="fieldlabel">Password:</span>
+      <input type="password" name="password" maxlength="30"/>
+    </form>
+  </div>
+</div>
+-->
+
+<div id="header"> </div>
+<div id="container">
+  <div id="nav">
+    <div class="sidebarsection">
+      <a href="/recipes/">Archive</a><br />
+      {% if user.is_authenticated %}
+      <a href="/recipes/new/">Add a Recipe</a><br />
+      {% endif %}
+      {% block navmain %}{% endblock%}
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="sidebarsection">
+      <a href="/account/profile/">Profile</a><br />
+      <a href="/account/edit/">Edit Account</a><br />
+      <a href="/logout/">Log Out</a><br />
+      {% block navuser %}{% endblock%}
+    </div>
+    {% endif %}
+  </div>
+  <div id="content">
+  {% block content %}{% endblock %}
+  </div>
+</div>
+<div id="footer"> </div>
+
+</body>
+</html>

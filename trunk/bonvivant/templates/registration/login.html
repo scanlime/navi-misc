@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Log In{% endblock %}
+
+{% block content %}
+  {% if form.has_errors %}
+    <h2>Please correct the following error{{ form.error_dict|pluralize }}:</h2>
+  {% endif %}
+
+  <form action="/login/" method="post">
+    <p>
+      <label for="id_password">Username:</label> {{ form.username }}
+      {% if form.username.errors %}*** {{ form.username.errors|join:", " }}{% endif %}
+    </p>
+
+    <p>
+      <label for="id_password">Password:</label> {{ form.password }}
+      {% if form.password.errors %}*** {{ form.password.errors|join:", " }}{% endif %}
+    </p>
+
+    <input type="submit" value="log in" />
+  </form>
+{% endblock %}
