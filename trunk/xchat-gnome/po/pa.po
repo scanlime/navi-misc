@@ -1680,230 +1680,285 @@ msgstr ""
 "%s"
 
 #: ../src/common/textevents.h:6
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 added to notify list."
 msgstr "%C22*%O$t$1 ਨੂੰ ਸੂਚਨਾ ਸੂਚੀ ਵਿੱਚ ਸ਼ਾਮਿਲ ਕੀਤਾ।"
 
 #: ../src/common/textevents.h:9
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 Banlist: %C3$4 %C4$2 %C5$3%O"
 msgstr "%C22*%O$t$1 ਪਾਬੰਦੀ ਸੂਚੀ:%C19 $4%C20 $2%C21 $3"
 
 #: ../src/common/textevents.h:12
+#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(You are banned)."
 msgstr "%C22*%O$t %C26 %B$1 %O ਵਿੱਚ ਦਾਖਲ ਨਹੀ ਹੋ ਸਕਦੇ (ਤੁਹਾਡੇ ਉੱਤੇ ਪਾਬੰਦੀ ਹੈ)।"
 
 #: ../src/common/textevents.h:18
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 is now known as $2"
 msgstr "%C22*%O$t$1 ਨੂੰ ਹੁਣ $2 ਦੇ ਤੌਰ ਉੱਤੇ ਜਾਣਿਆ ਜਾਵੇਗਾ"
 
 #: ../src/common/textevents.h:21
+#, fuzzy
 msgid "%C13*%O$t$1 $2%O"
 msgstr "%C16*%O$t$1%O"
 
 #: ../src/common/textevents.h:24
+#, fuzzy
 msgid "%C13*%O$t%C8%B$1%B%O $2%O"
 msgstr "%C21*%O$t%C21%B$1%O%C21 $2"
 
 #: ../src/common/textevents.h:27
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets ban on $2"
 msgstr "%C22*%O$t$1 ਨੇ $2 ਉੱਤੇ ਪਾਬੰਦੀ ਲਗਾਈ"
 
 #: ../src/common/textevents.h:30
+#, fuzzy
 msgid "-%C10-%C11-%O$tChannel $1 created on $2"
 msgstr "%C22*%O$tਚੈਨਲ $1 ਨੂੰ $2 ਤੇ ਬਣਾਇਆ ਗਿਆ ਹੈ"
 
 #: ../src/common/textevents.h:33
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes channel half-operator status from $2"
 msgstr "%C22*%O$t%C26$1%O ਨੇ%C26 $2 ਤੋਂ ਚੈਨਲ ਅਰਧ-ਮੁੱਖੀ ਅਹੁਦਾ ਹਟਾਇਆ"
 
 #: ../src/common/textevents.h:36
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes channel operator status from $2"
 msgstr "%C22*%O$t%C26$1%O ਨੇ%C26 $2 ਤੋਂ ਚੈਨਲ ਮੁੱਖੀ ਅਹੁਦਾ ਹਟਾਇਆ"
 
 #: ../src/common/textevents.h:39
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes voice from $2"
 msgstr "%C22*%O$t%C26$1%O ਨੇ %C26 $2 ਤੋਂ ਆਵਾਜ਼ ਹਟਾਈ"
 
 #: ../src/common/textevents.h:42
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets exempt on $2"
 msgstr "%C22*%O$t$1 ਨੇ $2 ਤੇ ਸੱਦਾ ਲਗਾਇਆ"
 
 #: ../src/common/textevents.h:45
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 gives channel half-operator status to $2"
 msgstr "%C22*%O$t%C26$1%O ਨੇ %C26 $2 ਨੂੰ ਅੱਧੇ-ਮੁੱਖੀ ਦਾ ਅਹੁਦਾ ਦਿੱਤਾ"
 
 #: ../src/common/textevents.h:48
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets invite on $2"
 msgstr "%C22*%O$t$1 ਨੇ $2 ਤੇ ਸੱਦਾ ਲਗਾਇਆ"
 
 #: ../src/common/textevents.h:51
+#, fuzzy
 msgid "%UChannel          Users   Topic%O"
 msgstr "%Uਚੈਨਲ          ਉਪਭੋਗੀ   ਵਿਸ਼ਾ"
 
 #: ../src/common/textevents.h:54 ../src/common/textevents.h:306
+#, fuzzy
 msgid "%C2<%O$1%C2>%O$t$2%O"
 msgstr "%C28-%C29$1%C28-%O$t$2"
 
 #: ../src/common/textevents.h:57
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets mode $2$3 $4"
 msgstr "%C22*%O$t$1 ਢੰਗ $2$3 $4 ਦਿੱਤਾ"
 
 #: ../src/common/textevents.h:60
+#, fuzzy
 msgid "-%C10-%C11-%O$tChannel $1 modes: $2"
 msgstr "C22*%O$t%C22ਚੈਨਲ $1 ਮੋਡ: $2"
 
 #: ../src/common/textevents.h:63
+#, fuzzy
 msgid "%C2<%C8%B$1%B%C2>%O$t$2%O"
 msgstr "%C28-%C29$1%C28-%O$t$2"
 
 #: ../src/common/textevents.h:66
+#, fuzzy
 msgid "%C12-%C13$1/$2%C12-%O$t$3%O"
 msgstr "%C28-%C29$1/$2%C28-%O$t$3"
 
 #: ../src/common/textevents.h:69
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 gives channel operator status to $2"
 msgstr "%C22*%O$t%C26$1%O ਨੇ %C26 $2 ਨੂੰ ਚੈਨਲ ਮੁੱਖੀ ਦਾ ਦਰਜਾ ਦਿੱਤਾ"
 
 #: ../src/common/textevents.h:72
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes exempt on $2"
 msgstr "%C22*%O$t$1 ਨੇ $2 ਤੋਂ ਪਾਬੰਦੀ ਹਟਾਈ"
 
 #: ../src/common/textevents.h:75
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes invite on $2"
 msgstr "%C22*%O$t$1 ਨੇ $2 ਤੋਂ ਸੱਦਾ ਹਟਾਇਆ"
 
 #: ../src/common/textevents.h:78
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes channel keyword"
 msgstr "%C22*%O$t$1 ਨੇ ਚੈਨਲ ਸ਼ਬਦ ਹਟਾਇਆ"
 
 #: ../src/common/textevents.h:81
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes user limit"
 msgstr "%C22*%O$t$1 ਨੇ ਉਪਭੋਗੀ ਸੀਮਾ ਹਟਾਈ"
 
 #: ../src/common/textevents.h:84
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets channel keyword to $2"
 msgstr "%C22*%O$t$1 ਨੇ $2 ਲਈ ਚੈਨਲ ਸ਼ਬਦ ਲਗਾਇਆ"
 
 #: ../src/common/textevents.h:87
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets channel limit to $2"
 msgstr "%C22*%O$t$1 ਨੇ ਚੈਨਲ ਸੀਮਾ $2 ਕੀਤੀ"
 
 #: ../src/common/textevents.h:90
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes ban on $2"
 msgstr "%C22*%O$t$1 ਨੇ $2 ਤੋਂ ਪਾਬੰਦੀ ਹਟਾਈ"
 
 #: ../src/common/textevents.h:93
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 gives voice to $2"
 msgstr "%C22*%O$t%C26$1%O ਨੇ %C26 $2 ਲਈ ਆਵਾਜ਼ ਦਿੱਤੀ"
 
 #: ../src/common/textevents.h:96
+#, fuzzy
 msgid "-%C10-%C11-%O$tConnected. Now logging in.."
 msgstr "%C22*%O$t%C22ਜੁੜ ਗਿਆ ਹੈ। ਤੁਸੀਂ ਦਾਖਲ ਹੋ..."
 
 #: ../src/common/textevents.h:99
+#, fuzzy
 msgid "-%C10-%C11-%O$tConnecting to %C11$1 %C14(%C11$2%C14)%C port %C11$3%C.."
 msgstr "%C22*%O$t%C22($2) ਨਾਲ ਪੋਰਟ $3%O ਤੇ ਜੁੜਿਆ ਜਾਦਾ ਹੈ..."
 
 #: ../src/common/textevents.h:102
+#, fuzzy
 msgid "-%C10-%C11-%O$tConnection failed. Error: $1"
 msgstr "%C21*%O$t%C21ਕੁਨੈਕੁਸ਼ਨ ਅਸਫਲ ਹੈ। ਗਲਤੀ: $1"
 
 #: ../src/common/textevents.h:105
+#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2"
 msgstr "%C22*%O$tਇੱਕ CTCP $1 $2 ਵੱਲੋਂ ਪ੍ਰਾਪਤ ਹੋਈ"
 
 #: ../src/common/textevents.h:108
+#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2 (to $3)"
 msgstr "%C22*%O$tਇੱਕ CTCP $1 $2 ਵੱਲੋਂ ਪ੍ਰਾਪਤ ਹੋਈ ($3 ਲਈ)"
 
 #: ../src/common/textevents.h:111
+#, fuzzy
 msgid "%C3>%O$1%C3<%O$tCTCP $2%O"
 msgstr "%C19>%O$1%C19<%O$tCTCP $2"
 
 #: ../src/common/textevents.h:114
+#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP Sound $1 from $2"
 msgstr "%C22*%O$tCTCP ਆਵਾਜ਼ $1 $2 ਵੱਲੋਂ ਆਈ ਹੈ"
 
 #: ../src/common/textevents.h:117
+#, fuzzy
 msgid "%C22*%O$tReceived a CTCP Sound $1 from $2 (to $3)"
 msgstr "%C22*%O$tਇੱਕ CTCP $1 ਧੁਨੀ $2 (to $3) ਵਲੋਂ ਮਿਲੀ"
 
 #: ../src/common/textevents.h:120
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC CHAT to %C11$1%O aborted."
 msgstr "%C22*%O$t%C26$1%O ਨਾਲ DCC ਗੱਲਬਾਤ ਅਧੂਰੀ ਰਹੀ।"
 
 #: ../src/common/textevents.h:123
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC CHAT connection established to %C11$1 %C14[%O$2%C14]%O"
 msgstr "%C22*%O$t%C26$1 %C30[%O$2%C30] ਨਾਲ DCC ਗੱਲਬਾਤ ਕੁਨੈਕਸ਼ਨ ਬਣਾਇਆ ਗਿਆ"
 
 #: ../src/common/textevents.h:126
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC CHAT failed. Connection to $1 %C14[%O$2:$3%C14]%O lost."
 msgstr ""
 
 #: ../src/common/textevents.h:129
+#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a DCC CHAT offer from $1"
 msgstr "%C22*%O$t $1 ਵਲੋਂ DCC ਗੱਲਬਾਤ ਲਈ ਸੱਦਾ ਆਇਆ ਹੈ"
 
 #: ../src/common/textevents.h:132
+#, fuzzy
 msgid "-%C10-%C11-%O$tOffering DCC CHAT to $1"
 msgstr "%C22*%O$t $1 ਨੂੰ DCC ਗੱਲਬਾਤ ਲਈ ਸੱਦਾ ਦੇ ਰਿਹਾ ਹੈ"
 
 #: ../src/common/textevents.h:135
+#, fuzzy
 msgid "-%C10-%C11-%O$tAlready offering CHAT to $1"
 msgstr "%C22*%O$t $1 ਨਾਲ ਪਹਿਲਾਂ ਹੀ ਗੱਲਬਾਤ ਲਈ ਸੱਦਾ ਦਿੱਤਾ ਗਿਆ ਹੈ"
 
 #: ../src/common/textevents.h:138
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC $1 connect attempt to %C11$2%O failed (err=$3)."
 msgstr "%C22*%O$tDCC $1 %C26 $2%O ਨਾਲ ਕੁਨੈਕਸ਼ਨ ਅਸਫਲ (ਗਲਤੀ=$3)"
 
 #: ../src/common/textevents.h:141
+#, fuzzy
 msgid "-%C10-%C11-%O$tReceived '$1%O' from $2"
 msgstr "%C22*%O$t $2 ਵਲੋਂ '$1%O' ਪ੍ਰਾਪਤ"
 
 #: ../src/common/textevents.h:144
+#, fuzzy
 #, c-format
 msgid "%C24,18 Type  To/From    Status  Size    Pos     File         "
 msgstr "%C24,18 ਕਿਸਮ  ਵੱਲ/ਵੱਲੋਂ    ਸਥਿਤੀ  ਅਕਾਰ    Pos     ਫਾਇਲ         "
 
 #: ../src/common/textevents.h:147
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tReceived a malformed DCC request from %C11$1%O.%010-%C10-%C11-"
 "%O$tContents of packet: $2"
 msgstr ""
 
 #: ../src/common/textevents.h:150
+#, fuzzy
 msgid "-%C10-%C11-%O$tOffering %C11$1 %Cto %C11$2%O"
 msgstr "%C22*%O$tਨੇ%C26 $1%O %C26 $2 ਨੂੰ ਪੇਸ਼ ਕੀਤੀ"
 
 #: ../src/common/textevents.h:153
+#, fuzzy
 msgid "-%C10-%C11-%O$tNo such DCC offer."
 msgstr "%C22*%O$tਏਦਾਂ ਦਾ ਕੋਈ DCC ਸੱਦਾ ਨਹੀਂ ਹੈ।"
 
 #: ../src/common/textevents.h:156
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC RECV %C11$2%O to %C11$1%O aborted."
 msgstr "%C22*%O$tDCC RECV%C26 $2%O to%C26 $1%O ਅਧੂਰਾ ਛੱਡਿਆ।"
 
 #: ../src/common/textevents.h:159
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC RECV %C11$1%O from %C11$3%O complete %C14[%C11$4%O cps%"
 "C14]%O."
 msgstr "%C22*%O$tDCC RECV%C26 $1%O, %C26 $3%O ਤੋਂ ਮੁਕੰਮਲ %C30[%C26$4%O cps%C30]%O"
 
 #: ../src/common/textevents.h:162
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC RECV connection established to %C11$1 %C14[%O$2%C14]%O"
 msgstr "%C22*%O$tDCC RECV%C26 $1 %C30[%O$2%C30] ਨਾਲ ਕੁਨੈਕਸ਼ਨ ਬਣਿਆ"
 
 #: ../src/common/textevents.h:165
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC RECV $1 ($2) failed. Connection to $3 lost."
 msgstr ""
 
 #: ../src/common/textevents.h:168
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC RECV: Cannot open $1 for writing ($2)."
 msgstr "%C22*%O$tDCC RECV: $1ਨੂੰ ($2) ਲਿਖਣ ਲਈ ਖੋਲਿਆ ਨਹੀਂ ਜਾ ਸਕਦਾ।"
 
 #: ../src/common/textevents.h:171
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tThe file %C11$1%C already exists, saving it as %C11$2%O "
 "instead."
@@ -1911,161 +1966,199 @@ msgstr ""
 "%C22*%O$tਫਾਇਲ%C26 $1%C ਪਹਿਲਾਂ ਹੀ ਮੌਜੂਦ ਹੈ, %C26 $2%O ਦੇ ਤੌਰ ਤੇ ਸੰਭਾਲੀ ਜਾ ਰਹੀ ਹੈ।"
 
 #: ../src/common/textevents.h:174
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C11$1 %Chas requested to resume %C11$2 %Cfrom %C11$3%C."
 msgstr "%C22*%O$t%C26$1 %Oਨੇ%C26 $2 %Cਨੂੰ%C26 $3%C ਤੋਂ ਮੁੜ-ਪ੍ਰਾਪਤੀ ਦੀ ਮੰਗ ਰੱਖੀ।"
 
 #: ../src/common/textevents.h:177
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC SEND %C11$2%O to %C11$1%O aborted."
 msgstr "%C22*%O$tDCC SEND%C26 $2%O to%C26 $1%O ਅਧੂਰਾ ਛੱਡਿਆ।"
 
 #: ../src/common/textevents.h:180
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC SEND %C11$1%O to %C11$2%O complete %C14[%C11$3%O cps%C14]%"
 "O."
 msgstr "%C22*%O$tDCC SEND%C26 $1%O to%C26 $2%O ਮੁਕੰਮਲ %C30[%C26$3%O cps%C30]%O."
 
 #: ../src/common/textevents.h:183
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC SEND connection established to %C11$1 %C14[%O$2%C14]%O"
 msgstr "%C22*%O$tDCC SEND %C26 $1 %C30[%O$2%C30] ਨਾਲ ਕੁਨੈਕਸ਼ਨ ਬਣਿਆ"
 
 #: ../src/common/textevents.h:186
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC SEND %C11$1%O failed. Connection to %C11$2%O lost."
 msgstr ""
 
 #: ../src/common/textevents.h:189
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C11$1 %Chas offered %C11$2 %C(%C11$3 %Cbytes)"
 msgstr "%C22*%O$t%C26$1 %Oਨੇ %C26 $2 %O(%C26$3 %Oਬਾਇਟ) ਫਾਇਲ ਭੇਜੀ"
 
 #: ../src/common/textevents.h:192
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Cstalled - aborting."
 msgstr "%C22*%O$tDCC $1%C26 $2 %Oto%C26 $3 %Cਸਥਿਰ - ਅਧੂਰਾ ਛੱਡਿਆ"
 
 #: ../src/common/textevents.h:195
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Ctimed out - aborting."
 msgstr "%C22*%O$tDCC $1%C26 $2 %Oto%C26 $3 %Oਸਮਾਂ ਸਮਾਪਤ - ਅਧੂਰਾ ਛੱਡਿਆ।"
 
 #: ../src/common/textevents.h:198
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 deleted from notify list."
 msgstr "%C22*%O$t$1 ਨੂੰ ਸੂਚਨਾ ਤੋਂ ਹਟਾਇਆ।"
 
 #: ../src/common/textevents.h:201
+#, fuzzy
 msgid "-%C10-%C11-%O$tDisconnected ($1)."
 msgstr "%C22*%O$t ($1) ਬੰਦ ਹੋਇਆ ਹੈ।"
 
 #: ../src/common/textevents.h:204
+#, fuzzy
 msgid "-%C10-%C11-%O$tFound your IP: [$1]"
 msgstr "%C22*%O$tਤੁਹਾਡਾ IP ਖੋਜਿਆ: [$1]"
 
 #: ../src/common/textevents.h:207
+#, fuzzy
 msgid "$1$t$2"
 msgstr "$1$t$2"
 
 #: ../src/common/textevents.h:210
+#, fuzzy
 msgid "%O%C11$1%O added to ignore list."
 msgstr "%O%C26$1%O ਨੂੰ ਅਣਡਿੱਠੀ ਸੂਚੀ ਵਿੱਚ ਸ਼ਾਮਿਲ ਕੀਤਾ।"
 
 #: ../src/common/textevents.h:213
+#, fuzzy
 msgid "Ignore on %C11$1%O changed."
 msgstr "%C26$1%O ਤਬਦੀਲੀ ਅਣਡਿੱਠਾ।"
 
 #: ../src/common/textevents.h:216
+#, fuzzy
 #, c-format
 msgid "%C24,18                                                              "
 msgstr "%C24,18                                                              "
 
 #: ../src/common/textevents.h:219
+#, fuzzy
 #, c-format
 msgid "%C24,18 Hostmask                  PRIV NOTI CHAN CTCP DCC  INVI UNIG "
 msgstr ""
 "%C24,18 ਮੇਜ਼ਬਾਨ ਮਖੌਟਾ                  PRIV NOTI CHAN CTCP DCC  INVI UNIG "
 
 #: ../src/common/textevents.h:222
+#, fuzzy
 msgid "%O%C11$1%O removed from ignore list."
 msgstr "%O%C26$1%O ਨੂੰ ਅਣਡਿੱਠਾ ਸੂਚੀ ਵਿੱਚੋਂ ਹਟਾਇਆ।"
 
 #: ../src/common/textevents.h:225
+#, fuzzy
 msgid "  Ignore list is empty."
 msgstr "  ਅਣਡਿੱਠਾ ਸੂਚੀ ਖਾਲੀ ਹੈ।"
 
 #: ../src/common/textevents.h:228
+#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Channel is invite only)."
 msgstr "%C22*%O$t%C26 %B$1 %O ਵਿੱਚ ਦਾਖਲ ਨਹੀਂ ਹੋ ਸਕਦੇ (ਚੈਨਲ ਹੀ ਸੱਦ ਸਕਦਾ ਏ)।"
 
 #: ../src/common/textevents.h:231
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been invited to %C11$1%C by %C11$2%C (%C11$3%C)"
 msgstr "%C22*%O$tਤੁਹਾਨੂੰ%C26 $1%O by%C26 $2%C (%C26$3%C) ਲਈ ਸੱਦਾ ਹੈ"
 
 #: ../src/common/textevents.h:234
+#, fuzzy
 msgid "-%C10-%C11>%O$t%B$1%B %C14(%C10$3%C14)%C has joined $2"
 msgstr "%C19*%O$t%C19%B$1 %B($3) $2 ਵਿੱਚ ਦਾਖਲ"
 
 #: ../src/common/textevents.h:237
+#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Requires keyword)."
 msgstr "%C22*%O$t%C26 %B$1 %O ਵਿੱਚ ਦਾਖਲ ਨਹੀਂ ਹੋ ਸਕਦੇ(ਸ਼ਬਦ ਲੋੜੀਦਾ ਹੈ)।"
 
 #: ../src/common/textevents.h:240
+#, fuzzy
 msgid "<%C10-%C11-%O$t$1 has kicked $2 from $3 ($4%O)"
 msgstr "%C21*%O$t%C21$1 ਨੇ $2 ਨੂੰ $3 ($4%O%C21) ਤੋਂ ਬਾਹਰ ਸੁੱਟ ਦਿੱਤਾ"
 
 #: ../src/common/textevents.h:243
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been killed by $1 ($2%O)"
 msgstr "%C22*%O$tਤੁਹਾਨੂੰ $1 ($2%O%C22) ਨੇ ਚੈਨਲ ਵਿੱਚੋਂ ਬਾਹਰ ਸੁੱਟ ਦਿੱਤਾ"
 
 #: ../src/common/textevents.h:246 ../src/common/textevents.h:270
+#, fuzzy
 msgid "%C3>%O$1%C3<%O$t$2%O"
 msgstr "%C19>%O$1%C19<%O$t$2"
 
 #: ../src/common/textevents.h:249 ../src/common/textevents.h:327
 #: ../src/common/textevents.h:333 ../src/common/textevents.h:336
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1%O"
 msgstr "%C16*%O$t$1%O"
 
 #: ../src/common/textevents.h:252
+#, fuzzy
 msgid "-%C10-%C11-%O$tMOTD Skipped."
 msgstr "%C22*%O$t%C22MOTD ਅਧੂਰਾ ਛੱਡਿਆ ਹੈ।"
 
 #: ../src/common/textevents.h:255
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 already in use. Retrying with $2.."
 msgstr "%C22*%O$t$1 ਪਹਿਲਾਂ ਹੀ ਵਰਤੋਂ ਅਧੀਨ ਹੈ। $2 ਨਾਲ ਮੁੜ ਕੋਸ਼ਿਸ ਜਾਰੀ..."
 
 #: ../src/common/textevents.h:258
+#, fuzzy
 msgid "-%C10-%C11-%O$tNickname already in use. Use /NICK to try another."
 msgstr "%C22*%O$tਨਾਂ ਪਹਿਲਾਂ ਹੀ ਵਰਤੋਂ ਅਧੀਨ ਹੈ। ਹੋਰ ਵਰਤਣ ਲਈ /NICK ਦੀ ਵਰਤੋਂ ਕਰੋ।"
 
 #: ../src/common/textevents.h:261
+#, fuzzy
 msgid "-%C10-%C11-%O$tNo such DCC."
 msgstr "%C22*%O$tਏਦਾਂ ਦਾ ਕੋਈ DCC ਨਹੀਂ ਹੈ।"
 
 #: ../src/common/textevents.h:264
+#, fuzzy
 msgid "-%C10-%C11-%O$tNo process is currently running"
 msgstr "%C22*%O$tਇਸ ਸਮੇਂ ਕੋਈ ਕਾਰਜ ਨਹੀਂ ਚੱਲ ਨਹੀਂ ਰਿਹਾ ਹੈ।"
 
 #: ../src/common/textevents.h:267
+#, fuzzy
 msgid "%C12-%C13$1%C12-%O$t$2%O"
 msgstr "%C28-%C29$1%C28-%O$t$2"
 
 #: ../src/common/textevents.h:273
+#, fuzzy
 msgid "-%C10-%C11-%O$tNotify list is empty."
 msgstr "$tਸੂਚਨਾ ਸੂਚੀ ਖਾਲੀ ਹੈ।"
 
 #: ../src/common/textevents.h:276
+#, fuzzy
 msgid "%C24,18 %B  Notify List                           "
 msgstr "%C24,18 %B  ਸੂਚਨਾ ਸੂਚੀ                           "
 
 #: ../src/common/textevents.h:279
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 users in notify list."
 msgstr "%C22*%O$t$1 ਉਪਭੋਗੀ ਸੂਚਨਾ ਸੂਚੀ ਵਿੱਚ ਹੈ।"
 
 #: ../src/common/textevents.h:282
+#, fuzzy
 msgid "-%C10-%C11-%O$tNotify: $1 is offline ($2)."
 msgstr "%C22*%O$tਸੂਚਨਾ: $1 ਮੌਕੇ ਤੇ ਮੌਜੂਦ ਨਹੀਂ ਹੈ ($2)।"
 
 #: ../src/common/textevents.h:285
+#, fuzzy
 msgid "-%C10-%C11-%O$tNotify: $1 is online ($2)."
 msgstr "%C22*%O$tਸੂਚਨਾ: $1 ਮੌਕੇ ਤੇ ਮੌਜੂਦ ਹੈ ($2)।"
 
 #: ../src/common/textevents.h:291
+#, fuzzy
 msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3"
 msgstr "%C23*%O$t%C23$1 (%O%C23$2) ਛੱਡ ਗਿਆ ਹੈ $3"
 
@@ -2075,143 +2168,178 @@ msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3 %C14(%O$4%C14)%O"
 msgstr "%C23*%O$t%C23$1 (%O%C23$2) ਛੱਡ ਗਿਆ ਹੈ $3 (%O%C23$4)"
 
 #: ../src/common/textevents.h:297
+#, fuzzy
 msgid "-%C10-%C11-%O$tPing reply from $1 : $2 second(s)"
 msgstr "%C22*%O$t$1ਤੋਂ ਪਿੰਗ ਜਵਾਬ: $2 ਸਕਿੰਟ"
 
 #: ../src/common/textevents.h:300
+#, fuzzy
 msgid "-%C10-%C11-%O$tNo ping reply for $1 seconds, disconnecting."
 msgstr "%C22*%O$t$1 ਸਕਿੰਟਾਂ ਤੋਂ ਕੋਈ ਜਵਾਬ ਨਹੀ, ਕੁਨੈਕਸ਼ਨ ਨਹੀਂ ਹੈ।"
 
 #: ../src/common/textevents.h:303
+#, fuzzy
 msgid "%C12*%C13$1%C12*$t%O$2%O"
 msgstr "%C28*%C29$3$1%C28*$t%O$2"
 
 #: ../src/common/textevents.h:309
+#, fuzzy
 msgid "-%C10-%C11-%O$tA process is already running"
 msgstr "%C22*%O$tਇੱਕ ਕਾਰਜ ਪਹਿਲਾਂ ਹੀ ਚੱਲ ਰਿਹਾ ਹੈ"
 
 #: ../src/common/textevents.h:312
+#, fuzzy
 msgid "<%C10-%C11-%O$t$1 has quit %C14(%O$2%O%C14)%O"
 msgstr "%C23*%O$t%C23$1 ਨੇਬੰਦ ਕੀਤਾ ਹੈ (%O%C23$2)"
 
 #: ../src/common/textevents.h:315
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets modes%B %C14[%O$2%B%C14]%O"
 msgstr "%C22*%O$t$1 ਨੇ ਢੰਗ%B %C30[%O$2%B%C30] ਦਿੱਤਾ"
 
 #: ../src/common/textevents.h:318
+#, fuzzy
 msgid "%C12-%C13$1/Wallops%C12-%O$t$2%O"
 msgstr "%C28-%C29$1/Wallops%C28-%O$t$2"
 
 #: ../src/common/textevents.h:321
+#, fuzzy
 msgid "-%C10-%C11-%O$tLooking up IP number for%C11 $1%O.."
 msgstr "%C22*%O$t%C26 $1%O ਲਈ IP ਨੰਬਰ ਦੀ ਖੋਜ ਜਾਰੀ ਹੈ..."
 
 #: ../src/common/textevents.h:324
+#, fuzzy
 msgid "-%C10-%C11-%O$tConnected."
 msgstr "%C22*%O$t%C22ਜੁੜਿਆ ਹੈ।"
 
 #: ../src/common/textevents.h:330
+#, fuzzy
 msgid "-%C10-%C11-%O$tLooking up %C11$1%C.."
 msgstr "%C22*%O$t%C22 $1 ਦੀ ਖੋਜ ਜਾਰੀ ਹੈ"
 
 #: ../src/common/textevents.h:339
+#, fuzzy
 msgid "-%C10-%C11-%O$tStopped previous connection attempt (pid=$1)"
 msgstr "%C22*%O$tਪੁਰਾਣੀ ਕੁਨੈਕਸ਼ਨ ਕੋਸ਼ਿਸ ਰੋਕੀ (pid=$1)"
 
 #: ../src/common/textevents.h:342
+#, fuzzy
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C is %C11$2%O"
 msgstr "%C29*%O$t%C29 $1%C %C29 ਲਈ ਵਿਸ਼ਾ ਹੈ: $2"
 
 #: ../src/common/textevents.h:345
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 has changed the topic to: $2%O"
 msgstr "%C22*%O$t$1 ਨੇ ਵਿਸ਼ਾ ਤਬਦੀਲ ਕੀਤਾ: $2"
 
 #: ../src/common/textevents.h:348
+#, fuzzy
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C set by %C11$2%C at %C11$3%O"
 msgstr "%C29*%O$t%C29$1%C %C29 ਲਈ ਵਿਸ਼ਾ $2%C %C29 ਨੇ $3 ਵਜੇ ਦਿੱਤਾ"
 
 #: ../src/common/textevents.h:351
+#, fuzzy
 msgid "-%C10-%C11-%O$tUnknown host. Maybe you misspelled it?"
 msgstr "%C22*%O$tਅਣਜਾਣ ਮੇਜ਼ਬਾਨ, ਸ਼ਾਇਦ ਤੁਸੀਂ ਨਾਂ ਗਲਤ ਲਿਖਿਆ ਹੈ?"
 
 #: ../src/common/textevents.h:354
+#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(User limit reached)."
 msgstr "%C22*%O$t%C26 %B$1 %O ਵਿੱਚ ਦਾਖਲ ਨਹੀਂ ਹੋ ਸਕਦੇ (ਉਪਭੋਗੀ ਸੀਮਾ ਟੱਪੀ)।"
 
 #: ../src/common/textevents.h:357
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C11Users on $1:%C $2"
 msgstr "%C22*%O$t%C26$1 ਤੇ ਉਪਭੋਗੀ:%C $2"
 
 #: ../src/common/textevents.h:360
+#, fuzzy
 msgid "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
 msgstr "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
 
 #: ../src/common/textevents.h:363
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %Cis away %C14(%O$2%O%C14)"
 msgstr "%C22*%O$t%C28[%O$1%C28] %Cਦੂਰ %C30(%O$2%O%C30)"
 
 #: ../src/common/textevents.h:366
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:369
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %CEnd of WHOIS list."
 msgstr "%C22*%O$t%C28[%O$1%C28] %OWHOIS ਸੂਚੀ ਖਤਮ।"
 
 #: ../src/common/textevents.h:372
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C$2"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:375
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O ਵਿਹਲਾ%C26 $2"
 
 #: ../src/common/textevents.h:378
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O, signon: %C11$3%O"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O ਵਿਹਲਾ%C26 $2%O, ਦਾਖਲ:%C26 $3"
 
 #: ../src/common/textevents.h:381
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C14(%O$2@$3%C14) %O: $4%O"
 msgstr "%C22*%O$t%C28[%O$1%C28] %C30(%O$2@$3%C30)%O: $4"
 
 #: ../src/common/textevents.h:384
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$t%C12[%O$1%C12] %Oreal user@host %C11$2%O, real IP %C11$3%O"
 msgstr "%C22*%O$t%C28[%O$1%C28] %Oਅਸਲੀ user@host%C27 $2%O, ਅਸਲੀ IP%C27 $3"
 
 #: ../src/common/textevents.h:387
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O $2"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:390
+#, fuzzy
 msgid "%C22*%O$t%C28[%O$1%C28]%O $2"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:393
+#, fuzzy
 msgid "-%C10-%C11>%O$t%BYou%B are now talking on %C11$2%O"
 msgstr "%C22*%O$tਹੁਣ ਤੁਸੀਂ ਜਾਣੇ ਜਾਓਗੇ $2"
 
 #: ../src/common/textevents.h:396
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been kicked from $2 by $3 ($4%O)"
 msgstr "%C23*$tਤੁਹਾਨੂੰ $2 ਤੋਂ $3 ($4%O%C23) ਨੇ ਬਾਹਰ ਸੁੱਟ ਦਿੱਤਾ"
 
 #: ../src/common/textevents.h:399
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou have left channel $3"
 msgstr "%C23*$tਤੁਸੀਂ $3 ਚੈਨਲ ਛੱਡਿਆ"
 
 #: ../src/common/textevents.h:402
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou have left channel $3 %C14(%O$4%C14)%O"
 msgstr "%C23*$tਤੁਸੀਂ $3 (%O%C23%B%B$4%O%C23) ਚੈਨਲ ਛੱਡਿਆ"
 
 #: ../src/common/textevents.h:405
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou're inviting %C11$1%C to %C11$2%C (%C11$3%C)"
 msgstr "%C22*%O$tਤੁਹਾਨੂੰ%C26 $1%O ਤੋਂ%C26 $2%O (%C26$3%O) ਤੇ ਸੱਦਿਆ ਗਿਆ"
 
 #: ../src/common/textevents.h:408
+#, fuzzy
 msgid "%C6<%O$1%C6>%O$t$2%O"
 msgstr "%C19>%O$1%C19<%O$t$2"
 
 #: ../src/common/textevents.h:411
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou are now known as $2"
 msgstr "%C22*%O$tਹੁਣ ਤੁਸੀਂ ਜਾਣੇ ਜਾਓਗੇ $2"
 
