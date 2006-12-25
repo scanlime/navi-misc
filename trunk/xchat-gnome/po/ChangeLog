@@ -4,6 +4,11 @@
 	* sl.po:
 	* sr.po:
 	* pa.po:
+	* vi.po:
+	* uk.po:
+	* ar.po:
+	* zh_TW.po:
+	* zh_CN.po:
 	  - Mark invalid textevents strings as fuzzy
 
 2006-12-09  Guillaume Desmottes  <cass@skynet.be>

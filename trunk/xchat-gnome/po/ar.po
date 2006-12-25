@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the xchat-gnome package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2005.
 #
-#, fuzzy
+
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
