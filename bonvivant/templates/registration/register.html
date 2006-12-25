@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+  {% if form.has_errors %}
+    <h2>Please correct the following error{{ form.error_dict|pluralize }}:</h2>
+  {% endif %}
+
+  <form action="/register/" method="post">
+    <p>
+      <label for="id_username">Username:</label> {{ form.username }}
+      {% if form.username.errors %}*** {{ form.username.errors|join:", " }}{% endif %}
+    </p>
+
+    <p>
+      <label for="id_password1">Password:</label> {{ form.password1 }}
+      {% if form.password1.errors %}*** {{ form.password1.errors|join:", " }}{% endif %}
+    </p>
+
+    <p>
+      <label for="id_password2">Password (again):</label> {{ form.password2 }}
+      {% if form.password2.errors %}*** {{ form.password2.errors|join:", " }}{% endif %}
+    </p>
+
+    <input type="submit" value="register" />
+  </form>
+{% endblock %}

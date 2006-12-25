@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Archive{% endblock %}
+
+{% block content %}
+<ul>
+  {% for entry in latest %}
+    <li><a href="{{ entry.get_absolute_url }}">{{ entry.title|title }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}

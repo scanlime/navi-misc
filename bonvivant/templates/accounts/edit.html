@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Edit Account{% endblock%}
+
+{% block content %}
+
+<h1>Edit User</h1>
+
+{% if form.has_errors %}
+  <h2>Please correct the following error{{ form.error_dict|pluralize }}:</h2>
+{% endif %}
+
+<form action="/accounts/new/" method="post">
+  <p>
+    <label for="id_username">Username:</label> {{ form.username }}
+    {% if form.username.errors %}*** {{ form.username.errors|join:", " }}{% endif %}
+  </p>
+
+  <p>
+    <label for="id_first_name">First name:</label> {{ form.first_name }}
+    {% if form.first_name.errors %}*** {{ form.first_name.errors|join:", " }}{% endif %}
+  </p>
+
+  <p>
+    <label for="id_last_name">Last name:</label> {{ form.last_name }}
+    {% if form.last_name.errors %}*** {{ form.last_name.errors|join:", " }}{% endif %}
+  </p>
+
+  <p>
+    <label for="id_email">E-mail address:</label> {{ form.email }}
+    {% if form.email.errors %}*** {{ form.email.errors|join:", " }}{% endif %}
+  </p>
+
+
+  <input type="Submit" value="save"/>
+</form>
+
+{% endblock %}

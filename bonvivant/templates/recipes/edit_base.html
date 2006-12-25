@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+<script type="text/javascript" src="/site_media/js/recipe.js"></script>
+{% endblock %}
+
+
+{% block content %}
+{% block pageheader %}{% endblock %}
+
+{% if form.has_errors %}
+<h2>Please correct the following error{{ form.error_dict|pluralize }}:</h2>
+{% endif %}
+
+{% block formopen %}{% endblock %}
+<p>
+  <label for="id_title">Title:</label> {{ form.title }}
+  {% if form.title.errors %}*** {{ form.title.errors|join:", " }}{% endif %}
+</p>
+
+<p>
+  <label for="id_servings">Servings:</label> {{ form.servings }}
+  {% if form.servings.errors %}*** {{ form.servings.errors|join:", " }}{% endif %}
+</p>
+
+<p>
+  <label for="id_prep_time">Prep Time:</label> {{ form.prep_time }}
+  {% if form.prep_time.errors %}*** {{ form.prep_time.errors|join:", " }}{% endif %}
+</p>
+
+<p>
+  <label for="id_cooking_time">Cooking Time:</label> {{ form.cooking_time }}
+  {% if form.cooking_time.errors %}*** {{ form.cooking_time.errors|join:", " }}{% endif %}
+</p>
+
+<p>
+  <label for="id_instructions">Instructions:</label> {{ form.instructions }}
+  {% if form.instructions.errors %}*** {{ form.instructions.errors|join:", " }}{% endif %}
+</p>
+
+<p>
+  <label for="id_notes">Notes:</label> {{ form.notes }}
+  {% if form.notes.errors %}*** {{ form.notes.errors|join:", " }}{% endif %}
+</p>
+
+<div id="ingredients">
+  <p>Ingredients:</p>
+</div>
+
+{% block formclose %}{% endblock %}
+{% endblock %}

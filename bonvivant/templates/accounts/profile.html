@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}User Profile{% endblock %}
+
+{% block content %}
+
+{% if authored %}
+  <h1>Recipes By Me</h1>
+  <ul>
+    {% for recipe in authored %}
+      <li><a href="{{ recipe.get_absolute_url }}">{{ recipe.title|title }}</a></li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+{% if box %}
+  <h1>Recipe Box</h1>
+  <ul>
+    {% for recipe in box %}
+      <li><a href="{{ recipe.get_absolute_url }}">{{ recipe.title|title }}</a></li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+{% endblock %}

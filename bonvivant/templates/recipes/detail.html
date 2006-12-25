@@ -1,0 +1,76 @@
+{% extends "base.html" }
+{% load human ext %}
+
+{% block extrahead %}
+<script type="text/javascript" src="/site_media/js/recipe.js"></script>
+<script type="text/javascript">
+window.onload = function() {
+	loadComments();
+}
+</script>
+{% endblock %}
+
+{% block title %}{{ recipe.title }}{% endblock %}
+
+{% block navmain %}
+{% if user.is_authenticated %}
+  {% ifequal recipe.author.id user.id %}
+    <a href="/recipes/edit/{{ recipe.id }}">Edit</a>
+  {% endifequal %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<h1 class="cb" id="cb{% counter cbs %}">{{ recipe.title }}</h1>
+{% if  recipe.author.first_name %}
+  <h2>By {{ recipe.author.first_name }} {{ recipe.author.last_name }}</h2>
+{% else %}
+  <h2>By {{ recipe.author }}</h2>
+{% endif %}
+<p id="ctime">Added {{ recipe.ctime|timesince }} ago.</p>
+
+{% if recipe.prep_time %}
+  <p class="cb" id="cb{% counter cbs %}">Preparation time: {{ recipe.prep_time }}</p>
+{% endif %}
+{% if recipe.cooking_time %}
+  <p class="cb" id="cb{% counter cbs %}">Cooking time: {{ recipe.cooking_time }}</p>
+{% endif %}
+
+<h3>Ingredients:</h3>
+<ul>
+  {% for ingredient in ingredients %}
+    <li class="cb" id="cb{% counter cbs %}">{{ ingredient.amount|prettynumber|title }} {{ ingredient.unit }} {{ ingredient.item }} {% if ingredient.optional %}(optional){% endif %}</li>
+  {% endfor %}
+</ul>
+
+<h3>Instructions:</h3>
+<div id="instructions">
+  {% for instruction in instructions %}
+    <p class="cb" id="cb{% counter cbs %}">{{ instruction }}</p>
+  {% endfor %}
+</div>
+
+{% if recipe.notes %}
+  <h3 class="cb" id="cb{% counter cbs %}">Notes:</h3>
+  <div id="notes">
+  {% for note in notes %}
+    <p class="cb" id="cb{% counter cbs %}">{{ note }}</p>
+  {% endfor %}
+  </div>
+{% endif %}
+
+<div id="comments">
+  {% if comments %}
+    {% regroup comments by block as grouped %}
+    {% for group in grouped %}
+      <div id="{{ group.grouper }}" class="cg">
+        {% for comment in group.list %}
+          <div class="comment"><p>{{ comment.body }}</p></div>
+	{% endfor %}
+        <div class="ci">{{ group.list|length }}</div>
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>
+
+{% endblock %}
