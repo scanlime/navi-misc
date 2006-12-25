@@ -1876,158 +1876,197 @@ msgstr ""
 "%s"
 
 #: ../src/common/textevents.h:6
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 added to notify list."
 msgstr "Mới thêm %C22*%O$t$1 vào danh sách thông báo."
 
 #: ../src/common/textevents.h:9
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 Banlist: %C3$4 %C4$2 %C5$3%O"
 msgstr "%C22*%O$t$1 Danh sách đuổi ra:%C19 $4%C20 $2%C21 $3"
 
 #: ../src/common/textevents.h:12
+#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(You are banned)."
 msgstr "%C22*%O$tKhông vào được%C26 %B$1 %O(vì bạn bị đuổi ra)."
 
 #: ../src/common/textevents.h:18
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 is now known as $2"
 msgstr "%C22*%O$t$1 lúc bây giờ được biết như là $2"
 
 #: ../src/common/textevents.h:21
+#, fuzzy
 msgid "%C13*%O$t$1 $2%O"
 msgstr "%C16*%O$t$1%O"
 
 #: ../src/common/textevents.h:24
+#, fuzzy
 msgid "%C13*%O$t%C8%B$1%B%O $2%O"
 msgstr "%C21*%O$t%C21%B$1%O%C21 $2"
 
 #: ../src/common/textevents.h:27
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets ban on $2"
 msgstr "%C22*%O$t$1 đuổi $2 ra"
 
 #: ../src/common/textevents.h:30
+#, fuzzy
 msgid "-%C10-%C11-%O$tChannel $1 created on $2"
 msgstr "%C22*%O$tKênh$1 được tạo vào $2"
 
 #: ../src/common/textevents.h:33
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes channel half-operator status from $2"
 msgstr "%C22*%O$t%C26$1%O bỏ trạng thái Thao tác kênh nửa ra%C26 $2"
 
 #: ../src/common/textevents.h:36
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes channel operator status from $2"
 msgstr "%C22*%O$t%C26$1%O bỏ trạng thái Thao tác kênh ra%C26 $2"
 
 #: ../src/common/textevents.h:39
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes voice from $2"
 msgstr "%C22*%O$t%C26$1%O bỏ trạng thái « Tiếng nói » ra%C26 $2"
 
 #: ../src/common/textevents.h:42
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets exempt on $2"
 msgstr "%C22*%O$t$1 lập trạng thái miễn cho $2"
 
 #: ../src/common/textevents.h:45
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 gives channel half-operator status to $2"
 msgstr "%C22*%O$t%C26$1%O đưa ra%C26 $2 trạng thái Thao tác kênh nửa"
 
 #: ../src/common/textevents.h:48
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets invite on $2"
 msgstr "%C22*%O$t$1 lập trạng thái mời cho $2"
 
 #: ../src/common/textevents.h:51
+#, fuzzy
 msgid "%UChannel          Users   Topic%O"
 msgstr "%UKênh      \t     Người  Chủ đề"
 
 #: ../src/common/textevents.h:54 ../src/common/textevents.h:306
+#, fuzzy
 msgid "%C2<%O$1%C2>%O$t$2%O"
 msgstr "%C28-%C29$1%C28-%O$t$2"
 
 #: ../src/common/textevents.h:57
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets mode $2$3 $4"
 msgstr "%C22*%O$t$1 lập chế độ $2$3 $4"
 
 #: ../src/common/textevents.h:60
+#, fuzzy
 msgid "-%C10-%C11-%O$tChannel $1 modes: $2"
 msgstr "%C22*%O$t%C22Kênh $1 chế độ: $2"
 
 #: ../src/common/textevents.h:63
+#, fuzzy
 msgid "%C2<%C8%B$1%B%C2>%O$t$2%O"
 msgstr "%C28-%C29$1%C28-%O$t$2"
 
 #: ../src/common/textevents.h:66
+#, fuzzy
 msgid "%C12-%C13$1/$2%C12-%O$t$3%O"
 msgstr "%C28-%C29$1/$2%C28-%O$t$3"
 
 #: ../src/common/textevents.h:69
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 gives channel operator status to $2"
 msgstr "%C22*%O$t%C26$1%O đưa ra%C26 $2 trạng thái Thao tác kênh"
 
 #: ../src/common/textevents.h:72
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes exempt on $2"
 msgstr "%C22*%O$t$1 bỏ trạng thái miễn ra $2"
 
 #: ../src/common/textevents.h:75
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes invite on $2"
 msgstr "%C22*%O$t$1 bỏ trạng thái mời ra $2"
 
 #: ../src/common/textevents.h:78
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes channel keyword"
 msgstr "%C22*%O$t$1 bỏ từ khóa kênh ra"
 
 #: ../src/common/textevents.h:81
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes user limit"
 msgstr "%C22*%O$t$1 bỏ giới hạn người dùng ra"
 
 #: ../src/common/textevents.h:84
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets channel keyword to $2"
 msgstr "%C22*%O$t$1 lập từ khóa kênh thành $2"
 
 #: ../src/common/textevents.h:87
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets channel limit to $2"
 msgstr "%C22*%O$t$1 lập giới hạn kênh thành $2"
 
 #: ../src/common/textevents.h:90
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes ban on $2"
 msgstr "%C22*%O$t$1 bỏ trạng thái bị đuổi ra $2"
 
 #: ../src/common/textevents.h:93
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 gives voice to $2"
 msgstr "%C22*%O$t%C26$1%O đưa ra %C26 $2 trạng thái Nói tiếng"
 
 #: ../src/common/textevents.h:96
+#, fuzzy
 msgid "-%C10-%C11-%O$tConnected. Now logging in.."
 msgstr "%C22*%O$t%C22Kết nối rồì. Đang đăng nhập..."
 
 #: ../src/common/textevents.h:99
+#, fuzzy
 msgid "-%C10-%C11-%O$tConnecting to %C11$1 %C14(%C11$2%C14)%C port %C11$3%C.."
 msgstr "%C22*%O$t%C22Đang kết nối đến $1 ($2) trên cổng $3%O..."
 
 #: ../src/common/textevents.h:102
+#, fuzzy
 msgid "-%C10-%C11-%O$tConnection failed. Error: $1"
 msgstr "%C21*%O$t%C21Không kết nối được: gặp lỗi: $1"
 
 #: ../src/common/textevents.h:105
+#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2"
 msgstr "%C22*%O$tMới nhận CTCP $1 từ $2"
 
 #: ../src/common/textevents.h:108
+#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2 (to $3)"
 msgstr "%C22*%O$tMới nhận CTCP $1 từ $2 (cho $3)"
 
 #: ../src/common/textevents.h:111
+#, fuzzy
 msgid "%C3>%O$1%C3<%O$tCTCP $2%O"
 msgstr "%C19>%O$1%C19<%O$tCTCP $2"
 
 #: ../src/common/textevents.h:114
+#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP Sound $1 from $2"
 msgstr "%C22*%O$tMới nhận âm thanh CTCP $1 từ $2."
 
 #: ../src/common/textevents.h:117
+#, fuzzy
 msgid "%C22*%O$tReceived a CTCP Sound $1 from $2 (to $3)"
 msgstr "%C22*%O$tMá»i nháº­n Ã¢m thanh CTCP $1 tá»« $2 (cho $3)."
 
 #: ../src/common/textevents.h:120
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC CHAT to %C11$1%O aborted."
 msgstr "%C22*%O$tTrò chuyện trực tiếp (DCC) với %C26$1%O bị hủy bỏ."
 
 #: ../src/common/textevents.h:123
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC CHAT connection established to %C11$1 %C14[%O$2%C14]%O"
 msgstr ""
@@ -2040,33 +2079,40 @@ msgid ""
 msgstr ""
 
 #: ../src/common/textevents.h:129
+#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a DCC CHAT offer from $1"
 msgstr "%C22*%O$tMới nhận lời mời trò chuyện trực tiếp (DCC) từ $1."
 
 #: ../src/common/textevents.h:132
+#, fuzzy
 msgid "-%C10-%C11-%O$tOffering DCC CHAT to $1"
 msgstr "%C22*%O$tĐang mời $1 tro chuyện trực tiếp (DCC)."
 
 #: ../src/common/textevents.h:135
+#, fuzzy
 msgid "-%C10-%C11-%O$tAlready offering CHAT to $1"
 msgstr "%C22*%O$tĐã mời $1 trò chuyện rồi."
 
 #: ../src/common/textevents.h:138
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC $1 connect attempt to %C11$2%O failed (err=$3)."
 msgstr ""
 "%C22*%O$tDCC $1 việc cố kết nối đến%C26 $2%O không thành công (lỗi=$3)."
 
 #: ../src/common/textevents.h:141
+#, fuzzy
 msgid "-%C10-%C11-%O$tReceived '$1%O' from $2"
 msgstr "%C22*%O$tMới nhận « $1%O » từ $2."
 
 #: ../src/common/textevents.h:144
+#, fuzzy
 #, c-format
 msgid "%C24,18 Type  To/From    Status  Size    Pos     File         "
 msgstr ""
 "%C24,18 Loáº¡i    Cho/Tá»«    TrThÃ¡i  Cá»¡     Vá» trÃ­    Tá»p         "
 
 #: ../src/common/textevents.h:147
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tReceived a malformed DCC request from %C11$1%O.%010-%C10-%C11-"
 "%O$tContents of packet: $2"
@@ -2075,18 +2121,22 @@ msgstr ""
 "010%C22*%O$tNội dung gói: $2"
 
 #: ../src/common/textevents.h:150
+#, fuzzy
 msgid "-%C10-%C11-%O$tOffering %C11$1 %Cto %C11$2%O"
 msgstr "%C22*%O$tĐang đưa ra%C26 $2 có %C26 $1%O."
 
 #: ../src/common/textevents.h:153
+#, fuzzy
 msgid "-%C10-%C11-%O$tNo such DCC offer."
 msgstr "%C22*%O$tKhông có lời mời trò chuyện trực tiếp (DCC) như vậy."
 
 #: ../src/common/textevents.h:156
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC RECV %C11$2%O to %C11$1%O aborted."
 msgstr "%C22*%O$tNHẬN DCC%C26 $2%O cho%C26 $1%O bị hủy bỏ."
 
 #: ../src/common/textevents.h:159
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC RECV %C11$1%O from %C11$3%O complete %C14[%C11$4%O cps%"
 "C14]%O."
@@ -2094,33 +2144,40 @@ msgstr ""
 "%C22*%O$tNHẬN DCC%C26 $1%O từ%C26 $3%O hoàn thành %C30[%C26$4%O cps%C30]%O."
 
 #: ../src/common/textevents.h:162
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC RECV connection established to %C11$1 %C14[%O$2%C14]%O"
 msgstr "%C22*%O$tĐã kết nối loại NHẬN DCC đếnC26 $1 %C30[%O$2%C30]."
 
 #: ../src/common/textevents.h:165
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC RECV $1 ($2) failed. Connection to $3 lost."
 msgstr ""
 
 #: ../src/common/textevents.h:168
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC RECV: Cannot open $1 for writing ($2)."
 msgstr "%C22*%O$tNHẬN DCC: Không mở được $1 để ghi ($2)."
 
 #: ../src/common/textevents.h:171
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tThe file %C11$1%C already exists, saving it as %C11$2%O "
 "instead."
 msgstr "%C22*%O$tTập tin%C26 $1%C đã có: sẽ lưu nó là %C26 $2%O thay thế."
 
 #: ../src/common/textevents.h:174
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C11$1 %Chas requested to resume %C11$2 %Cfrom %C11$3%C."
 msgstr "%C22*%O$t%C26$1 %Ođã yêu cầu tiếp tục%C26 $2 %Ctừ%C26 $3%C."
 
 #: ../src/common/textevents.h:177
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC SEND %C11$2%O to %C11$1%O aborted."
 msgstr "%C22*%O$tGỞI DCC%C26 $2%O cho%C26 $1%O bị hủy bỏ."
 
 #: ../src/common/textevents.h:180
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC SEND %C11$1%O to %C11$2%O complete %C14[%C11$3%O cps%C14]%"
 "O."
@@ -2128,6 +2185,7 @@ msgstr ""
 "%C22*%O$tGỞI DCC%C26 $1%O cho%C26 $2%O hoàn thành %C30[%C26$3%O cps%C30]%O."
 
 #: ../src/common/textevents.h:183
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC SEND connection established to %C11$1 %C14[%O$2%C14]%O"
 msgstr "%C22*%O$tĐã kết nối DCC GỞI đến%C26 $1 %C30[%O$2%C30]."
@@ -2137,248 +2195,308 @@ msgid "-%C10-%C11-%O$tDCC SEND %C11$1%O failed. Connection to %C11$2%O lost."
 msgstr ""
 
 #: ../src/common/textevents.h:189
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C11$1 %Chas offered %C11$2 %C(%C11$3 %Cbytes)"
 msgstr "%C22*%O$t%C26$1 %Ođã mời%C26 $2 %O(%C26$3 %Obyte)."
 
 #: ../src/common/textevents.h:192
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Cstalled - aborting."
 msgstr "%C22*%O$tDCC $1%C26 $2 %Ođến%C26 $3 %Cngừng — hủy bỏ."
 
 #: ../src/common/textevents.h:195
+#, fuzzy
 msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Ctimed out - aborting."
 msgstr "%C22*%O$tDCC $1%C26 $2 %Ođến%C26 $3 %Ohết hạn nên hủy bỏ."
 
 #: ../src/common/textevents.h:198
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 deleted from notify list."
 msgstr "Mới xóa bỏ %C22*%O$t$1 ra danh sách thông báo."
 
 #: ../src/common/textevents.h:201
+#, fuzzy
 msgid "-%C10-%C11-%O$tDisconnected ($1)."
 msgstr "%C22*%O$tBị ngắt kết nối ($1)."
 
 #: ../src/common/textevents.h:204
+#, fuzzy
 msgid "-%C10-%C11-%O$tFound your IP: [$1]"
 msgstr "%C22*%O$tTìm thấy địa chỉ IP của bạn: [$1]"
 
 #: ../src/common/textevents.h:207
+#, fuzzy
 msgid "$1$t$2"
 msgstr "$1$t$2"
 
 #: ../src/common/textevents.h:210
+#, fuzzy
 msgid "%O%C11$1%O added to ignore list."
 msgstr "Mới thêm %O%C26$1%O vào danh sách bỏ qua."
 
 #: ../src/common/textevents.h:213
+#, fuzzy
 msgid "Ignore on %C11$1%O changed."
 msgstr "Đã thay đổi trang thái bỏ qua về %C26$1%O."
 
 #: ../src/common/textevents.h:216
+#, fuzzy
 #, c-format
 msgid "%C24,18                                                              "
 msgstr "%C24,18                                                              "
 
 #: ../src/common/textevents.h:219
+#, fuzzy
 #, c-format
 msgid "%C24,18 Hostmask                  PRIV NOTI CHAN CTCP DCC  INVI UNIG "
 msgstr "%C24,18 Máº·t náº¡ mÃ¡y         RIÃN TBÃO KÃNH  CTCP DCC  Má»I Bá»Bá» "
 
 #: ../src/common/textevents.h:222
+#, fuzzy
 msgid "%O%C11$1%O removed from ignore list."
 msgstr "Mới bỏ %O%C26$1%O ra danh sách bỏ qua."
 
 #: ../src/common/textevents.h:225
+#, fuzzy
 msgid "  Ignore list is empty."
 msgstr "  Danh sÃ¡ch bá» qua la trá»ng khÃ´ng."
 
 #: ../src/common/textevents.h:228
+#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Channel is invite only)."
 msgstr "%C22*%O$tKhông vào được%C26 %B$1 %O(Phải có lời mời)."
 
 #: ../src/common/textevents.h:231
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been invited to %C11$1%C by %C11$2%C (%C11$3%C)"
 msgstr "%C22*%O$tBạn được mời vào%C26 $1%O bởi%C26 $2%C (%C26$3%C)."
 
 #: ../src/common/textevents.h:234
+#, fuzzy
 msgid "-%C10-%C11>%O$t%B$1%B %C14(%C10$3%C14)%C has joined $2"
 msgstr "%C19*%O$t%C19%B$1 %B($3) mới vao $2."
 
 #: ../src/common/textevents.h:237
+#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Requires keyword)."
 msgstr "%C22*%O$tKhông vào được%C26 %B$1 %O(Cần đến từ khóa)."
 
 #: ../src/common/textevents.h:240
+#, fuzzy
 msgid "<%C10-%C11-%O$t$1 has kicked $2 from $3 ($4%O)"
 msgstr "%C21*%O$t%C21$1 mới đá $2 ra $3 ($4%O%C21)."
 
 #: ../src/common/textevents.h:243
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been killed by $1 ($2%O)"
 msgstr "%C22*%O$tBạn mới bị «giêt» bởi $1 ($2%O%C22)."
 
 #: ../src/common/textevents.h:246 ../src/common/textevents.h:270
+#, fuzzy
 msgid "%C3>%O$1%C3<%O$t$2%O"
 msgstr "%C19>%O$1%C19<%O$t$2"
 
 #: ../src/common/textevents.h:249 ../src/common/textevents.h:327
 #: ../src/common/textevents.h:333 ../src/common/textevents.h:336
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1%O"
 msgstr "%C16*%O$t$1%O"
 
 #: ../src/common/textevents.h:252
+#, fuzzy
 msgid "-%C10-%C11-%O$tMOTD Skipped."
 msgstr ""
 "Đã bỏ qua %C22*%O$t%C22MOTD (Message Of The Day — Thông điệp của hôm nay)."
 
 #: ../src/common/textevents.h:255
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 already in use. Retrying with $2.."
 msgstr "%C22*%O$t$1 đang dùng nên thử lái vơi $2..."
 
 #: ../src/common/textevents.h:258
+#, fuzzy
 msgid "-%C10-%C11-%O$tNickname already in use. Use /NICK to try another."
 msgstr ""
 "%C22*%O$tTên hiệu đã chọn nên hay sử dụng lệnh « /NICK » để thử môt tên hiệu "
 "khác."
 
 #: ../src/common/textevents.h:261
+#, fuzzy
 msgid "-%C10-%C11-%O$tNo such DCC."
 msgstr "%C22*%O$tKhông có DCC như vậy."
 
 #: ../src/common/textevents.h:264
+#, fuzzy
 msgid "-%C10-%C11-%O$tNo process is currently running"
 msgstr "%C22*%O$tKhông có tiến trình đang chạy."
 
 #: ../src/common/textevents.h:267
+#, fuzzy
 msgid "%C12-%C13$1%C12-%O$t$2%O"
 msgstr "%C28-%C29$1%C28-%O$t$2"
 
 #: ../src/common/textevents.h:273
+#, fuzzy
 msgid "-%C10-%C11-%O$tNotify list is empty."
 msgstr "$tDanh sách thông báo la trống không."
 
 #: ../src/common/textevents.h:276
+#, fuzzy
 msgid "%C24,18 %B  Notify List                           "
 msgstr "%C24,18 %B  Danh sách thông báo                           "
 
 #: ../src/common/textevents.h:279
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 users in notify list."
 msgstr "%C22*%O$t$1 người dùng trong danh sách thông báo."
 
 #: ../src/common/textevents.h:282
+#, fuzzy
 msgid "-%C10-%C11-%O$tNotify: $1 is offline ($2)."
 msgstr "%C22*%O$tThông báo: $1 ngoại tuyến ($2)."
 
 #: ../src/common/textevents.h:285
+#, fuzzy
 msgid "-%C10-%C11-%O$tNotify: $1 is online ($2)."
 msgstr "%C22*%O$tThông báo: $1 trực tuyến ($2)."
 
 #: ../src/common/textevents.h:291
+#, fuzzy
 msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3"
 msgstr "%C23*%O$t%C23$1 (%O%C23$2) đã rời $3 đi."
 
 #: ../src/common/textevents.h:294
+#, fuzzy
 msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3 %C14(%O$4%C14)%O"
 msgstr ""
 
 #: ../src/common/textevents.h:297
+#, fuzzy
 msgid "-%C10-%C11-%O$tPing reply from $1 : $2 second(s)"
 msgstr "%C22*%O$tTrả lời ping từ $1: $2 giây."
 
 #: ../src/common/textevents.h:300
+#, fuzzy
 msgid "-%C10-%C11-%O$tNo ping reply for $1 seconds, disconnecting."
 msgstr "%C22*%O$tKhông nhận trả lời ping được $1 giây nên ngắt kết nối."
 
 #: ../src/common/textevents.h:303
+#, fuzzy
 msgid "%C12*%C13$1%C12*$t%O$2%O"
 msgstr "%C28*%C29$3$1%C28*$t%O$2"
 
 #: ../src/common/textevents.h:309
+#, fuzzy
 msgid "-%C10-%C11-%O$tA process is already running"
 msgstr "%C22*%O$tCó một tiến trình đang chạy."
 
 #: ../src/common/textevents.h:312
+#, fuzzy
 msgid "<%C10-%C11-%O$t$1 has quit %C14(%O$2%O%C14)%O"
 msgstr "%C23*%O$t%C23$1 đã thoát (%O%C23%B%B$2%O%C23)."
 
 #: ../src/common/textevents.h:315
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets modes%B %C14[%O$2%B%C14]%O"
 msgstr "%C22*%O$t$1 lập chế độ%B %C30[%O$2%B%C30]"
 
 #: ../src/common/textevents.h:318
+#, fuzzy
 msgid "%C12-%C13$1/Wallops%C12-%O$t$2%O"
 msgstr "%C28-%C29$1/Quất mạnh%C28-%O$t$2"
 
 #: ../src/common/textevents.h:321
+#, fuzzy
 msgid "-%C10-%C11-%O$tLooking up IP number for%C11 $1%O.."
 msgstr "%C22*%O$tĐang tra cứu số IP cho%C26 $1%O..."
 
 #: ../src/common/textevents.h:324
+#, fuzzy
 msgid "-%C10-%C11-%O$tConnected."
 msgstr "%C22*%O$t%C22Kết nối rồi."
 
 #: ../src/common/textevents.h:330
+#, fuzzy
 msgid "-%C10-%C11-%O$tLooking up %C11$1%C.."
 msgstr "%C22*%O$t%C22Đang tra cứu $1."
 
 #: ../src/common/textevents.h:339
+#, fuzzy
 msgid "-%C10-%C11-%O$tStopped previous connection attempt (pid=$1)"
 msgstr "%C22*%O$tĐã thôi việc cố kết nối trước (pid=$1)."
 
 #: ../src/common/textevents.h:342
+#, fuzzy
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C is %C11$2%O"
 msgstr "%C29*%O$t%C29Chủ đề cho $1%C %C29là: $2"
 
 #: ../src/common/textevents.h:345
+#, fuzzy
 msgid "-%C10-%C11-%O$t$1 has changed the topic to: $2%O"
 msgstr "%C22*%O$t$1 mới thay đổi chủ đề thành: $2"
 
 #: ../src/common/textevents.h:348
+#, fuzzy
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C set by %C11$2%C at %C11$3%O"
 msgstr "%C29*%O$t%C29Chủ đề cho $1%C %C29 lập do $2%C %C29vào lúc $3"
 
 #: ../src/common/textevents.h:351
+#, fuzzy
 msgid "-%C10-%C11-%O$tUnknown host. Maybe you misspelled it?"
 msgstr "%C22*%O$tKhông biết máy ấy: có lẽ chính tả sai không?"
 
 #: ../src/common/textevents.h:354
+#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(User limit reached)."
 msgstr "%C22*%O$tKhông vào được%C26 %B$1 %O(Quá nhiều người)."
 
 #: ../src/common/textevents.h:357
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C11Users on $1:%C $2"
 msgstr "%C22*%O$t%C26Người dùng trên $1:%C $2"
 
 #: ../src/common/textevents.h:360
+#, fuzzy
 msgid "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
 msgstr "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
 
 #: ../src/common/textevents.h:363
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %Cis away %C14(%O$2%O%C14)"
 msgstr "%C22*%O$t%C28[%O$1%C28] %Cvắng mặt %C30(%O$2%O%C30)"
 
 #: ../src/common/textevents.h:366
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:369
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %CEnd of WHOIS list."
 msgstr "%C22*%O$t%C28[%O$1%C28] %OKết thức danh sách WHOIS (là ai?)"
 
 #: ../src/common/textevents.h:372
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C$2"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:375
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O nhàn rỗi%C26 $2"
 
 #: ../src/common/textevents.h:378
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O, signon: %C11$3%O"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O nhàn rỗi%C26 $2%O, đăng nhập:%C26 $3"
 
 #: ../src/common/textevents.h:381
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C14(%O$2@$3%C14) %O: $4%O"
 msgstr "%C22*%O$t%C28[%O$1%C28] %C30(%O$2@$3%C30)%O: $4"
 
 #: ../src/common/textevents.h:384
+#, fuzzy
 msgid ""
 "-%C10-%C11-%O$t%C12[%O$1%C12] %Oreal user@host %C11$2%O, real IP %C11$3%O"
 msgstr ""
@@ -2386,38 +2504,47 @@ msgstr ""
 "thật%C27 $3"
 
 #: ../src/common/textevents.h:387
+#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O $2"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:390
+#, fuzzy
 msgid "%C22*%O$t%C28[%O$1%C28]%O $2"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:393
+#, fuzzy
 msgid "-%C10-%C11>%O$t%BYou%B are now talking on %C11$2%O"
 msgstr "%C22*%O$tLúc bây giờ bạn được biết như là $2."
 
 #: ../src/common/textevents.h:396
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been kicked from $2 by $3 ($4%O)"
 msgstr "%C23*$tBạn mới bị đá ra $2 bởi $3 ($4%O%C23)"
 
 #: ../src/common/textevents.h:399
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou have left channel $3"
 msgstr "%C23*$tBạn mới rời kênh $3 đi."
 
 #: ../src/common/textevents.h:402
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou have left channel $3 %C14(%O$4%C14)%O"
 msgstr "%C23*$tBạn mới rời kênh $3 đi (%O%C23%B%B$4%O%C23)"
 
 #: ../src/common/textevents.h:405
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou're inviting %C11$1%C to %C11$2%C (%C11$3%C)"
 msgstr "%C22*%O$tBạn đã mời%C26 $1%O vào%C26 $2%O (%C26$3%O)"
 
 #: ../src/common/textevents.h:408
+#, fuzzy
 msgid "%C6<%O$1%C6>%O$t$2%O"
 msgstr "%C19>%O$1%C19<%O$t$2"
 
 #: ../src/common/textevents.h:411
+#, fuzzy
 msgid "-%C10-%C11-%O$tYou are now known as $2"
 msgstr "%C22*%O$tLúc bây giờ bạn được biết như là $2."
 
