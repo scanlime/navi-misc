@@ -29,6 +29,6 @@ urlpatterns = patterns('',
 if settings.DEBUG:
     urlpatterns += patterns('',
         (r'^site_media/(?P<path>.*)$', 'django.views.static.serve',
-         {'document_root' : '/home/david/projects/bonvivant/media',
+         {'document_root' : '/home/david/projects/navi-misc/bonvivant/media',
           'show_indexes'  : True}),
     )
