@@ -6,8 +6,15 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
   <title>{% block title %}{% endblock %} | Bon Vivant</title>
-  <link rel="stylesheet" type="text/css" href="/site_media/css/main.css" />
+
+  <script type="text/javascript">djConfig = { isDebug: false };</script>
+  <script type="text/javascript" src="/site_media/js/dojo/dojo.js"></script>
+  <script type="text/javascript">
+  </script>
+
   <script type="text/javascript" src="/site_media/js/main.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="/site_media/css/main.css" />
   {% block extrahead %}{% endblock %}
 </head>
 <body>
