@@ -10,11 +10,13 @@ LICENSE_CHOICES = (
     ('c',        'Copyright Only'),
 )
 
+SERVING_CHOICES = tuple([('%s' % i, i) for i in range(1, 11)])
+
 class Recipe(models.Model):
     title = models.CharField(maxlength=256)
     author = models.ForeignKey(User, related_name='authored_recipes')
 
-    servings = models.IntegerField(blank=True, null=True)
+    servings = models.IntegerField(blank=True, null=True, choices=SERVING_CHOICES, default=1)
 
     prep_time = models.TimeField('Preparation Time', blank=True, null=True)
     cooking_time = models.TimeField('Cooking Time', blank=True, null=True)
@@ -26,6 +28,9 @@ class Recipe(models.Model):
     mtime = models.DateTimeField('Date Published', auto_now=True)
 
     license = models.CharField(maxlength=8, choices=LICENSE_CHOICES, default='by-sa')
+
+    #slug = models.SlugField(prepopulate_from=("title", "author"))
+    #public = models.BooleanField(default=False)
 
     # Recipes can be pulled into an individual user's "recipe box"
     box = models.ManyToManyField(User, related_name='recipe_box', blank=True, null=True)

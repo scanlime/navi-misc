@@ -12,7 +12,7 @@ urlpatterns = patterns('',
       'date_field'    : 'ctime',
       'template_name' : 'recipes/archive.html'}),
 
-    (r'^recipes/new/$',                     'bonvivant.recipes.views.new'),
+    (r'^recipes/new/$',                     'bonvivant.recipes.views.new2'),
     (r'^recipes/edit/(?P<object_id>\d+)/$', 'bonvivant.recipes.views.edit'),
     (r'^recipes/(?P<object_id>\d+)/$',      'bonvivant.recipes.views.detail'),
 
