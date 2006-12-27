@@ -8,10 +8,15 @@ body {
 
 a {
 	text-decoration: none;
+	color: #48642c;
 }
 
 a:hover {
 	text-decoration: underline;
+}
+
+a:visited {
+	color: #48642c;
 }
 
 .fieldlabel {
@@ -69,4 +74,42 @@ a:hover {
 
 .comment {
 	display: none;
+}
+
+#licensechoices {
+	background-color: #444444;
+	padding: 10px;
+	display: none;
+}
+
+#licensechoices div {
+	margin: 10px;
+	border: 1px solid #999999;
+	background-color: #ffffff;
+	padding: 5px;
+	font-size: 11px;
+	min-height: 42px;
+}
+
+#licensechoices div:hover {
+	background-color: #b4cdd2;
+	border: 1px solid #5f939e;
+}
+
+#licensechoices img {
+	float: left;
+	margin-right: 5px;
+}
+
+#licensechoices a {
+	cursor: pointer;
+}
+
+input,textarea {
+	border: 1px solid #6f6f6f;
+}
+
+input:focus,textarea:focus {
+	background-color: #f7f2d0;
+	color: #000000;
 }
