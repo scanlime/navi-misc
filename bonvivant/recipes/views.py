@@ -1,9 +1,56 @@
-from bonvivant.recipes.models import Ingredient, Recipe, Comment
+from bonvivant.recipes.models import Ingredient, Recipe, Comment, SERVING_CHOICES
+from bonvivant.goopy import functional
 from django.contrib.auth.decorators import login_required
+from django.db.models.fields import BLANK_CHOICE_DASH
 from django.http import Http404, HttpResponseRedirect
 from django import forms
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
+
+class AddRecipe(forms.Manipulator):
+    def __init__(self):
+        servings_choices = functional.flatten1((BLANK_CHOICE_DASH,
+                                                SERVING_CHOICES))
+
+        self.fields = (
+            forms.TextField(field_name='title',
+                            length=30, maxlength=256,
+                            is_required=True),
+            forms.SelectField(field_name='servings',
+                              choices=servings_choices),
+            forms.TextField(field_name='prep_time',
+                            length=8, maxlength=8,
+                            is_required=False),
+            forms.TextField(field_name='cooking_time',
+                            length=8, maxlength=8,
+                            is_required=False),
+        )
+
+@login_required
+def new2(request):
+    manipulator = AddRecipe()
+
+    if request.method == 'POST':
+        new_data = request.POST.copy()
+
+        # Fill in automatic fields
+        new_data['author'] = request.user.id
+
+        errors = manipulator.get_validation_errors(new_data)
+
+        if not errors:
+            manipulator.do_html2python(new_data)
+            new_recipe = manipulator.save(new_data)
+            return HttpResponseRedirect('/recipes/edit/%i' % new_recipe.id)
+    else:
+        # No POST, so we want a brand-new form
+        new_data = {}
+        errors = {}
+
+    form = forms.FormWrapper(manipulator, new_data, errors)
+    return render_to_response('recipes/new.html',
+                              {'form' : form},
+                              context_instance=RequestContext(request))
 
 @login_required
 def new(request):
@@ -40,9 +87,7 @@ def edit(request, object_id):
 
     recipe = manipulator.original_object
 
-    # Get the list of ingredients, and append 3 empty extras
     ingredients = list(Ingredient.objects.filter(recipe=recipe.id))
-    ingredients += [Ingredient(amount=0)]*3
 
     if recipe.author.id != request.user.id:
         # FIXME: return a permission denied error page
@@ -64,7 +109,7 @@ def edit(request, object_id):
     return render_to_response('recipes/edit.html',
                               {'form'        : form,
                                'recipe'      : recipe,
-                               'ingredients' : ingredients},
+                               'ingredients' : ingredients + [Ingredient(amount=0)]*3},
                               context_instance=RequestContext(request))
 
 def filterCBs(data):

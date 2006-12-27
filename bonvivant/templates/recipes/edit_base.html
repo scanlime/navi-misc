@@ -13,52 +13,58 @@
 {% block pageheader %}{% endblock %}
 
 {% if form.has_errors %}
-<h2>Please correct the following error{{ form.error_dict|pluralize }}:</h2>
+<p>Please correct the following error{{ form.error_dict|pluralize }}:</p>
 {% endif %}
 
 {% block formopen %}{% endblock %}
-<p>
-  <label for="id_title">Title:</label> {{ form.title }}
-  {% if form.title.errors %}*** {{ form.title.errors|join:", " }}{% endif %}
-</p>
+<h3>Description:</h3>
+<table>
+  <tr>
+    <td><label for="id_title">Title:</label></td>
+    <td>{{ form.title }}</td>
+    <td>{% if form.title.errors %}*** {{form.title.errors|join:", "}}{% endif %}</td>
+  </tr>
+  <tr>
+    <td><label for="id_servings">Servings:</label></td>
+    <td>{{ form.servings }}</td>
+    <td>{% if form.servings.errors %}*** {{ form.servings.errors|join:", " }}{% endif %}</td>
+  </tr>
+  <tr>
+    <td><label for="id_prep_time">Preparation Time:</label></td>
+    <td>{{ form.prep_time }}</td>
+    <td>{% if form.prep_time.errors %}*** {{ form.prep_time.errors|join:", " }}{% endif %}</td>
+  </tr>
+  <tr>
+    <td><label for="id_cooking_time">Cooking Time:</label></td>
+    <td>{{ form.cooking_time }}</td>
+    <td>{% if form.cooking_time.errors %}*** {{ form.cooking_time.errors|join:", " }}{% endif %}</td>
+  </tr>
+</table>
 
-<p>
-  <label for="id_servings">Servings:</label> {{ form.servings }}
-  {% if form.servings.errors %}*** {{ form.servings.errors|join:", " }}{% endif %}
-</p>
-
-<p>
-  <label for="id_prep_time">Prep Time:</label> {{ form.prep_time }}
-  {% if form.prep_time.errors %}*** {{ form.prep_time.errors|join:", " }}{% endif %}
-</p>
-
-<p>
-  <label for="id_cooking_time">Cooking Time:</label> {{ form.cooking_time }}
-  {% if form.cooking_time.errors %}*** {{ form.cooking_time.errors|join:", " }}{% endif %}
-</p>
-
+<h3>Ingredients:</h3>
 <div id="ingredients">
-  <p>Ingredients:</p>
-
   {% for ingredient in ingredients %}
   <p>
     {% ifequal ingredient.amount 0 %}
-      <input type="text" name="ingredient_{{ forloop.counter0 }}" id="ingredient_{{ forloop.counter0 }}" />
+      <input type="text" name="ingredient_new{{ forloop.counter0 }}" id="ingredient_{{ forloop.counter0 }}" size="40" />
+      <input type="checkbox" name="ingredient_new{{ forloop.counter0 }}_opt">Optional</input>
     {% else %}
-      <input type="text" name="ingredient_{{ forloop.counter0 }}" id="ingredient_{{ forloop.counter0 }}" value="{{ ingredient.amount|prettynumber }} {{ ingredient.unit }} {{ ingredient.item }}" />
+      <input type="text" name="ingredient_{{ ingredient.id }}" id="ingredient_{{ forloop.counter0 }}" size="40" value="{{ ingredient.amount|prettynumber }} {{ ingredient.unit }} {{ ingredient.item }}" />
+      <input type="checkbox" name="ingredient_{{ ingredient.id }}_opt" {% if ingredient.optional %}checked="checked"{% endif %}>Optional</input>
     {% endifequal %}
-    <input type="checkbox" name="ingredient_{{ forloop.counter0 }}_opt" {% if ingredient.optional %}checked="checked"{% endif %}>Optional</input>
   </p>
   {% endfor %}
 </div>
 
+<h3>Instructions:</h3>
 <p>
-  <label for="id_instructions">Instructions:</label> {{ form.instructions }}
+  {{ form.instructions }}
   {% if form.instructions.errors %}*** {{ form.instructions.errors|join:", " }}{% endif %}
 </p>
 
+<h3>Notes:</h3>
 <p>
-  <label for="id_notes">Notes:</label> {{ form.notes }}
+  {{ form.notes }}
   {% if form.notes.errors %}*** {{ form.notes.errors|join:", " }}{% endif %}
 </p>
 
