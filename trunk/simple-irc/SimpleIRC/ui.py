@@ -78,7 +78,3 @@ class Window(gtk.Window):
 	
 	self.set_title('Chat box test')
 	self.set_default_size(350,200)
-
-win = Window()
-win.show_all()
-gtk.main()
