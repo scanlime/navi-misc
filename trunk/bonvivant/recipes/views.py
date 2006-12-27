@@ -1,4 +1,3 @@
-from bonvivant.recipes.models import Ingredient, Recipe, Comment, SERVING_CHOICES
 from bonvivant.goopy import functional
 from django.contrib.auth.decorators import login_required
 from django.db.models.fields import BLANK_CHOICE_DASH
@@ -7,10 +6,12 @@ from django import forms
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 
+import bonvivant.recipes.models as recipes
+
 class AddRecipe(forms.Manipulator):
     def __init__(self):
         servings_choices = functional.flatten1((BLANK_CHOICE_DASH,
-                                                SERVING_CHOICES))
+                                                recipes.SERVING_CHOICES))
 
         self.fields = (
             forms.TextField(field_name='title',
@@ -24,6 +25,18 @@ class AddRecipe(forms.Manipulator):
             forms.TextField(field_name='cooking_time',
                             length=8, maxlength=8,
                             is_required=False),
+
+
+            forms.LargeTextField(field_name='instructions',
+                                 rows=10, cols=80,
+                                 is_required=True),
+
+            forms.LargeTextField(field_name='notes',
+                                 rows=10, cols=80,
+                                 is_required=True),
+
+            forms.SelectField(field_name='license',
+                              choices=recipes.LICENSE_CHOICES),
         )
 
 @login_required
@@ -54,7 +67,7 @@ def new2(request):
 
 @login_required
 def new(request):
-    manipulator = Recipe.AddManipulator()
+    manipulator = recipes.Recipe.AddManipulator()
 
     if request.method == 'POST':
         new_data = request.POST.copy()
@@ -81,13 +94,13 @@ def new(request):
 @login_required
 def edit(request, object_id):
     try:
-        manipulator = Recipe.ChangeManipulator(object_id)
-    except Recipe.DoesNotExist:
+        manipulator = recipes.Recipe.ChangeManipulator(object_id)
+    except recipes.Recipe.DoesNotExist:
         raise Http404
 
     recipe = manipulator.original_object
 
-    ingredients = list(Ingredient.objects.filter(recipe=recipe.id))
+    ingredients = list(recipes.Ingredient.objects.filter(recipe=recipe.id))
 
     if recipe.author.id != request.user.id:
         # FIXME: return a permission denied error page
@@ -109,7 +122,7 @@ def edit(request, object_id):
     return render_to_response('recipes/edit.html',
                               {'form'        : form,
                                'recipe'      : recipe,
-                               'ingredients' : ingredients + [Ingredient(amount=0)]*3},
+                               'ingredients' : ingredients + [recipes.Ingredient(amount=0)]*3},
                               context_instance=RequestContext(request))
 
 def filterCBs(data):
@@ -119,13 +132,13 @@ def filterCBs(data):
     return [data, ]
 
 def detail(request, object_id):
-    recipe = get_object_or_404(Recipe, pk=object_id)
-    ingredients = Ingredient.objects.filter(recipe=recipe.id)
+    recipe = get_object_or_404(recipes.Recipe, pk=object_id)
+    ingredients = recipes.Ingredient.objects.filter(recipe=recipe.id)
 
     instructions = filterCBs(recipe.instructions)
     notes = filterCBs(recipe.notes)
 
-    comments = Comment.objects.filter(recipe=recipe.id)
+    comments = recipes.Comment.objects.filter(recipe=recipe.id)
 
     return render_to_response('recipes/detail.html',
                               {'recipe'       : recipe,
