@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import gtk
-from SimpleIRC import ui, connection
+from sirc import ui, connection
 
 factory = connection.ConnectionFactory()
 connection = factory()
