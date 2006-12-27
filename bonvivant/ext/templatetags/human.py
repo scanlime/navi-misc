@@ -33,9 +33,13 @@ def prettynumber(value):
         return value
 
     fractionmapping = {
-        0.25 : u'¼',
-        0.5  : u'½',
-        0.75 : u'¾',
+        1.0 / 8 : u'⅛',
+        1.0 / 6 : u'⅙',
+        1.0 / 4 : u'¼',
+        1.0 / 3 : u'⅓',
+        1.0 / 2 : u'½',
+        2.0 / 3 : u'⅔',
+        3.0 / 4 : u'¾',
     }
 
     if value - intv == 0:
