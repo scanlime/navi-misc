@@ -40,6 +40,10 @@ def edit(request, object_id):
 
     recipe = manipulator.original_object
 
+    # Get the list of ingredients, and append 3 empty extras
+    ingredients = list(Ingredient.objects.filter(recipe=recipe.id))
+    ingredients += [Ingredient(amount=0)]*3
+
     if recipe.author.id != request.user.id:
         # FIXME: return a permission denied error page
         raise Http404
@@ -58,8 +62,9 @@ def edit(request, object_id):
 
     form = forms.FormWrapper(manipulator, new_data, errors)
     return render_to_response('recipes/edit.html',
-                              {'form'   : form,
-                               'recipe' : recipe},
+                              {'form'        : form,
+                               'recipe'      : recipe,
+                               'ingredients' : ingredients},
                               context_instance=RequestContext(request))
 
 def filterCBs(data):

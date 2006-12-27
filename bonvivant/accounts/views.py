@@ -1,3 +1,5 @@
+from bonvivant.ext.forms import DojoTextField, DojoPasswordField
+
 from django import forms
 from django.contrib.auth import authenticate, login, logout, LOGIN_URL, REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
@@ -12,23 +14,23 @@ from bonvivant.recipes.models import Recipe
 class RegistrationForm(forms.Manipulator):
     def __init__(self):
         self.fields = (
-            forms.TextField(field_name='username',
-                            length=30, maxlength=30,
-                            is_required=True,
-                            validator_list=[validators.isAlphaNumeric, self.isValidUsername]),
+            DojoTextField(field_name='username',
+                          length=30, maxlength=30,
+                          is_required=True,
+                          validator_list=[validators.isAlphaNumeric, self.isValidUsername]),
 
             forms.EmailField(field_name='email',
                              length=30, maxlength=70,
                              is_required=False),
 
-            forms.PasswordField(field_name='password1',
-                                length=30, maxlength=60,
-                                is_required=True),
+            DojoPasswordField(field_name='password1',
+                              length=30, maxlength=60,
+                              is_required=True),
 
-            forms.PasswordField(field_name='password2',
-                                length=30, maxlength=60,
-                                is_required=True,
-                                validator_list=[validators.AlwaysMatchesOtherField('password1', 'Passwords must match.')]),
+            DojoPasswordField(field_name='password2',
+                              length=30, maxlength=60,
+                              is_required=True,
+                              validator_list=[validators.AlwaysMatchesOtherField('password1', 'Passwords must match.')]),
         )
 
     def isValidUsername(self, field_data, all_data):
