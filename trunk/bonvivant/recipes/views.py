@@ -33,11 +33,30 @@ class AddRecipe(forms.Manipulator):
 
             forms.LargeTextField(field_name='notes',
                                  rows=10, cols=80,
-                                 is_required=True),
+                                 is_required=False),
 
             forms.SelectField(field_name='license',
                               choices=recipes.LICENSE_CHOICES),
         )
+
+    def get_validation_errors(self, new_data, ingredients):
+        errors = forms.Manipulator.get_validation_errors(self, new_data)
+
+        return errors
+
+    def save(self, new_data):
+        pass
+
+def _gather_ingredients(data):
+    i = 0
+    results = []
+    try:
+        while True:
+            results.append(data['ingredient_%d' % i].strip())
+            i += 1
+    except KeyError:
+        pass
+    return results
 
 @login_required
 def new2(request):
@@ -48,21 +67,26 @@ def new2(request):
 
         # Fill in automatic fields
         new_data['author'] = request.user.id
+        ingredients = _gather_ingredients(new_data)
 
-        errors = manipulator.get_validation_errors(new_data)
+        errors = manipulator.get_validation_errors(new_data, ingredients)
+
+        ingredients = [recipes.Ingredient.construct(data) for data in ingredients]
 
         if not errors:
             manipulator.do_html2python(new_data)
-            new_recipe = manipulator.save(new_data)
+            new_recipe = manipulator.save(new_data, ingredients)
             return HttpResponseRedirect('/recipes/edit/%i' % new_recipe.id)
     else:
         # No POST, so we want a brand-new form
         new_data = {}
         errors = {}
+        ingredients = [recipes.Ingredient(amount=0)]*3
 
     form = forms.FormWrapper(manipulator, new_data, errors)
     return render_to_response('recipes/new.html',
-                              {'form' : form},
+                              {'form'        : form,
+                               'ingredients' : ingredients},
                               context_instance=RequestContext(request))
 
 @login_required
