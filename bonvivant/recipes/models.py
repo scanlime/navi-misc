@@ -29,7 +29,7 @@ class Recipe(models.Model):
 
     license = models.CharField(maxlength=8, choices=LICENSE_CHOICES, default='by-sa')
 
-    #slug = models.SlugField(prepopulate_from=("title", "author"))
+    #slug = models.SlugField(prepopulate_from=("title", "author"), unique=True)
     #public = models.BooleanField(default=False)
 
     # Recipes can be pulled into an individual user's "recipe box"
@@ -54,18 +54,24 @@ class Recipe(models.Model):
         )
 
 class Ingredient(models.Model):
-    amount = models.FloatField(max_digits=8, decimal_places=4, core=True)
+    amount = models.FloatField(max_digits=8, decimal_places=4, core=True, blank=True)
     unit = models.CharField(maxlength=20, blank=True) # FIXME: add choices
     item = models.CharField(maxlength=128, core=True)
     optional = models.BooleanField(core=True)
 
-    recipe = models.ForeignKey(Recipe, edit_inline=models.TABULAR, num_in_admin=5)
+    recipe = models.ForeignKey(Recipe, edit_inline=models.TABULAR, min_num_in_admin=5)
 
     def __str__(self):
         str = '%f %s %s' % (self.amount, self.unit, self.item)
         if self.optional:
             str = '%s (optional)' % str
         return str
+
+    @staticmethod
+    def construct(string):
+        if len(string) == 0:
+            return Ingredient(amount=0)
+        return Ingredient(amount=1)
 
 class Comment(models.Model):
     author = models.ForeignKey(User)
