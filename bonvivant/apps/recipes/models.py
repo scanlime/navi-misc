@@ -76,7 +76,7 @@ class Ingredient(models.Model):
         parts = []
         if self.amount != 0:
             parts.append(human.prettynumber(self.amount))
-        if self.unit:
+        if len(self.unit):
             parts.append(self.unit)
         if self.item:
             parts.append(self.item)
@@ -131,7 +131,8 @@ class Ingredient(models.Model):
                        m.group(convert.ING_MATCHER_ITEM_GROUP))
 
             amount = 0
-            unit = item = None
+            unit = ''
+            item = None
 
             if a:
                 amount = convert.frac_to_float(a.strip())
