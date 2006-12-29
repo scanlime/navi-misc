@@ -59,13 +59,16 @@ def _gather_ingredients(data):
     while True:
         try:
             string = data['ingredient_%d' % i]
-            results.append(recipes.Ingredient.construct(string))
-        except ValueError:
+            ingredient = recipes.Ingredient.construct(string)
+        except ValueError, e:
             # Parse error
-            results.append(recipes.Ingredient.BadIngredient(string))
+            print e
+            ingredient = recipes.Ingredient.BadIngredient(string)
         except KeyError:
             # No more ingredients
             return results
+
+        results.append(ingredient)
 
         try:
             results[-1].optional = data['ingredient_opt_%d' % i]
@@ -82,7 +85,7 @@ def new2(request):
 
         # Fill in automatic fields
         new_data['author'] = request.user.id
-        ingredients = _gather_ingredients(new_data)
+        ingredients = [ing for ing in _gather_ingredients(new_data) if ing is not None]
 
         errors = manipulator.get_validation_errors(new_data, ingredients)
 
@@ -91,6 +94,7 @@ def new2(request):
             new_recipe = manipulator.save(new_data, ingredients)
             return HttpResponseRedirect('/recipes/edit/%i' % new_recipe.id)
 
+        print ingredients
         ingredients += [None]*2
     else:
         # No POST, so we want a brand-new form

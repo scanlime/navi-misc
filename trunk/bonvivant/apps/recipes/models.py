@@ -115,11 +115,14 @@ class Ingredient(models.Model):
         >>> Ingredient.construct('2 tbsp. grated cheese')
         <Ingredient: 2.000000-tbsp.-grated cheese>
         """
-        if len(string) == 0:
+
+        # FIXME: hardcoding utf-8 here sucks!
+        s = string.decode('utf-8')
+        s = s.strip("\n\t #*+-")
+
+        if len(s) == 0:
             return None
 
-        s = unicode(string)
-        s = s.strip("\n\t #*+-")
         m = convert.ING_MATCHER.match(s)
 
         if m:
@@ -131,12 +134,9 @@ class Ingredient(models.Model):
             unit = item = None
 
             if a:
-                asplit = convert.RANGE_MATCHER.split(a)
-                if len(asplit) == 2:
-                    amount = convert.frac_to_float(asplit[0].strip())
-                    # FIXME: range?
-                else:
-                    amount = convert.frac_to_float(a.strip())
+                amount = convert.frac_to_float(a.strip())
+
+                print '"%s" = %f\n' % (a, amount)
 
             if u:
                 if Ingredient.conv and Ingredient.conv.unit_dict.has_key(u.strip()):
@@ -155,6 +155,7 @@ class Ingredient(models.Model):
             return Ingredient(amount=float(amount), unit=unit, item=item)
 
         else:
+            print 'no match for %s' % s
             raise ValueError("Unable to parse ingredient")
 
 
