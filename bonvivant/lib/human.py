@@ -9,7 +9,7 @@ def prettynumber(value):
     u'1 \xbd'
 
     >>> prettynumber(2)
-    'two'
+    '2'
 
     >>> prettynumber(2999)
     '2999'
@@ -27,8 +27,9 @@ def prettynumber(value):
 
     remainder = floatv - intv
     if remainder == 0:
-        if not 0 < value < 10:
-            return '%d' % value
-        return ('one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine')[intv-1]
+        #if not 0 < value < 10:
+        #    return '%d' % value
+        #return ('one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine')[intv-1]
+        return '%d' % intv
     else:
         return convert.float_to_frac(floatv)
