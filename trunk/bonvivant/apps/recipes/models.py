@@ -87,6 +87,9 @@ class Ingredient(models.Model):
     def write_o(self):
         return self.write(True)
 
+    def error(self):
+        return False
+
     class BadIngredient:
         def __init__(self, string):
             self.value = string
@@ -94,6 +97,9 @@ class Ingredient(models.Model):
 
         def write(self):
             return self.value
+
+        def error(self):
+            return True
 
     @staticmethod
     def construct(string):
@@ -110,7 +116,7 @@ class Ingredient(models.Model):
         <Ingredient: 2.000000-tbsp.-grated cheese>
         """
         if len(string) == 0:
-            return Ingredient(amount=0)
+            return None
 
         s = unicode(string)
         s = s.strip("\n\t #*+-")

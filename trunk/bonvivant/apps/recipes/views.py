@@ -42,6 +42,11 @@ class AddRecipe(forms.Manipulator):
 
     def get_validation_errors(self, new_data, ingredients):
         errors = forms.Manipulator.get_validation_errors(self, new_data)
+        i = 0
+        for ingredient in ingredients:
+            if type(ingredient) is recipes.Ingredient.BadIngredient:
+                errors['ingredient_%d' % i] = ['Bad string']
+            i += 1
 
         return errors
 
@@ -57,7 +62,6 @@ def _gather_ingredients(data):
             results.append(recipes.Ingredient.construct(string))
         except ValueError:
             # Parse error
-            print 'bad ingredient: %s' % string
             results.append(recipes.Ingredient.BadIngredient(string))
         except KeyError:
             # No more ingredients
@@ -79,7 +83,6 @@ def new2(request):
         # Fill in automatic fields
         new_data['author'] = request.user.id
         ingredients = _gather_ingredients(new_data)
-        print ingredients
 
         errors = manipulator.get_validation_errors(new_data, ingredients)
 
@@ -88,7 +91,7 @@ def new2(request):
             new_recipe = manipulator.save(new_data, ingredients)
             return HttpResponseRedirect('/recipes/edit/%i' % new_recipe.id)
 
-        ingredients += [None]*3
+        ingredients += [None]*2
     else:
         # No POST, so we want a brand-new form
         new_data = {}
