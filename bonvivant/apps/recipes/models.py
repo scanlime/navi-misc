@@ -1,3 +1,4 @@
+from bonvivant.lib.gourmet import convert
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -61,17 +62,70 @@ class Ingredient(models.Model):
 
     recipe = models.ForeignKey(Recipe, edit_inline=models.TABULAR, min_num_in_admin=5)
 
+    conv = convert.converter()
+
     def __str__(self):
-        str = '%f %s %s' % (self.amount, self.unit, self.item)
+        str = '%f-%s-%s' % (self.amount, self.unit, self.item)
         if self.optional:
             str = '%s (optional)' % str
         return str
 
     @staticmethod
     def construct(string):
+        """
+        Construct an Ingredient given a string.  This code is derived from gourmet.
+
+        >>> Ingredient.construct('2 eggs')
+        <Ingredient: 2.000000-None-eggs>
+
+        >>> Ingredient.construct('1 1/2 cups ketchup')
+        <Ingredient: 1.500000-cups-ketchup>
+
+        >>> Ingredient.construct('2 tbsp. grated cheese')
+        <Ingredient: 2.000000-tbsp.-grated cheese>
+        """
         if len(string) == 0:
             return Ingredient(amount=0)
-        return Ingredient(amount=1)
+
+        s = unicode(string)
+        s = s.strip("\n\t #*+-")
+        m = convert.ING_MATCHER.match(s)
+
+        if m:
+            a, u, i = (m.group(convert.ING_MATCHER_AMT_GROUP),
+                       m.group(convert.ING_MATCHER_UNIT_GROUP),
+                       m.group(convert.ING_MATCHER_ITEM_GROUP))
+
+            amount = 0
+            unit = item = None
+
+            if a:
+                asplit = convert.RANGE_MATCHER.split(a)
+                if len(asplit) == 2:
+                    amount = convert.frac_to_float(asplit[0].strip())
+                    # FIXME: range?
+                else:
+                    amount = convert.frac_to_float(a.strip())
+
+            if u:
+                if Ingredient.conv and Ingredient.conv.unit_dict.has_key(u.strip()):
+                    # Don't convert units to our units!
+                    unit = u.strip()
+                else:
+                    # FIXME: previous uses?
+                    # unit is not a unit
+                    ' '.join((u, i))
+
+            if i:
+                item = i
+            else:
+                raise ValueError("Unable to parse ingredient")
+
+            return Ingredient(amount=float(amount), unit=unit, item=item)
+
+        else:
+            raise ValueError("Unable to parse ingredient")
+
 
 class Comment(models.Model):
     author = models.ForeignKey(User)

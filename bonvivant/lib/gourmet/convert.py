@@ -3,7 +3,6 @@ import re, locale
 from defaults import lang as defaults
 from gettext import gettext as _
 from gettext import ngettext
-from gdebug import *
 
 FRACTIONS_ALL = 1
 FRACTIONS_NORMAL = 0
@@ -141,7 +140,7 @@ class converter:
         #print 'done looping through list'
         for u in units:
             #print 'grabbing possible conversions for ',u
-            debug('unit=%s'%u)
+            #debug('unit=%s'%u)
             d=self.possible_conversions(u,dict=table)
             to_expand = d.keys()
             # keep a list of what we've expanded
@@ -242,7 +241,7 @@ class converter:
         simple = self.convert_simple(u1,u2,self.conv_table)
         if simple: return simple
         # otherwise, we need to grab use a density table
-        debug('using density data')
+        #debug('using density data')
         return self.convert_w_density(u1,u2,item=item,density=density)
 
     def get_conversions (self, u, item=None, density=None):
@@ -326,19 +325,19 @@ class converter:
             try:
                 u = self.unit_dict[unit]
             except KeyError:
-                debug("KeyError looking up unit",1)
+                #debug("KeyError looking up unit",1)
                 u = unit
             try:
                 ugroup,n = defaults.unit_group_lookup[u]
             except KeyError:
-                debug('Key Error for %s in \nunit_group_lookup: %s'%(unit,defaults.unit_group_lookup),
-                      0)
+                #debug('Key Error for %s in \nunit_group_lookup: %s'%(unit,defaults.unit_group_lookup),
+                #      0)
                 #raise
                 return -10
             else:
                 u,rng = defaults.UNIT_GROUPS[ugroup][n]
                 mn,mx = rng
-                debug('Readability range for %s = %s:%s'%(u,mn,mx),8)
+                #debug('Readability range for %s = %s:%s'%(u,mn,mx),8)
                 if mn and amt and  amt < mn:
                     readability += -2
                     # we add a penalty proportional to the undersizedness
@@ -410,7 +409,7 @@ class converter:
                 if not conv: return amt,unit
                 new_amt = conv * amt
                 readability = self.readability_score(new_amt,u2)
-                debug('%s %s, Readability = %s'%(new_amt,u2,readability),6)
+                #debug('%s %s, Readability = %s'%(new_amt,u2,readability),6)
                 use_us = False
                 if readability > ret_readability:
                     use_us = True
@@ -422,9 +421,9 @@ class converter:
                     ret_unit = u2
                     ret_readability = readability
                 n1 += 1
-            debug('adjust unit called with %s %s, returning %s %s (R:%s)'%(amt,unit,ret_amt,ret_unit,
-                                                                           ret_readability),
-                  3)
+            #debug('adjust unit called with %s %s, returning %s %s (R:%s)'%(amt,unit,ret_amt,ret_unit,
+            #                                                               ret_readability),
+            #      3)
             return ret_amt,ret_unit
 
     def use_reasonable_unit (self, amt1, u1, amt2, u2, conv):
