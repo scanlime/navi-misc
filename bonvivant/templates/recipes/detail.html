@@ -39,7 +39,7 @@ window.onload = function() {
 <h3>Ingredients:</h3>
 <ul>
   {% for ingredient in ingredients %}
-    <li class="cb" id="cb{% counter cbs %}">{{ ingredient.amount|prettynumber|title }} {{ ingredient.unit }} {{ ingredient.item }} {% if ingredient.optional %}(optional){% endif %}</li>
+    <li class="cb" id="cb{% counter cbs %}">{{ ingredient.write_o }}</li>
   {% endfor %}
 </ul>
 

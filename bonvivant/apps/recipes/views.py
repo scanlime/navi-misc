@@ -51,13 +51,23 @@ class AddRecipe(forms.Manipulator):
 def _gather_ingredients(data):
     i = 0
     results = []
-    try:
-        while True:
-            results.append(data['ingredient_%d' % i].strip())
-            i += 1
-    except KeyError:
-        pass
-    return results
+    while True:
+        try:
+            string = data['ingredient_%d' % i]
+            results.append(recipes.Ingredient.construct(string))
+        except ValueError:
+            # Parse error
+            print 'bad ingredient: %s' % string
+            results.append(recipes.Ingredient.BadIngredient(string))
+        except KeyError:
+            # No more ingredients
+            return results
+
+        try:
+            results[-1].optional = data['ingredient_opt_%d' % i]
+        except KeyError:
+            pass
+        i += 1
 
 @login_required
 def new2(request):
@@ -69,20 +79,21 @@ def new2(request):
         # Fill in automatic fields
         new_data['author'] = request.user.id
         ingredients = _gather_ingredients(new_data)
+        print ingredients
 
         errors = manipulator.get_validation_errors(new_data, ingredients)
-
-        ingredients = [recipes.Ingredient.construct(data) for data in ingredients]
 
         if not errors:
             manipulator.do_html2python(new_data)
             new_recipe = manipulator.save(new_data, ingredients)
             return HttpResponseRedirect('/recipes/edit/%i' % new_recipe.id)
+
+        ingredients += [None]*3
     else:
         # No POST, so we want a brand-new form
         new_data = {}
         errors = {}
-        ingredients = [recipes.Ingredient(amount=0)]*3
+        ingredients = [None]*3
 
     form = forms.FormWrapper(manipulator, new_data, errors)
     return render_to_response('recipes/new.html',
