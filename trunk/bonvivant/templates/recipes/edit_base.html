@@ -45,13 +45,13 @@
 <div id="ingredients">
   {% for ingredient in ingredients %}
   <p>
-    {% ifequal ingredient.amount 0 %}
+    {% if ingredient %}
+      <input type="text" name="ingredient_{{ forloop.counter0 }}" id="ingredient_{{ forloop.counter0 }}" size="40" value="{{ ingredient.write }}" />
+      <input type="checkbox" name="ingredient_opt_{{ forloop.counter0 }}" {% if ingredient.optional %}checked="checked"{% endif %}>Optional</input>
+    {% else %}
       <input type="text" name="ingredient_{{ forloop.counter0 }}" id="ingredient_{{ forloop.counter0 }}" size="40" />
       <input type="checkbox" name="ingredient_opt_{{ forloop.counter0 }}">Optional</input>
-    {% else %}
-      <input type="text" name="ingredient_{{ forloop.counter0 }}" id="ingredient_{{ forloop.counter0 }}" size="40" value="{{ ingredient.amount|prettynumber }} {{ ingredient.unit }} {{ ingredient.item }}" />
-      <input type="checkbox" name="ingredient_opt_{{ forloop.counter0 }}" {% if ingredient.optional %}checked="checked"{% endif %}>Optional</input>
-    {% endifequal %}
+    {% endif %}
   </p>
   {% endfor %}
 </div>

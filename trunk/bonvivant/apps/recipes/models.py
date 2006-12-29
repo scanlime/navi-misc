@@ -1,4 +1,6 @@
+from bonvivant.lib import human
 from bonvivant.lib.gourmet import convert
+
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -69,6 +71,29 @@ class Ingredient(models.Model):
         if self.optional:
             str = '%s (optional)' % str
         return str
+
+    def write(self, includeOptional=False):
+        parts = []
+        if self.amount != 0:
+            parts.append(human.prettynumber(self.amount))
+        if self.unit:
+            parts.append(self.unit)
+        if self.item:
+            parts.append(self.item)
+        if includeOptional and self.optional:
+            parts.append("(optional)")
+        return ' '.join(parts)
+
+    def write_o(self):
+        return self.write(True)
+
+    class BadIngredient:
+        def __init__(self, string):
+            self.value = string
+            self.optional = False
+
+        def write(self):
+            return self.value
 
     @staticmethod
     def construct(string):
