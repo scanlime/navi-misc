@@ -48,6 +48,7 @@
     {% if ingredient %}
       <input type="text" name="ingredient_{{ forloop.counter0 }}" id="ingredient_{{ forloop.counter0 }}" size="40" value="{{ ingredient.write }}" />
       <input type="checkbox" name="ingredient_opt_{{ forloop.counter0 }}" {% if ingredient.optional %}checked="checked"{% endif %}>Optional</input>
+      {% if ingredient.error %}*** Could not understand this.{% endif %}
     {% else %}
       <input type="text" name="ingredient_{{ forloop.counter0 }}" id="ingredient_{{ forloop.counter0 }}" size="40" />
       <input type="checkbox" name="ingredient_opt_{{ forloop.counter0 }}">Optional</input>
