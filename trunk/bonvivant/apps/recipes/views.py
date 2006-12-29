@@ -50,8 +50,22 @@ class AddRecipe(forms.Manipulator):
 
         return errors
 
-    def save(self, new_data):
-        pass
+    def save(self, new_data, ingredients):
+        r = recipes.Recipe(title        = new_data['title'],
+                           author       = new_data['author'],
+                           servings     = new_data['servings'],
+                           prep_time    = new_data['prep_time'],
+                           cooking_time = new_data['cooking_time'],
+                           instructions = new_data['instructions'],
+                           notes        = new_data['notes'],
+                           license      = new_data['license'])
+        r.save()
+
+        for ingredient in ingredients:
+            ingredient.recipe = r
+            ingredient.save()
+
+        return r
 
 def _gather_ingredients(data):
     i = 0
@@ -70,10 +84,11 @@ def _gather_ingredients(data):
 
         results.append(ingredient)
 
-        try:
-            results[-1].optional = data['ingredient_opt_%d' % i]
-        except KeyError:
-            pass
+        if results[-1]:
+            try:
+                results[-1].optional = data['ingredient_opt_%d' % i]
+            except KeyError:
+                pass
         i += 1
 
 @login_required
@@ -84,7 +99,7 @@ def new2(request):
         new_data = request.POST.copy()
 
         # Fill in automatic fields
-        new_data['author'] = request.user.id
+        new_data['author'] = request.user
         ingredients = [ing for ing in _gather_ingredients(new_data) if ing is not None]
 
         errors = manipulator.get_validation_errors(new_data, ingredients)
