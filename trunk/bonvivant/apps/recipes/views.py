@@ -9,7 +9,7 @@ from django.template import RequestContext
 
 import bonvivant.apps.recipes.models as recipes
 
-class AddRecipe(forms.Manipulator):
+class RecipeManipulator(forms.Manipulator):
     def __init__(self):
         servings_choices = functional.flatten1((BLANK_CHOICE_DASH,
                                                 recipes.SERVING_CHOICES))
@@ -26,7 +26,6 @@ class AddRecipe(forms.Manipulator):
             forms.TextField(field_name='cooking_time',
                             length=8, maxlength=8,
                             is_required=False),
-
 
             forms.LargeTextField(field_name='instructions',
                                  rows=10, cols=80,
@@ -50,6 +49,7 @@ class AddRecipe(forms.Manipulator):
 
         return errors
 
+class AddRecipe(RecipeManipulator):
     def save(self, new_data, ingredients):
         r = recipes.Recipe(title        = new_data['title'],
                            author       = new_data['author'],
@@ -66,6 +66,10 @@ class AddRecipe(forms.Manipulator):
             ingredient.save()
 
         return r
+
+class ChangeRecipe(RecipeManipulator):
+    def save(self, new_data, ingredients):
+        pass
 
 def _gather_ingredients(data):
     i = 0
@@ -92,7 +96,7 @@ def _gather_ingredients(data):
         i += 1
 
 @login_required
-def new2(request):
+def new(request):
     manipulator = AddRecipe()
 
     if request.method == 'POST':
@@ -121,32 +125,6 @@ def new2(request):
     return render_to_response('recipes/new.html',
                               {'form'        : form,
                                'ingredients' : ingredients},
-                              context_instance=RequestContext(request))
-
-@login_required
-def new(request):
-    manipulator = recipes.Recipe.AddManipulator()
-
-    if request.method == 'POST':
-        new_data = request.POST.copy()
-
-        # Fill in automatic fields
-        new_data['author'] = request.user.id
-
-        errors = manipulator.get_validation_errors(new_data)
-
-        if not errors:
-            manipulator.do_html2python(new_data)
-            new_recipe = manipulator.save(new_data)
-            return HttpResponseRedirect('/recipes/edit/%i' % new_recipe.id)
-    else:
-        # No POST, so we want a brand-new form
-        new_data = {}
-        errors = {}
-
-    form = forms.FormWrapper(manipulator, new_data, errors)
-    return render_to_response('recipes/new.html',
-                              {'form' : form},
                               context_instance=RequestContext(request))
 
 @login_required
