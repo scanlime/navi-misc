@@ -673,6 +673,7 @@ UNITS = [["bucket" , ["bucket", "buckets", "bckt."]],
          ['box',['Box','box','bx']],
          ['can',['can','Can','cn','cn.']],
          ['slices',['slice','slices']],
+         ['pinch',['pinches']],
          ]
 
 METRIC_RANGE = (1,999)
