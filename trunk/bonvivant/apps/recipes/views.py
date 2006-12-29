@@ -1,4 +1,5 @@
-from bonvivant.goopy import functional
+from bonvivant.lib.goopy import functional
+
 from django.contrib.auth.decorators import login_required
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.http import Http404, HttpResponseRedirect
@@ -6,7 +7,7 @@ from django import forms
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 
-import bonvivant.recipes.models as recipes
+import bonvivant.apps.recipes.models as recipes
 
 class AddRecipe(forms.Manipulator):
     def __init__(self):

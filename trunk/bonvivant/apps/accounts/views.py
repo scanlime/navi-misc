@@ -1,4 +1,5 @@
-from bonvivant.ext.forms import DojoTextField, DojoPasswordField
+from bonvivant.apps.ext.forms import DojoTextField, DojoPasswordField
+from bonvivant.apps.recipes.models import Recipe
 
 from django import forms
 from django.contrib.auth import authenticate, login, logout, LOGIN_URL, REDIRECT_FIELD_NAME
@@ -8,8 +9,6 @@ from django.core import validators
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
-
-from bonvivant.recipes.models import Recipe
 
 class RegistrationForm(forms.Manipulator):
     def __init__(self):
