@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.conf.urls.defaults import *
-from bonvivant.recipes.models import Recipe
+from bonvivant.apps.recipes.models import Recipe
 
 urlpatterns = patterns('',
     # Built-in admin UI
@@ -12,18 +12,18 @@ urlpatterns = patterns('',
       'date_field'    : 'ctime',
       'template_name' : 'recipes/archive.html'}),
 
-    (r'^recipes/new/$',                     'bonvivant.recipes.views.new2'),
-    (r'^recipes/edit/(?P<object_id>\d+)/$', 'bonvivant.recipes.views.edit'),
-    (r'^recipes/(?P<object_id>\d+)/$',      'bonvivant.recipes.views.detail'),
+    (r'^recipes/new/$',                     'bonvivant.apps.recipes.views.new2'),
+    (r'^recipes/edit/(?P<object_id>\d+)/$', 'bonvivant.apps.recipes.views.edit'),
+    (r'^recipes/(?P<object_id>\d+)/$',      'bonvivant.apps.recipes.views.detail'),
 
     # Auth stuff
     (r'^login/$',            'django.contrib.auth.views.login'),
     (r'^logout/$',           'django.contrib.auth.views.logout'),
-    (r'^register/$',         'bonvivant.accounts.views.register'),
+    (r'^register/$',         'bonvivant.apps.accounts.views.register'),
 
     # Account info
-    (r'^accounts/profile/$', 'bonvivant.accounts.views.profile'),
-    (r'^accounts/edit/$',    'bonvivant.accounts.views.edit'),
+    (r'^accounts/profile/$', 'bonvivant.apps.accounts.views.profile'),
+    (r'^accounts/edit/$',    'bonvivant.apps.accounts.views.edit'),
 )
 
 if settings.DEBUG:

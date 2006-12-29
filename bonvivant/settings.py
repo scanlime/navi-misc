@@ -53,7 +53,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
-ROOT_URLCONF = 'bonvivant.urls'
+ROOT_URLCONF = 'bonvivant.apps.urls'
 
 TEMPLATE_DIRS = (
     'templates'
@@ -62,9 +62,9 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-    'bonvivant.accounts',
-    'bonvivant.ext',
-    'bonvivant.recipes',
+    'bonvivant.apps.accounts',
+    'bonvivant.apps.ext',
+    'bonvivant.apps.recipes',
     'django.contrib.auth',
     'django.contrib.admin',
     'django.contrib.contenttypes',
