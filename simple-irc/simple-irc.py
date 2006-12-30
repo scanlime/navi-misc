@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import gtk
+import dbus.glib
 from sirc import ui
 from sirc.common import server
 from telepathy.interfaces import *
