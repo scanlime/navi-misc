@@ -68,8 +68,43 @@ class AddRecipe(RecipeManipulator):
         return r
 
 class ChangeRecipe(RecipeManipulator):
+    def __init__(self, object_id):
+        RecipeManipulator.__init__(self)
+
+        self.original_object = recipes.Recipe.objects.get(id=object_id)
+
+    def flatten_data(self):
+        recipe = self.original_object
+        data = {}
+        data['title']        = recipe.title
+        data['servings']     = recipe.servings
+        data['prep_time']    = recipe.prep_time
+        data['cooking_time'] = recipe.cooking_time
+        data['instructions'] = recipe.instructions
+        data['notes']        = recipe.notes
+        data['license']      = recipe.license
+
+        return data
+
     def save(self, new_data, ingredients):
-        pass
+        # Delete the old ingredients
+        recipe.Ingredient.objects.filter(recipe=self.original_object).delete()
+
+        self.original_object.title        = new_data['title']
+        self.original_object.servings     = new_data['servings']
+        self.original_object.prep_time    = new_data['prep_time']
+        self.original_object.cooking_time = new_data['cooking_time']
+        self.original_object.instructions = new_data['instructions']
+        self.original_object.notes        = new_data['notes']
+        self.original_object.license      = new_data['license']
+
+        self.original_object.save()
+
+        for ingredient in ingredients:
+            ingredient.recipe = self.original_object
+            ingredient.save()
+
+        return self.original_object
 
 def _gather_ingredients(data):
     i = 0
@@ -113,7 +148,6 @@ def new(request):
             new_recipe = manipulator.save(new_data, ingredients)
             return HttpResponseRedirect('/recipes/edit/%i' % new_recipe.id)
 
-        print ingredients
         ingredients += [None]*2
     else:
         # No POST, so we want a brand-new form
@@ -130,13 +164,11 @@ def new(request):
 @login_required
 def edit(request, object_id):
     try:
-        manipulator = recipes.Recipe.ChangeManipulator(object_id)
+        manipulator = ChangeRecipe(object_id)
     except recipes.Recipe.DoesNotExist:
         raise Http404
 
     recipe = manipulator.original_object
-
-    ingredients = list(recipes.Ingredient.objects.filter(recipe=recipe.id))
 
     if recipe.author.id != request.user.id:
         # FIXME: return a permission denied error page
@@ -144,21 +176,25 @@ def edit(request, object_id):
 
     if request.method == 'POST':
         new_data = request.POST.copy()
-        errors = manipulator.get_validation_errors(new_data)
+        ingredients = [ing for ing in _gather_ingredients(new_data) if ing is not None]
+        errors = manipulator.get_validation_errors(new_data, ingredients)
         if not errors:
             manipulator.do_html2python(new_data)
-            manipulator.save(new_data)
+            manipulator.save(new_data, ingredients)
 
             return HttpResponseRedirect('/recipes/edit/%i' % recipe.id)
     else:
         errors = {}
         new_data = manipulator.flatten_data()
+        ingredients = list(recipes.Ingredient.objects.filter(recipe=recipe))
+
+    ingredients += [None]*2
 
     form = forms.FormWrapper(manipulator, new_data, errors)
     return render_to_response('recipes/edit.html',
                               {'form'        : form,
                                'recipe'      : recipe,
-                               'ingredients' : ingredients + [recipes.Ingredient(amount=0)]*3},
+                               'ingredients' : ingredients},
                               context_instance=RequestContext(request))
 
 def filterCBs(data):
