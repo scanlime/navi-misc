@@ -32,8 +32,8 @@ class Recipe(models.Model):
 
     license = models.CharField(maxlength=8, choices=LICENSE_CHOICES, default='by-sa')
 
-    #slug = models.SlugField(prepopulate_from=("title", "author"), unique=True)
-    #public = models.BooleanField(default=False)
+    slug = models.SlugField(prepopulate_from=("title",), unique=True)
+    public = models.BooleanField(default=False)
 
     # Recipes can be pulled into an individual user's "recipe box"
     box = models.ManyToManyField(User, related_name='recipe_box', blank=True, null=True)
