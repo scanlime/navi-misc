@@ -78,3 +78,8 @@ class Window(gtk.Window):
 	
 	self.set_title('Chat box test')
 	self.set_default_size(350,200)
+	self.connect('destroy', self.on_close)
+
+    def on_close (self, *whatever):
+	print 'quit'
+	gtk.main_quit()
