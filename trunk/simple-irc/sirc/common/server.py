@@ -1,15 +1,17 @@
 from telepathy import client
 from telepathy.interfaces import CONN_MGR_INTERFACE,CONN_INTERFACE
-import dbus
+import dbus, dbus.glib
 
 class Server:
-    def __init__ (self, bus_name, path):
+    def __init__ (self, bus_name, path, params):
 	self.conn = client.Connection(bus_name, path,
 				      ready_handler = self.ready_handler,
 				      error_handler = self.error_handler)
 	self.conn[CONN_INTERFACE].connect_to_signal('NewChannel', self.on_new_channel)
 	self.conn[CONN_INTERFACE].connect_to_signal('StatusChanged', self.on_status_changed)
 	self.path = path
+	self.params = params
+	self.ready
 
     def __getattr__ (self, attr):
 	return getattr(self.conn[CONN_INTERFACE], attr)
@@ -23,8 +25,9 @@ class Server:
     def ready_handler(self, *whatever):
 	print 'ready!', whatever
 
-    def error_handler(self, *whatever):
-	print 'error!', whatever
+    def error_handler(self, error):
+	print 'Error: ', str(error[0])
+	print 'that makes me sad.'
 
 class AccountParameters:
 	def __init__ (self, defaults):
@@ -53,20 +56,19 @@ class ServerFactory:
 	for key in params.iterkeys():    
 	    params[key] = dbus.String(params[key][1])
 
-	params['account'] = 'drfoo'
+	params['account'] = 'drfoo2'
         params['use-ssl'] = False
         params['server'] = 'irc.freenode.net'
 	params['port'] = dbus.UInt32(6667)
-        params['password'] = ''
+	params['password'] = ''
 	params['quit-message'] = 'as an environmentalist, i\'m against that'
 	params['fullname'] = 'Al Gore'
 
 	def callback(*whatever):
-	    print 'callback!',whatever
+	    print 'new connection callback',whatever
 
 	connection_manager = self.reg.GetManager(manager)[CONN_MGR_INTERFACE]
-	print dir(connection_manager)
 	bus_name,object_path = connection_manager.RequestConnection(protocol, params)
 	connection_manager.connect_to_signal('NewConnection', callback)
     
-        return Server(bus_name, object_path)
+        return Server(bus_name, object_path, params)
