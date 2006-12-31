@@ -4,6 +4,8 @@ from bonvivant.lib.gourmet import convert
 from django.db import models
 from django.contrib.auth.models import User
 
+import re
+
 LICENSE_CHOICES = (
     ('by-nc-sa', 'Creative Commons Attribution Non-commercial Share Alike'),
     ('by-nc',    'Creative Commons Attribution Non-commercial'),
@@ -32,7 +34,7 @@ class Recipe(models.Model):
 
     license = models.CharField(maxlength=8, choices=LICENSE_CHOICES, default='by-sa')
 
-    slug = models.SlugField(prepopulate_from=("title",), unique=True)
+    #slug = models.SlugField(prepopulate_from=("title",), unique=True)
     public = models.BooleanField(default=False)
 
     # Recipes can be pulled into an individual user's "recipe box"
@@ -48,7 +50,8 @@ class Recipe(models.Model):
         fields = (
             ('Metadata', {'fields' : ('title',
                                       'author',
-                                      'license')}),
+                                      'license',
+                                      'public')}),
             ('Recipe',   {'fields' : ('servings',
                                       'prep_time',
                                       'cooking_time',
@@ -67,10 +70,13 @@ class Ingredient(models.Model):
     conv = convert.converter()
 
     def __str__(self):
-        str = '%f-%s-%s' % (self.amount, self.unit, self.item)
+        str = '%f %s %s' % (self.amount, self.unit, self.item)
         if self.optional:
             str = '%s (optional)' % str
         return str
+
+    class Admin:
+        pass
 
     def write(self, includeOptional=False):
         parts = []
@@ -107,23 +113,24 @@ class Ingredient(models.Model):
         Construct an Ingredient given a string.  This code is derived from gourmet.
 
         >>> Ingredient.construct('2 eggs')
-        <Ingredient: 2.000000-None-eggs>
+        <Ingredient: 2.000000  eggs>
 
         >>> Ingredient.construct('1 1/2 cups ketchup')
-        <Ingredient: 1.500000-cups-ketchup>
+        <Ingredient: 1.500000 cups ketchup>
 
         >>> Ingredient.construct('2 tbsp. grated cheese')
-        <Ingredient: 2.000000-tbsp.-grated cheese>
+        <Ingredient: 2.000000 tbsp. grated cheese>
         """
 
-        # FIXME: hardcoding utf-8 here sucks!
-        s = string.decode('utf-8')
-        s = s.strip("\n\t #*+-")
+        if type(string) is str:
+            # FIXME: hardcoding utf-8 here sucks, but apparently HTTP has no way to know!
+            string = string.decode('utf-8')
+        string = string.strip("\n\t #*+-")
 
-        if len(s) == 0:
+        if len(string) == 0:
             return None
 
-        m = convert.ING_MATCHER.match(s)
+        m = convert.ING_MATCHER.match(string)
 
         if m:
             a, u, i = (m.group(convert.ING_MATCHER_AMT_GROUP),
@@ -133,30 +140,31 @@ class Ingredient(models.Model):
             amount = 0
             unit = ''
             item = None
+            optional = False
 
             if a:
                 amount = convert.frac_to_float(a.strip())
-
-                print '"%s" = %f\n' % (a, amount)
 
             if u:
                 if Ingredient.conv and Ingredient.conv.unit_dict.has_key(u.strip()):
                     # Don't convert units to our units!
                     unit = u.strip()
                 else:
-                    # FIXME: previous uses?
                     # unit is not a unit
-                    ' '.join((u, i))
+                    i = ' '.join((u, i))
 
-            if i:
-                item = i
+            if len(i):
+                optmatch = re.search('\s+\(?[Oo]ptional\)?', i)
+                if optmatch:
+                    optional = True
+                    i = i[0:optmatch.start()] + i[optmatch.end():]
+                item = i.strip()
             else:
-                raise ValueError("Unable to parse ingredient")
+                raise ValueError("Unable to parse ingredient: no item given")
 
-            return Ingredient(amount=float(amount), unit=unit, item=item)
+            return Ingredient(amount=float(amount), unit=unit, item=item, optional=optional)
 
         else:
-            print 'no match for %s' % s
             raise ValueError("Unable to parse ingredient")
 
 

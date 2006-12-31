@@ -863,7 +863,6 @@ def float_string (s):
     importing British recipes and viceversa.
     """
     if NUMBER_WORDS.has_key(s.lower()):
-        print 'We have key',s.lower()
         return NUMBER_WORDS[s.lower()]
     THOUSEP = locale.localeconv()['thousands_sep']
     DECSEP = locale.localeconv()['decimal_point']

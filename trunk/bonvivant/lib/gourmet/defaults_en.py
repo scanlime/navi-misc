@@ -664,16 +664,16 @@ UNITS = [["bucket" , ["bucket", "buckets", "bckt."]],
          ["kg.", ["kilogram","kg.", "kg", "kilograms"]],
          # These names aren't really convertible, but we want them to
          # be recognized as units...
-         ['small',['small','sm','Small','sm.']],         
-         ['medium',['medium','med.','Medium']],
-         ['large',['large','Large','lg','lg.']],
+         #['small',['small','sm','Small','sm.']],         
+         #['medium',['medium','med.','Medium']],
+         #['large',['large','Large','lg','lg.']],
          ['clove',['clove','cloves','clv.']],
          ['whole',['whole','wh.','whl']],
          ['package',['pkg.','pkg','package','Pkg.','Package','pack']],
          ['box',['Box','box','bx']],
          ['can',['can','Can','cn','cn.']],
          ['slices',['slice','slices']],
-         ['pinch',['pinches']],
+         ['pinch',['pinches', 'pinch of']],
          ]
 
 METRIC_RANGE = (1,999)
