@@ -5,6 +5,9 @@
 # tasks that run over RPC. It must be combined with a separate web
 # server process.
 #
+# Start the server from the 'cia' directory by running:
+#   twistd -oy conf/rpc_server.tac -l rpc_server.log --pidfile=rpc_server.pid
+#
 # This configuration is currently experimental, don't use it yet!
 #
 

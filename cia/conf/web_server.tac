@@ -3,6 +3,9 @@
 # Web-server-only configuration. This does not answer RPC
 # requests, and it has no message delivery capabilities.
 #
+# Start the server from the 'cia' directory by running:
+#   twistd -oy conf/web_server.tac -l web_server.log --pidfile=web_server.pid
+#
 # This configuration is currently experimental, don't use it yet!
 #
 
@@ -13,7 +16,6 @@ from twisted.internet import tcp
 Database.init()
 
 application = service.Application("web_server")
-hub = Message.Hub()
 
 # Create components we'll need in multiple places later
 doc   = Web.Doc.Component('doc')
@@ -33,7 +35,7 @@ site.putComponent('stats', stats)
 site.putComponent('doc', doc)
 #site.putComponent('irc', Web.BotStatus.Component(remoteBots))
 #site.putComponent('rulesets', Web.RulesetBrowser.Component(rulesetStorage))
-site.putComponent('info', Web.Info.Component())
+#site.putComponent('info', Web.Info.Component())
 
 # Now create an HTTP server holding both our XML-RPC and web interfaces
 internet.TCPServer(3911, site).setServiceParent(application)
