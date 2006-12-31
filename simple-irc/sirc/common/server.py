@@ -1,34 +1,16 @@
 from telepathy import client
 from telepathy.constants import *
 from telepathy.interfaces import CONN_MGR_INTERFACE,CONN_INTERFACE,CHANNEL_TYPE_TEXT
-import dbus, dbus.glib
+import dbus
+from sirc.common import channel handles
 
-from telepathy.interfaces import CHANNEL_INTERFACE
-from telepathy.constants import CHANNEL_TEXT_MESSAGE_TYPE_ACTION
+class TelepathyInterface:
+    interface = None
 
-class Channel:
-    def __init__ (self, name, parent, path):
-	print 'initializing channel %s' % name
-	self.name = name
-	self.path = path
-	self.parent = parent
-	self.channel = client.Channel(parent.conn.service_name, path,
-				      ready_handler = self.ready_handler,
-				      error_handler = self.error_handler)
-	print dir(self.channel)
-	print self.channel[CHANNEL_INTERFACE].GetInterfaces()
-	
-	# There must be a better way of doing this..
-	self.channel.get_valid_interfaces().add(CHANNEL_TYPE_TEXT)
-	self.channel[CHANNEL_TYPE_TEXT].Send(CHANNEL_TEXT_MESSAGE_TYPE_ACTION, "waves hello")
+    def __getattr__ (self, attr):
+	return getattr(self.get_proxy()[self.interface], attr)
 
-    def ready_handler(self, *whatever):
-	pass
-
-    def error_handler(self, error):
-	print 'Channel %s error: %s' % (self.name, error)
-
-class Server:
+class Server(TelepathyInterface):
     def __init__ (self, bus_name, path, params):
 	self.conn = client.Connection(bus_name, path,
 				      ready_handler = self.ready_handler,
@@ -42,19 +24,16 @@ class Server:
 	self.channels = {}
 	self.bus_name = bus_name
 
-    def __getattr__ (self, attr):
-	return getattr(self.conn[CONN_INTERFACE], attr)
-
     def on_status_changed(self, state, reason):
 	if state != CONNECTION_STATUS_CONNECTED:
 	    print 'error state %i caused by %i' % (state, reason)
 	    return
-	self.join('#tacobeam')
+	self.join('#buckets')
 
-    def join(self, channel):
-	handle = self.RequestHandles(CONNECTION_HANDLE_TYPE_ROOM, [channel])[0]
+    def join(self, where):
+	handle = self.RequestHandles(CONNECTION_HANDLE_TYPE_ROOM, [where])[0]
 	path = self.RequestChannel(CHANNEL_TYPE_TEXT, CONNECTION_HANDLE_TYPE_ROOM, handle, True)
-	self.channels[handle] = Channel(channel, self, path)
+	self.channels[handle] = channel.Channel(where, self, path)
 
     def on_new_channel(self, path, channel_type, handle_type, handle, suppress):
 	print path, channel_type, handle_type, handle, suppress
@@ -64,7 +43,6 @@ class Server:
 
     def error_handler(self, error):
 	print 'Error: ', str(error[0])
-	print 'that makes me sad.'
 
 class AccountParameters:
 	def __init__ (self, defaults):
