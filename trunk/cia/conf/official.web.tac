@@ -13,7 +13,7 @@ import os
 port = int(os.getenv("PORT"))
 
 from twisted.application import service, internet
-from LibCIA import Database, Message, Web
+from LibCIA import Database, Message, Web, RpcServer, Stats
 from twisted.internet import tcp
 
 Database.init()
@@ -36,14 +36,22 @@ frontPage = Web.Overview.OverviewPage(doc.resource, stats)
 webRoot = Web.Server.StaticJoiner('htdocs', frontPage)
 site = Web.Server.Site(webRoot)
 
+# We still need to install RPC components that are accessed locally via
+# RpcServer.getRootInterface(), even though we don't expose them over
+# HTTP in this process.
+rpc = RpcServer.getRootInterface()
+rpc.putSubHandler('stats', Stats.Interface.StatsInterface())
+
 # The user-navigable areas of our site are all Component instances
 site.putComponent('stats', stats)
 site.putComponent('doc', doc)
+
+# These components don't work across the Web/RPC split yet
 #site.putComponent('irc', Web.BotStatus.Component(remoteBots))
 #site.putComponent('rulesets', Web.RulesetBrowser.Component(rulesetStorage))
 #site.putComponent('info', Web.Info.Component())
 
-# Now create an HTTP server holding both our XML-RPC and web interfaces
+# Run the HTTP server
 internet.TCPServer(port, site, interface='localhost').setServiceParent(application)
 
 # We don't start our own secure server, pound is running https also
