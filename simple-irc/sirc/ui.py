@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import gtk
+import gtk, gtkmozembed
 
 DEFAULT_LEFT_MARGIN = 48
 
@@ -62,23 +62,35 @@ class TextInput:
 		    self.buffer.delete(start, end)
 		    return True
 
+class GeckoDisplay(gtkmozembed.MozEmbed):
+    def __init__ (self):
+	gtkmozembed.MozEmbed.__init__(self)
+
+
 class Window(gtk.Window):
     def __init__ (self):
 	gtk.Window.__init__(self)
+	self.gecko = GeckoDisplay()
 
-	vbox = gtk.VBox()
-	self.input_view = TextInput()
-	self.display_view = TextDisplay()
-	self.input_view.attach_send_events_to(self.display_view)
-	self.display_view.attach_input_events_to(self.input_view)
+#	vbox = gtk.VBox()
+#	self.input_view = TextInput()
+#	self.display_view = TextDisplay()
+#	self.input_view.attach_send_events_to(self.display_view)
+#	self.display_view.attach_input_events_to(self.input_view)
 
-	vbox.pack_start(self.display_view.widget, expand=True, fill=True)
-	vbox.pack_end(self.input_view.widget, expand=False, fill=True)
-	self.add(vbox)
+#	vbox.pack_start(self.display_view.widget, expand=True, fill=True)
+#	vbox.pack_end(self.input_view.widget, expand=False, fill=True)
+#	self.add(vbox)
+
+	self.add(self.gecko)
 	
 	self.set_title('Chat box test')
 	self.set_default_size(350,200)
 	self.connect('destroy', self.on_close)
+	#data = '<b>hello</b><br>hello again'
+	#self.gecko.render_data(data, len(data), 'file:///', 'text/html')
+	self.gecko.load_url('google.com')
+
 
     def on_close (self, *whatever):
 	print 'quit'
