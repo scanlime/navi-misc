@@ -4,7 +4,7 @@ Template classes for building web pages using our particular style
 """
 #
 # CIA open source notification system
-# Copyright (C) 2003-2005 Micah Dowty <micah@navi.cx>
+# Copyright (C) 2003-2006 Micah Dowty <micah@navi.cx>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -376,7 +376,7 @@ class Page(Nouvelle.Twisted.Page):
 
                     # Legal goop
                     tag('p', _class='smallprint')[
-                        xml("The CIA server is Copyright &copy; 2003-2005 "),
+                        xml("The CIA server is Copyright &copy; 2003-2006 "),
                         EmailLink('mailto:micah@navi.cx')["Micah Dowty"],
                         ", and released under the ",
                         tag('a', _href='/doc/COPYING')["GNU GPL"], ".", tag('br'),
