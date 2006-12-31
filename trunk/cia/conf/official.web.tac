@@ -2,18 +2,24 @@
 #
 # Web-server-only configuration. This does not answer RPC
 # requests, and it has no message delivery capabilities.
+# This server is read-only, and any number of instances
+# may be run concurrently.
 #
-# Start the server from the 'cia' directory by running:
-#   twistd -oy conf/web_server.tac -l web_server.log --pidfile=web_server.pid
+# This is the configuration for the official CIA host.
+# It can be started via http-cluster.sh.
 #
-# This configuration is currently experimental, don't use it yet!
-#
+
+import os
+port = int(os.getenv("PORT"))
 
 from twisted.application import service, internet
 from LibCIA import Database, Message, Web
 from twisted.internet import tcp
 
 Database.init()
+
+# Remove the non-main CIA server notice, since this is in fact the main server.
+Web.Template.Page.site_mainServerNotice = []
 
 application = service.Application("web_server")
 
@@ -38,9 +44,9 @@ site.putComponent('doc', doc)
 #site.putComponent('info', Web.Info.Component())
 
 # Now create an HTTP server holding both our XML-RPC and web interfaces
-internet.TCPServer(3911, site).setServiceParent(application)
+internet.TCPServer(port, site, interface='localhost').setServiceParent(application)
 
-# We don't start our own secure server, apache is running https also
+# We don't start our own secure server, pound is running https also
 # and proxying that locally to our HTTP server. We do however need to
 # tell the keyring module that it's running, and on the default port.
 Web.Keyring.setSecureServer()

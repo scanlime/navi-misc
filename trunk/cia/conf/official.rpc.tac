@@ -5,11 +5,12 @@
 # tasks that run over RPC. It must be combined with a separate web
 # server process.
 #
-# Start the server from the 'cia' directory by running:
-#   twistd -oy conf/rpc_server.tac -l rpc_server.log --pidfile=rpc_server.pid
+# This is the configuration for the official CIA host.
+# It can be started via http-cluster.sh.
 #
-# This configuration is currently experimental, don't use it yet!
-#
+
+import os
+port = int(os.getenv("PORT"))
 
 from twisted.application import service, internet
 from LibCIA import Database, Message, Ruleset, IRC, Stats, IncomingMail, Cron
@@ -55,6 +56,6 @@ rpc.putSubHandler('stats', Stats.Interface.StatsInterface())
 rpc.putSubHandler('security', Security.SecurityInterface())
 rpc.putSubHandler('debug', Debug.DebugInterface())
 
-internet.TCPServer(3910, Web.Server.Site(rpc)).setServiceParent(application)
+internet.TCPServer(port, Web.Server.Site(rpc), interface='localhost').setServiceParent(application)
 
 ### The End ###

@@ -25,7 +25,7 @@ Site and Request classes.
 from twisted.web import server, static
 from twisted.python import log
 import ServerPages
-import time, gc
+import time, gc, os
 
 
 class Request(server.Request):
@@ -62,6 +62,19 @@ class Request(server.Request):
         return server.Request.getClientIP(self)
 
     def process(self):
+        # Allow environment variables to override the host/port of this machine,
+        # with an extra header to enable SSL. This is an alternative to VHostMonster
+        # that works with the "pound" proxy and load balancer.
+        host = os.getenv("REQUEST_HOST")
+        if host:
+            xfp = self.getHeader('X-Forwarded-Proto')
+            if xfp and xfp.strip().lower() == "https":
+                self.setHost(host, 443)
+                self.isSecure = lambda: 1
+            else:
+                self.setHost(host, int(os.getenv("REQUEST_PORT", 80)))
+                self.isSecure = lambda: 0
+
         # Count this request, yay
         server.Request.process(self)
         self.site.requestCount += 1
