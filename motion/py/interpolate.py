@@ -2,7 +2,7 @@
 #
 # interpolate.py
 #
-# Copyright (C) 2005-2006 W. Evan Sheehan
+# Copyright (C) 2005-2007 W. Evan Sheehan
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License

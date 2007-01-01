@@ -2,7 +2,7 @@
  * Data.cs - basic types in the pipeline
  *
  * Fyre - a generic framework for computational art
- * Copyright (C) 2004-2006 Fyre Team (see AUTHORS)
+ * Copyright (C) 2004-2007 Fyre Team (see AUTHORS)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

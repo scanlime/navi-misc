@@ -1,7 +1,7 @@
 #
 # tests.py - Unit tests for the Motion module.
 #
-# Copyright (C) 2005 W. Evan Sheehan
+# Copyright (C) 2005-2007 W. Evan Sheehan
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License

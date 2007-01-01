@@ -1,7 +1,7 @@
 # amc_import.py - Import an Acclaim Motion Capture file and apply NLA
 #                 transformations to a matching armature
 #
-# Copyright (C) 2005-2006 David Trowbridge
+# Copyright (C) 2005-2007 David Trowbridge
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License

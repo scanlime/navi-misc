@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2006 W. Evan Sheehan
+# Copyright (C) 2006-2007 W. Evan Sheehan
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
