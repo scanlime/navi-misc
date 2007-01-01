@@ -2,7 +2,7 @@
  * net-monitor.c - xchat plugin which uses NetworkManager's D-BUS interface
  *                 to control connection state
  *
- * Copyright (C) 2005 David Trowbridge
+ * Copyright (C) 2005-2007 David Trowbridge
  * Parts of this code were copied from epiphany extensions.
  * Those parts are Copyright (C) 2005 Jean-François Rameau
  *

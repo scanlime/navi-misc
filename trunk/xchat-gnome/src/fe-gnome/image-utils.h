@@ -2,7 +2,7 @@
  * image-utils.h - Utility functions for dealing with images
  *
  * Copyright (C) 1998 Peter Zelezny
- * Copyright (C) 2006 xchat-gnome team.
+ * Copyright (C) 2006-2007 xchat-gnome team.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

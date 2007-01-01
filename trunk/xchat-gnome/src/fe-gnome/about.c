@@ -1,7 +1,7 @@
 /*
  * about.c - utilities for displaying and hiding the about dialog
  *
- * Copyright (C) 2004-2006 xchat-gnome team
+ * Copyright (C) 2004-2007 xchat-gnome team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -78,7 +78,7 @@ show_about_dialog (void)
 	gtk_show_about_dialog (GTK_WINDOW (gui.main_window),
 	                       "name", "XChat-GNOME",
 	                       "version", PACKAGE_VERSION,
-	                       "copyright", _("Copyright © 2004-2006"),
+	                       "copyright", _("Copyright © 2004-2007"),
 	                       /* Translators: This is a random, mostly-meaningless
 	                        * quotation from Jeeves & Wooster.  Either leave it
 	                        * be or replace it with something funny (but inoffensive)

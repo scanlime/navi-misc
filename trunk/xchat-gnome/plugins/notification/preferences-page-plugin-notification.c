@@ -2,7 +2,7 @@
  * preferences-page-plugin-notification.c - Preferences page of the
  * notifcation plugin
  *
- * Copyright (C) 2004-2006 xchat-gnome team
+ * Copyright (C) 2004-2007 xchat-gnome team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
