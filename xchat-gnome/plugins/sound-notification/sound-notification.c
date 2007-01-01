@@ -1,7 +1,7 @@
 /*
  * sound-notification.c - A sound notification plugin for xchat-gnome.
  *
- * Copyright (C) 2006 Guillaume Desmottes
+ * Copyright (C) 2006-2007 Guillaume Desmottes
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

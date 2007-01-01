@@ -2,7 +2,7 @@
  * notify-osd.c - xchat plugin which provides "OSD" like functionality through
  *                libnotify
  *
- * Copyright (C) 2005 David Trowbridge
+ * Copyright (C) 2005-2007 David Trowbridge
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
