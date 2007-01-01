@@ -8,7 +8,7 @@ and gnome-python-extras.
 I've bundled libgmail CVS here, since 0.0.8 isn't sufficient.
 """
 #
-# Copyright (C) 2005 David Trowbridge
+# Copyright (C) 2005-2007 David Trowbridge
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
