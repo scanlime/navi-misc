@@ -7,7 +7,7 @@
 #
 # --------------------------------------------------------------------------
 #
-# Copyright (c) 2004-2006, Micah Dowty
+# Copyright (c) 2004-2007, Micah Dowty
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without

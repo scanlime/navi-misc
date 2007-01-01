@@ -20,7 +20,7 @@ This code gets awfully fun, since the original format allowed goop like
 """
 #
 # CIA open source notification system
-# Copyright (C) 2003-2006 Micah Dowty <micah@navi.cx>
+# Copyright (C) 2003-2007 Micah Dowty <micah@navi.cx>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
