@@ -4,7 +4,7 @@
  *             objects to provide a rendering of the DeJong map into a histogram image.
  *
  * Fyre - rendering and interactive exploration of chaotic functions
- * Copyright (C) 2004-2006 David Trowbridge and Micah Dowty
+ * Copyright (C) 2004-2007 David Trowbridge and Micah Dowty
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
