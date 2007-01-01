@@ -3,7 +3,7 @@
 #
 # tests.py -- Unit tests for the recipes app
 #
-# Copyright (C) 2006 David Trowbridge
+# Copyright (C) 2006-2007 David Trowbridge
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
