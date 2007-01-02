@@ -37,6 +37,7 @@ var ingredients = function() {
 		el.size = 40;
 
 		entry.appendChild(el);
+		_fixIDs();
 	};
 
 	var _remove = function() {
