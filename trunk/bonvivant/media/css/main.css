@@ -66,9 +66,6 @@ a:visited {
 	position: absolute;
 	background-color: #ffffff;
 	z-index: 6;
-	border-right: 1px dashed #dedede;
-	border-top: 1px dashed #dedede;
-	border-bottom: 1px dashed #dedede;
 }
 
 .ch:hover {

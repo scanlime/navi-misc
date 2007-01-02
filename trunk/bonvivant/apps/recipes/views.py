@@ -88,7 +88,7 @@ class ChangeRecipe(RecipeManipulator):
 
     def save(self, new_data, ingredients):
         # Delete the old ingredients
-        recipe.Ingredient.objects.filter(recipe=self.original_object).delete()
+        recipes.Ingredient.objects.filter(recipe=self.original_object).delete()
 
         self.original_object.title        = new_data['title']
         self.original_object.servings     = new_data['servings']
@@ -123,11 +123,6 @@ def _gather_ingredients(data):
 
         results.append(ingredient)
 
-        if results[-1]:
-            try:
-                results[-1].optional = data['ingredient_opt_%d' % i]
-            except KeyError:
-                pass
         i += 1
 
 @login_required

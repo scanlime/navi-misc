@@ -2,9 +2,11 @@
 {% load human %}
 
 {% block extrahead %}
-<script type="text/javascript" src="/site_media/js/recipe.js"></script>
+<script type="text/javascript" src="/site_media/js/recipe-edit.js"></script>
 <script type="text/javascript">
-
+window.onload = function() {
+	ingredients.init();
+}
 </script>
 {% endblock %}
 
@@ -44,16 +46,7 @@
 <h3>Ingredients:</h3>
 <div id="ingredients">
   {% for ingredient in ingredients %}
-  <p>
-    {% if ingredient %}
-      <input type="text" name="ingredient_{{ forloop.counter0 }}" id="ingredient_{{ forloop.counter0 }}" size="40" value="{{ ingredient.write }}" />
-      <input type="checkbox" name="ingredient_opt_{{ forloop.counter0 }}" {% if ingredient.optional %}checked="checked"{% endif %}>Optional</input>
-      {% if ingredient.error %}*** Could not understand this.{% endif %}
-    {% else %}
-      <input type="text" name="ingredient_{{ forloop.counter0 }}" id="ingredient_{{ forloop.counter0 }}" size="40" />
-      <input type="checkbox" name="ingredient_opt_{{ forloop.counter0 }}">Optional</input>
-    {% endif %}
-  </p>
+  <p class="ingredientLine">{% if ingredient %}<input type="text" name="ingredient_{{ forloop.counter0 }}" id="ingredient_{{ forloop.counter0 }}" class="ingredientEntry" size="40" value="{{ ingredient }}" />{% if ingredient.error %}*** Could not understand this.{% endif %}{% else %}<input type="text" name="ingredient_{{ forloop.counter0 }}" id="ingredient_{{ forloop.counter0 }}" class="ingredientEntry" size="40" />{% endif %}</p>
   {% endfor %}
 </div>
 
