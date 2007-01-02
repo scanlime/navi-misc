@@ -39,6 +39,8 @@ import Nouvelle
 from Nouvelle import tag, place, xml, ModPython
 from mod_python import apache
 
+# FIXME: This is a hack to keep us from processing too many records at once.
+globalUpdateLimit = 500
 
 class template:
     """This is a namespace used for common web page components"""
@@ -100,7 +102,7 @@ def renderTimestamp(latest):
 def getSourceRrd(source, key, filter=None):
     """Returns an RrdFile for the specified key in packets from the specified source"""
     def dataGenerator(stamp):
-        for packet in source.iterPacketsAfter(stamp):
+        for packet in source.iterPacketsAfter(stamp, limit=globalUpdateLimit):
             value = packet.get(key)
             if value is not None:
                 if filter:
@@ -122,7 +124,7 @@ def getPacketLossRrd(source, sequenceMask=31):
         except StopIteration:
             prev = 0
 
-        for packet in source.iterPacketsAfter(stamp):
+        for packet in source.iterPacketsAfter(stamp, limit=globalUpdateLimit):
             value = packet.get('sequence')
             if value is not None and prev is not None:
                 delta = (value - prev) & sequenceMask
