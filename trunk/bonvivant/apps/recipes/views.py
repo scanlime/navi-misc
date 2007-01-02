@@ -196,7 +196,7 @@ def filterCBs(data):
     """
     Filter a text string to split it into commentable blocks.
     """
-    return [data, ]
+    return [item for item in data.split('\n') if len(item.strip())]
 
 def detail(request, object_id):
     recipe = get_object_or_404(recipes.Recipe, pk=object_id)
