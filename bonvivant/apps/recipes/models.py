@@ -69,16 +69,10 @@ class Ingredient(models.Model):
 
     conv = convert.converter()
 
-    def __str__(self):
-        str = '%f %s %s' % (self.amount, self.unit, self.item)
-        if self.optional:
-            str = '%s (optional)' % str
-        return str
-
     class Admin:
         pass
 
-    def write(self, includeOptional=False):
+    def __str__(self):
         parts = []
         if self.amount != 0:
             parts.append(human.prettynumber(self.amount))
@@ -86,12 +80,9 @@ class Ingredient(models.Model):
             parts.append(self.unit)
         if self.item:
             parts.append(self.item)
-        if includeOptional and self.optional:
+        if self.optional:
             parts.append("(optional)")
         return ' '.join(parts)
-
-    def write_o(self):
-        return self.write(True)
 
     def error(self):
         return False
