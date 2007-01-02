@@ -113,3 +113,7 @@ input:focus,textarea:focus {
 	background-color: #f7f2d0;
 	color: #000000;
 }
+
+.ingredientEntry {
+	margin-left: 6px;
+}
