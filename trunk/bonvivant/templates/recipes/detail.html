@@ -59,7 +59,14 @@ window.onload = function() {
   </div>
 {% endif %}
 
+{% if comments %}
+  {% regroup comments by block as grouped %}
+  <div id="cis">{% for group in grouped %}<div class="ci" id="{{ group.grouper }}">{{ group.list|length }}</div>{% endfor %}</div>
+{% endif %}
+
+<!--
 <div id="comments">
+  <div id="commentDrag"> </div>
   {% if comments %}
     {% regroup comments by block as grouped %}
     {% for group in grouped %}
@@ -72,5 +79,6 @@ window.onload = function() {
     {% endfor %}
   {% endif %}
 </div>
+-->
 
 {% endblock %}

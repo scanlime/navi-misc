@@ -38,7 +38,9 @@ a:visited {
 
 	border-style: solid;
 	border-color: #b4b4b4;
-	border-width: 0px 1px 0px;
+	border-width: 1px;
+	border-radius: 8px;
+	-moz-border-radius: 8px;
 }
 
 #nav {
@@ -72,7 +74,26 @@ a:visited {
 	background-color: #dedede;
 }
 
-.comment {
+.cg {
+}
+
+#commentDrag {
+	width: 450px;
+	height: 20px;
+	background-color: #cccccc;
+	-moz-border-radius-topleft: 8px;
+	-moz-border-radius-topright: 8px;
+}
+
+#comments {
+	position: absolute;
+	width: 450px;
+	height: 350px;
+	z-index: 8;
+	background-color: #999999;
+	border: 1px solid #999999;
+	border-radius: 8px;
+	-moz-border-radius: 8px;
 	display: none;
 }
 

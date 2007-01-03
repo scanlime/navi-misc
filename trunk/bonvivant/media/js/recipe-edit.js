@@ -6,13 +6,10 @@
 //dojo.require('dojo.lang');
 
 var ingredients = function() {
-	var n_ingredients = 0;
 	var container;
 	var addBlock;
 
 	var _add = function() {
-		n_ingredients += 1;
-
 		var entry = document.createElement('p');
 		entry.className = 'ingredientLine';
 		container.insertBefore(entry, addBlock);
@@ -68,7 +65,6 @@ var ingredients = function() {
 
 		init : function() {
 			container = document.getElementById('ingredients');
-			n_ingredients = 0;
 
 			var entries = getElementsByClass('ingredientLine');
 			for (var i = 0; i < entries.length; i++) {
@@ -107,6 +103,7 @@ var ingredients = function() {
 			}
 
 			addBlock.appendChild(el);
+			_fixIDs();
 		},
 	}
 }();
