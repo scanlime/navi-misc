@@ -39,8 +39,8 @@ def recipe():
     n_ingredients = random.randint(3, 15)
 
     cuisine   = random.choice([x + ' ' for x in defaults.fields['cuisine']] + ['']*5)
-    qualifier = random.choice(['baked ', 'sour ', 'cheese and ', 'pickled '] + ['']*5)
-    suffix    = random.choice([' soup'] + ['']*3)
+    qualifier = random.choice(['baked ', 'roasted ', 'blanched ', 'fried ', 'sauteed ', 'sour ', 'cheese and ', 'pickled '] + ['']*5)
+    suffix    = random.choice([' soup', ' and gravy', ' salad'] + ['']*5)
 
     title = cuisine + qualifier + random.choice(defaults.INGREDIENT_DATA)[0] + suffix
 
