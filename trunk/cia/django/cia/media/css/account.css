@@ -1,0 +1,56 @@
+@import "base.css";
+
+.columns {
+  position: relative;
+}
+
+.columns .c1 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 10em;
+
+  padding: 0 0 0 1.5em;
+  margin: 0;
+  list-style-type: none;
+
+  font-weight: bold;
+}
+
+.columns .c1 li {
+  padding: 0.25em;
+}
+
+.columns .c1 li.active {
+  background: #ccf;
+  list-style-type: square;
+}
+
+.columns .c2 {
+  position: absolute;
+  top: 0;
+  left: 11em;
+  width: 10em;
+
+  padding: 0 0 0 1.5em;
+  margin: 0;
+  list-style-type: none;
+
+  border-left: 1em solid #ccf;
+}
+
+.columns .c2 li {
+  padding: 0.15em 0.25em;
+}
+
+.columns .c2 li.active {
+  background: #fe8;
+  list-style-type: square;
+}
+
+.columns .c3 {
+  margin: 0 0 1em 23em;
+  padding: 0 0.5em 0 1em;
+  list-style-type: none;
+  border-left: 1em solid #fe8;
+}

@@ -1,0 +1,27 @@
+{% extends 'skeleton.html' %}
+
+{% block head %}
+  <title>CIA - {% block page_title %}{% endblock %}</title>
+  <link href="/media/css/{% block stylesheet %}base.css{% endblock %}" type="text/css" rel="stylesheet" />
+  <link href="/media/img/favicon.ico" type="image/png" rel="shortcut icon" />
+{% endblock %}
+
+{% block body %}
+<div class="heading">
+  <span class="logo">CIA</span>
+  <span class="sep">:</span>
+  <span class="title">{% block head_title %}{% endblock %}</span>
+
+  <ul>
+    <li>&bull; Logged in as micahjd</li>
+    <li>&bull; <a href="#">Change password</a></li>
+    <li>&bull; <a href="#">Log out</a></li>
+  </ul>
+</div>
+{% block content %}
+{% endblock %}
+<div class="footer">
+  The design and implementation of the CIA service is Copyright &copy; 2003-2007 Micah Dowty. <br />
+  All hosted messages and metadata are owned by their respective authors.
+</div>
+{% endblock %}
