@@ -1,0 +1,4 @@
+This is a work-in-progress rewrite of the CIA web interface using
+Django. At first this will be a new user account system, but it
+will later be expanded to do everything the current Nouvelle-based
+interface does.
