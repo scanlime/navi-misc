@@ -18,6 +18,7 @@ div.round {
 
 div.round div.tl {
   position: absolute;
+  overflow: hidden;
   top: -2px;
   left: -2px;
   width: 6px;
@@ -27,6 +28,7 @@ div.round div.tl {
 
 div.round div.tr {
   position: absolute;
+  overflow: hidden;
   top: -2px;
   right: -2px;
   width: 6px;
@@ -36,6 +38,7 @@ div.round div.tr {
 
 div.round div.bl {
   position: absolute;
+  overflow: hidden;
   bottom: -2px;
   left: -2px;
   width: 6px;
@@ -45,6 +48,7 @@ div.round div.bl {
 
 div.round div.br {
   position: absolute;
+  overflow: hidden;
   bottom: -2px;
   right: -2px;
   width: 6px;
@@ -97,7 +101,7 @@ h1 {
   position: absolute;
   left: 12em;
   bottom: 0em;
-  right: 0em;
+  width: 14em;
 
   background: #f0f0f0;
   border: 1px solid #aaa;
