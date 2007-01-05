@@ -4,7 +4,9 @@ from django.conf import settings
 urlpatterns = patterns('',
     (r'^account/login/$', 'django.contrib.auth.views.login'),
     (r'^account/logout/$', 'django.contrib.auth.views.logout'),
-
+    (r'^account/register/$', 'cia.accounts.views.index'),
+    (r'^account/forgot-password/$', 'cia.accounts.views.index'),
+                       
     (r'^account/$', 'cia.accounts.views.index'),
     (r'^account/projects/(?P<project_id>\d+)/$', 'cia.accounts.views.project'),
     (r'^account/authors/(?P<project_id>\d+)/$', 'cia.accounts.views.author'),
