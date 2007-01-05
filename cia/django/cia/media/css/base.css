@@ -24,13 +24,11 @@ img {
 }
 
 .footer {
-  position: absolute;
-  left: 0;
-  right: 0;
+  width: 100%;
   color: #777;
   font: 80% sans-serif;
   text-align: center;
-  padding: 2em;
+  padding: 2em 0em;
   margin: 0;
 }
 
@@ -69,11 +67,11 @@ img {
   margin: 0em 0em 0em 0.75em;
 }
 
-a.icon-link {
+.icon-link {
   position: relative;
 }
 
-a.icon-link img {
+.icon-link img {
   position: absolute;
   width: 15px;
   height: 15px;

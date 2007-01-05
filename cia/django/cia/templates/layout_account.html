@@ -6,6 +6,8 @@
 
 {% block content %}
 <div class="columns">
+  &nbsp; {# Necessary for IE6 #}
+
   <ul class="c1">
     <li><a href="#">Profile</a></li>
     <li></li>
@@ -15,8 +17,8 @@
   </ul>
 
   <ul class="c2">
-    <li><a href="#" class="icon-link"><img src="/media/img/add-15.png" />
-                    Add Project...</a></li>
+    <li><a href="#" class="icon-link"><img src="/media/img/add-15.png"/>
+                                      Add Project...</a></li>
     <li><a href="#">Project</a></li>
     <li><a href="#">Project</a></li>
     <li><a href="#">Project</a></li>
@@ -96,5 +98,6 @@
     ipsum. Cras nonummy dui quis odio.
     </p>
   </div>
+
 </div>
 {% endblock %}
