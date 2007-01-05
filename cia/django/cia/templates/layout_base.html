@@ -3,19 +3,28 @@
 {% block head %}
   <title>CIA - {% block page_title %}{% endblock %}</title>
   <link href="/media/css/{% block stylesheet %}base.css{% endblock %}" type="text/css" rel="stylesheet" />
-  <link href="/media/img/favicon.ico" type="image/png" rel="shortcut icon" />
+  <link href="/media/img/favicon.png" type="image/png" rel="shortcut icon" />
 {% endblock %}
 
 {% block body %}
 <div class="heading">
   <span class="logo">CIA</span>
-  <span class="sep">:</span>
-  <span class="title">{% block head_title %}{% endblock %}</span>
+  {% block head_title_container %}
+    <span class="sep">:</span>
+    <span class="title">{% block head_title %}{% endblock %}</span>
+  {% endblock %}
 
   <ul>
+  {% if user.is_authenticated %}
     <li>&bull; Logged in as micahjd</li>
-    <li>&bull; <a href="#">Change password</a></li>
-    <li>&bull; <a href="#">Log out</a></li>
+    <li>&raquo; <a href="/account/password_change/">Change password</a></li>
+    <li>&raquo; <a href="/account/logout/">Log out</a></li>
+  {% else %}
+    {% block log_in %}
+    <li>&raquo; <a href="/account/login/">Log in</a></li>
+    <li>&raquo; <a href="/account/register/">Register</a></li>
+    {% endblock %}
+  {% endif %}
   </ul>
 </div>
 {% block content %}

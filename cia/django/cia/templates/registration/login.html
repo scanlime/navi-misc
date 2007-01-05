@@ -1,0 +1,38 @@
+{% extends 'layout_base.html' %}
+
+{% block stylesheet %}login.css{% endblock %}
+{% block page_title %}Log in{% endblock %}
+{% block head_title %}Your Account{% endblock %}
+
+{% block log_in %}
+  <li>&bull; Logged out</li>
+{% endblock %}
+
+{% block content %}
+<div class="round">
+  <div class="tl"></div>
+  <div class="tr"></div>
+  <div class="bl"></div>
+  <div class="br"></div>
+
+  <h1>Log in</h2>
+  <div class="h1-continuation">to your CIA account.</div>
+
+  <form action="/account/login/" method="post" id="login-form">
+    <div class="form-row">
+      <label for="id_username">Username:</label><input type="text" name="username" id="id_username" />
+    </div>
+    <div class="form-row">
+      <label for="id_password">Password:</label><input type="password" name="password" id="id_password" />
+    </div>
+    <div class="submit-row">
+      <div>&raquo;</div> <input type="submit" value="Log in" />
+    </div>
+  </form>
+
+</div>
+
+<script type="text/javascript">
+document.getElementById('id_username').focus()
+</script>
+{% endblock %}

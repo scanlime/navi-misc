@@ -23,7 +23,7 @@
 
 .columns .c1 li.active {
   background: #ccf;
-  list-style-type: square;
+  list-style-image: url("/media/img/raquo-10.png");
 }
 
 .columns .c2 {
@@ -45,7 +45,7 @@
 
 .columns .c2 li.active {
   background: #fe8;
-  list-style-type: square;
+  list-style-image: url("/media/img/raquo-10.png");
 }
 
 .columns .c3 {
