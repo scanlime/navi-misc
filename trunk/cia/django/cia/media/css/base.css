@@ -66,16 +66,3 @@ img {
   padding: 0;
   margin: 0em 0em 0em 0.75em;
 }
-
-.icon-link {
-  position: relative;
-}
-
-.icon-link img {
-  position: absolute;
-  width: 15px;
-  height: 15px;
-  top: 50%;
-  left: -20px;
-  margin: -8px 0 0 0;
-}
