@@ -2,6 +2,8 @@
 
 .columns {
   position: relative;
+  width: 100%;   /* IE6 */
+  height: 100%;  /* IE6 */
 }
 
 .columns .c1 {
@@ -19,6 +21,12 @@
 
 .columns .c1 li {
   padding: 0.25em;
+}
+
+.columns .c1 li.spacer {
+  height: 0;
+  padding: 0.5em;
+  overflow: hidden;   /* IE6 */
 }
 
 .columns .c1 li.active {
@@ -43,6 +51,12 @@
   padding: 0.15em 0.25em;
 }
 
+.columns .c2 li.spacer {
+  height: 0;
+  padding: 0.5em;
+  overflow: hidden;   /* IE6 */
+}
+
 .columns .c2 li.active {
   background: #fe8;
   list-style-image: url("/media/img/raquo-10.png");
@@ -54,3 +68,13 @@
   list-style-type: none;
   border-left: 1em solid #fe8;
 }
+
+.add-icon {
+  background: url("/media/img/add-15.png");
+  float: left;
+  width: 15px;
+  height: 15px;
+  margin: 0 0.25em 0 0;
+  overflow: hidden;   /* IE6 */
+}
+

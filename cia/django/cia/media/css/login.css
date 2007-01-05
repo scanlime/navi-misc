@@ -11,14 +11,14 @@ div.round {
   position: relative;
   left: 50%;
   width: 20em;
-  margin: 2em 0em 0em -10em;
+  margin: 2em 0em 0em -11em;
   padding: 1em;
   border: 2px solid black;
 }
 
 div.round div.tl {
   position: absolute;
-  overflow: hidden;
+  overflow: hidden;   /* IE6 */
   top: -2px;
   left: -2px;
   width: 6px;
@@ -28,7 +28,7 @@ div.round div.tl {
 
 div.round div.tr {
   position: absolute;
-  overflow: hidden;
+  overflow: hidden;   /* IE6 */
   top: -2px;
   right: -2px;
   width: 6px;
@@ -38,7 +38,7 @@ div.round div.tr {
 
 div.round div.bl {
   position: absolute;
-  overflow: hidden;
+  overflow: hidden;   /* IE6 */
   bottom: -2px;
   left: -2px;
   width: 6px;
@@ -48,7 +48,7 @@ div.round div.bl {
 
 div.round div.br {
   position: absolute;
-  overflow: hidden;
+  overflow: hidden;   /* IE6 */
   bottom: -2px;
   right: -2px;
   width: 6px;
