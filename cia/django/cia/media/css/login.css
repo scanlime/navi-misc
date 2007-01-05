@@ -7,7 +7,22 @@ h1 {
   margin: 0em 0em 1em 0em;
 }
 
-div.round {
+.options-box {
+  position: relative;
+  left: 50%;
+  width: 18em;
+  margin: 1.75em 0 0 -9em;
+  padding: 0;
+}
+
+.options-box li {
+  position: relative;  /* IE6 */
+  list-style-image: url("/media/img/raquo-10.png");
+  margin: 0 0 1.2em 0;
+  font-size: 0.9em;
+}
+
+.login-box {
   position: relative;
   left: 50%;
   width: 20em;
@@ -16,7 +31,7 @@ div.round {
   border: 2px solid black;
 }
 
-div.round div.tl {
+.login-box div.tl {
   position: absolute;
   overflow: hidden;   /* IE6 */
   top: -2px;
@@ -26,7 +41,7 @@ div.round div.tl {
   background: url("/media/img/corner-6-2-tl.png");
 }
 
-div.round div.tr {
+.login-box div.tr {
   position: absolute;
   overflow: hidden;   /* IE6 */
   top: -2px;
@@ -36,7 +51,7 @@ div.round div.tr {
   background: url("/media/img/corner-6-2-tr.png");
 }
 
-div.round div.bl {
+.login-box div.bl {
   position: absolute;
   overflow: hidden;   /* IE6 */
   bottom: -2px;
@@ -46,7 +61,7 @@ div.round div.bl {
   background: url("/media/img/corner-6-2-bl.png");
 }
 
-div.round div.br {
+.login-box div.br {
   position: absolute;
   overflow: hidden;   /* IE6 */
   bottom: -2px;
@@ -69,17 +84,17 @@ h1 {
   margin: 0 0 1.2em 1em;
 }
 
-.error {
-  color: red;
-  font-weight: bold;
-  padding: 0;
-  margin: 0.5em;
-  text-align: center;
-}
-
 #login-form {
   padding: 0;
   margin: 0;
+}
+
+#login-form .error {
+  font-size: 0.75em;
+  font-weight: bold;
+  padding: 0 0 0 11.3em;
+  color: red;
+  margin: 0.5em;
 }
 
 #login-form .form-row {
