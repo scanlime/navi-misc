@@ -1,0 +1,131 @@
+@import "base.css";
+
+h1 {
+  font: 150% sans-serif;
+  padding: 3px;
+  border-bottom: 1px solid #888;
+  margin: 0em 0em 1em 0em;
+}
+
+div.round {
+  position: relative;
+  left: 50%;
+  width: 20em;
+  margin: 2em 0em 0em -10em;
+  padding: 1em;
+  border: 2px solid black;
+}
+
+div.round div.tl {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: 6px;
+  height: 6px;
+  background: url("/media/img/corner-6-2-tl.png");
+}
+
+div.round div.tr {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 6px;
+  height: 6px;
+  background: url("/media/img/corner-6-2-tr.png");
+}
+
+div.round div.bl {
+  position: absolute;
+  bottom: -2px;
+  left: -2px;
+  width: 6px;
+  height: 6px;
+  background: url("/media/img/corner-6-2-bl.png");
+}
+
+div.round div.br {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 6px;
+  height: 6px;
+  background: url("/media/img/corner-6-2-br.png");
+}
+
+h1 {
+  font-size: 1.2em;
+  padding: 0 0 2px 0;
+  border-bottom: 1px solid #666;
+  margin: 0;
+}
+
+.h1-continuation {
+  font-size: 0.6em;
+  padding: 4px 0 0;
+  margin: 0 0 1.2em 1em;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+  padding: 0;
+  margin: 0.5em;
+  text-align: center;
+}
+
+#login-form {
+  padding: 0;
+  margin: 0;
+}
+
+#login-form .form-row {
+  position: relative;
+  width: 100%;
+  height: 2em;
+}
+
+#login-form .form-row label {
+  font-size: 1em;
+  color: #666;
+  position: absolute;
+  left: 0em;
+  bottom: 0.1em;
+}
+
+#login-form .form-row input {
+  font-size: 0.75em;
+  position: absolute;
+  left: 12em;
+  bottom: 0em;
+  right: 0em;
+
+  background: #f0f0f0;
+  border: 1px solid #aaa;
+  padding: 0.3em;
+}
+
+#login-form .submit-row {
+  position: relative;
+  width: 100%;
+  height: 2.5em;
+}
+
+#login-form .submit-row div {
+  font-size: 1em;
+  font-weight: bold;
+  position: absolute;
+  left: 8em;
+  bottom: 0.25em;
+  padding: 0;
+  margin: 0;
+  color: red;
+}
+
+#login-form .submit-row input {
+  font-size: 1em;
+  position: absolute;
+  left: 9em;
+  bottom: 0;
+  padding: 0em 1em;
+  margin: 0;
+}
