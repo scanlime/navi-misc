@@ -16,7 +16,7 @@
 
   <ul>
   {% if user.is_authenticated %}
-    <li>&bull; Logged in as micahjd</li>
+    <li>&bull; Welcome, {{ user.get_full_name }}.</li>
     <li>&raquo; <a href="/account/password_change/">Change password</a></li>
     <li>&raquo; <a href="/account/logout/">Log out</a></li>
   {% else %}

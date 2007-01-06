@@ -4,6 +4,7 @@
 #      need to be changed before deployment!
 #
 
+import django.contrib.auth
 import os
 
 DEBUG = True
@@ -41,6 +42,8 @@ MEDIA_ROOT = os.path.join(os.path.abspath(os.path.split(__file__)[0]),
 # URL that handles the media served from MEDIA_ROOT.
 # Example: "http://media.lawrence.com"
 MEDIA_URL = '/media/'
+
+LOGIN_URL = '/account/login/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.

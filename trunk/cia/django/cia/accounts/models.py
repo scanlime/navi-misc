@@ -47,7 +47,7 @@ class StatsTarget(models.Model):
         pass
 
 class Project(models.Model):
-    assets = models.GenericRelation(UserAsset)
+    assets = models.GenericRelation(UserAsset, object_id_field='target_id')
     target = models.OneToOneField(StatsTarget)
 
     def __str__(self):
@@ -57,7 +57,7 @@ class Project(models.Model):
         pass
 
 class Author(models.Model):
-    assets = models.GenericRelation(UserAsset)
+    assets = models.GenericRelation(UserAsset, object_id_field='target_id')
     target = models.OneToOneField(StatsTarget)
 
     def __str__(self):
