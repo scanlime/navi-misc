@@ -1,4 +1,5 @@
 {% extends 'layout_base.html' %}
+{% load account_nav %}
 
 {% block stylesheet %}account.css{% endblock %}
 {% block page_title %}Your Account{% endblock %}
@@ -7,13 +8,34 @@
 {% block content %}
 <div class="columns">
 
-  <ul class="c1">
-    <li><a href="#">Profile</a></li>
-    <li class="spacer"></li>
-    <li class="active">Projects (5)</li>
-    <li><a href="#">Authors</a></li>
-    <li><a href="#">Bots</a></li>
-  </ul>
+<ul class="c1">
+
+  {% if profile %}
+    <li class="active">Profile</li>
+  {% else %}
+    <li><a href="/account/">Profile</a></li>
+  {% endif %}
+
+  <li class="spacer"></li>
+
+  {% if project %}
+    <li class="active">Projects {{ projects.count|paren }}</li>
+  {% else %}
+    <li><a href="/account/projects/">Projects {{ projects.count|paren }}</a></li>
+  {% endif %}
+
+  {% if author %}
+    <li class="active">Author {{ authors.count|paren }}</li>
+  {% else %}
+    <li><a href="/account/authors/">Authors {{ authors.count|paren }}</a></li>
+  {% endif %}
+
+  {% if bot %}
+    <li class="active">Bot {{ bots.count|paren }}</li>
+  {% else %}
+    <li><a href="/account/bots/">Bots {{ bots.count|paren }}</a></li>
+  {% endif %}
+</ul>
 
   <ul class="c2">
     <li><a href="#"><div class="add-icon"></div> Add Project...</a></li>
@@ -31,6 +53,8 @@
   </ul>
 
   <div class="c3">
+
+    {{ user }}
 
     <p>
     Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed semper
