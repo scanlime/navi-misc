@@ -96,7 +96,7 @@ struct filter {
 
 struct rwand_dev {
 	struct usb_device *	udev;			/* save off the usb device pointer */
-	struct input_dev        input;                  /* Input device for the rwand's buttons */
+	struct input_dev *       input;                  /* Input device for the rwand's buttons */
 	struct usb_interface *	interface;		/* the interface for this device */
 	unsigned char		minor;			/* the starting minor number for this device */
 
@@ -544,14 +544,14 @@ static void rwand_process_status(struct rwand_dev *dev, const unsigned char *pac
 	rwand_decode_status(packet, &new_status);
 
 	/* Report button status to the input subsystem */
-	input_report_key(&dev->input, BTN_1, new_status.buttons & RWAND_BUTTON_SQUARE);
-	input_report_abs(&dev->input, ABS_X, buttons_to_axis(new_status.buttons,
+	input_report_key(dev->input, BTN_1, new_status.buttons & RWAND_BUTTON_SQUARE);
+	input_report_abs(dev->input, ABS_X, buttons_to_axis(new_status.buttons,
 							     RWAND_BUTTON_LEFT,
 							     RWAND_BUTTON_RIGHT));
-	input_report_abs(&dev->input, ABS_Y, buttons_to_axis(new_status.buttons,
+	input_report_abs(dev->input, ABS_Y, buttons_to_axis(new_status.buttons,
 							     RWAND_BUTTON_UP,
 							     RWAND_BUTTON_DOWN));
-	input_sync(&dev->input);
+	input_sync(dev->input);
 
 	/* If the page flip counter has incremented, clear our flip pending flag
 	 * and wake up any processes that might be waiting on it.
@@ -1067,6 +1067,9 @@ static void rwand_delete(struct rwand_dev *dev)
 	if (dev->irq_data) {
 		usb_buffer_free(dev->udev, STATUS_PACKET_SIZE, dev->irq_data, dev->irq_dma);
 	}
+   if (dev->input) {
+      input_free_device(dev->input);
+   }
 	kfree(dev);
 }
 
@@ -1108,24 +1111,25 @@ static int rwand_probe(struct usb_interface *interface, const struct usb_device_
 	rwand_enter_state_off(dev);
 
 	/* Register an input device for our buttons */
-	dev->input.private = dev;
-	dev->input.name = "Raster Wand";
-	dev->input.id.bustype = BUS_USB;
-	dev->input.id.vendor = udev->descriptor.idVendor;
-	dev->input.id.product = udev->descriptor.idProduct;
-	dev->input.id.version = udev->descriptor.bcdDevice;
+   dev->input = input_allocate_device();
+	dev->input->private = dev;
+	dev->input->name = "Raster Wand";
+	dev->input->id.bustype = BUS_USB;
+	dev->input->id.vendor = udev->descriptor.idVendor;
+	dev->input->id.product = udev->descriptor.idProduct;
+	dev->input->id.version = udev->descriptor.bcdDevice;
 
-        set_bit(EV_KEY, dev->input.evbit);
-        set_bit(EV_ABS, dev->input.evbit);
-        set_bit(BTN_1, dev->input.keybit);
-	set_bit(ABS_X, dev->input.absbit);
-	dev->input.absmin[ABS_X] = -1;
-	dev->input.absmax[ABS_X] = 1;
-	set_bit(ABS_Y, dev->input.absbit);
-	dev->input.absmin[ABS_Y] = -1;
-	dev->input.absmax[ABS_Y] = 1;
+        set_bit(EV_KEY, dev->input->evbit);
+        set_bit(EV_ABS, dev->input->evbit);
+        set_bit(BTN_1, dev->input->keybit);
+	set_bit(ABS_X, dev->input->absbit);
+	dev->input->absmin[ABS_X] = -1;
+	dev->input->absmax[ABS_X] = 1;
+	set_bit(ABS_Y, dev->input->absbit);
+	dev->input->absmin[ABS_Y] = -1;
+	dev->input->absmax[ABS_Y] = 1;
 
-	input_register_device(&dev->input);
+	input_register_device(dev->input);
 
 	/* Allocate some DMA-friendly memory and a URB used for periodic
 	 * transfers carrying predictor status, button status, and page flip status.
@@ -1181,7 +1185,7 @@ static void rwand_disconnect(struct usb_interface *interface)
 	down (&dev->sem);
 
 	minor = dev->minor;
-	input_unregister_device(&dev->input);
+	input_unregister_device(dev->input);
 	usb_deregister_dev(interface, &rwand_class);
 
 	/* if the device is not opened, then we clean up right now */
