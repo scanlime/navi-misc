@@ -22,17 +22,17 @@
 
     <div class="form-row">
       <label for="id_first_name">First name:</label>
-      <input type="text" name="first_name" id="id_first_name" value="{{ data.first_name|escape }}" />
-      {% if errors.first_name %}
-        <div class="margin-error">{{ errors.first_name.0 }}</div>
+      <input type="text" name="first_name" id="id_first_name" value="{{ form.data.first_name|escape }}" />
+      {% if form.errors.first_name %}
+        <div class="margin-error">{{ form.errors.first_name.0 }}</div>
       {% endif %}
     </div>
 
     <div class="form-row">
       <label for="id_last_name">Last name:</label>
-      <input type="text" name="last_name" id="id_last_name" value="{{ data.last_name|escape }}" />
-      {% if errors.last_name %}
-        <div class="margin-error">{{ errors.last_name.0 }}</div>
+      <input type="text" name="last_name" id="id_last_name" value="{{ form.data.last_name|escape }}" />
+      {% if form.errors.last_name %}
+        <div class="margin-error">{{ form.errors.last_name.0 }}</div>
       {% endif %}
     </div>
 
@@ -40,9 +40,9 @@
 
     <div class="form-row">
       <label for="id_email">E-mail address:</label>
-      <input type="text" name="email" id="id_email" value="{{ data.email|escape }}" />
-      {% if errors.email %}
-        <div class="margin-error">{{ errors.email.0 }}</div>
+      <input type="text" name="email" id="id_email" value="{{ form.data.email|escape }}" />
+      {% if form.errors.email %}
+        <div class="margin-error">{{ form.errors.email.0 }}</div>
       {% else %}
         <div class="margin-note">
         Only used for password recovery and opt-in notifications.
@@ -54,9 +54,9 @@
 
     <div class="form-row">
       <label for="id_username">Username:</label>
-      <input type="text" name="username" id="id_username" value="{{ data.username|escape }}" />
-      {% if errors.username %}
-        <div class="margin-error">{{ errors.username.0 }}</div>
+      <input type="text" name="username" id="id_username" value="{{ form.data.username|escape }}" />
+      {% if form.errors.username %}
+        <div class="margin-error">{{ form.errors.username.0 }}</div>
       {% else %}
         <div class="margin-note">
         This does not need to match your revision control username(s).
@@ -67,24 +67,24 @@
     <div class="form-row">
       <label for="id_password">Password:</label>
       <input type="password" name="password" id="id_password" />
-      {% if errors.password %}
-        <div class="margin-error">{{ errors.password.0 }}</div>
+      {% if form.errors.password %}
+        <div class="margin-error">{{ form.errors.password.0 }}</div>
       {% endif %}
     </div>
 
     <div class="form-row">
       <label for="id_password2">Re-type password:</label>
       <input type="password" name="password2" id="id_password2" />
-      {% if errors.password2 %}
-        <div class="margin-error">{{ errors.password2.0 }}</div>
+      {% if form.errors.password2 %}
+        <div class="margin-error">{{ form.errors.password2.0 }}</div>
       {% endif %}
     </div>
 
     <div class="submit-row">
       <div>&raquo;</div>
       <input type="submit" value="Sign up" />
-      {% if errors.submit %}
-        <div class="margin-error">{{ errors.submit.0 }}</div>
+      {% if form.errors.submit %}
+        <div class="margin-error">{{ form.errors.submit.0 }}</div>
       {% endif %}
     </div>
 
