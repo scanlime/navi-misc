@@ -3,6 +3,7 @@ from django.contrib.auth import login, authenticate
 from django.template.context import RequestContext
 from django.http import HttpResponseRedirect, Http404
 from django.conf import settings
+from django.core.validators import ValidationError, isValidEmail
 from cia.accounts import models
 import datetime
 
@@ -92,11 +93,53 @@ def get_asset_by_type(asset_type):
             return model
     raise Http404
 
+def do_change_password(request, errors):
+    if not request.user.check_password(request.POST['old_password']):
+        errors['old_password'] = "Incorrect password."
+
+    new = request.POST['new_password']
+    confirmed = request.POST['new_password2']
+
+    if len(new) < 5:
+        errors['new_password'] = "New password is too short."
+    if len(new) > 30:
+        errors['new_password'] = "New password is too long."
+
+    if not confirmed:
+        errors['new_password2'] = "Please confirm your new password."
+    elif new != confirmed:
+        errors['new_password2'] = "Your passwords do not match."
+
+    if not errors:
+        request.user.set_password(new)
+        request.user.save()
+        request.user.message_set.create(message="Your password was changed successfully.")
+
+def do_change_email(request, errors):
+    email = request.POST['email']
+    try:
+        isValidEmail(email, '')
+    except ValidationError, e:
+        errors['email'] = e.messages[0]
+
+    if not errors:
+        request.user.email = email
+        request.user.save()
+        request.user.message_set.create(message="Your e-mail address was changed successfully.")
+
 @login_required
 def profile(request):
+    errors = {}
+    if request.POST:
+        if 'change-password' in request.POST:
+            do_change_password(request, errors)
+        elif 'change-email' in request.POST:
+            do_change_email(request, errors)
+
     return render_to_response('accounts/profile.html', RequestContext(request, dict(
         profile = True,
         asset_types = get_user_asset_types(request),
+        errors = errors,
         )))
 
 @login_required

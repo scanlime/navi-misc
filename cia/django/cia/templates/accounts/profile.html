@@ -2,6 +2,73 @@
 
 {% block columns %}
 <div class="c2-3">
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+<h1>Your Account Profile</h1>
+
+<p class="narrow">
+This is your account for administrating
+  {% for type in asset_types %}
+    {% if forloop.last %}
+      and {{ type.verbose_name_plural }}.
+    {% else %}
+      {{ type.verbose_name_plural }},
+    {% endif %}
+  {% endfor %}
+
+While the resources you create may be available for the world to see,
+your account itself is not publicly visible. Your username here does
+not necessarily need to match your username on any source repositories.
+</p>
+
+<p class="narrow">
+Your e-mail address will never be publicly visible, nor will it ever
+be distributed to third parties. It will only be used to help you recover
+lost passwords, and to notify you of events (such as project ownership
+disputes) when you specifically opt-in for such notifications.
+</p>
+
+{% for message in messages %}
+<div class="message"><div class="icon"></div><p>{{ message }}</p></div>
+{% endfor %}
+
+<form action="/account/" method="post" id="profile-form">
+  <fieldset><legend>Personal Information</legend>
+  <div class="form-row">
+    <label for="id_username">Username:</label>
+    <div class="field">{{ user.username }}</div>
+  </div>
+  <div class="form-row">
+    <label for="id_email">E-mail address:</label>
+    <input type="text" name="email" id="id_email" value="{{ user.email }}"/>
+    <div class="error">{{ errors.email }}</div>
+  </div>
+  <div class="submit-row">
+    <div>&raquo;</div> <input type="submit" name="change-email" value="Save" />
+  </div>
+  </fieldset>
+</form>
+
+<form action="/account/" method="post" id="profile-form">
+  <fieldset><legend>Change Password</legend>
+  <div class="form-row">
+    <label for="id_old_password">Current password:</label>
+    <input type="password" name="old_password" id="id_old_password" />
+    <div class="error">{{ errors.old_password }}</div>
+  </div>
+  <div class="form-row">
+    <label for="id_new_password">New password:</label>
+    <input type="password" name="new_password" id="id_new_password" />
+    <div class="error">{{ errors.new_password }}</div>
+  </div>
+  <div class="form-row">
+    <label for="id_new_password2">Confirm new password:</label>
+    <input type="password" name="new_password2" id="id_new_password2" />
+    <div class="error">{{ errors.new_password2 }}</div>
+  </div>
+  <div class="submit-row">
+    <div>&raquo;</div> <input type="submit" name="change-password" value="Save" />
+  </div>
+  </fieldset>
+</form>
+
 </div>
 {% endblock %}
