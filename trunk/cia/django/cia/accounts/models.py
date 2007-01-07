@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
+
 class UserAsset(models.Model):
     user = models.ForeignKey(User)
 
@@ -14,8 +15,9 @@ class UserAsset(models.Model):
         (2, 'Exclusive'),
         (3, 'Trusted'),
         ))
+
     date_added = models.DateTimeField(auto_now_add=True)
-    trusted_by = models.DateTimeField(null=True)
+    trusted_by = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return "%s access to %s for %s" % (
@@ -46,8 +48,25 @@ class StatsTarget(models.Model):
     class Admin:
         pass
 
+class AssetManager(models.Manager):
+    # A list of all Asset models, in the order they were created.
+    models = []
+
+    def contribute_to_class(self, model, name):
+        models.Manager.contribute_to_class(self, model, name)
+        self.models.append(model)
+        model._meta.asset_type = model._meta.object_name.lower() + 's'
+
+    def all_for_user(self, user):
+        """Returns UserAsset objects for all assets of this type owned
+           by a particular user.
+           """
+        ct = ContentType.objects.get_for_model(self.model)
+        return UserAsset.objects.filter(user=user, content_type=ct)
+
 class Project(models.Model):
-    assets = models.GenericRelation(UserAsset, object_id_field='target_id')
+    objects = AssetManager()
+    assets = models.GenericRelation(UserAsset)
     target = models.OneToOneField(StatsTarget)
 
     def __str__(self):
@@ -57,7 +76,8 @@ class Project(models.Model):
         pass
 
 class Author(models.Model):
-    assets = models.GenericRelation(UserAsset, object_id_field='target_id')
+    objects = AssetManager()
+    assets = models.GenericRelation(UserAsset)
     target = models.OneToOneField(StatsTarget)
 
     def __str__(self):
@@ -67,6 +87,7 @@ class Author(models.Model):
         pass
 
 class Bot(models.Model):
+    objects = AssetManager()
     assets = models.GenericRelation(UserAsset)
 
     network = models.ForeignKey(Network)
