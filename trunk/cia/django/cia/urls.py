@@ -10,8 +10,12 @@ urlpatterns = patterns('',
     (r'^account/reset/(?P<key>\w+)/$', 'cia.accounts.views.reset', dict(next_page='/account/')),
 
     (r'^account/$', 'cia.accounts.views.profile'),
-    (r'^account/(?P<asset_type>\w+)/add/$', 'cia.accounts.views.add_asset'),
-    (r'^account/(?P<asset_type>\w+)/(?P<asset_id>\d+)/$', 'cia.accounts.views.asset'),
+
+    (r'^account/(?P<asset_type>bots)/add/$', 'cia.accounts.views.add_bot'),
+    (r'^account/(?P<asset_type>bots)/(?P<asset_id>\d+)/$', 'cia.accounts.views.bot'),
+
+    (r'^account/(?P<asset_type>(projects|authors))/add/$', 'cia.accounts.views.add_stats_asset'),
+    (r'^account/(?P<asset_type>(projects|authors))/(?P<asset_id>\d+)/$', 'cia.accounts.views.stats_asset'),
 
     (r'^admin/', include('django.contrib.admin.urls')),
 )

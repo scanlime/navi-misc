@@ -1,0 +1,63 @@
+{% extends 'accounts/asset.html' %}
+
+{% block c3 %}
+<h1>Add {{ asset_type_name }}</h1>
+
+{% for message in messages %}
+<div class="message"><div class="icon"></div><p>{{ message }}</p></div>
+{% endfor %}
+
+<p class="narrow">
+Add an IRC bot to your account. If no bot exists for the IRC channel
+you specify, one will be created automatically.
+</p>
+
+<form action="{{ form_path }}" method="post">
+  <fieldset><legend>IRC Bot</legend>
+  <div class="form-row">
+    <label for="id_network">Network:</label>
+    <select name="network" id="id_network" size="8" value="a">
+      {% for network in networks %}
+        <option label="{{ network.id }}"
+          {% ifequal network.id form.data.network %} selected="1"{% endifequal %}>
+          {{ network|escape }}
+        </option>
+      {% endfor %}
+      <option label="_other">Other...</option>
+    </select>
+    <div class="error">{{ form.errors.network.0 }}</div>
+  </div>
+  <div id="new_network_form">
+    <div class="form-row">
+      <label for="id_netname">New network name:</label>
+      <input type="text" name="netname" id="id_netname" value="{{ form.data.netname|escape }}"/>
+      <div class="error">{{ form.errors.netname.0 }}</div>
+    </div>
+    <div class="form-row">
+      <label for="id_server">Server:</label>
+      <input type="text" name="server" id="id_server" value="{{ form.data.server|escape }}"/>
+      <div class="error">{{ form.errors.server.0 }}</div>
+    </div>
+  </div>
+  <div class="form-row">
+    <label for="id_channel">Channel:</label>
+    <input type="text" name="channel" id="id_channel" value="{{ form.data.channel|escape }}"/>
+    <div class="error">{{ form.errors.channel.0 }}</div>
+  </div>
+  <div class="submit-row">
+    <div>&raquo;</div> <input type="submit" value="Add" />
+  </div>
+  </fieldset>
+</form>
+
+<script type="text/javascript">
+  network = document.getElementById('id_network')
+  network.focus()
+  network.onchange = function () {
+    var form = document.getElementById('new_network_form');
+    form.style.display = (network.value == 'Other...') ? 'block' : 'none';
+  }
+  network.onchange()
+</script>
+
+{% endblock %}

@@ -157,7 +157,7 @@ p.narrow {
 fieldset {
   position: relative;
   margin: 1em 0em;
-  padding: 0.25em 0.5em 0.75em 0.5em;
+  padding: 0.5em 0.5em 0.75em 0.5em;
   border: 2px solid #ccc;
 }
 
@@ -167,8 +167,9 @@ legend {
 
 .form-row {
   position: relative;
+  padding: 0 0 0 13em;
+  margin: 0;
   width: 100%;
-  height: 2em;
 }
 
 .form-row label {
@@ -176,34 +177,40 @@ legend {
   color: #666;
   position: absolute;
   left: 0em;
-  bottom: 0.1em;
+  top: 0.25em;
 }
 
 .form-row input {
   font-size: 0.75em;
-  position: absolute;
-  left: 20em;
-  bottom: 0em;
+  margin: 0.25em 0;
   width: 20em;
-
   background: #f0f0f0;
   border: 1px solid #aaa;
   padding: 0.3em;
 }
 
+.form-row select {
+  font-size: 0.75em;
+  margin: 0;
+  width: 17em;
+  background: #f0f0f0;
+  border: 1px solid #aaa;
+  padding: 0;
+}
+
 .form-row div.field {
   font-size: 1em;
-  position: absolute;
-  left: 15em;
-  bottom: 0em;
+  font-size: 0.75em;
+  margin: 0;
+  padding: 0.6em 0;
 }
 
 .form-row div.error {
   overflow: hidden;
   white-space: nowrap;
   position: absolute;
-  left: 42em;
-  bottom: 0.25em;
+  left: 39em;
+  top: 0.6em;
   font-size: 0.75em;
   font-weight: bold;
   color: red;
@@ -212,15 +219,14 @@ legend {
 .submit-row {
   position: relative;
   width: 100%;
-  height: 2.5em;
 }
 
 .submit-row div {
   font-size: 1em;
   font-weight: bold;
   position: absolute;
-  left: 14em;
-  bottom: 0.25em;
+  left: 12em;
+  top: 0.3em;
   padding: 0;
   margin: 0;
   color: red;
@@ -228,9 +234,7 @@ legend {
 
 .submit-row input {
   font-size: 1em;
-  position: absolute;
-  left: 15em;
+  margin: 0.25em 0 0.25em 13em;
   bottom: 0;
   padding: 0em 1em;
-  margin: 0;
 }
