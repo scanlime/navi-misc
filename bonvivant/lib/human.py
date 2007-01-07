@@ -5,7 +5,7 @@ def prettynumber(value, fractions=convert.FRACTIONS_NORMAL):
     Return a pretty-printed, human number.
 
     >>> prettynumber(1.5)
-    u'1 \xbd'
+    u'1 \\xbd'
 
     >>> prettynumber(2)
     '2'
@@ -14,7 +14,7 @@ def prettynumber(value, fractions=convert.FRACTIONS_NORMAL):
     '2999'
 
     >>> prettynumber(0.25)
-    u'\xbc'
+    u'\\xbc'
     """
 
     try:
@@ -33,6 +33,12 @@ def prettynumber(value, fractions=convert.FRACTIONS_NORMAL):
 def asciinumber(value):
     """
     Return a pretty printed number using only ascii characters
+
+    >>> asciinumber(1.5)
+    '1 1/2'
+
+    >>> asciinumber(0.125)
+    '1/8'
     """
 
     return prettynumber(value, convert.FRACTIONS_ASCII)
