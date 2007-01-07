@@ -75,6 +75,18 @@ class Ingredient(models.Model):
     def __str__(self):
         parts = []
         if self.amount != 0:
+            parts.append(human.asciinumber(self.amount))
+        if len(self.unit):
+            parts.append(self.unit)
+        if self.item:
+            parts.append(self.item)
+        if self.optional:
+            parts.append("(optional)")
+        return ' '.join(parts)
+
+    def output(self):
+        parts = []
+        if self.amount != 0:
             parts.append(human.prettynumber(self.amount))
         if len(self.unit):
             parts.append(self.unit)
@@ -104,13 +116,13 @@ class Ingredient(models.Model):
         Construct an Ingredient given a string.  This code is derived from gourmet.
 
         >>> Ingredient.construct('2 eggs')
-        <Ingredient: 2.000000  eggs>
+        <Ingredient: 2 eggs>
 
         >>> Ingredient.construct('1 1/2 cups ketchup')
-        <Ingredient: 1.500000 cups ketchup>
+        <Ingredient: 1 1/2 cups ketchup>
 
         >>> Ingredient.construct('2 tbsp. grated cheese')
-        <Ingredient: 2.000000 tbsp. grated cheese>
+        <Ingredient: 2 tbsp. grated cheese>
         """
 
         if type(string) is str:

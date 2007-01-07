@@ -1,9 +1,8 @@
 from gourmet import convert
 
-def prettynumber(value):
+def prettynumber(value, fractions=convert.FRACTIONS_NORMAL):
     """
-    Return a pretty-printed, human number.  This is partially based on the AP
-    style for numbers.
+    Return a pretty-printed, human number.
 
     >>> prettynumber(1.5)
     u'1 \xbd'
@@ -27,9 +26,13 @@ def prettynumber(value):
 
     remainder = floatv - intv
     if remainder == 0:
-        #if not 0 < value < 10:
-        #    return '%d' % value
-        #return ('one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine')[intv-1]
         return '%d' % intv
     else:
-        return convert.float_to_frac(floatv)
+        return convert.float_to_frac(n=floatv, fractions=fractions)
+
+def asciinumber(value):
+    """
+    Return a pretty printed number using only ascii characters
+    """
+
+    return prettynumber(value, convert.FRACTIONS_ASCII)
