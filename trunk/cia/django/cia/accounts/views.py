@@ -1,8 +1,9 @@
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response
 from django.contrib import auth
 from django.template.context import RequestContext
 from django.http import HttpResponseRedirect, Http404
 from django.conf import settings
+from django import newforms as forms
 from django.core.validators import ValidationError, isValidEmail
 from cia.accounts import models
 import datetime
@@ -22,25 +23,30 @@ def login_required(view_func):
     _checklogin.__dict__ = view_func.__dict__
     return _checklogin
 
+
+def internal_login(request, username, password):
+    user = auth.authenticate(username=username, password=password)
+    if user is None:
+        return "Incorrect username or password."
+    elif not user.is_active:
+        return "This account is inactive."
+    elif not request.session.test_cookie_worked():
+        return "Cookies must be enabled."
+
+    auth.login(request, user)
+    request.session.delete_test_cookie()
+    user.last_login = datetime.datetime.now()
+    user.save()
+
 def login(request, next_page, template_name="accounts/login.html"):
     """Simple login form view which doesn't rely on Django's current
        inflexible oldforms-based auth view.
        """
     if request.POST:
-        user = auth.authenticate(username = request.POST['username'],
-                                 password = request.POST['password'])
-
-        if user is None:
-            error = "Incorrect username or password."
-        elif not user.is_active:
-            error = "This account is inactive."
-        elif not request.session.test_cookie_worked():
-            error = "Cookies must be enabled."
-        else:
-            auth.login(request, user)
-            request.session.delete_test_cookie()
-            user.last_login = datetime.datetime.now()
-            user.save()
+        error = internal_login(request,
+                               request.POST['username'],
+                               request.POST['password'])
+        if not error:
             return HttpResponseRedirect(next_page)
     else:
         error = None
@@ -50,13 +56,72 @@ def login(request, next_page, template_name="accounts/login.html"):
         login_url = settings.LOGIN_URL,
         )))
 
+
+class RegistrationForm(forms.Form):
+    first_name = forms.CharField(max_length=30)
+    last_name = forms.CharField(max_length=30)
+    email = forms.EmailField()
+    username = forms.RegexField(r"^[a-zA-Z0-9_\-\.]*$", max_length=30,
+                                error_message='Only A-Z, 0-9, "_", "-", and "." allowed.')
+    password = forms.CharField(min_length=5, max_length=30)
+    password2 = forms.CharField()
+
+def get_user(username):
+    try:
+        return auth.models.User.objects.get(username=username)
+    except auth.models.User.DoesNotExist:
+        return None
+
 def register(request, next_page, template_name="accounts/register.html"):
     if request.POST:
-        pass
+        form = RegistrationForm(request.POST)
+        form.full_clean()
+        data = form.data
+        errors = form.errors
+
+        if not request.session.test_cookie_worked():
+            errors['submit'] = forms.util.ErrorList(["Cookies must be enabled."])
+        
+        if not errors.get('password2') and data.get('password') != data.get('password2'):
+            errors['password2'] = forms.util.ErrorList(["Your passwords do not match."])
+
+        if not errors:
+            # The username still might be taken, but let's test for that atomically
+            # as a side-effect of trying to create the user.
+            user = auth.models.User(first_name = data['first_name'].title(),
+                                    last_name = data['last_name'].title(),
+                                    email = data['email'],
+                                    username = data['username'])
+            user.set_password(data['password'])
+            try:
+                user.save()
+            except:
+                # The actual error we get for a duplicate username is database-specific.
+                # To make this portable, we'll do a second check to see if the username
+                # was taken. This is also slightly racy, but much less so than checking
+                # beforehand. Easier to ask forgiveness than permission.
+                if get_user(data['username']):
+                    errors['username'] = forms.util.ErrorList(["Sorry, this username is taken."])
+                else:
+                    # Something else happened.. pass on the exception
+                    pass
+
+        if not errors:
+            # Something's wrong internally if we can't log in to the
+            # account we just created.
+            assert not internal_login(request, data['username'], data['password'])
+            return HttpResponseRedirect(next_page)
+
+    else:
+        errors = None
+        data = None
 
     request.session.set_test_cookie()
     return render_to_response(template_name, RequestContext(request, dict(
+        errors = errors,
+        data = data,
         )))
+
 
 def get_default_asset_id(request, asset_type):
     """Return the default asset ID for a particular type. This will
@@ -101,6 +166,7 @@ def get_asset_by_type(asset_type):
             return model
     raise Http404
 
+
 def do_change_password(request, errors):
     if not request.user.check_password(request.POST['old_password']):
         errors['old_password'] = "Incorrect password."
@@ -135,6 +201,7 @@ def do_change_email(request, errors):
         request.user.save()
         request.user.message_set.create(message="Your e-mail address was changed successfully.")
 
+
 @login_required
 def profile(request):
     errors = {}
@@ -150,6 +217,7 @@ def profile(request):
         errors = errors,
         email = request.POST.get('email', request.user.email),
         )))
+
 
 @login_required
 def asset(request, asset_type, asset_id):
@@ -167,6 +235,7 @@ def asset(request, asset_type, asset_id):
         asset_id = asset_id,
         user_assets = model.objects.all_for_user(request.user),
         )))
+
 
 @login_required
 def add_asset(request, asset_type):
