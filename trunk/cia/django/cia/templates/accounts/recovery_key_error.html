@@ -1,0 +1,22 @@
+{% extends 'layout_base.html' %}
+
+{% block stylesheet %}login.css{% endblock %}
+{% block page_title %}Lost Password{% endblock %}
+{% block head_title %}Your Account{% endblock %}
+
+{% block content %}
+<div class="invisi-box">
+
+  <h1>Oops!</h2>
+
+  <p>
+  Something's wrong with this password recovery link. It may have expired, or it might have been copied incorrectly.
+  </p>
+
+  <p>
+  If you copied and pasted the URL, make sure you selected the
+  whole thing. If all else fails, you can <a href="/account/lost">try again</a>.
+  </p>
+
+</div>
+{% endblock %}

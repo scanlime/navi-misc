@@ -36,6 +36,14 @@ h1 {
   border: 2px solid black;
 }
 
+.invisi-box {
+  position: relative;
+  left: 50%;
+  width: 20em;
+  margin: 2em 0em 0em -11em;
+  padding: 1em;
+}
+
 .login-box div.tl {
   position: absolute;
   overflow: hidden;   /* IE6 */
@@ -129,6 +137,15 @@ h1 {
 
   background: #f0f0f0;
   border: 1px solid #aaa;
+  padding: 0.3em;
+}
+
+#login-form .form-row div {
+  font-size: 0.75em;
+  position: absolute;
+  left: 12em;
+  bottom: 0em;
+  width: 14em;
   padding: 0.3em;
 }
 

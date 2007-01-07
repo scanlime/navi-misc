@@ -16,10 +16,6 @@
   <div class="h1-continuation">a new CIA account.</div>
 
   <form action="/account/register/" method="post" id="login-form">
-    {% if error %}
-      <p class="error">{{ error }}</p>
-    {% endif %}
-
     <div class="form-row">
       <label for="id_first_name">First name:</label>
       <input type="text" name="first_name" id="id_first_name" value="{{ form.data.first_name|escape }}" />
