@@ -38,7 +38,7 @@ disputes) when you specifically opt-in for such notifications.
   </div>
   <div class="form-row">
     <label for="id_email">E-mail address:</label>
-    <input type="text" name="email" id="id_email" value="{{ user.email }}"/>
+    <input type="text" name="email" id="id_email" value="{{ email|escape }}"/>
     <div class="error">{{ errors.email }}</div>
   </div>
   <div class="submit-row">
@@ -60,7 +60,7 @@ disputes) when you specifically opt-in for such notifications.
     <div class="error">{{ errors.new_password }}</div>
   </div>
   <div class="form-row">
-    <label for="id_new_password2">Confirm new password:</label>
+    <label for="id_new_password2">Re-type new password:</label>
     <input type="password" name="new_password2" id="id_new_password2" />
     <div class="error">{{ errors.new_password2 }}</div>
   </div>

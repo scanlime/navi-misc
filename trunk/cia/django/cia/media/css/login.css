@@ -22,6 +22,11 @@ h1 {
   font-size: 0.9em;
 }
 
+.options-box p {
+  font-size: 0.777em;
+  color: #666;
+}
+
 .login-box {
   position: relative;
   left: 50%;
@@ -103,8 +108,12 @@ h1 {
   height: 2em;
 }
 
+#login-form .form-spacer {
+  height: 1em;
+}
+
 #login-form .form-row label {
-  font-size: 1em;
+  font-size: 0.9em;
   color: #666;
   position: absolute;
   left: 0em;
@@ -121,6 +130,16 @@ h1 {
   background: #f0f0f0;
   border: 1px solid #aaa;
   padding: 0.3em;
+}
+
+#login-form .form-row .margin-note {
+  font-size: 0.7em;
+  color: #666;
+  position: absolute;
+  left: 31em;
+  bottom: 0em;
+  width: 20em;
+  overflow: hidden;
 }
 
 #login-form .submit-row {
