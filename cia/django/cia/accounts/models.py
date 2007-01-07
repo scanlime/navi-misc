@@ -29,14 +29,19 @@ class UserAsset(models.Model):
         pass
 
 class Network(models.Model):
-    uri = models.CharField(maxlength=200)
-    description = models.CharField(maxlength=200, null=True)
+    uri = models.CharField(maxlength=128)
+    description = models.CharField(maxlength=200)
 
+    is_popular = models.BooleanField(default=False)
+    reviewed_by_admin = models.BooleanField(default=False)
+    created_by = models.ForeignKey(User)
+    date_added = models.DateTimeField(auto_now_add=True)
+    
     def __str__(self):
-        return self.description or self.uri
+        return self.description
 
     class Admin:
-        list_display = ('uri', 'description')
+        list_display = ('uri', 'description', 'reviewed_by_admin', 'created_by')
 
 class StatsTarget(models.Model):
     path = models.CharField(maxlength=255)
@@ -91,7 +96,7 @@ class Bot(models.Model):
     assets = models.GenericRelation(UserAsset)
 
     network = models.ForeignKey(Network)
-    location = models.CharField(maxlength=50)
+    location = models.CharField(maxlength=64)
 
     useCustomRuleset = models.BooleanField("Use custom ruleset")
     customRuleset = models.TextField("Custom ruleset", blank=True)

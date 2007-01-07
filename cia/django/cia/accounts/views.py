@@ -8,8 +8,12 @@ from django import newforms as forms
 from django.template import loader
 from django.core.mail import send_mail
 from cia.accounts import models
-import datetime, re
+import datetime, re, xmlrpclib
 
+
+###########################
+#       User Login        #
+###########################
 
 def login_required(view_func):
     """Simplified version of auth.decorators.login_required,
@@ -59,11 +63,15 @@ def login(request, next_page, template_name="accounts/login.html"):
     else:
         error = None
     request.session.set_test_cookie()
-    return render_to_response(template_name, RequestContext(request, dict(
-        error = error,
-        login_url = settings.LOGIN_URL,
-        )))
+    return render_to_response(template_name, RequestContext(request, {
+        'error': error,
+        'login_url': settings.LOGIN_URL,
+        }))
 
+
+###########################
+#     Lost Password       #
+###########################
 
 def send_mail_to_user(user, template_name, **context_dict):
     """Send a single email message to a registered user. This formats their
@@ -79,7 +87,7 @@ def send_mail_to_user(user, template_name, **context_dict):
     message = message.strip()
 
     # Sanitize the user's name for inclusion in an RFC822 header
-    full_name = re.sub("[!<>@:;\\\\'\"\[\]\r\n\t]", "", user.get_full_name())
+    full_name = re.sub("[!<>@:;\\\\'\"\[\]\r\n\t]", "", user.get_full_name().strip())
     send_mail(subject, message, None, ["%s <%s>" % (full_name, user.email)])
 
 def lost(request, next_page, recovery_page):
@@ -164,6 +172,10 @@ def reset(request, key, next_page):
         }))
 
 
+###########################
+#    User Registration    #
+###########################
+
 class RegistrationForm(forms.Form):
     first_name = forms.CharField(max_length=30)
     last_name = forms.CharField(max_length=30)
@@ -227,6 +239,10 @@ def register(request, next_page, template_name="accounts/register.html"):
     return render_to_response(template_name, RequestContext(request, {'form': form}))
 
 
+###########################
+#    Asset Navigation     #
+###########################
+
 def get_default_asset_id(request, asset_type):
     """Return the default asset ID for a particular type. This will
        try, in order:
@@ -270,6 +286,48 @@ def get_asset_by_type(asset_type):
             return model
     raise Http404
 
+def get_asset_add_context(request, asset_type):
+    """Returns a context for adding any asset. This raises
+       a 404 error if the asset_type is not valid. This includes
+       all context variables required for navigation.
+       """
+    model = get_asset_by_type(asset_type)
+    return RequestContext(request, {
+        'asset_types': get_user_asset_types(request, asset_type),
+        'asset_type': asset_type,
+        'asset_type_name': model._meta.verbose_name,
+        'user_assets': model.objects.all_for_user(request.user),
+        'add': True,
+        'form_path': request.path,
+        })
+
+def get_asset_edit_context(request, asset_type, asset_id):
+    """Returns a context for editing any asset. This raises a 404
+       error if the asset_type is not valid or if the asset_id does
+       not refer to a UserAsset for the current user. The result
+       includes all context variables required for navigation.
+       """
+    model = get_asset_by_type(asset_type)
+    asset_id = int(asset_id)
+    user_asset = model.objects.all_for_user(request.user).get(pk=asset_id)
+
+    # Set as the default asset for this type
+    request.session['default_' + asset_type] = asset_id
+
+    return RequestContext(request, {
+        'asset_types': get_user_asset_types(request, asset_type),
+        'asset_type': asset_type,
+        'asset_type_name': model._meta.verbose_name,
+        'user_assets': model.objects.all_for_user(request.user),
+        'asset_id': asset_id,
+        'user_asset': user_asset,
+        'form_path': request.path,
+        })
+
+
+###########################
+#     Profile Editing     #
+###########################
 
 class ChangePasswordForm(forms.Form):
     old_password = forms.CharField()
@@ -322,32 +380,42 @@ def profile(request):
         }))
 
 
-@login_required
-def asset(request, asset_type, asset_id):
-    model = get_asset_by_type(asset_type)
-    asset_id = int(asset_id)
-    user_asset = model.objects.all_for_user(request.user).get(pk=asset_id)
-
-    # Set as the default asset for this type
-    request.session['default_' + asset_type] = asset_id
-
-    return render_to_response('accounts/asset.html', RequestContext(request, dict(
-        asset_types = get_user_asset_types(request, asset_type),
-        asset_type = asset_type,
-        asset_type_name = model._meta.verbose_name,
-        asset_id = asset_id,
-        user_assets = model.objects.all_for_user(request.user),
-        )))
-
+###########################
+#      Stats Assets       #
+###########################
 
 @login_required
-def add_asset(request, asset_type):
-    model = get_asset_by_type(asset_type)
+def stats_asset(request, asset_type, asset_id):
+    """Generic form for editing stats-based assets"""
+    ctx = get_asset_edit_context(request, asset_type, asset_id)
+    return render_to_response('accounts/stats_asset.html', ctx)
 
-    return render_to_response('accounts/asset.html', RequestContext(request, dict(
-        asset_types = get_user_asset_types(request, asset_type),
-        asset_type = asset_type,
-        asset_type_name = model._meta.verbose_name,
-        user_assets = model.objects.all_for_user(request.user),
-        add = True,
-        )))
+@login_required
+def add_stats_asset(request, asset_type):
+    """Generic form for adding stats-based assets"""
+    ctx = get_asset_add_context(request, asset_type)
+    return render_to_response('accounts/add_stats_asset.html', ctx)
+
+
+###########################
+#        IRC Bots         #
+###########################
+
+class AddBotForm(forms.Form):
+    password = forms.CharField(min_length=5, max_length=30)
+    password2 = forms.CharField()
+
+@login_required
+def add_bot(request, asset_type):
+    ctx = get_asset_add_context(request, asset_type)
+    ctx['popular_networks'] = 'Freenode OFTC EFnet'.split()
+    ctx['other_networks'] = 'FOONet ARPAnet Internet2'.split()
+
+    return render_to_response('accounts/add_bot.html', ctx)
+
+@login_required
+def bot(request, asset_type, asset_id):
+    ctx = get_asset_edit_context(request, asset_type, asset_id)
+    return render_to_response('accounts/bot.html', ctx)
+
+
