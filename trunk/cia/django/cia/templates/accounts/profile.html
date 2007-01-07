@@ -30,39 +30,49 @@ disputes) when you specifically opt-in for such notifications.
 <div class="message"><div class="icon"></div><p>{{ message }}</p></div>
 {% endfor %}
 
-<form action="/account/" method="post" id="profile-form">
+<form action="/account/" method="post">
   <fieldset><legend>Personal Information</legend>
   <div class="form-row">
     <label for="id_username">Username:</label>
-    <div class="field">{{ user.username }}</div>
+    <div class="field">{{ user.username|escape }}</div>
+  </div>
+  <div class="form-row">
+    <label for="id_first_name">First name:</label>
+    <input type="text" name="first_name" id="id_first_name" value="{{ profile_form.data.first_name|escape }}"/>
+    <div class="error">{{ profile_form.errors.first_name.0 }}</div>
+  </div>
+  <div class="form-row">
+    <label for="id_last_name">Last name:</label>
+    <input type="text" name="last_name" id="id_last_name" value="{{ profile_form.data.last_name|escape }}"/>
+    <div class="error">{{ profile_form.errors.last_name.0 }}</div>
   </div>
   <div class="form-row">
     <label for="id_email">E-mail address:</label>
-    <input type="text" name="email" id="id_email" value="{{ email|escape }}"/>
-    <div class="error">{{ errors.email }}</div>
+    <input type="text" name="email" id="id_email" value="{{ profile_form.data.email|escape }}"/>
+    <div class="error">{{ profile_form.errors.email.0 }}</div>
   </div>
   <div class="submit-row">
-    <div>&raquo;</div> <input type="submit" name="change-email" value="Save" />
+    <div>&raquo;</div> <input type="submit" name="change-profile" value="Save" />
   </div>
   </fieldset>
 </form>
 
-<form action="/account/" method="post" id="profile-form">
+<form action="/account/" method="post">
   <fieldset><legend>Change Password</legend>
   <div class="form-row">
     <label for="id_old_password">Current password:</label>
     <input type="password" name="old_password" id="id_old_password" />
-    <div class="error">{{ errors.old_password }}</div>
+    <div class="error">{{ password_form.errors.old_password.0 }}</div>
   </div>
   <div class="form-row">
     <label for="id_new_password">New password:</label>
     <input type="password" name="new_password" id="id_new_password" />
-    <div class="error">{{ errors.new_password }}</div>
+    <div class="error">{{ password_form.errors.new_password.0 }}</div>
   </div>
   <div class="form-row">
     <label for="id_new_password2">Re-type new password:</label>
     <input type="password" name="new_password2" id="id_new_password2" />
-    <div class="error">{{ errors.new_password2 }}</div>
+    <div class="error">{{ password_form.errors.new_password2.0 }}</div>
   </div>
   <div class="submit-row">
     <div>&raquo;</div> <input type="submit" name="change-password" value="Save" />

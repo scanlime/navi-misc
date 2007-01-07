@@ -72,27 +72,32 @@ def get_user(username):
     except auth.models.User.DoesNotExist:
         return None
 
+def validate_old_password(form, user, field_name='password'):
+    if not form.errors.get(field_name) and not user.check_password(form.data.get(field_name)):
+        form.errors[field_name] = forms.util.ErrorList(["Incorrect password."])
+
+def validate_password_confirmation(form, field_name='password'):
+    field2_name = field_name + '2'
+    if not form.errors.get(field2_name) and form.data.get(field_name) != form.data.get(field2_name):
+        form.errors[field2_name] = forms.util.ErrorList(["Your passwords do not match."])
+
 def register(request, next_page, template_name="accounts/register.html"):
     if request.POST:
         form = RegistrationForm(request.POST)
         form.full_clean()
-        data = form.data
-        errors = form.errors
+        validate_password_confirmation(form)
 
         if not request.session.test_cookie_worked():
-            errors['submit'] = forms.util.ErrorList(["Cookies must be enabled."])
-        
-        if not errors.get('password2') and data.get('password') != data.get('password2'):
-            errors['password2'] = forms.util.ErrorList(["Your passwords do not match."])
+            form.errors['submit'] = forms.util.ErrorList(["Cookies must be enabled."])
 
-        if not errors:
+        if not form.errors:
             # The username still might be taken, but let's test for that atomically
             # as a side-effect of trying to create the user.
-            user = auth.models.User(first_name = data['first_name'].title(),
-                                    last_name = data['last_name'].title(),
-                                    email = data['email'],
-                                    username = data['username'])
-            user.set_password(data['password'])
+            user = auth.models.User(first_name = form.data['first_name'].title(),
+                                    last_name = form.data['last_name'].title(),
+                                    email = form.data['email'],
+                                    username = form.data['username'])
+            user.set_password(form.data['password'])
             try:
                 user.save()
             except:
@@ -100,27 +105,23 @@ def register(request, next_page, template_name="accounts/register.html"):
                 # To make this portable, we'll do a second check to see if the username
                 # was taken. This is also slightly racy, but much less so than checking
                 # beforehand. Easier to ask forgiveness than permission.
-                if get_user(data['username']):
-                    errors['username'] = forms.util.ErrorList(["Sorry, this username is taken."])
+                if get_user(form.data['username']):
+                    form.errors['username'] = forms.util.ErrorList(["Sorry, this username is taken."])
                 else:
                     # Something else happened.. pass on the exception
-                    pass
+                    raise
 
-        if not errors:
+        if not form.errors:
             # Something's wrong internally if we can't log in to the
-            # account we just created.
-            assert not internal_login(request, data['username'], data['password'])
+            # account we just created...
+            assert not internal_login(request, form.data['username'], form.data['password'])
             return HttpResponseRedirect(next_page)
 
     else:
-        errors = None
-        data = None
+        form = None
 
     request.session.set_test_cookie()
-    return render_to_response(template_name, RequestContext(request, dict(
-        errors = errors,
-        data = data,
-        )))
+    return render_to_response(template_name, RequestContext(request, {'form': form}))
 
 
 def get_default_asset_id(request, asset_type):
@@ -167,56 +168,55 @@ def get_asset_by_type(asset_type):
     raise Http404
 
 
-def do_change_password(request, errors):
-    if not request.user.check_password(request.POST['old_password']):
-        errors['old_password'] = "Incorrect password."
+class ChangePasswordForm(forms.Form):
+    old_password = forms.CharField()
+    new_password = forms.CharField(min_length=5, max_length=30)
+    new_password2 = forms.CharField()
 
-    new = request.POST['new_password']
-    confirmed = request.POST['new_password2']
-
-    if len(new) < 5:
-        errors['new_password'] = "New password is too short."
-    if len(new) > 30:
-        errors['new_password'] = "New password is too long."
-
-    if not confirmed:
-        errors['new_password2'] = "Please confirm your new password."
-    elif new != confirmed:
-        errors['new_password2'] = "Your passwords do not match."
-
-    if not errors:
-        request.user.set_password(new)
+def do_change_password(request):
+    form = ChangePasswordForm(request.POST)
+    form.full_clean()
+    validate_password_confirmation(form, 'new_password')
+    validate_old_password(form, request.user, 'old_password')
+    if not form.errors:
+        request.user.set_password(form.data['new_password'])
         request.user.save()
         request.user.message_set.create(message="Your password was changed successfully.")
+    return form
 
-def do_change_email(request, errors):
-    email = request.POST['email']
-    try:
-        isValidEmail(email, '')
-    except ValidationError, e:
-        errors['email'] = e.messages[0]
+class ChangeProfileForm(forms.Form):
+    first_name = forms.CharField(max_length=30)
+    last_name = forms.CharField(max_length=30)
+    email = forms.EmailField()
 
-    if email != request.user.email and not errors:
-        request.user.email = email
+def do_change_profile(request):
+    form = ChangeProfileForm(request.POST)
+    form.full_clean()
+    if not form.errors:
+        for key, value in form.data.items():
+            setattr(request.user, key, value)
         request.user.save()
-        request.user.message_set.create(message="Your e-mail address was changed successfully.")
-
+        request.user.message_set.create(message="Your profile was updated successfully.")
+    return form
 
 @login_required
 def profile(request):
-    errors = {}
-    if request.POST:
-        if 'change-password' in request.POST:
-            do_change_password(request, errors)
-        elif 'change-email' in request.POST:
-            do_change_email(request, errors)
+    if 'change-password' in request.POST:
+        password_form = do_change_password(request)
+    else:
+        password_form = None
 
-    return render_to_response('accounts/profile.html', RequestContext(request, dict(
-        profile = True,
-        asset_types = get_user_asset_types(request),
-        errors = errors,
-        email = request.POST.get('email', request.user.email),
-        )))
+    if 'change-profile' in request.POST:
+        profile_form = do_change_profile(request)
+    else:
+        profile_form = ChangeProfileForm(request.user)
+
+    return render_to_response('accounts/profile.html', RequestContext(request, {
+        'profile': True,
+        'asset_types': get_user_asset_types(request),
+        'password_form': password_form,
+        'profile_form': profile_form,
+        }))
 
 
 @login_required
