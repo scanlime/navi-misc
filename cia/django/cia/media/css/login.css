@@ -142,6 +142,17 @@ h1 {
   overflow: hidden;
 }
 
+#login-form .form-row .margin-error {
+  font-weight: bold;
+  color: red;
+  font-size: 0.7em;
+  position: absolute;
+  left: 31em;
+  bottom: 0em;
+  width: 20em;
+  overflow: hidden;
+}
+
 #login-form .submit-row {
   position: relative;
   width: 100%;
@@ -167,3 +178,15 @@ h1 {
   padding: 0em 1em;
   margin: 0;
 }
+
+#login-form .submit-row .margin-error {
+  font-weight: bold;
+  color: red;
+  font-size: 0.7em;
+  position: absolute;
+  left: 31em;
+  bottom: 0em;
+  width: 20em;
+  overflow: hidden;
+}
+
