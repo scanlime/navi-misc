@@ -1,5 +1,12 @@
 @import "base.css";
 
+h1 {
+  font-size: 1.5em;
+  padding: 0 0 0.25em 0;
+  margin: 0 0 1em 0;
+  border-bottom: 2px solid #ccc;
+}
+
 .columns {
   position: relative;
   width: 100%;   /* IE6 */
@@ -11,7 +18,7 @@
   top: 0;
   left: 0;
   width: 9.5em;
-  padding: 0 0 0 1.5em;
+  padding: 1em 0 0 1.5em;
   margin: 0;
   list-style-type: none;
   font-weight: bold;
@@ -49,7 +56,7 @@
   top: 0;
   left: 11em;
   width: 9.5em;
-  padding: 0 0 0 1.5em;
+  padding: 1em 0 0 1.5em;
   margin: 0;
   list-style-type: none;
   border-left: 1em solid #ccf;
@@ -87,7 +94,7 @@
 
 .columns .c3 {
   margin: 0 0 1em 23em;
-  padding: 0 0.5em 0 1em;
+  padding: 0 0.5em 1em 1em;
   list-style-type: none;
   border-left: 1em solid #fe8;
 
@@ -99,7 +106,7 @@
 
 .columns .c2-3 {
   margin: 0 0 1em 11em;
-  padding: 0 0.5em 0 1em;
+  padding: 0 0.5em 1em 1em;
   border-left: 1em solid #ccf;
 
   /* Min-height Fast Hack */
@@ -117,3 +124,113 @@
   overflow: hidden;   /* IE6 */
 }
 
+form {
+  padding: 0;
+  margin: 0;
+}
+
+.message {
+  position: relative;
+  margin: 0.25em 0em;
+  padding: 0.5em;
+  background: #fe8;
+}
+
+.message .icon {
+  position: absolute;
+  top: 0.5em;
+  left: 0.5em;
+  background: url("/media/img/check-16.png");
+  width: 16px;
+  height: 16px;
+}
+
+p.narrow {
+  width: 40em;
+  font-size: 0.8em;
+}
+
+.message p {
+  margin: 0 0 0 24px;
+}
+
+fieldset {
+  position: relative;
+  margin: 1em 0em;
+  padding: 0.25em 0.5em 0.75em 0.5em;
+  border: 2px solid #ccc;
+}
+
+legend {
+  font-weight: bold;
+}
+
+.form-row {
+  position: relative;
+  width: 100%;
+  height: 2em;
+}
+
+.form-row label {
+  font-size: 1em;
+  color: #666;
+  position: absolute;
+  left: 0em;
+  bottom: 0.1em;
+}
+
+.form-row input {
+  font-size: 0.75em;
+  position: absolute;
+  left: 20em;
+  bottom: 0em;
+  width: 20em;
+
+  background: #f0f0f0;
+  border: 1px solid #aaa;
+  padding: 0.3em;
+}
+
+.form-row div.field {
+  font-size: 1em;
+  position: absolute;
+  left: 15em;
+  bottom: 0em;
+}
+
+.form-row div.error {
+  overflow: hidden;
+  white-space: nowrap;
+  position: absolute;
+  left: 42em;
+  bottom: 0.25em;
+  font-size: 0.75em;
+  font-weight: bold;
+  color: red;
+}
+
+.submit-row {
+  position: relative;
+  width: 100%;
+  height: 2.5em;
+}
+
+.submit-row div {
+  font-size: 1em;
+  font-weight: bold;
+  position: absolute;
+  left: 14em;
+  bottom: 0.25em;
+  padding: 0;
+  margin: 0;
+  color: red;
+}
+
+.submit-row input {
+  font-size: 1em;
+  position: absolute;
+  left: 15em;
+  bottom: 0;
+  padding: 0em 1em;
+  margin: 0;
+}
