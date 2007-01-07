@@ -1,5 +1,5 @@
 from django.shortcuts import render_to_response, get_object_or_404
-from django.contrib.auth import login, authenticate
+from django.contrib import auth
 from django.template.context import RequestContext
 from django.http import HttpResponseRedirect, Http404
 from django.conf import settings
@@ -22,13 +22,13 @@ def login_required(view_func):
     _checklogin.__dict__ = view_func.__dict__
     return _checklogin
 
-def login_form(request, next_page, template_name="accounts/login.html"):
+def login(request, next_page, template_name="accounts/login.html"):
     """Simple login form view which doesn't rely on Django's current
        inflexible oldforms-based auth view.
        """
     if request.POST:
-        user = authenticate(username = request.POST['username'],
-                            password = request.POST['password'])
+        user = auth.authenticate(username = request.POST['username'],
+                                 password = request.POST['password'])
 
         if user is None:
             error = "Incorrect username or password."
@@ -37,7 +37,7 @@ def login_form(request, next_page, template_name="accounts/login.html"):
         elif not request.session.test_cookie_worked():
             error = "Cookies must be enabled."
         else:
-            login(request, user)
+            auth.login(request, user)
             request.session.delete_test_cookie()
             user.last_login = datetime.datetime.now()
             user.save()
@@ -48,6 +48,14 @@ def login_form(request, next_page, template_name="accounts/login.html"):
     return render_to_response(template_name, RequestContext(request, dict(
         error = error,
         login_url = settings.LOGIN_URL,
+        )))
+
+def register(request, next_page, template_name="accounts/register.html"):
+    if request.POST:
+        pass
+
+    request.session.set_test_cookie()
+    return render_to_response(template_name, RequestContext(request, dict(
         )))
 
 def get_default_asset_id(request, asset_type):
@@ -122,7 +130,7 @@ def do_change_email(request, errors):
     except ValidationError, e:
         errors['email'] = e.messages[0]
 
-    if not errors:
+    if email != request.user.email and not errors:
         request.user.email = email
         request.user.save()
         request.user.message_set.create(message="Your e-mail address was changed successfully.")
@@ -140,6 +148,7 @@ def profile(request):
         profile = True,
         asset_types = get_user_asset_types(request),
         errors = errors,
+        email = request.POST.get('email', request.user.email),
         )))
 
 @login_required

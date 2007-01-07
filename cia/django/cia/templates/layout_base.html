@@ -16,7 +16,7 @@
 
   <ul>
   {% if user.is_authenticated %}
-    <li>&bull; Welcome, {{ user.get_full_name }}.</li>
+    <li>&bull; Welcome, {{ user.get_full_name|escape }}.</li>
     <li>&raquo; <a href="/account/">Profile</a></li>
     <li>&raquo; <a href="/account/logout/">Log out</a></li>
   {% else %}

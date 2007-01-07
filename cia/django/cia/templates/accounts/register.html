@@ -1,0 +1,105 @@
+{% extends 'layout_base.html' %}
+
+{% block stylesheet %}login.css{% endblock %}
+{% block page_title %}Register an Account{% endblock %}
+{% block head_title %}Your Account{% endblock %}
+
+{% block content %}
+
+<div class="login-box">
+  <div class="tl"></div>
+  <div class="tr"></div>
+  <div class="bl"></div>
+  <div class="br"></div>
+
+  <h1>Register</h2>
+  <div class="h1-continuation">a new CIA account.</div>
+
+  <form action="/account/register/" method="post" id="login-form">
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <div class="form-row">
+      <label for="id_first_name">First name:</label>
+      <input type="text" name="first_name" id="id_first_name" value="{{ form.first_name|escape }}" />
+      {% if errors.first_name %}
+        <div class="margin-error">{{ errors.first_name }}</div>
+      {% endif %}
+    </div>
+
+    <div class="form-row">
+      <label for="id_last_name">Last name:</label>
+      <input type="text" name="last_name" id="id_last_name" value="{{ form.last_name|escape }}" />
+      {% if errors.first_name %}
+        <div class="margin-error">{{ errors.last_name }}</div>
+      {% endif %}
+    </div>
+
+    <div class="form-spacer"></div>
+
+    <div class="form-row">
+      <label for="id_email">E-mail address:</label>
+      <input type="text" name="email" id="id_email" value="{{ form.email|escape }}" />
+      {% if errors.email %}
+        <div class="margin-error">{{ errors.email }}</div>
+      {% else %}
+        <div class="margin-note">
+        Only used for password recovery and opt-in notifications.
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="form-spacer"></div>
+
+    <div class="form-row">
+      <label for="id_username">Username:</label>
+      <input type="text" name="username" id="id_username" value="{{ values.username|escape }}" />
+      {% if errors.username %}
+        <div class="margin-error">{{ errors.username }}</div>
+      {% else %}
+        <div class="margin-note">
+        This does not need to match your revision control username(s).
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="form-row">
+      <label for="id_password">Password:</label>
+      <input type="password" name="password" id="id_password" />
+      {% if errors.password %}
+        <div class="margin-error">{{ errors.password }}</div>
+      {% endif %}
+    </div>
+
+    <div class="form-row">
+      <label for="id_password2">Re-type password:</label>
+      <input type="password" name="password2" id="id_password2" />
+      {% if errors.password2 %}
+        <div class="margin-error">{{ errors.password2 }}</div>
+      {% endif %}
+    </div>
+
+    <div class="submit-row">
+      <div>&raquo;</div> <input type="submit" value="Sign up" />
+    </div>
+
+  </form>
+</div>
+
+<ul class="options-box">
+<li>The account you create here will not be publicly visible.</li>
+<li>If you already have an author name on CIA, your new username does not need to match it.</li>
+<li>The e-mail address you provide here will never be publicly visible,
+    nor will it ever be distributed to third parties.
+    <p>It will only be used to help you recover
+       lost passwords, and to notify you of events (such as project ownership
+       disputes) when you specifically opt-in for such notifications.
+   </p>
+</li>
+</ul>
+
+<script type="text/javascript">
+document.getElementById('id_first_name').focus()
+</script>
+{% endblock %}
