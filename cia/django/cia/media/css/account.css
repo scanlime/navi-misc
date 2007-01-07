@@ -10,17 +10,25 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 10em;
-
+  width: 9.5em;
   padding: 0 0 0 1.5em;
   margin: 0;
   list-style-type: none;
-
   font-weight: bold;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .columns .c1 li {
+  padding: 0;
+  margin: 0;
+  border: 1px solid white;  /* IE6 */
+}
+
+.columns .c1 li a {
+  display: block;
   padding: 0.25em;
+  margin: 0;
 }
 
 .columns .c1 li.spacer {
@@ -31,6 +39,8 @@
 
 .columns .c1 li.active {
   background: #ccf;
+  border-right: 1px solid #ccf;  /* IE6 */
+  padding: 0.25em;
   list-style-image: url("/media/img/raquo-10.png");
 }
 
@@ -38,16 +48,27 @@
   position: absolute;
   top: 0;
   left: 11em;
-  width: 10em;
-
+  width: 9.5em;
   padding: 0 0 0 1.5em;
   margin: 0;
   list-style-type: none;
-
   border-left: 1em solid #ccf;
+  overflow: hidden;
+  white-space: nowrap;
+
+  min-height:500px;
+  height:auto !important;
+  height:500px;
 }
 
 .columns .c2 li {
+  padding: 0;
+  margin: 0;
+  border: 1px solid white;  /* IE6 */
+}
+
+.columns .c2 li a {
+  display: block;
   padding: 0.15em 0.25em;
 }
 
@@ -59,6 +80,8 @@
 
 .columns .c2 li.active {
   background: #fe8;
+  border-right: 1px solid #fe8;  /* IE6 */
+  padding: 0.15em 0.25em;
   list-style-image: url("/media/img/raquo-10.png");
 }
 
@@ -67,6 +90,22 @@
   padding: 0 0.5em 0 1em;
   list-style-type: none;
   border-left: 1em solid #fe8;
+
+  /* Min-height Fast Hack */
+  min-height:500px;
+  height:auto !important;
+  height:500px;
+}
+
+.columns .c2-3 {
+  margin: 0 0 1em 11em;
+  padding: 0 0.5em 0 1em;
+  border-left: 1em solid #ccf;
+
+  /* Min-height Fast Hack */
+  min-height:500px;
+  height:auto !important;
+  height:500px;
 }
 
 .add-icon {

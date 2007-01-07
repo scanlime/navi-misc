@@ -8,15 +8,8 @@ urlpatterns = patterns('',
     (r'^account/forgot-password/$', 'cia.accounts.views.index'),
                        
     (r'^account/$', 'cia.accounts.views.profile'),
-    (r'^account/projects/$', 'cia.accounts.views.default_project'),
-    (r'^account/projects/add/$', 'cia.accounts.views.add_project'),
-    (r'^account/projects/(?P<project_id>\d+)/$', 'cia.accounts.views.project'),
-    (r'^account/authors/$', 'cia.accounts.views.default_author'),
-    (r'^account/authors/add/$', 'cia.accounts.views.add_author'),
-    (r'^account/authors/(?P<author_id>\d+)/$', 'cia.accounts.views.author'),
-    (r'^account/bots/$', 'cia.accounts.views.default_bot'),
-    (r'^account/bots/add/$', 'cia.accounts.views.add_bot'),
-    (r'^account/bots/(?P<bot_id>\d+)/$', 'cia.accounts.views.bot'),
+    (r'^account/(?P<asset_type>\w+)/add/$', 'cia.accounts.views.add_asset'),
+    (r'^account/(?P<asset_type>\w+)/(?P<asset_id>\d+)/$', 'cia.accounts.views.asset'),
 
     (r'^admin/', include('django.contrib.admin.urls')),
 )

@@ -1,0 +1,25 @@
+{% extends 'layout_account.html' %}
+
+{% block columns %}
+<ul class="c2">
+{% if add %}
+  <li class="active"><div class="add-icon"></div> Add {{ asset_type_name }}...</li>
+{% else %}
+  <li><a href="/account/{{ asset_type }}/add/"><div class="add-icon"></div> Add {{ asset_type_name }}...</a></li>
+{% endif %}
+
+<li class="spacer"></li>
+
+{% for user_asset in user_assets %}
+  {% ifequal user_asset.object_id asset_id %}
+    <li class="active">{{ user_asset.asset }}</li>
+  {% else %}
+    <li><a href="/account/{{ asset_type }}/{{ user_asset.object_id }}/">{{ user_asset.asset }}</a></li>
+  {% endifequal %}
+{% endfor %}
+</ul>
+
+<div class="c3">
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+</div>
+{% endblock %}
