@@ -14,7 +14,7 @@ class UserAsset(models.Model):
         (1, 'Community'),
         (2, 'Exclusive'),
         (3, 'Trusted'),
-        ))
+        ), default=1)
 
     date_added = models.DateTimeField(auto_now_add=True)
     trusted_by = models.DateTimeField(null=True, blank=True)
@@ -99,11 +99,12 @@ class Bot(models.Model):
     assets = models.GenericRelation(UserAsset)
 
     network = models.ForeignKey(Network)
-    location = models.CharField(maxlength=64)
+    location = models.CharField(maxlength=64, db_index=True)
 
-    useCustomRuleset = models.BooleanField("Use custom ruleset")
+    is_active = models.BooleanField("Bot is active", default=False)
+    useCustomRuleset = models.BooleanField("Use custom ruleset", default=False)
     customRuleset = models.TextField("Custom ruleset", blank=True)
-    showProjectNames = models.BooleanField("Show project names")
+    showProjectNames = models.BooleanField("Show project names", default=False)
     projects = models.ManyToManyField(Project, blank=True)
     authors = models.ManyToManyField(Author, blank=True)
 
@@ -111,7 +112,7 @@ class Bot(models.Model):
         return "%s/%s" % (self.network.uri, self.location)
 
     def __str__(self):
-        return "%s on %s" % (self.name, self.network)
+        return "%s on %s" % (self.location, self.network)
 
     class Admin:
         list_display = ('network', 'location')

@@ -1,13 +1,14 @@
-from django.shortcuts import render_to_response
-from django.contrib import auth
-from django.contrib.sessions.models import Session
-from django.template.context import RequestContext, Context
-from django.http import HttpResponseRedirect, Http404
-from django.conf import settings
-from django import newforms as forms
-from django.template import loader
-from django.core.mail import send_mail
 from cia.accounts import models
+from django import newforms as forms
+from django.conf import settings
+from django.contrib import auth
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.sessions.models import Session
+from django.core.mail import send_mail
+from django.http import HttpResponseRedirect, Http404
+from django.shortcuts import render_to_response
+from django.template import loader
+from django.template.context import RequestContext, Context
 import datetime, re, xmlrpclib
 
 
@@ -403,7 +404,7 @@ def add_stats_asset(request, asset_type):
 
 class AddBotForm(forms.Form):
     network = forms.CharField()
-    channel = forms.RegexField(r"^[^\s\x00-\x1f,]+$", max_length=63,
+    channel = forms.RegexField(r"^[^\s\x00-\x1f,%]+$", max_length=63,
                                error_message='Must be a valid IRC channel name.')
 
 class AddNetworkForm(forms.Form):
@@ -431,7 +432,7 @@ class MultiForm:
 
 def validate_network(form, field_name='network'):
     try:
-        models.Network.objects.get(pk=int(form.data.get('network')))
+        return models.Network.objects.get(pk=int(form.data.get('network')))
     except (ValueError, models.Network.DoesNotExist):
         form.errors['network'] = forms.util.ErrorList(["Select a network."])
 
@@ -443,8 +444,47 @@ def add_bot(request, asset_type):
         form.validate(AddBotForm)
         if form.clean_data.get('network') == '_other':
             form.validate(AddNetworkForm)
+            network = None
         else:
-            validate_network(form)
+            network = validate_network(form)
+
+        if not form.errors:
+            if not network:
+                # No network was explicitly mentioned in the
+                # form- the user picked "Other". We'll look
+                # up an existing network using the supplied
+                # hostname, creating a new one if necessary.
+
+                uri = "irc://%s/" % form.clean_data['server']
+                network = models.Network.objects.get_or_create(
+                    uri__iexact = uri,
+                    defaults = dict(uri = uri,
+                                    description = form.clean_data['netname'],
+                                    created_by = request.user),
+                    )[0]
+
+            # Add the "#" in front of the channel, if necessary
+            channel = form.clean_data['channel']
+            if channel[0] not in '#&':
+                channel = '#' + channel
+
+            # Now look up a matching bot. We might have to create this too.
+            bot = models.Bot.objects.get_or_create(
+                network = network,
+                location__iexact = channel,
+                defaults = dict(location=channel),
+                )[0]
+
+            # Finally, create a new UserAsset.
+            user_asset = models.UserAsset.objects.get_or_create(
+                user = request.user,
+                content_type = ContentType.objects.get_for_model(models.Bot),
+                object_id = bot.id,
+                )[0]
+
+            return HttpResponseRedirect("/account/%s/%s/" % (
+                user_asset.asset._meta.asset_type, user_asset.id,
+                ))
 
     ctx = get_asset_add_context(request, asset_type)
     ctx.update({

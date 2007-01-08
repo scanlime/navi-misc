@@ -1,4 +1,4 @@
-{% extends 'accounts/asset.html' %}
+{% extends 'accounts/bot_asset.html' %}
 
 {% block c3 %}
 <h1>Add {{ asset_type_name }}</h1>
@@ -31,7 +31,11 @@ you specify, one will be created automatically.
           Other...
           </option>
     </select>
-    <div class="error">{{ form.errors.network.0 }}</div>
+    {% if form.errors.network %}
+      <div class="error">{{ form.errors.network.0 }}</div>
+    {% else %}
+      <div class="select-note" id="id_network_details">Foo</div>
+    {% endif %}
   </div>
 
   <div id="new_network_form"
@@ -65,17 +69,28 @@ you specify, one will be created automatically.
 </form>
 
 <script type="text/javascript">
-  network = document.getElementById('id_network')
-  network.focus()
+  network_details = new Object();
+  {% for network in networks %}
+  network_details["{{ network.id }}"] = "{{ network|escape|addslashes }}<br />{{ network.uri|escape|addslashes }}";
+  {% endfor %}
+
+  network = document.getElementById('id_network');
+  network.focus();
   network.onchange = function () {
     var form = document.getElementById('new_network_form');
     var selected = network.options[network.selectedIndex].value;
+
     form.style.display = (selected == '_other') ? 'block' : 'none';
+
+    var detailElement = document.getElementById('id_network_details');
+    if (detailElement) {
+      detailElement.innerHTML = network_details[selected] || "";
+    }   
   }
   if (network.selectedIndex < 0) {
     network.selectedIndex = 0;
   }
-  network.onchange()
+  network.onchange();
 </script>
 
 {% endblock %}
