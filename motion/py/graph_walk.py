@@ -38,7 +38,7 @@ def clicheWalk (start, adjList, len):
 
     return path
 
-def weightedWalk(start, adjList, length):
+def weightedWalk(start, vMap, length):
     """Perform a weighted graph walk.
 
     Unlike the cliche walk, this walk does not choose the node with the highest
@@ -46,8 +46,6 @@ def weightedWalk(start, adjList, length):
     its probability and then chooses the node whose probability range contains
     a randomly generated probability.
     """
-    # Get the necessary graph representations
-
     # Choose a random starting point and initialize the path with it
     u = start
     path = [u.center]
@@ -58,7 +56,10 @@ def weightedWalk(start, adjList, length):
         # Keep a running sum of probabilities
         p = 0.0
         # Generate a list of edges coming out of u and sort according to weight
-        edges = [edge for edge in adjList.query(u)]
+        edges = []
+        for edge in vMap.query(u):
+            if edge.u == u:
+                edges.append(edge)
         edges.sort(cmp=lambda x,y: cmp(x.weight, y.weight))
 
         # By iterating over the edges in order of ascending weights and summing
@@ -101,8 +102,8 @@ parser.add_option("-l", "--len", dest="len", default=1000,
 parser.add_option("-q", "--quality", dest="quality", default=5,
                   type="int",
                   help="Set the number of points to insert during interpolation")
-parser.add_option("-i", "--interpolate", dest="interpolate",
-                  help="Interpolate the walk and save it to a file")
+#parser.add_option("-i", "--interpolate", dest="interpolate",
+                  #help="Interpolate the walk and save it to a file")
 
 opts, args = parser.parse_args()
 
@@ -121,30 +122,30 @@ for bone, adjList in adjacencyLists.data.items ():
     elif opts.type == 'random':
         bones[bone] = randomWalk (start, adjList, opts.len)
     elif opts.type == 'weighted':
-        bones[bone] = weightedWalk (start, adjList, opts.len)
+        bones[bone] = weightedWalk (start, vMap, opts.len)
 
-    if hasattr(opts, "interpolate"):
-        smoothed[bone] = spline(bones[bone], opts.quality)
+    #if hasattr(opts, "interpolate"):
+        #smoothed[bone] = spline(bones[bone], opts.quality)
 
 # Write the interpolated data to a file
-if hasattr(opts, "interpolate"):
-    file = open(opts.interpolate, "w")
-    file.write(":FULLY-SPECIFIED\n")
-    file.write(":DEGREES\n")
+#if hasattr(opts, "interpolate"):
+    #file = open(opts.interpolate, "w")
+    #file.write(":FULLY-SPECIFIED\n")
+    #file.write(":DEGREES\n")
 
-    for i in range(opts.len * opts.quality):
-        file.write("%d\n" % (i))
+    #for i in range(opts.len * opts.quality):
+        #file.write("%d\n" % (i))
 
-        for bone, frames in smoothed.iteritems():
-            if bone == "root":
-                s = bone + " 0 0 0"
-            else:
-                s = bone
-            for angle in frames[i]:
-                a = " %6f" % (angle)
-                s += a
-            s += "\n"
-            file.write(s)
+        #for bone, frames in smoothed.iteritems():
+            #if bone == "root":
+                #s = bone + " 0 0 0"
+            #else:
+                #s = bone
+            #for angle in frames[i]:
+                #a = " %6f" % (angle)
+                #s += a
+            #s += "\n"
+            #file.write(s)
 
 # FIXME - Hack to print out the data because I had some trouble using AMC.save()
 print ":FULLY-SPECIFIED"
