@@ -92,6 +92,14 @@ h1 {
   list-style-image: url("/media/img/raquo-10.png");
 }
 
+.columns .c2 li.group {
+  position: relative;
+  left: -0.75em;
+  padding: 0.4em 0.25em 0.15em 0.25em;
+  font-size: 0.75em;
+  color: #666;
+}
+
 .columns .c3 {
   margin: 0 0 1em 23em;
   padding: 0 0.5em 1em 1em;
@@ -214,6 +222,15 @@ legend {
   font-size: 0.75em;
   font-weight: bold;
   color: red;
+}
+
+.form-row div.select-note {
+  overflow: hidden;
+  position: absolute;
+  left: 37em;
+  top: 0.25em;
+  font-size: 0.75em;
+  color: #666;
 }
 
 .submit-row {

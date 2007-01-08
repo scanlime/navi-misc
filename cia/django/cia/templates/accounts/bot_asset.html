@@ -1,0 +1,17 @@
+{% extends 'accounts/asset.html' %}
+
+{! Customize the asset list to group by network !}
+
+{% block user_assets %}
+{% regroup user_assets|dictsort:"asset.getURI" by asset.network as grouped %}
+{% for group in grouped %}
+  <li class="group">{{ group.grouper }}</li>
+  {% for user_asset in group.list %}
+    {% ifequal user_asset.object_id asset_id %}
+      <li class="active">{{ user_asset.asset.location }}</li>
+    {% else %}
+      <li><a href="/account/{{ asset_type }}/{{ user_asset.object_id }}/">{{ user_asset.asset.location }}</a></li>
+    {% endifequal %}
+   {% endfor %}
+{% endfor %}
+{% endblock %}
