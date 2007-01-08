@@ -17,9 +17,9 @@ urlpatterns = patterns('',
     (r'^recipes/(?P<object_id>\d+)/$',      'bonvivant.apps.recipes.views.detail'),
 
     # Auth stuff
-    (r'^login/$',            'django.contrib.auth.views.login'),
-    (r'^logout/$',           'django.contrib.auth.views.logout'),
-    (r'^register/$',         'bonvivant.apps.accounts.views.register'),
+    (r'^accounts/login/$',     'django.contrib.auth.views.login'),
+    (r'^accounts/logout/$',    'django.contrib.auth.views.logout'),
+    (r'^accounts/register/$',  'bonvivant.apps.accounts.views.register'),
 
     # Account info
     (r'^accounts/profile/$', 'bonvivant.apps.accounts.views.profile'),
