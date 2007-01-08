@@ -101,8 +101,6 @@ parser.add_option("-l", "--len", dest="len", default=1000,
 parser.add_option("-q", "--quality", dest="quality", default=5,
                   type="int",
                   help="Set the number of points to insert during interpolation")
-#parser.add_option("-i", "--interpolate", dest="interpolate",
-                  #help="Interpolate the walk and save it to a file")
 
 opts, args = parser.parse_args()
 
@@ -126,29 +124,6 @@ for bone, adjList in adjacencyLists.data.items ():
         print 'Performing weighted walk'
         bones[bone] = weightedWalk (start, vMap, opts.len)
 
-    #if hasattr(opts, "interpolate"):
-        #smoothed[bone] = spline(bones[bone], opts.quality)
-
-# Write the interpolated data to a file
-#if hasattr(opts, "interpolate"):
-    #file = open(opts.interpolate, "w")
-    #file.write(":FULLY-SPECIFIED\n")
-    #file.write(":DEGREES\n")
-
-    #for i in range(opts.len * opts.quality):
-        #file.write("%d\n" % (i))
-
-        #for bone, frames in smoothed.iteritems():
-            #if bone == "root":
-                #s = bone + " 0 0 0"
-            #else:
-                #s = bone
-            #for angle in frames[i]:
-                #a = " %6f" % (angle)
-                #s += a
-            #s += "\n"
-            #file.write(s)
-
 # FIXME - Hack to print out the data because I had some trouble using AMC.save()
 print ":FULLY-SPECIFIED"
 print ":DEGREES"
@@ -165,6 +140,5 @@ for i in range (opts.len):
             a = " %6f" % (angle)
             s += a
         print s
-
 
 # vim:ts=4:sw=4:et
