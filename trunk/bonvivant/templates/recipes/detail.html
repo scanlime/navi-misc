@@ -10,7 +10,7 @@ window.onload = function() {
 </script>
 {% endblock %}
 
-{% block title %}{{ recipe.title }}{% endblock %}
+{% block title %}{{ recipe.title|title }}{% endblock %}
 
 {% block navmain %}
 {% if user.is_authenticated %}
@@ -21,7 +21,7 @@ window.onload = function() {
 {% endblock %}
 
 {% block content %}
-<h1 class="cb" id="cb{% counter cbs %}">{{ recipe.title }}</h1>
+<h1 class="cb" id="cb{% counter cbs %}">{{ recipe.title|title }}</h1>
 {% if  recipe.author.first_name %}
   <h2>By {{ recipe.author.first_name }} {{ recipe.author.last_name }}</h2>
 {% else %}
@@ -59,10 +59,8 @@ window.onload = function() {
   </div>
 {% endif %}
 
-{% if comments %}
-  {% regroup comments by block as grouped %}
-  <div id="cis">{% for group in grouped %}<div class="ci" id="{{ group.grouper }}">{{ group.list|length }}</div>{% endfor %}</div>
-{% endif %}
+{% regroup comments by block as grouped %}
+<div id="cis">{% for group in grouped %}<div class="ci" id="{{ group.grouper }}">{{ group.list|length }}</div>{% endfor %}</div>
 
 <!--
 <div id="comments">
