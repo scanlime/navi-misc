@@ -149,11 +149,11 @@ def reset(request, key, next_page):
         validate_test_cookie(form, request)
 
         if not form.errors:
-            user.set_password(form.data['password'])
+            user.set_password(form.clean_data['password'])
             user.save()
 
             # Try to log in using the new password
-            loginError = internal_login(request, user.username, form.data['password'])
+            loginError = internal_login(request, user.username, form.clean_data['password'])
             if loginError:
                 # This might happen if the account is deactivated.
                 form.errors['submit'] = forms.util.ErrorList([loginError])
@@ -208,11 +208,11 @@ def register(request, next_page, template_name="accounts/register.html"):
         if not form.errors:
             # The username still might be taken, but let's test for that atomically
             # as a side-effect of trying to create the user.
-            user = auth.models.User(first_name = form.data['first_name'].title(),
-                                    last_name = form.data['last_name'].title(),
-                                    email = form.data['email'],
-                                    username = form.data['username'])
-            user.set_password(form.data['password'])
+            user = auth.models.User(first_name = form.clean_data['first_name'].title(),
+                                    last_name = form.clean_data['last_name'].title(),
+                                    email = form.clean_data['email'],
+                                    username = form.clean_data['username'])
+            user.set_password(form.clean_data['password'])
             try:
                 user.save()
             except:
@@ -220,7 +220,7 @@ def register(request, next_page, template_name="accounts/register.html"):
                 # To make this portable, we'll do a second check to see if the username
                 # was taken. This is also slightly racy, but much less so than checking
                 # beforehand. Easier to ask forgiveness than permission.
-                if get_user(form.data['username']):
+                if get_user(form.clean_data['username']):
                     form.errors['username'] = forms.util.ErrorList(["Sorry, this username is taken."])
                 else:
                     # Something else happened.. pass on the exception
@@ -229,13 +229,13 @@ def register(request, next_page, template_name="accounts/register.html"):
         if not form.errors:
             # Something's wrong internally if we can't log in to the
             # account we just created...
-            assert not internal_login(request, form.data['username'], form.data['password'])
+            assert not internal_login(request, form.clean_data['username'], form.clean_data['password'])
             return HttpResponseRedirect(next_page)
 
     else:
         form = None
 
-    request.session.delete_test_cookie()
+    request.session.set_test_cookie()
     return render_to_response(template_name, RequestContext(request, {'form': form}))
 
 
@@ -340,7 +340,7 @@ def do_change_password(request):
     validate_password_confirmation(form, 'new_password')
     validate_old_password(form, request.user, 'old_password')
     if not form.errors:
-        request.user.set_password(form.data['new_password'])
+        request.user.set_password(form.clean_data['new_password'])
         request.user.save()
         request.user.message_set.create(message="Your password was changed successfully.")
     return form
@@ -354,7 +354,7 @@ def do_change_profile(request):
     form = ChangeProfileForm(request.POST)
     form.full_clean()
     if not form.errors:
-        for key, value in form.data.items():
+        for key, value in form.clean_data.items():
             setattr(request.user, key, value)
         request.user.save()
         request.user.message_set.create(message="Your profile was updated successfully.")
@@ -402,15 +402,55 @@ def add_stats_asset(request, asset_type):
 ###########################
 
 class AddBotForm(forms.Form):
-    password = forms.CharField(min_length=5, max_length=30)
-    password2 = forms.CharField()
+    network = forms.CharField()
+    channel = forms.RegexField(r"^[^\s\x00-\x1f,]+$", max_length=63,
+                               error_message='Must be a valid IRC channel name.')
+
+class AddNetworkForm(forms.Form):
+    netname = forms.CharField(max_length=200)
+    server = forms.RegexField(r"^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,6}(:\d+)?$", max_length=120,
+                               error_message='Must be a valid hostname with optional port.')
+
+class MultiForm:
+    """A simple wrapper for conditionally validating multiple forms
+       with the same data and error dictionaries.
+       """
+    def __init__(self, bindTo):
+        self.bindTo = bindTo
+        self.data = {}
+        self.clean_data = {}
+        self.errors = {}
+
+    def validate(self, form):
+        inst = form(self.bindTo)
+        inst.full_clean()
+        self.errors.update(inst.errors)
+        self.data.update(inst.data.items())
+        if inst.clean_data:
+            self.clean_data.update(inst.clean_data.items())
+
+def validate_network(form, field_name='network'):
+    try:
+        models.Network.objects.get(pk=int(form.data.get('network')))
+    except (ValueError, models.Network.DoesNotExist):
+        form.errors['network'] = forms.util.ErrorList(["Select a network."])
 
 @login_required
 def add_bot(request, asset_type):
-    ctx = get_asset_add_context(request, asset_type)
-    ctx['popular_networks'] = 'Freenode OFTC EFnet'.split()
-    ctx['other_networks'] = 'FOONet ARPAnet Internet2'.split()
+    form = MultiForm(request.POST)
 
+    if request.POST:
+        form.validate(AddBotForm)
+        if form.clean_data.get('network') == '_other':
+            form.validate(AddNetworkForm)
+        else:
+            validate_network(form)
+
+    ctx = get_asset_add_context(request, asset_type)
+    ctx.update({
+        'networks': models.Network.objects.all(),
+        'form': form,
+        })
     return render_to_response('accounts/add_bot.html', ctx)
 
 @login_required

@@ -36,6 +36,9 @@ class Network(models.Model):
     reviewed_by_admin = models.BooleanField(default=False)
     created_by = models.ForeignKey(User)
     date_added = models.DateTimeField(auto_now_add=True)
+
+    def id_string(self):
+        return str(self.id)
     
     def __str__(self):
         return self.description

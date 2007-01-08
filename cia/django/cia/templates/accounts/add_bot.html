@@ -14,39 +14,53 @@ you specify, one will be created automatically.
 
 <form action="{{ form_path }}" method="post">
   <fieldset><legend>IRC Bot</legend>
+
   <div class="form-row">
     <label for="id_network">Network:</label>
-    <select name="network" id="id_network" size="8" value="a">
+    <select name="network" id="id_network" size="8">
       {% for network in networks %}
-        <option label="{{ network.id }}"
-          {% ifequal network.id form.data.network %} selected="1"{% endifequal %}>
+        <option value="{{ network.id }}"
+          {% ifequal network.id_string form.data.network %}
+          selected="1"{% endifequal %}>
           {{ network|escape }}
         </option>
       {% endfor %}
-      <option label="_other">Other...</option>
+      <option value="_other"
+          {% ifequal form.data.network "_other" %}
+          selected="1"{% endifequal %}>
+          Other...
+          </option>
     </select>
     <div class="error">{{ form.errors.network.0 }}</div>
   </div>
-  <div id="new_network_form">
+
+  <div id="new_network_form"
+    {% ifnotequal form.data.network "_other" %}
+    style="display: none;"{% endifnotequal %}>
+
     <div class="form-row">
       <label for="id_netname">New network name:</label>
       <input type="text" name="netname" id="id_netname" value="{{ form.data.netname|escape }}"/>
       <div class="error">{{ form.errors.netname.0 }}</div>
     </div>
+
     <div class="form-row">
       <label for="id_server">Server:</label>
       <input type="text" name="server" id="id_server" value="{{ form.data.server|escape }}"/>
       <div class="error">{{ form.errors.server.0 }}</div>
     </div>
   </div>
+
   <div class="form-row">
     <label for="id_channel">Channel:</label>
     <input type="text" name="channel" id="id_channel" value="{{ form.data.channel|escape }}"/>
     <div class="error">{{ form.errors.channel.0 }}</div>
   </div>
+
   <div class="submit-row">
     <div>&raquo;</div> <input type="submit" value="Add" />
   </div>
+
   </fieldset>
 </form>
 
@@ -55,7 +69,11 @@ you specify, one will be created automatically.
   network.focus()
   network.onchange = function () {
     var form = document.getElementById('new_network_form');
-    form.style.display = (network.value == 'Other...') ? 'block' : 'none';
+    var selected = network.options[network.selectedIndex].value;
+    form.style.display = (selected == '_other') ? 'block' : 'none';
+  }
+  if (network.selectedIndex < 0) {
+    network.selectedIndex = 0;
   }
   network.onchange()
 </script>
