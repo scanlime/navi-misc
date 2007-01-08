@@ -13,7 +13,7 @@ from Graph.Data import AdjacencyList, VertexMap
 from Motion.Interpolate import spline
 import Motion, Numeric, pickle, random
 
-def clicheWalk (start, adjList, len):
+def clicheWalk (start, vMap, len):
     """Find a path in graph of length len by following the edges with the
        highest probabilities.
        """
@@ -24,11 +24,11 @@ def clicheWalk (start, adjList, len):
         choice = None
         weight = 0
         # Check all the edges associated with this vertex.
-        for edge in adjList.query (u):
+        for edge in vMap.query (u):
             # If this vertex is the start of the edge (not the end) and the
             # edge is more likely than any other we've seen, it becomes our next
             # edge.
-            if edge.weight >= weight:
+            if edge.u == u and edge.weight >= weight:
                 weight = edge.weight
                 choice = edge.v
 
@@ -77,7 +77,6 @@ def weightedWalk(start, vMap, length):
 
 def randomWalk (start, adjList, len):
     """Find a path in graph of langth len by following a random edge."""
-    adjacency = graph.representations[AdjacencyList]
 
     # Choose a random starting place.
     u = start
@@ -85,7 +84,7 @@ def randomWalk (start, adjList, len):
 
     for i in range (len):
         # Choose a random edge coming out of u.
-        choice = random.choice ([edge for edge in adjacency.query (u)])
+        choice = random.choice ([edge for edge in adjList.query (u)])
         # Append the end of that edge to the path.
         path.append (choice.v.center)
         # Set the current vertex to this new vertex
@@ -95,8 +94,8 @@ def randomWalk (start, adjList, len):
 
 
 parser = OptionParser ("%prog [options] <graph pickle>")
-parser.add_option("--type", dest="type", default='weighted',
-                   help="Select type of walk")
+parser.add_option("--type", dest="type", default='all',
+        help="Comma separated list of walks to perform (default: all)")
 parser.add_option("-l", "--len", dest="len", default=1000,
                    type="int", help="Set length of paths")
 parser.add_option("-q", "--quality", dest="quality", default=5,
@@ -117,11 +116,14 @@ adjacencyLists = graphs.representations[AdjacencyList]
 for bone, adjList in adjacencyLists.data.items ():
     vMap = graphs.representations[VertexMap].data[bone]
     start = random.choice([v for v in vMap])
-    if opts.type == 'cliche':
-        bones[bone] = clicheWalk (start, adjList, opts.len)
-    elif opts.type == 'random':
+    if 'cliche' in opts.type or 'all' in opts.type:
+        print 'Performing cliche walk'
+        bones[bone] = clicheWalk (start, vMap, opts.len)
+    if 'random' in opts.type or 'all' in opts.type:
+        print 'Performing random walk'
         bones[bone] = randomWalk (start, adjList, opts.len)
-    elif opts.type == 'weighted':
+    if 'weighted' in opts.type or 'all' in opts.type:
+        print 'Performing weighted walk'
         bones[bone] = weightedWalk (start, vMap, opts.len)
 
     #if hasattr(opts, "interpolate"):
