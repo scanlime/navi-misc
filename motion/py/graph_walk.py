@@ -93,7 +93,7 @@ def randomWalk (start, adjList, len):
     return path
 
 
-parser = OptionParser ("%prog [options] <graph pickle>")
+parser = OptionParser ("%prog [options] <graph pickle> <file name>")
 parser.add_option("--type", dest="type", default='all',
         help="Comma separated list of walks to perform (default: all)")
 parser.add_option("-l", "--len", dest="len", default=1000,
@@ -107,38 +107,41 @@ opts, args = parser.parse_args()
 if len (args) < 1:
     parser.error("graph file required")
 
-graphs = pickle.load(open(args[-1]))
-bones = {}
+graphs = pickle.load(open(args[0]))
+walks = {'cliche': {}, 'random': {}, 'weighted': {}}
 smoothed = {}
 adjacencyLists = graphs.representations[AdjacencyList]
 for bone, adjList in adjacencyLists.data.items ():
     vMap = graphs.representations[VertexMap].data[bone]
     start = random.choice([v for v in vMap])
     if 'cliche' in opts.type or 'all' in opts.type:
-        print 'Performing cliche walk'
-        bones[bone] = clicheWalk (start, vMap, opts.len)
+        walks['cliche'][bone] = clicheWalk (start, vMap, opts.len)
     if 'random' in opts.type or 'all' in opts.type:
-        print 'Performing random walk'
-        bones[bone] = randomWalk (start, adjList, opts.len)
+        walks['random'][bone] = randomWalk (start, adjList, opts.len)
     if 'weighted' in opts.type or 'all' in opts.type:
-        print 'Performing weighted walk'
-        bones[bone] = weightedWalk (start, vMap, opts.len)
+        walks['weighted'][bone] = weightedWalk (start, vMap, opts.len)
 
-# FIXME - Hack to print out the data because I had some trouble using AMC.save()
-print ":FULLY-SPECIFIED"
-print ":DEGREES"
+for name, walk in walks.iteritems():
+    if len(walk) is 0:
+        # Skip walks we didn't do
+        continue
 
-for i in range (opts.len):
-    print i
-    for bone,frames in bones.iteritems ():
-        if bone == "root":
-            s = bone + " 0 0 0"
-        else:
-            s = bone
+    # FIXME - Hack to print out the data because I had some trouble using AMC.save()
+    f = open('-'.join([args[-1], name]) + '.amc', 'w')
+    f.writelines([':FULLY-SPECIFIED\n', ':DEGREES\n'])
 
-        for angle in frames[i]:
-            a = " %6f" % (angle)
-            s += a
-        print s
+    for i in range (opts.len):
+        f.write(str(i) + '\n')
+        for bone, frames in walk.iteritems ():
+            if bone == "root":
+                s = bone + " 0 0 0"
+            else:
+                s = bone
+
+            for angle in frames[i]:
+                a = " %6f" % (angle)
+                s += a
+            f.write(s + '\n')
+    f.close()
 
 # vim:ts=4:sw=4:et
