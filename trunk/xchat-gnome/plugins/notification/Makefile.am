@@ -34,7 +34,7 @@ schema_in_files	= notification.schemas.in
 schema_DATA	= $(schema_in_files:.schemas.in=.schemas)
 @INTLTOOL_SCHEMAS_RULE@
 
-EXTRA_DIST = notification.schemas.in
+EXTRA_DIST = notification.schemas.in preferences-notification.glade
 
 if GCONF_SCHEMAS_INSTALL
 install-data-local:
