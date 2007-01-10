@@ -1,3 +1,16 @@
+2007-01-10  Brian Pepple  <bpepple@fedoraproject.org>
+
+	* data/icons/hicolor/48x48/apps/Makefile.am (icondir):
+	* data/icons/hicolor/128x128/apps/Makefile.am (icondir):
+	  - Install application icon into system hicolor theme. Bug #384160
+
+2007-01-10  David Trowbridge  <trowbrds@gmail.com>
+
+	* configure.ac:
+	  - Bump to 0.17svn
+
+==================== 0.16 ====================
+
 2007-01-09  David Trowbridge <trowbrds@gmail.com>
 
 	* plugins/notification/Makefile.am:
