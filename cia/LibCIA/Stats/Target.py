@@ -102,8 +102,18 @@ class StatsTarget(object):
         """An event has occurred which should be logged by this stats target"""
         if message:
             self.messages.push(unicode(message).encode('utf-8'))
+
+            # XXX:
+            # We want to close the file now, even if this StatsTarget instance lingers
+            # for a while due to references from Deferreds. I've seen StatsTargets stick
+            # around for a seemingly infinite amount of time- probably a side effect of
+            # all the circular references between here and Messages/Counters :(
+            self.messages.close()
+            
         self.counters.increment()
-        SubscriptionDelivery(self).notify('messages')
+
+        # XXX: Disable subscriptions for speed. Nobody uses them anyway.
+        # SubscriptionDelivery(self).notify('messages')
 
     def child(self, name):
         """Return the StatsTarget for the given sub-target name under this one"""
