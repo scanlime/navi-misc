@@ -1,7 +1,0 @@
-#ifndef _IPC_MESSAGES_H_
-#define _IPC_MESSAGES_H_
-
-#define IPC_MSG_WIFI_SYNC  0xCAFE0001
-#define IPC_MSG_WIFI_INIT  0xCAFE0002
-
-#endif /* _IPC_MESSAGES_H_ */
