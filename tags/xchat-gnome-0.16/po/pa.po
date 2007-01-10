@@ -1,0 +1,4688 @@
+# Translation of xchat-gnome into the Punjabi language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
+# Amanpreet Singh Alam <amanpreetalam@yahoo.com>, 2005.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: xchat-gnome\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-12-08 23:15+0100\n"
+"PO-Revision-Date: 2006-06-21 08:36+0000\n"
+"Last-Translator: Amanpreet Singh Alam <amanpreetalam@yahoo.com>\n"
+"Language-Team: Punjabi <fedora-trans-pa@redhat.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../data/channel-list.glade.h:1
+msgid "<span weight=\"bold\">List Filtering</span>"
+msgstr ""
+
+#: ../data/channel-list.glade.h:2
+msgid "Channel _Name"
+msgstr "ਚੈਨਲ ਨਾਂ"
+
+#: ../data/channel-list.glade.h:3
+msgid "Channel _Topic"
+msgstr "ਚੈਨਲ"
+
+#: ../data/channel-list.glade.h:4
+#, fuzzy
+msgid "Channels list"
+msgstr "ਚੈਨਲ"
+
+#: ../data/channel-list.glade.h:5
+#, fuzzy
+msgid "Join channel:"
+msgstr "ਚੈਨਲ ਵਿੱਚ ਦਾਖਲਲ"
+
+#: ../data/channel-list.glade.h:6
+#, fuzzy
+msgid "Search for text:"
+msgstr "ਖੋਜ ਬਫ਼ਰ ਖਾਲੀ ਹੈ।\n"
+
+#: ../data/channel-list.glade.h:7
+#, fuzzy
+msgid "Show channels with:"
+msgstr "ਚੈਨਲ"
+
+#: ../data/channel-list.glade.h:8
+#, fuzzy
+msgid "_Join Channel"
+msgstr "ਚੈਨਲ ਵਿੱਚ ਦਾਖਲਲ"
+
+#: ../data/channel-list.glade.h:9
+#, fuzzy
+msgid "in:"
+msgstr "ਖੋਜ:"
+
+#: ../data/channel-list.glade.h:10
+msgid "to"
+msgstr ""
+
+#: ../data/channel-list.glade.h:11
+#, fuzzy
+msgid "users"
+msgstr "ਉਪਭੋਗੀ"
+
+#: ../data/connect-dialog.glade.h:1 ../src/fe-gnome/connect-dialog.c:138
+msgid "C_onnect"
+msgstr "ਜੋੜ੍ਹੋ(_C)"
+
+#: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:121
+msgid "File Transfers"
+msgstr "ਫਾਇਲ ਤਬਦੀਲ"
+
+#: ../data/irc-network-editor.glade.h:1
+msgid "<span weight=\"bold\">Automatically Join Channels</span>"
+msgstr ""
+
+#: ../data/irc-network-editor.glade.h:2
+msgid "<span weight=\"bold\">User Info</span>"
+msgstr ""
+
+#: ../data/irc-network-editor.glade.h:3
+msgid "Accept invalid _SSL certificate"
+msgstr ""
+
+#: ../data/irc-network-editor.glade.h:4
+msgid "Character _encoding:"
+msgstr "ਅੱਖਰ-ਸਮੂਹ ਨਿਰਧਾਰਨ:"
+
+#: ../data/irc-network-editor.glade.h:5
+#, fuzzy
+msgid "Cycle _until connected"
+msgstr "ਜੁੜਿਆ ਨਹੀਂ ਹੈ।"
+
+#: ../data/irc-network-editor.glade.h:6
+msgid "Network Settings"
+msgstr "ਨੈਟਵਰਕ ਵਿਵਸਥਾ"
+
+#: ../data/irc-network-editor.glade.h:7
+#, fuzzy
+msgid "Nickser_v password:"
+msgstr "ਸਰਵਰ ਗੁਪਤ-ਕੋਡ:"
+
+#: ../data/irc-network-editor.glade.h:8
+#, fuzzy
+msgid "Server _password:"
+msgstr "ਸਰਵਰ ਗੁਪਤ-ਕੋਡ:"
+
+#: ../data/irc-network-editor.glade.h:9
+msgid "Servers"
+msgstr "ਸਰਵਰ"
+
+#: ../data/irc-network-editor.glade.h:10
+msgid "Use _global user settings"
+msgstr "ਵਿਆਪਕ ਉਪਭੋਗੀ ਜਾਣਕਾਰੀ ਵਰਤੋਂ"
+
+#: ../data/irc-network-editor.glade.h:11
+msgid "Use _these user settings:"
+msgstr ""
+
+#: ../data/irc-network-editor.glade.h:12
+msgid "User and Channels"
+msgstr "ਚੈਨਲ ਛੱਡੋ"
+
+#: ../data/irc-network-editor.glade.h:13
+msgid "_Automatically connect to network"
+msgstr "ਸ਼ੁਰੂ ਵੇਲੇ ਇਸ ਨੈਟਵਰਕ ਨਾਲ ਖੁਦ ਹੀ ਜੋੜੋ"
+
+#: ../data/irc-network-editor.glade.h:14
+msgid "_Name:"
+msgstr "ਨਾਂ"
+
+#: ../data/irc-network-editor.glade.h:15 ../data/setup-dialog.glade.h:5
+msgid "_Nick name:"
+msgstr "ਨਾਂ(_N):"
+
+#: ../data/irc-network-editor.glade.h:16
+msgid "_Real Name:"
+msgstr "ਅਸਲੀ ਨਾਂ:"
+
+#: ../data/irc-network-editor.glade.h:17
+msgid "_Use secure connection (SSL)"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:1
+msgid "<span size=\"small\" style=\"italic\">Opaque</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:2
+msgid "<span size=\"small\" style=\"italic\">Transparent</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:3
+msgid "<span weight=\"bold\">Background</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:4
+msgid "<span weight=\"bold\">DCC Settings</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:5
+msgid "<span weight=\"bold\">Extra Colors</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:6
+msgid "<span weight=\"bold\">File Transfers</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:7
+msgid "<span weight=\"bold\">General</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:8
+msgid "<span weight=\"bold\">Highlighting</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:9
+msgid "<span weight=\"bold\">Text Colors</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:10
+msgid "<span weight=\"bold\">Throttling</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:11
+msgid "<span weight=\"bold\">User Interface</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:12
+msgid "<span weight=\"bold\">mIRC Colors</span>"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:13
+msgid "A_way message:"
+msgstr "ਨਵਾਂ ਸੁਨੇਹਾ:"
+
+#: ../data/preferences-dialog.glade.h:14
+msgid "Auto-accept DCC c_hat"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:15
+msgid "Auto-accept DCC file tr_ansfers"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:16
+msgid "Background mark:"
+msgstr "ਪਿੱਠਭੂਮੀ ਚਿੱਤਰ:"
+
+#: ../data/preferences-dialog.glade.h:17
+msgid "Buil_t-in schemes:"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:18
+#, fuzzy
+msgid "Convert spaces to _underscores in filenames"
+msgstr "ਭੇਜਣ ਤੋਂ ਪਹਿਲਾਂ ਖਾਲੀ ਥਾਂ ਨੂੰ ਅੰਡਰਸਕੋਰ ਵਿੱਚ ਬਦਲੋ"
+
+#: ../data/preferences-dialog.glade.h:19
+msgid "Display a red line after the last read text"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:20
+msgid "Enter extra words to trigger highlighting"
+msgstr "ਉਘਾੜਨ ਲਈ ਹੋਰ ਸ਼ਬਦ:"
+
+#: ../data/preferences-dialog.glade.h:21
+msgid "Foreground mark:"
+msgstr "ਮੁੱਖ-ਭੂਮੀ:"
+
+#: ../data/preferences-dialog.glade.h:22
+#, fuzzy
+msgid "Get IP address from _server"
+msgstr "IRC ਸਰਵਰ ਤੋਂ ਮੇਰਾ ਸਿਰਨਾਵਾਂ ਪ੍ਰਾਪਤ ਕਰੋ"
+
+#: ../data/preferences-dialog.glade.h:23
+msgid "Glo_bal receive KB/s: "
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:24
+msgid "I_mage file:"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:25
+msgid "In_dividual send KB/s: "
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:26
+msgid "Indi_vidual receive KB/s: "
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:27
+#, fuzzy
+msgid "Move co_mpleted files to:"
+msgstr "ਮੁਕੰਮਲ ਫਾਇਲਾਂ ਨੂੰ ਭੇਜੋ:"
+
+#: ../data/preferences-dialog.glade.h:28
+msgid "Preferences"
+msgstr "ਮੇਰੀ ਪਸੰਦ..."
+
+#: ../data/preferences-dialog.glade.h:29
+msgid "Real na_me:"
+msgstr "ਅਸਲੀ ਨਾਂ(_l):"
+
+#: ../data/preferences-dialog.glade.h:30
+#, fuzzy
+msgid "Save sender _nickname in filenames"
+msgstr "ਫਾਇਲ ਨਾਂ ਵਿੱਚ ਨਾਂ ਸੰਭਾਲੋ"
+
+#: ../data/preferences-dialog.glade.h:31
+msgid "Select A File"
+msgstr "ਇੱਕ ਤਸਵੀਰ ਫਾਇਲ ਚੁਣੋ"
+
+#: ../data/preferences-dialog.glade.h:32
+msgid "Select Completed Files Directory"
+msgstr "ਮੁਕੰਮਲ ਫਾਇਲਾਂ ਨੂੰ ਭੇਜੋ:"
+
+#: ../data/preferences-dialog.glade.h:33
+msgid "Select Download Directory"
+msgstr "ਫਾਇਲਾਂ ਤੇ ਡਾਇਰੈਕਟਰੀਆਂ"
+
+#: ../data/preferences-dialog.glade.h:34
+msgid "Show _timestamps"
+msgstr "ਸਮਾਂ ਮੋਹਰ ਯੋਗ"
+
+#: ../data/preferences-dialog.glade.h:35
+msgid "Show m_arker line"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:36
+msgid ""
+"To edit a shortcut key, click on the corresponding row and type a new "
+"accelerator, or press backspace to clear."
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:37
+#, fuzzy
+msgid "Use _system terminal font"
+msgstr "ਉਪਭੋਗੀ ਸੂਚੀ"
+
+#: ../data/preferences-dialog.glade.h:38
+#, fuzzy
+msgid "Use t_his IP address:"
+msgstr "DCC IP ਸਿਰਨਾਵਾਂ:"
+
+#: ../data/preferences-dialog.glade.h:39
+#, fuzzy
+msgid "Use this f_ont:"
+msgstr "ਉਪਭੋਗੀ ਸੂਚੀ"
+
+#: ../data/preferences-dialog.glade.h:40
+msgid "_Background color:"
+msgstr "ਪਿੱਠਭੂਮੀ:"
+
+#: ../data/preferences-dialog.glade.h:41
+#, fuzzy
+msgid "_Background image"
+msgstr "ਪਿੱਠਭੂਮੀ ਚਿੱਤਰ:"
+
+#: ../data/preferences-dialog.glade.h:42
+#, fuzzy
+msgid "_Download files to:"
+msgstr "ਫਾਇਲਾਂ ਡਾਊਨਲੋਡ ਕਰੋ:"
+
+#: ../data/preferences-dialog.glade.h:43 ../src/fe-gnome/main-window.c:100
+msgid "_Edit"
+msgstr "ਸੋਧ(_E)"
+
+#: ../data/preferences-dialog.glade.h:44
+msgid "_Foreground color:"
+msgstr "ਮੁੱਖ-ਭੂਮੀ:"
+
+#: ../data/preferences-dialog.glade.h:45
+msgid "_Global send KB/s: "
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:46
+msgid "_Log conversations"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:47
+msgid "_Nickname:"
+msgstr "ਨਾਂ(_N):"
+
+#: ../data/preferences-dialog.glade.h:48
+msgid "_None (use solid color)"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:49
+msgid "_Part message:"
+msgstr "ਨਵਾਂ ਸੁਨੇਹਾ:"
+
+#: ../data/preferences-dialog.glade.h:50
+msgid "_Quit message:"
+msgstr "ਸੱਜਾ ਸੁਨੇਹਾ"
+
+#: ../data/preferences-dialog.glade.h:51
+msgid "_Show colors"
+msgstr ""
+
+#: ../data/preferences-dialog.glade.h:52
+msgid "_Transparent background"
+msgstr "ਪਾਰਦਰਸ਼ੀ ਪਿੱਠਭੂਮੀ"
+
+#: ../data/preferences-dialog.glade.h:53
+msgid "spell checking"
+msgstr ""
+
+#: ../data/setup-dialog.glade.h:1
+msgid ""
+"Welcome to XChat-GNOME! Since this is your first time using this "
+"application, there are a couple things you'll need to configure before you "
+"can get started.\n"
+"\n"
+"These are the names by which you'll be recognized on IRC. Your nick name is "
+"the name by which you'll be known, whereas the real name is useful for "
+"things such as registering with services. You do not have to use your real "
+"name if you do not want to."
+msgstr ""
+
+#: ../data/setup-dialog.glade.h:4
+#, fuzzy
+msgid "XChat-GNOME Setup"
+msgstr "XChat: DCC ਗੱਲਬਾਤ ਸੂਚੀ"
+
+#: ../data/setup-dialog.glade.h:6
+#, fuzzy
+msgid "_Real name:"
+msgstr "ਅਸਲੀ ਨਾਂ:"
+
+#: ../data/topic-change.glade.h:1
+msgid "Change"
+msgstr "ਚੈਨਲ"
+
+#: ../data/xchat-gnome.desktop.in.in.h:1
+msgid "Chat with people using IRC"
+msgstr ""
+
+#: ../data/xchat-gnome.desktop.in.in.h:2
+msgid "IRC Chat"
+msgstr "ਗੱਲਬਾਤ"
+
+#: ../data/xchat-gnome.desktop.in.in.h:3
+#: ../src/fe-gnome/navigation-tree.c:1205
+msgid "XChat-GNOME IRC Chat"
+msgstr "XChat: DCC ਗੱਲਬਾਤ ਸੂਚੀ"
+
+#: ../data/xchat-gnome.glade.h:1
+msgid "Apply on all _servers"
+msgstr ""
+
+#: ../data/xchat-gnome.glade.h:2
+#, fuzzy
+msgid "Change _nickname to:"
+msgstr "ਨਵਾਂ ਨਾਂ"
+
+#: ../data/xchat-gnome.glade.h:3
+msgid "Mark as _away"
+msgstr ""
+
+#: ../data/xchat-gnome.glade.h:4 ../src/common/text.c:907
+#: ../src/fe-gnome/channel-list-window.c:455 ../src/fe-gnome/userlist.c:303
+msgid "Users"
+msgstr "ਉਪਭੋਗੀ"
+
+#: ../data/xchat-gnome.glade.h:5
+msgid "nickname"
+msgstr "ਆਮ ਨਾਂ"
+
+#: ../plugins/autoaway/autoaway.c:164
+msgid "Screensaver activated, going away."
+msgstr ""
+
+#: ../plugins/autoaway/autoaway.c:172
+msgid "Screensaver is off, welcome back"
+msgstr ""
+
+#: ../plugins/autoaway/autoaway.c:218
+msgid "Auto Away"
+msgstr "ਦੂਰ"
+
+#: ../plugins/autoaway/autoaway.c:219
+msgid "Automatically go away / come back"
+msgstr "ਖੁਦ ਹੀ ਦੂਰ ਨੂੰ ਨਾ-ਮਖੌਟਾ ਕਰੋ"
+
+#: ../plugins/autoaway/autoaway.c:267
+msgid "Auto-away plugin unloaded\n"
+msgstr ""
+
+#: ../plugins/net-monitor/net-monitor.c:36
+msgid "Network Monitor"
+msgstr "ਨੈੱਟਵਰਕ ਮੀਟਰ(_N)"
+
+#: ../plugins/net-monitor/net-monitor.c:37
+msgid "NetworkManager connection monitor"
+msgstr ""
+
+#: ../plugins/net-monitor/net-monitor.c:342
+#, c-format
+msgid "%s loaded successfully\n"
+msgstr ""
+
+#: ../plugins/notification/notification.c:150
+#: ../plugins/notification/preferences-page-plugin-notification.c:133
+msgid "Notification"
+msgstr "ਸਥਿਤੀ"
+
+#: ../plugins/notification/notification.c:151
+msgid "A notification area plugin."
+msgstr ""
+
+#: ../plugins/notification/notification.c:216
+msgid "Notification plugin loaded.\n"
+msgstr "ਇਸ ਤਰ੍ਹਾਂ ਦੀ ਕੋਈ ਪਲੱਗਿੰਨ ਨਹੀਂ ਹੈ।\n"
+
+#: ../plugins/notification/notification.c:237
+msgid "Notification plugin unloaded.\n"
+msgstr "ਇਸ ਤਰ੍ਹਾਂ ਦੀ ਕੋਈ ਪਲੱਗਿੰਨ ਨਹੀਂ ਹੈ।\n"
+
+#: ../plugins/notification/notification.schemas.in.h:1
+msgid "Level of the messages that require a notification"
+msgstr ""
+
+#: ../plugins/notification/notification.schemas.in.h:2
+msgid ""
+"Messages are classified according to their importance. Select level of "
+"messages above which the notification icon will be displayed. Valid values "
+"are: \"0\" (always displayed), \"1\" (all messages including information), "
+"\"2\" (all channel messages), \"3\" (only private or highlighted messages)."
+msgstr ""
+
+#: ../plugins/notification/preferences-notification.glade.h:1
+msgid "<span weight=\"bold\">Notification level</span>"
+msgstr ""
+
+#: ../plugins/notification/preferences-notification.glade.h:2
+msgid "Notify each _event"
+msgstr ""
+
+#: ../plugins/notification/preferences-notification.glade.h:3
+#, fuzzy
+msgid "Notify each _message"
+msgstr "ਸੱਜਾ ਸੁਨੇਹਾ"
+
+#: ../plugins/notification/preferences-notification.glade.h:4
+msgid "Notify only _private messages"
+msgstr ""
+
+#: ../plugins/notification/preferences-notification.glade.h:5
+msgid "_Always display notification icon"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:30
+msgid "On-screen display"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:32
+msgid ""
+"Pops up notification of important messages when XChat-GNOME doesn't have the "
+"focus"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:57
+#, c-format
+msgid "Error closing notification: %s\n"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:74
+#, c-format
+msgid "Failed to send notification: %s\n"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:116
+#: ../plugins/notify-osd/notify-osd.c:142
+#, c-format
+msgid "Message in %s"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:118
+#: ../plugins/notify-osd/notify-osd.c:144
+#, c-format
+msgid "Message from %s"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:163
+#, c-format
+msgid "Private Message from %s"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:209
+msgid "OSD loaded\n"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:213
+msgid "OSD initialization failed\n"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:45
+msgid "xchat URL scraper"
+msgstr "XChat: URL ਖੋਜੀ"
+
+#: ../plugins/url_scraper/urlscraper.c:59
+msgid "Time"
+msgstr "ਸਮਾਂ"
+
+#: ../plugins/url_scraper/urlscraper.c:64 ../src/common/text.c:687
+msgid "Nick"
+msgstr "ਨਾਂ"
+
+#: ../plugins/url_scraper/urlscraper.c:68 ../src/common/text.c:654
+#: ../src/common/text.c:658 ../src/common/text.c:1095
+#: ../src/fe-gnome/irc-network-editor.c:320
+msgid "Channel"
+msgstr "ਚੈਨਲ"
+
+#: ../plugins/url_scraper/urlscraper.c:73
+msgid "URL"
+msgstr "URL"
+
+#: ../plugins/url_scraper/urlscraper.c:155
+msgid "URL Scraper"
+msgstr "URL ਖੋਜੀ..."
+
+#: ../plugins/url_scraper/urlscraper.c:156
+msgid "Grabs URLs and puts them in a separate window for easy viewing."
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:196
+msgid "URL Scraper failed to load: couldn't compile URL regex.\n"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:202
+msgid "URL Scraper failed to load: couldn't compile e-mail regex.\n"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:217
+msgid "URL Scraper loaded.\n"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:229
+msgid "URL Scraper unloaded.\n"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.schemas.in.h:1
+msgid "URL Scraper history length"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.schemas.in.h:2
+msgid "URL Scraper show timestamps"
+msgstr "ਸਮਾਂ ਮੋਹਰ ਯੋਗ"
+
+#: ../plugins/sound-notification/sound-notification.c:55
+msgid "Sound Notification"
+msgstr ""
+
+#: ../plugins/sound-notification/sound-notification.c:56
+msgid ""
+"Play a sound when you receive a private message or your nick is highlighted."
+msgstr ""
+
+#: ../plugins/sound-notification/sound-notification.c:87
+msgid "Sound-notification plugin loaded.\n"
+msgstr ""
+
+#: ../plugins/sound-notification/sound-notification.c:96
+msgid "Sound-notification plugin unloaded.\n"
+msgstr ""
+
+#: ../src/common/cfgfiles.c:351
+msgid "Cannot create ~/.xchat2"
+msgstr "~/.xchat2 ਬਣਾ ਨਹੀਂ ਸਕਿਆ"
+
+#: ../src/common/cfgfiles.c:687
+msgid "I'm busy"
+msgstr "ਮੈਂ ਕੰਮ 'ਚ ਹਾਂ"
+
+#: ../src/common/cfgfiles.c:688
+msgid "Leaving"
+msgstr "ਹਟ ਪਿੱਛੇ ਫੇਰ ਮਿਲਾਗੇਂ"
+
+#: ../src/common/cfgfiles.c:734
+msgid ""
+"* Running IRC as root is stupid! You should\n"
+"  create a User Account and use that to login.\n"
+msgstr ""
+"* IRC ਨੂੰ ਰੂਟ ਦੇ ਤੌਰ ਤੇ ਚਲਾਉਣਾ ਮੂਰਖਤਾ ਹੈ! ਤੁਹਾਨੂੰ ਇੱਕ\n"
+" ਉਪਭੋਗੀ ਖਾਤਾ ਬਣਾਉਣਾ ਚਾਹੀਦਾ ਹੈ ਅਤੇ ਮੁੜ ਕੋਸ਼ਿਸ ਕਰਨੀ ਚਾਹੀਦੀ ਹੈ।\n"
+
+#: ../src/common/dcc.c:67
+msgid "Waiting"
+msgstr "ਉਡੀਕ ਜਾਰੀ ਹੈ"
+
+#. black
+#: ../src/common/dcc.c:68
+msgid "Active"
+msgstr "ਸਰਗਰਮ"
+
+#. cyan
+#: ../src/common/dcc.c:69
+msgid "Failed"
+msgstr "ਅਸਫਲ"
+
+#. red
+#: ../src/common/dcc.c:70
+msgid "Done"
+msgstr "ਸਮਾਪਤ"
+
+#. green
+#: ../src/common/dcc.c:71 ../src/fe-gnome/connect-dialog.c:160
+msgid "Connect"
+msgstr "ਜੁੜਿਆ"
+
+#. black
+#: ../src/common/dcc.c:72
+msgid "Aborted"
+msgstr "ਛੱਡਿਆ"
+
+#: ../src/common/dcc.c:1905 ../src/common/outbound.c:2324
+#, c-format
+msgid "Cannot access %s\n"
+msgstr "%s ਨੂੰ ਖੋਲਿਆ ਨਹੀਂ ਜਾ ਸਕਦਾ ਹੈ\n"
+
+#. ! if (osvi.dwMajorVersion >= 5)
+#. fallback to error number
+#: ../src/common/dcc.c:1906 ../src/common/text.c:916 ../src/common/text.c:954
+#: ../src/common/text.c:965 ../src/common/text.c:972 ../src/common/text.c:985
+#: ../src/common/text.c:1002 ../src/common/text.c:1102
+#: ../src/common/util.c:352
+msgid "Error"
+msgstr "ਗਲਤੀ"
+
+#: ../src/common/dcc.c:2394
+#, c-format
+msgid "%s is offering \"%s\". Do you want to accept?"
+msgstr ""
+
+#: ../src/common/dcc.c:2605
+msgid "No active DCCs\n"
+msgstr "ਕੋਈ ਸਰਗਰਮ DCCs ਨਹੀਂ\n"
+
+#: ../src/common/ignore.c:120 ../src/common/ignore.c:124
+#: ../src/common/ignore.c:128 ../src/common/ignore.c:132
+#: ../src/common/ignore.c:136 ../src/common/ignore.c:140
+#: ../src/common/ignore.c:144
+msgid "YES  "
+msgstr "ਹਾਂ  "
+
+#: ../src/common/ignore.c:122 ../src/common/ignore.c:126
+#: ../src/common/ignore.c:130 ../src/common/ignore.c:134
+#: ../src/common/ignore.c:138 ../src/common/ignore.c:142
+#: ../src/common/ignore.c:146
+msgid "NO   "
+msgstr "ਨਹੀਂ   "
+
+#: ../src/common/ignore.c:377
+#, c-format
+msgid "You are being CTCP flooded from %s, ignoring %s\n"
+msgstr "ਤੁਹਾਨੂੰ %s ਤੋਂ CTCP ਹੜ੍ਹ ਨਾਲ ਭਰਨ ਦੀ ਕੋਸ਼ਿਸ, %s ਅਣਡਿੱਠਾ\n"
+
+#: ../src/common/ignore.c:402
+#, c-format
+msgid "You are being MSG flooded from %s, setting gui_auto_open_dialog OFF.\n"
+msgstr "ਤੁਹਾਨੂੰ %s ਤੋਂ MSG ਸੁਨੇਹੇ ਹਮਲੇ ਦਾ ਡਰ ਹੈ, gui_auto_open_dialog ਬੰਦ ਕੀਤਾ ਜਾਦਾ ਹੈ।\n"
+
+#: ../src/common/notify.c:449
+#, c-format
+msgid "  %-20s online\n"
+msgstr "  %-20s ਮੌਕੇ ਤੇ ਹੈ\n"
+
+#: ../src/common/notify.c:451
+#, c-format
+msgid "  %-20s offline\n"
+msgstr "  %-20s ਮੌਕੇ ਤੇ ਨਹੀਂ ਹੈ\n"
+
+#: ../src/common/outbound.c:72
+msgid "No channel joined. Try /join #<channel>\n"
+msgstr "ਕੋਈ ਚੈਨਲ ਵਿੱਚ ਸ਼ਾਮਿਲ ਨਹੀਂ, ਕੋਸ਼ਿਸ ਕਰੋ /join #<channel>\n"
+
+#: ../src/common/outbound.c:78
+msgid "Not connected. Try /server <host> [<port>]\n"
+msgstr "ਜੁੜਿਆ ਨਹੀਂ ਹੈ, ਕੋਸ਼ਿਸ ਕਰੋ /server <host> [<port>]\n"
+
+#: ../src/common/outbound.c:1690
+msgid "I need /bin/sh to run!\n"
+msgstr "ਮੈਨੂੰ ਚੱਲਣ ਲਈ /bin/sh ਚਾਹੀਦੀ ਹੈ!\n"
+
+#: ../src/common/outbound.c:2059
+msgid "Commands Available:"
+msgstr "ਉਪਲੱਬਧ ਕਮਾਂਡਾਂ:"
+
+#: ../src/common/outbound.c:2073
+msgid "User defined commands:"
+msgstr "ਉਪਭੋਗੀ ਰਾਹੀਂ ਪ੍ਰਭਾਸ਼ਿਤ ਕਮਾਂਡਾਂ:"
+
+#: ../src/common/outbound.c:2087
+msgid "Plugin defined commands:"
+msgstr "ਪਲੱਗਿੰਨ ਰਾਹੀਂ ਪ੍ਰਭਾਸ਼ਿਤ ਕਮਾਂਡਾਂ:"
+
+#: ../src/common/outbound.c:2098
+msgid "Type /HELP <command> for more information, or /HELP -l"
+msgstr "ਵਧੇਰੇ ਜਾਣਕਾਰੀ ਲਈ ਲਿਖੋ /HELP <command> , ਜਾਂ /HELP -l"
+
+#: ../src/common/outbound.c:2173
+#, c-format
+msgid "Unknown arg '%s' ignored."
+msgstr "ਅਣਜਾਣ ਆਰਗੂਮਿੰਟ '%s' ਅਣਡਿੱਠਾ ਕੀਤਾ।"
+
+#: ../src/common/outbound.c:3071
+msgid "No such plugin found.\n"
+msgstr "ਇਸ ਤਰ੍ਹਾਂ ਦੀ ਕੋਈ ਪਲੱਗਿੰਨ ਨਹੀਂ ਹੈ।\n"
+
+#: ../src/common/outbound.c:3076
+msgid "That plugin is refusing to unload.\n"
+msgstr "ਇਹ ਪਲੱਗਿੰਨ ਅਨਲੋਡ ਨਹੀਂ ਹੋ ਸਕਦੀ।\n"
+
+#: ../src/common/outbound.c:3345
+msgid "ALLCHAN <cmd>, sends a command to all channels you're in"
+msgstr "ALLCHAN <cmd>, ਉਹਨਾਂ ਸਭ ਚੈਨਲਾਂ ਨੂੰ ਕਮਾਂਡ ਭੇਜੋ, ਜਿੱਥੇ ਤੁਸੀਂ ਹੋ"
+
+#: ../src/common/outbound.c:3347
+msgid "ALLCHANL <cmd>, sends a command to all channels you're in"
+msgstr "ALLCHANL <cmd>, ਉਹਨਾਂ ਸਭ ਚੈਨਲਾਂ ਨੂੰ ਕਮਾਂਡ ਭੇਜੋ, ਜਿੱਥੇ ਤੁਸੀਂ ਹੋ"
+
+#: ../src/common/outbound.c:3349
+msgid "ALLSERV <cmd>, sends a command to all servers you're in"
+msgstr "ALLSERV <cmd>, ਉਹਨਾਂ ਸਭ ਸਰਵਰਾਂ ਨੂੰ ਕਮਾਂਡ ਭੇਜੋ, ਜਿੱਥੇ ਤੁਸੀਂ ਹੋ"
+
+#: ../src/common/outbound.c:3350
+msgid "AWAY [<reason>], sets you away"
+msgstr "AWAY [<reason>], ਤੁਸੀਂ ਜਾ ਰਹੇ ਹੋ ਦਰਸਾਉਦਾ ਹੈ"
+
+#: ../src/common/outbound.c:3352
+msgid ""
+"BAN <mask> [<bantype>], bans everyone matching the mask from the current "
+"channel. If they are already on the channel this doesn't kick them (needs "
+"chanop)"
+msgstr ""
+
+#: ../src/common/outbound.c:3354
+msgid ""
+"Set per channel options\n"
+"CHANOPT CONFMODE ON|OFF - Toggle conf mode/showing of join and part "
+"messages\n"
+"CHANOPT COLORPASTE ON|OFF - Toggle color paste\n"
+"CHANOPT BEEP ON|OFF - Toggle beep on message"
+msgstr ""
+
+#: ../src/common/outbound.c:3360
+msgid "CLEAR [ALL|HISTORY], Clears the current text window or command history"
+msgstr ""
+
+#: ../src/common/outbound.c:3361
+msgid "CLOSE, Closes the current window/tab"
+msgstr "CLOSE, ਮੌਜੂਦਾ ਝਰੋਖਾ/ਟੈਬ ਨੂੰ ਬੰਦ ਕਰੇਗਾ"
+
+#: ../src/common/outbound.c:3364
+msgid "COUNTRY [-s] <code|wildcard>, finds a country code, eg: au = australia"
+msgstr "COUNTRY [-s] <code|wildcard>, ਦੇਸ਼ ਕੋਡ ਲੱਭੋ, ਜਿਵੇਂ ਕਿ au = australia"
+
+#: ../src/common/outbound.c:3366
+msgid ""
+"CTCP <nick> <message>, send the CTCP message to nick, common messages are "
+"VERSION and USERINFO"
+msgstr ""
+
+#: ../src/common/outbound.c:3368
+msgid "CYCLE, parts current channel and immediately rejoins"
+msgstr ""
+
+#: ../src/common/outbound.c:3370
+msgid ""
+"\n"
+"DCC GET <nick>                      - accept an offered file\n"
+"DCC SEND [-maxcps=#] <nick> [file]  - send a file to someone\n"
+"DCC PSEND [-maxcps=#] <nick> [file] - send a file using passive mode\n"
+"DCC LIST                            - show DCC list\n"
+"DCC CHAT <nick>                     - offer DCC CHAT to someone\n"
+"DCC PCHAT <nick>                    - offer DCC CHAT using passive mode\n"
+"DCC CLOSE <type> <nick> <file>         example:\n"
+"         /dcc close send johnsmith file.tar.gz"
+msgstr ""
+
+#: ../src/common/outbound.c:3382
+msgid ""
+"DEHOP <nick>, removes chanhalf-op status from the nick on the current "
+"channel (needs chanop)"
+msgstr ""
+
+#: ../src/common/outbound.c:3384
+msgid ""
+"DEOP <nick>, removes chanop status from the nick on the current channel "
+"(needs chanop)"
+msgstr ""
+
+#: ../src/common/outbound.c:3386
+msgid ""
+"DEVOICE <nick>, removes voice status from the nick on the current channel "
+"(needs chanop)"
+msgstr ""
+
+#: ../src/common/outbound.c:3387
+msgid "DISCON, Disconnects from server"
+msgstr "DISCON, ਸਰਵਰ ਨਾਲ ਸੰਬੰਧ ਖਤਮ"
+
+#: ../src/common/outbound.c:3388
+msgid "DNS <nick|host|ip>, Finds a users IP number"
+msgstr "DNS<nick।host।ip> ਉਪਭੋਗੀ IP ਨੰਬਰ ਲੱਭੋ"
+
+#: ../src/common/outbound.c:3389
+msgid "ECHO <text>, Prints text locally"
+msgstr "ECHO <text>, ਸਥਾਨਿਕ ਪਾਠ ਛਾਪਿਆ ਜਾਵੇਗਾ"
+
+#: ../src/common/outbound.c:3392
+msgid ""
+"EXEC [-o] <command>, runs the command. If -o flag is used then output is "
+"sent to current channel, else is printed to current text box"
+msgstr ""
+
+#: ../src/common/outbound.c:3394
+msgid "EXECCONT, sends the process SIGCONT"
+msgstr ""
+
+#: ../src/common/outbound.c:3397
+msgid ""
+"EXECKILL [-9], kills a running exec in the current session. If -9 is given "
+"the process is SIGKILL'ed"
+msgstr ""
+
+#: ../src/common/outbound.c:3399
+msgid "EXECSTOP, sends the process SIGSTOP"
+msgstr ""
+
+#: ../src/common/outbound.c:3400
+msgid "EXECWRITE, sends data to the processes stdin"
+msgstr ""
+
+#: ../src/common/outbound.c:3404
+msgid "FLUSHQ, flushes the current server's send queue"
+msgstr ""
+
+#: ../src/common/outbound.c:3406
+msgid "GATE <host> [<port>], proxies through a host, port defaults to 23"
+msgstr ""
+
+#: ../src/common/outbound.c:3410
+msgid "GHOST <nick> <password>, Kills a ghosted nickname"
+msgstr ""
+
+#: ../src/common/outbound.c:3415
+msgid "HOP <nick>, gives chanhalf-op status to the nick (needs chanop)"
+msgstr ""
+
+#: ../src/common/outbound.c:3416
+msgid "ID <password>, identifies yourself to nickserv"
+msgstr "ID <password>, ਨੈਕਸਰਵਰ ਨਾਲ ਆਪਣੀ ਪਛਾਣ ਕਰਵਾਓ"
+
+#: ../src/common/outbound.c:3418
+msgid ""
+"IGNORE <mask> <types..> <options..>\n"
+"    mask - host mask to ignore, eg: *!*@*.aol.com\n"
+"    types - types of data to ignore, one or all of:\n"
+"            PRIV, CHAN, NOTI, CTCP, DCC, INVI, ALL\n"
+"    options - NOSAVE, QUIET"
+msgstr ""
+
+#: ../src/common/outbound.c:3425
+msgid ""
+"INVITE <nick> [<channel>], invites someone to a channel, by default the "
+"current channel (needs chanop)"
+msgstr ""
+"INVITE <nick> [<channel>], ਕਿਸੇ ਨੂੰ ਇੱਕ ਚੈਨਲ ਵਿੱਚ ਆਉਣ ਲਈ ਸੱਦਾ ਦਿਓ, ਮੂਲ ਰੂਪ ਵਿੱਚ ਮੌਜੂਦਾ "
+"ਚੈਨਲ ਲਈ (ਮੁੱਖੀ ਹੋਣਾ ਲਾਜ਼ਮੀ)"
+
+#: ../src/common/outbound.c:3426
+msgid "JOIN <channel>, joins the channel"
+msgstr "JOIN <channel>, ਚੈਨਲ ਵਿੱਚ ਸ਼ਾਮਿਲ ਹੋਣ ਲਈ"
+
+#: ../src/common/outbound.c:3428
+msgid "KICK <nick>, kicks the nick from the current channel (needs chanop)"
+msgstr "KICK <nick>, ਮੌਜੂਦਾ ਚੈਨਲ ਵਿੱਚੋਂ ਨਾਂ ਨੂੰ ਬਾਹਰ ਸੁੱਟੋ (ਮੁੱਖੀ ਹੋਣਾ ਲਾਜ਼ਮੀ)"
+
+#: ../src/common/outbound.c:3430
+msgid ""
+"KICKBAN <nick>, bans then kicks the nick from the current channel (needs "
+"chanop)"
+msgstr ""
+
+#: ../src/common/outbound.c:3433
+msgid "LAGCHECK, forces a new lag check"
+msgstr ""
+
+#: ../src/common/outbound.c:3435
+msgid "LASTLOG <string>, searches for a string in the buffer"
+msgstr "LASTLOG <string>, ਬਫਰ ਵਿੱਚ ਸਤਰ ਖੋਜੋ"
+
+#: ../src/common/outbound.c:3437
+msgid "LOAD [-e] <file>, loads a plugin or script"
+msgstr "LOAD [-e] <file>, ਪਲੱਗਿੰਨ ਜਾਂ ਸਕਰਿਪਟ ਲੋਡ ਕਰੋ"
+
+#: ../src/common/outbound.c:3440
+msgid ""
+"MDEHOP, Mass deop's all chanhalf-ops in the current channel (needs chanop)"
+msgstr ""
+
+#: ../src/common/outbound.c:3442
+msgid "MDEOP, Mass deop's all chanops in the current channel (needs chanop)"
+msgstr ""
+
+#: ../src/common/outbound.c:3444
+msgid ""
+"ME <action>, sends the action to the current channel (actions are written in "
+"the 3rd person, like /me jumps)"
+msgstr ""
+"ME <action>, ਚੈਨਲ ਵਿੱਚ ਕਾਰਵਾਈ ਕਰੋ (ਕਾਰਵਾਈ ਤੀਜੇ ਵਿਅਕਤੀ ਦੇ ਤੌਰ ਤੇ ਕੀਤੀ ਜਾਵੇਗੀ, ਜਿਵੇਂ /me "
+"ਚੱਲਿਆ)"
+
+#: ../src/common/outbound.c:3447
+msgid ""
+"MKICK, Mass kicks everyone except you in the current channel (needs chanop)"
+msgstr ""
+"MKICK, ਮਾਸ ਕਿੱਕ, ਮੌਜੂਦਾ ਚੈਨਲ ਵਿੱਚ ਆਪਣੇ ਆਪ ਨੂੰ ਛੱਡ ਕੇ ਸਭ ਨੂੰ ਬਾਹਰ ਸੁੱਟੋ (ਮੁੱਖੀ ਹੋਣਾ ਲਾਜ਼ਮੀ ਹੈ)"
+
+#: ../src/common/outbound.c:3450
+msgid "MOP, Mass op's all users in the current channel (needs chanop)"
+msgstr ""
+
+#: ../src/common/outbound.c:3451
+msgid "MSG <nick> <message>, sends a private message"
+msgstr "MSG <nick> <message>, ਨਿੱਜੀ ਸੁਨੇਹਾ ਭੇਜਣ ਲਈ"
+
+#: ../src/common/outbound.c:3454
+msgid "NAMES, Lists the nicks on the current channel"
+msgstr "NAMES, ਮੌਜੂਦਾ ਚੈਨਲ ਤੇ ਨਾਂ ਦੀ ਸੂਚੀ"
+
+#: ../src/common/outbound.c:3456
+msgid "NCTCP <nick> <message>, Sends a CTCP notice"
+msgstr "NCTCP <nick> <message>, ਇੱਕ CTCP ਸੂਚਨਾ ਭੇਜੋ"
+
+#: ../src/common/outbound.c:3457
+msgid "NEWSERVER [-noconnect] <hostname> [<port>]"
+msgstr "NEWSERVER <ਮੇਜ਼ਬਾਨ ਨਾਂ> [<port>]"
+
+#: ../src/common/outbound.c:3458
+msgid "NICK <nickname>, sets your nick"
+msgstr "NICK <nickname>, ਆਪਣਾ ਨਾਂ ਦਿਓ"
+
+#: ../src/common/outbound.c:3461
+msgid ""
+"NOTICE <nick/channel> <message>, sends a notice. Notices are a type of "
+"message that should be auto reacted to"
+msgstr ""
+
+#: ../src/common/outbound.c:3463
+msgid ""
+"NOTIFY [-n network1[,network2,...]] [<nick>], displays your notify list or "
+"adds someone to it"
+msgstr ""
+
+#: ../src/common/outbound.c:3465
+msgid "OP <nick>, gives chanop status to the nick (needs chanop)"
+msgstr "OP <nick>, ਚੈਨਲ ਮੁੱਖੀ ਸਥਿਤੀ ਨਾਂ ਨੂੰ ਦਿਓ (ਚੈਨਲ ਮੁੱਖੀ ਹੋਣਾ ਲਾਜ਼ਮੀ)"
+
+#: ../src/common/outbound.c:3467
+msgid ""
+"PART [<channel>] [<reason>], leaves the channel, by default the current one"
+msgstr "PART [<channel>] [<reason>], ਚੈਨਲ ਛੱਡੋ, ਮੂਲ ਰੂਪ ਵਿੱਚ ਮੌਜੂਦਾ"
+
+#: ../src/common/outbound.c:3469
+msgid "PING <nick | channel>, CTCP pings nick or channel"
+msgstr "PING <nick | channel>, CTCP ਨਾਂ ਜਾਂ ਚੈਨਲ ਨੂੰ ਪਿੰਗ ਕਰੇਗਾ"
+
+#: ../src/common/outbound.c:3471
+msgid "QUERY [-nofocus] <nick>, opens up a new privmsg window to someone"
+msgstr ""
+
+#: ../src/common/outbound.c:3473
+msgid "QUIT [<reason>], disconnects from the current server"
+msgstr "QUIT [<reason>], ਮੌਜੂਦਾ ਸਰਵਰ ਨਾਲੋਂ ਵੱਖ"
+
+#: ../src/common/outbound.c:3475
+msgid "QUOTE <text>, sends the text in raw form to the server"
+msgstr ""
+
+#: ../src/common/outbound.c:3478
+msgid ""
+"RECONNECT [-ssl] [<host>] [<port>] [<password>], Can be called just as /"
+"RECONNECT to reconnect to the current server or with /RECONNECT ALL to "
+"reconnect to all the open servers"
+msgstr ""
+
+#: ../src/common/outbound.c:3481
+msgid ""
+"RECONNECT [<host>] [<port>] [<password>], Can be called just as /RECONNECT "
+"to reconnect to the current server or with /RECONNECT ALL to reconnect to "
+"all the open servers"
+msgstr ""
+
+#: ../src/common/outbound.c:3483
+msgid ""
+"RECV <text>, send raw data to xchat, as if it was received from the irc "
+"server"
+msgstr ""
+
+#: ../src/common/outbound.c:3486
+msgid "SAY <text>, sends the text to the object in the current window"
+msgstr "SAY <text>, ਮੌਜੂਦਾ ਝਰੋਖੇ ਵਿੱਚ ਇਕਾਈ ਨੂੰ ਲਿਖੋ"
+
+#: ../src/common/outbound.c:3487
+msgid "SEND <nick> [<file>]"
+msgstr "SEND <nick> [<file>]"
+
+#: ../src/common/outbound.c:3490
+msgid "SERVCHAN [-ssl] <host> <port> <channel>, connects and joins a channel"
+msgstr "SERVCHAN [-ssl] <host> <port> <channel>, ਜੁੜੋ ਅਤੇ ਚੈਨਲ ਵਿੱਚ ਸ਼ਾਮਲ"
+
+#: ../src/common/outbound.c:3493
+msgid "SERVCHAN <host> <port> <channel>, connects and joins a channel"
+msgstr "SERVCHAN <host> <port> <channel>, ਜੁੜੋ ਅਤੇ ਚੈਨਲ ਵਿੱਚ ਸ਼ਾਮਲ"
+
+#: ../src/common/outbound.c:3497
+msgid ""
+"SERVER [-ssl] <host> [<port>] [<password>], connects to a server, the "
+"default port is 6667 for normal connections, and 9999 for ssl connections"
+msgstr ""
+"SERVER [-ssl] <host> [<port>] [<password>], ਸਰਵਰ ਨਾਲ ਜੋੜਦੀ ਹੈ, ਸਧਾਰਨ ਕੁਨੈਕਸ਼ਨਾਂ ਲਈ "
+"ਮੂਲ ਪੋਰਟ 6667 ਹੈ, ਅਤੇ SSL ਕੁਨੈਕਸ਼ਨਾਂ ਲਈ 9999 ਹੈ।"
+
+#: ../src/common/outbound.c:3500
+msgid ""
+"SERVER <host> [<port>] [<password>], connects to a server, the default port "
+"is 6667"
+msgstr "SERVER <host> [<port>] [<password>], ਸਰਵਰ ਨਾਲ ਜੁੜੋ, ਮੂਲ ਪੋਰਟ 6667 ਹੈ।"
+
+#: ../src/common/outbound.c:3502
+#, fuzzy
+msgid "SET [-e] [-quiet] <variable> [<value>]"
+msgstr "SET [-quiet] <variable> [<value>]"
+
+#: ../src/common/outbound.c:3503
+msgid "SETCURSOR [-|+]<position>"
+msgstr "SETCURSOR [-|+]<position>"
+
+#: ../src/common/outbound.c:3508
+msgid ""
+"TOPIC [<topic>], sets the topic if one is given, else shows the current topic"
+msgstr "TOPIC [<topic>], ਜੇਕਰ ਕੋਈ ਦਿੱਤਾ ਹੋਵੇ ਤਾਂ ਲਗਾਉ, ਨਹੀਂ ਤਾਂ ਮੌਜੂਦਾ ਵੇਖਾਇਆ ਜਾਵੇਗਾ"
+
+#: ../src/common/outbound.c:3510
+msgid "UNBAN <mask> [<mask>...], unbans the specified masks."
+msgstr "UNBAN <mask> [<mask>...], ਖਾਸ ਮਖੌਟਿਆਂ ਤੇ ਪਾਬੰਦੀ ਹਟਾਓ।"
+
+#: ../src/common/outbound.c:3511
+msgid "UNIGNORE <mask> [QUIET]"
+msgstr "UNIGNORE <mask> [QUIET]"
+
+#: ../src/common/outbound.c:3512
+msgid "UNLOAD <name>, unloads a plugin or script"
+msgstr "UNLOAD <name>, ਪਲੱਗਿੰਨ ਜਾਂ ਸਕਰਿਪਟ ਹਟਾਓ"
+
+#: ../src/common/outbound.c:3513
+msgid "URL <url>, opens a URL in your browser"
+msgstr "URL <url>, ਆਪਣੇ ਝਲਕਾਰੇ ਵਿੱਚ URL ਖੋਲੋ"
+
+#: ../src/common/outbound.c:3515
+msgid ""
+"USELECT [-a] [-s] <nick1> <nick2> etc, highlights nick(s) in channel userlist"
+msgstr ""
+
+#: ../src/common/outbound.c:3518
+msgid "VOICE <nick>, gives voice status to someone (needs chanop)"
+msgstr "VOICE <nick>, ਕਿਸੇ ਨੂੰ ਆਵਾਜ਼ ਦਿਓ (ਚੈਨਲ ਮੁੱਖੀ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ)"
+
+#: ../src/common/outbound.c:3520
+msgid "WALLCHAN <message>, writes the message to all channels"
+msgstr "WALLCHAN <message>, ਸਭ ਚੈਨਲ ਵਿੱਚ ਸੁਨੇਹਾ ਲਿਖੋ"
+
+#: ../src/common/outbound.c:3522
+msgid ""
+"WALLCHOP <message>, sends the message to all chanops on the current channel"
+msgstr "WALLCHOP <message>, ਮੌਜੂਦਾ ਚੈਨਲ ਵਿੱਚ ਸਭ ਚੈਨਲ ਮੁੱਖੀਆਂ ਨੂੰ ਸੁਨੇਹਾ ਭੇਜੋ"
+
+#: ../src/common/outbound.c:3555
+#, c-format
+msgid "Usage: %s\n"
+msgstr "ਵਰਤੋਂ: %s\n"
+
+#: ../src/common/outbound.c:3560
+msgid ""
+"\n"
+"No help available on that command.\n"
+msgstr ""
+"\n"
+"ਇਸ ਕਮਾਂਡ ਲਈ ਕੋਈ ਸਹਾਇਤਾ ਉਪਲੱਬਧ ਨਹੀਂ ਹੈ।\n"
+
+#: ../src/common/outbound.c:3566
+msgid "No such command.\n"
+msgstr "ਇਸਤਰਾਂ ਦੀ ਕੋਈ ਕਮਾਂਡ ਨਹੀਂ ਹੈ।\n"
+
+#: ../src/common/outbound.c:3896
+msgid "Bad arguments for user command.\n"
+msgstr "ਉਪਭੋਗੀ ਕਮਾਂਡ ਲਈ ਗਲਤ ਆਰਗੂਮਿੰਟ।\n"
+
+#: ../src/common/outbound.c:4051
+msgid "Too many recursive usercommands, aborting."
+msgstr "ਲਗਾਤਾਰ ਕਈ ਉਪਭੋਗੀ ਕਮਾਡਾਂ, ਅਧੂਰਾ ਛੱਡਿਆ।"
+
+#: ../src/common/outbound.c:4125
+msgid "Unknown Command. Try /help\n"
+msgstr "ਅਣਜਾਣੀ ਕਮਾਂਡ, ਕੋਸ਼ਿਸ ਕਰੋ /help\n"
+
+#: ../src/common/plugin.c:357 ../src/common/plugin.c:398
+msgid "No xchat_plugin_init symbol; is this really an xchat plugin?"
+msgstr "ਕੋਈ xchat_plugin_init ਨਹੀਂ, ਕੀ ਇਹ xchat ਪਲੱਗਿੰਨ ਹੈ?"
+
+#: ../src/common/server.c:627
+msgid "Are you sure this is a SSL capable server and port?\n"
+msgstr "ਕੀ ਤੁਸੀਂ SSL ਅਨੁਕੂਲ ਸਰਵਰ ਤੇ ਪੋਰਟ ਹੋਣ ਦੀ ਪੁਸ਼ਟੀ ਕਰਦੇ ਹੋ?\n"
+
+#: ../src/common/server.c:1018
+#, c-format
+msgid ""
+"Cannot resolve hostname %s\n"
+"Check your IP Settings!\n"
+msgstr ""
+"ਮੇਜ਼ਬਾਨ %s ਨਹੀਂ ਲੱਭਿਆ ਜਾ ਸਕਿਆ\n"
+"ਆਪਣਾ IP ਸਥਾਪਨ ਵੇਖੋ!\n"
+
+#: ../src/common/server.c:1023
+msgid "Proxy traversal failed.\n"
+msgstr "ਪਰਾਕਸੀ ਸੰਚਾਰ ਅਸਫਲ।\n"
+
+#: ../src/common/servlist.c:645
+#, c-format
+msgid "Cycling to next server in %s...\n"
+msgstr "%s ਵਿੱਚ ਅਗਲੇ ਸਰਵਰ ਨਾਲ ਕੋਸ਼ਿਸ ਜਾਰੀ...\n"
+
+#: ../src/common/servlist.c:1076
+#, c-format
+msgid ""
+"Warning: \"%s\" character set is unknown. No conversion will be applied for "
+"network %s."
+msgstr "ਚੇਤਾਵਨੀ: \"%s\" ਅੱਖਰ ਸਮੂਹ ਅਣਜਾਣ ਹੈ। ਨੈੱਟਵਰਕ %s ਲਈ ਅਨੁਵਾਦ ਲਾਗੂ ਨਹੀਂ ਹੈ।"
+
+#: ../src/common/text.c:61
+#, c-format
+msgid "**** ENDING LOGGING AT %s\n"
+msgstr "**** %s ਤੇ ਲਾਗਿੰਨ ਸਮਾਪਤ\n"
+
+#: ../src/common/text.c:263
+#, c-format
+msgid "**** BEGIN LOGGING AT %s\n"
+msgstr "**** %s ਤੇ ਲਾਗਆਨ\n"
+
+#: ../src/common/text.c:282
+#, c-format
+msgid ""
+"* Can't open log file(s) for writing. Check the\n"
+"  permissions on %s/xchatlogs"
+msgstr ""
+"* ਲਿਖਣ ਲਈ ਲਾਗ ਫਾਇਲ ਨੂੰ ਖੋਲਿਆ ਨਹੀਂ ਜਾ ਸਕਦਾ ਹੈ।\n"
+"  %s/xchatlogs ਅਧਿਕਾਰਾਂ ਦੀ ਪੜਤਾਲ ਕਰੋ।"
+
+#: ../src/common/text.c:618
+msgid "Left message"
+msgstr "ਖੱਬਾ ਸੁਨੇਹਾ"
+
+#: ../src/common/text.c:619
+msgid "Right message"
+msgstr "ਸੱਜਾ ਸੁਨੇਹਾ"
+
+#: ../src/common/text.c:623
+msgid "The nick of the joining person"
+msgstr "ਦਾਖਲ ਹੋਏ ਵਿਅਕਤੀ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:624
+msgid "The channel being joined"
+msgstr "ਚੈਲਨ ਵਿੱਚ ਸ਼ਾਮਿਲ"
+
+#: ../src/common/text.c:625 ../src/common/text.c:671 ../src/common/text.c:728
+msgid "The host of the person"
+msgstr "ਵਿਅਕਤੀ ਦਾ ਮੇਜ਼ਬਾਨ"
+
+#: ../src/common/text.c:629 ../src/common/text.c:635 ../src/common/text.c:642
+#: ../src/common/text.c:709 ../src/common/text.c:835 ../src/common/text.c:842
+#: ../src/common/text.c:847 ../src/common/text.c:852 ../src/common/text.c:857
+#: ../src/common/text.c:863 ../src/common/text.c:868 ../src/common/text.c:872
+#: ../src/common/text.c:878 ../src/common/text.c:884 ../src/common/text.c:930
+#: ../src/common/text.c:941 ../src/common/text.c:946 ../src/common/text.c:951
+#: ../src/common/text.c:960 ../src/common/text.c:971 ../src/common/text.c:978
+#: ../src/common/text.c:984 ../src/common/text.c:989 ../src/common/text.c:994
+#: ../src/common/text.c:1001 ../src/common/text.c:1007
+#: ../src/common/text.c:1013 ../src/common/text.c:1018
+#: ../src/common/text.c:1023 ../src/common/text.c:1027
+#: ../src/common/text.c:1033 ../src/common/text.c:1041
+#: ../src/common/text.c:1075 ../src/common/text.c:1080
+msgid "Nickname"
+msgstr "ਆਮ ਨਾਂ"
+
+#: ../src/common/text.c:630
+msgid "The action"
+msgstr "ਕਾਰਵਾਈ"
+
+#: ../src/common/text.c:631 ../src/common/text.c:637
+msgid "Mode char"
+msgstr "ਮੋਡ ਅੱਖਰ"
+
+#: ../src/common/text.c:636
+msgid "The text"
+msgstr "ਪਾਠ"
+
+#: ../src/common/text.c:638 ../src/common/text.c:711
+msgid "Identified text"
+msgstr "ਪਛਾਣ ਪਾਠ"
+
+#: ../src/common/text.c:643 ../src/common/text.c:699 ../src/common/text.c:705
+#: ../src/common/text.c:710
+msgid "The message"
+msgstr "ਸੁਨੇਹਾ"
+
+#: ../src/common/text.c:647 ../src/common/text.c:715
+msgid "Old nickname"
+msgstr "ਪੁਰਾਣਾ ਨਾਂ"
+
+#: ../src/common/text.c:648 ../src/common/text.c:716
+msgid "New nickname"
+msgstr "ਨਵਾਂ ਨਾਂ"
+
+#: ../src/common/text.c:652
+msgid "Nick of person who changed the topic"
+msgstr "ਜਿਸ ਨੇ ਵਿਸ਼ਾ ਤਬਦੀਲ ਕੀਤਾ ਹੈ, ਉਸ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:653 ../src/common/text.c:659
+#: ../src/fe-gnome/channel-list-window.c:460
+msgid "Topic"
+msgstr "ਵਿਸ਼ਾ"
+
+#: ../src/common/text.c:663 ../src/common/text.c:722
+msgid "The nickname of the kicker"
+msgstr "ਸੁੱਟਣ ਵਾਲੇ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:664 ../src/common/text.c:720
+msgid "The person being kicked"
+msgstr "ਸੁੱਟਿਆ ਗਿਆ ਵਿਅਕਤੀ"
+
+#: ../src/common/text.c:665 ../src/common/text.c:672 ../src/common/text.c:676
+#: ../src/common/text.c:681 ../src/common/text.c:721 ../src/common/text.c:729
+#: ../src/common/text.c:736
+msgid "The channel"
+msgstr "ਚੈਨਲ"
+
+#: ../src/common/text.c:666 ../src/common/text.c:723 ../src/common/text.c:730
+msgid "The reason"
+msgstr "ਕਾਰਨ"
+
+#: ../src/common/text.c:670 ../src/common/text.c:727
+msgid "The nick of the person leaving"
+msgstr "ਜਾ ਰਹੇ ਵਿਅਕਤੀ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:677 ../src/common/text.c:683
+msgid "The time"
+msgstr "ਸਮਾਂ"
+
+#: ../src/common/text.c:682
+msgid "The creator"
+msgstr "ਨਿਰਮਾਤਾ"
+
+#: ../src/common/text.c:688 ../src/common/text.c:947
+msgid "Reason"
+msgstr "ਕਾਰਨ"
+
+#: ../src/common/text.c:689 ../src/common/text.c:837 ../src/common/text.c:920
+msgid "Host"
+msgstr "ਮੇਜ਼ਬਾਨ"
+
+#: ../src/common/text.c:693 ../src/common/text.c:698 ../src/common/text.c:703
+msgid "Who it's from"
+msgstr "ਕਿਸ ਵੱਲੋਂ ਹੈ"
+
+#: ../src/common/text.c:694
+msgid "The time in x.x format (see below)"
+msgstr "ਸਮਾਂ x.x ਫਾਰਮਿਟ ਵਿੱਚ (ਹੇਠਾਂ ਵੇਖੋ)"
+
+#: ../src/common/text.c:704 ../src/common/text.c:747
+msgid "The Channel it's going to"
+msgstr "ਚੈਨਲ ਇਹ ਜਾ ਰਿਹਾ ਹੈ"
+
+#: ../src/common/text.c:734
+msgid "The sound"
+msgstr "ਆਵਾਜ਼"
+
+#: ../src/common/text.c:735 ../src/common/text.c:741 ../src/common/text.c:746
+msgid "The nick of the person"
+msgstr "ਵਿਅਕਤੀ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:740 ../src/common/text.c:745
+msgid "The CTCP event"
+msgstr "CTCP ਘਟਨਾ"
+
+#: ../src/common/text.c:751
+msgid "The nick of the person who set the key"
+msgstr "ਕੁੰਜੀ ਦੇਣ ਵਾਲੇ ਵਿਅਕਤੀ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:752
+msgid "The key"
+msgstr "ਕੁੰਜੀ"
+
+#: ../src/common/text.c:756
+msgid "The nick of the person who set the limit"
+msgstr "ਸੀਮਾ ਲਗਾਉਣ ਵਾਲੇ ਵਿਅਕਤੀ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:757
+msgid "The limit"
+msgstr "ਸੀਮਾ"
+
+#: ../src/common/text.c:761
+msgid "The nick of the person who did the op'ing"
+msgstr ""
+
+#: ../src/common/text.c:762
+msgid "The nick of the person who has been op'ed"
+msgstr ""
+
+#: ../src/common/text.c:766
+msgid "The nick of the person who has been halfop'ed"
+msgstr ""
+
+#: ../src/common/text.c:767
+msgid "The nick of the person who did the halfop'ing"
+msgstr ""
+
+#: ../src/common/text.c:771
+msgid "The nick of the person who did the voice'ing"
+msgstr "ਆਵਾਜ਼ ਦੇਣ ਵਾਲੇ ਵਿਅਕਤੀ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:772
+msgid "The nick of the person who has been voice'ed"
+msgstr "ਆਵਾਜ਼ ਪ੍ਰਾਪਤ ਵਾਲੇ ਵਿਅਕਤੀ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:776
+msgid "The nick of the person who did the banning"
+msgstr "ਪਾਬੰਦੀ ਲਗਾਉਣ ਵਾਲੇ ਵਿਅਕਤੀ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:777 ../src/common/text.c:804
+msgid "The ban mask"
+msgstr "ਪਾਬੰਦੀ ਮਖੌਟਾ"
+
+#: ../src/common/text.c:781
+msgid "The nick who removed the key"
+msgstr "ਕੁੰਜੀ ਹਟਾਉਣ ਵਾਲੇ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:785
+msgid "The nick who removed the limit"
+msgstr "ਸੀਮਾ ਹਟਾਉਣ ਵਾਲੇ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:789
+msgid "The nick of the person of did the deop'ing"
+msgstr ""
+
+#: ../src/common/text.c:790
+msgid "The nick of the person who has been deop'ed"
+msgstr ""
+
+#: ../src/common/text.c:793
+msgid "The nick of the person of did the dehalfop'ing"
+msgstr ""
+
+#: ../src/common/text.c:794
+msgid "The nick of the person who has been dehalfop'ed"
+msgstr ""
+
+#: ../src/common/text.c:798
+msgid "The nick of the person of did the devoice'ing"
+msgstr "ਨਾ-ਅਵਾਜ਼ ਕਰਨ ਵਾਲੇ ਵਿਅਕਤੀ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:799
+msgid "The nick of the person who has been devoice'ed"
+msgstr "ਨਾ-ਆਵਾਜ਼ ਕੀਤੇ ਜਾਣ ਵਾਲੇ ਵਿਅਕਤੀ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:803
+msgid "The nick of the person of did the unban'ing"
+msgstr "ਨਾ-ਪਾਬੰਦੀ ਕਰਨ ਵਾਲੇ ਵਿਅਕਤੀ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:808
+msgid "The nick of the person who did the exempt"
+msgstr ""
+
+#: ../src/common/text.c:809 ../src/common/text.c:814
+msgid "The exempt mask"
+msgstr ""
+
+#: ../src/common/text.c:813
+msgid "The nick of the person removed the exempt"
+msgstr ""
+
+#: ../src/common/text.c:818
+msgid "The nick of the person who did the invite"
+msgstr "ਸੱਦਾ ਭੇਜਣ ਵਾਲੇ ਵਿਅਕਤੀ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:819 ../src/common/text.c:824
+msgid "The invite mask"
+msgstr "ਸੱਦਾ ਮਖੌਟਾ"
+
+#: ../src/common/text.c:823
+msgid "The nick of the person removed the invite"
+msgstr "ਸੱਦੇ ਨੂੰ ਹਟਾਉਣ ਵਾਲੇ ਵਿਅਕਤੀ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:828
+msgid "The nick of the person setting the mode"
+msgstr "ਢੰਗ ਦੇਣ ਵਾਲੇ ਵਿਅਕਤੀ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:829
+msgid "The mode's sign (+/-)"
+msgstr "ਢੰਗ ਨਿਸ਼ਾਨ (+/-)"
+
+#: ../src/common/text.c:830
+msgid "The mode letter"
+msgstr "ਢੰਗ ਅੱਖਰ"
+
+#: ../src/common/text.c:831
+msgid "The channel it's being set on"
+msgstr "ਚੈਨਲ ਦਿੱਤਾ ਜਾ ਰਿਹਾ ਹੈ"
+
+#: ../src/common/text.c:836
+msgid "Username"
+msgstr "ਉਪਭੋਗੀ ਨਾਂ"
+
+#: ../src/common/text.c:838
+msgid "Full name"
+msgstr "ਪੂਰਾ ਨਾਂ"
+
+#: ../src/common/text.c:843
+msgid "Channel Membership/\"is an IRC operator\""
+msgstr "ਚੈਨਲ ਮੈਂਬਰੀ /\"ਇੱਕ IRC ਮੁੱਖੀ ਹੈ\""
+
+#: ../src/common/text.c:848
+msgid "Server Information"
+msgstr "ਸਰਵਰ ਜਾਣਕਾਰੀ"
+
+#: ../src/common/text.c:853 ../src/common/text.c:858
+msgid "Idle time"
+msgstr "ਵਿਹਲਾ ਸਮਾਂ"
+
+#: ../src/common/text.c:859
+msgid "Signon time"
+msgstr "ਦਾਖਲਾ ਸਮਾਂ"
+
+#: ../src/common/text.c:864
+msgid "Away reason"
+msgstr "ਜਾਣ ਦਾ ਕਾਰਨ"
+
+#: ../src/common/text.c:873 ../src/common/text.c:879 ../src/common/text.c:887
+#: ../src/common/text.c:1067
+msgid "Message"
+msgstr "ਸੁਨੇਹਾ"
+
+#: ../src/common/text.c:880
+msgid "Account"
+msgstr "ਖਾਤਾ"
+
+#: ../src/common/text.c:885
+msgid "Real user@host"
+msgstr "ਅਸਲੀ user@host"
+
+#: ../src/common/text.c:886
+msgid "Real IP"
+msgstr "ਅਸਲੀ IP"
+
+#: ../src/common/text.c:891 ../src/common/text.c:900 ../src/common/text.c:906
+#: ../src/common/text.c:936 ../src/common/text.c:1090
+#: ../src/fe-gnome/channel-list-window.c:450
+msgid "Channel Name"
+msgstr "ਚੈਨਲ ਨਾਂ"
+
+#: ../src/common/text.c:895 ../src/common/text.c:1053
+msgid "Text"
+msgstr "ਪਾਠ"
+
+#: ../src/common/text.c:896 ../src/common/text.c:902 ../src/common/text.c:931
+#: ../src/common/text.c:1049 ../src/common/text.c:1091
+msgid "Server Name"
+msgstr "ਸਰਵਰ ਨਾਂ"
+
+#: ../src/common/text.c:901
+msgid "Nick of person who invited you"
+msgstr "ਸੱਦਣ ਲਈ ਵਿਅਕਤੀ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:911
+msgid "Nickname in use"
+msgstr "ਵਰਤੋਂ ਵਿੱਚ ਆਮ ਨਾਂ"
+
+#: ../src/common/text.c:912
+msgid "Nick being tried"
+msgstr "ਕੋਸ਼ਿਸ ਕੀਤਾ ਨਾਂ"
+
+#: ../src/common/text.c:921 ../src/common/text.c:1057
+msgid "IP"
+msgstr "IP"
+
+#: ../src/common/text.c:922 ../src/common/text.c:953
+msgid "Port"
+msgstr "ਪੋਰਟ"
+
+#: ../src/common/text.c:932
+#, fuzzy
+msgid "Network"
+msgstr "ਨੈੱਟਵਰਕ"
+
+#: ../src/common/text.c:937 ../src/common/text.c:942
+msgid "Modes string"
+msgstr "ਢੰਗ ਸਤਰ"
+
+#: ../src/common/text.c:952 ../src/common/text.c:990 ../src/common/text.c:995
+#: ../src/common/text.c:1036
+msgid "IP address"
+msgstr "IP ਸਿਰਨਾਵਾਂ"
+
+#: ../src/common/text.c:958 ../src/common/text.c:983
+msgid "DCC Type"
+msgstr "DCC ਕਿਸਮ"
+
+#: ../src/common/text.c:959 ../src/common/text.c:964 ../src/common/text.c:969
+#: ../src/common/text.c:976 ../src/common/text.c:996 ../src/common/text.c:1000
+#: ../src/common/text.c:1006 ../src/common/text.c:1012
+#: ../src/common/text.c:1019 ../src/common/text.c:1028
+#: ../src/common/text.c:1034
+msgid "Filename"
+msgstr "ਫਾਇਲ ਨਾਂ"
+
+#: ../src/common/text.c:970 ../src/common/text.c:977
+msgid "Destination filename"
+msgstr "ਨਿਯਤ ਫਾਇਲ ਨਾਂ"
+
+#: ../src/common/text.c:979 ../src/common/text.c:1008
+msgid "CPS"
+msgstr "CPS"
+
+#: ../src/common/text.c:1014
+msgid "Pathname"
+msgstr "ਰਸਤਾ ਨਾਂ"
+
+#: ../src/common/text.c:1029
+msgid "Position"
+msgstr "ਸਥਿਤੀ"
+
+#: ../src/common/text.c:1035
+msgid "Size"
+msgstr "ਆਕਾਰ"
+
+#: ../src/common/text.c:1040
+msgid "DCC String"
+msgstr "DCC ਸਤਰ"
+
+#: ../src/common/text.c:1045
+msgid "Number of notify items"
+msgstr "ਸੂਚਨਾ ਇਕਾਈਆਂ ਦੀ ਗਿਣਤੀ"
+
+#: ../src/common/text.c:1061
+msgid "Old Filename"
+msgstr "ਪੁਰਾਣਾ ਫਾਇਲ ਨਾਂ"
+
+#: ../src/common/text.c:1062
+msgid "New Filename"
+msgstr "ਨਵਾਂ ਫਾਇਲ ਨਾਂ"
+
+#: ../src/common/text.c:1066
+msgid "Receiver"
+msgstr "ਪ੍ਰਾਪਤ ਕਰਤਾ"
+
+#: ../src/common/text.c:1071
+msgid "Hostmask"
+msgstr "ਮੇਜ਼ਬਾਨ ਮਖੌਟਾ"
+
+#: ../src/common/text.c:1076
+msgid "Hostname"
+msgstr "ਮੇਜ਼ਬਾਨ ਨਾਂ"
+
+#: ../src/common/text.c:1081
+msgid "The Packet"
+msgstr "ਪੈਕਟ"
+
+#: ../src/common/text.c:1085
+msgid "Seconds"
+msgstr "ਸਕਿੰਟ"
+
+#: ../src/common/text.c:1089
+msgid "Nick of person who have been invited"
+msgstr "ਸੱਦਣ ਲਈ ਵਿਅਕਤੀ ਦਾ ਨਾਂ"
+
+#: ../src/common/text.c:1096
+msgid "Banmask"
+msgstr "ਪਾਬੰਦੀ ਮਖੌਟਾ"
+
+#: ../src/common/text.c:1097
+msgid "Who set the ban"
+msgstr "ਕਿਸ ਨੇ ਪਾਬੰਦੀ ਲਗਾਈ"
+
+#: ../src/common/text.c:1098
+msgid "Ban time"
+msgstr "ਪਾਬੰਦੀ ਸਮਾਂ"
+
+#: ../src/common/text.c:1138
+#, c-format
+msgid ""
+"Error parsing event %s.\n"
+"Loading default."
+msgstr ""
+"%s ਘਟਨਾ ਪਾਰਸ ਕਰਨ ਦੌਰਾਨ ਗਲਤੀ।\n"
+"ਮੂਲ ਹੀ ਲੋਡ ਕੀਤਾ ਗਿਆ ਹੈ।"
+
+#: ../src/common/text.c:1819
+#, c-format
+msgid ""
+"Cannot read sound file:\n"
+"%s"
+msgstr ""
+"ਆਵਾਜ਼ ਫਾਇਲ ਪੜੀ ਨਹੀਂ ਜਾ ਸਕੀ:\n"
+"%s"
+
+#: ../src/common/textevents.h:6
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 added to notify list."
+msgstr "%C22*%O$t$1 ਨੂੰ ਸੂਚਨਾ ਸੂਚੀ ਵਿੱਚ ਸ਼ਾਮਿਲ ਕੀਤਾ।"
+
+#: ../src/common/textevents.h:9
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 Banlist: %C3$4 %C4$2 %C5$3%O"
+msgstr "%C22*%O$t$1 ਪਾਬੰਦੀ ਸੂਚੀ:%C19 $4%C20 $2%C21 $3"
+
+#: ../src/common/textevents.h:12
+#, fuzzy
+msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(You are banned)."
+msgstr "%C22*%O$t %C26 %B$1 %O ਵਿੱਚ ਦਾਖਲ ਨਹੀ ਹੋ ਸਕਦੇ (ਤੁਹਾਡੇ ਉੱਤੇ ਪਾਬੰਦੀ ਹੈ)।"
+
+#: ../src/common/textevents.h:18
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 is now known as $2"
+msgstr "%C22*%O$t$1 ਨੂੰ ਹੁਣ $2 ਦੇ ਤੌਰ ਉੱਤੇ ਜਾਣਿਆ ਜਾਵੇਗਾ"
+
+#: ../src/common/textevents.h:21
+#, fuzzy
+msgid "%C13*%O$t$1 $2%O"
+msgstr "%C16*%O$t$1%O"
+
+#: ../src/common/textevents.h:24
+#, fuzzy
+msgid "%C13*%O$t%C8%B$1%B%O $2%O"
+msgstr "%C21*%O$t%C21%B$1%O%C21 $2"
+
+#: ../src/common/textevents.h:27
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 sets ban on $2"
+msgstr "%C22*%O$t$1 ਨੇ $2 ਉੱਤੇ ਪਾਬੰਦੀ ਲਗਾਈ"
+
+#: ../src/common/textevents.h:30
+#, fuzzy
+msgid "-%C10-%C11-%O$tChannel $1 created on $2"
+msgstr "%C22*%O$tਚੈਨਲ $1 ਨੂੰ $2 ਤੇ ਬਣਾਇਆ ਗਿਆ ਹੈ"
+
+#: ../src/common/textevents.h:33
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 removes channel half-operator status from $2"
+msgstr "%C22*%O$t%C26$1%O ਨੇ%C26 $2 ਤੋਂ ਚੈਨਲ ਅਰਧ-ਮੁੱਖੀ ਅਹੁਦਾ ਹਟਾਇਆ"
+
+#: ../src/common/textevents.h:36
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 removes channel operator status from $2"
+msgstr "%C22*%O$t%C26$1%O ਨੇ%C26 $2 ਤੋਂ ਚੈਨਲ ਮੁੱਖੀ ਅਹੁਦਾ ਹਟਾਇਆ"
+
+#: ../src/common/textevents.h:39
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 removes voice from $2"
+msgstr "%C22*%O$t%C26$1%O ਨੇ %C26 $2 ਤੋਂ ਆਵਾਜ਼ ਹਟਾਈ"
+
+#: ../src/common/textevents.h:42
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 sets exempt on $2"
+msgstr "%C22*%O$t$1 ਨੇ $2 ਤੇ ਸੱਦਾ ਲਗਾਇਆ"
+
+#: ../src/common/textevents.h:45
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 gives channel half-operator status to $2"
+msgstr "%C22*%O$t%C26$1%O ਨੇ %C26 $2 ਨੂੰ ਅੱਧੇ-ਮੁੱਖੀ ਦਾ ਅਹੁਦਾ ਦਿੱਤਾ"
+
+#: ../src/common/textevents.h:48
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 sets invite on $2"
+msgstr "%C22*%O$t$1 ਨੇ $2 ਤੇ ਸੱਦਾ ਲਗਾਇਆ"
+
+#: ../src/common/textevents.h:51
+#, fuzzy
+msgid "%UChannel          Users   Topic%O"
+msgstr "%Uਚੈਨਲ          ਉਪਭੋਗੀ   ਵਿਸ਼ਾ"
+
+#: ../src/common/textevents.h:54 ../src/common/textevents.h:306
+#, fuzzy
+msgid "%C2<%O$1%C2>%O$t$2%O"
+msgstr "%C28-%C29$1%C28-%O$t$2"
+
+#: ../src/common/textevents.h:57
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 sets mode $2$3 $4"
+msgstr "%C22*%O$t$1 ਢੰਗ $2$3 $4 ਦਿੱਤਾ"
+
+#: ../src/common/textevents.h:60
+#, fuzzy
+msgid "-%C10-%C11-%O$tChannel $1 modes: $2"
+msgstr "C22*%O$t%C22ਚੈਨਲ $1 ਮੋਡ: $2"
+
+#: ../src/common/textevents.h:63
+#, fuzzy
+msgid "%C2<%C8%B$1%B%C2>%O$t$2%O"
+msgstr "%C28-%C29$1%C28-%O$t$2"
+
+#: ../src/common/textevents.h:66
+#, fuzzy
+msgid "%C12-%C13$1/$2%C12-%O$t$3%O"
+msgstr "%C28-%C29$1/$2%C28-%O$t$3"
+
+#: ../src/common/textevents.h:69
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 gives channel operator status to $2"
+msgstr "%C22*%O$t%C26$1%O ਨੇ %C26 $2 ਨੂੰ ਚੈਨਲ ਮੁੱਖੀ ਦਾ ਦਰਜਾ ਦਿੱਤਾ"
+
+#: ../src/common/textevents.h:72
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 removes exempt on $2"
+msgstr "%C22*%O$t$1 ਨੇ $2 ਤੋਂ ਪਾਬੰਦੀ ਹਟਾਈ"
+
+#: ../src/common/textevents.h:75
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 removes invite on $2"
+msgstr "%C22*%O$t$1 ਨੇ $2 ਤੋਂ ਸੱਦਾ ਹਟਾਇਆ"
+
+#: ../src/common/textevents.h:78
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 removes channel keyword"
+msgstr "%C22*%O$t$1 ਨੇ ਚੈਨਲ ਸ਼ਬਦ ਹਟਾਇਆ"
+
+#: ../src/common/textevents.h:81
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 removes user limit"
+msgstr "%C22*%O$t$1 ਨੇ ਉਪਭੋਗੀ ਸੀਮਾ ਹਟਾਈ"
+
+#: ../src/common/textevents.h:84
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 sets channel keyword to $2"
+msgstr "%C22*%O$t$1 ਨੇ $2 ਲਈ ਚੈਨਲ ਸ਼ਬਦ ਲਗਾਇਆ"
+
+#: ../src/common/textevents.h:87
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 sets channel limit to $2"
+msgstr "%C22*%O$t$1 ਨੇ ਚੈਨਲ ਸੀਮਾ $2 ਕੀਤੀ"
+
+#: ../src/common/textevents.h:90
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 removes ban on $2"
+msgstr "%C22*%O$t$1 ਨੇ $2 ਤੋਂ ਪਾਬੰਦੀ ਹਟਾਈ"
+
+#: ../src/common/textevents.h:93
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 gives voice to $2"
+msgstr "%C22*%O$t%C26$1%O ਨੇ %C26 $2 ਲਈ ਆਵਾਜ਼ ਦਿੱਤੀ"
+
+#: ../src/common/textevents.h:96
+#, fuzzy
+msgid "-%C10-%C11-%O$tConnected. Now logging in.."
+msgstr "%C22*%O$t%C22ਜੁੜ ਗਿਆ ਹੈ। ਤੁਸੀਂ ਦਾਖਲ ਹੋ..."
+
+#: ../src/common/textevents.h:99
+#, fuzzy
+msgid "-%C10-%C11-%O$tConnecting to %C11$1 %C14(%C11$2%C14)%C port %C11$3%C.."
+msgstr "%C22*%O$t%C22($2) ਨਾਲ ਪੋਰਟ $3%O ਤੇ ਜੁੜਿਆ ਜਾਦਾ ਹੈ..."
+
+#: ../src/common/textevents.h:102
+#, fuzzy
+msgid "-%C10-%C11-%O$tConnection failed. Error: $1"
+msgstr "%C21*%O$t%C21ਕੁਨੈਕੁਸ਼ਨ ਅਸਫਲ ਹੈ। ਗਲਤੀ: $1"
+
+#: ../src/common/textevents.h:105
+#, fuzzy
+msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2"
+msgstr "%C22*%O$tਇੱਕ CTCP $1 $2 ਵੱਲੋਂ ਪ੍ਰਾਪਤ ਹੋਈ"
+
+#: ../src/common/textevents.h:108
+#, fuzzy
+msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2 (to $3)"
+msgstr "%C22*%O$tਇੱਕ CTCP $1 $2 ਵੱਲੋਂ ਪ੍ਰਾਪਤ ਹੋਈ ($3 ਲਈ)"
+
+#: ../src/common/textevents.h:111
+#, fuzzy
+msgid "%C3>%O$1%C3<%O$tCTCP $2%O"
+msgstr "%C19>%O$1%C19<%O$tCTCP $2"
+
+#: ../src/common/textevents.h:114
+#, fuzzy
+msgid "-%C10-%C11-%O$tReceived a CTCP Sound $1 from $2"
+msgstr "%C22*%O$tCTCP ਆਵਾਜ਼ $1 $2 ਵੱਲੋਂ ਆਈ ਹੈ"
+
+#: ../src/common/textevents.h:117
+#, fuzzy
+msgid "%C22*%O$tReceived a CTCP Sound $1 from $2 (to $3)"
+msgstr "%C22*%O$tਇੱਕ CTCP $1 ਧੁਨੀ $2 (to $3) ਵਲੋਂ ਮਿਲੀ"
+
+#: ../src/common/textevents.h:120
+#, fuzzy
+msgid "-%C10-%C11-%O$tDCC CHAT to %C11$1%O aborted."
+msgstr "%C22*%O$t%C26$1%O ਨਾਲ DCC ਗੱਲਬਾਤ ਅਧੂਰੀ ਰਹੀ।"
+
+#: ../src/common/textevents.h:123
+#, fuzzy
+msgid ""
+"-%C10-%C11-%O$tDCC CHAT connection established to %C11$1 %C14[%O$2%C14]%O"
+msgstr "%C22*%O$t%C26$1 %C30[%O$2%C30] ਨਾਲ DCC ਗੱਲਬਾਤ ਕੁਨੈਕਸ਼ਨ ਬਣਾਇਆ ਗਿਆ"
+
+#: ../src/common/textevents.h:126
+#, fuzzy
+msgid ""
+"-%C10-%C11-%O$tDCC CHAT failed. Connection to $1 %C14[%O$2:$3%C14]%O lost."
+msgstr ""
+
+#: ../src/common/textevents.h:129
+#, fuzzy
+msgid "-%C10-%C11-%O$tReceived a DCC CHAT offer from $1"
+msgstr "%C22*%O$t $1 ਵਲੋਂ DCC ਗੱਲਬਾਤ ਲਈ ਸੱਦਾ ਆਇਆ ਹੈ"
+
+#: ../src/common/textevents.h:132
+#, fuzzy
+msgid "-%C10-%C11-%O$tOffering DCC CHAT to $1"
+msgstr "%C22*%O$t $1 ਨੂੰ DCC ਗੱਲਬਾਤ ਲਈ ਸੱਦਾ ਦੇ ਰਿਹਾ ਹੈ"
+
+#: ../src/common/textevents.h:135
+#, fuzzy
+msgid "-%C10-%C11-%O$tAlready offering CHAT to $1"
+msgstr "%C22*%O$t $1 ਨਾਲ ਪਹਿਲਾਂ ਹੀ ਗੱਲਬਾਤ ਲਈ ਸੱਦਾ ਦਿੱਤਾ ਗਿਆ ਹੈ"
+
+#: ../src/common/textevents.h:138
+#, fuzzy
+msgid "-%C10-%C11-%O$tDCC $1 connect attempt to %C11$2%O failed (err=$3)."
+msgstr "%C22*%O$tDCC $1 %C26 $2%O ਨਾਲ ਕੁਨੈਕਸ਼ਨ ਅਸਫਲ (ਗਲਤੀ=$3)"
+
+#: ../src/common/textevents.h:141
+#, fuzzy
+msgid "-%C10-%C11-%O$tReceived '$1%O' from $2"
+msgstr "%C22*%O$t $2 ਵਲੋਂ '$1%O' ਪ੍ਰਾਪਤ"
+
+#: ../src/common/textevents.h:144
+#, fuzzy
+#, c-format
+msgid "%C24,18 Type  To/From    Status  Size    Pos     File         "
+msgstr "%C24,18 ਕਿਸਮ  ਵੱਲ/ਵੱਲੋਂ    ਸਥਿਤੀ  ਅਕਾਰ    Pos     ਫਾਇਲ         "
+
+#: ../src/common/textevents.h:147
+#, fuzzy
+msgid ""
+"-%C10-%C11-%O$tReceived a malformed DCC request from %C11$1%O.%010-%C10-%C11-"
+"%O$tContents of packet: $2"
+msgstr ""
+
+#: ../src/common/textevents.h:150
+#, fuzzy
+msgid "-%C10-%C11-%O$tOffering %C11$1 %Cto %C11$2%O"
+msgstr "%C22*%O$tਨੇ%C26 $1%O %C26 $2 ਨੂੰ ਪੇਸ਼ ਕੀਤੀ"
+
+#: ../src/common/textevents.h:153
+#, fuzzy
+msgid "-%C10-%C11-%O$tNo such DCC offer."
+msgstr "%C22*%O$tਏਦਾਂ ਦਾ ਕੋਈ DCC ਸੱਦਾ ਨਹੀਂ ਹੈ।"
+
+#: ../src/common/textevents.h:156
+#, fuzzy
+msgid "-%C10-%C11-%O$tDCC RECV %C11$2%O to %C11$1%O aborted."
+msgstr "%C22*%O$tDCC RECV%C26 $2%O to%C26 $1%O ਅਧੂਰਾ ਛੱਡਿਆ।"
+
+#: ../src/common/textevents.h:159
+#, fuzzy
+msgid ""
+"-%C10-%C11-%O$tDCC RECV %C11$1%O from %C11$3%O complete %C14[%C11$4%O cps%"
+"C14]%O."
+msgstr "%C22*%O$tDCC RECV%C26 $1%O, %C26 $3%O ਤੋਂ ਮੁਕੰਮਲ %C30[%C26$4%O cps%C30]%O"
+
+#: ../src/common/textevents.h:162
+#, fuzzy
+msgid ""
+"-%C10-%C11-%O$tDCC RECV connection established to %C11$1 %C14[%O$2%C14]%O"
+msgstr "%C22*%O$tDCC RECV%C26 $1 %C30[%O$2%C30] ਨਾਲ ਕੁਨੈਕਸ਼ਨ ਬਣਿਆ"
+
+#: ../src/common/textevents.h:165
+#, fuzzy
+msgid "-%C10-%C11-%O$tDCC RECV $1 ($2) failed. Connection to $3 lost."
+msgstr ""
+
+#: ../src/common/textevents.h:168
+#, fuzzy
+msgid "-%C10-%C11-%O$tDCC RECV: Cannot open $1 for writing ($2)."
+msgstr "%C22*%O$tDCC RECV: $1ਨੂੰ ($2) ਲਿਖਣ ਲਈ ਖੋਲਿਆ ਨਹੀਂ ਜਾ ਸਕਦਾ।"
+
+#: ../src/common/textevents.h:171
+#, fuzzy
+msgid ""
+"-%C10-%C11-%O$tThe file %C11$1%C already exists, saving it as %C11$2%O "
+"instead."
+msgstr ""
+"%C22*%O$tਫਾਇਲ%C26 $1%C ਪਹਿਲਾਂ ਹੀ ਮੌਜੂਦ ਹੈ, %C26 $2%O ਦੇ ਤੌਰ ਤੇ ਸੰਭਾਲੀ ਜਾ ਰਹੀ ਹੈ।"
+
+#: ../src/common/textevents.h:174
+#, fuzzy
+msgid "-%C10-%C11-%O$t%C11$1 %Chas requested to resume %C11$2 %Cfrom %C11$3%C."
+msgstr "%C22*%O$t%C26$1 %Oਨੇ%C26 $2 %Cਨੂੰ%C26 $3%C ਤੋਂ ਮੁੜ-ਪ੍ਰਾਪਤੀ ਦੀ ਮੰਗ ਰੱਖੀ।"
+
+#: ../src/common/textevents.h:177
+#, fuzzy
+msgid "-%C10-%C11-%O$tDCC SEND %C11$2%O to %C11$1%O aborted."
+msgstr "%C22*%O$tDCC SEND%C26 $2%O to%C26 $1%O ਅਧੂਰਾ ਛੱਡਿਆ।"
+
+#: ../src/common/textevents.h:180
+#, fuzzy
+msgid ""
+"-%C10-%C11-%O$tDCC SEND %C11$1%O to %C11$2%O complete %C14[%C11$3%O cps%C14]%"
+"O."
+msgstr "%C22*%O$tDCC SEND%C26 $1%O to%C26 $2%O ਮੁਕੰਮਲ %C30[%C26$3%O cps%C30]%O."
+
+#: ../src/common/textevents.h:183
+#, fuzzy
+msgid ""
+"-%C10-%C11-%O$tDCC SEND connection established to %C11$1 %C14[%O$2%C14]%O"
+msgstr "%C22*%O$tDCC SEND %C26 $1 %C30[%O$2%C30] ਨਾਲ ਕੁਨੈਕਸ਼ਨ ਬਣਿਆ"
+
+#: ../src/common/textevents.h:186
+#, fuzzy
+msgid "-%C10-%C11-%O$tDCC SEND %C11$1%O failed. Connection to %C11$2%O lost."
+msgstr ""
+
+#: ../src/common/textevents.h:189
+#, fuzzy
+msgid "-%C10-%C11-%O$t%C11$1 %Chas offered %C11$2 %C(%C11$3 %Cbytes)"
+msgstr "%C22*%O$t%C26$1 %Oਨੇ %C26 $2 %O(%C26$3 %Oਬਾਇਟ) ਫਾਇਲ ਭੇਜੀ"
+
+#: ../src/common/textevents.h:192
+#, fuzzy
+msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Cstalled - aborting."
+msgstr "%C22*%O$tDCC $1%C26 $2 %Oto%C26 $3 %Cਸਥਿਰ - ਅਧੂਰਾ ਛੱਡਿਆ"
+
+#: ../src/common/textevents.h:195
+#, fuzzy
+msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Ctimed out - aborting."
+msgstr "%C22*%O$tDCC $1%C26 $2 %Oto%C26 $3 %Oਸਮਾਂ ਸਮਾਪਤ - ਅਧੂਰਾ ਛੱਡਿਆ।"
+
+#: ../src/common/textevents.h:198
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 deleted from notify list."
+msgstr "%C22*%O$t$1 ਨੂੰ ਸੂਚਨਾ ਤੋਂ ਹਟਾਇਆ।"
+
+#: ../src/common/textevents.h:201
+#, fuzzy
+msgid "-%C10-%C11-%O$tDisconnected ($1)."
+msgstr "%C22*%O$t ($1) ਬੰਦ ਹੋਇਆ ਹੈ।"
+
+#: ../src/common/textevents.h:204
+#, fuzzy
+msgid "-%C10-%C11-%O$tFound your IP: [$1]"
+msgstr "%C22*%O$tਤੁਹਾਡਾ IP ਖੋਜਿਆ: [$1]"
+
+#: ../src/common/textevents.h:207
+#, fuzzy
+msgid "$1$t$2"
+msgstr "$1$t$2"
+
+#: ../src/common/textevents.h:210
+#, fuzzy
+msgid "%O%C11$1%O added to ignore list."
+msgstr "%O%C26$1%O ਨੂੰ ਅਣਡਿੱਠੀ ਸੂਚੀ ਵਿੱਚ ਸ਼ਾਮਿਲ ਕੀਤਾ।"
+
+#: ../src/common/textevents.h:213
+#, fuzzy
+msgid "Ignore on %C11$1%O changed."
+msgstr "%C26$1%O ਤਬਦੀਲੀ ਅਣਡਿੱਠਾ।"
+
+#: ../src/common/textevents.h:216
+#, fuzzy
+#, c-format
+msgid "%C24,18                                                              "
+msgstr "%C24,18                                                              "
+
+#: ../src/common/textevents.h:219
+#, fuzzy
+#, c-format
+msgid "%C24,18 Hostmask                  PRIV NOTI CHAN CTCP DCC  INVI UNIG "
+msgstr ""
+"%C24,18 ਮੇਜ਼ਬਾਨ ਮਖੌਟਾ                  PRIV NOTI CHAN CTCP DCC  INVI UNIG "
+
+#: ../src/common/textevents.h:222
+#, fuzzy
+msgid "%O%C11$1%O removed from ignore list."
+msgstr "%O%C26$1%O ਨੂੰ ਅਣਡਿੱਠਾ ਸੂਚੀ ਵਿੱਚੋਂ ਹਟਾਇਆ।"
+
+#: ../src/common/textevents.h:225
+#, fuzzy
+msgid "  Ignore list is empty."
+msgstr "  ਅਣਡਿੱਠਾ ਸੂਚੀ ਖਾਲੀ ਹੈ।"
+
+#: ../src/common/textevents.h:228
+#, fuzzy
+msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Channel is invite only)."
+msgstr "%C22*%O$t%C26 %B$1 %O ਵਿੱਚ ਦਾਖਲ ਨਹੀਂ ਹੋ ਸਕਦੇ (ਚੈਨਲ ਹੀ ਸੱਦ ਸਕਦਾ ਏ)।"
+
+#: ../src/common/textevents.h:231
+#, fuzzy
+msgid "-%C10-%C11-%O$tYou have been invited to %C11$1%C by %C11$2%C (%C11$3%C)"
+msgstr "%C22*%O$tਤੁਹਾਨੂੰ%C26 $1%O by%C26 $2%C (%C26$3%C) ਲਈ ਸੱਦਾ ਹੈ"
+
+#: ../src/common/textevents.h:234
+#, fuzzy
+msgid "-%C10-%C11>%O$t%B$1%B %C14(%C10$3%C14)%C has joined $2"
+msgstr "%C19*%O$t%C19%B$1 %B($3) $2 ਵਿੱਚ ਦਾਖਲ"
+
+#: ../src/common/textevents.h:237
+#, fuzzy
+msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Requires keyword)."
+msgstr "%C22*%O$t%C26 %B$1 %O ਵਿੱਚ ਦਾਖਲ ਨਹੀਂ ਹੋ ਸਕਦੇ(ਸ਼ਬਦ ਲੋੜੀਦਾ ਹੈ)।"
+
+#: ../src/common/textevents.h:240
+#, fuzzy
+msgid "<%C10-%C11-%O$t$1 has kicked $2 from $3 ($4%O)"
+msgstr "%C21*%O$t%C21$1 ਨੇ $2 ਨੂੰ $3 ($4%O%C21) ਤੋਂ ਬਾਹਰ ਸੁੱਟ ਦਿੱਤਾ"
+
+#: ../src/common/textevents.h:243
+#, fuzzy
+msgid "-%C10-%C11-%O$tYou have been killed by $1 ($2%O)"
+msgstr "%C22*%O$tਤੁਹਾਨੂੰ $1 ($2%O%C22) ਨੇ ਚੈਨਲ ਵਿੱਚੋਂ ਬਾਹਰ ਸੁੱਟ ਦਿੱਤਾ"
+
+#: ../src/common/textevents.h:246 ../src/common/textevents.h:270
+#, fuzzy
+msgid "%C3>%O$1%C3<%O$t$2%O"
+msgstr "%C19>%O$1%C19<%O$t$2"
+
+#: ../src/common/textevents.h:249 ../src/common/textevents.h:327
+#: ../src/common/textevents.h:333 ../src/common/textevents.h:336
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1%O"
+msgstr "%C16*%O$t$1%O"
+
+#: ../src/common/textevents.h:252
+#, fuzzy
+msgid "-%C10-%C11-%O$tMOTD Skipped."
+msgstr "%C22*%O$t%C22MOTD ਅਧੂਰਾ ਛੱਡਿਆ ਹੈ।"
+
+#: ../src/common/textevents.h:255
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 already in use. Retrying with $2.."
+msgstr "%C22*%O$t$1 ਪਹਿਲਾਂ ਹੀ ਵਰਤੋਂ ਅਧੀਨ ਹੈ। $2 ਨਾਲ ਮੁੜ ਕੋਸ਼ਿਸ ਜਾਰੀ..."
+
+#: ../src/common/textevents.h:258
+#, fuzzy
+msgid "-%C10-%C11-%O$tNickname already in use. Use /NICK to try another."
+msgstr "%C22*%O$tਨਾਂ ਪਹਿਲਾਂ ਹੀ ਵਰਤੋਂ ਅਧੀਨ ਹੈ। ਹੋਰ ਵਰਤਣ ਲਈ /NICK ਦੀ ਵਰਤੋਂ ਕਰੋ।"
+
+#: ../src/common/textevents.h:261
+#, fuzzy
+msgid "-%C10-%C11-%O$tNo such DCC."
+msgstr "%C22*%O$tਏਦਾਂ ਦਾ ਕੋਈ DCC ਨਹੀਂ ਹੈ।"
+
+#: ../src/common/textevents.h:264
+#, fuzzy
+msgid "-%C10-%C11-%O$tNo process is currently running"
+msgstr "%C22*%O$tਇਸ ਸਮੇਂ ਕੋਈ ਕਾਰਜ ਨਹੀਂ ਚੱਲ ਨਹੀਂ ਰਿਹਾ ਹੈ।"
+
+#: ../src/common/textevents.h:267
+#, fuzzy
+msgid "%C12-%C13$1%C12-%O$t$2%O"
+msgstr "%C28-%C29$1%C28-%O$t$2"
+
+#: ../src/common/textevents.h:273
+#, fuzzy
+msgid "-%C10-%C11-%O$tNotify list is empty."
+msgstr "$tਸੂਚਨਾ ਸੂਚੀ ਖਾਲੀ ਹੈ।"
+
+#: ../src/common/textevents.h:276
+#, fuzzy
+msgid "%C24,18 %B  Notify List                           "
+msgstr "%C24,18 %B  ਸੂਚਨਾ ਸੂਚੀ                           "
+
+#: ../src/common/textevents.h:279
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 users in notify list."
+msgstr "%C22*%O$t$1 ਉਪਭੋਗੀ ਸੂਚਨਾ ਸੂਚੀ ਵਿੱਚ ਹੈ।"
+
+#: ../src/common/textevents.h:282
+#, fuzzy
+msgid "-%C10-%C11-%O$tNotify: $1 is offline ($2)."
+msgstr "%C22*%O$tਸੂਚਨਾ: $1 ਮੌਕੇ ਤੇ ਮੌਜੂਦ ਨਹੀਂ ਹੈ ($2)।"
+
+#: ../src/common/textevents.h:285
+#, fuzzy
+msgid "-%C10-%C11-%O$tNotify: $1 is online ($2)."
+msgstr "%C22*%O$tਸੂਚਨਾ: $1 ਮੌਕੇ ਤੇ ਮੌਜੂਦ ਹੈ ($2)।"
+
+#: ../src/common/textevents.h:291
+#, fuzzy
+msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3"
+msgstr "%C23*%O$t%C23$1 (%O%C23$2) ਛੱਡ ਗਿਆ ਹੈ $3"
+
+#: ../src/common/textevents.h:294
+#, fuzzy
+msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3 %C14(%O$4%C14)%O"
+msgstr "%C23*%O$t%C23$1 (%O%C23$2) ਛੱਡ ਗਿਆ ਹੈ $3 (%O%C23$4)"
+
+#: ../src/common/textevents.h:297
+#, fuzzy
+msgid "-%C10-%C11-%O$tPing reply from $1 : $2 second(s)"
+msgstr "%C22*%O$t$1ਤੋਂ ਪਿੰਗ ਜਵਾਬ: $2 ਸਕਿੰਟ"
+
+#: ../src/common/textevents.h:300
+#, fuzzy
+msgid "-%C10-%C11-%O$tNo ping reply for $1 seconds, disconnecting."
+msgstr "%C22*%O$t$1 ਸਕਿੰਟਾਂ ਤੋਂ ਕੋਈ ਜਵਾਬ ਨਹੀ, ਕੁਨੈਕਸ਼ਨ ਨਹੀਂ ਹੈ।"
+
+#: ../src/common/textevents.h:303
+#, fuzzy
+msgid "%C12*%C13$1%C12*$t%O$2%O"
+msgstr "%C28*%C29$3$1%C28*$t%O$2"
+
+#: ../src/common/textevents.h:309
+#, fuzzy
+msgid "-%C10-%C11-%O$tA process is already running"
+msgstr "%C22*%O$tਇੱਕ ਕਾਰਜ ਪਹਿਲਾਂ ਹੀ ਚੱਲ ਰਿਹਾ ਹੈ"
+
+#: ../src/common/textevents.h:312
+#, fuzzy
+msgid "<%C10-%C11-%O$t$1 has quit %C14(%O$2%O%C14)%O"
+msgstr "%C23*%O$t%C23$1 ਨੇਬੰਦ ਕੀਤਾ ਹੈ (%O%C23$2)"
+
+#: ../src/common/textevents.h:315
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 sets modes%B %C14[%O$2%B%C14]%O"
+msgstr "%C22*%O$t$1 ਨੇ ਢੰਗ%B %C30[%O$2%B%C30] ਦਿੱਤਾ"
+
+#: ../src/common/textevents.h:318
+#, fuzzy
+msgid "%C12-%C13$1/Wallops%C12-%O$t$2%O"
+msgstr "%C28-%C29$1/Wallops%C28-%O$t$2"
+
+#: ../src/common/textevents.h:321
+#, fuzzy
+msgid "-%C10-%C11-%O$tLooking up IP number for%C11 $1%O.."
+msgstr "%C22*%O$t%C26 $1%O ਲਈ IP ਨੰਬਰ ਦੀ ਖੋਜ ਜਾਰੀ ਹੈ..."
+
+#: ../src/common/textevents.h:324
+#, fuzzy
+msgid "-%C10-%C11-%O$tConnected."
+msgstr "%C22*%O$t%C22ਜੁੜਿਆ ਹੈ।"
+
+#: ../src/common/textevents.h:330
+#, fuzzy
+msgid "-%C10-%C11-%O$tLooking up %C11$1%C.."
+msgstr "%C22*%O$t%C22 $1 ਦੀ ਖੋਜ ਜਾਰੀ ਹੈ"
+
+#: ../src/common/textevents.h:339
+#, fuzzy
+msgid "-%C10-%C11-%O$tStopped previous connection attempt (pid=$1)"
+msgstr "%C22*%O$tਪੁਰਾਣੀ ਕੁਨੈਕਸ਼ਨ ਕੋਸ਼ਿਸ ਰੋਕੀ (pid=$1)"
+
+#: ../src/common/textevents.h:342
+#, fuzzy
+msgid "-%C10-%C11-%O$tTopic for %C11$1%C is %C11$2%O"
+msgstr "%C29*%O$t%C29 $1%C %C29 ਲਈ ਵਿਸ਼ਾ ਹੈ: $2"
+
+#: ../src/common/textevents.h:345
+#, fuzzy
+msgid "-%C10-%C11-%O$t$1 has changed the topic to: $2%O"
+msgstr "%C22*%O$t$1 ਨੇ ਵਿਸ਼ਾ ਤਬਦੀਲ ਕੀਤਾ: $2"
+
+#: ../src/common/textevents.h:348
+#, fuzzy
+msgid "-%C10-%C11-%O$tTopic for %C11$1%C set by %C11$2%C at %C11$3%O"
+msgstr "%C29*%O$t%C29$1%C %C29 ਲਈ ਵਿਸ਼ਾ $2%C %C29 ਨੇ $3 ਵਜੇ ਦਿੱਤਾ"
+
+#: ../src/common/textevents.h:351
+#, fuzzy
+msgid "-%C10-%C11-%O$tUnknown host. Maybe you misspelled it?"
+msgstr "%C22*%O$tਅਣਜਾਣ ਮੇਜ਼ਬਾਨ, ਸ਼ਾਇਦ ਤੁਸੀਂ ਨਾਂ ਗਲਤ ਲਿਖਿਆ ਹੈ?"
+
+#: ../src/common/textevents.h:354
+#, fuzzy
+msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(User limit reached)."
+msgstr "%C22*%O$t%C26 %B$1 %O ਵਿੱਚ ਦਾਖਲ ਨਹੀਂ ਹੋ ਸਕਦੇ (ਉਪਭੋਗੀ ਸੀਮਾ ਟੱਪੀ)।"
+
+#: ../src/common/textevents.h:357
+#, fuzzy
+msgid "-%C10-%C11-%O$t%C11Users on $1:%C $2"
+msgstr "%C22*%O$t%C26$1 ਤੇ ਉਪਭੋਗੀ:%C $2"
+
+#: ../src/common/textevents.h:360
+#, fuzzy
+msgid "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
+msgstr "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
+
+#: ../src/common/textevents.h:363
+#, fuzzy
+msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %Cis away %C14(%O$2%O%C14)"
+msgstr "%C22*%O$t%C28[%O$1%C28] %Cਦੂਰ %C30(%O$2%O%C30)"
+
+#: ../src/common/textevents.h:366
+#, fuzzy
+msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
+msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
+
+#: ../src/common/textevents.h:369
+#, fuzzy
+msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %CEnd of WHOIS list."
+msgstr "%C22*%O$t%C28[%O$1%C28] %OWHOIS ਸੂਚੀ ਖਤਮ।"
+
+#: ../src/common/textevents.h:372
+#, fuzzy
+msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C$2"
+msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
+
+#: ../src/common/textevents.h:375
+#, fuzzy
+msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O"
+msgstr "%C22*%O$t%C28[%O$1%C28]%O ਵਿਹਲਾ%C26 $2"
+
+#: ../src/common/textevents.h:378
+#, fuzzy
+msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O, signon: %C11$3%O"
+msgstr "%C22*%O$t%C28[%O$1%C28]%O ਵਿਹਲਾ%C26 $2%O, ਦਾਖਲ:%C26 $3"
+
+#: ../src/common/textevents.h:381
+#, fuzzy
+msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C14(%O$2@$3%C14) %O: $4%O"
+msgstr "%C22*%O$t%C28[%O$1%C28] %C30(%O$2@$3%C30)%O: $4"
+
+#: ../src/common/textevents.h:384
+#, fuzzy
+msgid ""
+"-%C10-%C11-%O$t%C12[%O$1%C12] %Oreal user@host %C11$2%O, real IP %C11$3%O"
+msgstr "%C22*%O$t%C28[%O$1%C28] %Oਅਸਲੀ user@host%C27 $2%O, ਅਸਲੀ IP%C27 $3"
+
+#: ../src/common/textevents.h:387
+#, fuzzy
+msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O $2"
+msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
+
+#: ../src/common/textevents.h:390
+#, fuzzy
+msgid "%C22*%O$t%C28[%O$1%C28]%O $2"
+msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
+
+#: ../src/common/textevents.h:393
+#, fuzzy
+msgid "-%C10-%C11>%O$t%BYou%B are now talking on %C11$2%O"
+msgstr "%C22*%O$tਹੁਣ ਤੁਸੀਂ ਜਾਣੇ ਜਾਓਗੇ $2"
+
+#: ../src/common/textevents.h:396
+#, fuzzy
+msgid "-%C10-%C11-%O$tYou have been kicked from $2 by $3 ($4%O)"
+msgstr "%C23*$tਤੁਹਾਨੂੰ $2 ਤੋਂ $3 ($4%O%C23) ਨੇ ਬਾਹਰ ਸੁੱਟ ਦਿੱਤਾ"
+
+#: ../src/common/textevents.h:399
+#, fuzzy
+msgid "-%C10-%C11-%O$tYou have left channel $3"
+msgstr "%C23*$tਤੁਸੀਂ $3 ਚੈਨਲ ਛੱਡਿਆ"
+
+#: ../src/common/textevents.h:402
+#, fuzzy
+msgid "-%C10-%C11-%O$tYou have left channel $3 %C14(%O$4%C14)%O"
+msgstr "%C23*$tਤੁਸੀਂ $3 (%O%C23%B%B$4%O%C23) ਚੈਨਲ ਛੱਡਿਆ"
+
+#: ../src/common/textevents.h:405
+#, fuzzy
+msgid "-%C10-%C11-%O$tYou're inviting %C11$1%C to %C11$2%C (%C11$3%C)"
+msgstr "%C22*%O$tਤੁਹਾਨੂੰ%C26 $1%O ਤੋਂ%C26 $2%O (%C26$3%O) ਤੇ ਸੱਦਿਆ ਗਿਆ"
+
+#: ../src/common/textevents.h:408
+#, fuzzy
+msgid "%C6<%O$1%C6>%O$t$2%O"
+msgstr "%C19>%O$1%C19<%O$t$2"
+
+#: ../src/common/textevents.h:411
+#, fuzzy
+msgid "-%C10-%C11-%O$tYou are now known as $2"
+msgstr "%C22*%O$tਹੁਣ ਤੁਸੀਂ ਜਾਣੇ ਜਾਓਗੇ $2"
+
+#: ../src/common/util.c:296
+msgid "Remote host closed socket"
+msgstr "ਰਿਮੋਟ ਮੇਜ਼ਬਾਨ ਬੰਦ ਸਾਕਟ"
+
+#: ../src/common/util.c:301
+msgid "Connection refused"
+msgstr "ਕੁਨੈਕਸ਼ਨ ਤੋਂ ਇਨਕਾਰ"
+
+#: ../src/common/util.c:304
+msgid "No route to host"
+msgstr "ਮੇਜ਼ਬਾਨ ਲਈ ਮਾਰਗ ਨਹੀਂ"
+
+#: ../src/common/util.c:306
+msgid "Connection timed out"
+msgstr "ਕੁਨੈਕਸ਼ਨ ਲਈ ਸਮਾਂ ਸਮਾਪਤ"
+
+#: ../src/common/util.c:308
+msgid "Cannot assign that address"
+msgstr "ਇਹ ਸਿਰਨਾਵਾਂ ਦਿੱਤਾ ਨਹੀਂ ਜਾ ਸਕਦਾ"
+
+#: ../src/common/util.c:310
+msgid "Connection reset by peer"
+msgstr "ਪੀਅਰ ਨੇ ਕੁਨੈਕਸ਼ਨ ਮੁੜ ਬਣਾਇਆ"
+
+#: ../src/common/util.c:839
+#, fuzzy
+msgid "Ascension Island"
+msgstr "ਕੋਕਸ ਟਾਪੂ"
+
+#: ../src/common/util.c:840
+msgid "Andorra"
+msgstr "ਅਡੂਰਾ"
+
+#: ../src/common/util.c:841
+msgid "United Arab Emirates"
+msgstr "ਮਿਸਰ"
+
+#: ../src/common/util.c:842
+msgid "Afghanistan"
+msgstr "ਅਫਗਾਨਿਸਤਾਨ"
+
+#: ../src/common/util.c:843
+msgid "Antigua and Barbuda"
+msgstr "ਐਟੀਗੋਆ ਤੇ ਬਾਰਬੂਡਾ"
+
+#: ../src/common/util.c:844
+msgid "Anguilla"
+msgstr "ਐਗੂਲਾ"
+
+#: ../src/common/util.c:845
+msgid "Albania"
+msgstr "ਅਲਬਾਨੀਆ"
+
+#: ../src/common/util.c:846
+msgid "Armenia"
+msgstr "ਅਰਮੀਨੀਆ"
+
+#: ../src/common/util.c:847
+msgid "Netherlands Antilles"
+msgstr "ਨੀਂਦਰਲੈਂਡ ਐਟੀਲਾਇਸ"
+
+#: ../src/common/util.c:848
+msgid "Angola"
+msgstr "ਅੰਗੋਲਾ"
+
+#: ../src/common/util.c:849
+msgid "Antarctica"
+msgstr "ਐਟਾਰਟਿਕਾ"
+
+#: ../src/common/util.c:850
+msgid "Argentina"
+msgstr "ਅਰਜਨਟੀਨਾ"
+
+#: ../src/common/util.c:851
+msgid "Reverse DNS"
+msgstr "ਉਲਟ DNS"
+
+#: ../src/common/util.c:852
+msgid "American Samoa"
+msgstr "ਅਮਰੀਕਨ ਸਾਮੋਕਾ"
+
+#: ../src/common/util.c:853
+msgid "Austria"
+msgstr "ਆਸਟਾਰੀਆ"
+
+#: ../src/common/util.c:854
+msgid "Nato Fiel"
+msgstr "ਨੈਟੋ ਫਿਲ"
+
+#: ../src/common/util.c:855
+msgid "Australia"
+msgstr "ਅਸਟਰੇਲੀਆ"
+
+#: ../src/common/util.c:856
+msgid "Aruba"
+msgstr "ਅਰੂਬਾ"
+
+#: ../src/common/util.c:857
+#, fuzzy
+msgid "Aland Islands"
+msgstr "ਫਾਕਲੈਡ ਟਾਪੂ"
+
+#: ../src/common/util.c:858
+msgid "Azerbaijan"
+msgstr "ਅਜਰਬਾਈਜਾਨ"
+
+#: ../src/common/util.c:859
+msgid "Bosnia and Herzegovina"
+msgstr "ਬੋਸਨੀਆ ਤੇ ਹਰਜੀਗੋਵੀਨਾ"
+
+#: ../src/common/util.c:860
+msgid "Barbados"
+msgstr "ਬਾਰਬਾਰਡੋਸ"
+
+#: ../src/common/util.c:861
+msgid "Bangladesh"
+msgstr "ਬੰਗਲਾਦੇਸ਼"
+
+#: ../src/common/util.c:862
+msgid "Belgium"
+msgstr "ਬੈਲਜੀਅਮ"
+
+#: ../src/common/util.c:863
+msgid "Burkina Faso"
+msgstr ""
+
+#: ../src/common/util.c:864
+msgid "Bulgaria"
+msgstr "ਬੁਲਗਾਰੀਆ"
+
+#: ../src/common/util.c:865
+msgid "Bahrain"
+msgstr "ਬਹਰੀਨ"
+
+#: ../src/common/util.c:866
+msgid "Burundi"
+msgstr "ਬੂਰੂਮਾਡੀ"
+
+#: ../src/common/util.c:867
+msgid "Businesses"
+msgstr "ਵਪਾਰਿਕ"
+
+#: ../src/common/util.c:868
+msgid "Benin"
+msgstr "ਬੀਨਾਨ"
+
+#: ../src/common/util.c:869
+msgid "Bermuda"
+msgstr "ਬਾਰਮੂਡਾ"
+
+#: ../src/common/util.c:870
+msgid "Brunei Darussalam"
+msgstr "ਬਰੂਨਈ ਡਾਰੂਸ਼ਲਾਮ"
+
+#: ../src/common/util.c:871
+msgid "Bolivia"
+msgstr "ਬੋਲੋਵੀਆ"
+
+#: ../src/common/util.c:872
+msgid "Brazil"
+msgstr "ਬਰਾਜ਼ੀਲ"
+
+#: ../src/common/util.c:873
+msgid "Bahamas"
+msgstr "ਬਾਹਾਮਾਸ"
+
+#: ../src/common/util.c:874
+msgid "Bhutan"
+msgstr "ਭੁਟਾਨ"
+
+#: ../src/common/util.c:875
+msgid "Bouvet Island"
+msgstr "ਬੂਟਵਟ ਟਾਪੂ"
+
+#: ../src/common/util.c:876
+msgid "Botswana"
+msgstr "ਬੂਟਸਵਾਨਾ"
+
+#: ../src/common/util.c:877
+msgid "Belarus"
+msgstr "ਬੇਲਾਰੂਸ"
+
+#: ../src/common/util.c:878
+msgid "Belize"
+msgstr "ਬੀਲੀਜ਼ੀ"
+
+#: ../src/common/util.c:879
+msgid "Canada"
+msgstr "ਕੈਨੇਡਾ"
+
+#: ../src/common/util.c:880
+msgid "Cocos Islands"
+msgstr "ਕੋਕਸ ਟਾਪੂ"
+
+#: ../src/common/util.c:881
+msgid "Democratic Republic of Congo"
+msgstr "ਕਾਗੋਂ ਗਣਰਾਜ"
+
+#: ../src/common/util.c:882
+msgid "Central African Republic"
+msgstr "ਕੇਂਦਰੀ ਅਫਰੀਕੀ ਗਣਰਾਜ"
+
+#: ../src/common/util.c:883
+msgid "Congo"
+msgstr "ਕਾਂਗੋ"
+
+#: ../src/common/util.c:884
+msgid "Switzerland"
+msgstr "ਸਵਿਟਰਜ਼ਰਲੈਂਡ"
+
+#: ../src/common/util.c:885
+msgid "Cote d'Ivoire"
+msgstr "ਕੋਟੀ ਡੀਵੋਰਆ"
+
+#: ../src/common/util.c:886
+msgid "Cook Islands"
+msgstr "ਕੂਕ ਟਾਪੂ"
+
+#: ../src/common/util.c:887
+msgid "Chile"
+msgstr "ਚਿੱਲੀ"
+
+#: ../src/common/util.c:888
+msgid "Cameroon"
+msgstr "ਕੈਮਰੂਨ"
+
+#: ../src/common/util.c:889
+msgid "China"
+msgstr "ਚੀਨ"
+
+#: ../src/common/util.c:890
+msgid "Colombia"
+msgstr "ਕੋਲੰਬੀਆ"
+
+#: ../src/common/util.c:891
+msgid "Internic Commercial"
+msgstr "ਅੰਦਰੂਨੀ ਵਣਜ"
+
+#: ../src/common/util.c:892
+msgid "Costa Rica"
+msgstr "ਕਾਸਟ ਰੀਕਾ"
+
+#: ../src/common/util.c:893
+msgid "Serbia and Montenegro"
+msgstr "ਸਰਬੀਆ ਅਤੇ ਮੋਨਟੇਨੇਗਰੋ"
+
+#: ../src/common/util.c:894
+msgid "Cuba"
+msgstr "ਕਿਊਬਾ"
+
+#: ../src/common/util.c:895
+msgid "Cape Verde"
+msgstr "ਕੇਪ ਵਾਰਡੀ"
+
+#: ../src/common/util.c:896
+msgid "Christmas Island"
+msgstr "ਕ੍ਰਿਸਮਸ ਟਾਪੂ"
+
+#: ../src/common/util.c:897
+msgid "Cyprus"
+msgstr "ਕਿਊਰੂਸ"
+
+#: ../src/common/util.c:898
+msgid "Czech Republic"
+msgstr "ਚੈੱਕ ਗਣਰਾਜ"
+
+#: ../src/common/util.c:899
+msgid "Germany"
+msgstr "ਜਰਮਨੀ"
+
+#: ../src/common/util.c:900
+msgid "Djibouti"
+msgstr "ਡਜੀਬੂਟੀ"
+
+#: ../src/common/util.c:901
+msgid "Denmark"
+msgstr "ਡੈਨਮਾਰਕ"
+
+#: ../src/common/util.c:902
+msgid "Dominica"
+msgstr "ਡੋਮੀਨੀਆ"
+
+#: ../src/common/util.c:903
+msgid "Dominican Republic"
+msgstr "ਡੋਮੀਨੀਆਨ ਗਣਰਾਜ਼"
+
+#: ../src/common/util.c:904
+msgid "Algeria"
+msgstr "ਅਲਜੀਰੀਆ"
+
+#: ../src/common/util.c:905
+msgid "Ecuador"
+msgstr "ਏਕਵੇਡਰ"
+
+#: ../src/common/util.c:906
+msgid "Educational Institution"
+msgstr "ਵਿਦਿਅਕ ਸੰਗਠਨ"
+
+#: ../src/common/util.c:907
+msgid "Estonia"
+msgstr "ਈਸਟੋਨੀਆ"
+
+#: ../src/common/util.c:908
+msgid "Egypt"
+msgstr "ਮਿਸਰ"
+
+#: ../src/common/util.c:909
+msgid "Western Sahara"
+msgstr "ਦੱਖਣੀ ਸਹਾਰਾ"
+
+#: ../src/common/util.c:910
+msgid "Eritrea"
+msgstr "ਈਰਟੀਰਆ"
+
+#: ../src/common/util.c:911
+msgid "Spain"
+msgstr "ਸਪੇਨ"
+
+#: ../src/common/util.c:912
+msgid "Ethiopia"
+msgstr "ਈਥੋਪਈਆ"
+
+#: ../src/common/util.c:913
+msgid "European Union"
+msgstr ""
+
+#: ../src/common/util.c:914
+msgid "Finland"
+msgstr "ਫਿਨਲੈਂਡ"
+
+#: ../src/common/util.c:915
+msgid "Fiji"
+msgstr "ਫਿਜੀ"
+
+#: ../src/common/util.c:916
+msgid "Falkland Islands"
+msgstr "ਫਾਕਲੈਡ ਟਾਪੂ"
+
+#: ../src/common/util.c:917
+msgid "Micronesia"
+msgstr "ਮਾਕਰੋਨੀਸ਼ੀਆ"
+
+#: ../src/common/util.c:918
+msgid "Faroe Islands"
+msgstr "ਫਾਰੀਓ ਟਾਪੂ"
+
+#: ../src/common/util.c:919
+msgid "France"
+msgstr "ਫਰਾਂਸ"
+
+#: ../src/common/util.c:920
+msgid "Gabon"
+msgstr "ਗਾਬੋਨ"
+
+#: ../src/common/util.c:921
+msgid "Great Britain"
+msgstr "ਬਰਤਾਨੀਆ"
+
+#: ../src/common/util.c:922
+msgid "Grenada"
+msgstr "ਗਰੀਨਾਡਾਆ"
+
+#: ../src/common/util.c:923
+msgid "Georgia"
+msgstr "ਜਾਰਜੀਆ"
+
+#: ../src/common/util.c:924
+msgid "French Guiana"
+msgstr "ਫਰੈਂਚ ਗੁਆਨਾ"
+
+#: ../src/common/util.c:925
+msgid "British Channel Isles"
+msgstr "ਚੈਨਲ"
+
+#: ../src/common/util.c:926
+msgid "Ghana"
+msgstr "ਘਾਨਾ"
+
+#: ../src/common/util.c:927
+msgid "Gibraltar"
+msgstr "ਗੀਬਰਾਲਟਰ"
+
+#: ../src/common/util.c:928
+msgid "Greenland"
+msgstr "ਗਰੀਨਲੈਂਡ"
+
+#: ../src/common/util.c:929
+msgid "Gambia"
+msgstr "ਗਾਬੀਆ"
+
+#: ../src/common/util.c:930
+msgid "Guinea"
+msgstr "ਗੂਈਨੀਆ"
+
+#: ../src/common/util.c:931
+msgid "Government"
+msgstr "ਸਰਕਾਰੀ"
+
+#: ../src/common/util.c:932
+msgid "Guadeloupe"
+msgstr "ਗੁਆਡੀਲੂਪੀ"
+
+#: ../src/common/util.c:933
+msgid "Equatorial Guinea"
+msgstr "ਭੂ-ਖੰਡੀ ਗੁਆਨਾ"
+
+#: ../src/common/util.c:934
+msgid "Greece"
+msgstr "ਗਰੀਸ"
+
+#: ../src/common/util.c:935
+msgid "S. Georgia and S. Sandwich Isles"
+msgstr "ਦੱਖਣ ਜਾਰਜੀਆ ਦੱਖਣ"
+
+#: ../src/common/util.c:936
+msgid "Guatemala"
+msgstr "ਗੂਆਟੇਮਾਲਾ"
+
+#: ../src/common/util.c:937
+msgid "Guam"
+msgstr "ਗੁਆਮ"
+
+#: ../src/common/util.c:938
+msgid "Guinea-Bissau"
+msgstr "ਗੁਨੇਆ-ਬਿਸਾਉ"
+
+#: ../src/common/util.c:939
+msgid "Guyana"
+msgstr "ਗੁਆਨਾ"
+
+#: ../src/common/util.c:940
+msgid "Hong Kong"
+msgstr "ਹਾਂਗਕਾਂਗ"
+
+#: ../src/common/util.c:941
+msgid "Heard and McDonald Islands"
+msgstr "ਹੀਅਰਡ ਅਤੇ ਮੈਕਡੋਨਾਲਡ ਆਈਸਲੈਂਡ"
+
+#: ../src/common/util.c:942
+msgid "Honduras"
+msgstr "ਹਾਨਡੂਰਸ"
+
+#: ../src/common/util.c:943
+msgid "Croatia"
+msgstr "ਕਰੋਟੀਆ"
+
+#: ../src/common/util.c:944
+msgid "Haiti"
+msgstr "ਹਾਈਟੀ"
+
+#: ../src/common/util.c:945
+msgid "Hungary"
+msgstr "ਹੰਗਰੀ"
+
+#: ../src/common/util.c:946
+msgid "Indonesia"
+msgstr "ਇੰਡੋਨੇਸ਼ੀਆ"
+
+#: ../src/common/util.c:947
+msgid "Ireland"
+msgstr "ਆਇਰਲੈਂਡ"
+
+#: ../src/common/util.c:948
+msgid "Israel"
+msgstr "ਇਜ਼ਰਾਈਲ"
+
+#: ../src/common/util.c:949
+msgid "Isle of Man"
+msgstr ""
+
+#: ../src/common/util.c:950
+msgid "India"
+msgstr "ਭਾਰਤ"
+
+#: ../src/common/util.c:951
+msgid "Informational"
+msgstr "ਜਾਣਕਾਰੀ"
+
+#: ../src/common/util.c:952
+msgid "International"
+msgstr "ਅੰਤਰਰਾਸ਼ਟਰੀ"
+
+#: ../src/common/util.c:953
+msgid "British Indian Ocean Territory"
+msgstr "ਬਰਤਾਨੀਆ ਭਾਰਤੀ ਸਮੁੰਦਰੀ ਖੇਤਰ"
+
+#: ../src/common/util.c:954
+msgid "Iraq"
+msgstr "ਇਰਾਕ"
+
+#: ../src/common/util.c:955
+msgid "Iran"
+msgstr "ਈਰਾਨ"
+
+#: ../src/common/util.c:956
+msgid "Iceland"
+msgstr "ਆਇਸਲੈਡ"
+
+#: ../src/common/util.c:957
+msgid "Italy"
+msgstr "ਇਟਲੀ"
+
+#: ../src/common/util.c:958
+msgid "Jersey"
+msgstr ""
+
+#: ../src/common/util.c:959
+msgid "Jamaica"
+msgstr "ਜੈਮਾਈਕਾ"
+
+#: ../src/common/util.c:960
+msgid "Jordan"
+msgstr "ਜਾਰਡਨ"
+
+#: ../src/common/util.c:961
+msgid "Japan"
+msgstr "ਜਾਪਾਨ"
+
+#: ../src/common/util.c:962
+msgid "Kenya"
+msgstr "ਕੀਨੀਆ"
+
+#: ../src/common/util.c:963
+msgid "Kyrgyzstan"
+msgstr "ਕਿਰਗਸਤਾਨ"
+
+#: ../src/common/util.c:964
+msgid "Cambodia"
+msgstr "ਕੋਲੰਬੀਆ"
+
+#: ../src/common/util.c:965
+msgid "Kiribati"
+msgstr "ਕੀਰੀਬਾਟੀ"
+
+#: ../src/common/util.c:966
+msgid "Comoros"
+msgstr "ਕੋਮੋਰਸ"
+
+#: ../src/common/util.c:967
+msgid "St. Kitts and Nevis"
+msgstr "ਸੇਂਟ ਕਿੱਟ ਅਤੇ ਨੀਵਿਸ"
+
+#: ../src/common/util.c:968
+msgid "North Korea"
+msgstr "ਉੱਤਰੀ ਕੋਰੀਆ"
+
+#: ../src/common/util.c:969
+msgid "South Korea"
+msgstr "ਦੱਖਣੀ ਕੋਰੀਆ"
+
+#: ../src/common/util.c:970
+msgid "Kuwait"
+msgstr "ਕੁਵੈਤ"
+
+#: ../src/common/util.c:971
+msgid "Cayman Islands"
+msgstr "ਕਾਯਮਨ ਟਾਪੂ"
+
+#: ../src/common/util.c:972
+msgid "Kazakhstan"
+msgstr "ਕਜ਼ਾਕਸਤਾਨ"
+
+#: ../src/common/util.c:973
+msgid "Laos"
+msgstr "ਲਿਉਸ"
+
+#: ../src/common/util.c:974
+msgid "Lebanon"
+msgstr "ਲੀਬਨਾਨ"
+
+#: ../src/common/util.c:975
+msgid "Saint Lucia"
+msgstr "ਸੇਂਟ ਲੂਸੀਆ"
+
+#: ../src/common/util.c:976
+msgid "Liechtenstein"
+msgstr "ਲੀਚਟੀਨੀਆ"
+
+#: ../src/common/util.c:977
+msgid "Sri Lanka"
+msgstr "ਸ੍ਰੀਲੰਕਾ"
+
+#: ../src/common/util.c:978
+msgid "Liberia"
+msgstr "ਲੀਬਾਰੀਆ"
+
+#: ../src/common/util.c:979
+msgid "Lesotho"
+msgstr "ਲੀਸੋਥੋ"
+
+#: ../src/common/util.c:980
+msgid "Lithuania"
+msgstr "ਲੀਥੂਨੀਆ"
+
+#: ../src/common/util.c:981
+msgid "Luxembourg"
+msgstr "ਲ਼ਕਸ਼ਬਰਗ"
+
+#: ../src/common/util.c:982
+msgid "Latvia"
+msgstr "ਲਾਟੀਵਾਆ"
+
+#: ../src/common/util.c:983
+msgid "Libya"
+msgstr "ਲੀਬੀਆ"
+
+#: ../src/common/util.c:984
+msgid "Morocco"
+msgstr "ਮੋਰੋਸ਼ਸ"
+
+#: ../src/common/util.c:985
+msgid "Monaco"
+msgstr "ਮੋਨਸ਼ੀਆ"
+
+#: ../src/common/util.c:986
+msgid "Moldova"
+msgstr "ਮੋਲਡੋਵਾ"
+
+#: ../src/common/util.c:987
+msgid "United States Medical"
+msgstr "ਅਮਰੀਕੀ ਮੈਂਡੀਕਲ"
+
+#: ../src/common/util.c:988
+msgid "Madagascar"
+msgstr "ਮੈਡਾਗਾਸਕਰ"
+
+#: ../src/common/util.c:989
+msgid "Marshall Islands"
+msgstr "ਮਾਰਸ਼ਲ ਟਾਪੂ"
+
+#: ../src/common/util.c:990
+msgid "Military"
+msgstr "ਮਿਲਟਰੀ"
+
+#: ../src/common/util.c:991
+msgid "Macedonia"
+msgstr "ਮੈਕਡੋਨੀਆ"
+
+#: ../src/common/util.c:992
+msgid "Mali"
+msgstr "ਮਾਲੀ"
+
+#: ../src/common/util.c:993
+msgid "Myanmar"
+msgstr "ਮਿਆਂਮਾਰ"
+
+#: ../src/common/util.c:994
+msgid "Mongolia"
+msgstr "ਮੰਗੋਲੀਆ"
+
+#: ../src/common/util.c:995
+msgid "Macau"
+msgstr "ਮਕਾਉ"
+
+#: ../src/common/util.c:996
+msgid "Northern Mariana Islands"
+msgstr "ਉੱਤਰੀ ਮਰੀਵੀਆਨਾ ਟਾਪੂ"
+
+#: ../src/common/util.c:997
+msgid "Martinique"
+msgstr "ਮਾਰਟੀਨੀਕਿਊ"
+
+#: ../src/common/util.c:998
+msgid "Mauritania"
+msgstr "ਮਾਓਰੀਟਆਨਾ"
+
+#: ../src/common/util.c:999
+msgid "Montserrat"
+msgstr "ਮੋਨਟਸ਼ਟੀਟ"
+
+#: ../src/common/util.c:1000
+msgid "Malta"
+msgstr "ਮਾਲਟਾ"
+
+#: ../src/common/util.c:1001
+msgid "Mauritius"
+msgstr "ਮਾਓਟੀਸ"
+
+#: ../src/common/util.c:1002
+msgid "Maldives"
+msgstr "ਮਾਲਦੀਪ"
+
+#: ../src/common/util.c:1003
+msgid "Malawi"
+msgstr "ਮਾਲਾਵੀਆ"
+
+#: ../src/common/util.c:1004
+msgid "Mexico"
+msgstr "ਮੈਕਸੀਕੋ"
+
+#: ../src/common/util.c:1005
+msgid "Malaysia"
+msgstr "ਮਲੇਸ਼ੀਆ"
+
+#: ../src/common/util.c:1006
+msgid "Mozambique"
+msgstr "ਮੋਜ਼ਾਮਬੀਕਿਉ"
+
+#: ../src/common/util.c:1007
+msgid "Namibia"
+msgstr "ਨੀਮੀਬੀਆ"
+
+#: ../src/common/util.c:1008
+msgid "New Caledonia"
+msgstr "ਨਵਾਂ"
+
+#: ../src/common/util.c:1009
+msgid "Niger"
+msgstr "ਨੀਜ਼ਰ"
+
+#: ../src/common/util.c:1010
+msgid "Internic Network"
+msgstr "ਨੈੱਟਵਰਕ"
+
+#: ../src/common/util.c:1011
+msgid "Norfolk Island"
+msgstr "ਨੋਰਫੋਕ ਟਾਪੂ"
+
+#: ../src/common/util.c:1012
+msgid "Nigeria"
+msgstr "ਨੀਜ਼ੀਰਆ"
+
+#: ../src/common/util.c:1013
+msgid "Nicaragua"
+msgstr "ਨਿਕਾਰਗੁਆ"
+
+#: ../src/common/util.c:1014
+msgid "Netherlands"
+msgstr "ਨੀਂਦਰਲੈਂਡ"
+
+#: ../src/common/util.c:1015
+msgid "Norway"
+msgstr "ਨਾਰਵੇ"
+
+#: ../src/common/util.c:1016
+msgid "Nepal"
+msgstr "ਨੇਪਾਲ"
+
+#: ../src/common/util.c:1017
+msgid "Nauru"
+msgstr "ਨੀਓਰੂ"
+
+#: ../src/common/util.c:1018
+msgid "Niue"
+msgstr "ਨੀਊਈ"
+
+#: ../src/common/util.c:1019
+msgid "New Zealand"
+msgstr "ਨਿਊਜ਼ੀਲੈਂਡ"
+
+#: ../src/common/util.c:1020
+msgid "Oman"
+msgstr "ਓਮਾਨ"
+
+#: ../src/common/util.c:1021
+msgid "Internic Non-Profit Organization"
+msgstr "ਅੰਦਰੂਨੀ ਨਾ-ਲਾਭ ਸੰਗਠਨ"
+
+#: ../src/common/util.c:1022
+msgid "Panama"
+msgstr "ਪੈਨਾਮਾ"
+
+#: ../src/common/util.c:1023
+msgid "Peru"
+msgstr "ਪੇਰੂ"
+
+#: ../src/common/util.c:1024
+msgid "French Polynesia"
+msgstr "ਫਰੈਚ ਪੋਲੀਸੇਲੇਵੀਆ"
+
+#: ../src/common/util.c:1025
+msgid "Papua New Guinea"
+msgstr "ਪਾਪੂਆ ਨਵਾਂ ਗੂਈਨਿਆ"
+
+#: ../src/common/util.c:1026
+msgid "Philippines"
+msgstr "ਫਿਲਿਪੀਨੀਜ਼"
+
+#: ../src/common/util.c:1027
+msgid "Pakistan"
+msgstr "ਪਾਕਿਸਤਾਨ"
+
+#: ../src/common/util.c:1028
+msgid "Poland"
+msgstr "ਪੋਲੈਂਡ"
+
+#: ../src/common/util.c:1029
+msgid "St. Pierre and Miquelon"
+msgstr "ਸੇਂਟ ਪਰੇਰਾ ਅਤੇ ਮਿਕਿਊਲੋਨ"
+
+#: ../src/common/util.c:1030
+msgid "Pitcairn"
+msgstr "ਪਿਟਸਾਰਨ"
+
+#: ../src/common/util.c:1031
+msgid "Puerto Rico"
+msgstr "ਪੁਈਰਟੋ ਰੀਸੋ"
+
+#: ../src/common/util.c:1032
+msgid "Palestinian Territory"
+msgstr "ਫਿਲੀਸਤੀਨ ਭਾਗ"
+
+#: ../src/common/util.c:1033
+msgid "Portugal"
+msgstr "ਪੁਰਤਗਾਲ"
+
+#: ../src/common/util.c:1034
+msgid "Palau"
+msgstr "ਪਾਲਾਊ"
+
+#: ../src/common/util.c:1035
+msgid "Paraguay"
+msgstr "ਪੇਰੂਗਵੇ"
+
+#: ../src/common/util.c:1036
+msgid "Qatar"
+msgstr "ਕਤਰ"
+
+#: ../src/common/util.c:1037
+msgid "Reunion"
+msgstr "ਰੀਯੁਨੀਅਨ"
+
+#: ../src/common/util.c:1038
+msgid "Romania"
+msgstr "ਰੋਮਾਨੀਆ"
+
+#: ../src/common/util.c:1039
+msgid "Old School ARPAnet"
+msgstr "ਪੁਰਾਣਾ ਸਕੂਲ ARPAnet"
+
+#: ../src/common/util.c:1040
+msgid "Russian Federation"
+msgstr "ਸੰਘੀ ਰੂਸ"
+
+#: ../src/common/util.c:1041
+msgid "Rwanda"
+msgstr "ਰਵਾਂਡਾਂ"
+
+#: ../src/common/util.c:1042
+msgid "Saudi Arabia"
+msgstr "ਸਾਊਦੀ ਅਰਬ"
+
+#: ../src/common/util.c:1043
+msgid "Solomon Islands"
+msgstr "ਸੋਲੋਮੋਨ ਟਾਪੂ"
+
+#: ../src/common/util.c:1044
+msgid "Seychelles"
+msgstr "ਸੀਆਚਿਲਸ"
+
+#: ../src/common/util.c:1045
+msgid "Sudan"
+msgstr "ਸੂਡਾਨ"
+
+#: ../src/common/util.c:1046
+msgid "Sweden"
+msgstr "ਸਵੀਡਨ"
+
+#: ../src/common/util.c:1047
+msgid "Singapore"
+msgstr "ਸਿੰਘਾਪੁਰ"
+
+#: ../src/common/util.c:1048
+msgid "St. Helena"
+msgstr "ਸੇਂਟ ਹੀਲੀਨਆ"
+
+#: ../src/common/util.c:1049
+msgid "Slovenia"
+msgstr "ਸਲੋਵੀਨੀਆ"
+
+#: ../src/common/util.c:1050
+msgid "Svalbard and Jan Mayen Islands"
+msgstr "ਸਵਾਲਬੋਰਡ ਅਤੇ ਜਾਨ ਮਾਈਨ ਆਈਸਲੈਂਡ"
+
+#: ../src/common/util.c:1051
+msgid "Slovak Republic"
+msgstr "ਸਲੋਵਾਕ ਲੋਕਤੰਤਰ"
+
+#: ../src/common/util.c:1052
+msgid "Sierra Leone"
+msgstr "ਸੀਈਰਆ ਲਿਏਨ"
+
+#: ../src/common/util.c:1053
+msgid "San Marino"
+msgstr "ਸਾਨ ਮਾਰੀਨੂ"
+
+#: ../src/common/util.c:1054
+msgid "Senegal"
+msgstr "ਸੈਨੇਗਾਲ"
+
+#: ../src/common/util.c:1055
+msgid "Somalia"
+msgstr "ਸੋਮਾਲੀਆ"
+
+#: ../src/common/util.c:1056
+msgid "Suriname"
+msgstr "ਸੂਰੀਨਾਂ"
+
+#: ../src/common/util.c:1057
+msgid "Sao Tome and Principe"
+msgstr "ਸਾਓ ਟੋਮ ਅਤੇ ਪ੍ਰਿਨਸਾਈਪ"
+
+#: ../src/common/util.c:1058
+msgid "Former USSR"
+msgstr "ਪੁਰਾਣਾ ਸੋਵੀਅਤ ਯੂਨੀਅਨ"
+
+#: ../src/common/util.c:1059
+msgid "El Salvador"
+msgstr "ਈਲ ਸਾਲੇਵਡੋਰ"
+
+#: ../src/common/util.c:1060
+msgid "Syria"
+msgstr "ਸੀਰੀਆ"
+
+#: ../src/common/util.c:1061
+msgid "Swaziland"
+msgstr "ਸਵਰਜ਼ਲੈਂਡ"
+
+#: ../src/common/util.c:1062
+msgid "Turks and Caicos Islands"
+msgstr "ਤੁਰਕਸ ਅਤੇ ਕੇਈਕੋਸ ਟਾਪੂ"
+
+#: ../src/common/util.c:1063
+msgid "Chad"
+msgstr "ਚੰਦ"
+
+#: ../src/common/util.c:1064
+msgid "French Southern Territories"
+msgstr "ਫਰੈਂਚ ਦੱਖਣੀ ਖੇਤਰ"
+
+#: ../src/common/util.c:1065
+msgid "Togo"
+msgstr "ਟੂਗੂ"
+
+#: ../src/common/util.c:1066
+msgid "Thailand"
+msgstr "ਥਾਈਲੈਂਡ"
+
+#: ../src/common/util.c:1067
+msgid "Tajikistan"
+msgstr "ਤਜ਼ਾਕਸਤਾਨ"
+
+#: ../src/common/util.c:1068
+msgid "Tokelau"
+msgstr "ਟੂਕੀਲਾਊ"
+
+#: ../src/common/util.c:1069 ../src/common/util.c:1073
+msgid "East Timor"
+msgstr "ਪੂਰਬੀ ਟੀਮੋਰ"
+
+#: ../src/common/util.c:1070
+msgid "Turkmenistan"
+msgstr "ਤੁਰਕਸਤਾਨ"
+
+#: ../src/common/util.c:1071
+msgid "Tunisia"
+msgstr "ਟੁਨੀਸ਼ੀਆ"
+
+#: ../src/common/util.c:1072
+msgid "Tonga"
+msgstr "ਟੂਨਗਾ"
+
+#: ../src/common/util.c:1074
+msgid "Turkey"
+msgstr "ਤੁਰਕੀ"
+
+#: ../src/common/util.c:1075
+msgid "Trinidad and Tobago"
+msgstr "ਟਰਿਨੀਦਾਦ ਅਤੇ ਟੋਬੇਗੋ"
+
+#: ../src/common/util.c:1076
+msgid "Tuvalu"
+msgstr "ਟੂਵਾਲੂ"
+
+#: ../src/common/util.c:1077
+msgid "Taiwan"
+msgstr "ਤਾਈਵਾਨ"
+
+#: ../src/common/util.c:1078
+msgid "Tanzania"
+msgstr "ਤਾਨਜ਼ੀਆ"
+
+#: ../src/common/util.c:1079
+msgid "Ukraine"
+msgstr "ਯੂਕਰੇਨ"
+
+#: ../src/common/util.c:1080
+msgid "Uganda"
+msgstr "ਯੂਗਾਂਡਾ"
+
+#: ../src/common/util.c:1081
+msgid "United Kingdom"
+msgstr "ਬਰਤਾਨੀਆ"
+
+#: ../src/common/util.c:1082
+msgid "US Minor Outlying Islands"
+msgstr "ਅਮਰੀਕੀ ਛੋਟੇ ਬਾਹਰੀ ਟਾਪੂ"
+
+#: ../src/common/util.c:1083
+msgid "United States of America"
+msgstr "ਸੰਯੁਕਤ ਰਾਜ ਅਮਰੀਕਾ"
+
+#: ../src/common/util.c:1084
+msgid "Uruguay"
+msgstr "ਉਰੂਗਵੇ"
+
+#: ../src/common/util.c:1085
+msgid "Uzbekistan"
+msgstr "ਉਜ਼ੇਬਕਸਤਾਨ"
+
+#: ../src/common/util.c:1086
+msgid "Vatican City State"
+msgstr "ਵਾਟਕੈਨ ਸ਼ਹਿਰ ਪ੍ਰਾਂਤ"
+
+#: ../src/common/util.c:1087
+msgid "St. Vincent and the Grenadines"
+msgstr "ਸੇਂਟ ਵੀਨਸੈਂਟ ਅਤੇ ਗਰੀਨਾਡੀਨਸ"
+
+#: ../src/common/util.c:1088
+msgid "Venezuela"
+msgstr "ਵੈਨੂਜੇਏਲਾ"
+
+#: ../src/common/util.c:1089
+msgid "British Virgin Islands"
+msgstr "ਬ੍ਰਿਟਿਸ਼ ਵੀਰਗਿਨ ਟਾਪੂ"
+
+#: ../src/common/util.c:1090
+msgid "US Virgin Islands"
+msgstr "ਅਮਰੀਕੀ ਵਰਜਿਨ ਟਾਪੂ"
+
+#: ../src/common/util.c:1091
+msgid "Vietnam"
+msgstr "ਵੀਅਤਨਾਮ"
+
+#: ../src/common/util.c:1092
+msgid "Vanuatu"
+msgstr "ਵਾਨੂਟੂ"
+
+#: ../src/common/util.c:1093
+msgid "Wallis and Futuna Islands"
+msgstr "ਵੈਲਿਸ ਅਤੇ ਫੂਟੂਨਾ ਆਈਸਲੈਂਡ"
+
+#: ../src/common/util.c:1094
+msgid "Samoa"
+msgstr "ਸਾਮੀਆ"
+
+#: ../src/common/util.c:1095
+msgid "Yemen"
+msgstr "ਯਮਨ"
+
+#: ../src/common/util.c:1096
+msgid "Mayotte"
+msgstr "ਮਾਈਟੀ"
+
+#: ../src/common/util.c:1097
+msgid "Yugoslavia"
+msgstr "ਯੂਗੋਸਲਾਵੀਆ"
+
+#: ../src/common/util.c:1098
+msgid "South Africa"
+msgstr "ਦੱਖਣੀ ਅਫਰੀਕਾ"
+
+#: ../src/common/util.c:1099
+msgid "Zambia"
+msgstr "ਜ਼ੈਬੀਆ"
+
+#: ../src/common/util.c:1100
+msgid "Zimbabwe"
+msgstr "ਜਿੰਬਾਬਾਵੇੰ"
+
+#: ../src/common/util.c:1110 ../src/common/util.c:1120
+#: ../src/fe-gnome/userlist-gui.c:427
+msgid "Unknown"
+msgstr "ਅਣਜਾਣ"
+
+#: ../src/common/dbus/dbus-plugin.c:30
+#, fuzzy
+msgid "remote access"
+msgstr "%s ਨੂੰ ਖੋਲਿਆ ਨਹੀਂ ਜਾ ਸਕਦਾ ਹੈ\n"
+
+#: ../src/common/dbus/dbus-plugin.c:31
+msgid "plugin for remote access using DBUS"
+msgstr ""
+
+#: ../src/common/dbus/dbus-plugin.c:897
+#, fuzzy, c-format
+msgid "Couldn't connect to session bus: %s\n"
+msgstr "ਅਜਲਾਸ ਬਸ ਨਾਲ ਜੁੜਨ ਲਈ ਅਸਫ਼ਲ: %s\n"
+
+#: ../src/common/dbus/dbus-plugin.c:914
+#, c-format
+msgid "Failed to acquire %s: %s\n"
+msgstr ""
+
+#: ../src/common/dbus/dbus-plugin.c:1064
+#, c-format
+msgid "%s loaded successfully!\n"
+msgstr ""
+
+#: ../src/common/dbus/url_handler.schemas.in.h:1
+#, fuzzy
+msgid "Run XChat-GNOME in a terminal?"
+msgstr "XChat: DCC ਗੱਲਬਾਤ ਸੂਚੀ"
+
+#: ../src/common/dbus/url_handler.schemas.in.h:2
+msgid "Set it at TRUE if you want it activated"
+msgstr ""
+
+#: ../src/common/dbus/url_handler.schemas.in.h:3
+msgid "The handler for \"irc://\" URLs"
+msgstr ""
+
+#: ../src/fe-gnome/about.c:63
+msgid ""
+"X-Chat GNOME is free software; you can redistribute it and/or modify it "
+"under the terms of the GNU General Public License as published by the Free "
+"Software Foundation; either version 2 of the License, or (at your option) "
+"any later version."
+msgstr ""
+
+#: ../src/fe-gnome/about.c:67
+msgid ""
+"X-Chat GNOME is distributed in the hope that it will be useful, but WITHOUT "
+"ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
+"FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for "
+"more details."
+msgstr ""
+
+#: ../src/fe-gnome/about.c:71
+msgid ""
+"You should have received a copy of the GNU General Public License along with "
+"X-Chat GNOME; if not, write to the Free Software Foundation, Inc., 59 Temple "
+"Place, Suite 330, Boston, MA  02111-1307  USA"
+msgstr ""
+
+#: ../src/fe-gnome/about.c:81
+msgid "Copyright © 2004-2006"
+msgstr ""
+
+#. Translators: This is a random, mostly-meaningless
+#. * quotation from Jeeves & Wooster.  Either leave it
+#. * be or replace it with something funny (but inoffensive)
+#. * in your own language, but don't translate it literally.
+#.
+#: ../src/fe-gnome/about.c:87
+msgid ""
+"It has been well observed that a trombone is not a suitable instrument for a "
+"gentleman"
+msgstr ""
+
+#: ../src/fe-gnome/about.c:91
+#, fuzzy
+msgid "XChat-GNOME Web Site"
+msgstr "XChat: DCC ਗੱਲਬਾਤ ਸੂਚੀ"
+
+#. Translators: This is a special message that shouldn't
+#. * be translated literally. It is used in the about box
+#. * to give credits to the translators. Thus, you should
+#. * translate it to your name and email address. You
+#. * should also include other translators who have
+#. * contributed to this translation; in that case, please
+#. * write each of them on a separated line seperated by
+#. * newlines (\n).
+#.
+#: ../src/fe-gnome/about.c:105
+msgid "translator-credits"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:1
+msgid "Automatically display the channel list dialog"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:2
+msgid "Background image filename"
+msgstr "ਪਿੱਠਭੂਮੀ ਚਿੱਤਰ:"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:3
+msgid "Background transparency"
+msgstr "ਪਿੱਠਭੂਮੀ ਚਿੱਤਰ:"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:4
+msgid "Default nickname used by servers without special options set"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:5
+msgid "Default real name used by servers without special options set"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:6
+msgid "Display redundant nickstamps"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:7
+msgid "Enable spellchecking"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:8
+msgid "Font for the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:9
+msgid "Height of the channel list"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:10
+msgid "Height of the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:11
+msgid ""
+"If set to true, when you join a server without automatically joining a "
+"channel, the channel list dialog will be displayed"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:12
+msgid "Languages to use for spellchecking"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:13
+msgid "List of enabled plugins"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:14
+msgid "Message sent on away"
+msgstr "ਸੁਨੇਹਾ"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:15
+msgid "Message sent on channel part"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:16
+msgid "Message sent on quit"
+msgstr "ਸੁਨੇਹਾ"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:17
+msgid "Position of the horizontal pane in the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:18
+msgid "Selected background type"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:19
+msgid "Selected color scheme"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:20
+msgid "Show colors in the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:21
+msgid "Show timestamps in the main window"
+msgstr "ਸਮਾਂ ਮੋਹਰ ਯੋਗ"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:22
+msgid "Use system fonts"
+msgstr "ਉਪਭੋਗੀ ਸੂਚੀ"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:23
+msgid "Width of the channel list"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:24
+msgid "Width of the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:25
+msgid "X position of the main window on the screen"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:26
+msgid "Y position of the main window on the screen"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:27
+msgid "xchat configuration version"
+msgstr ""
+
+#: ../src/fe-gnome/channel-list-window.c:418
+#, c-format
+msgid "%s Channel List"
+msgstr ""
+
+#: ../src/fe-gnome/conversation-panel.c:170
+msgid "_Open Link in Browser"
+msgstr "ਝਲਕਾਰੇ ਵਿੱਚ ਖੋਲੋ"
+
+#: ../src/fe-gnome/conversation-panel.c:171
+msgid "_Copy Link Location"
+msgstr ""
+
+#: ../src/fe-gnome/conversation-panel.c:175
+msgid "Se_nd Message To..."
+msgstr ""
+
+#: ../src/fe-gnome/conversation-panel.c:176
+msgid "_Copy Address"
+msgstr "ਤੁਹਾਡਾ ਸਿਰਨਾਵਾਂ"
+
+#: ../src/fe-gnome/conversation-panel.c:180
+msgid "_Send File"
+msgstr "ਫਾਇਲ ਭੇਜੋ"
+
+#: ../src/fe-gnome/conversation-panel.c:181
+msgid "Paste File _Contents"
+msgstr "ਭਾਗ(_C)"
+
+#: ../src/fe-gnome/conversation-panel.c:182
+msgid "Paste File_name"
+msgstr "ਨਵਾਂ ਫਾਇਲ ਨਾਂ"
+
+#: ../src/fe-gnome/conversation-panel.c:183
+msgid "_Cancel"
+msgstr "ਰੱਦ"
+
+#: ../src/fe-gnome/conversation-panel.c:187 ../src/fe-gnome/main-window.c:115
+msgid "_Copy"
+msgstr "ਨਕਲ"
+
+#: ../src/fe-gnome/conversation-panel.c:799
+#, c-format
+msgid "URI list dropped on XChat-GNOME had wrong format (%d) or length (%d)\n"
+msgstr ""
+
+#: ../src/fe-gnome/conversation-panel.c:897
+#, c-format
+msgid "Error reading file \"%s\": %s\n"
+msgstr ""
+
+#: ../src/fe-gnome/conversation-panel.c:912
+#, c-format
+msgid "Error converting URI \"%s\" into filename: %s\n"
+msgstr ""
+
+#: ../src/fe-gnome/conversation-panel.c:955
+#, c-format
+msgid "Error retrieving file information for \"%s\": %s\n"
+msgstr ""
+
+#: ../src/fe-gnome/conversation-panel.c:1044
+msgid "Save Transcript"
+msgstr ""
+
+#: ../src/fe-gnome/conversation-panel.c:1070
+#: ../src/fe-gnome/conversation-panel.c:1080
+#, c-format
+msgid "Error saving %s"
+msgstr ""
+
+#: ../src/fe-gnome/conversation-panel.c:1212
+msgid "Search buffer is empty.\n"
+msgstr "ਖੋਜ ਬਫ਼ਰ ਖਾਲੀ ਹੈ।\n"
+
+#. File completion percent
+#: ../src/fe-gnome/dcc-window.c:146
+msgid "%"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:147
+msgid "File"
+msgstr "ਫਾਇਲ"
+
+#: ../src/fe-gnome/dcc-window.c:148
+msgid "Remaining"
+msgstr "ਹਟ ਪਿੱਛੇ ਫੇਰ ਮਿਲਾਗੇਂ"
+
+#: ../src/fe-gnome/dcc-window.c:223
+#, fuzzy
+msgid "Incoming File Transfer"
+msgstr "ਫਾਇਲ ਤਬਦੀਲ"
+
+#: ../src/fe-gnome/dcc-window.c:224 ../src/fe-gnome/fe-gnome.c:483
+msgid "_Accept"
+msgstr "ਸਵੀਕਾਰ"
+
+#: ../src/fe-gnome/dcc-window.c:225
+#, c-format
+msgid ""
+"%s is attempting to send you a file named \"%s\". Do you wish to accept the "
+"transfer?"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:245
+#, c-format
+msgid ""
+"<b>%s</b>\n"
+"<small>from %s</small>\n"
+"%s of %s"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:256
+msgid "starting"
+msgstr "ਉਡੀਕ ਜਾਰੀ ਹੈ"
+
+#: ../src/fe-gnome/dcc-window.c:287
+#, c-format
+msgid ""
+"<b>%s</b>\n"
+"<small>from %s</small>\n"
+"%s of %s at %s/s"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:294
+msgid "queued"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:299
+#, c-format
+msgid "Transfer of %s to %s failed"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:301
+#, c-format
+msgid "Transfer of %s from %s failed"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:302
+msgid "Transfer failed"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:310
+msgid "aborted"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:313
+msgid "stalled"
+msgstr "ਅਸਫਲ"
+
+#: ../src/fe-gnome/dcc-window.c:317
+#, c-format
+msgid "%.2d:%.2d:%.2d"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:319
+#, c-format
+msgid "%.2d:%.2d"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:439
+msgid "Send File..."
+msgstr "ਫਾਇਲ ਭੇਜੋ"
+
+#: ../src/fe-gnome/fe-gnome.c:60
+msgid "Use directory instead of the default config dir"
+msgstr ""
+
+#: ../src/fe-gnome/fe-gnome.c:61
+msgid "Don't auto-connect to servers"
+msgstr "ਸਰਵਰ ਨਾਲ ਖੁਦ ਹੀ ਨਾ ਜੋੜੋ"
+
+#: ../src/fe-gnome/fe-gnome.c:62
+msgid "Don't auto-load plugins"
+msgstr "ਕੋਈ ਪਲੱਗਿੰਨ ਸਵੈ-ਚਾਲਤ ਲੋਡ ਨਾ ਕਰੋ"
+
+#: ../src/fe-gnome/fe-gnome.c:63
+msgid "Open an irc:// url"
+msgstr "ਇੱਕ irc:// url ਖੋਲੋ"
+
+#: ../src/fe-gnome/fe-gnome.c:64
+msgid "Open URL in an existing XChat-GNOME instance"
+msgstr ""
+
+#: ../src/fe-gnome/fe-gnome.c:65
+msgid "Show version information"
+msgstr "ਵਰਜਨ ਜਾਣਕਾਰੀ ਵੇਖਾਓ"
+
+#: ../src/fe-gnome/fe-gnome.c:107
+#, c-format
+msgid ""
+"xchat-gnome: %s\n"
+"Try `xchat-gnome --help' for more information\n"
+msgstr ""
+
+#: ../src/fe-gnome/fe-gnome.c:481
+msgid "Incoming DCC Chat"
+msgstr ""
+
+#: ../src/fe-gnome/fe-gnome.c:486
+#, c-format
+msgid ""
+"%s is attempting to create a direct chat. Do you wish to accept the "
+"connection?"
+msgstr ""
+
+#: ../src/fe-gnome/fe-gnome.c:908
+#, c-format
+msgid "Unable to show '%s'"
+msgstr ""
+
+#: ../src/fe-gnome/find-bar.c:96
+msgid "Find:"
+msgstr "ਖੋਜ:"
+
+#: ../src/fe-gnome/find-bar.c:98
+msgid "_Previous"
+msgstr ""
+
+#: ../src/fe-gnome/find-bar.c:100
+msgid "_Next"
+msgstr "ਨਵਾਂ(_N)"
+
+#: ../src/fe-gnome/find-bar.c:219
+msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
+msgstr ""
+
+#: ../src/fe-gnome/find-bar.c:226
+msgid ""
+"<span foreground=\"dark grey\">Reached beginning, continuing from bottom</"
+"span>"
+msgstr ""
+
+#: ../src/fe-gnome/find-bar.c:233
+msgid "<span foreground=\"red\">Search string not found</span>"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network-editor.c:315
+msgid "Server"
+msgstr "ਸਰਵਰ"
+
+#: ../src/fe-gnome/irc-network-editor.c:324
+msgid "Key"
+msgstr ""
+
+#. We're creating a new network. Don't populate things from the structure
+#: ../src/fe-gnome/irc-network-editor.c:458
+#, fuzzy
+msgid "New Network"
+msgstr "ਨਵਾਂ ਨੈੱਟਵਰਕ"
+
+#: ../src/fe-gnome/irc-network-editor.c:466
+#, c-format
+msgid "%s Network Properties"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network-editor.c:594
+#: ../src/fe-gnome/irc-network-editor.c:601
+#: ../src/fe-gnome/irc-network-editor.c:607
+msgid "Invalid input"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network-editor.c:594
+msgid "You must enter a network name"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network-editor.c:601
+msgid "You must enter a nick name"
+msgstr "ਨਵਾਂ ਨਾਂ ਦਿਓ:"
+
+#: ../src/fe-gnome/irc-network-editor.c:607
+msgid "You must enter a real name"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network-editor.c:614
+msgid "No Servers"
+msgstr "ਸਰਵਰ"
+
+#: ../src/fe-gnome/irc-network-editor.c:614
+msgid "You must add at least one server for this network"
+msgstr "ਇਸ ਨੈਟਵਰਕ ਤੇ ਸਭ ਸਰਵਰਾਂ ਲਈ SSL ਵਰਤੋਂ"
+
+#: ../src/fe-gnome/irc-network.c:32
+msgid "UTF-8 (Unicode)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:33
+msgid "ISO-8859-15 (Western Europe)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:34
+msgid "ISO-8859-2 (Central Europe)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:35
+msgid "ISO-8859-7 (Greek)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:36
+msgid "ISO-8859-8 (Hebrew)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:37
+msgid "ISO-8859-9 (Turkish)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:38
+msgid "ISO-2022-JP (Japanese)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:39
+msgid "SJIS (Japanese)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:40
+msgid "CP949 (Korean)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:41
+msgid "KOI8-R (Cyrillic)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:42
+msgid "CP1251 (Cyrillic)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:43
+msgid "CP1256 (Arabic)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:44
+msgid "CP1257 (Baltic)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:45
+msgid "GB18030 (Chinese)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:46
+msgid "TIS-620 (Thai)"
+msgstr ""
+
+#. Toplevel
+#: ../src/fe-gnome/main-window.c:99
+#, fuzzy
+msgid "_IRC"
+msgstr "_IRC"
+
+#: ../src/fe-gnome/main-window.c:101
+msgid "In_sert"
+msgstr ""
+
+#: ../src/fe-gnome/main-window.c:102
+msgid "_Network"
+msgstr "ਨੈੱਟਵਰਕ"
+
+#: ../src/fe-gnome/main-window.c:103
+msgid "_Discussion"
+msgstr "ਕੁਨੈਕਸ਼ਨ ਬੰਦ(_D)"
+
+#: ../src/fe-gnome/main-window.c:104
+msgid "_Go"
+msgstr ""
+
+#: ../src/fe-gnome/main-window.c:105
+msgid "_Help"
+msgstr "ਸਹਾਇਤਾ(_H)"
+
+#. IRC menu
+#: ../src/fe-gnome/main-window.c:109
+#, fuzzy
+msgid "_Connect..."
+msgstr "ਜੁੜਿਆ"
+
+#: ../src/fe-gnome/main-window.c:110
+msgid "_File Transfers"
+msgstr "ਫਾਇਲ ਤਬਦੀਲ"
+
+#: ../src/fe-gnome/main-window.c:111
+msgid "_Quit"
+msgstr "ਬਾਹਰ(_Q)"
+
+#. Edit menu
+#: ../src/fe-gnome/main-window.c:114
+msgid "Cu_t"
+msgstr ""
+
+#: ../src/fe-gnome/main-window.c:116
+msgid "_Paste"
+msgstr "ਨਿੱਜੀ"
+
+#: ../src/fe-gnome/main-window.c:117
+msgid "Prefere_nces"
+msgstr "ਮੇਰੀ ਪਸੰਦ..."
+
+#. Network menu
+#: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:83
+msgid "_Reconnect"
+msgstr "ਕੁਨੈਕਸ਼ਨ ਮੁੜ-ਜੋੜੋ(_R)"
+
+#: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:84
+msgid "_Disconnect"
+msgstr "ਕੁਨੈਕਸ਼ਨ ਬੰਦ(_D)"
+
+#: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:85
+#: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
+msgid "_Close"
+msgstr "ਬੰਦ(_C)"
+
+#: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:86
+msgid "_Channels..."
+msgstr "ਚੈਨਲ ਸੂਚੀ..."
+
+#. Discussion menu
+#. Channel context menu
+#. Dialog context menu
+#: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:89
+#: ../src/fe-gnome/navigation-tree.c:97
+msgid "_Save Transcript"
+msgstr ""
+
+#: ../src/fe-gnome/main-window.c:127 ../src/fe-gnome/navigation-tree.c:90
+msgid "_Leave"
+msgstr "ਹਟ ਪਿੱਛੇ ਫੇਰ ਮਿਲਾਗੇਂ"
+
+#: ../src/fe-gnome/main-window.c:128
+msgid "Cl_ose"
+msgstr "ਬੰਦ ਕਰੋ"
+
+#: ../src/fe-gnome/main-window.c:129
+msgid "_Find"
+msgstr "ਖੋਜ"
+
+#: ../src/fe-gnome/main-window.c:130
+msgid "Change _Topic"
+msgstr ""
+
+#: ../src/fe-gnome/main-window.c:131 ../src/fe-gnome/navigation-tree.c:94
+msgid "_Bans..."
+msgstr "ਪਾਬੰਦੀ ਸੂਚੀ..."
+
+#: ../src/fe-gnome/main-window.c:132
+msgid "_Users"
+msgstr "ਉਪਭੋਗੀ"
+
+#. Go menu
+#: ../src/fe-gnome/main-window.c:135
+msgid "Pre_vious Network"
+msgstr "ਨਵਾਂ ਨੈੱਟਵਰਕ"
+
+#: ../src/fe-gnome/main-window.c:136
+msgid "Nex_t Network"
+msgstr "ਨਵਾਂ ਨੈੱਟਵਰਕ"
+
+#: ../src/fe-gnome/main-window.c:137
+msgid "_Previous Discussion"
+msgstr ""
+
+#: ../src/fe-gnome/main-window.c:138
+msgid "_Next Discussion"
+msgstr ""
+
+#. Help menu
+#: ../src/fe-gnome/main-window.c:141
+msgid "_Contents"
+msgstr "ਭਾਗ(_C)"
+
+#: ../src/fe-gnome/main-window.c:142
+msgid "_About"
+msgstr "ਇਸ ਬਾਰੇ(_A)"
+
+#: ../src/fe-gnome/main-window.c:507 ../src/fe-gnome/navigation-tree.c:1769
+msgid "Ex-Chat"
+msgstr "ਗੱਲਬਾਤ"
+
+#: ../src/fe-gnome/main-window.c:589
+msgid "Error showing help"
+msgstr ""
+
+#: ../src/fe-gnome/migration.c:126
+#, c-format
+msgid ""
+"The way the D-Bus plugin works has changed.\n"
+"To avoid problems, you should remove the old plugin file.\n"
+"\n"
+"<b>Please delete %s</b>"
+msgstr ""
+
+#: ../src/fe-gnome/migration.c:128
+msgid "D-Bus plugin is still installed"
+msgstr ""
+
+#. Server context menu
+#: ../src/fe-gnome/navigation-tree.c:82
+msgid "_Information"
+msgstr "ਜਾਣਕਾਰੀ"
+
+#: ../src/fe-gnome/navigation-tree.c:92
+msgid "_Join"
+msgstr ""
+
+#: ../src/fe-gnome/navigation-tree.c:93 ../src/fe-gnome/navigation-tree.c:99
+msgid "_Find..."
+msgstr "ਖੋਜ"
+
+#. Server context menu
+#: ../src/fe-gnome/navigation-tree.c:104
+#, fuzzy
+msgid "_Auto-connect on startup"
+msgstr "ਕੁਨੈਕਸ਼ਨ ਮੁੜ-ਜੋੜੋ(_R)"
+
+#. Channel context menu
+#: ../src/fe-gnome/navigation-tree.c:107
+#, fuzzy
+msgid "_Auto-join on connect"
+msgstr "ਕੁਨੈਕਸ਼ਨ ਮੁੜ-ਜੋੜੋ(_R)"
+
+#: ../src/fe-gnome/navigation-tree.c:1344
+msgid "<none>"
+msgstr "<none>"
+
+#: ../src/fe-gnome/preferences-page-colors.c:253
+msgid "Colors"
+msgstr "ਰੰਗ"
+
+#: ../src/fe-gnome/preferences-page-colors.c:256
+msgid "Black on White"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-colors.c:257
+msgid "White on Black"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-colors.c:258
+msgid "Custom"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-colors.c:259
+msgid "System Theme Colors"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-dcc.c:187
+msgid "File Transfers & DCC"
+msgstr "ਫਾਇਲ ਤਬਦੀਲ"
+
+#: ../src/fe-gnome/preferences-page-effects.c:180
+msgid "Effects"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-irc.c:306
+msgid "IRC Preferences"
+msgstr "XChat: ਮੇਰੀ ਪਸੰਦ"
+
+#: ../src/fe-gnome/preferences-page-networks.c:121
+#, c-format
+msgid "Really remove network \"%s\" and all of its servers?"
+msgstr "ਕੀ ਅਸਲ ਵਿੱਚ \"%s\" ਨੈਟਵਰਕ ਅਤੇ ਇਸ ਦੇ ਸਰਵਰ ਹਟਾਉਣੇ ਹਨ?"
+
+#: ../src/fe-gnome/preferences-page-networks.c:172
+msgid "Networks"
+msgstr "ਨੈਟਵਰਕ"
+
+#: ../src/fe-gnome/preferences-page-networks.c:180
+msgid "Name"
+msgstr "ਨਾਂ"
+
+#: ../src/fe-gnome/preferences-page-plugins.c:104
+#: ../src/fe-gnome/preferences-page-plugins.c:105
+msgid "unknown"
+msgstr "ਅਣਜਾਣ"
+
+#: ../src/fe-gnome/preferences-page-plugins.c:194
+#, c-format
+msgid "An error occurred unloading %s"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-plugins.c:195
+msgid "Plugin Unload Failed"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-plugins.c:206
+msgid "Plugin Load Failed"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-plugins.c:244
+msgid "Open Plugin"
+msgstr "ਵਾਰਤਾਲਾਪ ਖੋਲ੍ਹੋ:"
+
+#: ../src/fe-gnome/preferences-page-plugins.c:397
+msgid "Scripts and Plugins"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-plugins.c:410
+#: ../src/fe-gnome/preferences-page-spellcheck.c:219
+msgid "Enable"
+msgstr "ਨਾਂ"
+
+#: ../src/fe-gnome/preferences-page-plugins.c:412
+msgid "Plugin"
+msgstr "ਪਿੰਗ"
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:99
+#, c-format
+msgid "Error in language %s activation: %s\n"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:139
+#, c-format
+msgid "Error in spell checking configuration: %s\n"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:181
+msgid "Spell checking"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:185
+msgid ""
+"In order to get spell-checking, you need to have libenchant installed with "
+"at least one dictionary."
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:196
+msgid "_Check spelling"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:197
+msgid "Choose languages to use for spellcheck:"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-page-spellcheck.c:224
+msgid "Language"
+msgstr ""
+
+#: ../src/fe-gnome/status-bar.c:93
+#, c-format
+msgid "%s%.1fs lag"
+msgstr ""
+
+#: ../src/fe-gnome/status-bar.c:107
+#, c-format
+msgid "%d bytes buffered"
+msgstr "%d ਬਾਇਟ"
+
+#: ../src/fe-gnome/text-entry.c:145
+#, c-format
+msgid "Error in spellchecking configuration: %s\n"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:367
+msgid "I_nsert Color Code"
+msgstr "ਗੁਣ ਜਾਂ ਰੰਗ ਕੋਡ ਸ਼ਾਮਿਲ"
+
+#: ../src/fe-gnome/text-entry.c:374
+msgid "Black"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:378
+msgid "Dark Blue"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:382
+msgid "Dark Green"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:386
+msgid "Red"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:390
+msgid "Brown"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:394
+msgid "Purple"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:398
+msgid "Orange"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:402
+msgid "Yellow"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:406
+msgid "Light Green"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:410
+msgid "Aqua"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:414
+msgid "Light Blue"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:418
+msgid "Blue"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:422
+msgid "Violet"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:426
+msgid "Grey"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:430
+msgid "Light Grey"
+msgstr ""
+
+#: ../src/fe-gnome/text-entry.c:434
+msgid "White"
+msgstr ""
+
+#: ../src/fe-gnome/topic-label.c:293
+#, c-format
+msgid "Changing topic for %s"
+msgstr ""
+
+#: ../src/fe-gnome/userlist-gui.c:61
+msgid "_Send File..."
+msgstr "ਫਾਇਲ ਭੇਜੋ"
+
+#: ../src/fe-gnome/userlist-gui.c:62
+msgid "Private _Chat"
+msgstr "ਨਿੱਜੀ"
+
+#: ../src/fe-gnome/userlist-gui.c:63
+msgid "_Kick"
+msgstr "ਸੁੱਟੋ"
+
+#: ../src/fe-gnome/userlist-gui.c:64
+msgid "_Ban"
+msgstr "ਪਾਬੰਦੀ"
+
+#: ../src/fe-gnome/userlist-gui.c:65
+msgid "Ignore"
+msgstr "ਅਣਡਿੱਠਾ"
+
+#: ../src/fe-gnome/userlist-gui.c:66
+msgid "_Op"
+msgstr ""
+
+#: ../src/fe-gnome/userlist-gui.c:422
+#, c-format
+msgid ""
+"%s\n"
+"<span weight=\"bold\">Name:</span> %s"
+msgstr ""
+
+#: ../src/fe-gnome/userlist-gui.c:429
+#, c-format
+msgid ""
+"%s\n"
+"<span weight=\"bold\">Country:</span> %s"
+msgstr ""
+
+#: ../src/fe-gnome/userlist-gui.c:439
+#, c-format
+msgid ""
+"%s\n"
+"<span weight=\"bold\">Last message:</span> %d minute ago"
+msgid_plural ""
+"%s\n"
+"<span weight=\"bold\">Last message:</span> %d minutes ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/fe-gnome/userlist-gui.c:450
+#, c-format
+msgid ""
+"%s\n"
+"<span weight=\"bold\">Away message:</span> %s"
+msgstr ""
+
+#: ../src/fe-gnome/userlist.c:299
+#, c-format
+msgid "%d User"
+msgid_plural "%d Users"
+msgstr[0] ""
+msgstr[1] ""
+
+#~ msgid "Maximum Users:"
+#~ msgstr "ਵੱਧੋ-ਵੱਧ ਉਪਭੋਗੀ:"
+
+#~ msgid "Minimum Users:"
+#~ msgstr "ਘੱਟੋ-ਘੱਟ ਉਪਭੋਗੀ:"
+
+#~ msgid "Text Filter:"
+#~ msgstr "ਪਾਠ ਫਾਇਲ ਛਾਪੋ"
+
+#~ msgid "ADDBUTTON <name> <action>, adds a button under the user-list"
+#~ msgstr "ADDBUTTON <name> <action>, ਉਪਭੋਗੀ ਸੂਚੀ ਹੇਠ ਬਟਨ ਸ਼ਾਮਿਲ ਕਰੋ"
+
+#~ msgid "DELBUTTON <name>, deletes a button from under the user-list"
+#~ msgstr "DELBUTTON <name>, ਉਪਭੋਗੀ ਸੂਚੀ ਹੇਠ ਬਟਨ ਹਟਾਓ"
+
+#~ msgid "PID"
+#~ msgstr "PID"
+
+#~ msgid "Open Dialog Window"
+#~ msgstr "ਗੱਲਬਾਤ ਝਰੋਖਾ ਖੋਲੋ"
+
+#~ msgid "Send a File"
+#~ msgstr "ਇੱਕ ਫਾਇਲ ਭੇਜੋ"
+
+#~ msgid "User Info (WHOIS)"
+#~ msgstr "ਉਪਭੋਗੀ ਜਾਣਕਾਰੀ (WHOIS)"
+
+#~ msgid "Operator Actions"
+#~ msgstr "ਮੁੱਖੀ ਕਾਰਵਾਈਆਂ"
+
+#~ msgid "Give Ops"
+#~ msgstr "ਮੁੱਖੀ ਬਣਾਓ"
+
+#~ msgid "Take Ops"
+#~ msgstr "ਮੁੱਖੀ ਹਟਾਓ"
+
+#~ msgid "Give Voice"
+#~ msgstr "ਆਵਾਜ਼ ਦਿਓ"
+
+#~ msgid "Take Voice"
+#~ msgstr "ਆਵਾਜ਼ ਲਵੋ"
+
+#~ msgid "Kick/Ban"
+#~ msgstr "ਸੁੱਟੋ/ਪਾਬੰਦੀ"
+
+#~ msgid "Kick"
+#~ msgstr "ਸੁੱਟੋ"
+
+#~ msgid "Ban"
+#~ msgstr "ਪਾਬੰਦੀ"
+
+#~ msgid "KickBan"
+#~ msgstr "ਸੁੱਟੋ ਪਾਬੰਦੀ"
+
+#~ msgid "Direct client-to-client"
+#~ msgstr "ਸਿੱਧਾ ਕਲਾਂਇਟ ਤੋਂ ਕਲਾਂਇਟ"
+
+#~ msgid "Send File"
+#~ msgstr "ਫਾਇਲ ਭੇਜੋ"
+
+#~ msgid "Offer Chat"
+#~ msgstr "ਗੱਲਬਾਤ ਸੱਦਾ"
+
+#~ msgid "Abort Chat"
+#~ msgstr "ਗੱਲਬਾਤ ਅਧੂਰੀ ਛੱਡੋ"
+
+#~ msgid "Version"
+#~ msgstr "ਵਰਜਨ"
+
+#~ msgid "Userinfo"
+#~ msgstr "ਉਪਭੋਗੀ ਜਾਣਕਾਰੀ"
+
+#~ msgid "Clientinfo"
+#~ msgstr "ਕਲਾਂਇਟ ਜਾਣਕਾਰੀ"
+
+#~ msgid "Ping"
+#~ msgstr "ਪਿੰਗ"
+
+#~ msgid "Finger"
+#~ msgstr "ਫਿੰਗਰ"
+
+#~ msgid "Oper"
+#~ msgstr "ਮੁੱਖੀ"
+
+#~ msgid "Kill this user"
+#~ msgstr "ਇਹ ਉਪਭੋਗੀ ਖਤਮ"
+
+#~ msgid "Mode"
+#~ msgstr "ਮੋਡ"
+
+#~ msgid "Give Half-Ops"
+#~ msgstr "ਅੱਧਾ-ਮੁੱਖੀ ਦਿਓ"
+
+#~ msgid "Take Half-Ops"
+#~ msgstr "ਅੱਧਾ-ਮੁੱਖੀ ਖੋਹੋ"
+
+#~ msgid "Ignore User"
+#~ msgstr "ਉਪਭੋਗੀ ਅਣਡਿੱਠਾ"
+
+#~ msgid "UnIgnore User"
+#~ msgstr "ਨਾ-ਅਣਡਿੱਠਾ ਉਪਭੋਗੀ"
+
+#~ msgid "Info"
+#~ msgstr "ਜਾਣਕਾਰੀ"
+
+#~ msgid "Who"
+#~ msgstr "ਕੌਣ"
+
+#~ msgid "WhoIs"
+#~ msgstr "ਕੌਣ ਹੈ"
+
+#~ msgid "DNS Lookup"
+#~ msgstr "DNS ਖੋਜ"
+
+#~ msgid "Trace"
+#~ msgstr "ਜਾਂਚ"
+
+#~ msgid "UserHost"
+#~ msgstr "ਉਪਭੋਗੀ ਮੇਜ਼ਬਾਨ"
+
+#~ msgid "External"
+#~ msgstr "ਬਾਹਰੀ"
+
+#~ msgid "Traceroute"
+#~ msgstr "ਮਾਰਗ ਜਾਂਚ"
+
+#~ msgid "Telnet"
+#~ msgstr "Telnet"
+
+#~ msgid "Leave Channel"
+#~ msgstr "ਚੈਨਲ ਛੱਡੋ"
+
+#~ msgid "Join Channel..."
+#~ msgstr "ਚੈਨਲ ਵਿੱਚ ਦਾਖਲ..."
+
+#~ msgid "Enter Channel to Join:"
+#~ msgstr "ਸ਼ਾਮਿਲ ਹੋਣ ਲਈ ਚੈਨਲ ਦਿਓ:"
+
+#~ msgid "Server Links"
+#~ msgstr "ਸਰਵਰ ਸੰਬੰਧ"
+
+#~ msgid "Ping Server"
+#~ msgstr "ਸਰਵਰ ਪਿੰਗ"
+
+#~ msgid "Hide Version"
+#~ msgstr "ਵਰਜਨ ਓਹਲੇ"
+
+#~ msgid "Op"
+#~ msgstr "Op"
+
+#~ msgid "DeOp"
+#~ msgstr "DeOp"
+
+#~ msgid "bye"
+#~ msgstr "ਅਲਵਿਦਾ"
+
+#~ msgid "Enter reason to kick %s:"
+#~ msgstr "%s ਸੁੱਟਣ ਲਈ ਕਾਰਨ:"
+
+#~ msgid "Sendfile"
+#~ msgstr "ਫਾਇਲ਼-ਭੇਜੋ"
+
+#~ msgid "Dialog"
+#~ msgstr "ਗੱਲਬਾਤ"
+
+#~ msgid "Send"
+#~ msgstr "ਭੇਜੋ"
+
+#~ msgid "Chat"
+#~ msgstr "ਗੱਲਬਾਤ"
+
+#~ msgid "Clear"
+#~ msgstr "ਸਾਫ਼"
+
+#~ msgid "_Connect"
+#~ msgstr "ਜੁੜਿਆ"
+
+#~ msgid "Nick Name:"
+#~ msgstr "ਨਾਂ(_N):"
+
+#~ msgid "Real Name:"
+#~ msgstr "ਅਸਲੀ ਨਾਂ:"
+
+#~ msgid "Orientation"
+#~ msgstr "ਅਰਜਨਟੀਨਾ"
+
+#~ msgid "The orientation of the tray."
+#~ msgstr "ਵਿਅਕਤੀ ਦਾ ਨਾਂ"
+
+#~ msgid "irc://server:port/channel"
+#~ msgstr "irc://server:port/channel"
+
+#~ msgid "Execute a xchat command"
+#~ msgstr "ਇੱਕ xchat ਕਮਾਂਡ ਚਲਾਓ"
+
+#~ msgid "\"Command to execute\""
+#~ msgstr "\"ਚਲਾਉਣ ਲਈ ਕਮਾਂਡ\""
+
+#~ msgid "Prints some text to the current tab/window"
+#~ msgstr "ਮੌਜੂਦਾ ਟੈਬ/ਝਰੋਖੇ ਵਿੱਚ ਕੁਝ ਪਾਠ ਛਾਪੋ"
+
+#~ msgid "\"Text to print\""
+#~ msgstr "\"ਛਾਪਣ ਲਈ ਪਾਠ\""
+
+#~ msgid "Change the context to the channel"
+#~ msgstr "ਚੈਨਲ ਤੋਂ ਪਰਸੰਗ ਲਵੋ"
+
+#~ msgid "channel"
+#~ msgstr "ਚੈਨਲ"
+
+#~ msgid "Change the context to the server"
+#~ msgstr "ਸਰਵਰ ਤੋਂ ਪਰਸੰਗ ਤਬਦੀਲ"
+
+#~ msgid "server"
+#~ msgstr "ਸਰਵਰ"
+
+#~ msgid "Get some informations from xchat"
+#~ msgstr "xchat ਤੋਂ ਕੁਝ ਜਾਣਕਾਰੀ ਲਵੋ"
+
+#~ msgid "id"
+#~ msgstr "id"
+
+#~ msgid "Get settings from xchat"
+#~ msgstr "xchat ਤੋਂ ਸਥਾਪਨ ਲਵੋ"
+
+#~ msgid "name"
+#~ msgstr "ਨਾਂ"
+
+#~ msgid "Couldn't connect to session bus"
+#~ msgstr "ਅਜਲਾਸ ਬਸ ਨਾਲ ਜੁੜ ਨਹੀਂ ਸਕਿਆ"
+
+#~ msgid "Failed to complete command"
+#~ msgstr "ਕਮਾਂਡ ਪੂਰੀ ਕਰਨ ਲਈ ਅਸਫ਼ਲ ਹੈ"
+
+#~ msgid "Failed to complete SetContext"
+#~ msgstr "ਪਰਸੰਗ ਪੂਰਾ ਕਰਨ ਲਈ ਅਸਫ਼ਲ ਹੈ"
+
+#~ msgid "Failed to complete print"
+#~ msgstr "ਛਾਪਣ ਲਈ ਅਸਫ਼ਲ ਹੈ"
+
+#~ msgid "Failed to complete GetInfo"
+#~ msgstr "ਜਾਣਕਾਰੀ ਲੈਣ ਲਈ ਅਸਫ਼ਲ ਹੈ"
+
+#~ msgid "Failed to complete GetPrefs"
+#~ msgstr "ਪਸੰਦ ਲੈਣ ਲਈ ਅਸਫ਼ਲ ਹੈ"
+
+#~ msgid "%s doesn't exist\n"
+#~ msgstr "%s ਮੌਜੂਦ ਨਹੀਂ ਹੈ\n"
+
+#~ msgid "CLEAR, Clears the current text window"
+#~ msgstr "CLEAR, ਮੌਜੂਦਾ ਪਾਠ ਝਰੋਖਾ ਨੂੰ ਸਾਫ ਕਰੇਗਾ"
+
+#~ msgid "QUERY <nick>, opens up a new privmsg window to someone"
+#~ msgstr "QUERY <nick>, ਕਿਸੇ ਨਾਲ ਨਿੱਜੀ ਗੱਲ ਕਰਨ ਲਈ ਝਰੋਖਾ"
+
+#~ msgid "Save List _As"
+#~ msgstr "ਸੂਚੀ ਸੰਭਾਲੋ"
+
+#~ msgid "Disconnected"
+#~ msgstr "ਕੁਨੈਕਸ਼ਨ ਬੰਦ(_D)"
+
+#~ msgid "Connected"
+#~ msgstr "ਜੁੜਿਆ"
+
+#~ msgid "France, Metropolitan"
+#~ msgstr "ਫਰਾਂਸ"
+
+#~ msgid "Neutral Zone"
+#~ msgstr "ਨਿਰਪੱਖ ਜ਼ੋਨ"
+
+#~ msgid "Enter a new nickname"
+#~ msgstr "ਨਵਾਂ ਨਾਂ ਦਿਓ:"
+
+#~ msgid "C_lear"
+#~ msgstr "ਸਾਫ਼"
+
+#~ msgid "_Clear Window"
+#~ msgstr "ਝਰੋਖਾ ਬੰਦ(_C)"
+
+#~ msgid "_Auto-join"
+#~ msgstr "ਸਵੈ-ਚਾਲਤ(_A)"
