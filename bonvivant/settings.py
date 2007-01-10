@@ -77,4 +77,4 @@ INSTALLED_APPS = (
 JS_URL = '/site_media/js/'
 CSS_URL = '/site_media/css/'
 IMAGE_URL = '/site_media/images/'
-LOGIN_URL = '/login/'
+LOGIN_URL = '/account/login/'

@@ -16,14 +16,13 @@ urlpatterns = patterns('',
     (r'^recipes/edit/(?P<object_id>\d+)/$', 'bonvivant.apps.recipes.views.edit'),
     (r'^recipes/(?P<object_id>\d+)/$',      'bonvivant.apps.recipes.views.detail'),
 
-    # Auth stuff
-    (r'^accounts/login/$',     'django.contrib.auth.views.login'),
-    (r'^accounts/logout/$',    'django.contrib.auth.views.logout'),
-    (r'^accounts/register/$',  'bonvivant.apps.accounts.views.register'),
-
-    # Account info
-    (r'^accounts/profile/$', 'bonvivant.apps.accounts.views.profile'),
-    (r'^accounts/edit/$',    'bonvivant.apps.accounts.views.edit'),
+    # Auth and stuff
+    (r'^account/$',          'bonvivant.apps.accounts.views.profile'),
+    (r'^account/login/$',    'bonvivant.apps.accounts.views.login', dict(next_page='/account/')),
+    (r'^account/logout/$',   'django.contrib.auth.views.logout',    dict(template_name='accounts/logged_out.html')),
+    #(r'^accounts/register/$', 'bonvivant.apps.accounts.views.register'),
+    #(r'^accounts/edit/$',     'bonvivant.apps.accounts.views.edit'),
+    #(r'^accounts/edit2/$',    'bonvivant.apps.accounts.views.edit2'),
 )
 
 if settings.DEBUG:
