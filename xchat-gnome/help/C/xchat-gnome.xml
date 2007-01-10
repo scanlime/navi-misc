@@ -4,7 +4,7 @@
   <!ENTITY appversion "0.16">
   <!ENTITY manrevision "2.1">
   <!ENTITY date "December 2006">
-  <!ENTITY app "<application>XChat-GNOME</application>">
+  <!ENTITY app "XChat-GNOME">
   <!-- Information about the entities
        The legal.xml file contains legal information, there is no need to edit the file.
        Use the appversion entity to specify the version of the application.

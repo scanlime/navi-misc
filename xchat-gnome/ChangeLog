@@ -1,5 +1,15 @@
 2007-01-09  David Trowbridge <trowbrds@gmail.com>
 
+	* plugins/notification/Makefile.am:
+	  - Include preferences glade file in EXTRA_DIST
+
+	* help/C/xchat-gnome.xml:
+	  - Remove <application> tags from "app" element, since everywhere
+	    that needs it already has the tag, and it was causing an xmllint
+	    error.
+
+2007-01-09  David Trowbridge <trowbrds@gmail.com>
+
 	* configure.ac:
 	* NEWS:
 	  - Bump version to 0.16
