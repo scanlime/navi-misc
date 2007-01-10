@@ -14,12 +14,19 @@ port = int(os.getenv("PORT"))
 
 from twisted.application import service, internet
 from LibCIA import Database, Message, Ruleset, IRC, Stats, IncomingMail, Cron
-from LibCIA import Debug, Security, RpcServer, RpcClient, Web, Cache
+from LibCIA import Debug, Security, RpcServer, RpcClient, Web, Cache, Files
 
 Database.init()
 
 application = service.Application("rpc_server")
 hub = Message.Hub()
+
+# Save all messages in a permanent MessageArchive. This uses an
+# append-only SAX buffer, sorted by date. We don't do anything with
+# this data yet, but it will be the foundation for a new message
+# filtering architecture.
+hub.addClient(Stats.Messages.MessageArchive(
+    Files.getDir(Files.dbDir, 'archive')).deliver)
 
 # Connect to IRC bots running in a separate process
 remoteBots = IRC.Handler.RemoteBots("bots.socket")

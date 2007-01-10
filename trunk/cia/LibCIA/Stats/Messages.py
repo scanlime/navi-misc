@@ -23,7 +23,7 @@ SAX events.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import struct, os
+import struct, os, datetime
 import xml.sax, xml.dom.minidom
 
 class CircularFile:
@@ -625,5 +625,111 @@ class MessageBuffer:
             msg = self.getMessageById(msgId)
             if msg is not None:
                 yield (msgId, msg)
+
+
+class MessageArchive:
+    """Whereas a MessageBuffer stores a limited number of recent messages,
+       and uses a built-in index, a MessageArchive is designed to store an
+       unlimited number of messages using an external index.
+
+       MessageArchives are not pre-sorted by stats target. All incoming
+       messages are sent to a single MessageArchive, which is separated
+       into files by day. (Note that these dates are based on the *current*
+       date, not the message's timestamp! We don't want to allow backdated
+       commit messages to modify data which may have already been backed
+       up.)
+
+       MessageArchives use a static dictionary. To avoid the hassle of
+       atomically generating a file header, dictionaries are specified
+       per-message. In the future this may be used to smoothly upgrade
+       the dictionary when new elements are added to the XML schema.
+
+       The MessageArchive file has no header. Each message is represented by:
+
+         1. One NUL byte, indicating the beginning of the message. This
+            is used as a flag character, since messages may not contain
+            an internal NUL.
+
+         2. The length of this message, including all headers, as a
+            32-bit big endian integer.
+
+         3. The message version, as a single byte. This identifies
+            the dictionary used to encode the message, and it can indicate
+            the presence of extra fields in the message header.
+
+       There is no unique message identifier, since it isn't worth the
+       effort to generate one atomically. The file name and file offset
+       will become a unique identifier the moment the message is appended
+       to disk.
+       """
+    LATEST_VERSION = 1
+
+    # All versions use the same header currently
+    header_format = ">BIB"
+
+    # You may define new versions, but never change the existing dicts!
+    dictionaries = {
+        1: (u'\x01name', u'\x03header', u'\x02file', u'\x01Received',
+            u'\x02source', u'\x02project', u'\x02name', u'\x02generator',
+            u'\x02body', u'\x02timestamp', u'\x02message', u'\x02commit',
+            u'\x02author', u'\x02log', u'\x02files', u'\x02version',
+            u'\x03file', u'action', u'From', u'Date', u'\x02mailHeaders',
+            u'Message-Id', u'\x02module', u'modify', u'\x02revision',
+            u'\x02url', u'\x02diffLines', u'\x01uri', u'\x02branch',
+            u'\x04file', u'\x01add'),
+        }
+
+    def __init__(self, path):
+        self._path = path
+        self._file = None
+        self._date = None
+
+    def _setDate(self, date):
+        """Change days, opening a new log file."""
+        if date == self._date:
+            return
+        self._date = date
+
+        # makedirs() is racy- better for us to just call mkdir()
+        # multiple times and ignore failures.
+        p = self._path
+        for segment in ("%04d" % date.year,
+                        "%04d-%02d" % (date.year, date.month),
+                        "%04d-%02d-%02d.bsax" % (date.year, date.month, date.day)):
+            try:
+                os.mkdir(p)
+            except OSError:
+                pass
+            p = os.path.join(p, segment)
+
+        self._file = open(p, 'ab')
+
+    def push(self, msg):
+        """Append a new message to the buffer, given a UTf-8 byte string.
+           Returns None, as we can't efficiently return the message ID just yet.
+           """
+        self._setDate(datetime.datetime.now().date())
+
+        # Parse the message into a compressed SAX event stream
+        version = self.LATEST_VERSION
+        encoder = SAXEncoder(self.dictionaries[version])
+        xml.sax.parseString(msg, encoder)
+        zmsg = encoder.getvalue()
+
+        # Pack the message header
+        header = struct.pack(self.header_format, 0,
+                             struct.calcsize(self.header_format) + len(zmsg),
+                             version)
+
+        # Atomically write to the file
+        os.write(self._file.fileno(), header + zmsg)
+
+    def deliver(self, msg):
+        """Deliver a Message instance to the archive. This is silly, because
+           we have to convert the Message (a DOM) right back to UTF-8 text
+           just so we can re-serialize it with SAX. This is a stopgap measure
+           until the message filtering architecture is redesigned.
+           """
+        self.push(unicode(msg).encode('utf-8'))
 
 ### The End ###
