@@ -25,7 +25,15 @@ DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
 
-CIA_RPC_SERVER = 'http://localhost:3910'
+#
+# These settings control our connection with CIA. We use its XML-RPC interface
+# for most management tasks, but we also need to talk directly to the bot server
+# occasionally. We also need to know where to find login information for the RPC
+# server.
+#
+CIA_RPC_URL = 'http://localhost:3910'
+CIA_KEY_FILE = os.path.expanduser('~/.cia_key')
+CIA_BOT_SOCKET = os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'bots.socket')
 
 # Local time zone for this installation. All choices can be found here:
 # http://www.postgresql.org/docs/current/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE

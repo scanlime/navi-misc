@@ -1,8 +1,30 @@
-from cia.apps.accounts import models, assets
+from cia.apps.accounts import models, assets, authplus
 from django import newforms as forms
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
+from twisted.spread import pb
+from twisted.internet import reactor
+from twisted.python import failure
+
+
+###########################
+#    Bot-server Client    #
+###########################
+
+def block(d):
+    """Block on a deferred, resolving it into a value or an exception."""
+    while not d.called:
+        reactor.iterate()
+    if isinstance(d.result, failure.Failure):
+        d.result.raiseException()
+    return d.result
+
+def getBotServer():
+    factory = pb.PBClientFactory()
+    reactor.connectUNIX(settings.CIA_BOT_SOCKET, factory)
+    return block(factory.getRootObject())
 
 
 ###########################
@@ -43,7 +65,7 @@ def validate_network(form, field_name='network'):
     except (ValueError, models.Network.DoesNotExist):
         form.errors['network'] = forms.util.ErrorList(["Select a network."])
 
-@login_required
+@authplus.login_required
 def add_bot(request, asset_type):
     form = MultiForm(request.POST)
 
@@ -108,7 +130,7 @@ def add_bot(request, asset_type):
 class EditBotForm(forms.Form):
     is_active = forms.BooleanField()
 
-@login_required
+@authplus.login_required
 def bot(request, asset_type, asset_id):
     ctx = assets.get_asset_edit_context(request, asset_type, asset_id)
     user_asset = ctx['user_asset']
@@ -116,5 +138,8 @@ def bot(request, asset_type, asset_id):
 
     form = EditBotForm(request.POST or bot.__dict__)
     ctx['form'] = form
+
+    server = getBotServer()
+    ctx['server'] = block(server.callRemote('getTotals'))
 
     return render_to_response('accounts/bot.html', ctx)

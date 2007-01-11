@@ -74,7 +74,10 @@ def get_asset_edit_context(request, asset_type, asset_id):
        """
     model = get_asset_by_type(asset_type)
     asset_id = int(asset_id)
-    user_asset = model.objects.all_for_user(request.user).get(pk=asset_id)
+    try:
+        user_asset = model.objects.all_for_user(request.user).get(pk=asset_id)
+    except models.UserAsset.DoesNotExist:
+        raise Http404
 
     # Set as the default asset for this type
     request.session['default_' + asset_type] = asset_id
@@ -94,7 +97,7 @@ def get_asset_edit_context(request, asset_type, asset_id):
 #     Profile Editing     #
 ###########################
 
-@login_required
+@authplus.login_required
 def profile(request):
     if 'change-password' in request.POST:
         password_form = authplus.do_change_password(request)
@@ -118,13 +121,13 @@ def profile(request):
 #      Stats Assets       #
 ###########################
 
-@login_required
+@authplus.login_required
 def stats_asset(request, asset_type, asset_id):
     """Generic form for editing stats-based assets"""
     ctx = get_asset_edit_context(request, asset_type, asset_id)
     return render_to_response('accounts/stats_asset.html', ctx)
 
-@login_required
+@authplus.login_required
 def add_stats_asset(request, asset_type):
     """Generic form for adding stats-based assets"""
     ctx = get_asset_add_context(request, asset_type)
