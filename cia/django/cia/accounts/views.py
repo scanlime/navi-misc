@@ -493,9 +493,16 @@ def add_bot(request, asset_type):
         })
     return render_to_response('accounts/add_bot.html', ctx)
 
+class EditBotForm(forms.Form):
+    is_active = forms.BooleanField()
+
 @login_required
 def bot(request, asset_type, asset_id):
     ctx = get_asset_edit_context(request, asset_type, asset_id)
+    user_asset = ctx['user_asset']
+    bot = user_asset.asset
+
+    form = EditBotForm(request.POST or bot.__dict__)
+    ctx['form'] = form
+
     return render_to_response('accounts/bot.html', ctx)
-
-
