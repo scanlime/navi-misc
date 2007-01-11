@@ -71,7 +71,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.doc.XViewMiddleware',
 )
 
-ROOT_URLCONF = 'cia.urls'
+ROOT_URLCONF = 'cia.apps.urls'
 
 TEMPLATE_DIRS = (
     os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'templates'),
@@ -83,5 +83,5 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
-    'cia.accounts',
+    'cia.apps.accounts',
 )
