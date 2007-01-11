@@ -11,6 +11,10 @@
 <form action="/account/" method="post">
   <fieldset><legend>Bot Status</legend>
   <div class="form-row">
+    <label>Network request:</label>
+    <div>"{{ server }}"</div>
+  </div>
+  <div class="form-row">
     {{ form.is_active }}
   </div>
   <div class="form-row">
