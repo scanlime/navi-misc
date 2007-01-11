@@ -1,4 +1,4 @@
-from cia.accounts import models
+from cia.apps.accounts import models
 from django import newforms as forms
 from django.conf import settings
 from django.contrib import auth
