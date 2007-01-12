@@ -1,5 +1,0 @@
-FT_USE_MODULE(autofit_module_class)
-FT_USE_MODULE(tt_driver_class)
-FT_USE_MODULE(sfnt_module_class)
-FT_USE_MODULE(ft_smooth_renderer_class)
-FT_USE_MODULE(ft_smooth_lcd_renderer_class)
