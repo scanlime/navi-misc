@@ -12,6 +12,12 @@ Add an IRC bot to your account. If no bot exists for the IRC channel
 you specify, one will be created automatically.
 </p>
 
+<p class="narrow">
+Bots will report commit messages in real-time.  After adding a bot
+you can define which commits it reports and how those messages
+are formatted.
+</p>
+
 <form action="{{ form_path }}" method="post">
   <fieldset><legend>IRC Bot</legend>
 
@@ -69,12 +75,12 @@ you specify, one will be created automatically.
 </form>
 
 <script type="text/javascript">
-  network_details = new Object();
+  var network_details = new Object();
   {% for network in networks %}
   network_details["{{ network.id }}"] = "{{ network|escape|addslashes }}<br />{{ network.uri|escape|addslashes }}";
   {% endfor %}
 
-  network = document.getElementById('id_network');
+  var network = document.getElementById('id_network');
   network.focus();
   network.onchange = function () {
     var form = document.getElementById('new_network_form');

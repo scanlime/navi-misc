@@ -1,5 +1,10 @@
 {% extends 'accounts/bot_asset.html' %}
 
+{% block scripts %}
+  <script type="text/javascript" src="/media/js/yahoo-min.js" ></script>
+  <script type="text/javascript" src="/media/js/connection-min.js" ></script>
+{% endblock %}
+
 {% block c3 %}
 
 <h1>{{ user_asset.asset|capfirst }}</h1>
@@ -9,13 +14,11 @@
 {% endfor %}
 
 <form action="/account/" method="post">
+
   <fieldset><legend>Bot Status</legend>
   <div class="form-row">
     <label>Network request:</label>
-    <div>"{{ server }}"</div>
-  </div>
-  <div class="form-row">
-    {{ form.is_active }}
+    <pre id="bot-status"></pre>
   </div>
   <div class="form-row">
     <label for="id_email">E-mail address:</label>
@@ -26,6 +29,53 @@
     <div>&raquo;</div> <input type="submit" name="change-profile" value="Save" />
   </div>
   </fieldset>
+
 </form>
+
+<script type="text/javascript">
+  var div = document.getElementById("bot-status");
+  status.innerHTML = "Waiting...";
+
+  var receivedBotStatus = function(o){
+        if(o.responseText !== undefined){
+                div.innerHTML = "<li>Transaction id: " + o.tId + "</li>";
+                div.innerHTML += "<li>HTTP status: " + o.status + "</li>";
+                div.innerHTML += "<li>Status code message: " + o.statusText + "</li>";
+                div.innerHTML += "<li>HTTP headers: <ul>" + o.getAllResponseHeaders + "</ul></li>";
+                div.innerHTML += "<li>Server response: " + o.responseText + "</li>";
+                div.innerHTML += "<li>Argument object: Object ( [foo] => " + o.argument.foo +
+                                                 " [bar] => " + o.argument.bar +" )</li>";
+        }
+
+	scheduleRequest()
+  }
+
+  var botStatusFailure = function(o){
+        if(o.responseText !== undefined){
+                div.innerHTML = "<li>Transaction id: " + o.tId + "</li>";
+                div.innerHTML += "<li>HTTP status: " + o.status + "</li>";
+                div.innerHTML += "<li>Status code message: " + o.statusText + "</li>";
+        }
+
+	scheduleRequest()
+  }
+
+  var callback =
+  {
+    success: receivedBotStatus,
+    failure: botStatusFailure,
+    argument: { foo:"foo", bar:"bar" }
+  };
+
+
+  var makeRequest = function(){
+    YAHOO.util.Connect.asyncRequest('GET', "/api/irc-bot-requests/freenode/%23tacobeam/status/", callback);
+  }
+  var scheduleRequest = function(){
+    setTimeout(makeRequest, 1000.0);
+  }
+  scheduleRequest()
+
+</script>
 
 {% endblock %}
