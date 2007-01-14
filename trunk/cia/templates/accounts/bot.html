@@ -1,9 +1,14 @@
 {% extends 'accounts/bot_asset.html' %}
 
 {% block scripts %}
+  <script type="text/javascript" src="/media/js/addclasskillclass.js" ></script>
+  <script type="text/javascript" src="/media/js/attachevent.js" ></script>
+  <script type="text/javascript" src="/media/js/addcss.js" ></script>
+  <script type="text/javascript" src="/media/js/tabtastic.js" ></script>
+
   <script type="text/javascript" src="/media/js/yahoo-min.js" ></script>
   <script type="text/javascript" src="/media/js/connection-min.js" ></script>
-  <script type="text/javascript" src="/media/js/json.js" ></script>
+  <script type="text/javascript" src="/media/js/json-min.js" ></script>
   <script type="text/javascript" src="/media/js/bot-status.js" ></script>
 {% endblock %}
 
@@ -15,16 +20,35 @@
 <div class="message"><div class="icon"></div><p>{{ message }}</p></div>
 {% endfor %}
 
-<h2>Basic Filtering</h2>
+<div id="tabs-and-sidebar">
 
-<h2>Advanced Filtering</h2>
+  <ul class="tabset_tabs">
+     <li><a href="#basic-filtering" class="active">Basic Filtering</a></li>
+     <li><a href="#advanced-filtering">Advanced Filtering</a></li>
+     <li><a href="#ownership">Ownership</a></li>
+  </ul>
 
-<h2>Ownership</h2>
+  <div id="basic-filtering" class="tabset_content">
+     <h2 class="tabset_label">Basic Filtering</h2>
+     Tab 1 Content
+  </div>
 
-<h2>Bot Status</h2>
+  <div id="advanced-filtering" class="tabset_content">
+     <h2 class="tabset_label">Advanced Filtering</h2>
+     Tab 2 Content
+  </div>
 
-<div id="bot-status">
-  <img src="/media/img/ajax-loader.gif" width="16" height="16" /> Loading...
+  <div id="ownership" class="tabset_content">
+     <h2 class="tabset_label">Ownership</h2>
+     Tab 3 Content
+  </div>
+
+  <div id="sidebar">
+     <h2 id="sidebar-label">Bot Status</h2>
+
+     <div id="ajax-loader"></div>
+  </div>
+
 </div>
 
 <script type="text/javascript">
