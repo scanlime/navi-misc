@@ -40,7 +40,7 @@ BotStatus.showBotStatus = function(obj)
     }
     
     this.container.innerHTML = status;
-    this.scheduleUpdate(1.0);
+    this.scheduleUpdate(10.0);
 };
     
 BotStatus.showError = function(obj)

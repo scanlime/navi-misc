@@ -1,7 +1,7 @@
 h1 {
   font-size: 1.5em;
   padding: 0 0 0.25em 0;
-  margin: 0 0 1em 0;
+  margin: 0 0 0.5em 0;
   border-bottom: 2px solid #ccc;
 }
 
@@ -252,4 +252,37 @@ legend {
   margin: 0.25em 0 0.25em 13em;
   bottom: 0;
   padding: 0em 1em;
+}
+
+#tabs-and-sidebar {
+  position: relative;
+  padding: 0 11em 0 0;
+  margin: 0;
+}
+
+#sidebar {
+  position: absolute;
+  top: 0;
+  right: 0.5em;  /* IE6 */
+  width: 10em;
+  padding: 0;
+  margin: 0;
+}
+
+#sidebar-label {
+  font-size: 1em;
+  font-weight: normal;
+  margin: 0 0 0.5em 0;
+  padding: 0 0 2px 0;
+  border-bottom: 4px solid #c8c8c8;
+}
+
+#ajax-loader {
+  overflow: hidden;
+  position: absolute;
+  top: 2px;
+  right: 3px;
+  background: url("/media/img/ajax-loader.gif");
+  width: 16px;
+  height: 16px;
 }
