@@ -48,7 +48,7 @@ UnitCollection.prototype.format = function(value)
     var s = converted.toFixed(this.precision);
 
     /* Chop off the trailing zeroes */
-    s = s.replace(/.0+$/, "");
+    s = s.replace(/\.0*$/, "");
 
     /* Choose singular or plural form */
     var unit = plural;
