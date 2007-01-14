@@ -117,9 +117,15 @@ def add_bot(request, asset_type):
                 user_asset.asset._meta.asset_type, user_asset.id,
                 ))
 
+    # Automatically initialize the Network list, if it's empty.
+    allNetworks = list(models.Network.objects.all())
+    if not allNetworks:
+        models.Network.objects.importNetworks()
+        allNetworks = list(models.Network.objects.all())
+
     ctx = assets.get_asset_add_context(request, asset_type)
     ctx.update({
-        'networks': models.Network.objects.all(),
+        'networks': allNetworks,
         'form': form,
         })
     return render_to_response('accounts/add_bot.html', ctx)
@@ -130,7 +136,10 @@ def add_bot(request, asset_type):
 ###########################
 
 class EditBotForm(forms.Form):
-    is_active = forms.BooleanField()
+    filter_mode = forms.ChoiceField(models.filter_mode_choices, widget=forms.RadioSelect)
+    custom_ruleset = forms.CharField()
+    project_list = forms.CharField()
+    show_project_names = forms.BooleanField()
 
 @authplus.login_required
 def bot(request, asset_type, asset_id):
@@ -138,7 +147,7 @@ def bot(request, asset_type, asset_id):
     user_asset = ctx['user_asset']
     bot = user_asset.asset
 
-    form = EditBotForm(request.POST or bot.__dict__)
+    form = EditBotForm(request.POST or bot)
 
     ctx.update({
         'form': form,
