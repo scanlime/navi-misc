@@ -77,6 +77,23 @@ TimeUnits.units =
 ];
 
 /*
+ * Abbreviated time units, standard unit is 1 second
+ */
+var TimeUnitsAbbrev = new UnitCollection();
+TimeUnitsAbbrev.units =
+[
+ ["yr",    "yr",    365 * 24 * 60 * 60],
+ ["mth",   "mth",   30 * 24 * 60 * 60],
+ ["wk",    "wk",    7 * 24 * 60 * 60],
+ ["d",     "d",     24 * 60 * 60],
+ ["hr",    "hr",    60 * 60],
+ ["min",   "min",   60],
+ ["sec",   "sec",   1],
+ ["ms",    "ms",    0.001],
+ ["us",    "us",    0.000001],
+];
+
+/*
  * Storage units, standard is 1 byte
  */
 var StorageUnits = new UnitCollection();
@@ -88,5 +105,3 @@ StorageUnits.units =
  ["kB",   "kB",    1024],
  ["byte", "bytes", 1],
 ];
-
-alert(TimeUnits.format(60.123456778));
