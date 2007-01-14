@@ -10,14 +10,20 @@ import time
 #    Bot Server Utils     #
 ###########################
 
-def block(d):
-    """Block on a deferred, resolving it into a value or an exception."""
+class TimeoutError(Exception):
+    pass
+
+def block(d, timeout=5.0):
+    """Block on a deferred, resolving it into a value or an exception.
+       If the entire operation doesn't complete within a specified
+       timeout, in seconds, this raises TimeoutError.
+       """
+    deadline = time.time() + timeout
     while not d.called:
-        # This may only work correctly with selectreactor.
-        # With the default timeout of zero, we'd be spinning
-        # in a tight loop burning CPU while our I/O completes.
-        # With 'None', our process will block in select().
-        reactor.iterate(delay=None)
+        remaining = deadline - time.time()
+        if remaining < 0:
+            raise TimeoutError()
+        reactor.iterate(delay = remaining)
     if isinstance(d.result, failure.Failure):
         d.result.raiseException()
     return d.result
