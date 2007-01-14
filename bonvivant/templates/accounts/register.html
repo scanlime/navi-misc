@@ -7,7 +7,7 @@
     <p>Please correct the following error{{ form.error_dict|pluralize }}:</p>
   {% endif %}
 
-  <form action="/accounts/register/" method="post">
+  <form action="/account/register/" method="post">
     <table>
       <tr>
         <td><label for="id_username">Username:</label></td>
@@ -23,6 +23,11 @@
         <td><label for="id_password2">Password (again):</label></td>
         <td>{{ form.password2 }}</td>
         <td>{% if form.password2.errors %}{{ form.password2.errors.0 }}{% endif %}</td>
+      </tr>
+      <tr>
+        <td><label for="id_email">E-mail address:</label></td>
+        <td>{{ form.email }}</td>
+        <td>{% if form.email.errors %}{{ form.email.errors.0 }}{% endif %}</td>
       </tr>
     </table>
     <input type="submit" value="register" />
