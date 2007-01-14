@@ -2,8 +2,9 @@ from cia.apps.accounts import models, assets, authplus
 from django import newforms as forms
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
+from django.template.context import RequestContext
 
 
 def get_channel_from_location(location):
@@ -128,7 +129,7 @@ def add_bot(request, asset_type):
         'networks': allNetworks,
         'form': form,
         })
-    return render_to_response('accounts/add_bot.html', ctx)
+    return render_to_response('accounts/add_bot.html', RequestContext(request, ctx))
 
 
 ###########################
@@ -201,4 +202,4 @@ def bot(request, asset_type, asset_id):
         'network_host': bot.network.getHost('irc'),
         'channel': get_channel_from_location(bot.location),
         })
-    return render_to_response('accounts/bot.html', ctx)
+    return render_to_response('accounts/bot.html', RequestContext(request, ctx))

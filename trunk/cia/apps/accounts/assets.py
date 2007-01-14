@@ -52,19 +52,25 @@ def get_asset_by_type(asset_type):
     raise Http404
 
 def get_asset_add_context(request, asset_type):
-    """Returns a context for adding any asset. This raises
-       a 404 error if the asset_type is not valid. This includes
-       all context variables required for navigation.
+    """Returns extra context items used when adding any asset. This
+       raises a 404 error if the asset_type is not valid. This
+       includes all context variables required for navigation.
+
+       Note that this doesn't return a RequestContext directly, and
+       for a good reason. Context processors invoked by RequestContext
+       may have side-effects, like deleting a user's pending
+       messages. If these side-effects are wanted at all, they should
+       occur only when the view is ready for them.
        """
     model = get_asset_by_type(asset_type)
-    return RequestContext(request, {
+    return {
         'asset_types': get_user_asset_types(request, asset_type),
         'asset_type': asset_type,
         'asset_type_name': model._meta.verbose_name,
         'user_assets': model.objects.all_for_user(request.user),
         'add': True,
         'form_path': request.path,
-        })
+        }
 
 def get_asset_edit_context(request, asset_type, asset_id):
     """Returns a context for editing any asset. This raises a 404
@@ -82,7 +88,7 @@ def get_asset_edit_context(request, asset_type, asset_id):
     # Set as the default asset for this type
     request.session['default_' + asset_type] = asset_id
 
-    return RequestContext(request, {
+    return {
         'asset_types': get_user_asset_types(request, asset_type),
         'asset_type': asset_type,
         'asset_type_name': model._meta.verbose_name,
@@ -90,7 +96,7 @@ def get_asset_edit_context(request, asset_type, asset_id):
         'asset_id': asset_id,
         'user_asset': user_asset,
         'form_path': request.path,
-        })
+        }
 
 
 ###########################
@@ -125,10 +131,10 @@ def profile(request):
 def stats_asset(request, asset_type, asset_id):
     """Generic form for editing stats-based assets"""
     ctx = get_asset_edit_context(request, asset_type, asset_id)
-    return render_to_response('accounts/stats_asset.html', ctx)
+    return render_to_response('accounts/stats_asset.html', RequestContext(request, ctx))
 
 @authplus.login_required
 def add_stats_asset(request, asset_type):
     """Generic form for adding stats-based assets"""
     ctx = get_asset_add_context(request, asset_type)
-    return render_to_response('accounts/add_stats_asset.html', ctx)
+    return render_to_response('accounts/add_stats_asset.html', RequestContext(request, ctx))

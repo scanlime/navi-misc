@@ -38,7 +38,7 @@ h1 {
 
 .columns .c1 li.spacer {
   height: 0;
-  padding: 0.5em;
+  padding: 0.5em 0 0 0;
   overflow: hidden;   /* IE6 */
 }
 
@@ -78,7 +78,7 @@ h1 {
 
 .columns .c2 li.spacer {
   height: 0;
-  padding: 0.5em;
+  padding: 0.5em 0 0 0;
   overflow: hidden;   /* IE6 */
 }
 
@@ -144,7 +144,7 @@ p.note {
 
 .message {
   position: relative;
-  margin: 0.25em 0em;
+  margin: 0.25em 0em 0.75em 0em;
   padding: 0.5em;
   background: #fe8;
 }

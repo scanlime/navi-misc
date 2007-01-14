@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils.html import escape
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 import urlparse, xmlrpclib
@@ -176,9 +177,8 @@ class Bot(models.Model):
            server's ruleset if filterMode is 'unknown'.
            """
         if self.filter_mode == FILTER.UNKNOWN:
-            server = xmlrpclib.ServerProxy(settings.CIA_RPC_URL)
-            ruleset = server.ruleset.getRuleset(self.getURI())
-
+            ruleset = self._loadRuleset()
+            
             if ruleset:
                 # XXX: We should try to reduce the ruleset to one of
                 #      the other FILTER.* modes if possible.
@@ -195,12 +195,31 @@ class Bot(models.Model):
            settings, and upload that ruleset to the RPC server.
            """
         if self.filter_mode == FILTER.INACTIVE:
-            ruleset = '<ruleset uri="%s" />' % self.getURI()
+            self._storeRuleset(None)
 
         else:
-            ruleset = '<ruleset uri="%s">\n    <return/>\n</ruleset>' % self.getURI()
+            self._storeRuleset('<ruleset uri="%s">\n    <return/>\n</ruleset>' % escape(self.getURI()))
 
+    def _loadRuleset(self):
+        """Retrieve this bot's ruleset from the server"""
         server = xmlrpclib.ServerProxy(settings.CIA_RPC_URL)
+        return server.ruleset.getRuleset(self.getURI())
+
+    def _storeRuleset(self, ruleset):
+        """Send a ruleset to the server, if necessary.
+           If 'ruleset' is None, any existing ruleset will
+           be deleted.
+           """
+        server = xmlrpclib.ServerProxy(settings.CIA_RPC_URL)
+        uri = self.getURI()
+
+        if not ruleset:
+            # The bot server will fail to unset a ruleset
+            # that doesn't exist. Avoid that situation here...
+            if not server.ruleset.getRuleset(uri):
+                return
+            ruleset = '<ruleset uri="%s" />' % escape(uri)
+
         server.ruleset.store(settings.CIA_KEY, ruleset)
 
     def __str__(self):
