@@ -136,10 +136,48 @@ def add_bot(request, asset_type):
 ###########################
 
 class EditBotForm(forms.Form):
-    filter_mode = forms.ChoiceField(models.filter_mode_choices, widget=forms.RadioSelect)
-    custom_ruleset = forms.CharField()
-    project_list = forms.CharField()
-    show_project_names = forms.BooleanField()
+    filter_mode = forms.ChoiceField(
+        choices = models.filter_mode_choices,
+        widget = forms.RadioSelect,
+        )
+    custom_ruleset = forms.CharField(
+        required = False,
+        widget = forms.Textarea,
+        )
+    project_list = forms.CharField(
+        required = False,
+        widget = forms.Textarea,
+        )
+    show_project_names = forms.BooleanField(
+        required = False,
+        widget = forms.CheckboxInput(attrs = {'class': 'checkbox'}),
+        )
+
+    def clean_filter_mode(self):
+        return int(self.clean_data['filter_mode'])
+
+class RadioChoices:
+    """This object provides a dictionary-like interface for looking up
+       individual choices on a RadioSelect widget. This lets the
+       template make decisions about how to lay out a group of radio
+       buttons, while letting the form render each individual button.
+       """
+    def __init__(self, boundField, enum):
+        self.renderer = boundField.as_widget(boundField.field.widget, attrs={'class': 'radio'})
+        self.enum = enum
+
+    def __getitem__(self, enumName):
+        enumValue = getattr(self.enum, enumName)
+        input = self.renderer[enumValue]
+        return u'<label class="radio">%s %s</label>' % (input.tag(), input.choice_label)
+
+class ModelData:
+    """Wrapper for using an existing model as data for a form"""
+    def __init__(self, model):
+        self.model = model
+
+    def get(self, key, default=None):
+        return getattr(self.model, key, default)
 
 @authplus.login_required
 def bot(request, asset_type, asset_id):
@@ -147,10 +185,19 @@ def bot(request, asset_type, asset_id):
     user_asset = ctx['user_asset']
     bot = user_asset.asset
 
-    form = EditBotForm(request.POST or bot)
+    bot.syncFromServer()
+    form = EditBotForm(request.POST or ModelData(bot))
+
+    if request.POST and form.is_valid():
+        for key, value in form.clean_data.items():
+            setattr(bot, key, value)
+        bot.save()
+        bot.syncToServer()
+        request.user.message_set.create(message="Your bot was updated successfully.")
 
     ctx.update({
         'form': form,
+        'modes': RadioChoices(form['filter_mode'], models.FILTER),
         'network_host': bot.network.getHost('irc'),
         'channel': get_channel_from_location(bot.location),
         })

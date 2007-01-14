@@ -13,9 +13,9 @@ class UserAsset(models.Model):
     asset = models.GenericForeignKey()
 
     access = models.PositiveSmallIntegerField(choices=(
-        (1, 'community'),
-        (2, 'exclusive'),
-        (3, 'trusted'),
+        (1, 'Community'),
+        (2, 'Exclusive'),
+        (3, 'Trusted'),
         ), default=1)
 
     date_added = models.DateTimeField(auto_now_add=True)
@@ -131,16 +131,17 @@ class Author(models.Model):
         pass
 
 
-FILTER_UNKNOWN = 0     # Need to query server for ruleset
-FILTER_INACTIVE = 1    # No ruleset  
-FILTER_CUSTOM = 2
-FILTER_PROJECT_LIST = 3
+class FILTER:
+    UNKNOWN = 0     # Need to query server for ruleset
+    INACTIVE = 1    # No ruleset
+    CUSTOM = 2
+    PROJECT_LIST = 3
 
 filter_mode_choices = (
-    (FILTER_UNKNOWN,      'unknown'),
-    (FILTER_INACTIVE,     'inactive'),
-    (FILTER_CUSTOM,       'custom'),
-    (FILTER_PROJECT_LIST, 'project list'),
+    (FILTER.UNKNOWN,      'Unknown'),
+    (FILTER.INACTIVE,     'Inactive'),
+    (FILTER.CUSTOM,       'Custom filter'),
+    (FILTER.PROJECT_LIST, 'Filter by project'),
     )
 
 class Bot(models.Model):
@@ -151,15 +152,15 @@ class Bot(models.Model):
     location = models.CharField(maxlength=64, db_index=True)
 
     filter_mode = models.PositiveSmallIntegerField(
-        choices=filter_mode_choices, default=FILTER_UNKNOWN)
+        choices=filter_mode_choices, default=FILTER.UNKNOWN)
 
-    # For FILTER_CUSTOM. This is not a complete XML document,
+    # For FILTER.CUSTOM. This is not a complete XML document,
     # just the contents of a <ruleset> element.
     custom_ruleset = models.TextField("Custom ruleset", blank=True)
 
-    # For FILTER_PROJECT_LIST
+    # For FILTER.PROJECT_LIST
     project_list = models.TextField("Project list", blank=True)
-    show_project_names = models.BooleanField("Show project names", default=False)
+    show_project_names = models.BooleanField("Show project names", default=True)
 
     def getURI(self):
         s = self.network.uri
@@ -174,31 +175,31 @@ class Bot(models.Model):
            Right now the only task this performs is to store the
            server's ruleset if filterMode is 'unknown'.
            """
-        if self.filter_mode == FILTER_UNKNOWN:
+        if self.filter_mode == FILTER.UNKNOWN:
             server = xmlrpclib.ServerProxy(settings.CIA_RPC_URL)
             ruleset = server.ruleset.getRuleset(self.getURI())
 
             if ruleset:
                 # XXX: We should try to reduce the ruleset to one of
-                #      the other FILTER_* modes if possible.
-                self.filter_mode = FILTER_CUSTOM
+                #      the other FILTER.* modes if possible.
+                self.filter_mode = FILTER.CUSTOM
                 self.custom_ruleset = ruleset
                 self.save()
 
             else:
-                self.filter_mode = FILTER_INACTIVE
+                self.filter_mode = FILTER.INACTIVE
                 self.save()
 
     def syncToServer(self):
         """Generate a ruleset according to this bot's filter
            settings, and upload that ruleset to the RPC server.
            """
-        if self.filter_mode == FILTER_INACTIVE:
-            ruleset = None
+        if self.filter_mode == FILTER.INACTIVE:
+            ruleset = '<ruleset uri="%s" />' % self.getURI()
 
         else:
             ruleset = '<ruleset uri="%s">\n    <return/>\n</ruleset>' % self.getURI()
-        
+
         server = xmlrpclib.ServerProxy(settings.CIA_RPC_URL)
         server.ruleset.store(settings.CIA_KEY, ruleset)
 

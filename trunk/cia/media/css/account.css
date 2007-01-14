@@ -360,7 +360,7 @@ form.narrow .submit-row input {
   font-size: 0.75em;  
 }
 
-#ruleset-editor {
+#id_custom_ruleset {
   width: 100%;
   height: 30em;
   background: #f0f0f0;
