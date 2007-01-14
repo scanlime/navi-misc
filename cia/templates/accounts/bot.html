@@ -7,8 +7,9 @@
   <script type="text/javascript" src="/media/js/tabtastic.js" ></script>
 
   <script type="text/javascript" src="/media/js/yahoo-min.js" ></script>
-  <script type="text/javascript" src="/media/js/connection-min.js" ></script>
+  <script type="text/javascript" src="/media/js/connection-debug.js" ></script>
   <script type="text/javascript" src="/media/js/json-min.js" ></script>
+  <script type="text/javascript" src="/media/js/units.js" ></script>
   <script type="text/javascript" src="/media/js/bot-status.js" ></script>
 {% endblock %}
 
@@ -44,16 +45,16 @@
   </div>
 
   <div id="sidebar">
-     <h2 id="sidebar-label">Bot Status</h2>
-
-     <div id="ajax-loader"></div>
+     <h2>Bot Status</h2>
+     <div id="bot-status-loading" class="ajax-loader"></div>
+     <div id="bot-status-message"></div>
   </div>
 
 </div>
 
 <script type="text/javascript">
-  BotStatus.init("/api/irc-bot-requests/{{ network_host|urlencode }}/{{ channel|urlencode }}/status/", "bot-status");
-  BotStatus.update();
+  TabtasticInit();
+  BotStatus.init("/api/irc-bot-requests/{{ network_host|urlencode }}/{{ channel|urlencode }}/status/");
 </script>
 
 {% endblock %}

@@ -268,7 +268,7 @@ legend {
   margin: 0;
 }
 
-#sidebar-label {
+#sidebar h2 {
   font-size: 1em;
   font-weight: normal;
   margin: 0 0 0.5em 0;
@@ -276,7 +276,7 @@ legend {
   border-bottom: 4px solid #c8c8c8;
 }
 
-#ajax-loader {
+#sidebar .ajax-loader {
   overflow: hidden;
   position: absolute;
   top: 2px;
@@ -284,4 +284,10 @@ legend {
   background: url("/media/img/ajax-loader.gif");
   width: 16px;
   height: 16px;
+}
+
+#sidebar p {
+  margin: 0 0 1em 0;
+  padding: 0;
+  font-size: 0.75em;  
 }
