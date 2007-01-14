@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+import urlparse
 
 
 class UserAsset(models.Model):
@@ -42,6 +43,20 @@ class Network(models.Model):
     
     def __str__(self):
         return self.description
+
+    def getHost(self, requiredScheme):
+        # We don't use urlparse here, since it doesn't
+        # understand arbitrary URI schemes. For example:
+        #
+        #   >>> urlparse.urlsplit("irc://foo/bar")
+        #   ('irc', '', '//foo/bar', '', '')
+        #
+        scheme, remainder = self.uri.split("://", 1)
+        netloc = remainder.split("/", 1)[0]
+        if scheme != requiredScheme:
+            raise ValueError("The URI scheme %r is not supported. Expected %r." % (
+                scheme, requiredScheme))
+        return netloc
 
     class Admin:
         list_display = ('uri', 'description', 'reviewed_by_admin', 'created_by')

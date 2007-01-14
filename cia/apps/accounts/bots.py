@@ -4,27 +4,6 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
-from twisted.spread import pb
-from twisted.internet import reactor
-from twisted.python import failure
-
-
-###########################
-#    Bot-server Client    #
-###########################
-
-def block(d):
-    """Block on a deferred, resolving it into a value or an exception."""
-    while not d.called:
-        reactor.iterate()
-    if isinstance(d.result, failure.Failure):
-        d.result.raiseException()
-    return d.result
-
-def getBotServer():
-    factory = pb.PBClientFactory()
-    reactor.connectUNIX(settings.CIA_BOT_SOCKET, factory)
-    return block(factory.getRootObject())
 
 
 ###########################
@@ -137,9 +116,10 @@ def bot(request, asset_type, asset_id):
     bot = user_asset.asset
 
     form = EditBotForm(request.POST or bot.__dict__)
-    ctx['form'] = form
 
-    server = getBotServer()
-    ctx['server'] = block(server.callRemote('getTotals'))
-
+    ctx.update({
+        'form': form,
+        'network_host': bot.network.getHost('irc'),
+        'channel': bot.location,
+        })
     return render_to_response('accounts/bot.html', ctx)

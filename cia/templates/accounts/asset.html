@@ -1,6 +1,14 @@
 {% extends 'layout_account.html' %}
 
-{% block columns %}
+{% block main-columns %}
+<div class="c3">
+{% block c3 %}{% endblock %}
+</div>
+{% endblock %}
+
+{% block nav-columns %}
+{{ block.super }}
+
 <ul class="c2">
 {% if add %}
   <li class="active"><div class="add-icon"></div> Add {{ asset_type_name }}...</li>
@@ -20,8 +28,4 @@
 {% endfor %}
 {% endblock %}
 </ul>
-
-<div class="c3">
-{% block c3 %}{% endblock %}
-</div>
 {% endblock %}
