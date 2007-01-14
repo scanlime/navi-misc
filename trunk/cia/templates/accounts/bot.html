@@ -22,26 +22,67 @@
 {% endfor %}
 
 <div id="tabs-and-sidebar">
+<form class="narrow" action="{{ form_path }}" method="post">
 
   <ul class="tabset_tabs">
-     <li><a href="#basic-filtering" class="active">Basic Filtering</a></li>
-     <li><a href="#advanced-filtering">Advanced Filtering</a></li>
-     <li><a href="#ownership">Ownership</a></li>
+    <li><a href="#basic-filtering" class="active">Basic Filtering</a></li>
+    <li><a href="#advanced-filtering">Advanced Filtering</a></li>
+    <li><a href="#ownership">Ownership</a></li>
   </ul>
 
   <div id="basic-filtering" class="tabset_content">
-     <h2 class="tabset_label">Basic Filtering</h2>
-     Tab 1 Content
+    <h2 class="tabset_label">Basic Filtering</h2>
+
+    <div class="form-row">
+      <input type="radio" class="radio" name="filter_type" value="inactive" id="id_ft_inactive" />
+      <label class="radio" for="id_ft_inactive">Inactive</label>
+      <div class="radio">
+	<p class="note">
+	  The bot will be disabled. All settings will be preserved,
+	  so you can easily re-enable the bot at any time.
+	</p>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <input type="radio" class="radio" name="filter_type" value="project" id="id_ft_project" />
+      <label class="radio" for="id_ft_project">Filter by project</label>
+      <div class="radio">
+	<p class="note">
+	  The bot will report commits to any of the following projects.
+	  Please list one project name per line. The names here should match
+	  the names set in the CIA client scripts for your projects.
+	</p>
+	<textarea name="project_list"></textarea>
+	<p class="note">
+          <input type="checkbox" class="checkbox" name="project_prefix" id="id_project_prefix" />
+          <label class="checkbox" for="id_project_prefix">Prefix each commit with a project name</label>
+	</p>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <input type="radio" class="radio" name="filter_type" value="custom" id="id_ft_custom" />
+      <label class="radio" for="id_ft_custom">Custom filter</label>
+      <div class="radio">
+	<p class="note">
+	  You can define and edit a custom filter using the
+	  <a href="#advanced-filtering">Advanced Filtering</a> tab.
+	</p>
+      </div>
+    </div>
   </div>
 
   <div id="advanced-filtering" class="tabset_content">
-     <h2 class="tabset_label">Advanced Filtering</h2>
-     Tab 2 Content
+    <h2 class="tabset_label">Advanced Filtering</h2>
+    <textarea name="ruleset" id="ruleset-editor"></textarea>
   </div>
 
   <div id="ownership" class="tabset_content">
-     <h2 class="tabset_label">Ownership</h2>
-     Tab 3 Content
+    <h2 class="tabset_label">Ownership</h2>
+    <p>
+      Coming soon
+    </p>
   </div>
 
   <div id="sidebar">
@@ -50,6 +91,11 @@
      <div id="bot-status-message"></div>
   </div>
 
+  <div class="submit-row">
+    <div>&raquo;</div> <input type="submit" name="basic_filter" value="Save" />
+  </div>
+
+</form>
 </div>
 
 <script type="text/javascript">
