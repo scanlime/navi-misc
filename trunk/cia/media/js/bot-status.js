@@ -173,7 +173,7 @@ BotStatus.updateData = function()
     var callback = {
 	success: responseSuccess,
 	failure: responseFailure,
-	timeout: 15000,
+	timeout: 15000
     };
     
     self._request = YAHOO.util.Connect.asyncRequest('GET', this.url, callback);

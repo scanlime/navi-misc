@@ -40,6 +40,7 @@
   padding: 0.5em 0 0 0;
   margin: 2px 11em 0 0;
   display: none;
+  height: 1%;  /* IE6 */
 }
 
 .tabset_label {
