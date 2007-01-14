@@ -1,36 +1,42 @@
 {% extends 'layout_base.html' %}
 {% load account_nav %}
 
-{% block stylesheet %}account.css{% endblock %}
+{% block stylesheets %}
+{{ block.super }}
+  <link href="/media/css/account.css" type="text/css" rel="stylesheet" />
+{% endblock %}
+
 {% block page_title %}Your Account{% endblock %}
 {% block head_title %}Your Account{% endblock %}
 
 {% block content %}
 <div class="columns">
 
+{% block main-columns %}{% endblock %}
+
+{% block nav-columns %}
 <ul class="c1">
-{% block c1 %}
+  {% block c1 %}
 
-{% if profile %}
-  <li class="active">Profile</li>
-{% else %}
-  <li><a href="/account/">Profile</a></li>
-{% endif %}
-
-<li class="spacer"></li>
-
-{% for type in asset_types %}
-  {% if type.is_current %}
-    <li class="active">{{ type.verbose_name_plural|capfirst }} {{ type.count|paren }}</li>
+  {% if profile %}
+    <li class="active">Profile</li>
   {% else %}
-    <li><a href="/account/{{ type.asset_type }}/{{ type.default_id }}">{{ type.verbose_name_plural|capfirst }}
-        {{ type.count|paren }}</a></li>
+    <li><a href="/account/">Profile</a></li>
   {% endif %}
-{% endfor %}
 
+  <li class="spacer"></li>
+
+  {% for type in asset_types %}
+    {% if type.is_current %}
+      <li class="active">{{ type.verbose_name_plural|capfirst }} {{ type.count|paren }}</li>
+    {% else %}
+      <li><a href="/account/{{ type.asset_type }}/{{ type.default_id }}">{{ type.verbose_name_plural|capfirst }}
+	  {{ type.count|paren }}</a></li>
+    {% endif %}
+  {% endfor %}
 {% endblock %}
 </ul>
+{% endblock %}
 
-{% block columns %}{% endblock %}
 </div>
 {% endblock %}
