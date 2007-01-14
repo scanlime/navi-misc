@@ -132,11 +132,12 @@ BotStatus.showError = function(code)
     this.div_message.innerHTML = "<p>Error checking bot status! (" + code + ")</p>";
 
     /*
-     * We'll automatically retry if this appears to be a server error.
-     * It may be something transient, like a daemon restart or an
+     * We'll automatically retry if this appears to be a server error,
+     * or if it was a network error while contacting the server.  It
+     * may be something transient, like a daemon restart or an
      * overloaded proxy.
      */
-    if (code >= 500) {
+    if (code <= 0 || code >= 500) {
 	this.scheduleDataUpdate(60);
     }
 };
@@ -171,7 +172,8 @@ BotStatus.updateData = function()
     
     var callback = {
 	success: responseSuccess,
-	failure: responseFailure
+	failure: responseFailure,
+	timeout: 15000,
     };
     
     self._request = YAHOO.util.Connect.asyncRequest('GET', this.url, callback);
