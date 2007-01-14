@@ -62,6 +62,61 @@ def login(request, next_page, template_name="accounts/login.html"):
         'login_url' : settings.LOGIN_URL,
         }))
 
+class RegistrationForm(forms.Form):
+    username = forms.RegexField(r"^[a-zA-Z0-9_\-\.]*$", max_length=30, error_message='Only A-Z, 0-9, "_", "-", and "." allowed.')
+    password1 = forms.CharField(min_length=5, max_length=30, widget=forms.PasswordInput)
+    password2 = forms.CharField(widget=forms.PasswordInput)
+    email = forms.EmailField()
+
+    def clean_password2(self):
+        if 'password1' in self.clean_data:
+            if self.clean_data['password1'] != self.clean_data['password2']:
+                raise forms.ValidationError('Passwords must match')
+        return self.clean_data['password2']
+
+    def save(self):
+        if not self.errors:
+            d = dict((k, v.encode("utf8")) for k, v in self.clean_data.iteritems())
+            try:
+                user = auth.models.User.objects.create_user(d['username'],
+                                                            d['email'],
+                                                            d['password1'])
+                return user
+            except:
+                # We check for duplicate users here instead of clean, since it's
+                # possible that two users could race for a name.
+                if get_user(username=d['username']):
+                    self.errors['username'] = forms.util.ErrorList(["Sorry, this username is taken."])
+                else:
+                    raise
+
+def register(request):
+    redirect_to = request.REQUEST.get(auth.REDIRECT_FIELD_NAME, '')
+
+    if request.POST:
+        form = RegistrationForm(request.POST)
+
+        if not request.session.test_cookie_worked():
+            form.errors['submit'] = forms.util.ErrorList(["Cookies must be enabled."])
+
+        if form.is_valid():
+            user = form.save()
+            if user:
+                user = auth.authenticate(username=form.clean_data['username'],
+                                         password=form.clean_data['password1'])
+                assert user
+                auth.login(request, user)
+                request.session.delete_test_cookie()
+
+                if not redirect_to or '://' in redirect_to or ' ' in redirect_to:
+                    redirect_to = '/account/'
+                return HttpResponseRedirect(redirect_to)
+    else:
+        form = RegistrationForm()
+
+    request.session.set_test_cookie()
+    return render_to_response('accounts/register.html', RequestContext(request, {'form': form}))
+
 @login_required
 def profile(request):
     box = request.user.recipe_box.all()
