@@ -6,6 +6,32 @@ from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 
 
+def get_channel_from_location(location):
+    """The channel names used in irc:// URIs have
+       an implicit '#' at the beginning. This function
+       emulates the backend's behaviour: add a single '#'
+       if no prefix is present, but if the channel already
+       has a prefix, leave it intact.
+       """
+    if location.startswith('#'):
+        return location
+    else:
+        return '#' + location
+
+def normalize_channel_to_location(channel):
+    """The backend's irc:// URIs support multiple
+       representations of any one channel, since the
+       leading '#' is optional. This function normalizes
+       a channel into the format used by all previous
+       admin tools, to prevent compatibility problems
+       between rulesets.
+       """
+    if channel.startswith('#') and not channel.startswith('##'):
+        return channel[1:]
+    else:
+        return channel
+
+
 ###########################
 #        Add Bot          #
 ###########################
@@ -35,7 +61,7 @@ class MultiForm:
         inst.full_clean()
         self.errors.update(inst.errors)
         self.data.update(inst.data.items())
-        if inst.clean_data:
+        if hasattr(inst, 'clean_data'):
             self.clean_data.update(inst.clean_data.items())
 
 def validate_network(form, field_name='network'):
@@ -50,7 +76,7 @@ def add_bot(request, asset_type):
 
     if request.POST:
         form.validate(AddBotForm)
-        if form.clean_data.get('network') == '_other':
+        if form.data.get('network') == '_other':
             form.validate(AddNetworkForm)
             network = None
         else:
@@ -71,16 +97,13 @@ def add_bot(request, asset_type):
                                     created_by = request.user),
                     )[0]
 
-            # Add the "#" in front of the channel, if necessary
-            channel = form.clean_data['channel']
-            if channel[0] not in '#&':
-                channel = '#' + channel
+            location = normalize_channel_to_location(form.clean_data['channel'])
 
             # Now look up a matching bot. We might have to create this too.
             bot = models.Bot.objects.get_or_create(
                 network = network,
-                location__iexact = channel,
-                defaults = dict(location=channel),
+                location__iexact = location,
+                defaults = dict(location=location),
                 )[0]
 
             # Finally, create a new UserAsset.
@@ -120,6 +143,6 @@ def bot(request, asset_type, asset_id):
     ctx.update({
         'form': form,
         'network_host': bot.network.getHost('irc'),
-        'channel': bot.location,
+        'channel': get_channel_from_location(bot.location),
         })
     return render_to_response('accounts/bot.html', ctx)

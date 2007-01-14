@@ -32,7 +32,7 @@ DATABASE_PORT = ''             # Set to empty string for default. Not used with 
 # server.
 #
 CIA_RPC_URL = 'http://localhost:3910'
-CIA_KEY_FILE = os.path.expanduser('~/.cia_key')
+CIA_KEY = open(os.path.expanduser('~/.cia_key')).read()
 CIA_BOT_SOCKET = os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'bots.socket')
 
 # Local time zone for this installation. All choices can be found here:

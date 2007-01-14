@@ -34,8 +34,8 @@
     <h2 class="tabset_label">Basic Filtering</h2>
 
     <div class="form-row">
-      <input type="radio" class="radio" name="filter_type" value="inactive" id="id_ft_inactive" />
-      <label class="radio" for="id_ft_inactive">Inactive</label>
+      <input type="radio" class="radio" name="filter_mode" value="inactive" id="id_fm_inactive" />
+      <label class="radio" for="id_fm_inactive">Inactive</label>
       <div class="radio">
 	<p class="note">
 	  The bot will be disabled. All settings will be preserved,
@@ -45,8 +45,8 @@
     </div>
 
     <div class="form-row">
-      <input type="radio" class="radio" name="filter_type" value="project" id="id_ft_project" />
-      <label class="radio" for="id_ft_project">Filter by project</label>
+      <input type="radio" class="radio" name="filter_mode" value="project" id="id_fm_project" />
+      <label class="radio" for="id_fm_project">Filter by project</label>
       <div class="radio">
 	<p class="note">
 	  The bot will report commits to any of the following projects.
@@ -55,15 +55,15 @@
 	</p>
 	<textarea name="project_list"></textarea>
 	<p class="note">
-          <input type="checkbox" class="checkbox" name="project_prefix" id="id_project_prefix" />
-          <label class="checkbox" for="id_project_prefix">Prefix each commit with a project name</label>
+          <input type="checkbox" class="checkbox" name="show_project_names" id="id_show_project_names" />
+          <label class="checkbox" for="id_show_project_names">Prefix each commit with its project name</label>
 	</p>
       </div>
     </div>
 
     <div class="form-row">
-      <input type="radio" class="radio" name="filter_type" value="custom" id="id_ft_custom" />
-      <label class="radio" for="id_ft_custom">Custom filter</label>
+      <input type="radio" class="radio" name="filter_mode" value="custom" id="id_fm_custom" />
+      <label class="radio" for="id_fm_custom">Custom filter</label>
       <div class="radio">
 	<p class="note">
 	  You can define and edit a custom filter using the
