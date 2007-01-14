@@ -30,13 +30,31 @@ class UserAsset(models.Model):
     class Admin:
         pass
 
+
+class NetworkManager(models.Manager):
+    def importNetworks(self):
+        """Import all network definitions from LibCIA into the database."""
+        from cia.LibCIA.IRC import Network
+        for name, obj in Network.__dict__.iteritems():
+            if (type(obj) is type(Network.BaseNetwork)
+                and issubclass(obj, Network.BaseNetwork)
+                and obj.alias):
+
+                net = self.get_or_create(uri = "irc://%s/" % obj.alias)[0]
+                net.description = name
+                net.reviewed_by_admin = True
+                net.created_by = None
+                net.save()
+
 class Network(models.Model):
+    objects = NetworkManager()
+
     uri = models.CharField(maxlength=128)
     description = models.CharField(maxlength=200)
 
     is_popular = models.BooleanField(default=False)
     reviewed_by_admin = models.BooleanField(default=False)
-    created_by = models.ForeignKey(User)
+    created_by = models.ForeignKey(User, null=True)
     date_added = models.DateTimeField(auto_now_add=True)
 
     def id_string(self):
@@ -62,6 +80,7 @@ class Network(models.Model):
     class Admin:
         list_display = ('uri', 'description', 'reviewed_by_admin', 'created_by')
 
+
 class StatsTarget(models.Model):
     path = models.CharField(maxlength=255)
     # Metadata goes here...
@@ -71,6 +90,7 @@ class StatsTarget(models.Model):
 
     class Admin:
         pass
+
 
 class AssetManager(models.Manager):
     # A list of all Asset models, in the order they were created.
@@ -116,6 +136,13 @@ FILTER_INACTIVE = 1    # No ruleset
 FILTER_CUSTOM = 2
 FILTER_PROJECT_LIST = 3
 
+filter_mode_choices = (
+    (FILTER_UNKNOWN,      'unknown'),
+    (FILTER_INACTIVE,     'inactive'),
+    (FILTER_CUSTOM,       'custom'),
+    (FILTER_PROJECT_LIST, 'project list'),
+    )
+
 class Bot(models.Model):
     objects = AssetManager()
     assets = models.GenericRelation(UserAsset)
@@ -123,20 +150,16 @@ class Bot(models.Model):
     network = models.ForeignKey(Network)
     location = models.CharField(maxlength=64, db_index=True)
 
-    filterMode = models.PositiveSmallIntegerField(choices=(
-        (FILTER_UNKNOWN,      'unknown'),
-        (FILTER_INACTIVE,     'inactive'),
-        (FILTER_CUSTOM,       'custom'),
-        (FILTER_PROJECT_LIST, 'project list'),
-        ), default=FILTER_UNKNOWN)
+    filter_mode = models.PositiveSmallIntegerField(
+        choices=filter_mode_choices, default=FILTER_UNKNOWN)
 
     # For FILTER_CUSTOM. This is not a complete XML document,
     # just the contents of a <ruleset> element.
-    customRuleset = models.TextField("Custom ruleset", blank=True)
+    custom_ruleset = models.TextField("Custom ruleset", blank=True)
 
     # For FILTER_PROJECT_LIST
-    projectList = models.TextField("Project list", blank=True)
-    showProjectNames = models.BooleanField("Show project names", default=False)
+    project_list = models.TextField("Project list", blank=True)
+    show_project_names = models.BooleanField("Show project names", default=False)
 
     def getURI(self):
         s = self.network.uri
@@ -151,26 +174,30 @@ class Bot(models.Model):
            Right now the only task this performs is to store the
            server's ruleset if filterMode is 'unknown'.
            """
-        if self.filterMode == FILTER_UNKNOWN:
+        if self.filter_mode == FILTER_UNKNOWN:
             server = xmlrpclib.ServerProxy(settings.CIA_RPC_URL)
             ruleset = server.ruleset.getRuleset(self.getURI())
 
             if ruleset:
                 # XXX: We should try to reduce the ruleset to one of
                 #      the other FILTER_* modes if possible.
-                self.filterMode = FILTER_CUSTOM
-                self.customRuleset = ruleset
+                self.filter_mode = FILTER_CUSTOM
+                self.custom_ruleset = ruleset
                 self.save()
 
             else:
-                self.filterMode = FILTER_INACTIVE
+                self.filter_mode = FILTER_INACTIVE
                 self.save()
 
     def syncToServer(self):
         """Generate a ruleset according to this bot's filter
            settings, and upload that ruleset to the RPC server.
            """
-        ruleset = '<ruleset uri="%s">\n    <return/></ruleset>' % self.getURI()
+        if self.filter_mode == FILTER_INACTIVE:
+            ruleset = None
+
+        else:
+            ruleset = '<ruleset uri="%s">\n    <return/>\n</ruleset>' % self.getURI()
         
         server = xmlrpclib.ServerProxy(settings.CIA_RPC_URL)
         server.ruleset.store(settings.CIA_KEY, ruleset)
