@@ -137,7 +137,7 @@ BotStatus.showError = function(code)
      * overloaded proxy.
      */
     if (code >= 500) {
-	this.scheduleDataUpdate(60.0);
+	this.scheduleDataUpdate(60);
     }
 };
 
