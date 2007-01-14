@@ -72,7 +72,9 @@
 
   <div id="advanced-filtering" class="tabset_content">
     <h2 class="tabset_label">Advanced Filtering</h2>
-    {{ form.custom_ruleset }}
+    <div id="ruleset-editor">
+      {{ form.custom_ruleset }}
+    </div>
   </div>
 
   <div id="ownership" class="tabset_content">
@@ -100,6 +102,25 @@
 <script type="text/javascript">
   TabtasticInit();
   BotStatus.init("/api/irc-bot-requests/{{ network_host|urlencode }}/{{ channel|urlencode }}/status/");
+
+  var autoSelectMode = function(mode, widgetId) {
+    var checkbox = document.getElementById("id_filter_mode_" + mode);
+    var widget = document.getElementById(widgetId);
+
+    AttachEvent(widget, "change", function() {
+      checkbox.checked = true;
+    });
+
+    AttachEvent(widget, "keypress", function(e) {
+      /* Ignore tabs */
+      if (e.keyCode != 9) {
+        checkbox.checked = true;
+      }
+    });
+  }    
+
+  autoSelectMode("{{ FILTER.CUSTOM }}", "id_custom_ruleset");
+  autoSelectMode("{{ FILTER.PROJECT_LIST }}", "id_project_list");
 </script>
 
 {% endblock %}

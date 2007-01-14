@@ -360,11 +360,16 @@ form.narrow .submit-row input {
   font-size: 0.75em;  
 }
 
-#id_custom_ruleset {
+#ruleset-editor {  /* IE6 */
+  width: 100%;
+  margin: 0 0 1em 0;
+}
+
+#ruleset-editor textarea {
   width: 100%;
   height: 30em;
   background: #f0f0f0;
   border: 1px solid #aaa;
   padding: 0;
-  margin: 0 0 1em 0;
+  margin: 0;
 }

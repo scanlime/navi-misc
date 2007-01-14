@@ -198,6 +198,7 @@ def bot(request, asset_type, asset_id):
 
     ctx.update({
         'form': form,
+        'FILTER': models.FILTER,
         'modes': RadioChoices(form['filter_mode'], models.FILTER),
         'network_host': bot.network.getHost('irc'),
         'channel': get_channel_from_location(bot.location),
