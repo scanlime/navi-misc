@@ -9,7 +9,7 @@
 //***         1.0.3  20040501   Removed IE5Mac/Opera7 compat. (see http://phrogz.net/JS/Tabstatic/index.html#notes)
 //***         1.0.4  20040521   Added scroll-back hack to prevent scrolling down to page anchor. Then commented out :)
 
-AttachEvent(window,'load',function(){
+var TabtasticInit = function(){
 	var tocTag='ul',tocClass='tabset_tabs',tabTag='a',contentClass='tabset_content';
 
 
@@ -89,4 +89,4 @@ AttachEvent(window,'load',function(){
 		AddStyleSheet('/media/css/tabtastic.css',0);
 	}
 	Init();
-},false);
+};
