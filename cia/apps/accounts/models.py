@@ -1,7 +1,8 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-import urlparse
+import urlparse, xmlrpclib
 
 
 class UserAsset(models.Model):
@@ -12,9 +13,9 @@ class UserAsset(models.Model):
     asset = models.GenericForeignKey()
 
     access = models.PositiveSmallIntegerField(choices=(
-        (1, 'Community'),
-        (2, 'Exclusive'),
-        (3, 'Trusted'),
+        (1, 'community'),
+        (2, 'exclusive'),
+        (3, 'trusted'),
         ), default=1)
 
     date_added = models.DateTimeField(auto_now_add=True)
@@ -109,6 +110,12 @@ class Author(models.Model):
     class Admin:
         pass
 
+
+FILTER_UNKNOWN = 0     # Need to query server for ruleset
+FILTER_INACTIVE = 1    # No ruleset  
+FILTER_CUSTOM = 2
+FILTER_PROJECT_LIST = 3
+
 class Bot(models.Model):
     objects = AssetManager()
     assets = models.GenericRelation(UserAsset)
@@ -116,15 +123,57 @@ class Bot(models.Model):
     network = models.ForeignKey(Network)
     location = models.CharField(maxlength=64, db_index=True)
 
-    is_active = models.BooleanField("Bot is active", default=False)
-    useCustomRuleset = models.BooleanField("Use custom ruleset", default=False)
+    filterMode = models.PositiveSmallIntegerField(choices=(
+        (FILTER_UNKNOWN,      'unknown'),
+        (FILTER_INACTIVE,     'inactive'),
+        (FILTER_CUSTOM,       'custom'),
+        (FILTER_PROJECT_LIST, 'project list'),
+        ), default=FILTER_UNKNOWN)
+
+    # For FILTER_CUSTOM. This is not a complete XML document,
+    # just the contents of a <ruleset> element.
     customRuleset = models.TextField("Custom ruleset", blank=True)
+
+    # For FILTER_PROJECT_LIST
+    projectList = models.TextField("Project list", blank=True)
     showProjectNames = models.BooleanField("Show project names", default=False)
-    projects = models.ManyToManyField(Project, blank=True)
-    authors = models.ManyToManyField(Author, blank=True)
 
     def getURI(self):
-        return "%s/%s" % (self.network.uri, self.location)
+        s = self.network.uri
+        if not s.endswith('/'):
+            s += '/'
+
+        # The CIA backend will accept 
+        return s + self.location
+
+    def syncFromServer(self):
+        """Update this Bot from the RPC server, if necessary.
+           Right now the only task this performs is to store the
+           server's ruleset if filterMode is 'unknown'.
+           """
+        if self.filterMode == FILTER_UNKNOWN:
+            server = xmlrpclib.ServerProxy(settings.CIA_RPC_URL)
+            ruleset = server.ruleset.getRuleset(self.getURI())
+
+            if ruleset:
+                # XXX: We should try to reduce the ruleset to one of
+                #      the other FILTER_* modes if possible.
+                self.filterMode = FILTER_CUSTOM
+                self.customRuleset = ruleset
+                self.save()
+
+            else:
+                self.filterMode = FILTER_INACTIVE
+                self.save()
+
+    def syncToServer(self):
+        """Generate a ruleset according to this bot's filter
+           settings, and upload that ruleset to the RPC server.
+           """
+        ruleset = '<ruleset uri="%s">\n    <return/></ruleset>' % self.getURI()
+        
+        server = xmlrpclib.ServerProxy(settings.CIA_RPC_URL)
+        server.ruleset.store(settings.CIA_KEY, ruleset)
 
     def __str__(self):
         return "%s on %s" % (self.location, self.network)
