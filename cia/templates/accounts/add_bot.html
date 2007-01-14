@@ -50,20 +50,20 @@ are formatted.
 
     <div class="form-row">
       <label for="id_netname">New network name:</label>
-      <input type="text" name="netname" id="id_netname" value="{{ form.data.netname|escape }}"/>
+      <input type="text" class="text" name="netname" id="id_netname" value="{{ form.data.netname|escape }}"/>
       <div class="error">{{ form.errors.netname.0 }}</div>
     </div>
 
     <div class="form-row">
       <label for="id_server">Server:</label>
-      <input type="text" name="server" id="id_server" value="{{ form.data.server|escape }}"/>
+      <input type="text" class="text" name="server" id="id_server" value="{{ form.data.server|escape }}"/>
       <div class="error">{{ form.errors.server.0 }}</div>
     </div>
   </div>
 
   <div class="form-row">
     <label for="id_channel">Channel:</label>
-    <input type="text" name="channel" id="id_channel" value="{{ form.data.channel|escape }}"/>
+    <input type="text" class="text" name="channel" id="id_channel" value="{{ form.data.channel|escape }}"/>
     <div class="error">{{ form.errors.channel.0 }}</div>
   </div>
 

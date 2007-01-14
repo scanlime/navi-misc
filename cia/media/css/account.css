@@ -135,6 +135,13 @@ form {
   margin: 0;
 }
 
+p.note {
+  color: #666;
+  font-size: 0.75em;
+  padding: 0em;
+  margin: 0.5em 0em;
+}
+
 .message {
   position: relative;
   margin: 0.25em 0em;
@@ -186,13 +193,41 @@ legend {
   top: 0.25em;
 }
 
-.form-row input {
+.form-row label.radio {
+  color: black;
+  position: static;
+  left: 0;
+  top: 0;
+}
+
+.form-row label.checkbox {
+  color: black;
+  position: static;
+  left: 0;
+  top: 0;
+}
+
+.form-row input.text {
+  width: 20em;
   font-size: 0.75em;
   margin: 0.25em 0;
-  width: 20em;
   background: #f0f0f0;
   border: 1px solid #aaa;
   padding: 0.3em;
+}
+
+.form-row div.radio {
+  margin: 0 1em 1em 3em;
+  padding: 0;
+}
+
+.form-row div.radio textarea {
+  margin: 0;
+  width: 17em;
+  height: 10em;
+  background: #f0f0f0;
+  border: 1px solid #aaa;
+  padding: 0;
 }
 
 .form-row select {
@@ -254,6 +289,36 @@ legend {
   padding: 0em 1em;
 }
 
+form.narrow .form-row {
+  position: relative;
+  padding: 0;
+  margin: 0.5em 0em;
+  height: 1%;  /* IE6 */
+}
+
+form.narrow .submit-row {
+  position: relative;
+  height: 1%;  /* IE6 */
+}
+
+form.narrow .submit-row div {
+  font-size: 1em;
+  font-weight: bold;
+  position: absolute;
+  left: 0.5em;
+  top: 0.3em;
+  padding: 0;
+  margin: 0;
+  color: red;
+}
+
+form.narrow .submit-row input {
+  font-size: 1em;
+  margin: 0.25em 0 0.25em 1.5em;
+  bottom: 0;
+  padding: 0em 1em;
+}
+
 #tabs-and-sidebar {
   position: relative;
   padding: 0;
@@ -293,4 +358,13 @@ legend {
   margin: 0 0 1em 0;
   padding: 0;
   font-size: 0.75em;  
+}
+
+#ruleset-editor {
+  width: 100%;
+  height: 30em;
+  background: #f0f0f0;
+  border: 1px solid #aaa;
+  padding: 0;
+  margin: 0 0 1em 0;
 }
