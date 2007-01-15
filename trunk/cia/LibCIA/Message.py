@@ -434,18 +434,26 @@ class Formatter:
         """Given a FormatterArgs instance, return a formatted representation of the message."""
         pass
 
-    def loadParametersFrom(self, xml):
+    def loadParametersFrom(self, xml, unused=None):
         """This is given a <formatter> element possibly containing
            extra parameters for the formatter to process and store.
            Any problems should be signalled with an XML.XMLValidityError.
 
            By default, this tries to find a param_* handler for each
            element it comes across.
+
+           Returns a set object, containing the names of all unused
+           parameters. This allows callers, during validation, to look
+           for misspelled or otherwise unused elements.
            """
+        unused = set()
         for tag in XML.getChildElements(xml):
             f = getattr(self, 'param_'+tag.nodeName, None)
             if f:
                 f(tag)
+            else:
+                unused.add(tag.nodeName)
+        return unused
 
 
 class MarkAsHidden(str):
@@ -484,6 +492,11 @@ class ModularFormatter(Formatter):
                 return
 
         self.componentTree = tree
+
+        # Validate the component tree by parsing a null message once.
+        # Any errors in the components or their arguments should
+        # trigger XMLValidityErrors at this point.
+        self.formatMessage(Message("<message/>"))
 
     def format(self, args):
         """The formatter entry point. This just finds the current component
@@ -623,23 +636,30 @@ class FormatterFactory:
         try:
             cls = self.nameMap[name]
         except KeyError:
-            raise NoFormatterError("No such formatter %r" % name)
+            raise NoFormatterError('No such formatter "%s"' % name)
         return cls()
 
-    def findMedium(self, medium, message=None):
-        """Find a formatter for the given medium and matching the given message.
-           If None is given as the message, this will only validate the medium
-           and return None if the medium itself is fine.
-           """
-        try:
-            l = self.mediumMap[medium]
-        except KeyError:
-            raise NoFormatterError("No formatters for the %r medium" % medium)
-        if message:
-            for cls in l:
-                if getCachedFilter(cls.filter)(message):
-                    return cls()
-            raise NoFormatterError("No matching formatters for the %r medium" % medium)
+    def _getFormattersForMedium(self, medium):
+        """Return a non-empty list with all formatters for a particular medium."""
+        l = self.mediumMap.get(medium)
+        if l:
+            return l
+        else:
+            raise NoFormatterError('No formatters for the "%s" medium' % medium)
+
+    def findMedium(self, medium, message):
+        """Find a formatter for the given medium and matching the given message."""
+        for cls in self._getFormattersForMedium(medium):
+            if getCachedFilter(cls.filter)(message):
+                return cls()
+        raise NoFormatterError('No matching formatters for the "%s" medium' % medium)
+
+    def _reportUnusedParameters(self, unused):
+        if unused:
+            l = [ '"%s"' % el for el in unused ]
+            l.sort()
+            raise XML.XMLValidityError(
+                "Some formatter parameters were not recognized: " + ", ".join(l))
 
     def fromXml(self, xml, message=None):
         """Create a formatter to match the given <formatter> element.
@@ -652,17 +672,33 @@ class FormatterFactory:
            """
         attrNames = [attr.name for attr in xml.attributes.values()]
 
+        # Load a single formatter, by name
         if attrNames == ['name']:
             f = self.findName(xml.getAttributeNS(None, 'name'))
+            self._reportUnusedParameters(f.loadParametersFrom(xml))
+            return f
 
-        elif attrNames == ['medium']:
-            f = self.findMedium(xml.getAttributeNS(None, 'medium'), message)
+        # Search for a matching formatter, by medium.  If we have no
+        # message to match, this will validate the parameters against
+        # all formatters for the medium.
+        if attrNames == ['medium']:
+            medium = xml.getAttributeNS(None, 'medium')
+            if message:
+                f = self.findMedium(medium, message)
+                f.loadParametersFrom(xml)
+                return f
+            else:
+                # Take the intersection of all formatters' unused parameters
+                unused = None
+                for cls in self._getFormattersForMedium(medium):
+                    next = cls().loadParametersFrom(xml)
+                    if unused is None:
+                        unused = next
+                    else:
+                        unused.intersection_update(next)
+                self._reportUnusedParameters(unused)
+                return
 
-        else:
-            raise XML.XMLValidityError("<formatter> must have either a 'name' attribute or a 'medium' attribute")
-
-        if f:
-            f.loadParametersFrom(xml)
-        return f
+        raise XML.XMLValidityError("<formatter> must have either a 'name' attribute or a 'medium' attribute")
 
 ### The End ###
