@@ -1,21 +1,51 @@
 To-do List
 ==========
 
+New Web Interface
+-----------------
+
+There is a new web interface under development, using Django. It will eventually
+replace the old web interface entirely, but it will first be deployed as a self-service
+interface for managing bots and metadata.
+
+Latest screenshot:
+
+- http://navi.cx/~micah/basic-filtering-1.png
+
+Must do before deployment:
+
+- Store change history for all assets. At the very least we need something descriptive
+  to users and complete enough that we can revert changes automatically. Ideally it would
+  also be space efficient. We should diff changes between rulesets. Internally this could
+  be implemented using a new Change object which, on commit, would write to the Model in
+  question and to that model's log.
+
+- At least minimal ownership control. Show all access levels, even if some are currently
+  disabled. Show other users who have access? If I do this, remember to audit all login
+  and registration text for guarantees over how username/fullname are used.
+
+- Add at least minimal documentation for rulesets. Some examples and a cheat sheet, if
+  not a full syntax manual.
+
+- Automatically size the ruleset editor textarea to fit the screen?
+
+- Profile performance with lighttpd and fastcgi in a production environment.
+
+  - Already started doing this on my laptop. Performance is impressive so far.
+
+  - It may be worthwhile to combine all static CSS and Javascript into a smaller number
+    of files, and remove extra whitespace. I can move the existing CSS/JS into media_src
+    and provide a Makefile or python script to regenerate the files in 'media'.
+
+
 Deep Changes
 ------------
-
-There are a few fairly large changes I'm working on under the hood, which will
-make other fixes much easier and improve general server stability and scalability.
 
 - Separate the HTTP frontend from the message delivery engine. The message delivery
   engine itself should be a separate daemon, preferably something that can be scaled
   well. This means more efficient algorithms for ruleset matching, and seamless
   interaction between multiple message delivery hosts. This daemon has been codenamed
   Esquilax_.
-
-- Once the HTTP frontend no longer has to handle message delivery, we can safely
-  have multiple processes/thread/hosts running the frontend. To make the web interface
-  more maintainable, I'd like to largely rewrite it in a framework like Django_.
 
 - The IRC bot server is another scalability and reliability bottleneck. I'd like the
   entire bot server to be a "disposable" daemon, which keeps all its connection state
@@ -27,7 +57,6 @@ a little disorganized, and subject to change. If you'd like to contribute to any
 these projects or you're curious how they work, please contact Micah_ directly.
 
 .. _Micah: mailto:micah@navi.cx
-.. _Django: http://djangoproject.com
 .. _Esquilax: http://zero.navi.cx/wiki/index.php/Esquilax
 .. _Caterpillar: http://zero.navi.cx/wiki/index.php/CaterpillarDaemon
 
@@ -66,8 +95,8 @@ Documentation
 .. _API Documentation: /doc/api/index
 
 
-Web Interface
--------------
+Old Web Interface
+-----------------
 
 - Make CIA more accessable to text browsers and non-CSS browsers. This probably
   means using some tricks like Plone does to have headings and links that are hidden when
