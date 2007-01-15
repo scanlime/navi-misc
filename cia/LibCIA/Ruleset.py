@@ -273,7 +273,7 @@ class Ruleset(XML.XMLFunction):
            message and result.
            """
         # Evaluate this once at parse-time so any silly errors
-        # like unknown formatters or mediums can be detected.
+        # like unknown formatters or media can be detected.
         Formatters.getFactory().fromXml(element)
 
         def rulesetFormatter(msg):
@@ -286,7 +286,7 @@ class Ruleset(XML.XMLFunction):
         """Check whether this element is a filter before giving up"""
         try:
             f = Message.Filter(element)
-        except XML.XMLValidityError:
+        except XML.UnknownElementError:
             # Nope, not a filter.. let XMLFunction give an error
             XML.XMLFunction.unknownElement(self, element)
 

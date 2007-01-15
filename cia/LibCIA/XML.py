@@ -109,8 +109,8 @@ class XMLObjectParser(XMLObject):
                 rootElement = self.xml
 
             if (not rootElement) or rootElement.nodeName != self.requiredRootElement:
-                raise XMLValidityError("Missing a required %r root element" %
-                                       self.requiredRootElement)
+                raise UnknownElementError("Missing a required %r root element" %
+                                          self.requiredRootElement)
 
         setattr(self, self.resultAttribute, self.parse(self.xml))
 
@@ -142,7 +142,7 @@ class XMLObjectParser(XMLObject):
 
     def unknownElement(self, element):
         """An unknown element was found, by default just generates an exception"""
-        raise XMLValidityError("Unknown element name in %s: %r" % (self.__class__.__name__, element.nodeName))
+        raise UnknownElementError("Invalid element in %s: '%s'" % (self.__class__.__name__, element.nodeName))
 
 
 class XMLFunction(XMLObjectParser):
@@ -163,6 +163,9 @@ class XMLValidityError(Exception):
        correspond with the document not being valid according to its schema,
        but we don't actually use a validating parser.
        """
+    pass
+
+class UnknownElementError(XMLValidityError):
     pass
 
 
@@ -358,6 +361,8 @@ htmlPrettyPrint = HTMLPrettyPrinter().parse
 # of the cache currently must be done manually with the debug console if necessary.
 xPathCache = {}
 
+enableXPathCache = True
+
 class XPath:
     """A precompiled XPath class that caches parsed XPaths in a global
        dictionary. This should help CIA a bit with load time and memory
@@ -365,11 +370,26 @@ class XPath:
        """
     def __init__(self, path, context=None):
         global xPathCache
+        global enableXPathCache
+
+        if enableXPathCache:
+            try:
+                self.compiled = xPathCache[path]
+            except KeyError:
+                self.compiled = self._compile(path)
+                xPathCache[path] = self.compiled
+        else:
+            self.compiled = self._compile(path)
+
+    def _compile(self, path):
+        # xpath.Compile() seems to have broken error handling-
+        # it's reporting syntax errors as RuntimeException.INTERNAL.
+        # Work around this by instantiating the parser directly.
         try:
-            self.compiled = xPathCache[path]
-        except KeyError:
-            self.compiled = xml.xpath.Compile(path)
-            xPathCache[path] = self.compiled
+            return xml.xpath.parser.new().parse(path)
+        except xml.xpath.yappsrt.SyntaxError, e:
+            raise XMLValidityError('XPath syntax error in "%s" at char %d: %s' % (
+                path, e.pos, e.msg))
 
     def queryForNodes(self, doc):
         """Query an XML DOM, returning the result set"""
