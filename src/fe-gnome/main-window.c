@@ -39,6 +39,7 @@
 #include "palette.h"
 #include "preferences.h"
 #include "userlist-gui.h"
+#include "taco-bar.h"
 #include "util.h"
 
 #include "conversation-panel.h"
@@ -131,6 +132,40 @@ static GtkActionEntry action_entries [] = {
 };
 
 void
+initialize_side_bar (void)
+{
+    	/* FIXME: The sidebar stuff still needs to be i18nified */
+/*    	GtkWidget *widget;
+
+	// Server Page
+	widget = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget),
+				        GTK_POLICY_AUTOMATIC,
+				        GTK_POLICY_AUTOMATIC);
+	gtk_container_add (GTK_CONTAINER (widget), gui.server_tree);
+//	ev_sidebar_add_page (EV_SIDEBAR (gui.side_bar), "servers", "Servers",
+//			widget);
+	gtk_container_add (GTK_CONTAINER (gui.navigation_expander), widget);
+	gtk_widget_show_all (gui.navigation_expander);
+
+	// User list page
+	widget = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget),
+				        GTK_POLICY_NEVER,
+				        GTK_POLICY_AUTOMATIC);
+	gtk_container_add (GTK_CONTAINER (widget), gui.userlist);
+//	ev_sidebar_add_page (EV_SIDEBAR (gui.side_bar), "users", "Users",
+//			     widget);
+	gtk_container_add (GTK_CONTAINER (gui.userlist_expander), widget);
+	printf("%x\n", gui.userlist_expander);
+	printf("%x\n", gui.navigation_expander);
+	gtk_widget_show_all (gui.userlist_expander);
+
+	// It's all good to go now
+//	ev_sidebar_set_current_page (EV_SIDEBAR (gui.side_bar), "servers");*/
+}
+
+void
 initialize_main_window (void)
 {
 	GtkWidget *close, *menu_vbox, *widget;
@@ -174,6 +209,9 @@ initialize_main_window (void)
 	GW(topic_hbox);
 	GW(topic_label);
 	GW(nick_button);
+//	GW(side_bar);
+	GW(navigation_expander);
+	GW(userlist_expander);
 #undef GW
 
 	/* Hook up accelerators for pgup/pgdn */
@@ -201,11 +239,6 @@ initialize_main_window (void)
 
 	/* Size group between users button and entry field */
 	group = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL);
-	gui.userlist_toggle = glade_xml_get_widget (gui.xml, "userlist_toggle");
-	g_signal_connect (G_OBJECT (gui.userlist_toggle), "toggled", G_CALLBACK (on_users_toggled), NULL);
-
-	gtk_button_set_image (GTK_BUTTON (gui.userlist_toggle), gtk_image_new_from_icon_name ("xchat-gnome-users", GTK_ICON_SIZE_MENU));
-	gtk_size_group_add_widget (group, gui.userlist_toggle);
 	widget = glade_xml_get_widget (gui.xml, "entry hbox");
 	gtk_size_group_add_widget (group, widget);
 	g_object_unref (group);
@@ -302,7 +335,7 @@ on_main_window_close (GtkWidget *widget, GdkEvent *event, gpointer data)
 	gui.quit = TRUE;
 
 	gtk_widget_hide (GTK_WIDGET (gui.dcc));
-	userlist_gui_hide ();
+/*	userlist_gui_hide ();*/
 	xchat_exit ();
 }
 
@@ -312,7 +345,7 @@ on_irc_quit_activate (GtkAction *action, gpointer data)
 	save_main_window ();
 	gtk_widget_hide (GTK_WIDGET (gui.main_window));
 	gtk_widget_hide (GTK_WIDGET (gui.dcc));
-	userlist_gui_hide ();
+/*	userlist_gui_hide ();*/
 	gui.quit = TRUE;
 	xchat_exit ();
 }
@@ -383,7 +416,7 @@ on_network_channels_activate (GtkAction *action, gpointer data)
 static void
 on_discussion_users_activate (GtkAction *action, gpointer data)
 {
-	userlist_gui_show ();
+//	userlist_gui_show ();
 }
 
 static void
@@ -579,13 +612,13 @@ on_users_toggled (GtkToggleButton *widget, gpointer user_data)
 {
 	gboolean toggled;
 
-	toggled = gtk_toggle_button_get_active (widget);
+/*	toggled = gtk_toggle_button_get_active (widget);
 
 	if (toggled) {
 		userlist_gui_show ();
 	} else {
 		userlist_gui_hide ();
-	}
+	}*/
 }
 
 void

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!-- Generated with glade3
+<!--Generated with glade3 3.0.2 on Sun Jan 14 16:19:09 2007 by lurgyman@llama
 	Version: 3.0.1
 	Date: Sat Oct 21 01:06:13 2006
 	User: david
@@ -27,7 +27,7 @@
             <child>
               <widget class="GtkLabel" id="nickname dialog label">
                 <property name="visible">True</property>
-                <property name="xalign">0.000000</property>
+                <property name="xalign">0</property>
                 <property name="label" translatable="yes">Change _nickname to:</property>
                 <property name="use_underline">True</property>
                 <property name="mnemonic_widget">nickname dialog entry</property>
@@ -107,8 +107,8 @@
                 <child>
                   <widget class="GtkAlignment" id="alignment1">
                     <property name="visible">True</property>
-                    <property name="xscale">0.000000</property>
-                    <property name="yscale">0.000000</property>
+                    <property name="xscale">0</property>
+                    <property name="yscale">0</property>
                     <child>
                       <widget class="GtkHBox" id="hbox1">
                         <property name="visible">True</property>
@@ -168,7 +168,7 @@
     <child>
       <widget class="GtkFrame" id="frame1">
         <property name="visible">True</property>
-        <property name="label_xalign">0.000000</property>
+        <property name="label_xalign">0</property>
         <property name="shadow_type">GTK_SHADOW_OUT</property>
         <child>
           <widget class="GtkScrolledWindow" id="scrolledwindow_userlist">
@@ -209,33 +209,97 @@
             <property name="can_focus">True</property>
             <property name="position">160</property>
             <child>
-              <widget class="GtkVBox" id="vbox51">
+              <widget class="GtkVBox" id="sidebar_box">
                 <property name="visible">True</property>
                 <property name="spacing">6</property>
                 <child>
-                  <widget class="GtkScrolledWindow" id="server channel list">
+                  <widget class="GtkVBox" id="navigation_expander">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                    <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                    <property name="shadow_type">GTK_SHADOW_IN</property>
+                    <child>
+                      <widget class="GtkToggleButton" id="navigation toggle">
+                        <property name="visible">True</property>
+                        <property name="relief">GTK_RELIEF_NONE</property>
+                        <property name="active">True</property>
+                        <child>
+                          <widget class="GtkHBox" id="hbox2">
+                            <property name="visible">True</property>
+                            <property name="spacing">6</property>
+                            <child>
+                              <widget class="GtkImage" id="image1">
+                                <property name="visible">True</property>
+                                <property name="stock">gnome-stock-text-bulleted-list</property>
+                              </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label2">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">_Navigation</property>
+                                <property name="use_underline">True</property>
+                              </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </widget>
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="expand">False</property>
+                      </packing>
+                    </child>
                     <child>
                       <placeholder/>
                     </child>
                   </widget>
                 </child>
                 <child>
-                  <widget class="GtkToggleButton" id="userlist_toggle">
+                  <widget class="GtkVBox" id="userlist_expander">
                     <property name="visible">True</property>
-                    <property name="sensitive">False</property>
-                    <property name="can_focus">True</property>
-                    <property name="label" translatable="yes">Users</property>
-                    <property name="relief">GTK_RELIEF_NONE</property>
-                    <property name="use_underline">True</property>
+                    <child>
+                      <widget class="GtkToggleButton" id="userlist toggle">
+                        <property name="visible">True</property>
+                        <property name="relief">GTK_RELIEF_NONE</property>
+                        <child>
+                          <widget class="GtkHBox" id="hbox3">
+                            <property name="visible">True</property>
+                            <property name="spacing">6</property>
+                            <child>
+                              <widget class="GtkImage" id="image2">
+                                <property name="visible">True</property>
+                                <property name="pixbuf">apps</property>
+                                <property name="stock">gtk-missing-image</property>
+                              </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label3">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">_Users</property>
+                                <property name="use_underline">True</property>
+                              </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </widget>
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="expand">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
                   </widget>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
                     <property name="position">1</property>
                   </packing>
                 </child>

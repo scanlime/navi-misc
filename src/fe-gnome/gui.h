@@ -43,9 +43,7 @@ typedef struct
 	PreferencesDialog *prefs_dialog;
 	DccWindow *dcc;
 	GtkExpander *topic_expander;
-	GtkWidget *userlist_window;
 	GtkWidget *userlist;
-	GtkWidget *userlist_toggle;
 	session *current_session;
 	gboolean initialized;
 	gboolean quit;
@@ -58,6 +56,10 @@ typedef struct
 	GtkWidget *topic_label;
 	GtkWidget *topic_hbox;
 	GtkWidget *nick_button;
+	GtkWidget *side_bar;
+
+	GtkWidget *navigation_expander;
+	GtkWidget *userlist_expander;
 
 	NavModel *tree_model;
 	NavTree *server_tree;
