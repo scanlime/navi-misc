@@ -35,6 +35,7 @@ typedef struct
 	GtkWidget *child;
 	GtkWidget *toggle;
 	GtkWidget *box;
+	GtkWidget *alignment;
 	TacoBar *taco_bar;
 } TacoBarEntry;
 
@@ -88,8 +89,9 @@ taco_bar_activate (TacoBar *taco_bar, TacoBarEntry *new_active)
 {
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (new_active->toggle), 1);
 	gtk_widget_set_sensitive (new_active->toggle, FALSE);
-	gtk_box_set_child_packing (GTK_BOX(new_active->box), new_active->child,
-				   TRUE, TRUE, 0, GTK_PACK_START);
+//	gtk_box_set_child_packing (GTK_BOX(new_active->box), new_active->child,
+//				   TRUE, TRUE, 0, GTK_PACK_START);
+	gtk_alignment_set (GTK_ALIGNMENT(new_active->alignment), 0, 0, 1, 1);
 	taco_bar->priv->active = new_active;
 }
 
@@ -100,8 +102,9 @@ taco_bar_deactivate_current (TacoBar *taco_bar)
 	
 	g_return_if_fail (old_active != NULL);
 
-	gtk_box_set_child_packing (GTK_BOX(old_active->box), old_active->child,
-				   FALSE, FALSE, 0, GTK_PACK_START);
+//	gtk_box_set_child_packing (GTK_BOX(old_active->box), old_active->child,
+//				   FALSE, FALSE, 0, GTK_PACK_START);
+	gtk_alignment_set (GTK_ALIGNMENT(old_active->alignment), 0, 0, 1, 0);
 	old_active = taco_bar->priv->active;
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (old_active->toggle), 0);
 	gtk_widget_set_sensitive (old_active->toggle, TRUE);
@@ -111,12 +114,19 @@ static void
 taco_bar_on_toggle (GtkWidget *widget,
 		    TacoBarEntry *entry)
 {
+	static char lock=0;
     	TacoBar *taco_bar = entry->taco_bar;
 
+	if (lock)
+	    return;
+
+	lock = 1;
 	g_return_if_fail (entry != taco_bar->priv->active);
 
 	taco_bar_deactivate_current (taco_bar);
 	taco_bar_activate (taco_bar, entry);
+	gtk_container_resize_children (GTK_CONTAINER(taco_bar));
+	lock = 0;
 }
 
 static void
@@ -157,11 +167,12 @@ taco_bar_set_active (TacoBar *taco_bar, const char *new_id)
 	g_return_if_fail (new_id != NULL);
 
 	new_active = g_hash_table_lookup (taco_bar->priv->entry_hash, new_id);
-	
+
 	g_return_if_fail (new_active != NULL);
 
 	taco_bar_deactivate_current (taco_bar);
 	taco_bar_activate (taco_bar, new_active);
+	gtk_container_resize_children (GTK_CONTAINER(taco_bar));
 }
 
 void
@@ -172,8 +183,8 @@ taco_bar_add_entry (TacoBar	*taco_bar,
 		   GtkWidget   	*child)
 {
 	GtkWidget *toggle;
-	GtkWidget *toggle_box;
 	GtkWidget *vbox;
+	GtkWidget *alignment;
     	TacoBarEntry *new_entry;
 	   
 	g_return_if_fail (IS_TACO_BAR (taco_bar));
@@ -182,25 +193,25 @@ taco_bar_add_entry (TacoBar	*taco_bar,
 	g_return_if_fail (GTK_IS_WIDGET (icon));
 	g_return_if_fail (GTK_IS_WIDGET (child));
 
-	// Create the pretty label text and pictures and stuff
-	toggle_box = gtk_hbox_new (FALSE, 3);
-	gtk_box_pack_start (GTK_BOX (toggle_box), icon, FALSE, FALSE, 0);
-	gtk_box_pack_start (GTK_BOX (toggle_box), gtk_label_new (title),
-			    TRUE, TRUE, 0);
+	gtk_box_set_homogeneous (GTK_BOX(taco_bar), FALSE);
 
 	// Create the actual toggle button
-	toggle = gtk_toggle_button_new ();
+	toggle = gtk_toggle_button_new_with_label (title);
+	gtk_button_set_image (GTK_BUTTON (toggle), icon);
 	gtk_button_set_relief (GTK_BUTTON (toggle), GTK_RELIEF_NONE);
-	gtk_container_add (GTK_CONTAINER(toggle), toggle_box);
-	gtk_widget_show_all (toggle);
+	gtk_widget_show (toggle);
 
 	// Create the button + child's container vbox
 	vbox = gtk_vbox_new (FALSE, 0);
 	gtk_box_pack_start (GTK_BOX(vbox), toggle, FALSE, FALSE, 0);
 	gtk_box_pack_end (GTK_BOX(vbox), child, TRUE, TRUE, 0);
 
+	// Align it up, yeah!
+	alignment = gtk_alignment_new (0, 0, 1, 1);
+	gtk_container_add (GTK_CONTAINER(alignment), vbox);
+
 	// Finish packing
-	gtk_box_pack_start (GTK_BOX(taco_bar), vbox, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX(taco_bar), alignment, FALSE, TRUE, 0);
 
 	// Only the button should be visible at first
 	gtk_widget_show_all (toggle);
@@ -212,11 +223,11 @@ taco_bar_add_entry (TacoBar	*taco_bar,
 	new_entry->toggle = toggle;
 	new_entry->child = child;
 	new_entry->box = vbox;
+	new_entry->alignment = alignment;
 	new_entry->taco_bar = taco_bar;
 	g_hash_table_insert (taco_bar->priv->entry_hash, page_id, new_entry);
 
 	// Signal everything up, yo
-	g_signal_connect (toggle, "toggled",
-			  G_CALLBACK (taco_bar_on_toggle), new_entry);
+	g_signal_connect (toggle, "toggled", G_CALLBACK (taco_bar_on_toggle), new_entry);
 }
 

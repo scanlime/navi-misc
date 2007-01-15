@@ -150,7 +150,8 @@ initialize_taco_bar (void)
 
 	// User list page
 	widget = gtk_scrolled_window_new (NULL, NULL);
-	icon = gtk_image_new_from_stock ("Print", GTK_ICON_SIZE_BUTTON);
+	icon = gtk_image_new_from_icon_name ("xchat-gnome-users",
+					     GTK_ICON_SIZE_MENU);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget),
 				        GTK_POLICY_NEVER,
 				        GTK_POLICY_AUTOMATIC);
