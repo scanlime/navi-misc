@@ -5,12 +5,13 @@
   <script type="text/javascript" src="/media/js/attachevent.js" ></script>
   <script type="text/javascript" src="/media/js/addcss.js" ></script>
   <script type="text/javascript" src="/media/js/tabtastic.js" ></script>
-
   <script type="text/javascript" src="/media/js/yahoo-min.js" ></script>
-  <script type="text/javascript" src="/media/js/connection-min.js" ></script>
+  <script type="text/javascript" src="/media/js/connection-debug.js" ></script>
   <script type="text/javascript" src="/media/js/json-min.js" ></script>
   <script type="text/javascript" src="/media/js/units.js" ></script>
+  <script type="text/javascript" src="/media/js/misc.js" ></script>
   <script type="text/javascript" src="/media/js/bot-status.js" ></script>
+  <script type="text/javascript" src="/media/js/validator.js" ></script>
 {% endblock %}
 
 {% block c3 %}
@@ -75,7 +76,10 @@
     <h2 class="tabset_label">Advanced Filtering</h2>
     <div id="ruleset-editor">
       {{ form.custom_ruleset }}
-      <p class="error">{{ form.errors.custom_ruleset.0|escape }}</p>
+      <div class="validation">
+        <div id="ruleset-loading" class="ajax-loader"></div>
+        <p id="ruleset-status" class="error">{{ form.errors.custom_ruleset.0|escape }}&nbsp;</p>
+      </div>      
     </div>
   </div>
 
@@ -102,35 +106,8 @@
 <script type="text/javascript">
   TabtasticInit();
   BotStatus.init("/api/irc-bot-requests/{{ network_host|urlencode }}/{{ channel|urlencode }}/status/");
-
-  var preserveCurrentTab = function(formId, tabsId) {
-    var form = document.getElementById(formId);
-    var tabs = document.getElementById(tabsId);
-    var origAction = form.action;
-  
-    AttachEvent(form, "submit", function() {
-      if (tabs.activeTab) {
-        form.action = tabs.activeTab;
-      }
-    });
-  }
-
-  var setCheckboxOnTextChanged = function(checkboxId, textareaId) {
-    var checkbox = document.getElementById(checkboxId);
-    var textarea = document.getElementById(textareaId);
-
-    AttachEvent(textarea, "change", function() {
-      checkbox.checked = true;
-    });
-
-    AttachEvent(textarea, "keypress", function(e) {
-      /* Ignore tabs */
-      if (e.keyCode != 9) {
-        checkbox.checked = true;
-      }
-    });
-  }    
-
+  Validator.init("/api/validators/ruleset/", "Filter passed validation.",
+                 "id_custom_ruleset", "ruleset-status", "ruleset-loading");
   preserveCurrentTab("bot-form", "form-tabs");
   setCheckboxOnTextChanged("id_filter_mode_{{ FILTER.CUSTOM }}", "id_custom_ruleset");
   setCheckboxOnTextChanged("id_filter_mode_{{ FILTER.PROJECT_LIST }}", "id_project_list");

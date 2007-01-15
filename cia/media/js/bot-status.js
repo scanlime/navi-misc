@@ -1,5 +1,7 @@
 /* -*- Mode: C; c-basic-offset: 4 -*- 
  * Copyright (c) 2007 Micah Dowty <micah@navi.cx>
+ *
+ * Continuously updating IRC Bot status information.
  */
 
 var BotStatus = {};
@@ -108,7 +110,10 @@ BotStatus.formatUptime = function()
 
 BotStatus.updateTimes = function()
 {
-    document.getElementById("bot-upcounter").innerHTML = this.formatUptime();
+    var counter = document.getElementById("bot-upcounter");
+    if (counter) {
+	counter.innerHTML = this.formatUptime();
+    }
 }
 
 BotStatus.enableTimeUpdates = function()
@@ -123,6 +128,7 @@ BotStatus.disableTimeUpdates = function()
 {
     if (this.timeUpdateInterval) {
 	clearInterval(self.timeUpdateInterval);
+	self.timeUpdateInterval = null;
     }
 }
     
