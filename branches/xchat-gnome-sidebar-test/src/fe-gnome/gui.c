@@ -66,7 +66,7 @@ initialize_gui_2 (void)
 	pixmaps_init ();
 	initialize_main_window();
 	initialize_userlist ();
-	initialize_side_bar ();
+	initialize_taco_bar ();
 	
 	gui.dcc = dcc_window_new ();
 

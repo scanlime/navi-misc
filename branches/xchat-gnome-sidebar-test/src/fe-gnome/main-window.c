@@ -132,37 +132,36 @@ static GtkActionEntry action_entries [] = {
 };
 
 void
-initialize_side_bar (void)
+initialize_taco_bar (void)
 {
     	/* FIXME: The sidebar stuff still needs to be i18nified */
-/*    	GtkWidget *widget;
+    	GtkWidget *widget;
+	GtkWidget *icon;
 
-	// Server Page
+	// Servers
 	widget = gtk_scrolled_window_new (NULL, NULL);
+	icon = gtk_image_new_from_stock ("Print", GTK_ICON_SIZE_BUTTON);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget),
 				        GTK_POLICY_AUTOMATIC,
 				        GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER (widget), gui.server_tree);
-//	ev_sidebar_add_page (EV_SIDEBAR (gui.side_bar), "servers", "Servers",
-//			widget);
-	gtk_container_add (GTK_CONTAINER (gui.navigation_expander), widget);
-	gtk_widget_show_all (gui.navigation_expander);
+	gtk_container_add (GTK_CONTAINER (widget), GTK_WIDGET (gui.server_tree));
+	taco_bar_add_entry (TACO_BAR (gui.taco_bar), "servers",
+			    "Servers", icon, widget);
 
 	// User list page
 	widget = gtk_scrolled_window_new (NULL, NULL);
+	icon = gtk_image_new_from_stock ("Print", GTK_ICON_SIZE_BUTTON);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget),
 				        GTK_POLICY_NEVER,
 				        GTK_POLICY_AUTOMATIC);
 	gtk_container_add (GTK_CONTAINER (widget), gui.userlist);
-//	ev_sidebar_add_page (EV_SIDEBAR (gui.side_bar), "users", "Users",
-//			     widget);
-	gtk_container_add (GTK_CONTAINER (gui.userlist_expander), widget);
-	printf("%x\n", gui.userlist_expander);
-	printf("%x\n", gui.navigation_expander);
-	gtk_widget_show_all (gui.userlist_expander);
+	taco_bar_add_entry (TACO_BAR (gui.taco_bar), "users",
+			    "Users", icon, widget);
+
+	gtk_widget_show_all (gui.taco_bar);
 
 	// It's all good to go now
-//	ev_sidebar_set_current_page (EV_SIDEBAR (gui.side_bar), "servers");*/
+	taco_bar_set_active (TACO_BAR (gui.taco_bar), "servers");
 }
 
 void
@@ -209,9 +208,7 @@ initialize_main_window (void)
 	GW(topic_hbox);
 	GW(topic_label);
 	GW(nick_button);
-//	GW(side_bar);
-	GW(navigation_expander);
-	GW(userlist_expander);
+	GW(taco_bar);
 #undef GW
 
 	/* Hook up accelerators for pgup/pgdn */
