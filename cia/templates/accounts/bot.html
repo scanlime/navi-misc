@@ -26,8 +26,16 @@
 <form id="bot-form" class="narrow" action="{{ form_path }}" method="post">
 
   <ul class="tabset_tabs" id="form-tabs">
-    <li><a href="#basic-filtering" class="active">Basic Filtering</a></li>
-    <li><a href="#advanced-filtering">Advanced Filtering</a></li>
+    <li><a href="#basic-filtering" class="active">Basic Filtering
+      {% if form.errors.project_list %}
+        <span class="error">(errors)</span>
+      {% endif %}
+    </a></li>
+    <li><a href="#advanced-filtering">Advanced Filtering
+      {% if form.errors.custom_ruleset %}
+        <span class="error">(errors)</span>
+      {% endif %}
+    </a></li>
     <li><a href="#ownership">Ownership</a></li>
   </ul>
 

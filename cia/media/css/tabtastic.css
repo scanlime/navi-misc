@@ -33,6 +33,10 @@
   cursor: default;
 }
 
+.tabset_tabs a.active .error {
+  color: black;
+}
+
 .tabset_content	{
   border-top: 4px solid #c8c8c8;
   position: relative;
