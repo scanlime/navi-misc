@@ -1,13 +1,15 @@
+#
 # Django settings for the CIA project.
 #
-# XXX: All database settings, DEBUG, and SECRET_KEY
-#      need to be changed before deployment!
+# Note that these defaults read all sensitive data (DB passwords, CIA key, Django secret)
+# from dotfiles in the current user's home directory. This file should remain in version
+# control, so all information within must be public.
 #
 
 import django.contrib.auth
 import os
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -18,12 +20,26 @@ DEFAULT_FROM_EMAIL = 'webmaster@cia.navi.cx'
 
 MANAGERS = ADMINS
 
-DATABASE_ENGINE = 'mysql'      # 'postgresql', 'mysql', 'sqlite3' or 'ado_mssql'.
-DATABASE_NAME = 'ciadj'        # Or path to database file if using sqlite3.
-DATABASE_USER = 'root'         # Not used with sqlite3.
-DATABASE_PASSWORD = ''         # Not used with sqlite3.
-DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
+#
+# A little code to read CIA's database settings file.
+# It's a list of key-value pairs, one per line, with
+# key and value separated by '='.
+#
+CIA_DB_SETTINGS = {}
+for line in open(os.path.expanduser('~/.cia_db')):
+    line = line.strip()
+    try:
+        key, value = line.split('=', 1)
+        CIA_DB_SETTINGS[key.strip()] = value.strip()
+    except ValueError:
+        pass
+
+DATABASE_ENGINE = 'mysql'
+DATABASE_NAME = CIA_DB_SETTINGS.get('db', 'cia')
+DATABASE_USER = CIA_DB_SETTINGS.get('user', 'root')
+DATABASE_PASSWORD = CIA_DB_SETTINGS.get('passwd', '')
+DATABASE_HOST = CIA_DB_SETTINGS.get('host', '') 
+DATABASE_PORT = CIA_DB_SETTINGS.get('port', '') 
 
 #
 # These settings control our connection with CIA. We use its XML-RPC interface
@@ -32,7 +48,7 @@ DATABASE_PORT = ''             # Set to empty string for default. Not used with 
 # server.
 #
 CIA_RPC_URL = 'http://localhost:3910'
-CIA_KEY = open(os.path.expanduser('~/.cia_key')).read()
+CIA_KEY = open(os.path.expanduser('~/.cia_key')).read().strip()
 CIA_BOT_SOCKET = os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'bots.socket')
 
 # Local time zone for this installation. All choices can be found here:
@@ -63,7 +79,7 @@ LOGIN_URL = '/account/login/'
 ADMIN_MEDIA_PREFIX = MEDIA_URL +'admin/'
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '9)%s0n5qdswni)wa6m6e-zg@au0eb-+f*b@j82dev8^oy=a22b'
+SECRET_KEY = open(os.path.expanduser('~/.django_secret')).read().strip()
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
