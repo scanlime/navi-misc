@@ -206,6 +206,10 @@ class DocumentCache(Cache.AbstractObjectCache):
                           destination = NullFile(),
                           settings_overrides = {
 				'traceback': True,
+
+                                # Trick docutils into passing a Nouvelle list
+                                # straight through, with no encoding.
+                                'output_encoding': 'unicode',
 				},
                           )
         w.mtime = mtime
