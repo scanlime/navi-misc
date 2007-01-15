@@ -171,6 +171,11 @@ class EditBotForm(forms.Form):
 
         return '\n'.join(projects)
 
+    def clean_custom_ruleset(self):
+        # Use LibCIA to validate the ruleset. It would be nice to
+        # hilight errors, or even interactively validate rulesets
+        # on the client side.. but this is sufficient for now.
+        return models.validate_ruleset(self.clean_data['custom_ruleset'])
 
 class RadioChoices:
     """This object provides a dictionary-like interface for looking up

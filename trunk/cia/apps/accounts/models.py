@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils.html import escape
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+import django.newforms as forms
 import urlparse, xmlrpclib
 
 
@@ -43,7 +44,7 @@ class UserAsset(models.Model):
 class NetworkManager(models.Manager):
     def importNetworks(self):
         """Import all network definitions from LibCIA into the database."""
-        from cia.LibCIA.IRC import Network
+        from LibCIA.IRC import Network
         for name, obj in Network.__dict__.iteritems():
             if (type(obj) is type(Network.BaseNetwork)
                 and issubclass(obj, Network.BaseNetwork)
@@ -153,6 +154,37 @@ filter_mode_choices = (
     (FILTER.PROJECT_LIST, 'Filter by project'),
     )
 
+def validate_ruleset(content):
+    """Validate a custom ruleset, without sending it to the server."""
+    from LibCIA import XML, Ruleset
+    from xml.parsers.expat import ExpatError
+
+    # Disable LibCIA's XPath cache- it will fill up quickly
+    # if we cache every random XPath that we validate for our users.
+    XML.enableXPathCache = False    
+
+    # Wrap the ruleset using no newlines, so the line numbers match
+    wrapped = "<ruleset>%s</ruleset>" % content
+
+    # First, just try to compile the ruleset. This will catch a wide
+    # variety of errors- we don't actively try yet to separate internal
+    # errors from input errors. We would need to handle, at the least:
+    #   - Well-formedness errors, from Expat
+    #   - Validity errors, from LibCIA.XML
+    #   - Formatter errors
+    try:
+        r = Ruleset.Ruleset(wrapped)
+    except Exception, e:
+        raise forms.ValidationError("%s: %s" % (e.__class__.__name__, e))
+
+    # Empty rulesets will validate, but they're used as a special-case
+    # to remove rulesets from the server's storage. We don't allow
+    # them.
+    if r.isEmpty():
+        raise forms.ValidationError("Ruleset is empty")
+
+    return content
+
 class Bot(models.Model):
     objects = AssetManager()
     assets = models.GenericRelation(UserAsset)
@@ -204,11 +236,6 @@ class Bot(models.Model):
 
         return '\n'.join(lines)
 
-    def validateRuleset(self, content):
-        """Validate a custom ruleset, without submitting it to the server."""
-        # XXX: Not implemented
-        pass
-
     def syncFromServer(self):
         """Update this Bot from the RPC server, if necessary.
            Right now the only task this performs is to store the
@@ -236,7 +263,6 @@ class Bot(models.Model):
             self._storeRuleset(None)
             
         elif self.filter_mode == FILTER.CUSTOM:
-            self.validateRuleset(self.custom_ruleset)
             self._storeRuleset(self.custom_ruleset)
 
         elif self.filter_mode == FILTER.PROJECT_LIST:
