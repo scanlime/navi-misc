@@ -5,6 +5,14 @@ h1 {
   border-bottom: 2px solid #ccc;
 }
 
+.error {
+  font-size: 0.75em;
+  font-weight: bold;
+  color: red;
+  padding: 0;
+  margin: 0;
+}
+
 .columns {
   position: relative;
   width: 100%;   /* IE6 */
@@ -138,8 +146,8 @@ form {
 p.note {
   color: #666;
   font-size: 0.75em;
-  padding: 0em;
-  margin: 0.5em 0em;
+  padding: 0;
+  margin: 0.5em 0 1em 0;
 }
 
 .message {
@@ -183,6 +191,7 @@ legend {
   padding: 0 0 0 13em;
   margin: 0;
   height: 1%;  /* IE6 */
+  clear: left;
 }
 
 .form-row label {
@@ -205,6 +214,13 @@ legend {
   position: static;
   left: 0;
   top: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.form-row input.checkbox {
+  margin: 0;
+  padding: 0;
 }
 
 .form-row input.text {
@@ -217,12 +233,14 @@ legend {
 }
 
 .form-row div.radio {
-  margin: 0 1em 1em 3em;
+  margin: 0 1em 0 3em;
   padding: 0;
+  width: auto;
 }
 
 .form-row div.radio textarea {
-  margin: 0;
+  float: left;
+  margin: 0 1em 0.5em 0;
   width: 17em;
   height: 10em;
   background: #f0f0f0;
@@ -252,9 +270,6 @@ legend {
   position: absolute;
   left: 39em;
   top: 0.6em;
-  font-size: 0.75em;
-  font-weight: bold;
-  color: red;
 }
 
 .form-row div.select-note {
@@ -292,7 +307,7 @@ legend {
 form.narrow .form-row {
   position: relative;
   padding: 0;
-  margin: 0.5em 0em;
+  margin: 0.6em 0;
   height: 1%;  /* IE6 */
 }
 

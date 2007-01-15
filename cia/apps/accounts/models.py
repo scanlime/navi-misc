@@ -6,6 +6,17 @@ from django.contrib.contenttypes.models import ContentType
 import urlparse, xmlrpclib
 
 
+class ACCESS:
+    COMMUNITY = 1
+    EXCLUSIVE = 2
+    TRUSTED = 3
+
+access_choices = (
+    (ACCESS.COMMUNITY,  'Community'),
+    (ACCESS.EXCLUSIVE,  'Exclusive'),
+    (ACCESS.TRUSTED,    'Trusted'),
+    )
+
 class UserAsset(models.Model):
     user = models.ForeignKey(User)
 
@@ -13,11 +24,8 @@ class UserAsset(models.Model):
     object_id = models.PositiveIntegerField()    
     asset = models.GenericForeignKey()
 
-    access = models.PositiveSmallIntegerField(choices=(
-        (1, 'Community'),
-        (2, 'Exclusive'),
-        (3, 'Trusted'),
-        ), default=1)
+    access = models.PositiveSmallIntegerField(choices = access_choices,
+                                              default = ACCESS.COMMUNITY)
 
     date_added = models.DateTimeField(auto_now_add=True)
     trusted_by = models.DateTimeField(null=True, blank=True)
@@ -155,8 +163,9 @@ class Bot(models.Model):
     filter_mode = models.PositiveSmallIntegerField(
         choices=filter_mode_choices, default=FILTER.UNKNOWN)
 
-    # For FILTER.CUSTOM. This is not a complete XML document,
-    # just the contents of a <ruleset> element.
+    # For FILTER.CUSTOM.
+    # This is not a complete XML document, just
+    # the contents of a <ruleset> element.
     custom_ruleset = models.TextField("Custom ruleset", blank=True)
 
     # For FILTER.PROJECT_LIST
@@ -167,9 +176,38 @@ class Bot(models.Model):
         s = self.network.uri
         if not s.endswith('/'):
             s += '/'
-
-        # The CIA backend will accept 
         return s + self.location
+
+    def _matchProject(self, project):
+        """Generate a ruleset filter for matching a single project"""
+        return '<match path="/message/source/project">%s</match>' % escape(project)
+
+    def _rulesetForProjectList(self):
+        """Generates the contents of a ruleset representing a filter
+           in the PROJECT_LIST mode.
+           """
+        lines = []
+
+        # Match any of the projects, using an <or> if there's more than one.
+        projects = self.project_list.split('\n')
+        if len(projects) > 1:
+            lines.append("<or>")
+            for project in projects:
+                lines.append('\t' + self._matchProject(project))
+            lines.append("</or>")
+        else:
+            lines.append(self._matchProject(projects[0]))
+
+        lines.append('<formatter medium="irc"/>')
+        if self.show_project_names:
+            lines.append('<formatter name="IRCProjectName"/>')
+
+        return '\n'.join(lines)
+
+    def validateRuleset(self, content):
+        """Validate a custom ruleset, without submitting it to the server."""
+        # XXX: Not implemented
+        pass
 
     def syncFromServer(self):
         """Update this Bot from the RPC server, if necessary.
@@ -196,31 +234,39 @@ class Bot(models.Model):
            """
         if self.filter_mode == FILTER.INACTIVE:
             self._storeRuleset(None)
+            
+        elif self.filter_mode == FILTER.CUSTOM:
+            self.validateRuleset(self.custom_ruleset)
+            self._storeRuleset(self.custom_ruleset)
 
-        else:
-            self._storeRuleset('<ruleset uri="%s">\n    <return/>\n</ruleset>' % escape(self.getURI()))
+        elif self.filter_mode == FILTER.PROJECT_LIST:
+            self._storeRuleset(self._rulesetForProjectList())
+
+    def _wrapRuleset(self, content):
+        """Wrap a ruleset with its outer <ruleset> element"""
+        return '<ruleset uri="%s">\n%s\n</ruleset>' % (escape(self.getURI()), content)
 
     def _loadRuleset(self):
         """Retrieve this bot's ruleset from the server"""
         server = xmlrpclib.ServerProxy(settings.CIA_RPC_URL)
         return server.ruleset.getRuleset(self.getURI())
 
-    def _storeRuleset(self, ruleset):
-        """Send a ruleset to the server, if necessary.
-           If 'ruleset' is None, any existing ruleset will
-           be deleted.
+    def _storeRuleset(self, content):
+        """Send a ruleset to the server, if necessary.  If 'content'
+           evaluates to False, any existing ruleset will be deleted.
            """
         server = xmlrpclib.ServerProxy(settings.CIA_RPC_URL)
         uri = self.getURI()
 
-        if not ruleset:
+        if not content:
             # The bot server will fail to unset a ruleset
             # that doesn't exist. Avoid that situation here...
             if not server.ruleset.getRuleset(uri):
                 return
-            ruleset = '<ruleset uri="%s" />' % escape(uri)
+            content = ''
 
-        server.ruleset.store(settings.CIA_KEY, ruleset)
+        server.ruleset.store(settings.CIA_KEY,
+                             self._wrapRuleset(content))
 
     def __str__(self):
         return "%s on %s" % (self.location, self.network)

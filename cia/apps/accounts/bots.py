@@ -157,6 +157,21 @@ class EditBotForm(forms.Form):
     def clean_filter_mode(self):
         return int(self.clean_data['filter_mode'])
 
+    def clean_project_list(self):
+        # Remove extra whitespace, split into individual projects.
+        projects = []
+        for line in self.clean_data['project_list'].split('\n'):
+            line = line.strip()
+            if line:
+                projects.append(line)
+
+        # Is the project list required?
+        if int(self.data['filter_mode']) == models.FILTER.PROJECT_LIST and not projects:
+            raise forms.ValidationError("Please enter at least one project.")
+
+        return '\n'.join(projects)
+
+
 class RadioChoices:
     """This object provides a dictionary-like interface for looking up
        individual choices on a RadioSelect widget. This lets the
@@ -192,8 +207,8 @@ def bot(request, asset_type, asset_id):
     if request.POST and form.is_valid():
         for key, value in form.clean_data.items():
             setattr(bot, key, value)
-        bot.save()
         bot.syncToServer()
+        bot.save()
         request.user.message_set.create(message="Your bot was updated successfully.")
 
     ctx.update({
