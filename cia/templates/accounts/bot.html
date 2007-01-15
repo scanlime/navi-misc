@@ -22,9 +22,9 @@
 {% endfor %}
 
 <div id="tabs-and-sidebar">
-<form class="narrow" action="{{ form_path }}" method="post">
+<form id="bot-form" class="narrow" action="{{ form_path }}" method="post">
 
-  <ul class="tabset_tabs">
+  <ul class="tabset_tabs" id="form-tabs">
     <li><a href="#basic-filtering" class="active">Basic Filtering</a></li>
     <li><a href="#advanced-filtering">Advanced Filtering</a></li>
     <li><a href="#ownership">Ownership</a></li>
@@ -75,6 +75,7 @@
     <h2 class="tabset_label">Advanced Filtering</h2>
     <div id="ruleset-editor">
       {{ form.custom_ruleset }}
+      <p class="error">{{ form.errors.custom_ruleset.0|escape }}</p>
     </div>
   </div>
 
@@ -102,15 +103,27 @@
   TabtasticInit();
   BotStatus.init("/api/irc-bot-requests/{{ network_host|urlencode }}/{{ channel|urlencode }}/status/");
 
-  var autoSelectMode = function(mode, widgetId) {
-    var checkbox = document.getElementById("id_filter_mode_" + mode);
-    var widget = document.getElementById(widgetId);
+  var preserveCurrentTab = function(formId, tabsId) {
+    var form = document.getElementById(formId);
+    var tabs = document.getElementById(tabsId);
+    var origAction = form.action;
+  
+    AttachEvent(form, "submit", function() {
+      if (tabs.activeTab) {
+        form.action = tabs.activeTab;
+      }
+    });
+  }
 
-    AttachEvent(widget, "change", function() {
+  var setCheckboxOnTextChanged = function(checkboxId, textareaId) {
+    var checkbox = document.getElementById(checkboxId);
+    var textarea = document.getElementById(textareaId);
+
+    AttachEvent(textarea, "change", function() {
       checkbox.checked = true;
     });
 
-    AttachEvent(widget, "keypress", function(e) {
+    AttachEvent(textarea, "keypress", function(e) {
       /* Ignore tabs */
       if (e.keyCode != 9) {
         checkbox.checked = true;
@@ -118,8 +131,9 @@
     });
   }    
 
-  autoSelectMode("{{ FILTER.CUSTOM }}", "id_custom_ruleset");
-  autoSelectMode("{{ FILTER.PROJECT_LIST }}", "id_project_list");
+  preserveCurrentTab("bot-form", "form-tabs");
+  setCheckboxOnTextChanged("id_filter_mode_{{ FILTER.CUSTOM }}", "id_custom_ruleset");
+  setCheckboxOnTextChanged("id_filter_mode_{{ FILTER.PROJECT_LIST }}", "id_project_list");
 </script>
 
 {% endblock %}
