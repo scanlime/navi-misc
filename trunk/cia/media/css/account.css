@@ -5,6 +5,14 @@ h1 {
   border-bottom: 2px solid #ccc;
 }
 
+.ajax-loader {
+  display: none;
+  overflow: hidden;
+  background: url("/media/img/ajax-loader.gif");
+  width: 16px;
+  height: 16px;
+}
+
 .error {
   font-size: 0.75em;
   font-weight: bold;
@@ -359,14 +367,9 @@ form.narrow .submit-row input {
 }
 
 #sidebar .ajax-loader {
-  display: none;
-  overflow: hidden;
   position: absolute;
   top: 2px;
   right: 3px;
-  background: url("/media/img/ajax-loader.gif");
-  width: 16px;
-  height: 16px;
 }
 
 #sidebar p {
@@ -387,4 +390,23 @@ form.narrow .submit-row input {
   border: 1px solid #aaa;
   padding: 0;
   margin: 0;
+}
+
+#ruleset-editor .validation {
+  width: 100%;
+  border-left: 1px solid #aaa;
+  border-right: 1px solid #aaa;
+  border-bottom: 1px solid #aaa;
+}
+
+#ruleset-editor .validation .ajax-loader {
+  float: left;
+  margin: 2px 8px 2px 2px;
+}
+
+#ruleset-editor .validation p {
+  padding: 2px;
+  margin: 0;
+  font-size: 0.75em;
+  font-weight: bold;
 }
