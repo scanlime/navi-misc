@@ -51,11 +51,12 @@ struct _TacoBarClass {
 
 GType      taco_bar_get_type     (void);
 GtkWidget *taco_bar_new          (void);
-void       taco_bar_add_entry	 (TacoBar *,
+void       taco_bar_add_page	 (TacoBar *,
 				  const gchar *page_id,
 				  const gchar *title,
 				  GtkWidget *icon,
-				  GtkWidget *main_widget);
+				  GtkWidget *child,
+				  GtkPackType);
 void       taco_bar_set_active   (TacoBar *,
 				  const char *page_id);
 const char *taco_bar_get_active  (TacoBar *);
