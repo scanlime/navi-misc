@@ -154,7 +154,6 @@ userlist_insert (Userlist *userlist, session *sess, struct User *newuser, int ro
 	g_completion_add_items (store->completion, item);
 	store->completion_items = g_list_concat (store->completion_items, item);
 
-	userlist_set_user_button (userlist, sess);
 }
 
 static GtkTreeIter*
@@ -195,8 +194,6 @@ userlist_remove_user (Userlist *userlist, session *sess, struct User *user)
 	store->completion_items = g_list_remove_link (store->completion_items, item);
 	g_completion_remove_items (store->completion, item);
 	g_list_free (item);
-
-	userlist_set_user_button (userlist, sess);
 
 	return TRUE;
 }
@@ -288,20 +285,4 @@ userlist_get_completion (Userlist *userlist, session *sess)
 	Store *store = g_hash_table_lookup (userlist->stores, sess);
 	g_assert (store != NULL);
 	return store->completion;
-}
-
-void
-userlist_set_user_button (Userlist *userlist, session *sess)
-{
-	gchar *label;
-
-	if (gui.current_session == sess) {
-		if (sess->type == SESS_CHANNEL) {
-			label = g_strdup_printf (ngettext ("%d User", "%d Users", sess->total), sess->total);
-			gtk_button_set_label (GTK_BUTTON (gui.userlist_toggle), label);
-			g_free (label);
-		} else {
-			gtk_button_set_label (GTK_BUTTON (gui.userlist_toggle), _("Users"));
-		}
-	}
 }

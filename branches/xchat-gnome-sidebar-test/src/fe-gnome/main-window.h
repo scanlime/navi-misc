@@ -24,6 +24,7 @@
 #ifndef XCHAT_GNOME_MAIN_WINDOW_H
 #define XCHAT_GNOME_MAIN_WINDOW_H
 
+void initialize_side_bar (void);
 void initialize_main_window (void);
 void run_main_window        (void);
 void save_main_window       (void);

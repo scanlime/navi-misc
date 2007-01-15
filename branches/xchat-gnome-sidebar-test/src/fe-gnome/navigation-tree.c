@@ -217,6 +217,7 @@ navigation_tree_select_session (NavTree *tree, session *sess)
 	}
 
 	GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (tree));
+
 	gtk_tree_selection_select_iter (selection, &iter);
 }
 

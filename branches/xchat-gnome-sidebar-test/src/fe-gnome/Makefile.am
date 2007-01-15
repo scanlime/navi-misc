@@ -79,6 +79,8 @@ xchat_gnome_SOURCES =				\
 	setup-dialog.h				\
 	status-bar.h				\
 	status-bar.c				\
+	taco-bar.c				\
+	taco-bar.h				\
 	text-entry.c				\
 	text-entry.h				\
 	topic-label.c				\

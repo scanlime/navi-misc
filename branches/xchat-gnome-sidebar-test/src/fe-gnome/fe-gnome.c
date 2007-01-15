@@ -1074,7 +1074,6 @@ kill_session (GnomeClient* client, gpointer client_data)
 {
 	gtk_widget_hide (GTK_WIDGET (gui.main_window));
 	gtk_widget_hide (GTK_WIDGET (gui.dcc));
-	userlist_gui_hide ();
 	gui.quit = TRUE;
 	xchat_exit ();
 }
@@ -1123,10 +1122,6 @@ fe_set_current (session *sess)
 
 	// Set nickname button
 	set_nickname (sess->server, NULL);
-
-	// Set the label of the user list button
-	userlist_set_user_button (u, sess);
-	gtk_widget_set_sensitive (GTK_WIDGET (gui.userlist_toggle), sess->type == SESS_CHANNEL);
 
 	// FIXME: Userlist should be more encapsulated
 	gtk_tree_view_set_model (GTK_TREE_VIEW (gui.userlist), GTK_TREE_MODEL (userlist_get_store (u, sess)));
