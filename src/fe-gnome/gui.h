@@ -31,6 +31,7 @@
 #include "dcc-window.h"
 #include "preferences-dialog.h"
 #include "xtext.h"
+#include "taco-bar.h"
 
 #include "../common/xchat.h"
 
@@ -56,10 +57,7 @@ typedef struct
 	GtkWidget *topic_label;
 	GtkWidget *topic_hbox;
 	GtkWidget *nick_button;
-	GtkWidget *side_bar;
-
-	GtkWidget *navigation_expander;
-	GtkWidget *userlist_expander;
+	GtkWidget *taco_bar;
 
 	NavModel *tree_model;
 	NavTree *server_tree;

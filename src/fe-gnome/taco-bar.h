@@ -22,6 +22,7 @@
 #define XCHAT_GNOME_SIDE_BAR_H
 
 #include <gtk/gtkvbox.h>
+#include <gtk/gtkpixmap.h>
 
 G_BEGIN_DECLS
 
@@ -50,19 +51,16 @@ struct _TacoBarClass {
 
 GType      taco_bar_get_type     (void);
 GtkWidget *taco_bar_new          (void);
-void       taco_bar_add_page     (TacoBar *,
-				    const gchar *page_id,
-				    const gchar *title,
-				    GtkWidget   *main_widget);
-void       taco_bar_set_current_page
-				   (TacoBar *,
-				    const char *page_id);
-const char *taco_bar_get_current_page
-				   (TacoBar *);
+void       taco_bar_add_entry	 (TacoBar *,
+				  const gchar *page_id,
+				  const gchar *title,
+				  GtkWidget *icon,
+				  GtkWidget *main_widget);
+void       taco_bar_set_active   (TacoBar *,
+				  const char *page_id);
+const char *taco_bar_get_active  (TacoBar *);
 
 
 G_END_DECLS
 
-#endif /* __TACO_BAR_H__ */
-
-
+#endif
