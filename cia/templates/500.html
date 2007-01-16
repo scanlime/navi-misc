@@ -1,0 +1,23 @@
+{% extends 'layout_login.html' %}
+
+{% block head_title %}500{% endblock %}
+{% block page_title %}Internal server error{% endblock %}
+
+{% block content %}
+<div class="login-box">
+  <div class="tl"></div>
+  <div class="tr"></div>
+  <div class="bl"></div>
+  <div class="br"></div>
+
+  <h1>500, Internal server error</h1>
+  <div class="h1-continuation"></div>
+
+  <p>Oops, something went wrong. The site's administrator will be notified automatically.</p>
+</div>
+
+<ul class="options-box">
+<li>Try again soon. Hopefully we're already working on fixing the problem.</li>
+<li>You may want to head back to the <a href="/">front page</a> or to <a href="/account/">your account</a>.</li>
+</ul>
+{% endblock %}
