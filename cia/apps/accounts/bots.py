@@ -172,10 +172,15 @@ class EditBotForm(forms.Form):
         return '\n'.join(projects)
 
     def clean_custom_ruleset(self):
+        # Empty rulesets are okay if we aren't using them. We never
+        # allow a ruleset to be stored if it isn't well-formed and
+        # valid.
+        allow_empty = int(self.data['filter_mode']) != models.FILTER.CUSTOM
+
         # Use LibCIA to validate the ruleset. It would be nice to
-        # hilight errors, or even interactively validate rulesets
-        # on the client side.. but this is sufficient for now.
-        return models.validate_ruleset(self.clean_data['custom_ruleset'])
+        # hilight errors, or even interactively validate rulesets on
+        # the client side.. but this is sufficient for now.
+        return models.validate_ruleset(self.clean_data['custom_ruleset'], allow_empty)
 
 class RadioChoices:
     """This object provides a dictionary-like interface for looking up

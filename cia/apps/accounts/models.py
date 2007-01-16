@@ -4,7 +4,7 @@ from django.utils.html import escape
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 import django.newforms as forms
-import urlparse, xmlrpclib
+import urlparse, xmlrpclib, re
 
 
 class ACCESS:
@@ -154,7 +154,7 @@ filter_mode_choices = (
     (FILTER.PROJECT_LIST, 'Filter by project'),
     )
 
-def validate_ruleset(content):
+def validate_ruleset(content, allow_empty=False):
     """Validate a custom ruleset, without sending it to the server."""
     from LibCIA import XML, Ruleset
     from xml.parsers.expat import ExpatError
@@ -180,10 +180,38 @@ def validate_ruleset(content):
     # Empty rulesets will validate, but they're used as a special-case
     # to remove rulesets from the server's storage. We don't allow
     # them.
-    if r.isEmpty():
+    if r.isEmpty() and not allow_empty:
         raise forms.ValidationError("Ruleset is empty")
 
     return content
+
+def clean_up_text(text,
+                  leading_lines_re = re.compile(r"^\s*\n"),
+                  leading_spaces_re = re.compile(r"^\s*"),
+                  ):
+    """Clean up user-editable ruleset text. This expands tabs,
+       removes blank leading lines, uniformly unindents as much
+       as possible, and removes trailing whitespace from each line.
+       """
+    # Expand tabs and remove leading lines
+    lines = leading_lines_re.sub("", text.expandtabs()).split("\n")
+
+    # Measure the maximum unindent level
+    level = None
+    for line in lines:
+        if line.strip():
+            # Count leading spaces
+            s = leading_spaces_re.match(line).span()[1]
+
+            if level is None:
+                level = s
+            else:
+                level = min(level, s)
+    if level is None:
+        return ""
+
+    # Perform the unindentation on each line while stripping trailing space.
+    return "\n".join([line[level:].rstrip() for line in lines])
 
 class Bot(models.Model):
     objects = AssetManager()
@@ -236,24 +264,38 @@ class Bot(models.Model):
 
         return '\n'.join(lines)
 
-    def syncFromServer(self):
+    def syncFromServer(self,
+                       ):
         """Update this Bot from the RPC server, if necessary.
            Right now the only task this performs is to store the
            server's ruleset if filterMode is 'unknown'.
            """
-        if self.filter_mode == FILTER.UNKNOWN:
-            ruleset = self._loadRuleset()
-            
-            if ruleset:
-                # XXX: We should try to reduce the ruleset to one of
-                #      the other FILTER.* modes if possible.
-                self.filter_mode = FILTER.CUSTOM
-                self.custom_ruleset = ruleset
-                self.save()
+        if self.filter_mode != FILTER.UNKNOWN:
+            return
 
-            else:
-                self.filter_mode = FILTER.INACTIVE
-                self.save()
+        ruleset = self._loadRuleset()
+        if not ruleset:
+            # If there's no ruleset, mark the bot as inactive.
+            self.filter_mode = FILTER.INACTIVE
+            self.save()
+            return
+
+        # Parse the ruleset using LibCIA's XML library
+        from LibCIA import XML
+        dom = XML.parseString(ruleset)
+
+        # XXX: We should try to reduce the ruleset to one of
+        #      the other FILTER.* modes if possible. For now,
+        #      we'll always import existing rulesets as
+        #      FILTER.CUSTOM.
+
+        # Flatten the contents of the <ruleset> element, clean up
+        # the resulting text, and save that as a custom filter.
+
+        text = ''.join([n.toxml() for n in dom.documentElement.childNodes])
+        self.filter_mode = FILTER.CUSTOM
+        self.custom_ruleset = clean_up_text(text)
+        self.save()
 
     def syncToServer(self):
         """Generate a ruleset according to this bot's filter
@@ -273,7 +315,10 @@ class Bot(models.Model):
         return '<ruleset uri="%s">\n%s\n</ruleset>' % (escape(self.getURI()), content)
 
     def _loadRuleset(self):
-        """Retrieve this bot's ruleset from the server"""
+        """Retrieve this bot's ruleset from the server. It will be
+           returned as a complete XML document with <ruleset/> element
+           and optional processing instructions.
+           """
         server = xmlrpclib.ServerProxy(settings.CIA_RPC_URL)
         return server.ruleset.getRuleset(self.getURI())
 
