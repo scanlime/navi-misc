@@ -20,7 +20,7 @@ urlpatterns = patterns('',
     (r'^account/$',          'bonvivant.apps.accounts.views.profile'),
     (r'^account/login/$',    'djblets.auth.views.login', dict(next_page='/account/')),
     (r'^account/logout/$',   'django.contrib.auth.views.logout',    dict(template_name='accounts/logged_out.html')),
-    (r'^account/register/$', 'bonvivant.apps.accounts.views.register'),
+    (r'^account/register/$', 'djblets.auth.views.register'),
     #(r'^accounts/edit/$',     'bonvivant.apps.accounts.views.edit'),
     #(r'^accounts/edit2/$',    'bonvivant.apps.accounts.views.edit2'),
 )
