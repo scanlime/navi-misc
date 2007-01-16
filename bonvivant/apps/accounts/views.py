@@ -43,24 +43,7 @@ def internal_login(request, username, password):
     user.last_login = datetime.datetime.now()
     user.save()
 
-def login(request, next_page, template_name="accounts/login.html"):
-    """Simple login form view which doesn't rely on Django's current
-       inflexible oldforms-based auth view.
-       """
-    if request.POST:
-        error = internal_login(request,
-                               request.POST.get('username'),
-                               request.POST.get('password'))
-        if not error:
-            return HttpResponseRedirect(next_page)
-    else:
-        error = None
-
-    request.session.set_test_cookie()
-    return render_to_response(template_name, RequestContext(request, {
-        'error' : error,
-        'login_url' : settings.LOGIN_URL,
-        }))
+##### User registration #####
 
 class RegistrationForm(forms.Form):
     username = forms.RegexField(r"^[a-zA-Z0-9_\-\.]*$", max_length=30, error_message='Only A-Z, 0-9, "_", "-", and "." allowed.')
@@ -116,6 +99,8 @@ def register(request):
 
     request.session.set_test_cookie()
     return render_to_response('accounts/register.html', RequestContext(request, {'form': form}))
+
+##### User Profile #####
 
 @login_required
 def profile(request):
