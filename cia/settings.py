@@ -12,6 +12,13 @@ import os
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
+#
+# This can be used to temporarily restrict the creation of new user accounts.
+# I'm using this to put the site through a testing period in which it isn't
+# fully public, but it's coexisting with the rest of CIA.
+#
+CIA_REGISTRATION_IS_CLOSED = True
+
 ADMINS = (
     ('Micah Dowty', 'micah@navi.cx'),
 )

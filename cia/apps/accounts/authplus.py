@@ -198,6 +198,9 @@ def validate_test_cookie(form, request):
         form.errors['submit'] = forms.util.ErrorList(["Cookies must be enabled."])
 
 def register(request, next_page, template_name="accounts/register.html"):
+    if settings.CIA_REGISTRATION_IS_CLOSED:
+        return render_to_response("accounts/registration_closed.html", RequestContext(request))
+
     if request.POST:
         form = RegistrationForm(request.POST)
         form.full_clean()
