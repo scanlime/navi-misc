@@ -8,13 +8,15 @@ import urlparse, xmlrpclib, re
 
 
 class ACCESS:
+    NONE = 0
     COMMUNITY = 1
     EXCLUSIVE = 2
     TRUSTED = 3
 
 access_choices = (
-    (ACCESS.COMMUNITY,  'Community'),
-    (ACCESS.EXCLUSIVE,  'Exclusive'),
+    (ACCESS.NONE,       'Give up ownership'),
+    (ACCESS.COMMUNITY,  'Community access'),
+    (ACCESS.EXCLUSIVE,  'Exclusive access'),
     (ACCESS.TRUSTED,    'Trusted'),
     )
 
