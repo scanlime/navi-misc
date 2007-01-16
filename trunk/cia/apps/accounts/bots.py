@@ -137,13 +137,12 @@ def add_bot(request, asset_type):
 ###########################
 
 class EditBotForm(forms.Form):
+
+    ### Basic Filtering
+    
     filter_mode = forms.ChoiceField(
         choices = models.filter_mode_choices,
         widget = forms.RadioSelect,
-        )
-    custom_ruleset = forms.CharField(
-        required = False,
-        widget = forms.Textarea,
         )
     project_list = forms.CharField(
         required = False,
@@ -171,6 +170,13 @@ class EditBotForm(forms.Form):
 
         return '\n'.join(projects)
 
+    ### Advanced Filtering
+
+    custom_ruleset = forms.CharField(
+        required = False,
+        widget = forms.Textarea,
+        )
+
     def clean_custom_ruleset(self):
         # Empty rulesets are okay if we aren't using them. We never
         # allow a ruleset to be stored if it isn't well-formed and
@@ -181,6 +187,16 @@ class EditBotForm(forms.Form):
         # hilight errors, or even interactively validate rulesets on
         # the client side.. but this is sufficient for now.
         return models.validate_ruleset(self.clean_data['custom_ruleset'], allow_empty)
+
+    ### Ownership
+    
+    access_level = forms.ChoiceField(
+        choices = models.access_choices,
+        widget = forms.RadioSelect,
+        )
+
+    def clean_access_level(self):
+        return int(self.clean_data['access_level'])
 
 class RadioChoices:
     """This object provides a dictionary-like interface for looking up
@@ -223,8 +239,13 @@ def bot(request, asset_type, asset_id):
 
     ctx.update({
         'form': form,
+
         'FILTER': models.FILTER,
         'modes': RadioChoices(form['filter_mode'], models.FILTER),
+
+        'ACCESS': models.ACCESS,
+        'levels': RadioChoices(form['access_level'], models.ACCESS),
+
         'network_host': bot.network.getHost('irc'),
         'channel': get_channel_from_location(bot.location),
         })

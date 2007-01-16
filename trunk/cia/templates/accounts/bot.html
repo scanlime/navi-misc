@@ -30,14 +30,13 @@
       {% if form.errors.project_list %}
         <span class="error">(errors)</span>
       {% endif %}
-    </a></li>
-    <li><a href="#advanced-filtering">Advanced Filtering
+    </a></li><li><a href="#advanced-filtering">Advanced Filtering
       {% if form.errors.custom_ruleset %}
         <span class="error">(errors)</span>
       {% endif %}
+    </a></li><li><a href="#ownership">Ownership
+    </a></li><li><a href="#change-history">Change History
     </a></li>
-    <li><a href="#ownership">Ownership</a></li>
-    <li><a href="#change-history">Change History</a></li>
   </ul>
 
   <div id="basic-filtering" class="tabset_content">
@@ -83,6 +82,7 @@
 
   <div id="advanced-filtering" class="tabset_content">
     <h2 class="tabset_label">Advanced Filtering</h2>
+
     <p class="narrow">
       Advanced filters are written in CIA's <i>Ruleset</i> language.
       Reference, examples, and cheat sheet coming soon...
@@ -98,13 +98,49 @@
 
   <div id="ownership" class="tabset_content">
     <h2 class="tabset_label">Ownership</h2>
-    <p>
-      Coming soon
-    </p>
+
+    <div class="form-row">
+      {{ levels.NONE }}
+      <div class="radio">
+	<p class="note">
+	  Remove this {{ asset_type_name }} from your inventory.
+	  The {{ asset_type_name }} and its change history will continue
+	  to exist. You or another user may reclaim this {{ asset_type_name}} later.
+	</p>
+      </div>
+    </div>
+
+    <div class="form-row">
+      {{ levels.COMMUNITY }}
+      <div class="radio">
+	<p class="note">
+	  Anyone can add this {{ asset_type_name }} to their inventory, and
+	  anyone can change its settings. This {{ asset_type_name }} keeps a
+	  permanent change history. Any changes can be audited and, if necessary,
+	  reverted.
+	</p>
+      </div>
+    </div>
+
+    <div class="form-row">
+      {{ levels.EXCLUSIVE }}
+      <div class="radio">
+	<p class="note">
+	  You have total control over this {{ asset_type_name }}. Only one person
+	  may claim exclusive access for a single {{ asset_type_name }}. You may choose
+	  whether or not to allow other users to edit this {{ asset_type_name }}.
+	</p>
+	<p class="note">
+	  By selecting exclusive access for this {{ asset_type_name }} you agree to
+	  allow us to e-mail you in the event of an ownership dispute.
+	</p>
+      </div>
+    </div>
   </div>
 
   <div id="change-history" class="tabset_content">
     <h2 class="tabset_label">Change History</h2>
+
     <p>
       Coming soon
     </p>
