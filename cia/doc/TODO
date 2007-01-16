@@ -27,6 +27,8 @@ Must do before deployment:
   disabled. Show other users who have access? If I do this, remember to audit all login
   and registration text for guarantees over how username/fullname are used.
 
+Nice to have:
+
 - Add at least minimal documentation for rulesets. Some examples and a cheat sheet, if
   not a full syntax manual.
 
@@ -39,8 +41,6 @@ Must do before deployment:
   - It may be worthwhile to combine all static CSS and Javascript into a smaller number
     of files, and remove extra whitespace. I can move the existing CSS/JS into media_src
     and provide a Makefile or python script to regenerate the files in 'media'.
-
-Nice to have:
 
 - Ruleset indentation (automatic, and manual- support for the Tab key)
 
