@@ -14,9 +14,6 @@ Latest screenshot:
 
 Must do before deployment:
 
-- Fix issues with importing existing rulesets. At the very least it should produce
-  a custom ruleset without the enclosing element and with extra indentation stripped.
-
 - Store change history for all assets. At the very least we need something descriptive
   to users and complete enough that we can revert changes automatically. Ideally it would
   also be space efficient. We should diff changes between rulesets. Internally this could
