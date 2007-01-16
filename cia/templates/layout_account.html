@@ -30,7 +30,7 @@
     {% if type.is_current %}
       <li class="active">{{ type.verbose_name_plural|capfirst }} {{ type.count|paren }}</li>
     {% else %}
-      <li><a href="/account/{{ type.asset_type }}/{{ type.default_id }}">{{ type.verbose_name_plural|capfirst }}
+      <li><a href="/account/{{ type.asset_type }}/{{ type.default_id }}/">{{ type.verbose_name_plural|capfirst }}
 	  {{ type.count|paren }}</a></li>
     {% endif %}
   {% endfor %}
