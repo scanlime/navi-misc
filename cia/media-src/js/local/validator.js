@@ -99,7 +99,7 @@ Validator.updateData = function()
 	self.loading.style.display = "none";
 	self.request = null;
 
-	var obj = JSON.parse(req.responseText);
+	var obj = req.responseText.parseJSON();
 
 	if (obj.is_valid) {
 	    self.show(self.validMessage);
