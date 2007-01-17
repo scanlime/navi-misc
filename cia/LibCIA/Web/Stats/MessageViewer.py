@@ -124,6 +124,47 @@ class UnformattedMessagePage(resource.Resource):
             request.finish()
 
 
+class HTMLPrettyPrinter(XML.XMLObjectParser):
+    """An object parser that converts arbitrary XML to pretty-printed
+       representations in the form of Nouvelle-serializable tag trees.
+       """
+    def parseString(self, s):
+        s = s.strip()
+        if s:
+            return tag('p', _class='xml-text')[ s ]
+        else:
+            return ()
+
+    def unknownElement(self, element):
+        # Format the element name and attributes
+        elementName = tag('span', _class="xml-element-name")[ element.nodeName ]
+        elementContent = [ elementName ]
+        for attr in element.attributes.values():
+            elementContent.extend([
+                ' ',
+                tag('span', _class='xml-attribute-name')[ attr.name ],
+                '="',
+                tag('span', _class='xml-attribute-value')[ attr.value ],
+                '"',
+                ])
+
+        # Now the contents...
+        if element.hasChildNodes():
+            completeElement = [
+                "<", elementContent, ">",
+                tag('blockquote', _class='xml-element-content')[
+                    [self.parse(e) for e in element.childNodes],
+                ],
+                "</", elementName, ">",
+                ]
+        else:
+            completeElement = ["<", elementContent, "/>"]
+
+        return tag('div', _class='xml-element')[ completeElement ]
+
+htmlPrettyPrint = HTMLPrettyPrinter().parse
+
+
 class MessagePage(Template.Page):
     """A page that views one message from the stats database"""
     mainTitle = 'Archived Message'
