@@ -2,6 +2,7 @@ from cia.apps.accounts import models, authplus
 from django.http import Http404
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
+import django.newforms as forms
 
 
 ###########################
@@ -121,6 +122,31 @@ def profile(request):
         'password_form': password_form,
         'profile_form': profile_form,
         }))
+
+
+###########################
+#      Asset Editing      #
+###########################
+
+class EditAssetForm(forms.Form):
+    access = forms.ChoiceField(
+        choices = models.access_choices,
+        widget = forms.RadioSelect,
+        )
+
+    def clean_access(self):
+        level = int(self.clean_data['access'])
+
+        # Don't allow users to set ownership levels that aren't allowed yet
+        if level not in (models.ACCESS.NONE, models.ACCESS.COMMUNITY):
+            level = models.ACCESS.COMMUNITY
+
+        return level
+
+    def save(self):
+        if self.clean_data['access'] == models.ACCESS.NONE:
+            # We're deleting the UserAsset 
+            pass
 
 
 ###########################
