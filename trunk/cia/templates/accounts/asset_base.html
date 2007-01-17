@@ -6,11 +6,9 @@
   {{ block.super }}
 
   <ul class="c2">
-    {% if add %}
-      <li class="active"><div class="add-icon"></div> Add {{ asset_type_name }}...</li>
-    {% else %}
-      <li><a href="/account/{{ asset_type }}/add/"><div class="add-icon"></div> Add {{ asset_type_name }}...</a></li>
-    {% endif %}
+    {% if add %} <li class="active"> {% else %} <li><a href="/account/{{ asset_type }}/add/"> {% endif %}
+      <img class="add-icon" src="/media/img/add-10.png" alt="+" /> Add {{ asset_type_name }}...    
+    {% if add %} </li> {% else %} </a></li> {% endif %}
 
     <li class="spacer"></li>
 

@@ -138,12 +138,9 @@ h1 {
 }
 
 .add-icon {
-  background: url("/media/img/add-15.png");
-  float: left;
-  width: 15px;
-  height: 15px;
-  margin: 0 0.25em 0 0;
-  overflow: hidden;   /* IE6 */
+  width: 10px;
+  height: 10px;
+  border: none;
 }
 
 form {
