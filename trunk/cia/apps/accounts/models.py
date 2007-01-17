@@ -104,6 +104,30 @@ class StatsTarget(models.Model):
         pass
 
 
+class AssetChange(models.Model):
+    """A single change that a user made to an asset. These log entries
+       can be viewed by all, and they can be used to reconstruct old
+       versions of an asset.
+
+       A separate AssetChange is used for every field. Changes which
+       modify multiple fields at once will generate several AssetChanges,
+       each with the same 'time' and 'user'.
+
+       Fields here typically match the model's field names. Special field
+       names, beginning with an underscore, represent events such as change
+       in access level.
+       """
+    time = models.DateTimeField(db_index=True)
+    user = models.ForeignKey(User)
+
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField(db_index=True)
+    asset = models.GenericForeignKey()
+
+    field = models.CharField(maxlength=32, db_index=True)
+    value = models.TextField(blank=True)
+
+
 class AssetManager(models.Manager):
     # A list of all Asset models, in the order they were created.
     models = []
