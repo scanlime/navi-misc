@@ -1,5 +1,5 @@
 from cia.apps.accounts import models, authplus
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 import django.newforms as forms
@@ -143,10 +143,18 @@ class EditAssetForm(forms.Form):
 
         return level
 
-    def save(self):
-        if self.clean_data['access'] == models.ACCESS.NONE:
-            # We're deleting the UserAsset 
-            pass
+    def should_delete(self):
+        """Are we removing access to this asset?"""
+        return self.clean_data['access'] == models.ACCESS.NONE
+
+    def delete(self, request, user_asset):
+        """Delete this UserAsset, create a message indicating that we
+           were successful, then redirect back to the 'add' page.
+           """
+        user_asset.delete()
+        request.user.message_set.create(message="Removed access to %s" % user_asset.asset)
+        return HttpResponseRedirect("/account/%s/add/" % 
+                                    user_asset.asset._meta.asset_type)
 
 
 ###########################
