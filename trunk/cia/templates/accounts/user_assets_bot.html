@@ -1,8 +1,3 @@
-{% extends 'accounts/asset.html' %}
-
-{! Customize the asset list to group by network !}
-
-{% block user_assets %}
 {% regroup user_assets|dictsort:"asset.getURI" by asset.network as grouped %}
 {% for group in grouped %}
   <li class="group">{{ group.grouper }}</li>
@@ -14,4 +9,3 @@
     {% endifequal %}
    {% endfor %}
 {% endfor %}
-{% endblock %}

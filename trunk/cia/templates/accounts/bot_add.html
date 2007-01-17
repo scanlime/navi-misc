@@ -1,23 +1,23 @@
-{% extends 'accounts/bot_asset.html' %}
+{% extends 'accounts/asset_add.html' %}
 
-{% block c3 %}
-<h1>Add {{ asset_type_name }}</h1>
+{% block user_assets %}
+  {% include 'accounts/user_assets_bot.html' %}
+{% endblock %}
 
-{% for message in messages %}
-<div class="message"><div class="icon"></div><p>{{ message }}</p></div>
-{% endfor %}
+{% block account-intro %}
+  <p class="narrow">
+  Add an IRC bot to your account. If no bot exists for the IRC channel
+  you specify, one will be created automatically.
+  </p>
 
-<p class="narrow">
-Add an IRC bot to your account. If no bot exists for the IRC channel
-you specify, one will be created automatically.
-</p>
+  <p class="narrow">
+  Bots will report commit messages in real-time.  After adding a bot
+  you can define which commits it reports and how those messages
+  are formatted.
+  </p>
+{% endblock %}
 
-<p class="narrow">
-Bots will report commit messages in real-time.  After adding a bot
-you can define which commits it reports and how those messages
-are formatted.
-</p>
-
+{% block account-forms %}
 <form action="{{ form_path }}" method="post">
   <fieldset><legend>IRC Bot</legend>
 
@@ -73,8 +73,11 @@ are formatted.
 
   </fieldset>
 </form>
+{% endblock %}
 
-<script type="text/javascript">
+{% block scripts-init %}
+  {{ block.super }}
+
   var network_details = new Object();
   {% for network in networks %}
   network_details["{{ network.id }}"] = "{{ network|escape|addslashes }}<br />{{ network.uri|escape|addslashes }}";
@@ -97,6 +100,4 @@ are formatted.
     network.selectedIndex = 0;
   }
   network.onchange();
-</script>
-
 {% endblock %}

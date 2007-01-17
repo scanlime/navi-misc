@@ -12,12 +12,20 @@
 {% block content %}
 <div class="columns">
 
-{% block main-columns %}{% endblock %}
+<ul class="{% block main-column-class %}c2-3{% endblock %}">
+  <h1>{% block h1 %}{% endblock %}</h1>
+
+  {% block account-intro %}{% endblock %}
+
+  {% for message in messages %}
+    <div class="message"><div class="icon"></div><p>{{ message }}</p></div>
+  {% endfor %}
+
+  {% block account-forms %}{% endblock %}
+</ul>
 
 {% block nav-columns %}
 <ul class="c1">
-  {% block c1 %}
-
   {% if profile %}
     <li class="active">Profile</li>
   {% else %}
@@ -34,7 +42,6 @@
 	  {{ type.count|paren }}</a></li>
     {% endif %}
   {% endfor %}
-{% endblock %}
 </ul>
 {% endblock %}
 
