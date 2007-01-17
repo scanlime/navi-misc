@@ -5,7 +5,7 @@ ported across DOM implementations multiple times, and may need to be
 ported again in the future. This file, in addition to making life easier,
 should hide quirks of particular DOM implementations as best as possible.
 
-This implementation uses PyXML's 4DOM.
+This implementation uses Minidom.
 
 """
 #
@@ -28,7 +28,6 @@ This implementation uses PyXML's 4DOM.
 #
 
 import types
-import Nouvelle
 from xml.dom import minidom
 import xml.xpath
 from cStringIO import StringIO
@@ -312,47 +311,6 @@ def firstChildElement(doc):
 def hasChildElements(doc):
     # Force a boolean result
     return firstChildElement(doc) is not None
-
-
-class HTMLPrettyPrinter(XMLObjectParser):
-    """An object parser that converts arbitrary XML to pretty-printed
-       representations in the form of Nouvelle-serializable tag trees.
-       """
-    def parseString(self, s):
-        s = s.strip()
-        if s:
-            return Nouvelle.tag('p', _class='xml-text')[ s ]
-        else:
-            return ()
-
-    def unknownElement(self, element):
-        # Format the element name and attributes
-        elementName = Nouvelle.tag('span', _class="xml-element-name")[ element.nodeName ]
-        elementContent = [ elementName ]
-        for attr in element.attributes.values():
-            elementContent.extend([
-                ' ',
-                Nouvelle.tag('span', _class='xml-attribute-name')[ attr.name ],
-                '="',
-                Nouvelle.tag('span', _class='xml-attribute-value')[ attr.value ],
-                '"',
-                ])
-
-        # Now the contents...
-        if element.hasChildNodes():
-            completeElement = [
-                "<", elementContent, ">",
-                Nouvelle.tag('blockquote', _class='xml-element-content')[
-                    [self.parse(e) for e in element.childNodes],
-                ],
-                "</", elementName, ">",
-                ]
-        else:
-            completeElement = ["<", elementContent, "/>"]
-
-        return Nouvelle.tag('div', _class='xml-element')[ completeElement ]
-
-htmlPrettyPrint = HTMLPrettyPrinter().parse
 
 
 # This used to be a WeakValueDictionary, but weakref'ing PyXML's compiled
