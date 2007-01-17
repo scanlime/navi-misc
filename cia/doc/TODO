@@ -20,10 +20,6 @@ Must do before deployment:
   be implemented using a new Change object which, on commit, would write to the Model in
   question and to that model's log.
 
-- At least minimal ownership control. Show all access levels, even if some are currently
-  disabled. Show other users who have access? If I do this, remember to audit all login
-  and registration text for guarantees over how username/fullname are used.
-
 Nice to have:
 
 - Add at least minimal documentation for rulesets. Some examples and a cheat sheet, if
