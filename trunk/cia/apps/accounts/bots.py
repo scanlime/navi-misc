@@ -189,10 +189,9 @@ def bot(request, asset_type, asset_id):
 
     if request.POST and form.is_valid():
         form.EditBotForm.save()
-        form.EditAssetForm.save()
-        request.user.message_set.create(message="Your bot was updated successfully.")
 
-    print form.is_valid(), repr(form.errors)
+        if form.EditAssetForm.should_delete():
+            return form.EditAssetForm.delete(request, user_asset)
 
     ctx.update({
         'form': form,
