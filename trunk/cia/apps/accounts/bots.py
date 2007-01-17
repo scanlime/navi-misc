@@ -1,4 +1,4 @@
-from cia.apps.accounts import models, assets, authplus
+from cia.apps.accounts import models, assets, authplus, formtools
 from django import newforms as forms
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -42,62 +42,45 @@ class AddBotForm(forms.Form):
     channel = forms.RegexField(r"^[^\s\x00-\x1f,%]+$", max_length=63,
                                error_message='Must be a valid IRC channel name.')
 
+    def is_other_network(self):
+        return self.data.get('network') == '_other'
+
+    def clean_network(self):
+        if not self.is_other_network():
+            try:
+                return models.Network.objects.get(pk=int(self.clean_data['network']))
+            except (ValueError, models.Network.DoesNotExist):
+                raise forms.ValidationError("Select a network.")
+
 class AddNetworkForm(forms.Form):
     netname = forms.CharField(max_length=200)
     server = forms.RegexField(r"^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,6}(:\d+)?$", max_length=120,
                                error_message='Must be a valid hostname with optional port.')
 
-class MultiForm:
-    """A simple wrapper for conditionally validating multiple forms
-       with the same data and error dictionaries.
-       """
-    def __init__(self, bindTo):
-        self.bindTo = bindTo
-        self.data = {}
-        self.clean_data = {}
-        self.errors = {}
-
-    def validate(self, form):
-        inst = form(self.bindTo)
-        inst.full_clean()
-        self.errors.update(inst.errors)
-        self.data.update(inst.data.items())
-        if hasattr(inst, 'clean_data'):
-            self.clean_data.update(inst.clean_data.items())
-
-def validate_network(form, field_name='network'):
-    try:
-        return models.Network.objects.get(pk=int(form.data.get('network')))
-    except (ValueError, models.Network.DoesNotExist):
-        form.errors['network'] = forms.util.ErrorList(["Select a network."])
+    def get_or_create(self, request):
+        """Look up an existing network using this server name,
+           creating one if it doesn't already exist.
+           """
+        uri = "irc://%s/" % self.clean_data['server']
+        return models.Network.objects.get_or_create(
+            uri__iexact = uri,
+            defaults = dict(uri = uri,
+                            description = self.clean_data['netname'],
+                            created_by = request.user),
+            )[0]
 
 @authplus.login_required
 def add_bot(request, asset_type):
-    form = MultiForm(request.POST)
+    form = formtools.MultiForm(request.POST)
 
     if request.POST:
         form.validate(AddBotForm)
-        if form.data.get('network') == '_other':
+        if form.AddBotForm.is_other_network():
             form.validate(AddNetworkForm)
-            network = None
-        else:
-            network = validate_network(form)
 
-        if not form.errors:
-            if not network:
-                # No network was explicitly mentioned in the
-                # form- the user picked "Other". We'll look
-                # up an existing network using the supplied
-                # hostname, creating a new one if necessary.
-
-                uri = "irc://%s/" % form.clean_data['server']
-                network = models.Network.objects.get_or_create(
-                    uri__iexact = uri,
-                    defaults = dict(uri = uri,
-                                    description = form.clean_data['netname'],
-                                    created_by = request.user),
-                    )[0]
-
+        if form.is_valid():
+            # Get/create the network, now that we know all forms validated
+            network = form.clean_data['network'] or form.AddNetworkForm.get_or_create(request)
             location = normalize_channel_to_location(form.clean_data['channel'])
 
             # Now look up a matching bot. We might have to create this too.
@@ -137,9 +120,6 @@ def add_bot(request, asset_type):
 ###########################
 
 class EditBotForm(forms.Form):
-
-    ### Basic Filtering
-    
     filter_mode = forms.ChoiceField(
         choices = models.filter_mode_choices,
         widget = forms.RadioSelect,
@@ -170,8 +150,6 @@ class EditBotForm(forms.Form):
 
         return '\n'.join(projects)
 
-    ### Advanced Filtering
-
     custom_ruleset = forms.CharField(
         required = False,
         widget = forms.Textarea,
@@ -188,76 +166,42 @@ class EditBotForm(forms.Form):
         # the client side.. but this is sufficient for now.
         return models.validate_ruleset(self.clean_data['custom_ruleset'], allow_empty)
 
-    ### Ownership
-    
-    access_level = forms.ChoiceField(
-        choices = models.access_choices,
-        widget = forms.RadioSelect,
-        )
+    def save(self):
+        bot = self.data.model
 
-    def clean_access_level(self):
-        level = int(self.clean_data['access_level'])
+        for key, value in self.clean_data.items():
+            setattr(bot, key, value)
 
-        # Don't allow users to set ownership levels that aren't allowed yet
-        if level not in (models.ACCESS.NONE, models.ACCESS.COMMUNITY):
-            level = models.ACCESS.COMMUNITY
+        bot.syncToServer()
+        bot.save()
 
-        return level
-
-
-class RadioChoices:
-    """This object provides a dictionary-like interface for looking up
-       individual choices on a RadioSelect widget. This lets the
-       template make decisions about how to lay out a group of radio
-       buttons, while letting the form render each individual button.
-       """
-    def __init__(self, boundField, enum):
-        self.renderer = boundField.as_widget(boundField.field.widget, attrs={'class': 'radio'})
-        self.enum = enum
-
-    def __getitem__(self, enumName):
-        enumValue = getattr(self.enum, enumName)
-        input = self.renderer[enumValue]
-        return u'<label class="radio">%s %s</label>' % (input.tag(), input.choice_label)
-
-class ModelData:
-    """Wrapper for using an existing model as data for a form"""
-    def __init__(self, model):
-        self.model = model
-
-    def get(self, key, default=None):
-        return getattr(self.model, key, default)
 
 @authplus.login_required
 def bot(request, asset_type, asset_id):
     ctx = assets.get_asset_edit_context(request, asset_type, asset_id)
     user_asset = ctx['user_asset']
     bot = user_asset.asset
-
     bot.syncFromServer()
-    form = EditBotForm(request.POST or ModelData(bot))
+
+    form = formtools.MultiForm(request.POST)
+    form.validate(EditBotForm, bot)
+    form.validate(assets.EditAssetForm, user_asset)
 
     if request.POST and form.is_valid():
-        for key, value in form.clean_data.items():
-            setattr(bot, key, value)
-
-        bot.syncToServer()
-        bot.save()
-
-        if form.clean_data['access_level'] == models.ACCESS.NONE:
-            # We're deleting the UserAsset 
-            pass
-
+        form.EditBotForm.save()
+        form.EditAssetForm.save()
         request.user.message_set.create(message="Your bot was updated successfully.")
+
+    print form.is_valid(), repr(form.errors)
 
     ctx.update({
         'form': form,
 
         'FILTER': models.FILTER,
-        'modes': RadioChoices(form['filter_mode'], models.FILTER),
+        'modes': formtools.RadioChoices(form['filter_mode'], models.FILTER),
 
         'ACCESS': models.ACCESS,
-        'levels': RadioChoices(form['access_level'], models.ACCESS),
+        'levels': formtools.RadioChoices(form['access'], models.ACCESS),
 
         'network_host': bot.network.getHost('irc'),
         'channel': get_channel_from_location(bot.location),
