@@ -1,0 +1,109 @@
+{% extends 'accounts/asset_edit.html' %}
+
+{% block user_assets %}
+  {% include 'accounts/user_assets_bot.html' %}
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script type="text/javascript" src="/media/js/yahoo-min.js" ></script>
+  <script type="text/javascript" src="/media/js/connection-min.js" ></script>
+  <script type="text/javascript" src="/media/js/json-min.js" ></script>
+  <script type="text/javascript" src="/media/js/units.js" ></script>
+  <script type="text/javascript" src="/media/js/bot-status.js" ></script>
+  <script type="text/javascript" src="/media/js/validator.js" ></script>
+{% endblock %}
+
+{% block scripts-init %}
+  {{ block.super }}
+  BotStatus.init("/api/irc-bot-requests/{{ network_host|urlencode }}/{{ channel|urlencode }}/status/");
+  Validator.init("/api/validators/ruleset/", "Filter passed validation.",
+                 "id_custom_ruleset", "ruleset-status", "ruleset-loading");
+  setCheckboxOnTextChanged("id_filter_mode_{{ FILTER.CUSTOM }}", "id_custom_ruleset");
+  setCheckboxOnTextChanged("id_filter_mode_{{ FILTER.PROJECT_LIST }}", "id_project_list");
+{% endblock %}
+
+{% block sidebar %}
+  <div id="sidebar">
+     <h2>Bot Status</h2>
+     <div id="bot-status-loading" class="ajax-loader"></div>
+     <div id="bot-status-message"></div>
+  </div>
+{% endblock %}
+
+{% block tabs %}
+  <li><a href="#basic-filtering" class="active"> Basic Filtering
+    {% if form.errors.project_list %}
+      <span class="error">(errors)</span>
+    {% endif %}
+  </a></li>
+
+  <li><a href="#advanced-filtering"> Advanced Filtering
+    {% if form.errors.custom_ruleset %}
+      <span class="error">(errors)</span>
+    {% endif %}
+  </a></li>
+
+  {{ block.super }}
+{% endblock %}
+
+{% block tab-content %}
+  <div id="basic-filtering" class="tabset_content">
+    <h2 class="tabset_label">Basic Filtering</h2>
+
+    <div class="form-row">
+      {{ modes.INACTIVE }}      
+      <div class="radio">
+	<p class="note">
+	  The bot will be disabled. All settings will be preserved,
+	  so you can easily re-enable the bot at any time.
+	</p>
+      </div>
+    </div>
+
+    <div class="form-row">
+      {{ modes.PROJECT_LIST }}
+      <div class="radio">
+	<p class="note">
+	  The bot will report commits to any of the following projects.
+	  Please list one project name per line. The names here should match
+	  the names set in the CIA client scripts for your projects.
+	</p>
+	{{ form.project_list }}
+	<p class="note">
+	  {{ form.show_project_names }}
+          <label class="checkbox" for="id_show_project_names">Prefix each commit with its project name</label>
+	</p>
+        <p class="error">{{ form.errors.project_list.0 }}</p>
+      </div>
+    </div>
+
+    <div class="form-row">
+      {{ modes.CUSTOM }}
+      <div class="radio">
+	<p class="note">
+	  You can define and edit a custom filter using the
+	  <a href="#advanced-filtering">Advanced Filtering</a> tab.
+	</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="advanced-filtering" class="tabset_content">
+    <h2 class="tabset_label">Advanced Filtering</h2>
+
+    <p class="narrow">
+      Advanced filters are written in CIA's <i>Ruleset</i> language.
+      Reference, examples, and cheat sheet coming soon...
+    </p>
+    <div id="ruleset-editor">
+      {{ form.custom_ruleset }}
+      <div class="validation">
+        <div id="ruleset-loading" class="ajax-loader"></div>
+        <p id="ruleset-status" class="error">{{ form.errors.custom_ruleset.0|escape }}&nbsp;</p>
+      </div>      
+    </div>
+  </div>
+
+  {{ block.super }}
+{% endblock %}

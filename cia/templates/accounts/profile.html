@@ -1,11 +1,10 @@
 {% extends 'layout_account.html' %}
 
-{% block main-columns %}
-<div class="c2-3">
-<h1>Your Account Profile</h1>
+{% block h1 %}Your Account Profile{% endblock %}
 
+{% block account-intro %}
 <p class="narrow">
-This is your account for administrating
+  This is your account for administrating
   {% for type in asset_types %}
     {% if forloop.last %}
       and {{ type.verbose_name_plural }}.
@@ -14,22 +13,19 @@ This is your account for administrating
     {% endif %}
   {% endfor %}
 
-While the resources you create may be available for the world to see,
-your account itself is not publicly visible. Your username here does
-not necessarily need to match your username on any source repositories.
+  While the resources you create may be available for the world to see,
+  your account itself is not publicly visible. Your username here does
+  not necessarily need to match your username on any source repositories.
 </p>
-
 <p class="narrow">
-Your e-mail address will never be publicly visible, nor will it ever
-be distributed to third parties. It will only be used to help you recover
-lost passwords, and to notify you of events (such as project ownership
-disputes) when you specifically opt-in for such notifications.
+  Your e-mail address will never be publicly visible, nor will it ever
+  be distributed to third parties. It will only be used to help you recover
+  lost passwords, and to notify you of events (such as project ownership
+  disputes) when you specifically opt-in for such notifications.
 </p>
+{% endblock %}
 
-{% for message in messages %}
-<div class="message"><div class="icon"></div><p>{{ message }}</p></div>
-{% endfor %}
-
+{% block account-forms %}
 <form action="/account/" method="post">
   <fieldset><legend>Personal Information</legend>
   <div class="form-row">
@@ -79,6 +75,4 @@ disputes) when you specifically opt-in for such notifications.
   </div>
   </fieldset>
 </form>
-
-</div>
 {% endblock %}

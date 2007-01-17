@@ -129,7 +129,7 @@ def add_bot(request, asset_type):
         'networks': allNetworks,
         'form': form,
         })
-    return render_to_response('accounts/add_bot.html', RequestContext(request, ctx))
+    return render_to_response('accounts/bot_add.html', RequestContext(request, ctx))
 
 
 ###########################
@@ -196,7 +196,14 @@ class EditBotForm(forms.Form):
         )
 
     def clean_access_level(self):
-        return int(self.clean_data['access_level'])
+        level = int(self.clean_data['access_level'])
+
+        # Don't allow users to set ownership levels that aren't allowed yet
+        if level not in (models.ACCESS.NONE, models.ACCESS.COMMUNITY):
+            level = models.ACCESS.COMMUNITY
+
+        return level
+
 
 class RadioChoices:
     """This object provides a dictionary-like interface for looking up
@@ -233,8 +240,14 @@ def bot(request, asset_type, asset_id):
     if request.POST and form.is_valid():
         for key, value in form.clean_data.items():
             setattr(bot, key, value)
+
         bot.syncToServer()
         bot.save()
+
+        if form.clean_data['access_level'] == models.ACCESS.NONE:
+            # We're deleting the UserAsset 
+            pass
+
         request.user.message_set.create(message="Your bot was updated successfully.")
 
     ctx.update({
@@ -249,4 +262,4 @@ def bot(request, asset_type, asset_id):
         'network_host': bot.network.getHost('irc'),
         'channel': get_channel_from_location(bot.location),
         })
-    return render_to_response('accounts/bot.html', RequestContext(request, ctx))
+    return render_to_response('accounts/bot_edit.html', RequestContext(request, ctx))
