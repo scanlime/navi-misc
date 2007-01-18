@@ -71,7 +71,7 @@ class BaseNetwork:
     def __hash__(self):
         return hash(self.alias)
 
-    def getNextServer(self, factory):
+    def getNextServer(self):
         """Return the next server, as a (host, port) tuple, to use for this network."""
         # By default, just try them all round-robin style
         self.currentServer = self.currentServer % len(self.servers)

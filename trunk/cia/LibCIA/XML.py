@@ -27,11 +27,8 @@ This implementation uses Minidom.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import types
+import re
 from xml.dom import minidom
-import xml.xpath
-from cStringIO import StringIO
-from twisted.python import log
 from xml.sax import SAXParseException as ParseException
 
 
@@ -48,7 +45,7 @@ class XMLObject(object):
     _xpcache = None
     
     def __init__(self, doc=None, uri=None):
-        if type(doc) in types.StringTypes:
+        if type(doc) in (str, unicode):
             self.loadFromString(doc, uri)
         elif hasattr(doc, 'read'):
             self.loadFromStream(doc, uri)
@@ -278,12 +275,8 @@ def parseString(string):
     # Grarr.. minidom can't directly parse Unicode objects
     if type(string) is unicode:
         string = string.encode('utf-8')
-    
-    try:
-        return minidom.parseString(string)
-    except:
-        log.msg("Error loading the following XML string:\n%s" % string)
-        raise
+
+    return minidom.parseString(string)
 
 
 def createRootNode():
@@ -313,45 +306,8 @@ def hasChildElements(doc):
     return firstChildElement(doc) is not None
 
 
-# This used to be a WeakValueDictionary, but weakref'ing PyXML's compiled
-# XPath objects seems to result in a memory leak. This just caches every XPath
-# we create, which should perform nicely with a typical CIA load. Maintenance
-# of the cache currently must be done manually with the debug console if necessary.
-xPathCache = {}
-
-enableXPathCache = True
-
-class XPath:
-    """A precompiled XPath class that caches parsed XPaths in a global
-       dictionary. This should help CIA a bit with load time and memory
-       usage, since we use many of the same XPaths in rulesets and filters.
-       """
-    def __init__(self, path, context=None):
-        global xPathCache
-        global enableXPathCache
-
-        if enableXPathCache:
-            try:
-                self.compiled = xPathCache[path]
-            except KeyError:
-                self.compiled = self._compile(path)
-                xPathCache[path] = self.compiled
-        else:
-            self.compiled = self._compile(path)
-
-    def _compile(self, path):
-        # xpath.Compile() seems to have broken error handling-
-        # it's reporting syntax errors as RuntimeException.INTERNAL.
-        # Work around this by instantiating the parser directly.
-        try:
-            return xml.xpath.parser.new().parse(path)
-        except xml.xpath.yappsrt.SyntaxError, e:
-            raise XMLValidityError('XPath syntax error in "%s" at char %d: %s' % (
-                path, e.pos, e.msg))
-
-    def queryForNodes(self, doc):
-        """Query an XML DOM, returning the result set"""
-        return self.compiled.evaluate(xml.xpath.CreateContext(doc))
+class XPathBase:
+    """Abstract base XPath implementation"""
 
     def queryObject(self, obj):
         """Query an XMLObject, using its cache if possible"""        
@@ -366,5 +322,69 @@ class XPath:
                 obj._xpcache[idc] = r
                 return r
         return self.queryForNodes(obj.xml)
+
+
+class XPathFull(XPathBase):
+    """Full XPath implementation, using 4XPath.  Caches all xpaths by
+       default, in a global dictionary. XPaths are never evicted from
+       the cache.
+       """
+    cache = {}
+    enableCache = True
+
+    def __init__(self, path):
+        if self.enableCache:
+            try:
+                self.compiled = self.cache[path]
+            except KeyError:
+                self.compiled = self._compile(path)
+                self.cache[path] = self.compiled
+        else:
+            self.compiled = self._compile(path)
+
+    def _compile(self, path):
+        # xpath.Compile() seems to have broken error handling-
+        # it's reporting syntax errors as RuntimeException.INTERNAL.
+        # Work around this by instantiating the parser directly.
+
+        import xml.xpath
+
+        try:
+            return xml.xpath.parser.new().parse(path)
+        except xml.xpath.yappsrt.SyntaxError, e:
+            raise XMLValidityError('XPath syntax error in "%s" at char %d: %s' % (
+                path, e.pos, e.msg))
+
+    def queryForNodes(self, doc):
+        """Query an XML DOM, returning the result set"""
+        return self.compiled.evaluate(xml.xpath.CreateContext(doc))
+
+
+class XPathTiny(XPathBase):
+    """Implements a very tiny XPath subset, which only supports absolute
+       paths using only the default (child::) axis.
+       """
+    _validation_re = re.compile(r"^(/[a-zA-Z_][a-zA-Z0-9_\.-]*)+$")
+
+    def __init__(self, path):
+        if not self._validation_re.match(path):
+            raise XMLValidityError('"%s" is not valid in the supported subset of XPath' % path)
+        self.compiled = path.split("/")[1:]
+
+    def queryForNodes(self, doc):
+        ELEMENT = doc.ELEMENT_NODE
+        current = [doc]
+        for name in self.compiled: 
+            next = []
+            for el in current:
+                for child in el.childNodes:
+                    if child.nodeType == ELEMENT and child.nodeName == name:
+                        next.append(child)
+            current = next
+        return current
+
+
+# Our big switch to choose the default XPath implementation
+XPath = XPathTiny
 
 ### The End ###
