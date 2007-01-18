@@ -1220,7 +1220,10 @@ class BotFactory(protocol.ClientFactory):
     def __init__(self, botNet, network):
         self.botNet = botNet
         self.network = network
-        self.network.connect(self)
+
+        host, port = network.getNextServer()
+        log.msg("Using server %s:%s for %r" % (host, port, network))
+        reactor.connectTCP(host, port, self)
 
     def clientConnectionLost(self, connector, reason):
         log.msg("IRC Connection to %r lost: %r" % (self.network, reason))
