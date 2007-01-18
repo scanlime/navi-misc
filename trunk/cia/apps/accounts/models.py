@@ -104,28 +104,111 @@ class StatsTarget(models.Model):
         pass
 
 
-class AssetChange(models.Model):
-    """A single change that a user made to an asset. These log entries
-       can be viewed by all, and they can be used to reconstruct old
-       versions of an asset.
+class AssetChangesetManager(models.Manager):
+    def apply_changes(self, user, asset, changes={}, meta=()):
+        """Apply a dictionary of changes to an asset. If anything in
+           fact changed, this will create a record of those changes
+           and save the asset.
 
-       A separate AssetChange is used for every field. Changes which
-       modify multiple fields at once will generate several AssetChanges,
-       each with the same 'time' and 'user'.
+           The optional 'meta' list contains a set of fields, with no
+           data, to add to the changeset. This can be used to store
+           ownership changes and other events which aren't directly
+           represented by an asset's fields.
+           """
 
-       Fields here typically match the model's field names. Special field
-       names, beginning with an underscore, represent events such as change
-       in access level.
+        # Apply the changes while storing differences
+        previous = {}
+        for field, new in changes.items():
+            p = getattr(asset, field, None)
+            if p == new:
+                del changes[field]
+            else:
+                previous[field] = p
+                setattr(asset, field, new)
+
+        self.store_changes(user, asset, changes, meta)
+
+        if changes:
+            asset.save()
+
+    def store_changes(self, user, asset, changes={}, meta=(), previous={}):
+        """Like apply_changes, but don't actually modify
+           the asset and don't prune anything from 'changes'.
+           If no dictionary of previous values is provided,
+           we assume all previous values were None. This is
+           convenient for creating new assets.
+           """           
+        # Don't create empty changesets
+        if not (changes or meta):
+            return
+
+        # Create the changeset
+        cset = self.create(
+            user = user,
+            content_type = ContentType.objects.get_for_model(asset.__class__),
+            object_id = asset.id,
+            )
+
+        # Create each change in the changeset
+        for field, new in changes.items():
+            AssetChangeItem.objects.create(
+                changeset = cset,
+                field = field,
+                new_value = new,
+                old_value = previous.get(field),
+                )
+
+        # Create meta-fields
+        for field in meta:
+            AssetChangeItem.objects.create(
+                changeset = cset,
+                field = field,
+                )
+
+
+class AssetChangeset(models.Model):
+    """A single set of changes made to an asset, committed atomically
+       to that asset by a single user. These log entries can be viewed
+       by all, and they can be used to reconstruct old versions of an
+       asset.
        """
-    time = models.DateTimeField(db_index=True)
+    objects = AssetChangesetManager()
+
+    time = models.DateTimeField(auto_now_add=True, db_index=True)
     user = models.ForeignKey(User)
 
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField(db_index=True)
     asset = models.GenericForeignKey()
 
+    def __str__(self):
+        return "Change %d for %s by %s" % (self.id, self.asset, self.user)
+
+class AssetChangeItem(models.Model):
+    """A separate AssetChange is used for every field touched by an
+       AssetChangeset. Changesets which modify multiple fields at once
+       will generate several AssetChangeItems.
+
+       Fields here typically match the model's field names. Special field
+       names, beginning with an underscore, represent events such as change
+       in access level.
+       """
+    changeset = models.ForeignKey(AssetChangeset, related_name='items')
     field = models.CharField(maxlength=32, db_index=True)
-    value = models.TextField(blank=True)
+
+    # Storing both the new value and old value is redundant, but it should
+    # reduce the I/O load on the database relative to storing only diffs, since
+    # we only have to visit a single row in order to get new value, old value,
+    # or a diff. If this table gets too big we can revisit this problem later.
+    #
+    new_value = models.TextField(blank=True, null=True)
+    old_value = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        if self.new_value is None:
+            return str(self.field)
+        else:
+            return "%s: %r -> %r" % (self.field, self.old_value, self.new_value)
 
 
 class AssetManager(models.Manager):
@@ -290,8 +373,7 @@ class Bot(models.Model):
 
         return '\n'.join(lines)
 
-    def syncFromServer(self,
-                       ):
+    def syncFromServer(self):
         """Update this Bot from the RPC server, if necessary.
            Right now the only task this performs is to store the
            server's ruleset if filterMode is 'unknown'.
