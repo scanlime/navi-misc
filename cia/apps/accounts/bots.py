@@ -79,23 +79,44 @@ def add_bot(request, asset_type):
             form.validate(AddNetworkForm)
 
         if form.is_valid():
+            meta = []
+
             # Get/create the network, now that we know all forms validated
             network = form.clean_data['network'] or form.AddNetworkForm.get_or_create(request)
             location = normalize_channel_to_location(form.clean_data['channel'])
 
             # Now look up a matching bot. We might have to create this too.
-            bot = models.Bot.objects.get_or_create(
+            defaults = dict(
+                network = network,
+                location = location,
+                )
+            bot, created_bot = models.Bot.objects.get_or_create(
                 network = network,
                 location__iexact = location,
-                defaults = dict(location=location),
-                )[0]
+                defaults = defaults,
+                )
+            if created_bot:
+                meta.append('_created')
+                changes = defaults
+            else:
+                changes = {}
 
             # Finally, create a new UserAsset.
-            user_asset = models.UserAsset.objects.get_or_create(
+            user_asset, created_user_asset = models.UserAsset.objects.get_or_create(
                 user = request.user,
                 content_type = ContentType.objects.get_for_model(models.Bot),
                 object_id = bot.id,
-                )[0]
+                )
+            if created_user_asset:
+                meta.append('_gained_access')
+
+            # Record these changes
+            models.AssetChangeset.objects.store_changes(
+                user = request.user,
+                asset = bot,
+                meta = meta,
+                changes = changes,
+                )
 
             return HttpResponseRedirect("/account/%s/%s/" % (
                 user_asset.asset._meta.asset_type, user_asset.id,
@@ -166,15 +187,6 @@ class EditBotForm(forms.Form):
         # the client side.. but this is sufficient for now.
         return models.validate_ruleset(self.clean_data['custom_ruleset'], allow_empty)
 
-    def save(self):
-        bot = self.data.model
-
-        for key, value in self.clean_data.items():
-            setattr(bot, key, value)
-
-        bot.syncToServer()
-        bot.save()
-
 
 @authplus.login_required
 def bot(request, asset_type, asset_id):
@@ -188,7 +200,18 @@ def bot(request, asset_type, asset_id):
     form.validate(assets.EditAssetForm, user_asset)
 
     if request.POST and form.is_valid():
-        form.EditBotForm.save()
+        meta = []
+
+        if form.EditAssetForm.should_delete():
+            meta.append('_lost_access')
+
+        models.AssetChangeset.objects.apply_changes(
+            user = request.user,
+            asset = bot,
+            changes = form.EditBotForm.clean_data,
+            meta = meta,
+            )
+        bot.syncToServer()
 
         if form.EditAssetForm.should_delete():
             return form.EditAssetForm.delete(request, user_asset)
