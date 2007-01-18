@@ -22,9 +22,6 @@ define special behaviour relevant to that IRC network.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.internet import reactor
-from twisted.python import log
-
 
 class BaseNetwork:
     """Base class for IRC networks. A network may consist of multiple servers-
@@ -74,17 +71,15 @@ class BaseNetwork:
     def __hash__(self):
         return hash(self.alias)
 
-    def connect(self, factory):
-        """Connect the given BotFactory instance to one of the servers on this network"""
+    def getNextServer(self, factory):
+        """Return the next server, as a (host, port) tuple, to use for this network."""
         # By default, just try them all round-robin style
         self.currentServer = self.currentServer % len(self.servers)
         host, port = self.servers[self.currentServer]
         self.currentServer += 1
         if port is None:
             port = self.defaultPort
-
-        log.msg("Using server %s:%s for %r" % (host, port, self))
-        reactor.connectTCP(host, port, factory)
+	return (host, port)
 
 
 class GenericNetwork(BaseNetwork):

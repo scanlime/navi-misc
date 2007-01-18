@@ -23,8 +23,3 @@ color formatting, and the irc:// URI handler.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-# Convenience imports
-import Handler
-import Formatting
-
-### The End ###
