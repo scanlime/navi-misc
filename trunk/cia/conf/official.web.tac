@@ -46,6 +46,9 @@ rpc.putSubHandler('stats', Stats.Interface.StatsInterface())
 site.putComponent('stats', stats)
 site.putComponent('doc', doc)
 
+# External components, implemented in DJango
+site.putComponent('account', Web.Server.Component("Your Account"))
+
 # These components don't work across the Web/RPC split yet
 #site.putComponent('irc', Web.BotStatus.Component(remoteBots))
 #site.putComponent('rulesets', Web.RulesetBrowser.Component(rulesetStorage))

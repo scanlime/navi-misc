@@ -155,10 +155,14 @@ class Component:
     url = None
 
     # The component's resource, will be set by the component's constructor.
+    # Optional. Components implemented in the Django server won't have this.
     resource = None
 
     # The component's user-visible name, if it has one
     name = None
+
+    def __init__(self, name=None):
+        self.name = name
 
     def __contains__(self, page):
         """Subclasses must implement this to test whether a page
@@ -182,7 +186,8 @@ class Site(server.Site):
     def putComponent(self, childName, component):
         """Install the given component instance at 'childName'"""
         component.url = '/' + childName
-        self.resource.putChild(childName, component.resource)
+        if component.resource:
+            self.resource.putChild(childName, component.resource)
         self.components.append(component)
 
 ### The End ###
