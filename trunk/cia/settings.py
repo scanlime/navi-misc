@@ -17,7 +17,7 @@ TEMPLATE_DEBUG = DEBUG
 # I'm using this to put the site through a testing period in which it isn't
 # fully public, but it's coexisting with the rest of CIA.
 #
-CIA_REGISTRATION_IS_CLOSED = True
+CIA_REGISTRATION_IS_CLOSED = False
 
 ADMINS = (
     ('Micah Dowty', 'micah@navi.cx'),
