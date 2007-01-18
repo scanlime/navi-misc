@@ -5,39 +5,25 @@ New Web Interface
 -----------------
 
 There is a new web interface under development, using Django. It will eventually
-replace the old web interface entirely, but it will first be deployed as a self-service
-interface for managing bots and metadata.
+replace the old web interface entirely, but it's currently only used for managing
+user accounts and assets (such as bots, projects, and authors).
 
-Latest screenshot:
+- "Coming Soon" features:
 
-- http://navi.cx/~micah/basic-filtering-1.png
+  - Add at least minimal documentation for rulesets. Some examples and a cheat sheet, if
+    not a full syntax manual.
 
-Must do before deployment:
+  - Metadata editing
 
-- Store change history for all assets. At the very least we need something descriptive
-  to users and complete enough that we can revert changes automatically. Ideally it would
-  also be space efficient. We should diff changes between rulesets. Internally this could
-  be implemented using a new Change object which, on commit, would write to the Model in
-  question and to that model's log.
+  - View change history and revert changes.
 
-Nice to have:
+- Ruleset editor improvements:
 
-- Add at least minimal documentation for rulesets. Some examples and a cheat sheet, if
-  not a full syntax manual.
+  - Automatically size the ruleset editor textarea to fit the screen?
 
-- Automatically size the ruleset editor textarea to fit the screen?
+  - Ruleset indentation (automatic, and manual- support for the Tab key)
 
-- Profile performance with lighttpd and fastcgi in a production environment.
-
-  - Already started doing this on my laptop. Performance is impressive so far.
-
-  - It may be worthwhile to combine all static CSS and Javascript into a smaller number
-    of files, and remove extra whitespace. I can move the existing CSS/JS into media_src
-    and provide a Makefile or python script to regenerate the files in 'media'.
-
-- Ruleset indentation (automatic, and manual- support for the Tab key)
-
-- Ruleset error/syntax hilighting using CodePress (which apparently does indeed work on Safari)
+  - Ruleset error/syntax hilighting using CodePress (which apparently does indeed work on Safari)
 
 
 Deep Changes

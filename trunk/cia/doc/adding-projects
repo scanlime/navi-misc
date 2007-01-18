@@ -15,9 +15,8 @@ There are only a few steps in connecting a project with CIA:
 - Tada. The next time you commit, your project should show up in the
   #commits IRC channel on Freenode_, and in the `stats browser`_.
 
-- If you want CIA to join a new IRC channel, contact Micah_ via email
-  and he will add a ruleset_ manually. The web interface
-  for rulesets_ currently is read-only.
+- If you want CIA to join a new IRC channel, `create an account`_
+  and add a new bot.
 
 - Likewise, your project's stats page will be a bit dull. Projects
   or authors can add metadata_ to their stats page, to change the
@@ -34,12 +33,11 @@ There are only a few steps in connecting a project with CIA:
 
     - `David Trowbridge`_
 
+.. _create an account: /account/
 .. _metadata: /doc/metadata
 .. _how CIA works: /doc/how-cia-works
 .. _stats browser: /stats
 .. _Freenode: http://freenode.org
-.. _ruleset: /rulesets
-.. _rulesets: /rulesets
 .. _client script: /doc/clients
 .. _Micah: mailto:micah@navi.cx
 .. _BZFlag: /stats/project/BZFlag
