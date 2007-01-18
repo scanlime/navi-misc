@@ -12,6 +12,7 @@
 import os
 port = int(os.getenv("PORT"))
 
+import LibCIA.IRC.Handler
 from twisted.application import service, internet
 from LibCIA import Database, Message, Ruleset, IRC, Stats, IncomingMail, Cron
 from LibCIA import Debug, Security, RpcServer, RpcClient, Web, Cache, Files
