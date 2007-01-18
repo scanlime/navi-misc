@@ -38,13 +38,13 @@ typedef struct
 	GtkWidget *toggle;
 	TacoBar   *taco_bar;
 	gboolean   active;
-} TacoBarEntry;
+} TacoBarPage;
 
 struct _TacoBarPrivate {
     	GtkWidget *notebook;
 	GtkWidget *top_box;
 	GtkWidget *bottom_box;
-	TacoBarEntry *active;
+	TacoBarPage *active;
 	GHashTable *page_hash;
 };
 
@@ -72,15 +72,6 @@ taco_bar_destroy (GtkObject *object)
 	(* GTK_OBJECT_CLASS (taco_bar_parent_class)->destroy) (object);*/
 }
 
-static gboolean
-taco_bar_on_button_press_event (GtkWidget *widget,
-			     GdkEventButton *event,
-			     TacoBarEntry *entry)
-{
-    	printf ("button press - %i\n", entry->active);
-    	/* Suppress further signal handling if the button is active (moo) */
-    	return entry->active;
-}
 
 static void
 taco_bar_class_init (TacoBarClass *taco_bar_class)
@@ -99,11 +90,12 @@ taco_bar_class_init (TacoBarClass *taco_bar_class)
 }
 
 void
-taco_bar_activate (TacoBar *taco_bar, TacoBarEntry *new_active)
+taco_bar_activate (TacoBar *taco_bar, TacoBarPage *new_active)
 {
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (new_active->toggle), 1);
+//	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (new_active->toggle), 1);
 	gtk_notebook_set_current_page (GTK_NOTEBOOK (taco_bar->priv->notebook),
 				       new_active->index);
+//	gtk_widget_set_sensitive (new_active->toggle, FALSE);
 	taco_bar->priv->active = new_active;
 	new_active->active = TRUE;
 }
@@ -111,33 +103,60 @@ taco_bar_activate (TacoBar *taco_bar, TacoBarEntry *new_active)
 void
 taco_bar_deactivate_current (TacoBar *taco_bar)
 {
-    	TacoBarEntry *old_active = taco_bar->priv->active;
+    	TacoBarPage *old_active = taco_bar->priv->active;
 	
 	g_return_if_fail (old_active != NULL);
 
 	old_active = taco_bar->priv->active;
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (old_active->toggle),
 				      FALSE);
+//	gtk_widget_set_sensitive (old_active->toggle, TRUE);
+	gtk_widget_set_state (old_active->toggle, GTK_STATE_NORMAL);
 	old_active->active = FALSE;
 }
 
-static void
-taco_bar_on_toggle (GtkWidget *widget,
-		    TacoBarEntry *page)
+static gboolean
+taco_bar_on_button_press_event (GtkWidget *widget,
+			     GdkEventButton *event,
+			     TacoBarPage *page)
 {
-	static char lock=0;
     	TacoBar *taco_bar = page->taco_bar;
 
-	if (lock)
-	    return;
+	if (widget == taco_bar->priv->active->toggle)
+	{
+	    printf("same widget\n");
+	    return TRUE;
+	}
 
-	lock = 1;
 	g_return_if_fail (page != taco_bar->priv->active);
 
 	taco_bar_deactivate_current (taco_bar);
 	taco_bar_activate (taco_bar, page);
 	gtk_container_resize_children (GTK_CONTAINER(taco_bar));
-	lock = 0;
+
+	return FALSE;
+}
+
+static void
+taco_bar_on_state_change_event (GtkWidget *widget, GtkStateType state, TacoBarPage *page)
+{
+	GtkStyle *style;
+
+    	printf("%x %x\n", state, GTK_STATE_PRELIGHT);
+	if (page->active)
+	{
+	    	style = gtk_widget_get_style (widget);
+    		printf("highlightinating\n");
+		gtk_widget_set_state (widget, GTK_STATE_ACTIVE);
+	}
+}
+
+static void
+taco_bar_on_activate (GtkWidget *widget,
+		    TacoBarPage *page)
+{
+	gtk_toggle_button_set_active (widget, widget == page->taco_bar->priv->active->toggle);
+	taco_bar_on_button_press_event (widget, NULL, page);
 }
 
 static void
@@ -194,7 +213,7 @@ taco_bar_get_active (TacoBar *taco_bar)
 void
 taco_bar_set_active (TacoBar *taco_bar, const char *new_id)
 {
-	TacoBarEntry *new_active;
+	TacoBarPage *new_active;
 
 	g_return_if_fail (IS_TACO_BAR (taco_bar));
 	g_return_if_fail (new_id != NULL);
@@ -217,7 +236,7 @@ taco_bar_add_page (TacoBar	*taco_bar,
 		   GtkPackType	packing)
 {
 	GtkWidget *toggle;
-    	TacoBarEntry *new_page;
+    	TacoBarPage *new_page;
 	gint index;
 	   
 	g_return_if_fail (IS_TACO_BAR (taco_bar));
@@ -245,7 +264,7 @@ taco_bar_add_page (TacoBar	*taco_bar,
 	gtk_widget_show (child);
 
 	// Create and store a copy of the page struct
-	new_page = g_malloc (sizeof (TacoBarEntry));
+	new_page = g_malloc (sizeof (TacoBarPage));
 	new_page->id = page_id;
 	new_page->title = title;
 	new_page->toggle = toggle;
@@ -256,8 +275,10 @@ taco_bar_add_page (TacoBar	*taco_bar,
 	g_hash_table_insert (taco_bar->priv->page_hash, page_id, new_page);
 
 	// Signal everything up, yo
-	g_signal_connect (toggle, "toggled", G_CALLBACK (taco_bar_on_toggle), new_page);
+	g_signal_connect (toggle, "activate", G_CALLBACK (taco_bar_on_activate), new_page);
 	g_signal_connect (toggle, "button-press-event",
 			  G_CALLBACK (taco_bar_on_button_press_event),
 			  new_page);
+//	g_signal_connect (toggle, "state-changed", G_CALLBACK (taco_bar_on_state_change_event),
+//			  new_page);
 }
