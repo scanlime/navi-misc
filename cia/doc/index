@@ -46,7 +46,7 @@ clients might also be using an older non-XML format that has been
 retrospectively named colorText.
 
 Once these messages arrive at the CIA server's message hub, they are
-then filtered and formatted using rulesets_ and dispatched via URIs.
+then filtered and formatted using rulesets and dispatched via URIs.
 Currently CIA has URI handlers for the online stats system, IRC bots,
 and XML-RPC delivery.
 
@@ -105,25 +105,36 @@ History
     CIA moves to a dedicated virtual machine on a much faster dedicated
     server.
 
+- January 17, 2007
+
+    The "`Your Account`_" section of this site goes live. This is finally
+    a self-service interface for editing CIA bots. This is also a major
+    step in CIA's continued transition from a monolithic Twisted-based
+    server to separate web interface and backend daemons. This new area
+    of the web site is the first to use Django_.
+
+
 Brought to you by...
 --------------------
 
 CIA is written and maintained by `Micah Dowty`_.
 
 CIA makes extensive use of many fine open source projects, including
-Python_, Twisted_, PyXML_, Procmail_, MySQL_, Subversion_,
-Docutils_, PyGTK_, Apache_, and Linux_.
+Python_, Django_, Twisted_, Procmail_, MySQL_, Subversion_,
+Pound_, Lighttpd_, and Linux_.
 
 CIA uses open standards, including XHTML, CSS2, and XML-RPC.
 
-
+.. _Pound: http://www.apsis.ch/pound/
+.. _Lighttpd: http://www.lighttpd.net/
+.. _Your Account: /account/
+.. _Django: http://djangoproject.com
 .. _IRC log: /historical/first-24-hours.html
 .. _adding your project: /doc/adding-projects
 .. _changes to its own codebase: /stats/project/navi-misc/cia
 .. _stats browser: /stats
 .. _bot: /irc
 .. _client script: /doc/clients
-.. _rulesets: /rulesets
 .. _GNU GPL: /doc/COPYING
 .. _Micah Dowty: mailto:micah@navi.cx
 .. _Python: http://python.org
@@ -137,7 +148,4 @@ CIA uses open standards, including XHTML, CSS2, and XML-RPC.
 .. _architecture: /doc/how-cia-works
 .. _Docutils: http://docutils.sourceforge.net/
 .. _Linux: http://www.linux.org
-.. _PyGTK: http://www.daa.com.au/~james/software/pygtk/
-.. _PyXML: http://pyxml.sourceforge.net
-.. _Apache: http://apache.org
 .. _Linode: http://linode.com

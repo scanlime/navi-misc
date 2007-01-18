@@ -8,6 +8,12 @@ CIA Open Source Notification System
 About CIA
 ---------
 
+Warning, this README is in need of a big update. Since it was written, CIA's
+architecture has changed somewhat. The monolithic Twisted daemon has been
+split into an RPC daemon and a cluster of load-balanced Web daemons. Additionally,
+there is a portion of the site written in Django. All of these components sit
+behind a Pound proxy.
+
 CIA is at its heart a system for distributing commit messages from the
 version control systems used by open source projects worldwide. It started
 out as a simple IRC bot distributing commit messages from the PicoGUI project,
