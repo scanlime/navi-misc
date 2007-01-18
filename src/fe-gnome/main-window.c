@@ -147,7 +147,7 @@ initialize_taco_bar (void)
 	gtk_container_add (GTK_CONTAINER (widget),
 			   GTK_WIDGET (gui.server_tree));
 	taco_bar_add_page (TACO_BAR (gui.taco_bar), "servers",
-			    "Servers", icon, widget, GTK_PACK_START);
+			    "Servers", icon, widget, GTK_PACK_END);
 
 	// User list page
 	widget = gtk_scrolled_window_new (NULL, NULL);
