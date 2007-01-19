@@ -140,25 +140,26 @@ initialize_taco_bar (void)
 
 	// Servers
 	widget = gtk_scrolled_window_new (NULL, NULL);
-	icon = gtk_image_new_from_stock ("Print", GTK_ICON_SIZE_BUTTON);
+	icon = gtk_image_new_from_icon_name ("xchat-gnome-servers",
+					 GTK_ICON_SIZE_BUTTON);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget),
 				        GTK_POLICY_AUTOMATIC,
 				        GTK_POLICY_AUTOMATIC);
 	gtk_container_add (GTK_CONTAINER (widget),
 			   GTK_WIDGET (gui.server_tree));
 	taco_bar_add_page (TACO_BAR (gui.taco_bar), "servers",
-			    "Servers", icon, widget, GTK_PACK_END);
+			   "_Servers", icon, widget, GTK_PACK_START);
 
 	// User list page
 	widget = gtk_scrolled_window_new (NULL, NULL);
 	icon = gtk_image_new_from_icon_name ("xchat-gnome-users",
-					     GTK_ICON_SIZE_MENU);
+					     GTK_ICON_SIZE_BUTTON);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget),
 				        GTK_POLICY_NEVER,
 				        GTK_POLICY_AUTOMATIC);
 	gtk_container_add (GTK_CONTAINER (widget), gui.userlist);
 	taco_bar_add_page (TACO_BAR (gui.taco_bar), "users",
-			    "Users", icon, widget, GTK_PACK_END);
+			    "_Users", icon, widget, GTK_PACK_END);
 
 	gtk_widget_show_all (gui.taco_bar);
 

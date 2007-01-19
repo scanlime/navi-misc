@@ -22,56 +22,44 @@
 #include "config.h"
 #endif
 
-#include <string.h>
 #include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
-
 #include "taco-bar.h"
 
 typedef struct
 {
-	gchar     *id;
-	gchar     *title;
-	gint	   index;
-	GtkWidget *child;
-	GtkWidget *icon;
-	GtkWidget *toggle;
-	TacoBar   *taco_bar;
-	gboolean   active;
+	const gchar *id;
+	const gchar *title;
+	gint	     index;
+	GtkWidget   *child;
+	GtkWidget   *icon;
+	GtkWidget   *toggle;
+	TacoBar     *taco_bar;
+	gboolean     active;
 } TacoBarPage;
 
-struct _TacoBarPrivate {
-    	GtkWidget *notebook;
-	GtkWidget *top_box;
-	GtkWidget *bottom_box;
+struct _TacoBarPrivate
+{
+	GtkWidget   *notebook;
+	GtkWidget   *top_box;
+	GtkWidget   *bottom_box;
+
+	GHashTable  *page_hash;
+	
 	TacoBarPage *active;
-	GHashTable *page_hash;
+	TacoBarPage *default_page;
 };
 
 G_DEFINE_TYPE (TacoBar, taco_bar, GTK_TYPE_VBOX)
 
 #define TACO_BAR_GET_PRIVATE(object) \
-		(G_TYPE_INSTANCE_GET_PRIVATE ((object), TYPE_TACO_BAR, TacoBarPrivate))
+	(G_TYPE_INSTANCE_GET_PRIVATE ((object), TYPE_TACO_BAR, TacoBarPrivate))
 
-/* Private functions */
-
-static void
-taco_bar_destroy (GtkObject *object)
-{
-    	// FIXME: Leaks like a stick of butter in the Sahara
-/*	TacoBar *taco_bar = TACO_BAR (object);
-
-	g_free (taco_bar->priv->current);
-	taco_bar->priv->current = NULL;
-
-	if (taco_bar->priv->menu) {
-		gtk_menu_detach (GTK_MENU (taco_bar->priv->menu));
-		taco_bar->priv->menu = NULL;
-	}
-
-	(* GTK_OBJECT_CLASS (taco_bar_parent_class)->destroy) (object);*/
-}
-
+/* Private */
+static void taco_bar_class_init (TacoBarClass *taco_bar_class);
+static void taco_bar_init	(TacoBar *taco_bar);
+void	    taco_bar_activate	(TacoBar *taco_bar, TacoBarPage *new_active);
+void	    taco_bar_deactivate_current (TacoBar *taco_bar);
+static void taco_bar_destroy	(GtkObject *object);
 
 static void
 taco_bar_class_init (TacoBarClass *taco_bar_class)
@@ -89,13 +77,44 @@ taco_bar_class_init (TacoBarClass *taco_bar_class)
 	gtk_object_klass->destroy = taco_bar_destroy;
 }
 
+static void
+taco_bar_init (TacoBar *taco_bar)
+{
+	taco_bar->priv = TACO_BAR_GET_PRIVATE (taco_bar);
+	taco_bar->priv->page_hash = g_hash_table_new (g_direct_hash, g_str_equal);
+
+	taco_bar->priv->active = NULL;
+	taco_bar->priv->default_page = NULL;
+
+	gtk_box_set_spacing (GTK_BOX (taco_bar), 0);
+ 
+	// Top Box
+	taco_bar->priv->top_box = gtk_vbox_new (FALSE, 6);
+	gtk_box_pack_start (GTK_BOX (taco_bar), taco_bar->priv->top_box,
+			   FALSE, FALSE, 0);
+	gtk_widget_show (taco_bar->priv->top_box);
+ 
+	// Notebook
+	taco_bar->priv->notebook = gtk_notebook_new ();
+	gtk_notebook_set_show_tabs (GTK_NOTEBOOK (taco_bar->priv->notebook),
+				    FALSE);
+	gtk_widget_show (taco_bar->priv->notebook);
+	gtk_box_pack_start (GTK_BOX (taco_bar), taco_bar->priv->notebook,
+			    TRUE, TRUE, 0);
+	
+	// Bottom Box
+	taco_bar->priv->bottom_box = gtk_vbox_new (FALSE, 6);
+	gtk_box_pack_start (GTK_BOX (taco_bar), taco_bar->priv->bottom_box,
+			    FALSE, FALSE, 0);
+	gtk_widget_show (taco_bar->priv->bottom_box);
+}
+
 void
 taco_bar_activate (TacoBar *taco_bar, TacoBarPage *new_active)
 {
-//	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (new_active->toggle), 1);
 	gtk_notebook_set_current_page (GTK_NOTEBOOK (taco_bar->priv->notebook),
 				       new_active->index);
-//	gtk_widget_set_sensitive (new_active->toggle, FALSE);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (new_active->toggle), TRUE);
 	taco_bar->priv->active = new_active;
 	new_active->active = TRUE;
 }
@@ -103,7 +122,7 @@ taco_bar_activate (TacoBar *taco_bar, TacoBarPage *new_active)
 void
 taco_bar_deactivate_current (TacoBar *taco_bar)
 {
-    	TacoBarPage *old_active = taco_bar->priv->active;
+	TacoBarPage *old_active = taco_bar->priv->active;
 	
 	g_return_if_fail (old_active != NULL);
 
@@ -115,20 +134,42 @@ taco_bar_deactivate_current (TacoBar *taco_bar)
 	old_active->active = FALSE;
 }
 
-static gboolean
-taco_bar_on_button_press_event (GtkWidget *widget,
-			     GdkEventButton *event,
-			     TacoBarPage *page)
+static void
+taco_bar_destroy (GtkObject *object)
 {
-    	TacoBar *taco_bar = page->taco_bar;
+	// FIXME: Leaks like a stick of butter in the Sahara
+/*	TacoBar *taco_bar = TACO_BAR (object);
+
+	g_free (taco_bar->priv->current);
+	taco_bar->priv->current = NULL;
+
+	if (taco_bar->priv->menu) {
+		gtk_menu_detach (GTK_MENU (taco_bar->priv->menu));
+		taco_bar->priv->menu = NULL;
+	}
+
+	(* GTK_OBJECT_CLASS (taco_bar_parent_class)->destroy) (object);*/
+}
+
+/* Callbacks */
+static gboolean	taco_bar_button_press_event_cb	(GtkWidget *widget, GdkEventButton *event, TacoBarPage *page);
+static void	taco_bar_button_activate_cb (GtkWidget *widget, TacoBarPage *page);
+
+static gboolean
+taco_bar_button_press_event_cb	(GtkWidget *widget,
+				 GdkEventButton *event,
+				 TacoBarPage *page)
+{
+	TacoBar *taco_bar = page->taco_bar;
 
 	if (widget == taco_bar->priv->active->toggle)
 	{
-	    printf("same widget\n");
-	    return TRUE;
+		printf("same widget\n");
+		return TRUE;
 	}
 
-	g_return_if_fail (page != taco_bar->priv->active);
+	if (page == taco_bar->priv->active)
+		return FALSE;
 
 	taco_bar_deactivate_current (taco_bar);
 	taco_bar_activate (taco_bar, page);
@@ -138,59 +179,16 @@ taco_bar_on_button_press_event (GtkWidget *widget,
 }
 
 static void
-taco_bar_on_state_change_event (GtkWidget *widget, GtkStateType state, TacoBarPage *page)
+taco_bar_button_activate_cb (GtkWidget *widget,
+			     TacoBarPage *page)
 {
-	GtkStyle *style;
-
-    	printf("%x %x\n", state, GTK_STATE_PRELIGHT);
-	if (page->active)
-	{
-	    	style = gtk_widget_get_style (widget);
-    		printf("highlightinating\n");
-		gtk_widget_set_state (widget, GTK_STATE_ACTIVE);
-	}
-}
-
-static void
-taco_bar_on_activate (GtkWidget *widget,
-		    TacoBarPage *page)
-{
-	gtk_toggle_button_set_active (widget, widget == page->taco_bar->priv->active->toggle);
-	taco_bar_on_button_press_event (widget, NULL, page);
-}
-
-static void
-taco_bar_init (TacoBar *taco_bar)
-{
-	taco_bar->priv = TACO_BAR_GET_PRIVATE (taco_bar);
-	taco_bar->priv->page_hash = g_hash_table_new (g_direct_hash, g_str_equal);
-	taco_bar->priv->active = NULL;
-
-	gtk_box_set_spacing (GTK_BOX (taco_bar), 0);
-
-	// Top Box
-	taco_bar->priv->top_box = gtk_vbox_new (FALSE, 6);
-	gtk_box_pack_start (GTK_BOX (taco_bar), taco_bar->priv->top_box,
-			    FALSE, FALSE, 0);
-	gtk_widget_show (taco_bar->priv->top_box);
-
-	// Notebook
-	taco_bar->priv->notebook = gtk_notebook_new ();
-	gtk_notebook_set_show_tabs (GTK_NOTEBOOK (taco_bar->priv->notebook),
-				    FALSE);
-	gtk_widget_show (taco_bar->priv->notebook);
-	gtk_box_pack_start (GTK_BOX (taco_bar), taco_bar->priv->notebook,
-			    TRUE, TRUE, 0);
-
-	// Bottom Box
-	taco_bar->priv->bottom_box = gtk_vbox_new (FALSE, 6);
-	gtk_box_pack_start (GTK_BOX (taco_bar), taco_bar->priv->bottom_box,
-			    FALSE, FALSE, 0);
-	gtk_widget_show (taco_bar->priv->bottom_box);
+	printf("activate\n");
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget),
+				      widget == page->taco_bar->priv->active->toggle);
+	taco_bar_button_press_event_cb (widget, NULL, page);
 }
 
 /* Public functions */
-
 GtkWidget *
 taco_bar_new (void)
 {
@@ -236,7 +234,7 @@ taco_bar_add_page (TacoBar	*taco_bar,
 		   GtkPackType	packing)
 {
 	GtkWidget *toggle;
-    	TacoBarPage *new_page;
+	TacoBarPage *new_page;
 	gint index;
 	   
 	g_return_if_fail (IS_TACO_BAR (taco_bar));
@@ -248,13 +246,15 @@ taco_bar_add_page (TacoBar	*taco_bar,
 	// Create & add the button
 	toggle = gtk_toggle_button_new_with_label (title);
 	gtk_button_set_image (GTK_BUTTON (toggle), icon);
-	gtk_button_set_relief (GTK_BUTTON (toggle), GTK_RELIEF_NONE);
 	if (packing == GTK_PACK_START)
 		gtk_box_pack_start (GTK_BOX (taco_bar->priv->top_box),
-			            toggle, FALSE, FALSE, 0);
+				    toggle, TRUE, TRUE, 0);
 	else
+	{
+		gtk_button_set_relief (GTK_BUTTON (toggle), GTK_RELIEF_NONE);
 		gtk_box_pack_start (GTK_BOX (taco_bar->priv->bottom_box),
 				    toggle, FALSE, FALSE, 0);
+	}
 	gtk_widget_show (toggle);
 	gtk_widget_show (icon);
 
@@ -274,11 +274,18 @@ taco_bar_add_page (TacoBar	*taco_bar,
 	new_page->active = FALSE;
 	g_hash_table_insert (taco_bar->priv->page_hash, page_id, new_page);
 
+	if (taco_bar->priv->active == NULL)
+	{
+		printf("first page is %s\n", title);
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (toggle),TRUE);
+		
+		taco_bar->priv->active = new_page;
+		taco_bar->priv->default_page = new_page;
+	}
+	
 	// Signal everything up, yo
-	g_signal_connect (toggle, "activate", G_CALLBACK (taco_bar_on_activate), new_page);
+	g_signal_connect (toggle, "activate", G_CALLBACK (taco_bar_button_activate_cb), new_page);
 	g_signal_connect (toggle, "button-press-event",
-			  G_CALLBACK (taco_bar_on_button_press_event),
+			  G_CALLBACK (taco_bar_button_press_event_cb),
 			  new_page);
-//	g_signal_connect (toggle, "state-changed", G_CALLBACK (taco_bar_on_state_change_event),
-//			  new_page);
 }
