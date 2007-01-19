@@ -95,6 +95,18 @@ def request_status(request, server, host, channel, port=None):
 
 
 ###########################
+#   Server-wide Totals    #
+###########################
+
+@json_result
+@needs_bot_server
+def totals(request, server):
+    return {
+        'totals': block(server.root.callRemote('getTotals')),
+        }   
+
+
+###########################
 #      Message Log        # 
 ###########################
 
