@@ -10,6 +10,7 @@ icon_DATA =					\
 	xchat-gnome-message-nickname-said.png	\
 	xchat-gnome-plugin.png			\
 	xchat-gnome-search-wrapped.png		\
+	xchat-gnome-servers.png			\
 	xchat-gnome-status-halfop.png		\
 	xchat-gnome-status-operator.png		\
 	xchat-gnome-status-voice.png		\
