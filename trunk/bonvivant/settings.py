@@ -1,5 +1,7 @@
 # Django settings for bonvivant project.
 
+import os
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -25,7 +27,7 @@ SITE_ID = 1
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = '/home/david/projects/navi-misc/bonvivant/media'
+MEDIA_ROOT = os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'media')
 
 # URL that handles the media served from MEDIA_ROOT.
 # Example: "http://media.lawrence.com"

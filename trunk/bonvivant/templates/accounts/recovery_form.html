@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Lost Password{% endblock %}
+
+{% block content %}
+  <h1>Lost Password</h1>
+
+  <form action="{{ login_url }}" method="post">
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+    <table>
+      <tr>
+        <td><label for="id_username">Username:</label></td>
+	<td><input type="text" name="username" id="id_username" /></td>
+      </tr>
+    </table>
+    <input type="submit" value="Send Mail" />
+  </form>
+{% endblock %}
