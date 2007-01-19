@@ -19,5 +19,6 @@ irc_channel_re = r'(?P<channel>[#&][^\s\x00-\x1f,%]+)'
 urlpatterns = patterns('',
     (r'^irc-bot-requests/%s/%s/status/$' % (network_name_re, irc_channel_re), bots.request_status),
     (r'^irc-message-log/recent/$', bots.message_log),
+    (r'^irc-stats/totals/$', bots.totals),
     (r'^validators/ruleset/$', validator.ruleset),
 )
