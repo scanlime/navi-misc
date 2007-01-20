@@ -142,6 +142,7 @@ struct _XTextPriv
 #ifdef USE_SHM
 	XShmSegmentInfo shminfo;
 	gboolean has_shm;
+	guint has_shm_pixmaps;
 #endif
 
 	/* Image background.  If this is NULL, use a solid color */
@@ -461,6 +462,7 @@ xtext_init (XText * xtext)
 
 	gtk_widget_set_double_buffered (GTK_WIDGET (xtext), FALSE);
 
+	priv->has_shm_pixmaps = -1;
 	priv->adj = (GtkAdjustment *) gtk_adjustment_new (0, 0, 1, 1, 1, 1);
 	g_object_ref_sink (priv->adj);
 
@@ -2783,7 +2785,18 @@ shade_pixmap (XText * xtext, Pixmap p, int x, int y, int w, int h, gboolean recy
 		shaded_pix = priv->pixmap;
 	} else {
 #ifdef USE_SHM
-		if (priv->has_shm) {
+		if (priv->has_shm_pixmaps == -1) {
+			gint maj, min;
+
+			XShmQueryVersion (xdisplay, &maj, &min,
+					  &priv->has_shm_pixmaps);
+
+			if (priv->has_shm_pixmaps == -1) {
+				priv->has_shm_pixmaps = 0;
+			}
+		}
+
+		if (priv->has_shm_pixmaps) {
 			shaded_pix = gdk_pixmap_foreign_new_for_display (
 				gdk_drawable_get_display (priv->draw_buffer),
 				XShmCreatePixmap (xdisplay, p, ximg->data, &priv->shminfo, w, h, depth));
@@ -2796,9 +2809,16 @@ shade_pixmap (XText * xtext, Pixmap p, int x, int y, int w, int h, gboolean recy
 	}
 
 #ifdef USE_SHM
-	if (!priv->has_shm) {
-		XPutImage (xdisplay, GDK_WINDOW_XWINDOW (shaded_pix),
-		           GDK_GC_XGC (priv->fgc), ximg, 0, 0, 0, 0, w, h);
+	if (!priv->has_shm_pixmaps) {
+		if (priv->has_shm) {
+			XShmPutImage (xdisplay, GDK_WINDOW_XWINDOW (shaded_pix),
+				      GDK_GC_XGC (priv->fgc), ximg, 0, 0, 0, 0,
+				      w, h, FALSE);
+		} else {
+			XPutImage (xdisplay, GDK_WINDOW_XWINDOW (shaded_pix),
+				   GDK_GC_XGC (priv->fgc), ximg, 0, 0, 0, 0,
+				   w, h);
+		}
 	}
 #else /* USE_SHM */
 	XPutImage (xdisplay, GDK_WINDOW_XWINDOW (shaded_pix),
@@ -2820,7 +2840,7 @@ xtext_free_trans (XText * xtext)
 	XTextPriv *priv = XTEXT_GET_PRIVATE (xtext);
 	if (priv->pixmap) {
 #ifdef USE_SHM
-		if (priv->has_shm) {
+		if (priv->has_shm && priv->has_shm_pixmaps == 1) {
 			XFreePixmap (GDK_WINDOW_XDISPLAY (priv->pixmap),
 			             GDK_WINDOW_XWINDOW (priv->pixmap));
 			XShmDetach (GDK_WINDOW_XDISPLAY (priv->draw_buffer), &priv->shminfo);
