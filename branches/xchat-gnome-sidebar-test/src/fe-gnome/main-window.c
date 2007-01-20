@@ -147,8 +147,9 @@ initialize_taco_bar (void)
 				        GTK_POLICY_AUTOMATIC);
 	gtk_container_add (GTK_CONTAINER (widget),
 			   GTK_WIDGET (gui.server_tree));
-	taco_bar_add_page (TACO_BAR (gui.taco_bar), "servers",
-			   "_Servers", icon, widget, GTK_PACK_START);
+	taco_bar_add_page (TACO_BAR (gui.taco_bar), "channels",
+			   "_Channels", icon, widget, GTK_PACK_START);
+	gtk_widget_show (GTK_WIDGET (gui.server_tree));
 
 	// User list page
 	widget = gtk_scrolled_window_new (NULL, NULL);
@@ -161,10 +162,11 @@ initialize_taco_bar (void)
 	taco_bar_add_page (TACO_BAR (gui.taco_bar), "users",
 			    "_Users", icon, widget, GTK_PACK_END);
 
-	gtk_widget_show_all (gui.taco_bar);
+	gtk_widget_show (gui.taco_bar);
 
 	// It's all good to go now
-	taco_bar_set_active (TACO_BAR (gui.taco_bar), "servers");
+	taco_bar_set_visible_page (TACO_BAR (gui.taco_bar), "channels");
+	taco_bar_set_default_page (TACO_BAR (gui.taco_bar), "channels");
 }
 
 void

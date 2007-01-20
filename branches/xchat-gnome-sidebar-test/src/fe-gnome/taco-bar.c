@@ -34,7 +34,6 @@ typedef struct
 	GtkWidget   *icon;
 	GtkWidget   *toggle;
 	TacoBar     *taco_bar;
-	gboolean     active;
 } TacoBarPage;
 
 struct _TacoBarPrivate
@@ -45,7 +44,7 @@ struct _TacoBarPrivate
 
 	GHashTable  *page_hash;
 	
-	TacoBarPage *active;
+	TacoBarPage *visible_page;
 	TacoBarPage *default_page;
 };
 
@@ -55,11 +54,10 @@ G_DEFINE_TYPE (TacoBar, taco_bar, GTK_TYPE_VBOX)
 	(G_TYPE_INSTANCE_GET_PRIVATE ((object), TYPE_TACO_BAR, TacoBarPrivate))
 
 /* Private */
-static void taco_bar_class_init (TacoBarClass *taco_bar_class);
-static void taco_bar_init	(TacoBar *taco_bar);
-void	    taco_bar_activate	(TacoBar *taco_bar, TacoBarPage *new_active);
-void	    taco_bar_deactivate_current (TacoBar *taco_bar);
-static void taco_bar_destroy	(GtkObject *object);
+static void taco_bar_class_init 	(TacoBarClass *taco_bar_class);
+static void taco_bar_init		(TacoBar *taco_bar);
+void	    taco_bar_switch_to_page	(TacoBar *taco_bar, TacoBarPage *page);
+static void taco_bar_destroy		(GtkObject *object);
 
 static void
 taco_bar_class_init (TacoBarClass *taco_bar_class)
@@ -71,7 +69,7 @@ taco_bar_class_init (TacoBarClass *taco_bar_class)
 	g_object_class = G_OBJECT_CLASS (taco_bar_class);
 	widget_class = GTK_WIDGET_CLASS (taco_bar_class);
 	gtk_object_klass = GTK_OBJECT_CLASS (taco_bar_class);
-	   
+
 	g_type_class_add_private (g_object_class, sizeof (TacoBarPrivate));
 	   
 	gtk_object_klass->destroy = taco_bar_destroy;
@@ -83,7 +81,7 @@ taco_bar_init (TacoBar *taco_bar)
 	taco_bar->priv = TACO_BAR_GET_PRIVATE (taco_bar);
 	taco_bar->priv->page_hash = g_hash_table_new (g_direct_hash, g_str_equal);
 
-	taco_bar->priv->active = NULL;
+	taco_bar->priv->visible_page = NULL;
 	taco_bar->priv->default_page = NULL;
 
 	gtk_box_set_spacing (GTK_BOX (taco_bar), 0);
@@ -92,13 +90,11 @@ taco_bar_init (TacoBar *taco_bar)
 	taco_bar->priv->top_box = gtk_vbox_new (FALSE, 6);
 	gtk_box_pack_start (GTK_BOX (taco_bar), taco_bar->priv->top_box,
 			   FALSE, FALSE, 0);
-	gtk_widget_show (taco_bar->priv->top_box);
  
 	// Notebook
 	taco_bar->priv->notebook = gtk_notebook_new ();
 	gtk_notebook_set_show_tabs (GTK_NOTEBOOK (taco_bar->priv->notebook),
 				    FALSE);
-	gtk_widget_show (taco_bar->priv->notebook);
 	gtk_box_pack_start (GTK_BOX (taco_bar), taco_bar->priv->notebook,
 			    TRUE, TRUE, 0);
 	
@@ -106,38 +102,40 @@ taco_bar_init (TacoBar *taco_bar)
 	taco_bar->priv->bottom_box = gtk_vbox_new (FALSE, 6);
 	gtk_box_pack_start (GTK_BOX (taco_bar), taco_bar->priv->bottom_box,
 			    FALSE, FALSE, 0);
+	
+	gtk_widget_show (taco_bar->priv->top_box);
+	gtk_widget_show (taco_bar->priv->notebook);
 	gtk_widget_show (taco_bar->priv->bottom_box);
 }
 
 void
-taco_bar_activate (TacoBar *taco_bar, TacoBarPage *new_active)
+taco_bar_switch_to_page (TacoBar *taco_bar, TacoBarPage *page)
 {
-	gtk_notebook_set_current_page (GTK_NOTEBOOK (taco_bar->priv->notebook),
-				       new_active->index);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (new_active->toggle), TRUE);
-	taco_bar->priv->active = new_active;
-	new_active->active = TRUE;
-}
-
-void
-taco_bar_deactivate_current (TacoBar *taco_bar)
-{
-	TacoBarPage *old_active = taco_bar->priv->active;
+	GtkWidget *widget;
+	TacoBarPage *prev_visible = taco_bar->priv->visible_page;
 	
-	g_return_if_fail (old_active != NULL);
+	// This needs to be set now, because unselecting the last button will
+	// emit a signal that needs to know it's not active any more.
+	taco_bar->priv->visible_page = page;
 
-	old_active = taco_bar->priv->active;
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (old_active->toggle),
-				      FALSE);
-//	gtk_widget_set_sensitive (old_active->toggle, TRUE);
-	gtk_widget_set_state (old_active->toggle, GTK_STATE_NORMAL);
-	old_active->active = FALSE;
+	// Deselect previous page
+	if (prev_visible != NULL)
+	{
+		widget = prev_visible->toggle;
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget),
+					      FALSE);
+	}
+
+	// Select the new page
+	gtk_notebook_set_current_page (GTK_NOTEBOOK (taco_bar->priv->notebook),
+				       page->index);
+	gtk_toggle_button_set_active  (GTK_TOGGLE_BUTTON (page->toggle), TRUE);
 }
 
+// FIXME: taco_bar_destroy leaks like a stick of butter in the Sahara
 static void
 taco_bar_destroy (GtkObject *object)
 {
-	// FIXME: Leaks like a stick of butter in the Sahara
 /*	TacoBar *taco_bar = TACO_BAR (object);
 
 	g_free (taco_bar->priv->current);
@@ -151,10 +149,13 @@ taco_bar_destroy (GtkObject *object)
 	(* GTK_OBJECT_CLASS (taco_bar_parent_class)->destroy) (object);*/
 }
 
-/* Callbacks */
-static gboolean	taco_bar_button_press_event_cb	(GtkWidget *widget, GdkEventButton *event, TacoBarPage *page);
+/* (Private) Callbacks */
+static gboolean	taco_bar_button_press_event_cb	(GtkWidget *widget,
+						 GdkEventButton *event,
+						 TacoBarPage *page);
 static void	taco_bar_button_activate_cb (GtkWidget *widget, TacoBarPage *page);
 
+/* Supress toggle-off signals from being emitted for the default button */
 static gboolean
 taco_bar_button_press_event_cb	(GtkWidget *widget,
 				 GdkEventButton *event,
@@ -162,18 +163,10 @@ taco_bar_button_press_event_cb	(GtkWidget *widget,
 {
 	TacoBar *taco_bar = page->taco_bar;
 
-	if (widget == taco_bar->priv->active->toggle)
-	{
-		printf("same widget\n");
+	/* Don't process further? */
+	if (page == taco_bar->priv->visible_page &&
+	    page == taco_bar->priv->default_page)
 		return TRUE;
-	}
-
-	if (page == taco_bar->priv->active)
-		return FALSE;
-
-	taco_bar_deactivate_current (taco_bar);
-	taco_bar_activate (taco_bar, page);
-	gtk_container_resize_children (GTK_CONTAINER(taco_bar));
 
 	return FALSE;
 }
@@ -182,10 +175,22 @@ static void
 taco_bar_button_activate_cb (GtkWidget *widget,
 			     TacoBarPage *page)
 {
-	printf("activate\n");
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget),
-				      widget == page->taco_bar->priv->active->toggle);
-	taco_bar_button_press_event_cb (widget, NULL, page);
+	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
+	{
+		if (page != page->taco_bar->priv->visible_page)
+			taco_bar_switch_to_page  (page->taco_bar, page);
+	}
+	
+	/* A toggle signal should be emitted in one of two off states:
+	 * 	- The button was active, and just got toggled off by the user
+	 * 	  directly.  Now activate the default toggle.
+	 * 	- The user clicked a different button, and this one has
+	 * 	  been deactivated by the signal handler.  Now do nothing.
+	 */
+	else
+		if (page == page->taco_bar->priv->visible_page)
+			taco_bar_switch_to_page (page->taco_bar,
+						 page->taco_bar->priv->default_page);
 }
 
 /* Public functions */
@@ -199,30 +204,54 @@ taco_bar_new (void)
 	return taco_bar;
 }
 
-const char *
-taco_bar_get_active (TacoBar *taco_bar)
-{
-	g_return_val_if_fail (IS_TACO_BAR (taco_bar), NULL);
-	g_return_val_if_fail (taco_bar->priv != NULL, NULL);
-
-	return taco_bar->priv->active->id;
-}
-
 void
-taco_bar_set_active (TacoBar *taco_bar, const char *new_id)
+taco_bar_set_visible_page (TacoBar *taco_bar, const char *new_id)
 {
 	TacoBarPage *new_active;
 
 	g_return_if_fail (IS_TACO_BAR (taco_bar));
 	g_return_if_fail (new_id != NULL);
 
+	// Try to get the page
 	new_active = g_hash_table_lookup (taco_bar->priv->page_hash, new_id);
-
 	g_return_if_fail (new_active != NULL);
 
-	taco_bar_deactivate_current (taco_bar);
-	taco_bar_activate (taco_bar, new_active);
+	taco_bar_switch_to_page (taco_bar, new_active);
 	gtk_container_resize_children (GTK_CONTAINER(taco_bar));
+}
+
+const char *
+taco_bar_get_visible_page (TacoBar *taco_bar)
+{
+	g_return_val_if_fail (IS_TACO_BAR (taco_bar), NULL);
+	g_return_val_if_fail (taco_bar->priv != NULL, NULL);
+
+	return taco_bar->priv->visible_page->id;
+}
+
+void
+taco_bar_set_default_page (TacoBar *taco_bar, const char *new_id)
+{
+	TacoBarPage *page;
+
+	g_return_if_fail (IS_TACO_BAR (taco_bar));
+	g_return_if_fail (new_id != NULL);
+
+	// Try to get the page
+	page = g_hash_table_lookup (taco_bar->priv->page_hash, new_id);
+	g_return_if_fail (page != NULL);
+
+	// Set the page
+	taco_bar->priv->default_page = page;
+}
+
+const char *
+taco_bar_get_default_page (TacoBar *taco_bar)
+{
+	g_return_val_if_fail (IS_TACO_BAR (taco_bar), NULL);
+	g_return_val_if_fail (taco_bar->priv != NULL, NULL);
+
+	return taco_bar->priv->default_page->id;
 }
 
 void
@@ -231,7 +260,7 @@ taco_bar_add_page (TacoBar	*taco_bar,
 		   const gchar	*title,
 		   GtkWidget	*icon,
 		   GtkWidget   	*child,
-		   GtkPackType	packing)
+		   GtkPackType	 packing)
 {
 	GtkWidget *toggle;
 	TacoBarPage *new_page;
@@ -261,9 +290,8 @@ taco_bar_add_page (TacoBar	*taco_bar,
 	// Update the notebook
 	index = gtk_notebook_append_page (GTK_NOTEBOOK (taco_bar->priv->notebook), child,
 					  gtk_label_new(page_id));
-	gtk_widget_show (child);
 
-	// Create and store a copy of the page struct
+	// Hash page metadata
 	new_page = g_malloc (sizeof (TacoBarPage));
 	new_page->id = page_id;
 	new_page->title = title;
@@ -271,20 +299,18 @@ taco_bar_add_page (TacoBar	*taco_bar,
 	new_page->child = child;
 	new_page->index = index;
 	new_page->taco_bar = taco_bar;
-	new_page->active = FALSE;
 	g_hash_table_insert (taco_bar->priv->page_hash, page_id, new_page);
 
-	if (taco_bar->priv->active == NULL)
-	{
-		printf("first page is %s\n", title);
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (toggle),TRUE);
-		
-		taco_bar->priv->active = new_page;
+	// If this is the first page, set it as visible and default
+	if (taco_bar->priv->visible_page == NULL)
+		taco_bar_switch_to_page (taco_bar, new_page);	
+	if (taco_bar->priv->default_page == NULL)
 		taco_bar->priv->default_page = new_page;
-	}
+	
+	gtk_widget_show (child);
 	
 	// Signal everything up, yo
-	g_signal_connect (toggle, "activate", G_CALLBACK (taco_bar_button_activate_cb), new_page);
+	g_signal_connect (toggle, "toggled", G_CALLBACK (taco_bar_button_activate_cb), new_page);
 	g_signal_connect (toggle, "button-press-event",
 			  G_CALLBACK (taco_bar_button_press_event_cb),
 			  new_page);
