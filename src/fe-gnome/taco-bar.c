@@ -1,5 +1,6 @@
 /*
- * Based around Jonathan Blandford's sidebar from evince.
+ * Based around Jonathan Blandford's sidebar from evince.  And then the
+ * evolution button selecto-tron thingy.
  *
  *  Copyright (C) 2004-2007 xchat-gnome team
  *
@@ -87,7 +88,7 @@ taco_bar_init (TacoBar *taco_bar)
 	gtk_box_set_spacing (GTK_BOX (taco_bar), 0);
  
 	// Top Box
-	taco_bar->priv->top_box = gtk_vbox_new (FALSE, 6);
+	taco_bar->priv->top_box = gtk_vbox_new (FALSE, 3);
 	gtk_box_pack_start (GTK_BOX (taco_bar), taco_bar->priv->top_box,
 			   FALSE, FALSE, 0);
  
@@ -99,7 +100,7 @@ taco_bar_init (TacoBar *taco_bar)
 			    TRUE, TRUE, 0);
 	
 	// Bottom Box
-	taco_bar->priv->bottom_box = gtk_vbox_new (FALSE, 6);
+	taco_bar->priv->bottom_box = gtk_vbox_new (FALSE, 3);
 	gtk_box_pack_start (GTK_BOX (taco_bar), taco_bar->priv->bottom_box,
 			    FALSE, FALSE, 0);
 	
@@ -150,14 +151,15 @@ taco_bar_destroy (GtkObject *object)
 }
 
 /* (Private) Callbacks */
-static gboolean	taco_bar_button_press_event_cb	(GtkWidget *widget,
+static gboolean	taco_bar_on_button_press_event	(GtkWidget *widget,
 						 GdkEventButton *event,
 						 TacoBarPage *page);
-static void	taco_bar_button_activate_cb (GtkWidget *widget, TacoBarPage *page);
+static void	taco_bar_on_toggle 		(GtkWidget *widget,
+						 TacoBarPage *page);
 
 /* Supress toggle-off signals from being emitted for the default button */
 static gboolean
-taco_bar_button_press_event_cb	(GtkWidget *widget,
+taco_bar_on_button_press_event	(GtkWidget *widget,
 				 GdkEventButton *event,
 				 TacoBarPage *page)
 {
@@ -172,7 +174,7 @@ taco_bar_button_press_event_cb	(GtkWidget *widget,
 }
 
 static void
-taco_bar_button_activate_cb (GtkWidget *widget,
+taco_bar_on_toggle (GtkWidget *widget,
 			     TacoBarPage *page)
 {
 	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
@@ -275,15 +277,13 @@ taco_bar_add_page (TacoBar	*taco_bar,
 	// Create & add the button
 	toggle = gtk_toggle_button_new_with_label (title);
 	gtk_button_set_image (GTK_BUTTON (toggle), icon);
+	gtk_button_set_relief (GTK_BUTTON (toggle), GTK_RELIEF_NONE);
 	if (packing == GTK_PACK_START)
 		gtk_box_pack_start (GTK_BOX (taco_bar->priv->top_box),
 				    toggle, TRUE, TRUE, 0);
 	else
-	{
-		gtk_button_set_relief (GTK_BUTTON (toggle), GTK_RELIEF_NONE);
 		gtk_box_pack_start (GTK_BOX (taco_bar->priv->bottom_box),
 				    toggle, FALSE, FALSE, 0);
-	}
 	gtk_widget_show (toggle);
 	gtk_widget_show (icon);
 
@@ -310,8 +310,9 @@ taco_bar_add_page (TacoBar	*taco_bar,
 	gtk_widget_show (child);
 	
 	// Signal everything up, yo
-	g_signal_connect (toggle, "toggled", G_CALLBACK (taco_bar_button_activate_cb), new_page);
+	g_signal_connect (toggle, "toggled", G_CALLBACK (taco_bar_on_toggle),
+			  new_page);
 	g_signal_connect (toggle, "button-press-event",
-			  G_CALLBACK (taco_bar_button_press_event_cb),
+			  G_CALLBACK (taco_bar_on_button_press_event),
 			  new_page);
 }
