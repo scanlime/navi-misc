@@ -23,7 +23,7 @@ The end result of CIA can be viewed in several ways:
 - The online `stats browser`_
 - RSS feeds, linked to from each stats page
 - The #commits channel on the Freenode_ IRC network
-- Your favorite project's IRC channel, if they have requested that a CIA bot_ join it
+- Your favorite project's IRC channel, if they have requested that a CIA bot join it
 
 
 Details
@@ -133,7 +133,6 @@ CIA uses open standards, including XHTML, CSS2, and XML-RPC.
 .. _adding your project: /doc/adding-projects
 .. _changes to its own codebase: /stats/project/navi-misc/cia
 .. _stats browser: /stats
-.. _bot: /irc
 .. _client script: /doc/clients
 .. _GNU GPL: /doc/COPYING
 .. _Micah Dowty: mailto:micah@navi.cx
