@@ -5,6 +5,7 @@ urlpatterns = patterns('',
     (r'^account/', include('cia.apps.accounts.urls')),
     (r'^api/', include('cia.apps.api.urls')),
     (r'^admin/', include('django.contrib.admin.urls')),
+    (r'^doc/', include('cia.apps.doc.urls')),
 )
 
 if settings.DEBUG:

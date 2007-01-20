@@ -9,7 +9,10 @@
 import django.contrib.auth
 import os
 
-DEBUG = False
+def rel_path(p):
+    return os.path.join(os.path.abspath(os.path.split(__file__)[0]), p)
+
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 #
@@ -49,6 +52,12 @@ DATABASE_HOST = CIA_DB_SETTINGS.get('host', '')
 DATABASE_PORT = CIA_DB_SETTINGS.get('port', '') 
 
 #
+# CIA data files
+#
+CIA_DOC_PATH = rel_path('doc')
+CIA_DATA_PATH = rel_path('data') 
+
+#
 # These settings control our connection with CIA. We use its XML-RPC interface
 # for most management tasks, but we also need to talk directly to the bot server
 # occasionally. We also need to know where to find login information for the RPC
@@ -56,7 +65,7 @@ DATABASE_PORT = CIA_DB_SETTINGS.get('port', '')
 #
 CIA_RPC_URL = 'http://localhost:3910'
 CIA_KEY = open(os.path.expanduser('~/.cia_key')).read().strip()
-CIA_BOT_SOCKET = os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'bots.socket')
+CIA_BOT_SOCKET = rel_path('bots.socket')
 
 # Local time zone for this installation. All choices can be found here:
 # http://www.postgresql.org/docs/current/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
@@ -71,8 +80,7 @@ SITE_ID = 1
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = os.path.join(os.path.abspath(os.path.split(__file__)[0]),
-                          'media')
+MEDIA_ROOT = rel_path('media')
 
 # URL that handles the media served from MEDIA_ROOT.
 # Example: "http://media.lawrence.com"
@@ -106,7 +114,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'cia.apps.urls'
 
 TEMPLATE_DIRS = (
-    os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'templates'),
+    rel_path('templates'),
 )
 
 INSTALLED_APPS = (
@@ -115,5 +123,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
+    'django.contrib.markup',
     'cia.apps.accounts',
 )

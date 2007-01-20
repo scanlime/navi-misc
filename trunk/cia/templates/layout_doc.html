@@ -1,0 +1,14 @@
+{% extends 'layout_base.html' %}
+{% load markup %}
+
+{% block stylesheets %}
+{{ block.super }}
+  <link href="/media/css/doc.css" type="text/css" rel="stylesheet" />
+{% endblock %}
+
+{% block page_title %}Documentation{% endblock %}
+{% block head_title %}Documentation{% endblock %}
+
+{% block content %}
+{{ page|restructuredtext }}
+{% endblock %}
