@@ -666,6 +666,7 @@ class MessageArchive:
 
     # All versions use the same header currently
     header_format = ">BIB"
+    header_size = struct.calcsize(header_format)
 
     # You may define new versions, but never change the existing dicts!
     dictionaries = {
@@ -718,7 +719,7 @@ class MessageArchive:
 
         # Pack the message header
         header = struct.pack(self.header_format, 0,
-                             struct.calcsize(self.header_format) + len(zmsg),
+                             self.header_size + len(zmsg),
                              version)
 
         # Atomically write to the file
@@ -731,5 +732,17 @@ class MessageArchive:
            until the message filtering architecture is redesigned.
            """
         self.push(unicode(msg).encode('utf-8'))
+
+    def readNextFromFile(self, f):
+        """Read a single message from a file-like object, advancing the file
+           pointer to the next message. Returns None on EOF.
+           """
+        header = f.read(self.header_size)
+        if not header:
+            return None
+
+        zero, size, version = struct.unpack(self.header_format, header)
+        assert zero == 0
+        return SAXDecoder(f.read(size - self.header_size), self.dictionaries[version])
 
 ### The End ###
