@@ -1,8 +1,20 @@
 
 .document {
-    max-width: 45em;
+    /* max-width: 45em;  This won't work on IE6... */
+    width: 45em;
+
     margin-left: auto;
     margin-right: auto;
+}
+
+.document p {
+    margin: 1em 0;
+
+    /*
+     * This is mostly a workaround for disappearing borders on <pre>,
+     * but it also has the side-effect of disabling margin collapsing.
+     */
+    padding: 1px;
 }
 
 .document ul {
@@ -11,9 +23,19 @@
     padding: 0 0 0 1.5em;
 }
 
+.document li {
+    margin: 0;
+    padding: 0;
+}
+
 .document blockquote {
-    margin: 0.5em 1em;
-    font-size: 0.8em;
+    /*
+     * Using padding here instead of margin works around some
+     * disappearing-border issues with <pre> inside <blockquote>
+     */
+    margin: 0;
+    padding: 0 1em;
+    font-size: 0.9em;
 }
 
 .document .section {
@@ -22,8 +44,12 @@
      * out by a -2em margin.  This gives the effect of a border
      * floating out in the left margin, while the text in sections
      * will line up with text in non-sections.
+     *
+     * IE6: This is broken, the border doesn't show up at all. That's
+     *      an acceptable failure mode...
      */
     margin: 1.5em 0em 0em -2em;
+
     border-left: 1em solid #aaa;
     padding: 0em 1em;
 
@@ -93,6 +119,8 @@ th {
 
 pre.literal-block {
     overflow: auto;
+    font-size: 0.9em;
+    font-family: "Lucida Console" monospace;
     margin-left: 3em;
     padding: 0.5em;
     background: #ffc;
