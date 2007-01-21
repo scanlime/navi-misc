@@ -11,6 +11,7 @@
 {% block content %}
 <div id="document-and-sidebar">
 
+{% if sidebar %}
 <ul id="sidebar">
 {% for section in sidebar %}
   <li>
@@ -23,6 +24,7 @@
   </li>
 {% endfor %}
 </ul>
+{% endif %}
 
 <div id="document">
 {{ parts.html_title }}

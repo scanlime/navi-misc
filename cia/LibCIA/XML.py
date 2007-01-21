@@ -387,4 +387,21 @@ class XPathTiny(XPathBase):
 # Our big switch to choose the default XPath implementation
 XPath = XPathTiny
 
+
+# The general form of "path" is an XPath, but we actually only support
+# a very tiny subset of XPath. To make filters a little less overly verbose
+# without making our XPaths (and eventually our Esquilax index) less
+# efficient, we'll define some shortcuts for common paths.
+
+pathShortcuts = {
+    'branch': '/message/source/branch',
+    'project': '/message/source/project',
+    'module': '/message/source/module',
+    'revision': '/message/body/commit/revision',
+    'version': '/message/body/commit/version',
+    'author': '/message/body/commit/author',
+    'log': '/message/body/commit/log',
+    'files': '/message/body/commit/files',
+    }
+
 ### The End ###

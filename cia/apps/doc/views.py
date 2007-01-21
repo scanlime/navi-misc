@@ -23,6 +23,9 @@ def parse_sidebar(path):
        with 'title' and 'links' keys. Each link is a dictionary
        with 'title' and 'url' keys.
        """
+    if not os.path.isfile(path):
+        return None
+
     sections = []
     for line in open(path).xreadlines():
         line = line.strip()
