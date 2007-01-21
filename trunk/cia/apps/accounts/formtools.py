@@ -10,7 +10,7 @@ class MultiForm:
         self.errors = {}
         self._bound = {}
 
-    def validate(self, form, model=None):
+    def validate(self, form, model=None, post_defaults=None):
         """Add the supplied form class to the list of forms we're
            using, validate that form, and merge its errors/results in.
 
@@ -20,7 +20,7 @@ class MultiForm:
            Individual forms will be made available via attributes
            named after that form's class.
            """
-        inst = form(ModelData(model, self.POST))
+        inst = form(ModelData(model, self.POST, post_defaults=post_defaults))
         setattr(self, form.__name__, inst)
 
         for name, field in inst.fields.items():
@@ -61,7 +61,7 @@ class ModelData(dict):
        with new data supplied via HTTP POST. If the model is None,
        we'll always return POST data.
        """
-    def __init__(self, model, POST=None):
+    def __init__(self, model, POST=None, post_defaults=None):
         self.POST = POST
         self.model = model
 
@@ -70,4 +70,6 @@ class ModelData(dict):
                 [(f.attname, getattr(model, f.attname))
                  for f in model._meta.fields]))
         if POST:
+            if post_defaults:
+                self.update(post_defaults)
             self.update(POST.items())
