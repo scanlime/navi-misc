@@ -1,13 +1,58 @@
 
-.document {
-    /* max-width: 45em;  This won't work on IE6... */
-    width: 45em;
+#document-and-sidebar {
+    background: #eee;
+}
+
+#sidebar {
+    /*
+     * We could put the sidebar on the right using absolute
+     * positioning, but float causes text to gracefully flow
+     * around it if the display isn't wide enough for it to
+     * fit entirely in the margins.
+     */
+    float: right;
+
+    /*
+     * More padding on the left to cover list bullets.
+     * No padding on the top, because we have the <p>
+     * element's top margin.
+     */
+    padding: 0 1em 1em 2em;
+    margin: 1em;
+
+    font-size: 0.75em;
+    list-style-type: none;
+
+    background: #f8f8f8;
+    border: 1px solid #aaa;
+}
+
+#sidebar p {
+    margin: 1em 0 0.25em 0;
+    padding: 0;
+    font-weight: bold;
+}
+
+#sidebar .links {
+    list-style-type: square;
+    margin: 0;
+    padding: 0;
+}
+
+#document {
+    /* Global document font size */
+    font-size: 0.9em;
+
+    background: white;
+    padding: 0 1em;
+
+    width: 48em;
 
     margin-left: auto;
     margin-right: auto;
 }
 
-.document p {
+#document p {
     margin: 1em 0;
 
     /*
@@ -17,18 +62,18 @@
     padding: 1px;
 }
 
-.document ul {
+#document ul {
     list-style-type: square;
     margin: 0.5em;
     padding: 0 0 0 1.5em;
 }
 
-.document li {
+#document li {
     margin: 0;
     padding: 0;
 }
 
-.document blockquote {
+#document blockquote {
     /*
      * Using padding here instead of margin works around some
      * disappearing-border issues with <pre> inside <blockquote>
@@ -38,7 +83,7 @@
     font-size: 0.9em;
 }
 
-.document .section {
+#document .section {
     /*
      * Sections have a 1em border and 1em padding, which is cancelled
      * out by a -2em margin.  This gives the effect of a border
