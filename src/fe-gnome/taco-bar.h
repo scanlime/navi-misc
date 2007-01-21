@@ -1,14 +1,13 @@
-/* side-bar.h
- *  this file is part of evince, a gnome
+/* taco-bar.h
  * 
  * Copyright (C) 2004-2007 xchat-gnome team
  *
- * Evince is free software; you can redistribute it and/or modify it
+ * xchat-gnome is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * Evince is distributed in the hope that it will be useful, but
+ * xchat-gnome is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
@@ -49,21 +48,36 @@ struct _TacoBarClass {
 	void (*closed) (TacoBar *sidebar);
 };
 
-GType      taco_bar_get_type		(void);
-GtkWidget *taco_bar_new          	(void);
-void       taco_bar_add_page	 	(TacoBar *,
-				  	 const gchar *page_id,
-				  	 const gchar *title,
-				  	 GtkWidget *icon,
-					 GtkWidget *child,
-				  	 GtkPackType);
-void       taco_bar_set_visible_page	(TacoBar *,
-				  	 const char *page_id);
-const char *taco_bar_get_visible_page 	(TacoBar *);
-void       taco_bar_set_default_page	(TacoBar *,
-				  	 const char *page_id);
-const char *taco_bar_get_default_page 	(TacoBar *);
+typedef enum
+{
+	TACO_BAR_TOP,
+	TACO_BAR_BOTTOM
+} TacoBarPlacementType;
 
+GType		taco_bar_get_type		(void);
+GtkWidget *	taco_bar_new			(void);
+void		taco_bar_pack_page	 	(TacoBar *,
+						 const gchar *page_id,
+						 const gchar *title,
+						 GtkWidget *icon,
+						 GtkWidget *child,
+				  		 TacoBarPlacementType);
+void		taco_bar_set_visible_page	(TacoBar *,
+				  	 	 const char *page_id);
+const char *	taco_bar_get_visible_page 	(TacoBar *);
+void		taco_bar_set_default_page	(TacoBar *,
+				  	 	 const char *page_id);
+const char *	taco_bar_get_default_page 	(TacoBar *);
+const char *	taco_bar_get_label_markup	(TacoBar *,
+						 const char *page_id);
+void		taco_bar_set_label_markup	(TacoBar *,
+						 const char *page_id,
+						 const char *title);
+void 		taco_bar_toggle_page_state	(TacoBar *,
+						 const char *page_id);
+void		taco_bar_set_page_sensitive	(TacoBar *,
+						 const char *page_id,
+						 gboolean sensitive);
 
 G_END_DECLS
 

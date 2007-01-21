@@ -1123,6 +1123,11 @@ fe_set_current (session *sess)
 	// Set nickname button
 	set_nickname (sess->server, NULL);
 
+	// Set the label of the user list button
+	userlist_set_user_button (u, sess);
+	taco_bar_set_page_sensitive (TACO_BAR (gui.taco_bar), "users",
+				     sess->type == SESS_CHANNEL);
+
 	// FIXME: Userlist should be more encapsulated
 	gtk_tree_view_set_model (GTK_TREE_VIEW (gui.userlist), GTK_TREE_MODEL (userlist_get_store (u, sess)));
 

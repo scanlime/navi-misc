@@ -56,17 +56,14 @@ initialize_gui_1 (void)
 gboolean
 initialize_gui_2 (void)
 {
-	GtkWidget *widget;
-
 	gtk_window_set_default_icon_name ("xchat-gnome");
 
 	gui.current_session = NULL;
 	gui.tree_model = navigation_model_new ();
 	gui.server_tree = navigation_tree_new (gui.tree_model);
 	pixmaps_init ();
-	initialize_main_window();
 	initialize_userlist ();
-	initialize_taco_bar ();
+	initialize_main_window();
 	
 	gui.dcc = dcc_window_new ();
 
