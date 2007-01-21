@@ -12,7 +12,7 @@ import os
 def rel_path(p):
     return os.path.join(os.path.abspath(os.path.split(__file__)[0]), p)
 
-DEBUG = False
+DEBUG = os.path.isfile(rel_path("DEBUG"))
 TEMPLATE_DEBUG = DEBUG
 
 #
