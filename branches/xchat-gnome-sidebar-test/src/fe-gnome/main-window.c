@@ -76,7 +76,6 @@ static void on_discussion_users_activate (GtkAction *action, gpointer data);
 static void on_help_contents_activate (GtkAction *action, gpointer data);
 static void on_help_about_activate (GtkAction *action, gpointer data);
 static void on_nickname_clicked (GtkButton *widget, gpointer user_data);
-static void on_users_toggled (GtkToggleButton *widget, gpointer user_data);
 
 static void on_add_widget (GtkUIManager *manager, GtkWidget *menu, GtkWidget *menu_vbox);
 
@@ -86,6 +85,7 @@ static gboolean on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointe
 static gboolean on_main_window_focus_in (GtkWidget *widget, GdkEventFocus *event, gpointer data);
 static gboolean on_main_window_configure (GtkWidget *widget, GdkEventConfigure *event, gpointer data);
 
+void initialize_taco_bar ();
 static void nickname_style_set (GtkWidget *button, GtkStyle *previous_style, gpointer data);
 
 static GtkActionEntry action_entries [] = {
@@ -132,7 +132,7 @@ static GtkActionEntry action_entries [] = {
 };
 
 void
-initialize_taco_bar (void)
+initialize_taco_bar ()
 {
     	/* FIXME: The sidebar stuff still needs to be i18nified */
     	GtkWidget *widget;
@@ -147,8 +147,8 @@ initialize_taco_bar (void)
 				        GTK_POLICY_AUTOMATIC);
 	gtk_container_add (GTK_CONTAINER (widget),
 			   GTK_WIDGET (gui.server_tree));
-	taco_bar_add_page (TACO_BAR (gui.taco_bar), "channels",
-			   "_Channels", icon, widget, GTK_PACK_START);
+	taco_bar_pack_page (TACO_BAR (gui.taco_bar), "channels",
+			    "_Channels", icon, widget, TACO_BAR_TOP);
 	gtk_widget_show (GTK_WIDGET (gui.server_tree));
 
 	// User list page
@@ -159,14 +159,27 @@ initialize_taco_bar (void)
 				        GTK_POLICY_NEVER,
 				        GTK_POLICY_AUTOMATIC);
 	gtk_container_add (GTK_CONTAINER (widget), gui.userlist);
-	taco_bar_add_page (TACO_BAR (gui.taco_bar), "users",
-			    "_Users", icon, widget, GTK_PACK_END);
+	taco_bar_pack_page (TACO_BAR (gui.taco_bar), "users",
+			    "_Users", icon, widget, TACO_BAR_BOTTOM);
+	taco_bar_set_page_sensitive (TACO_BAR (gui.taco_bar), "users", FALSE);
 
-	gtk_widget_show (gui.taco_bar);
+	// Dummy log page
+	widget = gtk_scrolled_window_new (NULL, NULL);
+	icon = gtk_image_new_from_stock (GTK_STOCK_ABOUT,
+					 GTK_ICON_SIZE_BUTTON);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget),
+				        GTK_POLICY_NEVER,
+				        GTK_POLICY_AUTOMATIC);
+	gtk_container_add (GTK_CONTAINER (widget), gtk_tree_view_new());
+	taco_bar_pack_page (TACO_BAR (gui.taco_bar), "log",
+			    "_Log", icon, widget, TACO_BAR_BOTTOM);
+//	taco_bar_set_page_sensitive (TACO_BAR (gui.taco_bar), "events", FALSE);
+	
 
 	// It's all good to go now
 	taco_bar_set_visible_page (TACO_BAR (gui.taco_bar), "channels");
 	taco_bar_set_default_page (TACO_BAR (gui.taco_bar), "channels");
+	gtk_widget_show (gui.taco_bar);
 }
 
 void
@@ -249,6 +262,9 @@ initialize_main_window (void)
 	gtk_button_set_use_underline (GTK_BUTTON (gui.nick_button), FALSE);
 	g_signal_connect (G_OBJECT (gui.nick_button), "clicked",   G_CALLBACK (on_nickname_clicked), NULL);
 	g_signal_connect (G_OBJECT (GTK_BIN (gui.nick_button)->child), "style-set", G_CALLBACK (nickname_style_set),  NULL);
+
+	/* And finally, set up all the stuff in the taco bar */
+	initialize_taco_bar ();
 }
 
 void
@@ -337,7 +353,6 @@ on_main_window_close (GtkWidget *widget, GdkEvent *event, gpointer data)
 	gui.quit = TRUE;
 
 	gtk_widget_hide (GTK_WIDGET (gui.dcc));
-/*	userlist_gui_hide ();*/
 	xchat_exit ();
 }
 
@@ -347,7 +362,6 @@ on_irc_quit_activate (GtkAction *action, gpointer data)
 	save_main_window ();
 	gtk_widget_hide (GTK_WIDGET (gui.main_window));
 	gtk_widget_hide (GTK_WIDGET (gui.dcc));
-/*	userlist_gui_hide ();*/
 	gui.quit = TRUE;
 	xchat_exit ();
 }
@@ -418,7 +432,7 @@ on_network_channels_activate (GtkAction *action, gpointer data)
 static void
 on_discussion_users_activate (GtkAction *action, gpointer data)
 {
-//	userlist_gui_show ();
+	taco_bar_toggle_page_state (gui.taco_bar, "users");
 }
 
 static void
@@ -607,20 +621,6 @@ static void
 on_discussion_topic_change_activate (GtkButton *widget, gpointer data)
 {
 	topic_label_change_current (TOPIC_LABEL (gui.topic_label));
-}
-
-static void
-on_users_toggled (GtkToggleButton *widget, gpointer user_data)
-{
-	gboolean toggled;
-
-/*	toggled = gtk_toggle_button_get_active (widget);
-
-	if (toggled) {
-		userlist_gui_show ();
-	} else {
-		userlist_gui_hide ();
-	}*/
 }
 
 void

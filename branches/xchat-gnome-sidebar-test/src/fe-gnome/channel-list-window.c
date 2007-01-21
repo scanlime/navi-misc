@@ -478,8 +478,8 @@ channel_list_window_new (session *sess, gboolean show_list)
 	widget = glade_xml_get_widget (win->xml, "apply to name");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), win->filter_name);
 	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (apply_to_name_changed), win);
-/*	widget = glade_xml_get_widget (win->xml, "close button");
-	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (close_button_clicked), win);*/
+	widget = glade_xml_get_widget (win->xml, "close button");
+	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (close_button_clicked), win);
 	widget = glade_xml_get_widget (win->xml, "expander");
 	gtk_expander_set_expanded (GTK_EXPANDER (widget), show_list);
 	g_signal_connect (G_OBJECT (widget), "notify::expanded", G_CALLBACK (expander_activated), win);

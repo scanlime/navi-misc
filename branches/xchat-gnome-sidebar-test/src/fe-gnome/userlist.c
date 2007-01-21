@@ -26,6 +26,7 @@
 #include "userlist.h"
 #include "palette.h"
 #include "gui.h"
+#include "taco-bar.h"
 
 static void userlist_class_init (UserlistClass *klass);
 static void userlist_init       (Userlist *userlist);
@@ -154,6 +155,7 @@ userlist_insert (Userlist *userlist, session *sess, struct User *newuser, int ro
 	g_completion_add_items (store->completion, item);
 	store->completion_items = g_list_concat (store->completion_items, item);
 
+	userlist_set_user_button (userlist, sess);
 }
 
 static GtkTreeIter*
@@ -194,6 +196,8 @@ userlist_remove_user (Userlist *userlist, session *sess, struct User *user)
 	store->completion_items = g_list_remove_link (store->completion_items, item);
 	g_completion_remove_items (store->completion, item);
 	g_list_free (item);
+
+	userlist_set_user_button (userlist, sess);
 
 	return TRUE;
 }
@@ -286,3 +290,21 @@ userlist_get_completion (Userlist *userlist, session *sess)
 	g_assert (store != NULL);
 	return store->completion;
 }
+
+void
+userlist_set_user_button (Userlist *userlist, session *sess)
+{
+	gchar *label;
+
+	if (gui.current_session == sess) {
+		if (sess->type == SESS_CHANNEL)
+			label = g_strdup_printf (ngettext ("%d _User", "%d _Users", sess->total), sess->total);
+		else
+			label = g_strdup_printf ("_%s", _("Users"));
+		
+		taco_bar_set_label_markup (TACO_BAR (gui.taco_bar),
+					   "users", label);
+		g_free (label);
+	}
+}
+

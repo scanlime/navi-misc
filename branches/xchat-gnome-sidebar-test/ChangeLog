@@ -1,3 +1,39 @@
+2007-01-20  Dan Kuester <dkuester@colorado.edu>
+	* ChangeLog:
+	  - Let's be honest, I added to this file
+	* data/xchat-gnome.glade:
+	  - Replace the side widgets with a custom taco bar widget, making the
+	    window more refreshingly blue than ever before.
+	* src/fe-gnome/Makefile.am:
+	  - Add the new taco-bar.c and taco-bar.h
+	* src/fe-gnome/fe-gnome.c:
+	  - Remove the userlist_gui_hide function, as the taco bar doesn't use
+	    that window.
+	  - Use the taco bar to set the "Users" button sensitivity
+	* src/fe-gnome/gui.c:
+	  - Remove server channel list initialization, and move it to
+	    main-window.c where the rest of the taco bar is initialized
+	* src/fe-gnome/gui.h:
+	  - Replace the userlist_window and userlist_toggle widgets with a
+	    taco_bar widget in XChatGUI
+	* src/fe-gnome/main-window.c:
+	  - Remove calls to userlist_gui_hide
+	  - Replace calls to userlist_gui_show with taco_bar_toggle_page_state
+	  - Remove initialization and references to the userlist_toggle 
+	    widget, which is now handled inside the taco bar widget
+	  - Add taco bar initialization to the main window initialization
+	  - Remove the on_users_toggled callback entirely, as it is now handled 
+	    by the taco bar widget.
+	* src/fe-gnome/taco-bar.c:
+	* src/fe-gnome/taco-bar.h:
+	  - First stab at a new side bar widget
+	* src/fe-gnome/userlist.c:
+	  - Set the users button text using the new taco bar widget instead
+	    of directly changing the button.
+	* src/fe-gnome/userlist-gui.c:
+	* src/fe-gnome/userlist-gui.h:
+	  - Remove the userlist popup
+
 2007-01-19  Michel Dänzer <daenzer@debian.org>
 
 	* src/fe-gnome/xtext.c:

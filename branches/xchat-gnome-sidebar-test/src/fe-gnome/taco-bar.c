@@ -29,8 +29,8 @@
 typedef struct
 {
 	const gchar *id;
-	const gchar *title;
 	gint	     index;
+	GtkWidget   *label;
 	GtkWidget   *child;
 	GtkWidget   *icon;
 	GtkWidget   *toggle;
@@ -175,7 +175,7 @@ taco_bar_on_button_press_event	(GtkWidget *widget,
 
 static void
 taco_bar_on_toggle (GtkWidget *widget,
-			     TacoBarPage *page)
+		    TacoBarPage *page)
 {
 	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
 	{
@@ -183,7 +183,7 @@ taco_bar_on_toggle (GtkWidget *widget,
 			taco_bar_switch_to_page  (page->taco_bar, page);
 	}
 	
-	/* A toggle signal should be emitted in one of two off states:
+	/* A toggle signal should be emitted in one of two inactive states:
 	 * 	- The button was active, and just got toggled off by the user
 	 * 	  directly.  Now activate the default toggle.
 	 * 	- The user clicked a different button, and this one has
@@ -232,6 +232,38 @@ taco_bar_get_visible_page (TacoBar *taco_bar)
 }
 
 void
+taco_bar_set_label_markup (TacoBar *taco_bar,
+			   const char *id,
+			   const char *text)
+{
+	TacoBarPage *page;
+
+	g_return_if_fail (IS_TACO_BAR (taco_bar));
+	g_return_if_fail (id != NULL);
+
+	// Try to get the page
+	page = g_hash_table_lookup (taco_bar->priv->page_hash, id);
+	g_return_if_fail (page != NULL);
+
+	// Set the text
+	gtk_label_set_markup_with_mnemonic (GTK_LABEL (page->label), text);
+}
+
+const char *
+taco_bar_get_label_markup (TacoBar *taco_bar, const char *id)
+{
+	TacoBarPage *page;
+
+	g_return_val_if_fail (IS_TACO_BAR (taco_bar), NULL);
+	g_return_val_if_fail (taco_bar->priv != NULL, NULL);
+	
+	page = g_hash_table_lookup (taco_bar->priv->page_hash, id);
+	g_return_val_if_fail (page != NULL, NULL);
+
+	return gtk_label_get_label (GTK_LABEL (page->label));
+}
+
+void
 taco_bar_set_default_page (TacoBar *taco_bar, const char *new_id)
 {
 	TacoBarPage *page;
@@ -257,17 +289,55 @@ taco_bar_get_default_page (TacoBar *taco_bar)
 }
 
 void
-taco_bar_add_page (TacoBar	*taco_bar,
-		   const gchar	*page_id,
-		   const gchar	*title,
-		   GtkWidget	*icon,
-		   GtkWidget   	*child,
-		   GtkPackType	 packing)
+taco_bar_set_page_sensitive (TacoBar *taco_bar, const char *id, gboolean state)
+{
+	TacoBarPage *page;
+
+	g_return_if_fail (IS_TACO_BAR (taco_bar));
+	g_return_if_fail (id != NULL);
+
+	// Try to get the page
+	page = g_hash_table_lookup (taco_bar->priv->page_hash, id);
+	g_return_if_fail (page != NULL);
+
+	// Set the page
+	gtk_widget_set_sensitive (page->toggle, state);
+}
+
+void
+taco_bar_toggle_page_state (TacoBar *taco_bar, const char *id)
+{
+	TacoBarPage *page;
+	GtkWidget *widget;
+
+	g_return_if_fail (IS_TACO_BAR (taco_bar));
+	g_return_if_fail (id != NULL);
+
+	// Try to get the page
+	page = g_hash_table_lookup (taco_bar->priv->page_hash, id);
+	g_return_if_fail (page != NULL);
+
+	// Set the page
+	widget = page->toggle;
+	if (!taco_bar_on_button_press_event (widget, NULL, page))
+		taco_bar_on_toggle (widget , page);
+}
+
+void
+taco_bar_pack_page (TacoBar		*taco_bar,
+		    const gchar		*page_id,
+		    const gchar		*title,
+		    GtkWidget		*icon,
+		    GtkWidget		*child,
+		    TacoBarPlacementType page_type)
 {
 	GtkWidget *toggle;
+	GtkWidget *label;
+	GtkWidget *hbox;
+	GtkWidget *pad1, *pad2;
 	TacoBarPage *new_page;
 	gint index;
-	   
+
 	g_return_if_fail (IS_TACO_BAR (taco_bar));
 	g_return_if_fail (page_id != NULL);
 	g_return_if_fail (title != NULL);
@@ -275,17 +345,39 @@ taco_bar_add_page (TacoBar	*taco_bar,
 	g_return_if_fail (GTK_IS_WIDGET (child));
 
 	// Create & add the button
-	toggle = gtk_toggle_button_new_with_label (title);
-	gtk_button_set_image (GTK_BUTTON (toggle), icon);
+	toggle = gtk_toggle_button_new ();
+	label = gtk_label_new (NULL);
+	pad1 = gtk_label_new (NULL);	//FIXME: there must be a better way..
+	pad2 = gtk_label_new (NULL);
+	gtk_label_set_markup_with_mnemonic (GTK_LABEL (label), title);
+	hbox = gtk_hbox_new (FALSE, 6);
+	gtk_box_pack_start (GTK_BOX (hbox), pad1, TRUE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (hbox), icon, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (hbox), pad2, TRUE, FALSE, 0);
+	gtk_container_add (GTK_CONTAINER (toggle), hbox);
 	gtk_button_set_relief (GTK_BUTTON (toggle), GTK_RELIEF_NONE);
-	if (packing == GTK_PACK_START)
-		gtk_box_pack_start (GTK_BOX (taco_bar->priv->top_box),
-				    toggle, TRUE, TRUE, 0);
-	else
-		gtk_box_pack_start (GTK_BOX (taco_bar->priv->bottom_box),
-				    toggle, FALSE, FALSE, 0);
+
+	switch (page_type)
+	{
+		case TACO_BAR_TOP:
+			gtk_box_pack_start (GTK_BOX (taco_bar->priv->top_box),
+				    	    toggle, TRUE, TRUE, 0);
+			break;
+
+		case TACO_BAR_BOTTOM:
+			gtk_box_pack_start (GTK_BOX (taco_bar->priv->bottom_box),
+					    toggle, FALSE, FALSE, 0);
+			break;
+	}
+
 	gtk_widget_show (toggle);
+	gtk_widget_show (hbox);
+	gtk_widget_show (label);
 	gtk_widget_show (icon);
+	gtk_widget_show (child);
+	gtk_widget_show (pad1);
+	gtk_widget_show (pad2);
 
 	// Update the notebook
 	index = gtk_notebook_append_page (GTK_NOTEBOOK (taco_bar->priv->notebook), child,
@@ -294,7 +386,7 @@ taco_bar_add_page (TacoBar	*taco_bar,
 	// Hash page metadata
 	new_page = g_malloc (sizeof (TacoBarPage));
 	new_page->id = page_id;
-	new_page->title = title;
+	new_page->label = label;
 	new_page->toggle = toggle;
 	new_page->child = child;
 	new_page->index = index;
@@ -306,8 +398,6 @@ taco_bar_add_page (TacoBar	*taco_bar,
 		taco_bar_switch_to_page (taco_bar, new_page);	
 	if (taco_bar->priv->default_page == NULL)
 		taco_bar->priv->default_page = new_page;
-	
-	gtk_widget_show (child);
 	
 	// Signal everything up, yo
 	g_signal_connect (toggle, "toggled", G_CALLBACK (taco_bar_on_toggle),
