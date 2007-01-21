@@ -1,14 +1,17 @@
 {% extends 'layout_base.html' %}
-{% load markup %}
 
 {% block stylesheets %}
 {{ block.super }}
   <link href="/media/css/doc.css" type="text/css" rel="stylesheet" />
 {% endblock %}
 
-{% block page_title %}Documentation{% endblock %}
+{% block page_title %}{{ parts.title }}{% endblock %}
 {% block head_title %}Documentation{% endblock %}
 
 {% block content %}
-{{ page|restructuredtext }}
+<div class="document">
+{{ parts.html_title }}
+{{ parts.html_subtitle }}
+{{ parts.fragment }}
+</div>
 {% endblock %}
