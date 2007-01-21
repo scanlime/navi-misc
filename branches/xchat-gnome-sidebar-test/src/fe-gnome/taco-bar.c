@@ -356,6 +356,7 @@ taco_bar_pack_page (TacoBar		*taco_bar,
 	gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 	gtk_box_pack_start (GTK_BOX (hbox), pad2, TRUE, FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (toggle), hbox);
+	GTK_WIDGET_UNSET_FLAGS (toggle, GTK_CAN_FOCUS);
 	gtk_button_set_relief (GTK_BUTTON (toggle), GTK_RELIEF_NONE);
 
 	switch (page_type)
