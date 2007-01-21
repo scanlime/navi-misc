@@ -140,6 +140,8 @@ initialize_taco_bar ()
 
 	// Servers
 	widget = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (widget),
+					     GTK_SHADOW_IN);
 	icon = gtk_image_new_from_icon_name ("xchat-gnome-servers",
 					 GTK_ICON_SIZE_BUTTON);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget),
@@ -153,6 +155,8 @@ initialize_taco_bar ()
 
 	// User list page
 	widget = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (widget),
+					     GTK_SHADOW_IN);
 	icon = gtk_image_new_from_icon_name ("xchat-gnome-users",
 					     GTK_ICON_SIZE_BUTTON);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget),
@@ -165,6 +169,8 @@ initialize_taco_bar ()
 
 	// Dummy log page
 	widget = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (widget),
+					     GTK_SHADOW_IN);
 	icon = gtk_image_new_from_stock (GTK_STOCK_ABOUT,
 					 GTK_ICON_SIZE_BUTTON);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget),
