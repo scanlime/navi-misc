@@ -196,7 +196,11 @@ def bot(request, asset_type, asset_id):
     bot.syncFromServer()
 
     form = formtools.MultiForm(request.POST)
-    form.validate(EditBotForm, bot)
+    form.validate(EditBotForm, bot, post_defaults={
+        # Checkboxes must be explicitly defaulted to zero here, since
+        # an unchecked box will not show up in our POST data.
+        'show_project_names': 0,
+        })
     form.validate(assets.EditAssetForm, user_asset)
 
     if request.POST and form.is_valid():
