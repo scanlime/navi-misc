@@ -1,0 +1,100 @@
+
+.document {
+    max-width: 45em;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.document ul {
+    list-style-type: square;
+    margin: 0.5em;
+    padding: 0 0 0 1.5em;
+}
+
+.document blockquote {
+    margin: 0.5em 1em;
+    font-size: 0.8em;
+}
+
+.document .section {
+    /*
+     * Sections have a 1em border and 1em padding, which is cancelled
+     * out by a -2em margin.  This gives the effect of a border
+     * floating out in the left margin, while the text in sections
+     * will line up with text in non-sections.
+     */
+    margin: 1.5em 0em 0em -2em;
+    border-left: 1em solid #aaa;
+    padding: 0em 1em;
+
+    text-align: justify;
+}
+
+/*
+ * h1: Page title. This matches the h1 style used by account.css,
+ *     and the subtitle style is very similar to that used by login.css.
+ */
+
+h1 {
+  font-size: 1.5em;
+  padding: 0 0 0.25em 0;
+  margin: 0 0 0.25em 0;
+  border-bottom: 2px solid #ccc;
+}
+
+h2.subtitle {
+  color: #444;
+  font-size: 0.9em;
+  margin: 0em 2em;
+}
+
+/*
+ * h2: Section headings
+ */
+
+h2 {
+    font-size: 1.2em;
+}
+
+h2 a {
+    color: #005;
+}
+
+table {
+    border: none;
+    border-spacing: 0;
+    padding: 0;
+    margin: 0;
+}
+
+td {
+    border: none;
+    padding: 0;
+    margin: 0;
+    padding: 4px 15px 4px 2px;
+    border-bottom: 1px solid #aaa;
+}
+
+tr {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+th {
+    text-align: left;
+    font-weight: bold;
+    border: none;
+    background: #444;
+    color: white;
+    padding: 2px 15px 2px 2px;
+    margin: 0;
+}
+
+pre.literal-block {
+    overflow: auto;
+    margin-left: 3em;
+    padding: 0.5em;
+    background: #ffc;
+    border: 1px solid #b77;
+}

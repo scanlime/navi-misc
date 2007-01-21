@@ -12,9 +12,12 @@ def cssmin(source):
        but doesn't really understand strings or multiline comments
        correctly.
        """
+    # Collapse lines first, to make the following regexes simpler.
+    source = source.replace("\n", "")
+    
     # Remove comments
     source = re.sub(r"//[^\n]", "", source)
-    source = re.sub(r"/\*(.*)\*/", "", source)
+    source = re.sub(r"/\*(.*?)\*/", "", source)
 
     # Collapse duplicate whitespace
     source = re.sub(r"\s+", " ", source)

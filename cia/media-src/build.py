@@ -25,6 +25,10 @@ merge(DEST + 'css/tabtastic.css', [
     'css/local/tabtastic.css',
     ], cssmin)
 
+merge(DEST + 'css/doc.css', [
+    'css/local/doc.css',
+    ], cssmin)
+
 merge(DEST + 'js/asset-edit.js', [
     'js/tabtastic-1.0.4/addclasskillclass.js',
     'js/tabtastic-1.0.4/attachevent.js',
