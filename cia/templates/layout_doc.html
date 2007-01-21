@@ -9,9 +9,26 @@
 {% block head_title %}Documentation{% endblock %}
 
 {% block content %}
-<div class="document">
+<div id="document-and-sidebar">
+
+<ul id="sidebar">
+{% for section in sidebar %}
+  <li>
+    <p>{{ section.title }}</p>
+    <ul class="links">  
+      {% for link in section.links %}
+         <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+      {% endfor %}
+    </ul>
+  </li>
+{% endfor %}
+</ul>
+
+<div id="document">
 {{ parts.html_title }}
 {{ parts.html_subtitle }}
 {{ parts.fragment }}
+</div>
+
 </div>
 {% endblock %}
