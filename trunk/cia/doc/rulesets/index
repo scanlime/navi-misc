@@ -1,0 +1,540 @@
+==================
+Advanced Filtering
+==================
+
+Introduction
+------------
+
+There are two main steps in getting commit messages from the CIA
+server to your own IRC channel:
+
+ * Filtering
+
+   The CIA server receives messages from thousands of
+   projects, from over 10,000 authors. Which ones are you
+   interested in?
+
+ * Formatting
+
+   Once a subset of CIA's messages have been selected, the
+   bot still needs to present those in a useful format. CIA supports several
+   message formats and several output media, but this document will
+   focus on formatting commit messages for IRC.
+
+CIA provides a simple facility for configuring its filtering and
+formatting functionality: the *ruleset* language.
+
+Basic Examples
+--------------
+
+Rulesets are specified in XML, but try not to let that turn you
+off. What's important is that rulesets are both hierarchial and
+sequential. Here is an example of a simple ruleset::
+
+  <match path="project"> xchat-gnome </match>
+  <formatter medium="irc"/>
+
+This ruleset will discard all commit messages that didn't come
+from the "xchat-gnome" project, then it will apply the default
+IRC formatting to those messages.
+
+How about a few more simple examples. This one will match
+commits made to CIA itself, on the "cia" module of the "navi-misc"
+project::
+
+  <match path="project"> navi-misc </match>
+  <match path="module"> cia </match>
+  <formatter medium="irc"/>
+
+This one will look for any commit with the word "cheese" in its
+log message. Additionally, we'll run a specific formatter which
+prepends the project name to every line of formatted text::
+
+  <find path="log"> cheese </match>
+  <formatter medium="irc"/>
+  <formatter name="IRCProjectName"/>
+
+General Form
+------------
+
+By now you might have noticed a few things about rulesets:
+
+  * Filtering and formatting commands can be freely intermixed.
+
+  * Multiple <match>'es act like a boolean AND. They must all
+    match for the ruleset to give any output.
+
+  * Formatters can be stacked. In the last example, the
+    IRCProjectName formatter operated on the output of the
+    generic IRC formatter.
+
+Conceptually a ruleset is processed command by command,
+in order, on every message delivered to CIA. Some messages
+cause the ruleset to return formatted output, and some
+messages cause it to return nothing.
+
+Every command can operate on two pieces of execution state: the
+current message and the current result. The message is read-only, of
+course. The "current result" is what the ruleset would return if it
+were to terminate immediately.
+
+There are four types of commands:
+
+  * Formatters modify the current result.
+
+      Their input may include the current message, the current
+      result, and various arguments supplied via the ruleset.
+
+  * Filters examine the current message, returning either a True
+    or False value.
+
+      If they return False, the current rule stops
+      executing. Multiple filters can be combined using the boolean
+      containers <and>, <or>, and <not>.
+
+  * Nested rules.
+
+      A <rule> element, just like the ruleset as a whole,
+      executes each of its child elements in order until a filter returns
+      False. The behaviour of <rule> and <and> can be very similar,
+      however only <rule> may include formatters and flow control commands.
+
+  * Flow control.
+
+      A ruleset or <rule> can contain a couple simple flow
+      control elements. The <break> element will terminate the entire ruleset
+      (even if it occurs within a nested <rule>) without modifying the
+      current result. The <return> element is like <break>, however it always
+      modifies the current result.
+
+
+Filter Syntax
+-------------
+
+Filters are boolean expressions which take a single CIA message as their input.
+The workhorses of any filter are the <find> and <match> elements.
+
+Every CIA message can be represented by an XML document. The <find> and
+<match> element each select a subset of this XML document using an
+XPath query, then they perform a string comparison on the text in that
+subset.
+
+The CIA server only makes a very small subset of XPath available. Paths
+must be absolute, and only the default (child::) axis is supported. This
+means you can write paths like "/message/source/project", for example,
+to locate the <project> element in a CIA message.
+
+These XPaths get tedious pretty fast. CIA supports a shorthand for
+common paths. Nearly all filtering tasks on commit messages can be
+performed without ever using a real XPath:
+
+============ ===========================================
+Shortcut     Full path
+============ ===========================================
+author       /message/body/commit/author
+branch       /message/source/branch
+files        /message/body/commit/files
+log          /message/body/commit/log
+module       /message/source/module
+project      /message/source/project
+revision     /message/body/commit/revision
+version      /message/body/commit/version
+============ ===========================================
+
+This is a complete list of filtering elements which may occur in a ruleset.
+Note that filtering elements may only contain other filtering elements, never
+formatting or flow control elements.
+
+<**find** path="*XPath*" [caseSensitive="1"]> [*query*] </find>
+
+  Perform an XPath query against the current message. For each query result:
+
+    * All text within the matched element is recursively flattened into a single string.
+
+    * The provided query string is searched for within that string.
+
+  If the query string is found within any of the XPath results, this filter
+  returns True. By default the string comparison is case insensitive.
+  This can be changed by setting the "caseSensitive" attribute to one.
+
+  Note that the query string can be omitted. This causes the <find>
+  element to match the empty string against all XPath results. Since
+  a search for the empty string always succeeds, the <find> element will
+  return True if and only if the XPath returned any results.
+
+<**match** path="*XPath*" [caseSensitive="1"]> *query* </match>
+
+  Perform an XPath query against the current message. For each query result:
+
+    * All text immediately within the matched element flattened into a
+      single string. Text within children of the matched element is ignored.
+
+    * The provided query string is matched against that string. Leading
+      and trailing whitespace is ignored.
+
+  If the query string is matched against any of the XPath results, this filter
+  returns True. By default the string comparison is case insensitive.
+  This can be changed by setting the "caseSensitive" attribute to one.
+
+<**true**/>
+
+  Always returns True.
+
+<**false**/>
+
+  Always returns False. Note that this element can be used as an alternative
+  to <break/> when you wish to stop the current <rule> from executing, but
+  not the entire ruleset.
+
+<**and**> [*filters...*] </and>
+
+  Boolean AND. Returns True unless any child filter evaluates to False.
+
+<**or**> [*filters...*] </or>
+
+  Boolean OR. Returns False unless any child filter evaluates to True.
+
+<**not**> [*filters...*] </not>
+
+  Boolean NOT. Typically this is used to negate a single child filter.
+  If you use this with multiple child filters, the behaviour is actually
+  a logical NOR. It returns False if and only if any child evaluates to True.
+
+
+Filter Examples
+---------------
+
+This is an abbreviated version of the ruleset used by the #tacobeam channel
+on Freenode. It uses several levels of nested boolean elements. Each section
+is explained with inline comments. You may use XML-style comments in rulesets,
+but there's no need to. All text within a container element is ignored::
+
+  <or>
+
+    Show Micah's commits, but filter out a few projects where
+    there are other folks that also commit under the name "micah".
+
+    <and>
+      <match path="author"> micah </match>
+      <not><match path="project"> kde </match></not>
+      <not><match path="project"> debian-kernel </match></not>
+    </and>
+
+    These are more people that hang out in #tacobeam.
+    Show all their commits.
+
+    <match path="author"> chipx86 </match>
+    <match path="author"> davidtrowbridge </match>
+    <match path="author"> darkstar62 </match>
+    <match path="author"> evan </match>
+    <match path="author"> lurgyman </match>
+    <match path="author"> fiberchunks </match>
+    <match path="author"> file </match>
+    <match path="author"> numist </match>
+    <match path="author"> pagefault </match>
+    <match path="author"> orph </match>
+    <match path="author"> orphennui </match>
+
+    We want to show Mike's commits, but he has an awfully common name,
+    so we'll explititly list the projects he's involved in. This uses
+    'find' rather than 'match' on Mike, since some projects include his
+    email address in the author name.
+
+    <and>
+      <find path="author"> Mike </find>
+      <or>
+        <match path="project"> galago </match>       
+        <match path="project"> autopackage </match>
+      </or>
+    </and>
+
+    We like Kergoth, but we got tired of his commits to KergothWOWBits.
+    Explicitly filter out that project when we accept commits from him.
+
+    <and>
+      <match path="author"> kergoth </match>
+      <not><match path="project"> KergothWOWBits </match></not>
+    </and>
+
+    These are some projects hosted on our servers.
+    Show all the commits to them.
+
+    <match path="project"> navi-misc </match>
+    <match path="project"> view </match>
+
+  </or>
+  <formatter medium="irc"/>
+  <formatter name="IRCProjectName"/>
+
+
+It's best to use the <match> element to pinpoint the part of a message
+you need, but sometimes you want to perform a deeper search on a larger
+part of a message. In this example, we'll search for commits to Interduck
+that include the text "/local/htdocs" in their list of files. This type
+of filter could be used to extract messages to just part of a larger
+project, even when the project's owners aren't providing module
+information::
+
+  <match path="project"> interduck </match>
+  <find path="files"> /local/htdocs </find>
+  <formatter medium="irc"/>
+
+Messages include more than just a project, author, and commit message.
+For an example, you can use CIA's stats browser to view the unformatted
+XML version of any message. One such bit of information is the name
+of the client script that generated a message. The generator name is
+just a freeform string, but it typically includes the name of the
+revision control system the client is for.
+
+If you were a developer on Subversion, for example, you may want to
+see all messages that have "Subversion" or "SVN" in the name of their
+client script::
+
+  <or>
+    <find path="/message/generator/name"> Subversion </find>
+    <find path="/message/generator/name"> SVN </find>
+  </or>
+  <formatter medium="irc"/>
+  <formatter name="IRCProjectName"/>
+
+
+Formatter Syntax
+----------------
+
+All message formatting in a ruleset is performed using the <formatter> element.
+It comes in two flavors:
+
+<**formatter** name="*name*"> [*options*] </formatter>
+
+  Invoke a particular formatter, by name.
+
+<**formatter** medium="*medium*"> [*options*] </formatter>
+
+  Search for a formatter that is compatible with the current message,
+  and that will generate output for the given medium.
+
+Because the CIA server is designed to work with many types of input messages
+(commits, automated build results, bug tracking updates) and many output media
+(IRC, XHTML, plain text) it has many formatters available. In the context of IRC,
+however, only a few of these are useful:
+
+ * **CommitToIRC**
+
+   This formatter converts commit messages to IRC. This is generally the formatter
+   that will be chosen when you use *<formatter medium="irc">*.
+
+ * **IRCProjectName**
+
+   This is a very simple formatter that prepends the current message's project
+   name to each line of the last formatter's output. The project name is in bold.
+   It is often useful to conditionally apply this formatter in a ruleset, using
+   nested rules.
+
+A ruleset operating on a commit message and rendering using *<formatter medium="irc">*
+will invoke the *CommitToIRC* formatter. This formatter is quite customizable. The
+following elements, inside a <formatter> element, will be processed by the *CommitToIRC*
+formatter:
+
+<**crunchWhitespace**/>
+
+  Normally *CommitToIRC* will do its best to remove extra indentation and newlines
+  from a message, while preserving its overall whitespace structure. Indented sections
+  of the log will remain indented.
+
+  If this option is present, the formatter will replace all groups of one or more
+  whitespace characters with a single space. Newlines will be converted to individual
+  spaces, and multiple spaces will be collapsed.
+
+<**noColor**/>
+
+  Disable the use of color in the default message formating. Note that this will
+  not work when using the <format> parameter, since <format> overrides the default
+  message formatting.
+
+<**lineLimit**> *limit* </lineLimit>
+
+  Set the maximum number of lines that will be output for an individual commit.
+  Defaults to 6.
+
+<**widthLimit**> *limit* </widthLimit>
+
+  Any lines in the log message longer than this many characters will be wrapped.
+  Defaults to 220.
+
+<**wrapWidth**> *width* </wrapWidth>
+
+  If a line is wrapped, it will be wrapped to this many characters.
+  Defaults to 80.
+
+<**filesWidthLimit**> *limit* </filesWidthLimit>
+
+  If the commit's file list would be longer than this many characters, summarize it.
+  Defaults to 60.  
+
+<**format** [appliesTo="*formatter*"]> *message formatting* </format>
+
+  Override the default message format completely. Because this element
+  can not be used practically with multiple formatters, it is recommended
+  to use the 'appliesTo' attribute in order to restrict it to a single
+  formatter.
+
+The <format> element is the most flexible way to control the output of
+your ruleset. Its parameter is a simple markup language which lets you
+individually place all the components that make up a commit message.
+As an example, this would recreate the default format::
+
+  <formatter medium="irc">
+    <format appliesTo="CommitToIRC">
+        <autoHide><color fg='green'><author/></color></autoHide>
+        <autoHide><color fg='orange'><branch/></color></autoHide>
+        *
+        <autoHide><b><version/></b></autoHide>
+        <autoHide>r<b><revision/></b></autoHide>
+        <color fg='aqua'><module/></color>/<files/><b>:</b>
+        <log/>
+    </format>
+  </formatter>
+
+Simple customizations can be made by copying this formatter into your
+ruleset and rearranging its elements or modifying its colors.
+
+A detailed description of the <format> markup recognized by
+the *CommitToIRC* formatter:
+
+<**autoHide**> *format markup* </autoHide>
+
+  If any formatter components within this element return
+  no value, hide the entire contents of this element.
+
+<**br**/>
+
+  Insert a newline. Literal text within the format markup is allowed,
+  but redundant whitespace is eliminated.
+
+<**author**/>, <**version**/>, <**revision**/>, <**branch**/>, <**module**/>, and <**project**/>
+
+  Insert the respective text from the commit message.
+
+<**files**/>
+
+  Insert the commit's list of files. The file list is split into a common prefix
+  and a sensibly-sized list of individual files. If the list is too long, it will
+  automatically be summarized.
+
+<**log**/>
+
+  Insert the commit's log message, with automatic word wrapping and various
+  forms of automatic whitespace normalization and truncation.
+
+<**b**> *format markup* </b>
+
+  All text within this tag will be made bold, using IRC color codes.
+
+<**u**> *format markup* </u>
+
+  All text within this tag will be underlined, using IRC color codes.
+
+<**color** [fg="*foreground*"] [bg="*background*"]> *format markup* </color>
+
+  Apply a foreground and/or background color to the enclosed text. The actual
+  appearance of these colors may vary with each IRC client. The foreground
+  and background may each be one of the following:
+     
+     * aqua
+     * black
+     * blue
+     * brown
+     * dark blue
+     * dark green
+     * dark red
+     * gray
+     * green
+     * grey
+     * light blue
+     * light gray
+     * light green
+     * light grey
+     * light red
+     * orange
+     * purple
+     * red
+     * violet
+     * white
+     * yellow
+
+
+Formatter Examples
+------------------
+
+This is the ruleset for #freebsd-src. It creates a completely custom
+look for commits using the <format> element, plus it overrides several
+default settings::
+ 
+  <match path="project"> freebsd </match>
+
+  <formatter medium="irc">
+
+    <filesWidthLimit>40</filesWidthLimit>
+    <lineLimit>1</lineLimit>
+    <wrapWidth>150</wrapWidth>
+    <widthLimit>150</widthLimit>
+    <crunchWhitespace/>
+
+    <format appliesTo="CommitToIRC">
+      <b>[<module/>]</b>
+      <autoHide><b>[<branch/>]</b></autoHide>
+      <color fg="orange"><author/></color>
+      <b>*</b>
+      <color fg="green"><files/></color>:
+      <log/>
+    </format>
+  
+  </formatter>
+
+This is the ruleset for #gaim-commits. They primarily display commits
+from the "gaim" project, but they also display commits from the "gaim"
+module of the "trinity" project. They wanted to prefix commits with
+their project name only if the project isn't "gaim". This pattern
+could be useful in many situations where a channel shows multiple
+projects, but a single project is an assumed default::
+
+  <or>
+    <match path="project"> gaim </match>
+      <and>
+        <match path="project"> trinity </match>
+        <match path="module"> gaim </match>
+     </and>
+  </or>
+
+  <formatter medium="irc"/>
+
+  <rule>
+    <not><match path="project"> gaim </match></not>
+    <formatter name="IRCProjectName"/>
+  </rule>
+
+
+Flow Control Syntax
+-------------------
+
+There are only two flow control elements, and they're both pretty simple.
+These elements are rarely useful when writing rulesets for IRC bots, but
+they are included in this guide for completeness.
+
+<**break**/>
+
+  Stop processing the ruleset, returning immediately. The ruleset
+  as a whole will return whatever the current result was when the
+  <break> was encountered.
+
+<**return** path="*XPath*"/>
+
+  Stop processing the ruleset, replacing the current result with
+  the recursively flattened strings found within the first XPath
+  match. If there are no XPath matches, the ruleset will return nothing.
+
+<**return**> *return value* </return>
+
+  Stop processing the ruleset, replacing the current result with
+  a literal return value.
+

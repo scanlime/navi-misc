@@ -258,22 +258,6 @@ class Filter(XML.XMLFunction):
 
        """
 
-    # The general form of "path" is an XPath, but we actually only support
-    # a very tiny subset of XPath. To make filters a little less overly verbose
-    # without making our XPaths (and eventually our Esquilax index) less
-    # efficient, we'll define some shortcuts for common paths.
-
-    pathShortcuts = {
-        'branch': '/message/source/branch',
-        'project': '/message/source/project',
-        'module': '/message/source/module',
-        'revision': '/message/body/commit/revision',
-        'version': '/message/body/commit/version',
-        'author': '/message/body/commit/author',
-        'log': '/message/body/commit/log',
-        'files': '/message/body/commit/files',
-        }
-         
     def pathMatchTag(self, element, function, textExtractor=XML.shallowText):
         """Implements the logic common to all tags that test the text matched by
            an XPath against the text inside our element. The given function is used
@@ -290,7 +274,7 @@ class Filter(XML.XMLFunction):
              - If there are no XPath matches, returns False
            """
         path = element.getAttributeNS(None, 'path')
-        xp = XML.XPath(self.pathShortcuts.get(path, path))
+        xp = XML.XPath(XML.pathShortcuts.get(path, path))
 
         # Are we doing a case sensitive match? Default is no.
         caseSensitive = element.getAttributeNS(None, 'caseSensitive')

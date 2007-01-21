@@ -241,7 +241,8 @@ class Ruleset(XML.XMLFunction):
     def element_return(self, element):
         """Set the current result and exit the ruleset immediately"""
         if element.hasAttributeNS(None, 'path'):
-            xp = XML.XPath(element.getAttributeNS(None, 'path'))
+            path = element.getAttributeNS(None, 'path')
+            xp = XML.XPath(XML.pathShortcuts.get(path, path))
             # Define a rulesetReturn function that returns the value of the XPath
             def rulesetReturn(msg):
                 nodes = xp.queryObject(msg)
