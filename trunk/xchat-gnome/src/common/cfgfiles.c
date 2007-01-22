@@ -633,7 +633,7 @@ load_config (void)
 		prefs.tint_green =
 		prefs.tint_blue = 195;
 	prefs.auto_indent = 1;
-	prefs.max_auto_indent = 256;
+	prefs.max_auto_indent = 175;
 	prefs.show_separator = 1;
 	prefs.dcc_blocksize = 1024;
 	prefs.throttle = 1;
