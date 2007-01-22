@@ -35,7 +35,7 @@ show_about_dialog (void)
 		"Brian Pepple <bdpepple@gmail.com>",
 		"Christian Persch <chpe@gnome.org>",
 		"Dan Kuester <Daniel.Kuester@colorado.edu>",
-		"Daniel Drake <dsd@gentoo.org>"
+		"Daniel Drake <dsd@gentoo.org>",
 		"David Trowbridge <trowbrds@gmail.com>",
 		"Evan Sheehan <Wallace.Sheehan@gmail.com>",
 		"Guillaume Desmottes <cass@skynet.be>",

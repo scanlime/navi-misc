@@ -1,4 +1,13 @@
-2007-01-19  Michel Dänzer <daenzer@debian.org>
+2007-01-21  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/common/cfgfiles.c:
+	  - Change the default for max_auto_indent from 256 to 175 to be a bit
+	    more sensible given average nicknames.  Bug #348543.
+	* src/fe-gnome/about.c:
+	  - Add a missing comma, which was making me and Daniel Drake show up
+	    on the same line.  Bug #399215.
+
+2007-01-19  Michel Dänzer  <daenzer@debian.org>
 
 	* src/fe-gnome/xtext.c:
 	  - When the MIT-SHM extension doesn't support shared pixmaps, don't
