@@ -75,9 +75,28 @@
     <div id="change-history" class="tabset_content">
       <h2 class="tabset_label">Change History</h2>
 
-      <p class="note">
-	Coming soon
-      </p>
+      <ul class="changesets">
+        {% for changeset in changesets %}
+        <li class="changeset">
+          <p>
+	    Change <span class="number">#{{ changeset.id }}</span>
+            by <img src="/media/img/person-16-ddd.png" width="16" height="16" />
+	    <span class="person">{{ changeset.user.get_full_name|escape }}</span>
+            on <span class="timestamp">{{ changeset.time|date:"Y-m-d @ H:i T"  }}</span>
+          </p>
+          <ul class="change-items">
+             {% for item in changeset.items.all %}
+             <li class="change-item">
+               <img src="/media/img/pencil-16.png" width="16" height="16" />
+	       <span class="field">{{ item.field|escape }}</span>:
+               {{ item.old_value }} &rarr; {{ item.new_value }}
+             </li>
+             {% endfor %}
+          </ul>
+        </li>
+        {% endfor %}
+      </ul>
+
     </div>
     {% endblock %}
 

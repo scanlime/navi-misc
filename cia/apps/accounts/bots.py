@@ -233,6 +233,8 @@ def bot(request, asset_type, asset_id):
         'ACCESS': models.ACCESS,
         'levels': formtools.RadioChoices(form['access'], models.ACCESS),
 
+        'changesets': models.AssetChangeset.objects.filter(object_id=bot.id),
+
         'network_host': bot.network.getHost('irc'),
         'channel': get_channel_from_location(bot.location),
         })
