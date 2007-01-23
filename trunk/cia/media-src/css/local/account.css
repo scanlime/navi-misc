@@ -407,3 +407,41 @@ form.narrow .submit-row input {
   font-size: 0.75em;
   font-weight: bold;
 }
+
+.changesets {
+  font-size: 0.8em;
+  margin: 1em 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+.changesets p {
+  margin: 0;
+  padding: 2px;
+  background: #ddd;
+  border: 1px solid #888;
+}
+
+.changesets li.changeset {
+  margin: 0;
+  padding: 0 0 0.5em 0;
+}
+
+.changesets .person {
+  font-weight: bold;
+}
+
+.changesets img {
+  vertical-align: middle;
+}
+
+.changesets .change-items {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+.changesets .change-item {
+  padding: 2px 0 2px 1em;
+}
+
