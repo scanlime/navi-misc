@@ -275,8 +275,8 @@ class AssetChangeItem(models.Model):
             ' ': 'same',
             }
 
-        for line in difflib.Differ().compare((self.old_value or '').split("\n"),
-                                             (self.new_value or '').split("\n")):
+        for line in difflib.Differ().compare((self.old_value or '').rstrip().split("\n"),
+                                             (self.new_value or '').rstrip().split("\n")):
             try:
                 style = diff_styles[line[0]]
             except KeyError:
