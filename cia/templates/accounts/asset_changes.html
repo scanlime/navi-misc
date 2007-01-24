@@ -14,7 +14,7 @@
          {% if item.is_multiline %}
             <div class="diff">
               {% for line in item.get_diff %}
-                <div class="diff-{{ line.style }}">{{ line.text }}</div>
+                <div class="diff-{{ line.style }}">{{ line.text }}&nbsp;</div>
               {% endfor %}
             </div>
          {% else %}
