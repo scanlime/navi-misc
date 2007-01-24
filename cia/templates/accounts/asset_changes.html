@@ -1,17 +1,26 @@
 {% for changeset in changesets %}
 <li class="changeset">
   <p>
-    Change <span class="number">#{{ changeset.id }}</span>
-    by <img src="/media/img/person-16-ddd.png" width="16" height="16" />
+    <span class="number">#{{ changeset.id }}</span>
+    <img src="/media/img/person-16-eee.png" width="16" height="16" />
     <span class="person">{{ changeset.user.get_full_name|escape }}</span>
     on <span class="timestamp">{{ changeset.time|date:"Y-m-d @ H:i T"  }}</span>
   </p>
   <ul class="change-items">
-     {% for item in changeset.items.all %}
+     {% for item in changeset.items.all|dictsort:"field" %}
      <li class="change-item">
-       <img src="/media/img/pencil-16.png" width="16" height="16" />
-       <span class="field">{{ item.field|escape }}</span>:
-       {{ item.old_value|escape }} &rarr; {{ item.new_value|escape }}
+       <img src="{{ item.get_icon }}" width="16" height="16" />
+       <span class="description">{{ item.get_description|capfirst|escape }}</span>{% if item.new_value %}:
+         {% if item.is_multiline %}
+            <div class="diff">
+              {% for line in item.get_diff %}
+                <div class="diff-{{ line.style }}">{{ line.text }}</div>
+              {% endfor %}
+            </div>
+         {% else %}
+            {{ item.old_value_display|escape }} &rarr; {{ item.new_value_display|escape }}
+         {% endif %}
+       {% endif %}
      </li>
      {% endfor %}
   </ul>

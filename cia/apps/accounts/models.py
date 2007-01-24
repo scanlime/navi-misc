@@ -4,7 +4,7 @@ from django.utils.html import escape
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 import django.newforms as forms
-import urlparse, xmlrpclib, re
+import urlparse, xmlrpclib, re, difflib
 
 
 class ACCESS:
@@ -184,6 +184,14 @@ class AssetChangeset(models.Model):
     def __str__(self):
         return "Change %d for %s by %s" % (self.id, self.asset, self.user)
 
+
+special_changes = {
+    '_created':       ('/media/img/added-16.png',   "created"),
+    '_gained_access': ('/media/img/added-16.png',   "gained access"),
+    '_lost_access':   ('/media/img/removed-16.png', "lost access"),
+    None:             ('/media/img/pencil-16.png',  "other change"),
+    }
+
 class AssetChangeItem(models.Model):
     """A separate AssetChange is used for every field touched by an
        AssetChangeset. Changesets which modify multiple fields at once
@@ -203,6 +211,81 @@ class AssetChangeItem(models.Model):
     #
     new_value = models.TextField(blank=True, null=True)
     old_value = models.TextField(blank=True, null=True)
+
+    def is_special(self):
+        return self.field[0] == '_'
+
+    def get_icon(self):
+        if self.is_special():
+            try:
+                return special_changes[self.field][0]
+            except KeyError:
+                pass
+        return special_changes[None][0]
+
+    def get_field(self):
+        """Return the Field instance corresponding to self.field"""
+        model = self.changeset.asset.__class__
+        for f in model._meta.fields:
+            if f.name == self.field:
+                return f
+
+    def get_description(self):
+        if self.is_special():
+            try:
+                return special_changes[self.field][1]
+            except KeyError:
+                return special_changes[None][1]
+
+        f = self.get_field()
+        if f:
+            return f.verbose_name
+        else:
+            return self.field
+
+    def is_multiline(self):
+        return isinstance(self.get_field(), models.TextField)
+
+    def old_value_display(self):
+        return self._display_value(self.old_value)
+
+    def new_value_display(self):
+        return self._display_value(self.new_value)
+
+    def _display_value(self, value):
+        """Format either the old or new value for display"""
+        f = self.get_field()
+
+        if f and f.choices:
+            try:
+                value = int(value)
+            except ValueError:
+                pass
+            return dict(f.choices).get(value, value)
+
+        return value
+
+    def get_diff(self):
+        """Compute a diff between old and new values, and return a sequence
+           of dictionaries with 'text' and 'style' keys.
+           """
+        diff_styles = {
+            '-': 'removed',
+            '+': 'added',
+            ' ': 'same',
+            }
+
+        for line in difflib.Differ().compare(self.old_value.split("\n"),
+                                             self.new_value.split("\n")):
+            try:
+                style = diff_styles[line[0]]
+            except KeyError:
+                pass
+            else:                
+                yield {
+                    'text': escape(line[2:].rstrip()).replace("  ", "&nbsp; "),
+                    'style': style,
+                    }
 
     def __str__(self):
         if self.new_value is None:
@@ -339,7 +422,9 @@ class Bot(models.Model):
 
     # For FILTER.PROJECT_LIST
     project_list = models.TextField("Project list", blank=True)
-    show_project_names = models.BooleanField("Show project names", default=True)
+    show_project_names = models.BooleanField("Show project names", default=True, choices=(
+        (False, 'No'),
+        (True,  'Yes')))
 
     def getURI(self):
         s = self.network.uri

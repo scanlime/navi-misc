@@ -9,7 +9,7 @@
   {{ block.super }}
   TabtasticInit();
   preserveCurrentTab("edit-form", "form-tabs");
-  ChangeHistory.init("/account/changes/{{ user_asset.asset.id }}/", "changesets", "changes-loading");
+  ChangeHistory.init("/account/changes/{{ user_asset.asset.id }}/");
 {% endblock %}
 
 {% block h1 %}{{ user_asset.asset|capfirst }}{% endblock %}
@@ -77,7 +77,7 @@
       <h2 class="tabset_label">Change History</h2>
       <ul id="changesets"></ul>
       <div id="changes-loading" class="ajax-loader"></div>
-      <div id="more-changes"><a onclick="ChangeHistory.loadNextPage()">More changes...</a></div>
+      <div id="more-changes"><a onclick="ChangeHistory.loadNextPage()"><span id="more-changes-count"></span> more changes...</a></div>
     </div>
     {% endblock %}
 
