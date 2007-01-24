@@ -1,8 +1,11 @@
 from cia.apps.accounts import models, authplus
+from cia.apps.api.util import json_result
+from django.core.paginator import ObjectPaginator
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 import django.newforms as forms
+from django.template import loader
 
 
 ###########################
@@ -158,18 +161,28 @@ class EditAssetForm(forms.Form):
 
 
 @authplus.login_required
-def changes(request, asset_id, page_number):
+@json_result
+def changes(request, asset_id, page_number, num_per_page=10):
     """Return a paginated list of changes to a particular asset. This
        is called by some AJAX code in order to populate an asset's
        Change History box.
        """
     # Don't bother checking whether the user owns this asset, change
     # history should be public information anyway.
-    changes = models.AssetChangeset.objects.filter(object_id=int(asset_id))
+    changes = models.AssetChangeset.objects.filter(object_id=int(asset_id)).order_by('-id')
 
-    return render_to_response('accounts/asset_changes.html', RequestContext(request, {
-        'changesets': changes,
-        }))
+    paginator = ObjectPaginator(changes,
+                                num_per_page = num_per_page,
+                                orphans = num_per_page / 2)
+    return {
+        'remaining': paginator.hits - paginator.last_on_page(page_number),
+
+        'html': loader.render_to_string(
+            'accounts/asset_changes.html',
+            RequestContext(request, {
+                'changesets': paginator.get_page(page_number),
+            })),
+        }
 
 
 ###########################

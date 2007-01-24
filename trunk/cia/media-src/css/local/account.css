@@ -428,6 +428,7 @@ form.narrow .submit-row input {
 }
 
 #more-changes {
+  display: none;
   margin: 0.5em 0;
   background: #ccf;
   border: 1px solid #88f;
@@ -444,8 +445,14 @@ form.narrow .submit-row input {
 #changesets p {
   margin: 0;
   padding: 2px;
-  background: #ddd;
-  border: 1px solid #888;
+  background: #eee;
+  border: 1px solid #aaa;
+}
+
+#changesets .number {
+  float: right;
+  color: #888;
+  font-weight: bold;
 }
 
 #changesets li.changeset {
@@ -471,3 +478,23 @@ form.narrow .submit-row input {
   padding: 2px 0 2px 1em;
 }
 
+.diff {
+  background: #ffc;
+  border: 1px solid #dda;
+  padding: 4px 0;
+  margin: 4px 0 0 0;
+  font-size: 0.9em;
+  font-family: monospace;
+}
+
+.diff div {
+  padding: 0 4px;
+}
+
+.diff-added {
+  background: #9f9;
+}
+
+.diff-removed {
+  background: #f99;
+}
