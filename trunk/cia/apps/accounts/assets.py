@@ -157,6 +157,21 @@ class EditAssetForm(forms.Form):
                                     user_asset.asset._meta.asset_type)
 
 
+@authplus.login_required
+def changes(request, asset_id, page_number):
+    """Return a paginated list of changes to a particular asset. This
+       is called by some AJAX code in order to populate an asset's
+       Change History box.
+       """
+    # Don't bother checking whether the user owns this asset, change
+    # history should be public information anyway.
+    changes = models.AssetChangeset.objects.filter(object_id=int(asset_id))
+
+    return render_to_response('accounts/asset_changes.html', RequestContext(request, {
+        'changesets': changes,
+        }))
+
+
 ###########################
 #      Stats Assets       #
 ###########################

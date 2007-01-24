@@ -36,6 +36,7 @@ merge(DEST + 'js/asset-edit.js', [
     'js/tabtastic-1.0.4/tabtastic.js',
     'js/local/on-text-changed.js',
     'js/local/preserve-tab.js',
+    'js/local/change-history.js',
     ], jsmin)
 
 # Requires asset-edit.js

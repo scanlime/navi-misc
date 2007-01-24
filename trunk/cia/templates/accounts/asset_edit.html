@@ -9,6 +9,7 @@
   {{ block.super }}
   TabtasticInit();
   preserveCurrentTab("edit-form", "form-tabs");
+  ChangeHistory.init("/account/changes/{{ user_asset.asset.id }}/", "changesets", "changes-loading");
 {% endblock %}
 
 {% block h1 %}{{ user_asset.asset|capfirst }}{% endblock %}
@@ -36,7 +37,7 @@
 	  <p class="note">
 	    Remove this {{ asset_type_name }} from your inventory.
 	    The {{ asset_type_name }} and its change history will continue
-	    to exist. You or another user may reclaim this {{ asset_type_name}} later.
+	    to exist. You or another user may reclaim this {{ asset_type_name }} later.
 	  </p>
 	</div>
       </div>
@@ -74,29 +75,9 @@
 
     <div id="change-history" class="tabset_content">
       <h2 class="tabset_label">Change History</h2>
-
-      <ul class="changesets">
-        {% for changeset in changesets %}
-        <li class="changeset">
-          <p>
-	    Change <span class="number">#{{ changeset.id }}</span>
-            by <img src="/media/img/person-16-ddd.png" width="16" height="16" />
-	    <span class="person">{{ changeset.user.get_full_name|escape }}</span>
-            on <span class="timestamp">{{ changeset.time|date:"Y-m-d @ H:i T"  }}</span>
-          </p>
-          <ul class="change-items">
-             {% for item in changeset.items.all %}
-             <li class="change-item">
-               <img src="/media/img/pencil-16.png" width="16" height="16" />
-	       <span class="field">{{ item.field|escape }}</span>:
-               {{ item.old_value }} &rarr; {{ item.new_value }}
-             </li>
-             {% endfor %}
-          </ul>
-        </li>
-        {% endfor %}
-      </ul>
-
+      <ul id="changesets"></ul>
+      <div id="changes-loading" class="ajax-loader"></div>
+      <div id="more-changes"><a onclick="ChangeHistory.loadNextPage()">More changes...</a></div>
     </div>
     {% endblock %}
 

@@ -408,40 +408,66 @@ form.narrow .submit-row input {
   font-weight: bold;
 }
 
-.changesets {
+#change-history .ajax-loader {
+  position: relative;
+  left: 50%;
+  margin: 1.5em 0;  
+}
+
+#changesets {
+/* Scrolling changesets...
+  height: 25em;
+  overflow: auto;  
+  padding: 0 1em 0 0;
+ */
+
   font-size: 0.8em;
-  margin: 1em 0;
+  margin: 0.5em 0;
   padding: 0;
   list-style-type: none;
 }
 
-.changesets p {
+#more-changes {
+  margin: 0.5em 0;
+  background: #ccf;
+  border: 1px solid #88f;
+}
+
+#more-changes a {
+  display: block;
+  padding: 2px 4px;
+  font-weight: bold;
+  font-size: 0.8em;
+  cursor: pointer;
+}
+
+#changesets p {
   margin: 0;
   padding: 2px;
   background: #ddd;
   border: 1px solid #888;
 }
 
-.changesets li.changeset {
+#changesets li.changeset {
   margin: 0;
   padding: 0 0 0.5em 0;
 }
 
-.changesets .person {
+#changesets .person {
   font-weight: bold;
 }
 
-.changesets img {
+#changesets img {
   vertical-align: middle;
 }
 
-.changesets .change-items {
+#changesets .change-items {
   margin: 0;
   padding: 0;
   list-style-type: none;
 }
 
-.changesets .change-item {
+#changesets .change-item {
   padding: 2px 0 2px 1em;
 }
 

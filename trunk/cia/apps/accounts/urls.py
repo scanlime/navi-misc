@@ -31,4 +31,6 @@ urlpatterns = patterns('',
 
     (r'^(?P<asset_type>(projects|authors))/add/$', assets.add_stats_asset),
     (r'^(?P<asset_type>(projects|authors))/(?P<asset_id>\d+)/$', assets.stats_asset),
+
+    (r'^changes/(?P<asset_id>\d+)/page(?P<page_number>\d+)/$', assets.changes),
 )
