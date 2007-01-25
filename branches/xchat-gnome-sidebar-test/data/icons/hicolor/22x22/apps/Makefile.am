@@ -6,6 +6,7 @@ icondir = $(themedir)/$(size)/$(category)
 icon_DATA =					\
 	xchat-gnome-message-new.png		\
 	xchat-gnome-message-nickname-said.png	\
+	xchat-gnome-log.png			\
 	xchat-gnome-plugin.png			\
 	xchat-gnome-servers.png			\
 	xchat-gnome-status-halfop.png		\
