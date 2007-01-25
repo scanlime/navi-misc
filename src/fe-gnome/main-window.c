@@ -171,8 +171,8 @@ initialize_taco_bar ()
 	widget = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (widget),
 					     GTK_SHADOW_IN);
-	icon = gtk_image_new_from_stock (GTK_STOCK_ABOUT,
-					 GTK_ICON_SIZE_BUTTON);
+	icon = gtk_image_new_from_icon_name ("xchat-gnome-log",
+					     GTK_ICON_SIZE_BUTTON);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget),
 				        GTK_POLICY_NEVER,
 				        GTK_POLICY_AUTOMATIC);
