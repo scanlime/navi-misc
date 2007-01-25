@@ -11,7 +11,7 @@ def build_fid(dataset, fd):
 
 def reference_query(stamps, seek_to):
     i = 0
-    while i < len(stamps) and stamps[i] < seek_to:
+    while i < (len(stamps)-1) and stamps[i] < seek_to:
         i += 1
     return (stamps[i], i)
 
@@ -62,15 +62,15 @@ def dayGrid(t):
         yield int(time.mktime(date.timetuple())), _fidtool.GRID_SOLID
         date += datetime.timedelta(days=1)
 
-def graph_test(fd):
+def graph_test(fd, fromTime, toTime):
     size = (512, 128)
     colors = (
         (1.0, 1.0, 1.0, 1.0),
         (0.0, 0.0, 0.0, 0.2),
         (0.0, 0.0, 1.0, 0.6),
         )
-    x_scale = (1125000000, 60*60)
-    y_scale = 200
+    x_scale = (fromTime, float(toTime - fromTime) / 20)
+    y_scale = 5000
     x_grid = dayGrid(x_scale[0])
     y_grid = ( (10*i, _fidtool.GRID_SOLID) for i in xrange(1, y_scale // 10 +1) )
 
@@ -85,11 +85,17 @@ def graph_test(fd):
         
 
 if __name__ == "__main__":
-    #dataset = map(int, open("cia-commits.dataset"))
+    dataset = map(int, open("timestamps.txt"))
     #dataset = [x * 5 for x in range(6500)]
     
     fd = os.open("foo", os.O_CREAT | os.O_RDWR, 0666)
+
+    #print "Building FID"
     #build_fid(dataset, fd)
+
+    #print "Testing FID"
     #test_fid(dataset, fd)
-    graph_test(fd)
+ 
+    print "Graphing"
+    graph_test(fd, dataset[0], dataset[-1])
     os.close(fd)
