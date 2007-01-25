@@ -135,6 +135,9 @@ def SAXDecoder(encoded, dictionary):
        This function is a bit hard to follow and it relies on minidom
        internals- unfortunately it's a big speed bottleneck, so
        any extra performance is worth a little obfuscation here.
+
+       XXX: Parent and sibling links are disabled, to keep the load down
+            on Python's cyclic GC. I hate the DOM :p 
        """
     dom = xml.dom.minidom
     memo = list(dictionary)
@@ -176,13 +179,13 @@ def SAXDecoder(encoded, dictionary):
             
             # _append_child(top, node)
             childNodes = top.childNodes
-            if childNodes:
-                last = childNodes[-1]
-                node.__dict__["previousSibling"] = last
-                last.__dict__["nextSibling"] = node
+#            if childNodes:
+#                last = childNodes[-1]
+#                node.__dict__["previousSibling"] = last
+#                last.__dict__["nextSibling"] = node
             childNodes.append(node)
-            node.__dict__["parentNode"] = top
-            node.__dict__["ownerDocument"] = stack[0]
+#            node.__dict__["parentNode"] = top
+#            node.__dict__["ownerDocument"] = stack[0]
 
             i += 1
             continue
@@ -198,13 +201,13 @@ def SAXDecoder(encoded, dictionary):
 
                 # _append_child(top, node)
                 childNodes = top.childNodes
-                if childNodes:
-                    last = childNodes[-1]
-                    node.__dict__["previousSibling"] = last
-                    last.__dict__["nextSibling"] = node
+#                if childNodes:
+#                    last = childNodes[-1]
+#                    node.__dict__["previousSibling"] = last
+#                    last.__dict__["nextSibling"] = node
                 childNodes.append(node)
-                node.__dict__["parentNode"] = top
-                node.__dict__["ownerDocument"] = stack[0]
+#                node.__dict__["parentNode"] = top
+#                node.__dict__["ownerDocument"] = stack[0]
 
             # Element with no attributes (fast path)
             elif op == 2:
@@ -212,13 +215,13 @@ def SAXDecoder(encoded, dictionary):
 
                 # _append_child(top, node)
                 childNodes = top.childNodes
-                if childNodes:
-                    last = childNodes[-1]
-                    node.__dict__["previousSibling"] = last
-                    last.__dict__["nextSibling"] = node
+#                if childNodes:
+#                    last = childNodes[-1]
+#                    node.__dict__["previousSibling"] = last
+#                    last.__dict__["nextSibling"] = node
                 childNodes.append(node)
-                node.__dict__["parentNode"] = top
-                node.__dict__["ownerDocument"] = stack[0]
+#                node.__dict__["parentNode"] = top
+#                node.__dict__["ownerDocument"] = stack[0]
 
                 stack.append(node)
                 top = node
@@ -240,11 +243,11 @@ def SAXDecoder(encoded, dictionary):
             else:
                 d = attrKey.__dict__
                 d["value"] = d["nodeValue"] = item
-                d["ownerDocument"] = stack[0]
+#                d["ownerDocument"] = stack[0]
 
                 # _set_attribute_node(attrs, attrKey)
                 attrs._attrs[attrKey.name] = attrKey
-                attrKey.__dict__['ownerElement'] = attrs
+#                attrKey.__dict__['ownerElement'] = attrs
 
                 attrRemaining -= 1
                 attrKey = None
@@ -253,13 +256,13 @@ def SAXDecoder(encoded, dictionary):
                 if not attrRemaining:
                     # _append_child(top, attrs)
                     childNodes = top.childNodes
-                    if childNodes:
-                        last = childNodes[-1]
-                        node.__dict__["previousSibling"] = last
-                        last.__dict__["nextSibling"] = node
+#                    if childNodes:
+#                        last = childNodes[-1]
+#                        node.__dict__["previousSibling"] = last
+#                        last.__dict__["nextSibling"] = node
                     childNodes.append(attrs)
-                    attrs.__dict__["parentNode"] = top
-                    attrs.__dict__["ownerDocument"] = stack[0]
+#                    attrs.__dict__["parentNode"] = top
+#                    attrs.__dict__["ownerDocument"] = stack[0]
 
                     stack.append(attrs)
                     top = attrs
@@ -336,8 +339,7 @@ def bsax_load(f):
     if len(zmsg) < msg_size:
         return None
 
-    return len(zmsg)
-#    return SAXDecoder(zmsg, DICTIONARIES[LATEST_VERSION])
+    return SAXDecoder(zmsg, DICTIONARIES[LATEST_VERSION])
 
 
 def get_archive_for_day(day, create=False):
@@ -390,16 +392,17 @@ def iter_messages_after(day=None, offset=0):
         try:
             f = open(get_archive_for_day(day), 'rb')
         except IOError:
-            continue
+            pass
+        else:
+            f.seek(offset)
 
-        f.seek(offset)
-
-        while True:
-            offset = f.tell()
-            dom = bsax_load(f)
-            if not dom:
-                break
-            yield (day, offset, dom)
+            while True:
+                offset = f.tell()
+                dom = bsax_load(f)
+                if not dom:
+                    break
+                yield (day, offset, dom)
+                del dom
 
         day += 1
         offset = 0
