@@ -138,6 +138,7 @@ log          /message/body/commit/log
 module       /message/source/module
 project      /message/source/project
 revision     /message/body/commit/revision
+url          /message/body/commit/url
 version      /message/body/commit/version
 ============ ===========================================
 
@@ -413,7 +414,15 @@ the *CommitToIRC* formatter:
 
 <**author**/>, <**version**/>, <**revision**/>, <**branch**/>, <**module**/>, and <**project**/>
 
-  Insert the respective text from the commit message.
+  Insert the respective text from the commit message. These are shortcuts for
+  the <text> element.
+
+<**text** path="*XPath*"/>
+
+  Insert text from the original commit message, searching using the provided
+  XPath. You can use this to insert any arbitrary data that was present in
+  the original commit message. See the section above on filter syntax for
+  more information on message paths.
 
 <**files**/>
 
