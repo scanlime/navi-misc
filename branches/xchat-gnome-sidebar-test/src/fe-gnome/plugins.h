@@ -20,6 +20,7 @@
  */
 
 #include "navigation-tree.h"
+#include "taco-bar.h"
 #include "../common/xchat.h"
 
 #ifndef XCHAT_GNOME_PLUGINS_H
@@ -34,6 +35,7 @@ struct _xchat_gnome_plugin
 {
 	GtkWidget    *(*xg_get_main_window) ();
 	GtkTreeModel *(*xg_get_chan_list)   ();
+	TacoBar	     *(*xg_get_taco_bar)    ();
 	GtkUIManager *(*xg_get_ui_manager)  ();
 };
 #endif

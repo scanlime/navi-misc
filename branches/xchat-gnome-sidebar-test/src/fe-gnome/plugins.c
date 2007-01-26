@@ -116,6 +116,7 @@ new_xg_plugin (void)
 	plugin->xg_get_main_window = xg_get_main_window;
 	plugin->xg_get_chan_list   = xg_get_chan_list;
 	plugin->xg_get_ui_manager  = xg_get_ui_manager;
+	plugin->xg_get_taco_bar    = xg_get_taco_bar;
 
 	return plugin;
 }
@@ -183,4 +184,10 @@ GtkUIManager *
 xg_get_ui_manager (void)
 {
 	return g_object_ref (gui.manager);
+}
+
+TacoBar *
+xg_get_taco_bar (void)
+{
+	return g_object_ref (gui.taco_bar);
 }
