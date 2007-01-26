@@ -122,6 +122,7 @@ class UnformattedMessagePage(resource.Resource):
         else:
             request.write(error.NoResource("Message not found").render(request))
             request.finish()
+	return ""
 
 
 class HTMLPrettyPrinter(XML.XMLObjectParser):
