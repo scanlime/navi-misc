@@ -1,0 +1,161 @@
+? GmailConfig.pyc
+? GmailConfigDialog.pyc
+? GmailPopupBox.pyc
+? GmailPopupMenu.pyc
+? GmailTrayIcon.pyc
+? gmailatom.pyc
+? icon-disconnected.jpg
+? icon-disconnected.png
+? notifier.pyc
+? notifier2.py
+? pynotify.diff
+? xmllangs.pyc
+Index: GmailPopupBox.py
+===================================================================
+RCS file: /cvsroot/gmail-notify/gmail-notify/GmailPopupBox.py,v
+retrieving revision 1.1
+diff -r1.1 GmailPopupBox.py
+8a9
+> import pynotify
+14c15
+< 	POPUP_BKG_IMAGE = sys.path[0]+"/background.png"
+---
+> 	POPUP_IMAGE = sys.path[0]+"/gmail-notify-icon.png"
+21,25d21
+< 		self.hoffset = config.get_int_option("hoffset")
+< 		self.voffset = config.get_int_option("voffset")
+< 		self.vfrom = config.get_int_option("vfrom")
+< 		self.speed = config.get_int_option("speed")
+< 		self.wait_int = config.get_int_option("popuptimespan")
+28,43d23
+< 		# create window
+< 		wnd = gtk.Window(gtk.WINDOW_POPUP)
+< 		wnd.set_size_request(self.POPUP_WIDTH, self.POPUP_HEIGHT)
+< 
+< 		# listen if users clicks
+< 		eventbox = gtk.EventBox()
+< 		eventbox.set_size_request(200,120)
+< 		#eventbox.connect("button_release_event", self.popup_clicked)
+< 
+< 		# create label
+< 		text = gtk.Label()
+< 		text.set_alignment(0.0, 0.0)
+< 		text.set_padding(5, 40)
+< 		text.set_size_request(self.POPUP_WIDTH, self.POPUP_HEIGHT)
+< 		text.set_line_wrap(gtk.TRUE)
+< 
+45,66c25,32
+< 		bkg = gtk.Image()
+< 		bkg.set_from_file( self.POPUP_BKG_IMAGE)
+< 
+< 		# put image and text into the window
+< 		fixed = gtk.Fixed()
+< 		fixed.put(bkg, 0, 0)
+< 		fixed.put(text, 0, 0)
+< 
+< 		# show window
+< 		eventbox.add( fixed)
+< 		wnd.add( eventbox)
+< 
+< 		# save the window and the label
+< 		self.wnd = wnd
+< 		self.text = text
+< 
+< 		if (self.vfrom==-1):
+< 			self.visible_y = gtk.gdk.screen_height() - self.wnd.get_size()[1] -self.voffset
+< 			self.hidden_y = gtk.gdk.screen_height()
+< 		else:
+< 			self.visible_y = self.voffset
+< 			self.hidden_y = -1 * self.wnd.get_size()[1]
+---
+> 		pixmap = gtk.Image()
+> 		pixmap.set_from_file(self.POPUP_IMAGE)
+> 		self.icon_pixbuf = pixmap.get_pixbuf()
+> 
+> 		if not pynotify.is_initted():
+> 		    pynotify.init('gmail-notify')
+> 		self.notify = pynotify.Notification('No new mail', '')
+> 		self.notify.set_icon_from_pixbuf(self.icon_pixbuf)
+69,75c35
+< 		self.wnd.move( gtk.gdk.screen_width() - self.wnd.get_size()[0] 
+< 							- self.hoffset,
+< 				self.hidden_y)
+< 		self.wnd.hide()
+< 		if( self.popup_timer!=None):
+< 			gtk.timeout_remove(self.popup_timer)
+< 			self.popup_timer=None
+---
+> 		pass
+78,93c38
+< 		self.hide_popup()
+< 		self.popup_timer=gtk.timeout_add(10, self.move, 1)
+< 		self.wnd.show_all()
+< 
+< 	def move(self, way):
+< 		if( way==1 and self.wnd.get_position()[1]==self.visible_y-self.visible_y%self.speed):
+< 			self.wnd.move( self.wnd.get_position()[0], self.visible_y)
+< 			self.popup_timer=gtk.timeout_add(self.wait_int, self.move, -1)
+< 		elif( way==-1 and self.wnd.get_position()[1]==self.hidden_y-self.hidden_y%self.speed):
+< 			self.wnd.hide()
+< 		else:
+< 			self.wnd.move( self.wnd.get_position()[0],
+< 				self.wnd.get_position()[1] + self.speed * self.vfrom * way)
+< 			self.popup_timer=gtk.timeout_add(10, self.move, way)
+< 
+< 		return gtk.FALSE
+---
+> 		self.notify.show()
+96,98c41,44
+< 		self.text.set_markup("<span font_desc='Normal 8'><b>" 
+< 					+ self.lang.get_string(15) 
+< 					+ "</b>\n\n" + self.lang.get_string(16) + "</span>")
+---
+> 		pass
+> #		self.text.set_markup("<span font_desc='Normal 8'><b>" 
+> #					+ self.lang.get_string(15) 
+> #					+ "</b>\n\n" + self.lang.get_string(16) + "</span>")
+101,107c47,56
+< 		author = self.cut_string(author, self.MAX_CHARS-len(self.lang.get_string(35)))		
+< 		subject = self.cut_string(subject, self.MAX_CHARS-len(self.lang.get_string(36)))
+< 		snippet = self.cut_string(snippet, self.MAX_CHARS*3-len(self.lang.get_string(37)))
+< 		self.text.set_markup("<span font_desc='Normal 8'><b>"
+< 					+ self.lang.get_string(35) + "</b>  " + author + "\n<b>"
+< 					+ self.lang.get_string(36) + "</b> " + subject + "\n<b>"
+< 					+ self.lang.get_string(37) + "</b> " + snippet + "</span>")
+---
+> 		author = self.cut_string(author, self.MAX_CHARS-len(self.lang.get_string(35)))[1:]
+> 		subject = self.cut_string(subject, self.MAX_CHARS-len(self.lang.get_string(36)))[1:]
+> 		snippet = self.cut_string(snippet, self.MAX_CHARS*3-len(self.lang.get_string(37)))[1:]
+> 		self.notify = pynotify.Notification("New gmail message",
+> 						    "<b>%s: %s</b>\n%s" % (author, subject, snippet))
+> 		self.notify.set_icon_from_pixbuf(self.icon_pixbuf)
+> #		self.text.set_markup("<span font_desc='Normal 8'><b>"
+> #					+ self.lang.get_string(35) + "</b>  " + author + "\n<b>"
+> #					+ self.lang.get_string(36) + "</b> " + subject + "\n<b>"
+> #					+ self.lang.get_string(37) + "</b> " + snippet + "</span>")
+110,112c59,62
+< 		self.text.set_markup("<span font_desc='Normal 8'><b>" 
+< 					+ title
+< 					+ "</b>\n\n" + text + "</span>")
+---
+> 		pass
+> #		self.text.set_markup("<span font_desc='Normal 8'><b>" 
+> #					+ title
+> #					+ "</b>\n\n" + text + "</span>")
+Index: notifier.py
+===================================================================
+RCS file: /cvsroot/gmail-notify/gmail-notify/notifier.py,v
+retrieving revision 1.12
+diff -r1.12 notifier.py
+20a21
+> ICON_DISCONNECTED_PATH=sys.path[0]+"/icon-disconnected.png"
+37c38
+< 		icon = gtk.gdk.pixbuf_new_from_file(ICON_PATH)
+---
+> 		icon = gtk.gdk.pixbuf_new_from_file(ICON_DISCONNECTED_PATH)
+83,85c84
+< 			self.popup.set_connection_failed()
+< 			self.popup.show_popup()
+< 			self.tray_icon.set_icon(ICON_PATH)
+---
+> 			self.tray_icon.set_icon(ICON_DISCONNECTED_PATH)
