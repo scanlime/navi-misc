@@ -402,6 +402,7 @@ pathShortcuts = {
     'author': '/message/body/commit/author',
     'log': '/message/body/commit/log',
     'files': '/message/body/commit/files',
+    'url': '/message/body/commit/url',
     }
 
 ### The End ###

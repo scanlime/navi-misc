@@ -567,6 +567,22 @@ class ModularFormatter(Formatter):
         else:
             return [MarkAsHidden()]
 
+    def component_text(self, element, args):
+        """This is a generic version of textComponent, in which 'path' can
+           be specified by users. Any textComponent can be rewritten as a
+           <text> component.
+           """
+        path = element.getAttributeNS(None, 'path')
+        if not path:
+            raise XML.XMLValidityError("The 'path' attribute on <text> is required.")
+        xp = XML.XPath(XML.pathShortcuts.get(path, path))
+
+        nodes = xp.queryObject(args.message)
+        if nodes:
+            return [XML.shallowText(nodes[0])]
+        else:
+            return [MarkAsHidden()]
+
     def joinComponents(self, results):
         """Given a list of component results, return the formatter's final result.
            The default implementation converts to strings, joins, then removes excess
