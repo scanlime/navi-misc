@@ -12,11 +12,13 @@
        <img src="{{ item.get_icon }}" width="16" height="16" />
        <span class="description">{{ item.get_description|capfirst|escape }}</span>{% if item.new_value %}:
          {% if item.is_multiline %}
-            <div class="diff">
-              {% for line in item.get_diff %}
-                <div class="diff-{{ line.style }}">{{ line.text }}&nbsp;</div>
-              {% endfor %}
-            </div>
+            {% for chunk in item.get_diff %}
+              <div class="diff">
+                {% for line in chunk %}
+                  <div class="diff-{{ line.style }}"><span class="diff-prefix">{{ line.prefix }}</span>{{ line.text }}&nbsp;</div>
+                {% endfor %}
+              </div>
+            {% endfor %}
          {% else %}
             {{ item.old_value_display|escape }} &rarr; {{ item.new_value_display|escape }}
          {% endif %}

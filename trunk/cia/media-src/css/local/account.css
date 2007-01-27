@@ -498,3 +498,8 @@ form.narrow .submit-row input {
 .diff-removed {
   background: #f99;
 }
+
+.diff-prefix {
+  font-weight: bold;
+  color: #666;
+}

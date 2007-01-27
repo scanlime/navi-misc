@@ -265,27 +265,45 @@ class AssetChangeItem(models.Model):
 
         return value
 
-    def get_diff(self):
+    def get_diff(self, context=3):
         """Compute a diff between old and new values, and return a sequence
            of dictionaries with 'text' and 'style' keys.
            """
-        diff_styles = {
-            '-': 'removed',
-            '+': 'added',
-            ' ': 'same',
-            }
+        a = (self.old_value or '').rstrip().split("\n")
+        b = (self.new_value or '').rstrip().split("\n")
 
-        for line in difflib.Differ().compare((self.old_value or '').rstrip().split("\n"),
-                                             (self.new_value or '').rstrip().split("\n")):
-            try:
-                style = diff_styles[line[0]]
-            except KeyError:
-                pass
-            else:
-                yield {
-                    'text': escape(line[2:].rstrip()).replace("  ", "&nbsp; "),
-                    'style': style,
-                    }
+        chunks = []
+        for group in difflib.SequenceMatcher(None,a,b).get_grouped_opcodes(context):
+            chunk = []
+            chunks.append(chunk)
+
+            for tag, i1, i2, j1, j2 in group:
+                if tag == 'equal':
+                    prefix = '&nbsp;&nbsp;'
+                    style = 'same'
+                    lines = a[i1:i2]
+
+                elif tag == 'replace' or tag == 'delete':
+                    prefix = '-&nbsp;'
+                    style = 'removed'
+                    lines = a[i1:i2]
+
+                elif tag == 'replace' or tag == 'insert':
+                    prefix = '+&nbsp;'
+                    style = 'added'
+                    lines = b[j1:j2]
+
+                else:
+                    assert 0
+
+                for line in lines:
+                    chunk.append({
+                        'prefix': prefix,
+                        'text': escape(line).rstrip().replace("  ", "&nbsp; "),
+                        'style': style,
+                        })
+
+        return chunks
 
     def __str__(self):
         if self.new_value is None:
