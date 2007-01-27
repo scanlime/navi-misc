@@ -265,6 +265,14 @@ class AssetChangeItem(models.Model):
 
         return value
 
+    def _append_diff_lines(self, chunk, prefix, style, source):
+        for line in source:
+            chunk.append({
+                'prefix': prefix,
+                'text': escape(line).rstrip().replace("  ", "&nbsp; "),
+                'style': style,
+                })
+
     def get_diff(self, context=3):
         """Compute a diff between old and new values, and return a sequence
            of dictionaries with 'text' and 'style' keys.
@@ -279,29 +287,13 @@ class AssetChangeItem(models.Model):
 
             for tag, i1, i2, j1, j2 in group:
                 if tag == 'equal':
-                    prefix = '&nbsp;&nbsp;'
-                    style = 'same'
-                    lines = a[i1:i2]
+                    self._append_diff_lines(chunk, '&nbsp;&nbsp;', 'same', a[i1:i2])
 
-                elif tag == 'replace' or tag == 'delete':
-                    prefix = '-&nbsp;'
-                    style = 'removed'
-                    lines = a[i1:i2]
+                if tag == 'replace' or tag == 'delete':
+                    self._append_diff_lines(chunk, '-&nbsp;', 'removed', a[i1:i2])
 
-                elif tag == 'replace' or tag == 'insert':
-                    prefix = '+&nbsp;'
-                    style = 'added'
-                    lines = b[j1:j2]
-
-                else:
-                    assert 0
-
-                for line in lines:
-                    chunk.append({
-                        'prefix': prefix,
-                        'text': escape(line).rstrip().replace("  ", "&nbsp; "),
-                        'style': style,
-                        })
+                if tag == 'replace' or tag == 'insert':
+                    self._append_diff_lines(chunk, '+&nbsp;', 'added', b[j1:j2])
 
         return chunks
 
