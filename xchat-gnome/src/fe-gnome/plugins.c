@@ -89,9 +89,7 @@ plugins_initialize (void)
 int
 unload_plugin (char *filename)
 {
-	GSList *item;
 	int len = strlen (filename);
-
 	if (len > 3 && strcasecmp (filename + len - 3, ".so") == 0) {
 		/* Plugin. */
 		return plugin_kill (filename, 1);
@@ -102,9 +100,11 @@ unload_plugin (char *filename)
 		g_free (command);
 	}
 
-	item = g_slist_find_custom (loaded_plugins, filename, (GCompareFunc) strcmp);
-	loaded_plugins = g_slist_remove (loaded_plugins, item->data);
-	g_free (item->data);
+	GSList *item = g_slist_find_custom (loaded_plugins, filename, (GCompareFunc) strcmp);
+	if (item) {
+		g_free (item->data);
+		loaded_plugins = g_slist_remove (loaded_plugins, item->data);
+	}
 
 	return 1;
 }
