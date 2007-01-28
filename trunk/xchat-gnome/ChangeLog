@@ -1,3 +1,9 @@
+2007-01-28  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/fe-gnome/plugins.c:
+	  - Fix a potential double free when unloading scripts which failed to
+	    load.  Bug #370770.
+
 2007-01-21  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/common/cfgfiles.c:
