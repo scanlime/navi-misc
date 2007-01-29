@@ -167,7 +167,7 @@ initialize_taco_bar ()
 			    "_Users", icon, widget, TACO_BAR_BOTTOM);
 	taco_bar_set_page_sensitive (TACO_BAR (gui.taco_bar), "users", FALSE);
 
-	// Dummy log page
+	// Dummy history page
 	widget = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (widget),
 					     GTK_SHADOW_IN);
@@ -177,8 +177,8 @@ initialize_taco_bar ()
 				        GTK_POLICY_NEVER,
 				        GTK_POLICY_AUTOMATIC);
 	gtk_container_add (GTK_CONTAINER (widget), gtk_tree_view_new());
-	taco_bar_pack_page (TACO_BAR (gui.taco_bar), "log",
-			    "_Log", icon, widget, TACO_BAR_BOTTOM);
+	taco_bar_pack_page (TACO_BAR (gui.taco_bar), "history",
+			    "_History", icon, widget, TACO_BAR_BOTTOM);
 //	taco_bar_set_page_sensitive (TACO_BAR (gui.taco_bar), "events", FALSE);
 	
 
