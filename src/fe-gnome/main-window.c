@@ -149,9 +149,24 @@ initialize_taco_bar ()
 				        GTK_POLICY_AUTOMATIC);
 	gtk_container_add (GTK_CONTAINER (widget),
 			   GTK_WIDGET (gui.server_tree));
-	taco_bar_pack_page (TACO_BAR (gui.taco_bar), "channels",
-			    "_Channels", icon, widget, TACO_BAR_TOP);
+	taco_bar_pack_page (TACO_BAR (gui.server_bar), "connections",
+			    "_Connections", icon, widget, TACO_BAR_TOP);
 	gtk_widget_show (GTK_WIDGET (gui.server_tree));
+
+	// File transfers
+	widget = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (widget),
+					     GTK_SHADOW_IN);
+	icon = gtk_image_new_from_icon_name ("xchat-gnome-servers",
+					 GTK_ICON_SIZE_BUTTON);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget),
+				        GTK_POLICY_AUTOMATIC,
+				        GTK_POLICY_AUTOMATIC);
+	gtk_container_add (GTK_CONTAINER (widget),
+			   gtk_tree_view_new ());
+	taco_bar_pack_page (TACO_BAR (gui.server_bar), "transfers",
+			    "_File Transfers", icon, widget, TACO_BAR_TOP);
+//	gtk_widget_show (GTK_WIDGET (gui.server_tree));
 
 	// User list page
 	widget = gtk_scrolled_window_new (NULL, NULL);
@@ -163,9 +178,9 @@ initialize_taco_bar ()
 				        GTK_POLICY_NEVER,
 				        GTK_POLICY_AUTOMATIC);
 	gtk_container_add (GTK_CONTAINER (widget), gui.userlist);
-	taco_bar_pack_page (TACO_BAR (gui.taco_bar), "users",
+	taco_bar_pack_page (TACO_BAR (gui.discussion_bar), "users",
 			    "_Users", icon, widget, TACO_BAR_BOTTOM);
-	taco_bar_set_page_sensitive (TACO_BAR (gui.taco_bar), "users", FALSE);
+	taco_bar_set_page_sensitive (TACO_BAR (gui.discussion_bar), "users", FALSE);
 
 	// Dummy history page
 	widget = gtk_scrolled_window_new (NULL, NULL);
@@ -177,15 +192,18 @@ initialize_taco_bar ()
 				        GTK_POLICY_NEVER,
 				        GTK_POLICY_AUTOMATIC);
 	gtk_container_add (GTK_CONTAINER (widget), gtk_tree_view_new());
-	taco_bar_pack_page (TACO_BAR (gui.taco_bar), "history",
+	taco_bar_pack_page (TACO_BAR (gui.discussion_bar), "history",
 			    "_History", icon, widget, TACO_BAR_BOTTOM);
 //	taco_bar_set_page_sensitive (TACO_BAR (gui.taco_bar), "events", FALSE);
 	
 
 	// It's all good to go now
-	taco_bar_set_visible_page (TACO_BAR (gui.taco_bar), "channels");
-	taco_bar_set_default_page (TACO_BAR (gui.taco_bar), "channels");
-	gtk_widget_show (gui.taco_bar);
+	taco_bar_set_visible_page (TACO_BAR (gui.discussion_bar), "users");
+	taco_bar_set_visible_page (TACO_BAR (gui.discussion_bar), "users");
+	taco_bar_set_default_page (TACO_BAR (gui.server_bar), "connections");
+	taco_bar_set_default_page (TACO_BAR (gui.server_bar), "connections");
+	gtk_widget_show (gui.server_bar);
+	gtk_widget_show (gui.discussion_bar);
 }
 
 void
@@ -232,7 +250,8 @@ initialize_main_window (void)
 	GW(topic_hbox);
 	GW(topic_label);
 	GW(nick_button);
-	GW(taco_bar);
+	GW(server_bar);
+	GW(discussion_bar);
 #undef GW
 
 	/* Hook up accelerators for pgup/pgdn */
@@ -438,7 +457,7 @@ on_network_channels_activate (GtkAction *action, gpointer data)
 static void
 on_discussion_users_activate (GtkAction *action, gpointer data)
 {
-	taco_bar_toggle_page_state (gui.taco_bar, "users");
+	taco_bar_toggle_page_state (gui.discussion_bar, "users");
 }
 
 static void

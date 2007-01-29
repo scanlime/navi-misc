@@ -57,7 +57,8 @@ typedef struct
 	GtkWidget *topic_label;
 	GtkWidget *topic_hbox;
 	GtkWidget *nick_button;
-	GtkWidget *taco_bar;
+	GtkWidget *server_bar;
+	GtkWidget *discussion_bar;
 
 	NavModel *tree_model;
 	NavTree *server_tree;

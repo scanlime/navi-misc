@@ -1125,7 +1125,7 @@ fe_set_current (session *sess)
 
 	// Set the label of the user list button
 	userlist_set_user_button (u, sess);
-	taco_bar_set_page_sensitive (TACO_BAR (gui.taco_bar), "users",
+	taco_bar_set_page_sensitive (TACO_BAR (gui.discussion_bar), "users",
 				     sess->type == SESS_CHANNEL);
 
 	// FIXME: Userlist should be more encapsulated
