@@ -4,6 +4,7 @@ size = 22x22
 
 icondir = $(themedir)/$(size)/$(category)
 icon_DATA =					\
+	xchat-gnome-message-file-transfer.png	\
 	xchat-gnome-message-new.png		\
 	xchat-gnome-message-nickname-said.png	\
 	xchat-gnome-log.png			\

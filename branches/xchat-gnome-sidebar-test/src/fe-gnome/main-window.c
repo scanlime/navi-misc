@@ -157,7 +157,7 @@ initialize_taco_bar ()
 	widget = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (widget),
 					     GTK_SHADOW_IN);
-	icon = gtk_image_new_from_icon_name ("xchat-gnome-servers",
+	icon = gtk_image_new_from_icon_name ("xchat-gnome-file-transfer",
 					 GTK_ICON_SIZE_BUTTON);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget),
 				        GTK_POLICY_AUTOMATIC,
@@ -179,7 +179,7 @@ initialize_taco_bar ()
 				        GTK_POLICY_AUTOMATIC);
 	gtk_container_add (GTK_CONTAINER (widget), gui.userlist);
 	taco_bar_pack_page (TACO_BAR (gui.discussion_bar), "users",
-			    "_Users", icon, widget, TACO_BAR_BOTTOM);
+			    "_Users", icon, widget, TACO_BAR_TOP);
 	taco_bar_set_page_sensitive (TACO_BAR (gui.discussion_bar), "users", FALSE);
 
 	// Dummy history page
@@ -193,7 +193,7 @@ initialize_taco_bar ()
 				        GTK_POLICY_AUTOMATIC);
 	gtk_container_add (GTK_CONTAINER (widget), gtk_tree_view_new());
 	taco_bar_pack_page (TACO_BAR (gui.discussion_bar), "history",
-			    "_History", icon, widget, TACO_BAR_BOTTOM);
+			    "_History", icon, widget, TACO_BAR_TOP);
 //	taco_bar_set_page_sensitive (TACO_BAR (gui.taco_bar), "events", FALSE);
 	
 
