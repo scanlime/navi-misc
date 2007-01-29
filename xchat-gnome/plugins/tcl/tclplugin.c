@@ -2215,8 +2215,8 @@ int xchat_plugin_deinit(void)
 void xchat_plugin_get_info(char **name, char **desc, char **version, void **reserved)
 {
    strncpy(PVERSION, &RCSID[19], 5);
-   *name = "tclplugin";
-   *desc = "Tcl plugin for XChat";
+   *name = _("tclplugin");
+   *desc = _("Tcl plugin for XChat");
    *version = PVERSION;
    if (reserved)
       *reserved = NULL;

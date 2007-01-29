@@ -1358,8 +1358,8 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name,
 	}
 	initialized = 1;
 
-	*plugin_name = "Perl";
-	*plugin_desc = "Perl scripting interface";
+	*plugin_name = _("Perl");
+	*plugin_desc = _("Perl scripting interface");
 	*plugin_version = PACKAGE_VERSION;
 
 	xchat_hook_command (ph, "load", XCHAT_PRI_NORM, perl_command_load, 0, 0);

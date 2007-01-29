@@ -15,9 +15,12 @@ plugins/notification/notification.schemas.in
 plugins/notification/preferences-notification.glade
 plugins/notification/preferences-page-plugin-notification.c
 plugins/notify-osd/notify-osd.c
+plugins/perl/perl.c
+plugins/python/python.c
 plugins/url_scraper/urlscraper.c
 plugins/url_scraper/urlscraper.schemas.in
 plugins/sound-notification/sound-notification.c
+plugins/tcl/tclplugin.c
 src/common/cfgfiles.c
 src/common/dcc.c
 src/common/ignore.c

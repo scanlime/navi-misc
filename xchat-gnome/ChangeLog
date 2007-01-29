@@ -1,3 +1,11 @@
+2007-01-29  Guillaume Desmottes  <gdesmott@gnome.org>
+
+	* plugins/python/python.c:
+	* plugins/perl/perl.c:
+	* plugins/tcl/tclplugin.c:
+	* po/POTFILES.in:
+	  - Make description strings translatable. Bug #401383.
+
 2007-01-28  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/fe-gnome/plugins.c:
