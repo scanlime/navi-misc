@@ -302,7 +302,7 @@ userlist_set_user_button (Userlist *userlist, session *sess)
 		else
 			label = g_strdup_printf ("_%s", _("Users"));
 		
-		taco_bar_set_label_markup (TACO_BAR (gui.taco_bar),
+		taco_bar_set_label_markup (TACO_BAR (gui.discussion_bar),
 					   "users", label);
 		g_free (label);
 	}

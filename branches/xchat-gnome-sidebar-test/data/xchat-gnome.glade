@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.0.2 on Sun Jan 14 19:08:35 2007 by lurgyman@llama
+<!--Generated with glade3 3.0.2 on Sun Jan 28 18:01:49 2007 by lurgyman@llama
 	Version: 3.0.1
 	Date: Sat Oct 21 01:06:13 2006
 	User: david
@@ -209,9 +209,26 @@
             <property name="can_focus">True</property>
             <property name="position">160</property>
             <child>
-              <widget class="Custom" id="taco_bar">
+              <widget class="GtkVPaned" id="vpaned1">
                 <property name="visible">True</property>
-                <property name="creation_function">taco_bar_new</property>
+                <child>
+                  <widget class="Custom" id="server_bar">
+                    <property name="visible">True</property>
+                    <property name="creation_function">taco_bar_new</property>
+                  </widget>
+                  <packing>
+                    <property name="resize">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Custom" id="discussion_bar">
+                    <property name="visible">True</property>
+                    <property name="creation_function">taco_bar_new</property>
+                  </widget>
+                  <packing>
+                    <property name="resize">False</property>
+                  </packing>
+                </child>
               </widget>
               <packing>
                 <property name="resize">False</property>
@@ -321,7 +338,6 @@
         <child>
           <widget class="Custom" id="status_bar">
             <property name="height_request">21</property>
-            <property name="visible">True</property>
             <property name="creation_function">status_bar_new</property>
           </widget>
           <packing>
