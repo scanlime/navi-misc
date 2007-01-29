@@ -2078,9 +2078,9 @@ xchat_plugin_init(xchat_plugin *plugin_handle,
 	}
 	initialized = 1;
 
-	*plugin_name = "Python";
+	*plugin_name = _("Python");
 	*plugin_version = VERSION;
-	*plugin_desc = "Python scripting interface";
+	*plugin_desc = _("Python scripting interface");
 
 	/* Initialize python. */
 	Py_SetProgramName("xchat");
