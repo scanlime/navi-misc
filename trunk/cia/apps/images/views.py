@@ -1,4 +1,5 @@
 from cia.apps.images import models
+from django.http import Http404
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from cStringIO import StringIO
@@ -13,7 +14,10 @@ def upload(request):
 
     elif request.GET.get('image-id'):
         # Preload with a supplied image ID
-        image = models.Source.objects.get(id=request.GET['image-id'])
+        try:
+            image = models.Source.objects.get(id=request.GET['image-id'])
+        except models.Source.DoesNotExist:
+            raise Http404
 
     elif request.FILES and request.user.is_authenticated():
         # Upload a new image
