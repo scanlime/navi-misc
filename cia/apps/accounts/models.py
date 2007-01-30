@@ -93,17 +93,6 @@ class Network(models.Model):
         list_display = ('uri', 'description', 'reviewed_by_admin', 'created_by')
 
 
-class StatsTarget(models.Model):
-    path = models.CharField(maxlength=255)
-    # Metadata goes here...
-
-    def __str__(self):
-        return self.path
-
-    class Admin:
-        pass
-
-
 class AssetChangesetManager(models.Manager):
     def apply_changes(self, user, asset, changes={}, meta=()):
         """Apply a dictionary of changes to an asset. If anything in
@@ -319,6 +308,33 @@ class AssetManager(models.Manager):
            """
         ct = ContentType.objects.get_for_model(self.model)
         return UserAsset.objects.filter(user=user, content_type=ct)
+
+
+class StatsTarget(models.Model):
+    """Refers to stats stored by the stats subsystem. This is a
+       location in the database where information about a project,
+       author, etc. are stored.
+
+       Right now these stats paths are intimately tied to stats
+       metadata and to the actual URL used by a stats page.
+       Eventually this table will become a reference to a stored
+       Esquilax query along with an individual URL.
+       """
+    path = models.CharField(maxlength=255, db_index=True)
+
+    # Stats metadata
+    metadata_title = models.CharField(maxlength=128, null=True, blank=True)
+    metadata_subtitle = models.CharField(maxlength=128, null=True, blank=True)
+    metadata_url = models.CharField(maxlength=255, null=True, blank=True)
+    metadata_description = models.TextField(null=True, blank=True)
+#    metadata_photo = models.ForeignKey(Image)
+#    metadata_icon = models.ForeignKey(Image)    
+
+    def __str__(self):
+        return self.path
+
+    class Admin:
+        pass
 
 class Project(models.Model):
     objects = AssetManager()

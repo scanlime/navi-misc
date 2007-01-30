@@ -1,0 +1,31 @@
+{% extends 'skeleton.html' %}
+
+{% block head %}
+<link href="/media/css/image-upload.css" type="text/css" rel="stylesheet" />
+{% endblock %}
+
+{% block body %}
+
+{% if image %}
+<div class="thumbnail">
+  <img class="thumbnail" src="{{ image.get_thumbnail.get_url }}"
+       width="{{ image.get_thumbnail.width }}"
+       height="{{ image.get_thumbnail.height }}" />
+  <div class="details">
+     {{ image.get_original.width }} x {{ image.get_original.height }}
+  </div>
+</div>  
+{% endif %}
+
+<form action="/images/upload/" enctype="multipart/form-data" method="post" id="image-upload-form">
+  <div>Upload a file:</div>
+  <input id="file" type="file" name="file"
+         onchange="document.getElementById('image-upload-form').submit()" />
+
+{% if image %}
+  <p><input type="submit" name="remove" value="Remove Image" /></p>
+{% endif %}
+
+  <input id="image-id" type="hidden" value="{{ image.id }}" />
+</form>
+{% endblock %}
