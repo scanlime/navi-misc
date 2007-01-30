@@ -323,10 +323,10 @@ class StatsTarget(models.Model):
     path = models.CharField(maxlength=255, db_index=True)
 
     # Stats metadata
-    metadata_title = models.CharField(maxlength=128, null=True, blank=True)
-    metadata_subtitle = models.CharField(maxlength=128, null=True, blank=True)
-    metadata_url = models.CharField(maxlength=255, null=True, blank=True)
-    metadata_description = models.TextField(null=True, blank=True)
+#    metadata_title = models.CharField(maxlength=128, null=True, blank=True)
+#    metadata_subtitle = models.CharField(maxlength=128, null=True, blank=True)
+#    metadata_url = models.CharField(maxlength=255, null=True, blank=True)
+#    metadata_description = models.TextField(null=True, blank=True)
 #    metadata_photo = models.ForeignKey(Image)
 #    metadata_icon = models.ForeignKey(Image)    
 

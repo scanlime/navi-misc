@@ -193,7 +193,7 @@ def changes(request, asset_id, page_number, num_per_page=10):
 def stats_asset(request, asset_type, asset_id):
     """Generic form for editing stats-based assets"""
     ctx = get_asset_edit_context(request, asset_type, asset_id)
-    return render_to_response('accounts/asset_edit.html', RequestContext(request, ctx))
+    return render_to_response('accounts/stats_asset_edit.html', RequestContext(request, ctx))
 
 @authplus.login_required
 def add_stats_asset(request, asset_type):
