@@ -1,0 +1,37 @@
+body {
+  font: 60% sans-serif;
+  font-weight: bold;
+  color: #666;
+  margin: 0;
+  padding: 0;
+  background: White;
+}
+
+#image-upload-form {
+  margin: 0;
+  padding: 0;
+  clear: none;
+}  
+
+div.thumbnail {
+  float: left;
+  margin: 0 1em 0 0;
+}
+
+img.thumbnail {
+  border: 1px dashed #666;
+  padding: 2px;
+  margin: 0;
+
+/* Can't decide whether I like this or not... */
+/* background: url("/media/img/checkerboard.png") */
+}
+
+div.details {
+  text-align: center;
+}
+
+#file {
+  border: 1px solid white;
+  background: white;
+}

@@ -9,24 +9,13 @@ from lib import *
 os.chdir('media-src')
 DEST = '../media/'
 
-merge(DEST + 'css/base.css', [
-    'css/local/base.css',
-    ], cssmin)
-
-merge(DEST + 'css/login.css', [
-    'css/local/login.css',
-    ], cssmin)
-
-merge(DEST + 'css/account.css', [
-    'css/local/account.css',
-    ], cssmin)
-
-merge(DEST + 'css/tabtastic.css', [
-    'css/local/tabtastic.css',
-    ], cssmin)
-
-merge(DEST + 'css/doc.css', [
-    'css/local/doc.css',
+# All of our CSS files so far have single individual sources
+for single_css in [
+    'base', 'login', 'account',
+    'tabtastic', 'doc', 'image-upload',
+    ]:
+    merge('%scss/%s.css' % (DEST, single_css), [
+    'css/local/%s.css' % single_css,
     ], cssmin)
 
 merge(DEST + 'js/asset-edit.js', [
