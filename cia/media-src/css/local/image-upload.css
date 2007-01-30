@@ -35,3 +35,10 @@ div.details {
   border: 1px solid white;
   background: white;
 }
+
+#ajax-loader {
+  vertical-align: middle;
+  display: none;
+  border: none;
+  margin: 0 4px;
+}

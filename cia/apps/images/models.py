@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from django.conf import settings
 import os, re, Image
 
-THUMBNAIL_SIZES = (16, 32, 64, 128, 256)
+# These must be listed from largest to smallest
+THUMBNAIL_SIZES = (256, 128, 64, 32, 16)
 
 
 class Source(models.Model):
@@ -48,6 +49,8 @@ class InstanceManager(models.Manager):
            a PNG file. Automatically creates all default thumbnail sizes.
 
            Returns the new Source instance.
+
+           Warning: The input image is modified!
            """
         source = Source.objects.create(created_by = created_by)
         self.create_from_image(image, source, is_original=True)
@@ -58,22 +61,14 @@ class InstanceManager(models.Manager):
         return source
 
     def create_thumbnail(self, image, source, size):
-        # Our thumbnails look much better if we paste the image into
-        # a larger transparent one first with a margin about equal to one
-        # pixel in our final thumbnail size. This smoothly blends
-        # the edge of the image to transparent rather than chopping
-        # off a fraction of a pixel. It looks, from experimentation,
-        # like this margin is only necessary on the bottom and right
-        # sides of the image.
-        margins = (image.size[0] // size + 1,
-                   image.size[1] // size + 1)
-        bg = Image.new("RGBA",
-                       (image.size[0] + margins[0],
-                        image.size[1] + margins[1]),
-                       (255, 255, 255, 0))
-        bg.paste(image, (0,0))
-        bg.thumbnail((size, size), Image.ANTIALIAS)
-        return self.create_from_image(bg, source, "-t%d" % size, thumbnail_size=size)
+        """Create a thumbnail at the specified size.
+           Modifies the source image! This can be used
+           to efficiently create thumbnails at several
+           sizes with little quality loss, as long as
+           larger sizes come first.
+           """
+        image.thumbnail((size, size), Image.ANTIALIAS)
+        return self.create_from_image(image, source, "-t%d" % size, thumbnail_size=size)
 
 
 class Instance(models.Model):
