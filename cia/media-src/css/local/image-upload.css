@@ -32,8 +32,11 @@ div.details {
 }
 
 #file {
-  border: 1px solid white;
-  background: white;
+  margin: 0.25em 0;
+}
+
+p {
+  margin: 0.5em 0;
 }
 
 #ajax-loader {
