@@ -45,7 +45,9 @@ document.getElementById("file").onchange = function() {
   document.getElementById('image-upload-form').submit();
 }
 
-parent.iFrameLoaded(document);
+if (parent.iFrameLoaded) {
+  parent.iFrameLoaded(document, window);
+}
 
 </script>
 
