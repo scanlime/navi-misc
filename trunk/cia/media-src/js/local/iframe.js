@@ -3,7 +3,7 @@
  */
 
 /* This is called by child iframes when they load. We'll update their size */
-iFrameLoaded = function(childDocument)
+iFrameLoaded = function(childDocument, childWindow)
 {
     /*
      * Calculate the child document height. This varies between
@@ -17,14 +17,5 @@ iFrameLoaded = function(childDocument)
 	if (cd.body.scrollHeight) h = Math.max(h, cd.body.scrollHeight);
     }
 
-    /*
-     * Find the matching iframe
-     */
-    var iframes = document.getElementsByTagName('iframe');
-    for (var i=0, len=iframes.length; i<len; i++) {
-	var frame = iframes[i];
-	if (frame.contentDocument == childDocument) {
-	    frame.style.height = h + "px";
-	}
-    }
+    childWindow.frameElement.style.height = h + "px";
 }
