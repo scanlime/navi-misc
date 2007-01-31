@@ -25,14 +25,15 @@ merge(DEST + 'js/asset-edit.js', [
     'js/tabtastic-1.0.4/tabtastic.js',
     'js/local/on-text-changed.js',
     'js/local/preserve-tab.js',
+    'js/yui-0.12.2/build/yahoo/yahoo.js',
+    'js/yui-0.12.2/build/connection/connection.js',
+    'js/json-20070110/json.js',
     'js/local/change-history.js',
+    'js/local/iframe.js'
     ], jsmin)
 
 # Requires asset-edit.js
 merge(DEST + 'js/bot-edit.js', [
-    'js/yui-0.12.2/build/yahoo/yahoo.js',
-    'js/yui-0.12.2/build/connection/connection.js',
-    'js/json-20070110/json.js',
     'js/local/units.js',
     'js/local/bot-status.js',
     'js/local/validator.js',

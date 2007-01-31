@@ -1,10 +1,17 @@
 body {
-  font: 60% sans-serif;
+  /* We set an absolute font size here, since the iframe as a whole is sized in pixels. */
+  font-size: 10px;
+  font-family: sans-serif;
   font-weight: bold;
   color: #666;
   margin: 0;
   padding: 0;
   background: White;
+}
+
+a {
+  color: #00c;
+  text-decoration: none;
 }
 
 #image-upload-form {
@@ -44,4 +51,14 @@ p {
   display: none;
   border: none;
   margin: 0 4px;
+}
+
+/* 
+ * This is just to clear the float and force the page height to
+ * include our floating thumbnail- important when we resize the iframe
+ * to fit the page's height.
+ */
+.footer {
+ clear: both;
+ height: 1px;
 }
