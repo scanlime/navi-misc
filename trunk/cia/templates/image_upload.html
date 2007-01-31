@@ -12,8 +12,17 @@
        width="{{ image.get_thumbnail.width }}"
        height="{{ image.get_thumbnail.height }}" />
   <div class="details">
-     {{ image.get_original.width }} x {{ image.get_original.height }}
+     <a href="{{ image.get_original.get_url }}">
+       {{ image.get_original.width }} x {{ image.get_original.height }}
+     </a>
   </div>
+</div>
+{% endif %}
+
+{% if error %}
+<div class="thumbnail">
+  <img class="thumbnail" src="/media/img/broken-image-100.png"
+       width="120" height="100" alt="Broken Image" />
 </div>  
 {% endif %}
 
@@ -27,12 +36,16 @@
   <input id="image-id" type="hidden" value="{{ image.id }}" />
 </form>
 
+<div class="footer"></div>
+
 <script type="text/javascript">
 
 document.getElementById("file").onchange = function() {
   document.getElementById('ajax-loader').style.display = "inline";
   document.getElementById('image-upload-form').submit();
 }
+
+parent.iFrameLoaded(document);
 
 </script>
 
