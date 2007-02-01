@@ -339,7 +339,7 @@ class StatsTarget(models.Model):
 class Project(models.Model):
     objects = AssetManager()
     assets = models.GenericRelation(UserAsset)
-    target = models.OneToOneField(StatsTarget)
+    target = models.ForeignKey(StatsTarget)
 
     def __str__(self):
         return str(self.target)
@@ -350,7 +350,7 @@ class Project(models.Model):
 class Author(models.Model):
     objects = AssetManager()
     assets = models.GenericRelation(UserAsset)
-    target = models.OneToOneField(StatsTarget)
+    target = models.ForeignKey(StatsTarget)
 
     def __str__(self):
         return str(self.target)
