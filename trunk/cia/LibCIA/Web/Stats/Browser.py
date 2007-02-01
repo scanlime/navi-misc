@@ -43,7 +43,6 @@ class Component(Server.Component):
 
     def __contains__(self, page):
         for cls in (Page,
-                    Metadata.MetadataPage,
                     Feed.CustomizeRSS,
                     MessageViewer.MessagePage,
                     ):
@@ -78,7 +77,6 @@ class Page(Template.Page):
            with a few special cases used for metadata and editing.
            """
         childFactories = {
-            '.metadata': Metadata.MetadataPage,
             '.message':  MessageViewer.RootPage,
             '.rss':      Feed.RSSFrontend,
             '.xml':      Feed.XMLFeed,
@@ -320,14 +318,12 @@ class LinksSection(Template.Section):
     availableLinkNames = [
         "RSSLink",
         "RSSCustomizer",
-        "MetadataLink",
         "XMLLink",
         ]
 
     defaultLinkNames = [
         "RSSLink",
         "RSSCustomizer",
-        "MetadataLink",
         "XMLLink",
         ]
 
