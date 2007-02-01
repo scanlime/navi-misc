@@ -58,7 +58,7 @@ class Info(Template.Section):
         rows = []
         if url:
             rows.append(tag('a', href=url)[url])
-        if photo_results:
+        if photo_results and photo_results[0][0]:
             path, width, height = photo_results[0]
             rows.append(Template.Photo('/images/db/' + path, width=width, height=height))
         if description:
