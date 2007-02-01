@@ -17,8 +17,8 @@ def upload(request):
     elif request.GET.get('image-id'):
         # Preload with a supplied image ID
         try:
-            image = models.Source.objects.get(id=request.GET['image-id'])
-        except models.Source.DoesNotExist:
+            image = models.ImageSource.objects.get(id=request.GET['image-id'])
+        except models.ImageSource.DoesNotExist:
             raise Http404
 
     elif request.FILES and request.user.is_authenticated():
@@ -29,7 +29,7 @@ def upload(request):
         except IOError:
             error = True
         else:
-            image = models.Instance.objects.create_original(im, request.user)
+            image = models.ImageInstance.objects.create_original(im, request.user)
 
     return render_to_response('image_upload.html', RequestContext(request, {
         'image': image,

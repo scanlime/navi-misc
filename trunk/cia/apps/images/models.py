@@ -1,16 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.db.models import signals
+from django.dispatch import dispatcher
 import os, re, Image
 
 # These must be listed from largest to smallest
 THUMBNAIL_SIZES = (256, 128, 64, 32, 16)
 
 
-class Source(models.Model):
+class ImageSource(models.Model):
     """This table provides each immutable image with a unique ID
        number, and it provides metadata about the source of that
-       image. Every image with the same 'Source' should be identical
+       image. Every image with the same ImageSource should be identical
        aside from format or resolution differences.
        """
     is_temporary = models.BooleanField(default=True)
@@ -29,17 +31,17 @@ class Source(models.Model):
         return self.instances.get(is_original = True)
 
 
-class InstanceManager(models.Manager):
+class ImageInstanceManager(models.Manager):
     def create_from_image(self, image, source, suffix="", **kw):
         """Create an image instance from a PIL image, using
            the provided path suffix.
            """
         path = source.create_path(suffix)
-        i = Instance(source = source,
-                     path = path,
-                     width = image.size[0],
-                     height = image.size[1],
-                     **kw)
+        i = ImageInstance(source = source,
+                          path = path,
+                          width = image.size[0],
+                          height = image.size[1],
+                          **kw)
         i.store_image(image)
         i.save()
 
@@ -48,11 +50,11 @@ class InstanceManager(models.Manager):
            Image object. The resulting image will always be saved as
            a PNG file. Automatically creates all default thumbnail sizes.
 
-           Returns the new Source instance.
+           Returns the new ImageSource instance.
 
            Warning: The input image is modified!
            """
-        source = Source.objects.create(created_by = created_by)
+        source = ImageSource.objects.create(created_by = created_by)
         self.create_from_image(image, source, is_original=True)
 
         for size in THUMBNAIL_SIZES:
@@ -71,14 +73,14 @@ class InstanceManager(models.Manager):
         return self.create_from_image(image, source, "-t%d" % size, thumbnail_size=size)
 
 
-class Instance(models.Model):
+class ImageInstance(models.Model):
     """An image file representing a source image in a particular
        size. The size is cached. The image itself is stored in the CIA
        flat-file database, and served by the static file server.
        """
-    objects = InstanceManager()
+    objects = ImageInstanceManager()
 
-    source = models.ForeignKey(Source, related_name='instances')
+    source = models.ForeignKey(ImageSource, related_name='instances')
 
     is_original = models.BooleanField(default=False)
     thumbnail_size = models.PositiveIntegerField(null=True, blank=True)
@@ -101,3 +103,11 @@ class Instance(models.Model):
         except OSError:
             pass
         im.save(full_path)
+
+def remove_deleted_instance(instance):
+    try:
+        os.unlink(instance.get_path())
+    except OSError:
+        pass
+
+dispatcher.connect(remove_deleted_instance, signal=signals.post_delete, sender=ImageInstance)
