@@ -57,9 +57,4 @@ site.putComponent('account', Web.Server.Component("Your Account"))
 # Run the HTTP server
 internet.TCPServer(port, site, interface='localhost').setServiceParent(application)
 
-# We don't start our own secure server, pound is running https also
-# and proxying that locally to our HTTP server. We do however need to
-# tell the keyring module that it's running, and on the default port.
-Web.Keyring.setSecureServer()
-
 ### The End ###
