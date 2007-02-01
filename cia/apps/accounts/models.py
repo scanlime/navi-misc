@@ -4,6 +4,7 @@ from django.utils.html import escape
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 import django.newforms as forms
+from cia.apps.images.models import ImageSource
 import urlparse, xmlrpclib, re, difflib
 
 
@@ -322,13 +323,17 @@ class StatsTarget(models.Model):
        """
     path = models.CharField(maxlength=255, db_index=True)
 
-    # Stats metadata
-#    metadata_title = models.CharField(maxlength=128, null=True, blank=True)
-#    metadata_subtitle = models.CharField(maxlength=128, null=True, blank=True)
-#    metadata_url = models.CharField(maxlength=255, null=True, blank=True)
-#    metadata_description = models.TextField(null=True, blank=True)
-#    metadata_photo = models.ForeignKey(Image)
-#    metadata_icon = models.ForeignKey(Image)    
+    # User-editable Stats metadata
+    title = models.CharField(maxlength=128, null=True, blank=True)
+    subtitle = models.CharField(maxlength=128, null=True, blank=True)
+    url = models.CharField(maxlength=255, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    photo = models.ForeignKey(ImageSource, null=True, related_name='targets_by_photo')
+    icon = models.ForeignKey(ImageSource, null=True, related_name='targets_by_icon')
+
+    # Internal Stats Metadata
+    links_filter = models.TextField(null=True, blank=True)
+    related_filter = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.path

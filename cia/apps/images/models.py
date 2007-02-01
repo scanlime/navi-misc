@@ -30,6 +30,12 @@ class ImageSource(models.Model):
     def get_original(self):
         return self.instances.get(is_original = True)
 
+    def __str__(self):
+        original = self.get_original()
+        s = "Image #%d (%dx%d)" % (self.id, original.width, original.height)
+        if self.is_temporary:
+            s += " (temp)"
+        return s
 
 class ImageInstanceManager(models.Manager):
     def create_from_image(self, image, source, suffix="", **kw):
@@ -45,32 +51,72 @@ class ImageInstanceManager(models.Manager):
         i.store_image(image)
         i.save()
 
-    def create_original(self, image, created_by):
+    def create_original(self, image, created_by, is_temporary=True):
         """Create an original image from uploaded data, given a PIL
            Image object. The resulting image will always be saved as
            a PNG file. Automatically creates all default thumbnail sizes.
 
            Returns the new ImageSource instance.
-
-           Warning: The input image is modified!
            """
-        source = ImageSource.objects.create(created_by = created_by)
+        source = ImageSource.objects.create(created_by=created_by,
+                                            is_temporary=is_temporary)
         self.create_from_image(image, source, is_original=True)
+        self.create_standard_thumbnails(image, source)
+        return source
+
+    def create_standard_thumbnails(self, image, source):
+        """Warning, may modify the input image!"""
+
+        if image.mode not in ('RGB', 'RGBA', 'L'):
+            image = image.convert("RGBA")
+
+        # To save time, first scale the original image down
+        # to the largest of the thumbnail sizes. This doesn't
+        # sacrifice much quality, but it greatly improves memory
+        # and CPU usage when thumbnailing big images.
+
+        max_size = THUMBNAIL_SIZES[0]
+        if max(*image.size) > max_size:
+            image.thumbnail((max_size, max_size), Image.ANTIALIAS)
 
         for size in THUMBNAIL_SIZES:
             self.create_thumbnail(image, source, size)
 
-        return source
-
     def create_thumbnail(self, image, source, size):
-        """Create a thumbnail at the specified size.
-           Modifies the source image! This can be used
-           to efficiently create thumbnails at several
-           sizes with little quality loss, as long as
-           larger sizes come first.
-           """
-        image.thumbnail((size, size), Image.ANTIALIAS)
-        return self.create_from_image(image, source, "-t%d" % size, thumbnail_size=size)
+        """Create a thumbnail at the specified size."""
+
+        # If the image is already small enough, we can skip the
+        # actual thumbnailing stage and just link back to the
+        # original image.
+        original = source.get_original()
+        if max(original.width, original.height) <= size:
+            return ImageInstance.objects.create(source = source,
+                                                path = original.path,
+                                                width = original.width,
+                                                height = original.height,
+                                                delete_file = False,
+                                                thumbnail_size = size)
+
+        if image.mode not in ('RGB', 'RGBA', 'L'):
+            image = image.convert("RGBA")
+
+        # Our thumbnails look much better if we paste the image into
+        # a larger transparent one first with a margin about equal to one
+        # pixel in our final thumbnail size. This smoothly blends
+        # the edge of the image to transparent rather than chopping
+        # off a fraction of a pixel. It looks, from experimentation,
+        # like this margin is only necessary on the bottom and right
+        # sides of the image.
+
+        margins = (image.size[0] // size + 1,
+                   image.size[1] // size + 1)
+        bg = Image.new("RGBA",
+                       (image.size[0] + margins[0],
+                        image.size[1] + margins[1]),
+                       (255, 255, 255, 0))
+        bg.paste(image, (0,0))
+        bg.thumbnail((size, size), Image.ANTIALIAS)
+        return self.create_from_image(bg, source, "-t%d" % size, thumbnail_size=size)
 
 
 class ImageInstance(models.Model):
@@ -86,6 +132,8 @@ class ImageInstance(models.Model):
     thumbnail_size = models.PositiveIntegerField(null=True, blank=True)
 
     path = models.CharField(maxlength=32)
+    delete_file = models.BooleanField(default=True)
+
     width = models.PositiveIntegerField()
     height = models.PositiveIntegerField()
 
@@ -105,9 +153,10 @@ class ImageInstance(models.Model):
         im.save(full_path)
 
 def remove_deleted_instance(instance):
-    try:
-        os.unlink(instance.get_path())
-    except OSError:
-        pass
+    if instance.delete_file:
+        try:
+            os.unlink(instance.get_path())
+        except OSError:
+            pass
 
 dispatcher.connect(remove_deleted_instance, signal=signals.post_delete, sender=ImageInstance)
