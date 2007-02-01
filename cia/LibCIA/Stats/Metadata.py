@@ -37,6 +37,7 @@ class Metadata:
        """
     def __init__(self, target):
         self.target = target
+        self._cache = None
 
     def get(self, name, default=None):
         """Return a Deferred that results in the (value, type) tuple for the the
@@ -57,35 +58,14 @@ class Metadata:
            None might be returned if the object was created before mtime support
            was included in the metadata table.
            """
-        return Database.pool.runInteraction(self._getMTime, name, default)
-
-    def getThumbnail(self, name, size):
-        """Returns a thumbnail of the given metadata object
-           (which must have an image/* mime type) no larger than the given size.
-           The return value is a (fileObject, type) tuple.
-           """
-        # First we have to look up the modification time, so old
-        # cached thumbnails can be invalidated.
-        result = defer.Deferred()
-        self.getMTime(name).addCallback(
-            self._getThumbnailWithMTime, name, size, result).addErrback(result.errback)
-        return result
-
-    def _getThumbnailWithMTime(self, mtime, name, size, result):
-        # The rest of getThumbnail. We have the modification time now, so we can
-        # ask the cache to either retrieve or create a thumbnail image.
-        cache = MetadataThumbnailCache()
-        cache.get(self.target, name, size, mtime).addCallback(
-            self._finishGetThumbnail, cache, result).addErrback(result.errback)
-
-    def _finishGetThumbnail(self, fileObject, cache, result):
-        # The last step of getThumbnail. We have the finished thumbnail,
-        # return it and the mime type to the result deferred.
-        result.callback((fileObject, cache.mimeType))
+        # This is not supported by the new stats database, and it isn't
+        # needed now that images are stored separately.
+        raise NotImplementedError
 
     def set(self, name, value, mimeType='text/plain'):
         """Set a metadata key, creating it if it doesn't exist"""
-        return Database.pool.runInteraction(self._set, name, value, mimeType)
+        # Writing to metadata from the LibCIA codebase is deprecated
+        raise NotImplementedError
 
     def keys(self):
         """Return (via a Deferred) a list of all valid metadata key names"""
@@ -97,97 +77,76 @@ class Metadata:
 
     def clear(self):
         """Delete all metadata for this target. Returns a Deferred"""
-        return Database.pool.runOperation("DELETE FROM stats_metadata WHERE target_path = %s" %
-                                          Database.quote(self.target.path, 'varchar'))
+        # Writing to metadata from the LibCIA codebase is deprecated
+        raise NotImplementedError
 
     def remove(self, name):
         """Remove one metadata key, with the given name"""
-        return Database.pool.runOperation("DELETE FROM stats_metadata WHERE target_path = %s AND name = %s" %
-                                          (Database.quote(self.target.path, 'varchar'),
-                                           Database.quote(name, 'varchar')))
+        # Writing to metadata from the LibCIA codebase is deprecated
+        raise NotImplementedError
 
     def has_key(self, name):
         """Returs True (via a Deferred) if the given key name exists for this target"""
         return Database.pool.runInteraction(self._has_key, name)
 
+    def _update_cache(self, cursor):
+        """Retrieve all metadata keys for this target, populating self._cache."""
+
+        # XXX: This only works for text keys. Images can't be fully represented
+        #      in the old system, so we're ignoring them until the transition is complete.
+        keys = ('title', 'subtitle', 'url', 'description', 'links-filter', 'related-filter')
+
+        # Our new column names use underscores instead of dashes
+        columns = [key.replace('-', '_') for key in keys]
+
+        cursor.execute("SELECT %s FROM stats_statstarget WHERE path = %s" % (
+            ', '.join(columns),
+            Database.quote(self.target.path, 'varchar')))
+
+        row = cursor.fetchone()
+        self._cache = {}
+        if row:
+            for i, key in enumerate(keys):
+                self._cache[key] = row[i]
+
     def _has_key(self, cursor, name):
         """Database interaction implemented has_key()"""
-        cursor.execute("SELECT COUNT(*) FROM stats_metadata WHERE target_path = %s AND name = %s" %
-                       (Database.quote(self.target.path, 'varchar'),
-                        Database.quote(name, 'varchar')))
-        return bool(cursor.fetchone()[0])
+        if self._cache is None:
+            self._update_cache(cursor)
+        return self._cache.get(name) is not None
 
     def _get(self, cursor, name, default):
         """Database interaction to return the value and type for a particular key"""
-        cursor.execute("SELECT value, mime_type FROM stats_metadata WHERE target_path = %s AND name = %s" %
-                       (Database.quote(self.target.path, 'varchar'),
-                        Database.quote(name, 'varchar')))
-        return cursor.fetchone() or default
+        if self._cache is None:
+            self._update_cache(cursor)
+        v = self._cache.get(name)
+        if v is None:
+            return default
+        else:
+            return v, 'text/plain'
 
     def _getValue(self, cursor, name, default, typePrefix):
-        result = self._get(cursor, name, None)
-        if result is None:
+        # XXX: typePrefrix is being ignored. This is an artifact of the
+        #      transition from old metadata system to new...
+        if self._cache is None:
+            self._update_cache(cursor)
+        v = self._cache.get(name)
+        if v is None:
             return default
-        value, mimeType = result
-        if not mimeType.startswith(typePrefix):
-            raise TypeError("A metadata key of type %s was found where %s* was expected" %
-                            (mimeType, typePrefix))
-        return value
-
-    def _getMTime(self, cursor, name, default):
-        cursor.execute("SELECT mtime FROM stats_metadata WHERE target_path = %s AND name = %s" %
-                       (Database.quote(self.target.path, 'varchar'),
-                        Database.quote(name, 'varchar')))
-        row = cursor.fetchone()
-        if row:
-            return row[0]
         else:
-            return default
+            return v
 
     def _dict(self, cursor):
         """Database interaction to return to implement dict()"""
-        cursor.execute("SELECT name, value, mime_type FROM stats_metadata WHERE target_path = %s" %
-                       Database.quote(self.target.path, 'varchar'))
-        results = {}
-        while True:
-            row = cursor.fetchone()
-            if row is None:
-                break
-            results[row[0]] = (row[1], row[2])
-        return results
-
-    def _set(self, cursor, name, value, mimeType):
-        """Database interaction implementing set(). This first runs a dummy
-           'insert ignore' to ensure that the row exists in our table, then
-           runs an update to change its value.
-           """
-        # Make sure our row exists. This is wrapped in an autoCreateTargetFor
-        # so that if the stats target doesn't exist, it is also automatically created.
-        self.target._autoCreateTargetFor(cursor, cursor.execute,
-                                         "INSERT IGNORE INTO stats_metadata (target_path, name) VALUES(%s, %s)" %
-                                         (Database.quote(self.target.path, 'varchar'),
-                                          Database.quote(name, 'varchar')))
-
-        # Now actually set the value
-        cursor.execute("UPDATE stats_metadata SET mime_type = %s, mtime = %s, value = '%s' "
-                       "WHERE target_path = %s AND name = %s" %
-                       (Database.quote(mimeType, 'varchar'),
-                        Database.quote(time.time(), 'bigint'),
-                        Database.quoteBlob(value),
-                        Database.quote(self.target.path, 'varchar'),
-                        Database.quote(name, 'varchar')))
+        if self._cache is None:
+            self._update_cache(cursor)
+        return self._cache
 
     def _keys(self, cursor):
         """Database interaction implementing keys()"""
-        cursor.execute("SELECT name FROM stats_metadata WHERE target_path = %s" %
-                       (Database.quote(self.target.path, 'varchar')))
-        results = []
-        while True:
-            row = cursor.fetchone()
-            if row is None:
-                break
-            results.append(row[0])
-        return results
+        if self._cache is None:
+            self._update_cache(cursor)
+        return self._cache.keys()
 
 
 class MetadataThumbnailCache(Cache.AbstractFileCache):

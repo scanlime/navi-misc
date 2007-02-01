@@ -68,21 +68,18 @@ class RelatedSection(Template.Section):
     SELECT
         C.parent_path,
         R.freshness,
-        PARENT_TITLE.value,
+        PARENT_ST.title,
         C.target_path,
-        TARGET_TITLE.value,
-        IF(M_ICON.name IS NOT NULL, M_ICON.name, M_PHOTO.name)
+        ST.title,
+        ICO.path,
+        ICO.width,
+        ICO.height
     FROM stats_relations R
         LEFT OUTER JOIN stats_catalog C
             ON (C.target_path = target_%(otherSide)s_path)
-        LEFT OUTER JOIN stats_metadata TARGET_TITLE
-            ON (TARGET_TITLE.name = 'title' AND TARGET_TITLE.target_path = C.target_path)
-        LEFT OUTER JOIN stats_metadata PARENT_TITLE
-            ON (PARENT_TITLE.name = 'title' AND PARENT_TITLE.target_path = C.parent_path)
-        LEFT OUTER JOIN stats_metadata M_PHOTO
-            ON (C.target_path = M_PHOTO.target_path AND M_PHOTO.name = 'photo')
-        LEFT OUTER JOIN stats_metadata M_ICON
-            ON (C.target_path = M_ICON.target_path  AND M_ICON.name  = 'icon')
+        LEFT OUTER JOIN stats_statstarget ST        ON (C.target_path = ST.path)
+        LEFT OUTER JOIN images_imageinstance ICO    ON (ICO.source_id = IF(ST.icon_id IS NOT NULL, ST.icon_id, ST.photo_id) AND ICO.thumbnail_size = 32)
+        LEFT OUTER JOIN stats_statstarget PARENT_ST ON (C.parent_path = PARENT_ST.path)
         WHERE R.target_%(thisSide)s_path = %(path)s
             AND C.parent_path != %(path)s
             AND %(filter)s
@@ -92,7 +89,7 @@ class RelatedSection(Template.Section):
     sectionLimit = 15
 
     columns = [
-        Columns.IndexedIconColumn(iconIndex=4, pathIndex=2),
+        Columns.IndexedIconColumn(iconIndex=4, widthIndex=5, heightIndex=6),
         Columns.TargetTitleColumn(pathIndex=2, titleIndex=3),
         ]
 

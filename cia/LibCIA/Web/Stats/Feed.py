@@ -24,7 +24,7 @@ Pages for getting real-time message feeds in RSS and unformatted XML
 from twisted.internet import defer
 from twisted.protocols import http
 from twisted.web import resource, server
-from LibCIA import Message, Formatters, TimeUtil, XML
+from LibCIA import Message, Formatters, TimeUtil, XML, Database
 import Nouvelle
 import Nouvelle.Twisted
 from Nouvelle import tag, place, xml, quote
@@ -112,15 +112,22 @@ class RSSFeed(FormattedFeed):
     """An abstract base class for code shared between versions of the RSS format"""
     def render_photo(self, context):
         # First figure out if we have a photo. Actually render it in the Deferred if we do.
+        photo_query = """
+        SELECT IM.path
+        FROM stats_statstarget ST
+        LEFT OUTER JOIN images_imageinstance IM
+        ON (IM.source_id = ST.photo_id AND IM.thumbnail_size = 128)
+        WHERE ST.path = %s
+        """ % Database.quote(self.target.path, 'varchar')
         result = defer.Deferred()
-        self.target.metadata.has_key('photo').addCallback(
+        Database.pool.runQuery(photo_query).addCallback(
             self._render_photo, context, result).addErrback(result.errback)
         return result
 
-    def _render_photo(self, hasPhoto, context, result):
-        if hasPhoto:
+    def _render_photo(self, query_results, context, result):
+        if query_results:
             result.callback(tag('image')[
-                tag('url')[ Link.ThumbnailLink(self.target, 'photo', (144,400)).getURL(context) ],
+                tag('url')[ '/images/db/' + query_results[0][0] ],
                 tag('title')[ place('title') ],
                 tag('link')[ place('link') ],
                 ])

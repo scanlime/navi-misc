@@ -112,19 +112,6 @@ class MetadataLink(TargetRelativeLink):
         return self.tagFactory(href=self.getURL(context))[text]
 
 
-class ThumbnailLink(TargetRelativeLink):
-    """An anchor tag linking to a thumbnail of a particular metadata image"""
-    def __init__(self, target, key, size):
-        self.key = key
-        TargetRelativeLink.__init__(self, target, ('.metadata', key, '.thumbnail', '%dx%d' % size))
-
-    def render(self, context):
-        # The alt attribute here is rather useless, but required by XHTML.
-        # Maybe this should look in another metadata key for the 'alt' contents?
-        # I doubt that would get used much.
-        return tag('img', src = self.getURL(context), alt = '%r metadata' % self.key)
-
-
 class RSSLink(TargetRelativeLink):
     """An anchor tag linking to the default RSS feed for a particular stats target"""
     def __init__(self, target, text="RSS 2.0 Feed", extraSegments=()):

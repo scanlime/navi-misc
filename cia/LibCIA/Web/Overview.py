@@ -44,14 +44,15 @@ class ActivitySection(Template.Section):
     query = """
     SELECT
         STAT.target_path,
-        M_TITLE.value,
-        IF(M_ICON.name IS NOT NULL, M_ICON.name, M_PHOTO.name),
-        STAT.%(counter_attrib)s
+        ST.title,
+        ICO.path,
+        STAT.%(counter_attrib)s,
+        ICO.width,
+        ICO.height
     FROM stats_counters STAT FORCE INDEX (%(counter_attrib)s)
         LEFT OUTER JOIN stats_catalog  T           ON (STAT.target_path = T.target_path)
-        LEFT OUTER JOIN stats_metadata M_TITLE     ON (STAT.target_path = M_TITLE.target_path     AND M_TITLE.name     = 'title')
-        LEFT OUTER JOIN stats_metadata M_PHOTO     ON (STAT.target_path = M_PHOTO.target_path     AND M_PHOTO.name     = 'photo')
-        LEFT OUTER JOIN stats_metadata M_ICON      ON (STAT.target_path = M_ICON.target_path      AND M_ICON.name      = 'icon')
+        LEFT OUTER JOIN stats_statstarget ST       ON (T.target_path = ST.path)
+        LEFT OUTER JOIN images_imageinstance ICO   ON (ICO.source_id = IF(ST.icon_id IS NOT NULL, ST.icon_id, ST.photo_id) AND ICO.thumbnail_size = 32)
         WHERE STAT.name = %(counter)s AND T.parent_path = %(path)s
     ORDER BY STAT.%(counter_attrib)s %(sort)s
     LIMIT %(limit)d
@@ -86,7 +87,7 @@ class ActivitySection(Template.Section):
 
     def initColumns(self):
         self.columns = [
-            Columns.IndexedIconColumn(iconIndex=2, pathIndex=0),
+            Columns.IndexedIconColumn(iconIndex=2, widthIndex=4, heightIndex=5),
             Columns.TargetTitleColumn(pathIndex=0, titleIndex=1),
             Columns.IndexedBargraphColumn(self.columnTitle, 3),
             ]
@@ -121,7 +122,7 @@ class TimestampSection(ActivitySection):
 
     def initColumns(self):
         self.columns = [
-            Columns.IndexedIconColumn(iconIndex=2, pathIndex=0),
+            Columns.IndexedIconColumn(iconIndex=2, widthIndex=4, heightIndex=5),
             Columns.TargetTitleColumn(pathIndex=0, titleIndex=1),
             Columns.TargetLastEventColumn(self.columnTitle, 3),
             ]

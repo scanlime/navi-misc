@@ -148,16 +148,17 @@ class IndexedIconColumn(RankIndexedColumn):
     """An IndexedColumn that, if its value is nonzero, renders an
        icon from the named metadata key, thumbnailed to the given max size.
        """
-    def __init__(self, iconIndex, pathIndex, size=(48,32), heading='icon'):
+    def __init__(self, iconIndex, widthIndex, heightIndex, heading='icon'):
         RankIndexedColumn.__init__(self, heading, iconIndex)
-        self.size = size
-        self.pathIndex = pathIndex
+        self.widthIndex = widthIndex
+        self.heightIndex = heightIndex
 
     def render_data(self, context, row):
-        name = row[self.index]
-        if name:
-            target = Stats.Target.StatsTarget(row[self.pathIndex])
-            return Link.ThumbnailLink(target, name, self.size)
+        path = row[self.index]
+        if path:
+            return Nouvelle.tag('img', src = '/images/db/' + path,
+                                width = row[self.widthIndex],
+                                height = row[self.heightIndex])
         else:
             return ()
 

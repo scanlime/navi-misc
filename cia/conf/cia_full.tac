@@ -11,6 +11,7 @@
 from twisted.application import service, internet
 from twisted.web import vhost
 from twisted.internet import ssl
+import LibCIA.IRC.Handler
 from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail, Cron, Database
 from LibCIA import Debug, Security, RpcServer, RpcClient, Web, Cache
 
@@ -88,8 +89,8 @@ internet.TCPServer(3910, site).setServiceParent(application)
 
 # ...and an HTTPS server, which we'll refer to for web logins.
 # XML-RPC clients should also use the secure server when they're sending keys.
-sslContext = ssl.DefaultOpenSSLContextFactory("conf/server.key", "conf/server.crt")
-internet.SSLServer(3914, site, sslContext).setServiceParent(application)
-Web.Keyring.setSecureServer(port=3914)
+#sslContext = ssl.DefaultOpenSSLContextFactory("conf/server.key", "conf/server.crt")
+#internet.SSLServer(3914, site, sslContext).setServiceParent(application)
+#Web.Keyring.setSecureServer(port=3914)
 
 ### The End ###
