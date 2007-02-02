@@ -13,34 +13,12 @@ There are only a few steps in connecting a project with CIA:
 - Tada. The next time you commit, your project should show up in the
   #commits IRC channel on Freenode_, and in the `stats browser`_.
 
-- If you want CIA to join a new IRC channel, `create an account`_
-  and add a new bot.
-
-- Likewise, your project's stats page will be a bit dull. Projects
-  or authors can add metadata_ to their stats page, to change the
-  displayed title, add a URL to the project's homepage, add a short
-  description, or even an image.
-
-  Some examples of stats pages that use metadata:
-
-    - BZFlag_
-
-    - Gaim_
-
-    - `Micah Dowty`_
-
-    - `David Trowbridge`_
+- If you want CIA to join a new IRC channel or if you want to customize
+  the appearance of your project on the web, `create an account`_.
 
 .. _HOWTO document: /doc/sourceforge-howto
 .. _create an account: /account/
-.. _metadata: /doc/metadata
 .. _how CIA works: /doc/how-cia-works
 .. _stats browser: /stats
 .. _Freenode: http://freenode.org
 .. _client script: /doc/clients
-.. _Micah: mailto:micah@navi.cx
-.. _BZFlag: /stats/project/BZFlag
-.. _Gaim: /stats/project/Gaim
-.. _Micah Dowty: /stats/author/micah
-.. _David Trowbridge: /stats/author/davidtrowbridge
-

@@ -73,7 +73,7 @@ The last file to modify is ciabot_cvs.pl itself. You have to tell it where to se
 
 * $project = 'projectname';
 	
-	Replace projectname with your project's UNIX name assigned by SourceForge.net, or whatever name you are going by. This name should be fairly short, and shouldn't contain any whitespace or odd characters. It will be used in your project's URL on CIA, and it will be used on IRC. You can use metadata_ later to assign a longer name for use in the web interface.
+	Replace projectname with your project's UNIX name assigned by SourceForge.net, or whatever name you are going by. This name should be fairly short, and shouldn't contain any whitespace or odd characters. It will be used in your project's URL on CIA, and it will be used on IRC. You can separately assign a longer name for use in the web interface.
 
 * $from_email = ``'leader@example.com'``;
 	
@@ -84,9 +84,8 @@ That's it. You can configure other options as you like, but these are the requir
 	
 	cvs commit
 
-You should now be setup. If all went well, the next commit you make should show up in #commits and on the web. If you would like to have a bot in your IRC channel, `create an account`_ on CIA.
+You should now be setup. If all went well, the next commit you make should show up in #commits and on the web. If you would like to customize your projects's appearance on the web, or if you would like to have a bot in your IRC channel, `create an account`_ on CIA.
 Congratulations on setting up CIA to work with your project.
 
 .. _create an account: /account/
-.. _metadata: /doc/metadata
 
