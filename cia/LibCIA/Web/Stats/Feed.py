@@ -125,7 +125,7 @@ class RSSFeed(FormattedFeed):
         return result
 
     def _render_photo(self, query_results, context, result):
-        if query_results:
+        if query_results and query_results[0][0]:
             result.callback(tag('image')[
                 tag('url')[ '/images/db/' + query_results[0][0] ],
                 tag('title')[ place('title') ],
