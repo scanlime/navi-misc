@@ -1,3 +1,9 @@
+2007-02-03  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/fe-gnome/xtext.c:
+	  - Fix a bug where the cursor wouldn't update when moving right from
+	    hovering over the indent bar onto a link.  Bug #393621.
+
 2007-01-29  Guillaume Desmottes  <gdesmott@gnome.org>
 
 	* plugins/python/python.c:
