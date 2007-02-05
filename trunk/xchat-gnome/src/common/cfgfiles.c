@@ -44,6 +44,10 @@ list_addentry (GList ** list, char *cmd, char *name)
 	struct popup *pop;
 	int cmd_len = 1, name_len;
 
+	/* remove <2.8.0 stuff */
+	if (!strcmp (cmd, "away") & !strcmp (name, "BACK"))
+		return;
+
 	if (cmd)
 		cmd_len = strlen (cmd) + 1;
 	name_len = strlen (name) + 1;
@@ -431,6 +435,9 @@ const struct prefs vars[] = {
 	{"gui_slist_skip", P_OFFINT (slist_skip), TYPE_BOOL},
 	{"gui_throttlemeter", P_OFFINT (throttlemeter), TYPE_INT},
 	{"gui_topicbar", P_OFFINT (topicbar), TYPE_BOOL},
+	{"gui_tray", P_OFFINT (gui_tray), TYPE_BOOL},
+	{"gui_tray_blink", P_OFFINT (gui_tray_blink), TYPE_INT},
+	{"gui_tray_flags", P_OFFINT (gui_tray_flags), TYPE_INT},
 	{"gui_ulist_buttons", P_OFFINT (userlistbuttons), TYPE_BOOL},
 	{"gui_ulist_doubleclick", P_OFFSET (doubleclickuser), TYPE_STR},
 	{"gui_ulist_hide", P_OFFINT (hideuserlist), TYPE_BOOL},
@@ -649,6 +656,8 @@ load_config (void)
 	prefs.autoopendccchatwindow = 1;
 	prefs.userhost = 1;
 	prefs.gui_url_mod = 4;	/* ctrl */
+	prefs.gui_tray = 1;
+	prefs.gui_tray_blink = 0xfc920; /* 1111 1100 1001 0010 0000 */
 	prefs.mainwindow_save = 1;
 	prefs.bantype = 2;
 	prefs.input_flash_priv = prefs.input_flash_hilight = 1;

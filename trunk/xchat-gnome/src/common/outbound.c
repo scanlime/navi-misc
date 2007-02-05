@@ -310,41 +310,28 @@ cmd_away (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 {
 	GSList *list;
 	char *reason = word_eol[2];
-	int back = FALSE;
-	unsigned int gone;
 
-	if (!(*reason) && sess->server->is_away)
+	if (!(*reason))
 	{
-		/* mark back */
-		sess->server->p_set_back (sess->server);
-		back = TRUE;
-	} else
-	{
-		if (!(*reason))
+		if (sess->server->is_away)
 		{
-			if (sess->server->reconnect_away)
-				reason = sess->server->last_away_reason;
-			else
-				/* must manage memory pointed to by random_line() */
-				reason = random_line (prefs.awayreason);
+			if (sess->server->last_away_reason)
+				PrintTextf (sess, _("Already marked away: %s\n"), sess->server->last_away_reason);
+			return FALSE;
 		}
-		sess->server->p_set_away (sess->server, reason);
+
+		if (sess->server->reconnect_away)
+			reason = sess->server->last_away_reason;
+		else
+			/* must manage memory pointed to by random_line() */
+			reason = random_line (prefs.awayreason);
 	}
+	sess->server->p_set_away (sess->server, reason);
 
 	if (prefs.show_away_message)
 	{
-		if (back)
-		{
-			gone = time (NULL) - sess->server->away_time;
-			sprintf (tbuf, "me is back (gone %.2d:%.2d:%.2d)", gone / 3600,
-						(gone / 60) % 60, gone % 60);
-		} else
-		{
-			snprintf (tbuf, TBUFSIZE, "me is away: %s", reason);
-		}
-
-		list = sess_list;
-		while (list)
+		snprintf (tbuf, TBUFSIZE, "me is away: %s", reason);
+		for (list = sess_list; list; list = list->next)
 		{
 			/* am I the right server and not a dialog box */
 			if (((struct session *) list->data)->server == sess->server
@@ -353,18 +340,58 @@ cmd_away (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 			{
 				handle_command ((session *) list->data, tbuf, TRUE);
 			}
-			list = list->next;
 		}
 	}
 
 	if (sess->server->last_away_reason != reason)
 	{
-		free (sess->server->last_away_reason);
+		if (sess->server->last_away_reason)
+			free (sess->server->last_away_reason);
+
 		if (reason == word_eol[2])
 			sess->server->last_away_reason = strdup (reason);
 		else
 			sess->server->last_away_reason = reason;
 	}
+
+	return TRUE;
+}
+
+static int
+cmd_back (struct session *sess, char *tbuf, char *word[], char *word_eol[])
+{
+	GSList *list;
+	unsigned int gone;
+
+	if (sess->server->is_away)
+	{
+		sess->server->p_set_back (sess->server);
+
+		if (prefs.show_away_message)
+		{
+			gone = time (NULL) - sess->server->away_time;
+			sprintf (tbuf, "me is back (gone %.2d:%.2d:%.2d)", gone / 3600,
+						(gone / 60) % 60, gone % 60);
+			for (list = sess_list; list; list = list->next)
+			{
+				/* am I the right server and not a dialog box */
+				if (((struct session *) list->data)->server == sess->server
+					 && ((struct session *) list->data)->type == SESS_CHANNEL
+					 && ((struct session *) list->data)->channel[0])
+				{
+					handle_command ((session *) list->data, tbuf, TRUE);
+				}
+			}
+		}
+	}
+	else
+	{
+		PrintText (sess, _("Already marked back.\n"));
+	}
+
+	if (sess->server->last_away_reason)
+		free (sess->server->last_away_reason);
+	sess->server->last_away_reason = NULL;
 
 	return TRUE;
 }
@@ -542,6 +569,8 @@ cmd_chanopt (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 			state = sess->color_paste;
 		else if (!strcasecmp (word[2], "BEEP"))
 			state = sess->beep;
+		else if (!strcasecmp (word[2], "TRAY"))
+			state = sess->tray;
 		else
 			return FALSE;
 
@@ -558,6 +587,9 @@ cmd_chanopt (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 	} else if (!strcasecmp (word[2], "BEEP"))
 	{
 		sess->beep = state;
+	} else if (!strcasecmp (word[2], "TRAY"))
+	{
+		sess->tray = state;
 	}
 
 	return TRUE;
@@ -1001,6 +1033,10 @@ menu_free (menu_entry *me)
 		free (me->cmd);
 	if (me->ucmd)
 		free (me->ucmd);
+	if (me->group)
+		free (me->group);
+	if (me->icon)
+		free (me->icon);
 	free (me);
 }
 
@@ -1103,8 +1139,27 @@ menu_del (char *path, char *label)
 	return 0;
 }
 
+static char
+menu_is_mainmenu_root (char *path, gint16 *offset)
+{
+	static const char *menus[] = {"\x4$TAB","\x5$TRAY","\x4$URL","\x5$NICK"};
+	int i;
+
+	for (i = 0; i < 4; i++)
+	{
+		if (!strncmp (path, menus[i] + 1, menus[i][0]))
+		{
+			*offset = menus[i][0] + 1;	/* number of bytes to offset the root */
+			return 0;	/* is not main menu */
+		}
+	}
+
+	*offset = 0;
+	return 1;	/* is main menu */
+}
+
 static void
-menu_add (char *path, char *label, char *cmd, char *ucmd, int pos, int state, int markup, int enable, int mod, int key)
+menu_add (char *path, char *label, char *cmd, char *ucmd, int pos, int state, int markup, int enable, int mod, int key, char *group, char *icon)
 {
 	menu_entry *me;
 
@@ -1121,15 +1176,18 @@ menu_add (char *path, char *label, char *cmd, char *ucmd, int pos, int state, in
 
 	me = malloc (sizeof (menu_entry));
 	me->pos = pos;
+	me->modifier = mod;
+	me->is_main = menu_is_mainmenu_root (path, &me->root_offset);
 	me->state = state;
 	me->markup = markup;
 	me->enable = enable;
-	me->modifier = mod;
 	me->key = key;
 	me->path = strdup (path);
 	me->label = NULL;
 	me->cmd = NULL;
 	me->ucmd = NULL;
+	me->group = NULL;
+	me->icon = NULL;
 
 	if (label)
 		me->label = strdup (label);
@@ -1137,6 +1195,10 @@ menu_add (char *path, char *label, char *cmd, char *ucmd, int pos, int state, in
 		me->cmd = strdup (cmd);
 	if (ucmd)
 		me->ucmd = strdup (ucmd);
+	if (group)
+		me->group = strdup (group);
+	if (icon)
+		me->icon = strdup (icon);
 
 	menu_list = g_slist_append (menu_list, me);
 	label = fe_menu_add (me);
@@ -1154,7 +1216,7 @@ cmd_menu (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 {
 	int idx = 2;
 	int len;
-	int pos = -1;
+	int pos = 0xffff;
 	int state;
 	int toggle = FALSE;
 	int enable = TRUE;
@@ -1162,6 +1224,8 @@ cmd_menu (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 	int key = 0;
 	int mod = 0;
 	char *label;
+	char *group = NULL;
+	char *icon = NULL;
 
 	if (!word[2][0] || !word[3][0])
 		return FALSE;
@@ -1170,6 +1234,13 @@ cmd_menu (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 	if (word[idx][0] == '-' && word[idx][1] == 'e')
 	{
 		enable = atoi (word[idx] + 2);
+		idx++;
+	}
+
+	/* -i<ICONFILE> */
+	if (word[idx][0] == '-' && word[idx][1] == 'i')
+	{
+		icon = word[idx] + 2;
 		idx++;
 	}
 
@@ -1198,6 +1269,14 @@ cmd_menu (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 		idx++;
 	}
 
+	/* -rSTATE,GROUP to specify a radio item */
+	if (word[idx][0] == '-' && word[idx][1] == 'r')
+	{
+		state = atoi (word[idx] + 2);
+		group = word[idx] + 4;
+		idx++;
+	}
+
 	/* -tX to specify toggle item with default state */
 	if (word[idx][0] == '-' && word[idx][1] == 't')
 	{
@@ -1205,6 +1284,9 @@ cmd_menu (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 		idx++;
 		toggle = TRUE;
 	}
+
+	if (word[idx+1][0] == 0)
+		return FALSE;
 
 	/* the path */
 	path_part (word[idx+1], tbuf, 512);
@@ -1229,13 +1311,13 @@ cmd_menu (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 	{
 		if (toggle)
 		{
-			menu_add (tbuf, label, word[idx + 2], word[idx + 3], pos, state, markup, enable, mod, key);
+			menu_add (tbuf, label, word[idx + 2], word[idx + 3], pos, state, markup, enable, mod, key, NULL, NULL);
 		} else
 		{
 			if (word[idx + 2][0])
-				menu_add (tbuf, label, word[idx + 2], NULL, pos, 0, markup, enable, mod, key);
+				menu_add (tbuf, label, word[idx + 2], NULL, pos, state, markup, enable, mod, key, group, icon);
 			else
-				menu_add (tbuf, label, NULL, NULL, pos, 0, markup, enable, mod, key);
+				menu_add (tbuf, label, NULL, NULL, pos, state, markup, enable, mod, key, group, icon);
 		}
 		return TRUE;
 	}
@@ -1949,6 +2031,7 @@ cmd_gui (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 {
 	switch (str_ihash (word[2]))
 	{
+	case 0x058b836e: fe_ctrl_gui (sess, 8, 0); break; /* APPLY */
 	case 0xac1eee45: fe_ctrl_gui (sess, 7, 2); break; /* ATTACH */
 	case 0x05a72f63: fe_ctrl_gui (sess, 4, atoi (word[3])); break; /* COLOR */
 	case 0xb06a1793: fe_ctrl_gui (sess, 7, 1); break; /* DETACH */
@@ -3030,6 +3113,47 @@ cmd_topic (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 }
 
 static int
+cmd_tray (struct session *sess, char *tbuf, char *word[], char *word_eol[])
+{
+	if (strcmp (word[2], "-b") == 0)
+	{
+		fe_tray_set_balloon (word[3], word[4][0] ? word[4] : NULL);
+		return TRUE;
+	}
+
+	if (strcmp (word[2], "-t") == 0)
+	{
+		fe_tray_set_tooltip (word[3][0] ? word[3] : NULL);
+		return TRUE;
+	}
+
+	if (strcmp (word[2], "-i") == 0)
+	{
+		fe_tray_set_icon (atoi (word[3]));
+		return TRUE;
+	}
+
+	if (strcmp (word[2], "-f") != 0)
+		return FALSE;
+
+	if (!word[3][0])
+	{
+		fe_tray_set_file (NULL);	/* default xchat icon */
+		return TRUE;
+	}
+
+	if (!word[4][0])
+	{
+		fe_tray_set_file (word[3]);	/* fixed custom icon */
+		return TRUE;
+	}
+
+	/* flash between 2 icons */
+	fe_tray_set_flash (word[4], word[5][0] ? word[5] : NULL, atoi (word[3]));
+	return TRUE;
+}
+
+static int
 cmd_unignore (struct session *sess, char *tbuf, char *word[],
 				  char *word_eol[])
 {
@@ -3348,13 +3472,15 @@ const struct commands xc_cmds[] = {
 	{"ALLSERV", cmd_allservers, 0, 0, 1,
 	 N_("ALLSERV <cmd>, sends a command to all servers you're in")},
 	{"AWAY", cmd_away, 1, 0, 1, N_("AWAY [<reason>], sets you away")},
+	{"BACK", cmd_back, 1, 0, 1, N_("BACK, sets you back (not away)")},
 	{"BAN", cmd_ban, 1, 1, 1,
 	 N_("BAN <mask> [<bantype>], bans everyone matching the mask from the current channel. If they are already on the channel this doesn't kick them (needs chanop)")},
 	{"CHANOPT", cmd_chanopt, 0, 0, 1,
 	 N_("Set per channel options\n"
 	 "CHANOPT CONFMODE ON|OFF - Toggle conf mode/showing of join and part messages\n"
 	 "CHANOPT COLORPASTE ON|OFF - Toggle color paste\n"
-	 "CHANOPT BEEP ON|OFF - Toggle beep on message"
+	 "CHANOPT BEEP ON|OFF - Toggle beep on message\n"
+	 "CHANOPT TRAY ON|OFF - Toggle tray blink on message"
 	)},
 	{"CHARSET", cmd_charset, 0, 0, 1, 0},
 	{"CLEAR", cmd_clear, 0, 0, 1, N_("CLEAR [ALL|HISTORY], Clears the current text window or command history")},
@@ -3408,7 +3534,7 @@ const struct commands xc_cmds[] = {
 	{"GETINT", cmd_getint, 0, 0, 1, "GETINT <default> <command> <prompt>"},
 	{"GETSTR", cmd_getstr, 0, 0, 1, "GETSTR <default> <command> <prompt>"},
 	{"GHOST", cmd_ghost, 1, 0, 1, N_("GHOST <nick> <password>, Kills a ghosted nickname")},
-	{"GUI", cmd_gui, 0, 0, 1, "GUI [ATTACH|DETACH|SHOW|HIDE|FOCUS|FLASH|ICONIFY|COLOR <n>]\n"
+	{"GUI", cmd_gui, 0, 0, 1, "GUI [APPLY|ATTACH|DETACH|SHOW|HIDE|FOCUS|FLASH|ICONIFY|COLOR <n>]\n"
 									  "       GUI [MSGBOX <text>|MENU TOGGLE]"},
 	{"HELP", cmd_help, 0, 0, 1, 0},
 	{"HOP", cmd_hop, 1, 1, 1,
@@ -3442,7 +3568,8 @@ const struct commands xc_cmds[] = {
 	 N_("MDEOP, Mass deop's all chanops in the current channel (needs chanop)")},
 	{"ME", cmd_me, 0, 0, 1,
 	 N_("ME <action>, sends the action to the current channel (actions are written in the 3rd person, like /me jumps)")},
-	{"MENU", cmd_menu, 0, 0, 1, "MENU [-eX] [-k<mod>,<key>] [-m] [-pX] [-tX] {ADD|DEL} <path> [command] [unselect command]"},
+	{"MENU", cmd_menu, 0, 0, 1, "MENU [-eX] [-i<ICONFILE>] [-k<mod>,<key>] [-m] [-pX] [-r<X,group>] [-tX] {ADD|DEL} <path> [command] [unselect command]\n"
+										 "       See http://xchat.org/docs/menu/ for more details."},
 	{"MKICK", cmd_mkick, 1, 1, 1,
 	 N_("MKICK, Mass kicks everyone except you in the current channel (needs chanop)")},
 	{"MODE", cmd_mode, 1, 0, 1, 0},
@@ -3506,6 +3633,13 @@ const struct commands xc_cmds[] = {
 	{"SPLAY", cmd_splay, 0, 0, 1, "SPLAY <soundfile>"},
 	{"TOPIC", cmd_topic, 1, 1, 1,
 	 N_("TOPIC [<topic>], sets the topic if one is given, else shows the current topic")},
+	{"TRAY", cmd_tray, 0, 0, 1,
+	 N_("\nTRAY -f <timeout> <file1> [<file2>] Blink tray between two icons.\n"
+		   "TRAY -f <filename>                  Set tray to a fixed icon.\n"
+			"TRAY -i <number>                    Blink tray with an internal icon.\n"
+			"TRAY -t <text>                      Set the tray tooltip.\n"
+			"TRAY -b <title> <text>              Set the tray balloon."
+			)},
 	{"UNBAN", cmd_unban, 1, 1, 1,
 	 N_("UNBAN <mask> [<mask>...], unbans the specified masks.")},
 	{"UNIGNORE", cmd_unignore, 0, 0, 1, N_("UNIGNORE <mask> [QUIET]")},

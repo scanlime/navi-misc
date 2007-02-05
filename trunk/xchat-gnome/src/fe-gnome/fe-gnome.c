@@ -1136,3 +1136,10 @@ fe_set_current (session *sess)
 
 	gtk_widget_grab_focus (GTK_WIDGET (gui.text_entry));
 }
+
+/* Tray stubs -- xchat-gnome bundles this as a plugin */
+void fe_tray_set_flash (const char *filename1, const char *filename2, int timeout) {}
+void fe_tray_set_file (const char *filename) {}
+void fe_tray_set_icon (int icon) {}
+void fe_tray_set_tooltip (const char *text) {}
+void fe_tray_set_balloon (const char *title, const char *text) {}

@@ -555,7 +555,6 @@ static char defaultconf_commands[] =
 	"NAME AME\n"			"CMD allchan me &2\n\n"\
 	"NAME ANICK\n"			"CMD allserv nick &2\n\n"\
 	"NAME AMSG\n"			"CMD allchan say &2\n\n"\
-	"NAME BACK\n"			"CMD away\n\n"\
 	"NAME BANLIST\n"		"CMD quote MODE %c +b\n\n"\
 	"NAME CHAT\n"			"CMD dcc chat %2\n\n"\
 	"NAME DIALOG\n"		"CMD query %2\n\n"\
@@ -741,12 +740,26 @@ child_handler (gpointer userdata)
 #endif
 
 void
-xchat_exec (char *cmd)
+xchat_exec (const char *cmd)
 {
 #ifdef WIN32
 	util_exec (cmd);
 #else
 	int pid = util_exec (cmd);
+	if (pid != -1)
+	/* zombie avoiding system. Don't ask! it has to be like this to work
+      with zvt (which overrides the default handler) */
+		fe_timeout_add (1000, child_handler, GINT_TO_POINTER (pid));
+#endif
+}
+
+void
+xchat_execv (char * const argv[])
+{
+#ifdef WIN32
+	util_execv (argv);
+#else
+	int pid = util_execv (argv);
 	if (pid != -1)
 	/* zombie avoiding system. Don't ask! it has to be like this to work
       with zvt (which overrides the default handler) */
