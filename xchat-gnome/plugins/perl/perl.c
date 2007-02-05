@@ -720,7 +720,7 @@ XS (XS_Xchat_hook_command)
 	char *name;
 	int pri;
 	SV *callback;
-	char *help_text;
+	char *help_text = NULL;
 	SV *userdata;
 	xchat_hook *hook;
 	HookData *data;
@@ -734,7 +734,13 @@ XS (XS_Xchat_hook_command)
 		name = SvPV_nolen (ST (0));
 		pri = (int) SvIV (ST (1));
 		callback = ST (2);
-		help_text = SvPV_nolen (ST (3));
+
+		/* leave the help text has NULL if the help text is undefined to avoid
+		 * overriding the default help message for builtin commands */
+		if (SvOK(ST (3))) {
+			help_text = SvPV_nolen (ST (3));
+		}
+
 		userdata = ST (4);
 		data = NULL;
 
@@ -1227,16 +1233,21 @@ static int
 perl_load_file (char *filename)
 {
 #ifdef WIN32
-	static HINSTANCE lib = NULL;
+	static HMODULE lib = NULL;
 
 	if (!lib) {
-		lib = LoadLibrary (PERL_DLL);
+		lib = LoadLibraryA (PERL_DLL);
 		if (!lib) {
-			thread_mbox ("Cannot open " PERL_DLL "\n\n"
-							 "You must have ActivePerl installed in order to\n"
-							 "run perl scripts.\n\n"
-							 "http://www.activestate.com/ActivePerl/\n\n"
-							 "Make sure perl's bin directory is in your PATH.");
+			if (GetLastError () == ERROR_BAD_EXE_FORMAT)
+				/* http://forum.xchat.org/viewtopic.php?t=3277 */
+				thread_mbox ("Cannot use this " PERL_DLL "\n\n"
+								 "32-bit ActivePerl is required.");
+			else
+				thread_mbox ("Cannot open " PERL_DLL "\n\n"
+								 "You must have ActivePerl installed in order to\n"
+								 "run perl scripts.\n\n"
+								 "http://www.activestate.com/ActivePerl/\n\n"
+								 "Make sure perl's bin directory is in your PATH.");
 			return FALSE;
 		}
 		FreeLibrary (lib);

@@ -600,7 +600,7 @@ pevt_privmsg_help
 
 Private Message to Dialog
 XP_TE_DPRIVMSG
-pevt_dprivmsg_help
+pevt_privmsg_help
 %C2<%O$1%C2>%O$t$2%O
 3
 
@@ -624,7 +624,7 @@ pevt_rawmodes_help
 
 Receive Wallops
 XP_TE_WALLOPS
-pevt_dprivmsg_help
+pevt_privmsg_help
 %C12-%C13$1/Wallops%C12-%O$t$2%O
 2
 
@@ -795,6 +795,12 @@ XP_TE_UPARTREASON
 pevt_partreason_help
 -%C10-%C11-%O$tYou have left channel $3 %C14(%O$4%C14)%O
 4
+
+Your Action
+XP_TE_UACTION
+pevt_chanaction_help
+%C18*$t$1%O $2
+n3
 
 Your Invitation
 XP_TE_UINVITE

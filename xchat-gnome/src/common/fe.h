@@ -7,16 +7,22 @@
 /* for storage of /menu entries */
 typedef struct
 {
-	int pos;	/* position */
-	short state;	/* state of toggle items */
-	short markup;	/* use pango markup? */
-	short enable;	/* enabled? sensitivity */
-	short modifier;	/* keybinding */
+	gint32 pos;	/* position */
+	gint16 modifier;	/* keybinding */
+	gint16 root_offset;	/* bytes to offset ->path */
+
+	char is_main;	/* is part of the Main menu? (not a popup) */
+	char state;	/* state of toggle items */
+	char markup;	/* use pango markup? */
+	char enable;	/* enabled? sensitivity */
+
 	int key;
 	char *path;
 	char *label;
 	char *cmd;
 	char *ucmd;	/* unselect command (toggles) */
+	char *group;	/* for radio items or NULL */
+	char *icon;	/* filename */
 } menu_entry;
 
 int fe_args (int argc, char *argv[]);
@@ -125,6 +131,13 @@ void fe_menu_update (menu_entry *);
 #define FE_SE_RECONDELAY 3
 #define FE_SE_CONNECTING 4
 void fe_server_event (server *serv, int type, int arg);
+/* pass NULL filename2 for default xchat icon */
+void fe_tray_set_flash (const char *filename1, const char *filename2, int timeout);
+/* pass NULL filename for default xchat icon */
+void fe_tray_set_file (const char *filename);
+void fe_tray_set_icon (int icon);
+void fe_tray_set_tooltip (const char *text);
+void fe_tray_set_balloon (const char *title, const char *text);
 
 void fe_set_current (struct session *sess);
 

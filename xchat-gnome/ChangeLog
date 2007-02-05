@@ -1,3 +1,32 @@
+2007-02-05  David Trowbridge  <trowbrds@gmail.com>
+
+	* plugins/python/CVS/Entries:
+	* plugins/perl/Xchat.pm:
+	* plugins/perl/perl.c:
+	* plugins/perl/CVS/Entries:
+	* src/common/outbound.c:
+	* src/common/textenums.h:
+	* src/common/dbus/dbus-plugin.c:
+	* src/common/dbus/CVS/Entries:
+	* src/common/util.c:
+	* src/common/proto-irc.c:
+	* src/common/xchatc.h:
+	* src/common/cfgfiles.c:
+	* src/common/util.h:
+	* src/common/text.c:
+	* src/common/dcc.c:
+	* src/common/text.h:
+	* src/common/plugin.c:
+	* src/common/inbound.c:
+	* src/common/fe.h:
+	* src/common/server.c:
+	* src/common/xchat.c:
+	* src/common/CVS/Entries:
+	* src/common/xchat.h:
+	* src/common/textevents.h:
+	* src/common/textevents.in:
+	  - Sync to xchat HEAD.
+
 2007-02-03  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/fe-gnome/xtext.c:

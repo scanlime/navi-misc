@@ -225,7 +225,14 @@ log_create_pathname (char *servname, char *channame, char *netname)
 	strftime (fnametime, sizeof (fnametime), fname, tm);
 
 	/* create final path/filename */
-	snprintf (fname, sizeof (fname), "%s/xchatlogs/%s", get_xdir_utf8 (), fnametime);
+#ifdef WIN32
+	if (fnametime[0] == '/' || (fnametime[0] >= 'A' && fnametime[1] == ':'))
+#else
+	if (fnametime[0] == '/')	/* is it fullpath already? */
+#endif
+		snprintf (fname, sizeof (fname), "%s", fnametime);
+	else
+		snprintf (fname, sizeof (fname), "%s/xchatlogs/%s", get_xdir_utf8 (), fnametime);
 
 	/* now we need it in FileSystem encoding */
 	fs = xchat_filename_from_utf8 (fname, -1, 0, 0, 0);
@@ -641,6 +648,7 @@ static char * const pevt_chanmsg_help[] = {
 static char * const pevt_privmsg_help[] = {
 	N_("Nickname"),
 	N_("The message"),
+	N_("Identified text")
 };
 
 static char * const pevt_changenick_help[] = {
@@ -703,12 +711,6 @@ static char * const pevt_channotice_help[] = {
 	N_("Who it's from"),
 	N_("The Channel it's going to"),
 	N_("The message"),
-};
-
-static char * const pevt_dprivmsg_help[] = {
-	N_("Nickname"),
-	N_("The message"),
-	N_("Identified text"),
 };
 
 static char * const pevt_uchangenick_help[] = {
@@ -1663,6 +1665,18 @@ text_emit (int index, session *sess, char *a, char *b, char *c, char *d)
 	/* If a plugin's callback executes "/close", 'sess' may be invalid */
 	if (is_session (sess))
 		display_event (sess, index, word, stripcolor_args);
+}
+
+char *
+text_find_format_string (char *name)
+{
+	int i = 0;
+
+	i = pevent_find (name, &i);
+	if (i >= 0)
+		return pntevts_text[i];
+
+	return NULL;
 }
 
 int

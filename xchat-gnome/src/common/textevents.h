@@ -302,7 +302,7 @@ N_("-%C10-%C11-%O$tNo ping reply for $1 seconds, disconnecting.")},
 {"Private Message", pevt_privmsg_help, 3, 
 N_("%C12*%C13$1%C12*$t%O$2%O")},
 
-{"Private Message to Dialog", pevt_dprivmsg_help, 3, 
+{"Private Message to Dialog", pevt_privmsg_help, 3, 
 N_("%C2<%O$1%C2>%O$t$2%O")},
 
 {"Process Already Running", pevt_generic_none_help, 0, 
@@ -314,7 +314,7 @@ N_("<%C10-%C11-%O$t$1 has quit %C14(%O$2%O%C14)%O")},
 {"Raw Modes", pevt_rawmodes_help, 2, 
 N_("-%C10-%C11-%O$t$1 sets modes%B %C14[%O$2%B%C14]%O")},
 
-{"Receive Wallops", pevt_dprivmsg_help, 2, 
+{"Receive Wallops", pevt_privmsg_help, 2, 
 N_("%C12-%C13$1/Wallops%C12-%O$t$2%O")},
 
 {"Resolving User", pevt_resolvinguser_help, 2, 
@@ -400,6 +400,9 @@ N_("-%C10-%C11-%O$tYou have left channel $3")},
 
 {"You Part with Reason", pevt_partreason_help, 4, 
 N_("-%C10-%C11-%O$tYou have left channel $3 %C14(%O$4%C14)%O")},
+
+{"Your Action", pevt_chanaction_help, 131, 
+"%C18*$t$1%O $2"},
 
 {"Your Invitation", pevt_uinvite_help, 3, 
 N_("-%C10-%C11-%O$tYou're inviting %C11$1%C to %C11$2%C (%C11$3%C)")},

@@ -416,6 +416,11 @@ plugin_auto_load_cb (char *filename)
 {
 	char *pMsg;
 
+#ifndef WIN32	/* black listed */
+	if (!strcmp (file_part (filename), "dbus.so"))
+		return;
+#endif
+
 	pMsg = plugin_load (ps, filename, NULL);
 	if (pMsg)
 	{
@@ -962,8 +967,12 @@ const char *
 xchat_get_info (xchat_plugin *ph, const char *id)
 {
 	session *sess;
-	guint32 hash = str_hash (id);
+	guint32 hash;
 
+	if (!strncmp (id, "event_text", 9))
+		return text_find_format_string ((char *)id + 10);
+
+	hash = str_hash (id);
 	/* do the session independant ones first */
 	switch (hash)
 	{
@@ -1030,6 +1039,9 @@ xchat_get_info (xchat_plugin *ph, const char *id)
 
 	case 0x1c0e99c1: /* inputbox */
 		return fe_get_inputbox_contents (sess);
+
+	case 0x633fb30:	/* modes */
+		return sess->current_modes;
 
 	case 0x6de15a2e:	/* network */
 		return server_get_network (sess->server, FALSE);
@@ -1411,7 +1423,9 @@ xchat_list_int (xchat_plugin *ph, xchat_list *xlist, const char *name)
 		case 0xd1b:	/* id */
 			return ((struct session *)data)->server->id;
 		case 0x5cfee87:	/* flags */
-			tmp = ((struct session *)data)->beep;            /* bit 8 */
+			tmp = ((struct session *)data)->tray;            /* bit 9 */
+			tmp <<= 1;
+			tmp |= ((struct session *)data)->beep;               /* 8 */
 			tmp <<= 1;
 			tmp |= ((struct session *)data)->color_paste;        /* 7 */
 			tmp <<= 1;

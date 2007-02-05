@@ -259,6 +259,9 @@ struct xchatprefs
 	unsigned int auto_indent;
 	unsigned int wordwrap;
 	unsigned int gui_input_spell;
+	unsigned int gui_tray;
+	unsigned int gui_tray_blink;
+	unsigned int gui_tray_flags;
 	unsigned int throttle;
 	unsigned int topicbar;
 	unsigned int hideuserlist;
@@ -339,6 +342,7 @@ typedef struct session
 	/* these are in the bottom-right menu */
 	unsigned int hide_join_part:1;	/* hide join & part messages? */
 	unsigned int beep:1;				/* beep enabled? */
+	unsigned int tray:1;				/* tray flash for this chan? */
 	unsigned int color_paste:1;
 	int done_away_check:1;	/* done checking for away status changes */
 	unsigned int lastlog_regexp:1;	/* this is a lastlog and using regexp */

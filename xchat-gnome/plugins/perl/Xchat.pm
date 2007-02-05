@@ -29,16 +29,6 @@ use strict;
 use warnings;
 
 our %EXPORT_TAGS = (
-#	all => [
-##		qw(register hook_server hook_command),
-#		qw(hook_print hook_timer unhook print command),
-#		qw(find_context get_context set_context),
-#		qw(get_info get_prefs emit_print nickcmp),
-#		qw(get_list context_info strip_code),
-#		qw(PRI_HIGHEST PRI_HIGH PRI_NORM PRI_LOW),
-#		qw(PRI_LOWEST EAT_NONE EAT_XCHAT EAT_PLUGIN),
-#		qw(EAT_ALL KEEP REMOVE),
-#	],
 	constants => [
 		qw(PRI_HIGHEST PRI_HIGH PRI_NORM PRI_LOW PRI_LOWEST), # priorities
 		qw(EAT_NONE EAT_XCHAT EAT_PLUGIN EAT_ALL), # callback return values
@@ -112,7 +102,7 @@ sub hook_command {
 
 	$callback = Xchat::Embed::fix_callback( $package, $callback );
 	
-	my ($priority, $help_text, $data) = ( Xchat::PRI_NORM, '', undef );
+	my ($priority, $help_text, $data) = ( Xchat::PRI_NORM, undef, undef );
 	
 	if( ref( $options ) eq 'HASH' ) {
 		if( exists( $options->{priority} ) && defined( $options->{priority} ) ) {
@@ -265,7 +255,7 @@ sub print {
 			Xchat::set_context( $old_ctx );
 			return 1;
 		} else {
-			return 0;
+			return "";
 		}
 	} else {
 		Xchat::Internal::print( $text );
@@ -304,7 +294,7 @@ sub command {
 			Xchat::set_context( $old_ctx );
 			return 1;
 		} else {
-			return 0;
+			return "";
 		}
 	} else {
 		Xchat::Internal::command( $_ ) foreach @commands;
@@ -492,13 +482,7 @@ sub unload {
 	my $package = file2pkg( $file );
 	my $pkg_info = pkg_info( $package );
 
-	if( $pkg_info ) {
-		if( exists $pkg_info->{hooks} ) {
-			for my $hook ( @{$pkg_info->{hooks}} ) {
-				Xchat::unhook( $hook, $package );
-			}
-		}
-		
+	if( $pkg_info ) {	
 		# take care of the shutdown callback
 		if( exists $pkg_info->{shutdown} ) {
 			# allow incorrectly written scripts to be unloaded
@@ -511,6 +495,13 @@ sub unload {
 				}
 			};
 		}
+
+		if( exists $pkg_info->{hooks} ) {
+			for my $hook ( @{$pkg_info->{hooks}} ) {
+				Xchat::unhook( $hook, $package );
+			}
+		}
+
 
 		if( exists $pkg_info->{gui_entry} ) {
 			plugingui_remove( $pkg_info->{gui_entry} );
