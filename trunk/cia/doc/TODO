@@ -10,12 +10,9 @@ user accounts and assets (such as bots, projects, and authors).
 
 - "Coming Soon" features:
 
-  - Add at least minimal documentation for rulesets. Some examples and a cheat sheet, if
-    not a full syntax manual.
+  - Exclusive access
 
-  - Metadata editing
-
-  - View change history and revert changes.
+  - The ability to revert changes from the change history page.
 
 - Ruleset editor improvements:
 
