@@ -1,10 +1,12 @@
 from cia.apps.accounts import models, authplus, formtools
 from cia.apps.api.util import json_result
 from cia.apps.images.widgets import ImageWidget
+from cia.apps.stats.models import StatsTarget
 from django.core.paginator import ObjectPaginator
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
+from django.contrib.contenttypes.models import ContentType
 import django.newforms as forms
 from django.template import loader
 
@@ -163,14 +165,17 @@ class EditAssetForm(forms.Form):
 
 @authplus.login_required
 @json_result
-def changes(request, asset_id, page_number, num_per_page=10):
+def changes(request, asset_type, asset_id, page_number, num_per_page=10):
     """Return a paginated list of changes to a particular asset. This
        is called by some AJAX code in order to populate an asset's
        Change History box.
        """
     # Don't bother checking whether the user owns this asset, change
     # history should be public information anyway.
-    changes = models.AssetChangeset.objects.filter(object_id=int(asset_id)).order_by('-id')
+    changes = models.AssetChangeset.objects.filter(
+        content_type = ContentType.objects.get_for_model(get_asset_by_type(asset_type)),
+        object_id = int(asset_id),
+        ).order_by('-id')
 
     paginator = ObjectPaginator(changes,
                                 num_per_page = num_per_page,
@@ -216,6 +221,15 @@ class StatsMetadataForm(forms.Form):
         required = False,
         widget = ImageWidget,
         )
+
+    def clean_subtitle(self):
+        return self.clean_data.get('subtitle') or None
+
+    def clean_url(self):
+        return self.clean_data.get('url') or None
+
+    def clean_description(self):
+        return self.clean_data.get('description') or None
 
     def clean_photo_id(self):
         return self.clean_data.get('photo_id') or None
@@ -285,8 +299,55 @@ def stats_asset(request, asset_type, asset_id):
     return render_to_response('accounts/stats_asset_edit.html', RequestContext(request, ctx))
 
 
+class AddStatsAssetForm(forms.Form):
+    name = forms.CharField(
+        widget = forms.TextInput(attrs = {'class': 'text'}),
+        )
+
 @authplus.login_required
-def add_stats_asset(request, asset_type):
+def add_stats_asset(request, asset_type, prefix, template):
     """Generic form for adding stats-based assets"""
+    model = get_asset_by_type(asset_type)
     ctx = get_asset_add_context(request, asset_type)
-    return render_to_response('accounts/asset_add.html', RequestContext(request, ctx))
+    form = formtools.MultiForm(request.POST)
+    form.validate(AddStatsAssetForm)
+
+    if request.POST:
+        if form.is_valid():
+            meta = []
+
+            # Get/create the stats target
+            target = StatsTarget.objects.get_or_create(path = prefix + form.clean_data['name'])[0]
+
+            # Now get/create the matching asset
+            asset, created_asset = model.objects.get_or_create(target = target)
+            if created_asset:
+                meta.append('_created')
+
+            # Finally, create a new UserAsset.
+            user_asset, created_user_asset = models.UserAsset.objects.get_or_create(
+                user = request.user,
+                content_type = ContentType.objects.get_for_model(model),
+                object_id = asset.id,
+                )
+            if created_user_asset:
+                meta.append('_gained_access')
+
+            # Record these changes
+            models.AssetChangeset.objects.store_changes(
+                user = request.user,
+                asset = asset,
+                meta = meta,
+                )
+
+            return HttpResponseRedirect("/account/%s/%s/" % (
+                asset_type, user_asset.id,
+                ))
+    else:
+        # Don't show errors if the form hasn't been submitted once
+        form.errors = None
+
+    ctx.update({
+        'form': form,
+        })
+    return render_to_response(template, RequestContext(request, ctx))
