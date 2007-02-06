@@ -9,7 +9,7 @@
   {{ block.super }}
   TabtasticInit();
   preserveCurrentTab("edit-form", "form-tabs");
-  ChangeHistory.init("/account/changes/{{ user_asset.asset.id }}/");
+  ChangeHistory.init("/account/changes/{{ asset_type }}/{{ user_asset.asset.id }}/");
 {% endblock %}
 
 {% block h1 %}{{ user_asset.asset|capfirst }}{% endblock %}

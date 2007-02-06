@@ -1,0 +1,23 @@
+{% extends 'accounts/asset_add.html' %}
+
+{% block account-intro %}
+  <p class="narrow">
+  Add a project to your account.
+  This will give you additional access to control the way in which a project
+  is displayed on the CIA site. You can change a project's verbose name, or
+  assign additional information such as an image or description.
+  </p>
+  <p class="narrow">
+  You do not have to create a project here in order for commits to
+  show up on the CIA site, or for bots to report commits in
+  real-time. Likewise, for this to be useful you must have already
+  installed a <a href="/doc/adding-projects/">client script</a> which
+  delivers commit information to CIA.
+  </p>
+{% endblock %}
+
+{% block name-notes %}
+  <p class="note">
+  This name must exactly match the project name configured in your client script.
+  </p>
+{% endblock %}
