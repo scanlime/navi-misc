@@ -26,8 +26,11 @@ class StatsTarget(models.Model):
     links_filter = models.TextField(null=True, blank=True)
     related_filter = models.TextField(null=True, blank=True)
 
+    def get_default_title(self):
+        return self.path.rsplit('/', 1)[-1]
+
     def __str__(self):
-        return self.path
+        return self.title or self.get_default_title()
 
     class Admin:
         pass

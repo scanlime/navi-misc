@@ -9,6 +9,8 @@ from lib import *
 os.chdir('media-src')
 DEST = '../media/'
 
+jsmin = str
+
 # All of our CSS files so far have single individual sources
 for single_css in [
     'base', 'login', 'account',

@@ -10,7 +10,7 @@
      {% for item in changeset.items.all|dictsort:"field" %}
      <li class="change-item">
        <img src="{{ item.get_icon }}" width="16" height="16" />
-       <span class="description">{{ item.get_description|capfirst|escape }}</span>{% if item.new_value %}:
+       <span class="description">{{ item.get_description|capfirst|escape }}</span>{% if item.new_value or item.old_value %}:
          {% if item.is_multiline %}
             {% for chunk in item.get_diff %}
               <div class="diff">
@@ -20,7 +20,7 @@
               </div>
             {% endfor %}
          {% else %}
-            {{ item.old_value_display|escape }} &rarr; {{ item.new_value_display|escape }}
+            {{ item.old_value_display }} &rarr; {{ item.new_value_display }}
          {% endif %}
        {% endif %}
      </li>
