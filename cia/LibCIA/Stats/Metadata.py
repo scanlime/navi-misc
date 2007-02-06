@@ -140,7 +140,10 @@ class Metadata:
         """Database interaction to return to implement dict()"""
         if self._cache is None:
             self._update_cache(cursor)
-        return self._cache
+        d = {}
+        for k, v in self._cache.items():
+           d[k] = (v, 'text/plain')
+        return d
 
     def _keys(self, cursor):
         """Database interaction implementing keys()"""

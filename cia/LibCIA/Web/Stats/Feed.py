@@ -297,11 +297,10 @@ class XMLFeed(BaseFeed):
     def renderMetadataItem(self, name, value, mimeType, context):
         """Render a single metadata item. If the content is short and in
            a text format, we include it directly. Otherwise, just link to it.
+           XXX: These links don't really make sense any more, since the metadata
+                format changed.
            """
-        if mimeType.startswith('text/') and len(value) < 1024:
-            valueTag = tag('value', _type=mimeType)[ value ]
-        else:
-            valueTag = tag('url')[ Link.MetadataLink(self.target, name).getURL(context) ]
+        valueTag = tag('value', _type=mimeType)[ str(value) ]
         return tag('item', _name=name)[ valueTag ]
 
     def render_counters(self, context):
