@@ -18,4 +18,16 @@ iFrameLoaded = function(childDocument, childWindow)
     }
 
     childWindow.frameElement.style.height = h + "px";
+
+    /*
+     * If the child iframe has a "form-result" hidden input element,
+     * copy its value to the proper hidden input element in our parent
+     * document. The result element will have an ID equal to our iframe's
+     * name plus '_result'.
+     */
+    var childResult = childDocument.getElementById("form-result");
+    var parentResult = document.getElementById(childWindow.name + "_result");
+    if (childResult && parentResult) {
+	parentResult.value = childResult.value;
+    }
 }

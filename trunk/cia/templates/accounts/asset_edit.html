@@ -16,7 +16,7 @@
 
 {% block account-forms %}
   <div id="tabs-and-sidebar">
-  <form id="edit-form" class="narrow" action="{{ form_path }}" method="post">
+  <form id="edit-form" action="{{ form_path }}" method="post">
 
     <ul class="tabset_tabs" id="form-tabs">
       {% block tabs %}
@@ -28,7 +28,7 @@
     </ul>
 
     {% block tab-content %}
-    <div id="ownership" class="tabset_content">
+    <div id="ownership" class="tabset_content unlabeled">
       <h2 class="tabset_label">Ownership</h2>
 
       <div class="form-row">
@@ -73,7 +73,7 @@
       </div>
     </div>
 
-    <div id="change-history" class="tabset_content">
+    <div id="change-history" class="tabset_content unlabeled">
       <h2 class="tabset_label">Change History</h2>
       <ul id="changesets"></ul>
       <div id="changes-loading" class="ajax-loader"></div>
@@ -83,9 +83,9 @@
 
     {% block sidebar %}{% endblock %}
 
-    <div class="submit-row">
+    <div class="unlabeled"> <div class="submit-row">
       <div>&raquo;</div> <input type="submit" value="Save" />
-    </div>
+    </div></div>
 
   </form>
   </div>

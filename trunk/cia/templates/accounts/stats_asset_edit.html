@@ -11,13 +11,42 @@
     <h2 class="tabset_label">Metadata</h2>
 
     <div class="form-row">
-       <iframe src="/images/upload/" name="image-upload-1" width="100%" height="0px"
-               frameborder="0" scrolling="no" marginheight="0" marginwidth="0"> </iframe>
+      <label for="id_path">Permanent identity:</label>
+      <div id="id_path" class="field">{{ user_asset.asset.target.path|escape }}</div>
     </div>
 
     <div class="form-row">
-       <iframe src="/images/upload/?image-id=76" name="image-upload-1" width="100%" height="0px"
-               frameborder="0" scrolling="no" marginheight="0" marginwidth="0"> </iframe>
+      <label for="id_title">Display name:</label>
+      {{ form.title }}
+      <div class="error">{{ form.errors.title.0 }}</div>
+    </div>
+
+    <div class="form-row">
+      <label for="id_subtitle">Display subtitle:</label>
+      {{ form.subtitle }}
+      <div class="error">{{ form.errors.subtitle.0 }}</div>
+    </div>
+
+    <div class="form-row">
+      <label for="id_url">Web site URL:</label>
+      {{ form.url }}
+      <div class="error">{{ form.errors.url.0 }}</div>
+    </div>
+
+    <div class="form-row">
+      <label for="id_description">Description:</label>
+      {{ form.description }}
+      <div class="error">{{ form.errors.description.0 }}</div>
+    </div>
+
+    <div class="form-row">
+      <label for="id_photo_id_iframe">Primary image:</label>
+      {{ form.photo_id }}
+    </div>
+
+    <div class="form-row">
+      <label for="id_icon_id_iframe">Icon image:</label>
+      {{ form.icon_id }}
     </div>
 
   </div>

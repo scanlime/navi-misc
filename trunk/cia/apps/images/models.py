@@ -30,6 +30,18 @@ class ImageSource(models.Model):
     def get_original(self):
         return self.instances.get(is_original = True)
 
+    def reference(self):
+        """Inform this image that it's been referenced permanently.
+           This clears the is_temporary flag and saves, if necessary.
+           """
+        if self.is_temporary:
+            self.is_temporary = False
+            self.save()
+
+    def to_html(self):
+        # Currently this is used only by the change history browser.
+        return self.get_thumbnail(size=64).to_html()
+
     def __str__(self):
         original = self.get_original()
         s = "Image #%d (%dx%d)" % (self.id, original.width, original.height)
@@ -151,6 +163,10 @@ class ImageInstance(models.Model):
         except OSError:
             pass
         im.save(full_path)
+
+    def to_html(self):
+        return '<img src="%s" width="%d" height="%d" />' % (
+            self.get_url(), self.width, self.height)
 
 def remove_deleted_instance(instance):
     if instance.delete_file:

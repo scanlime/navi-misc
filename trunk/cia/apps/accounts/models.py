@@ -95,31 +95,53 @@ class Network(models.Model):
 
 
 class AssetChangesetManager(models.Manager):
-    def apply_changes(self, user, asset, changes={}, meta=()):
+    def _lookup_model(self, asset, field):
+        """Parse dotted fields, looking up their model instance.
+           Returns a (model, fieldname) tuple.
+           """
+        segments = field.split('.')
+        model = asset
+        for name in segments[:-1]:
+            model = getattr(model, name, None)
+            if model is None:
+                break
+        return model, segments[-1]
+
+    def apply_changes(self, user, asset, changes={}, meta=(), fieldmap={}):
         """Apply a dictionary of changes to an asset. If anything in
            fact changed, this will create a record of those changes
            and save the asset.
+
+           Fields may be present in the asset itself, or they may
+           be fields in related models specified using dot notation.
+           If the field names are not already in the right format,
+           they may be remapped using the 'fieldmap' dictionary.
 
            The optional 'meta' list contains a set of fields, with no
            data, to add to the changeset. This can be used to store
            ownership changes and other events which aren't directly
            represented by an asset's fields.
            """
+        changed_models = {}
+        new_changes = {}
+        previous = {}
 
         # Apply the changes while storing differences
-        previous = {}
         for field, new in changes.items():
-            p = getattr(asset, field, None)
-            if p == new:
-                del changes[field]
-            else:
+            field = fieldmap.get(field, field)
+            model, name = self._lookup_model(asset, field)
+
+            p = getattr(model, name, None)
+            if p != new:
                 previous[field] = p
-                setattr(asset, field, new)
+                new_changes[field] = new
+                changed_models[model] = True
+                setattr(model, name, new)
 
-        self.store_changes(user, asset, changes, meta, previous)
+        self.store_changes(user, asset, new_changes, meta, previous)
 
-        if changes:
-            asset.save()
+        for model in changed_models:
+            model.save()
 
     def store_changes(self, user, asset, changes={}, meta=(), previous={}):
         """Like apply_changes, but don't actually modify
@@ -215,9 +237,15 @@ class AssetChangeItem(models.Model):
 
     def get_field(self):
         """Return the Field instance corresponding to self.field"""
-        model = self.changeset.asset.__class__
-        for f in model._meta.fields:
-            if f.name == self.field:
+        model, name = AssetChangeset.objects._lookup_model(
+            self.changeset.asset, self.field)
+
+        # Drop an "_id" prefix automatically
+        if name.endswith("_id"):
+            name = name[:-3]
+
+        for f in model.__class__._meta.fields:
+            if f.name == name:
                 return f
 
     def get_description(self):
@@ -246,14 +274,21 @@ class AssetChangeItem(models.Model):
         """Format either the old or new value for display"""
         f = self.get_field()
 
+        # Is this a reference to an object that knows how to display itself?
+        if value and isinstance(f, models.ForeignKey):
+            model = f.rel.to
+            if hasattr(model, 'to_html'):
+                return model.objects.get(pk=value).to_html()
+
+        # Is this an enumeration of choices?
         if f and f.choices:
             try:
                 value = int(value)
             except ValueError:
                 pass
-            return dict(f.choices).get(value, value)
+            return escape(dict(f.choices).get(value, value))
 
-        return value
+        return escape(value)
 
     def _append_diff_lines(self, chunk, prefix, style, source):
         for line in source:
