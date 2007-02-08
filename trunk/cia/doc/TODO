@@ -8,11 +8,13 @@ There is a new web interface under development, using Django. It will eventually
 replace the old web interface entirely, but it's currently only used for managing
 user accounts and assets (such as bots, projects, and authors).
 
-- "Coming Soon" features:
+- Top priorities: abuse prevention
+
+  - Log the IP address each change was made from
 
   - Exclusive access
 
-  - The ability to revert changes from the change history page.
+  - The ability to revert changes from the change history page
 
 - Ruleset editor improvements:
 
