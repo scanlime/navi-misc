@@ -20,7 +20,7 @@ def login_required(view_func):
        parameter which we don't need yet.
        """
     def _checklogin(request, *args, **kwargs):
-        if request.user.is_authenticated():
+        if request.user.is_authenticated() and request.user.is_active:
             return view_func(request, *args, **kwargs)
         else:
             return HttpResponseRedirect(settings.LOGIN_URL)
