@@ -1,5 +1,11 @@
 2007-02-08  David Trowbridge  <trowbrds@gmail.com>
 
+	* data/setup-dialog.glade:
+	  - Set "activates default" on the last text entry box.  Give the
+	    dialog the xchat-gnome icon.  Bug #404793.
+
+2007-02-08  David Trowbridge  <trowbrds@gmail.com>
+
 	* src/fe-gnome/preferences.c:
 	* src/fe-gnome/preferences.h:
 	* src/fe-gnome/main-window.c:
