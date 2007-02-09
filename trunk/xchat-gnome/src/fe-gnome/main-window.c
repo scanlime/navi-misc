@@ -589,7 +589,7 @@ on_users_toggled (GtkToggleButton *widget, gpointer user_data)
 }
 
 void
-set_nickname (struct server *serv, char *newnick)
+set_nickname_label (struct server *serv, char *newnick)
 {
 	GtkLabel *label;
 

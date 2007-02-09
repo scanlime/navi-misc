@@ -1,5 +1,16 @@
 2007-02-08  David Trowbridge  <trowbrds@gmail.com>
 
+	* src/fe-gnome/preferences.c:
+	* src/fe-gnome/preferences.h:
+	* src/fe-gnome/main-window.c:
+	* src/fe-gnome/fe-gnome.c:
+	* src/fe-gnome/main-window.h:
+	* src/fe-gnome/setup-dialog.c:
+	  - Change nickname data in the xchat config file only when changed in
+	    the GUI, rather than every time the app starts.  Bug #396750.
+
+2007-02-08  David Trowbridge  <trowbrds@gmail.com>
+
 	* plugins/autoaway/autoaway.c:
 	  - Remove noisy print messages.  Bug #405847.
 

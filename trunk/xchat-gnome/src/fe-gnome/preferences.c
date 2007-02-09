@@ -28,7 +28,6 @@
 #include "../common/xchat.h"
 #include "../common/xchatc.h"
 
-static void set_nickname       (const gchar *text);
 static void nickname_changed   (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data);
 static void realname_changed   (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data);
 static void awaymsg_changed    (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data);
@@ -67,11 +66,6 @@ load_preferences (void)
 
 	client = gconf_client_get_default ();
 
-	text = gconf_client_get_string (client, "/apps/xchat/irc/nickname", NULL);
-	if (text) {
-		set_nickname (text);
-		g_free (text);
-	}
 	gconf_client_notify_add (client, "/apps/xchat/irc/nickname", nickname_changed, NULL, NULL, NULL);
 
 	text = gconf_client_get_string (client, "/apps/xchat/irc/realname", NULL);
@@ -124,13 +118,16 @@ void set_version (void)
 	g_object_unref (client);
 }
 
-static void
+void
 set_nickname (const gchar *text)
 {
-	gchar *text2;
+	if (NULL == text) {
+		return;
+	}
 
 	strcpy (prefs.nick1, text);
 
+	gchar *text2;
 	text2 = g_strdup_printf ("%s_", text);
 	strcpy (prefs.nick2, text2);
 	g_free (text2);
@@ -144,10 +141,8 @@ static void
 nickname_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data)
 {
 	gchar *text = gconf_client_get_string (client, "/apps/xchat/irc/nickname", NULL);
-	if (text) {
-		set_nickname (text);
-		g_free (text);
-	}
+	set_nickname (text);
+	g_free (text);
 }
 
 static void

@@ -27,6 +27,7 @@
 #include <string.h>
 #include "setup-dialog.h"
 #include "util.h"
+#include "preferences.h"
 
 static GladeXML *xml = NULL;
 static gboolean done;
@@ -82,16 +83,12 @@ void run_setup_dialog (void)
 static void
 ok_clicked (GtkButton *button, gpointer data)
 {
-	GtkWidget *nick_entry, *real_entry;
-	const gchar *nick, *real;
-	GConfClient *client;
+	GtkWidget *nick_entry = glade_xml_get_widget (xml, "nick name entry");
+	GtkWidget *real_entry = glade_xml_get_widget (xml, "real name entry");
+	const gchar *nick = gtk_entry_get_text (GTK_ENTRY (nick_entry));
+	const gchar *real = gtk_entry_get_text (GTK_ENTRY (real_entry));
 
-	nick_entry = glade_xml_get_widget (xml, "nick name entry");
-	real_entry = glade_xml_get_widget (xml, "real name entry");
-	nick = gtk_entry_get_text (GTK_ENTRY (nick_entry));
-	real = gtk_entry_get_text (GTK_ENTRY (real_entry));
-
-	client = gconf_client_get_default ();
+	GConfClient *client = gconf_client_get_default ();
 
 	gconf_client_set_string (client, "/apps/xchat/irc/nickname", nick, NULL);
 	gconf_client_set_string (client, "/apps/xchat/irc/realname", real, NULL);
@@ -99,6 +96,12 @@ ok_clicked (GtkButton *button, gpointer data)
 	gconf_client_set_string (client, "/apps/xchat/version", PACKAGE_VERSION, NULL);
 
 	g_object_unref (client);
+
+	/*
+	 * We set the alternative nicknames here, so that people editing the
+	 * config file can override them.
+	 */
+	set_nickname(nick);
 
 	done = TRUE;
 }
