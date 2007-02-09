@@ -112,7 +112,7 @@ def add_bot(request, asset_type):
 
             # Record these changes
             models.AssetChangeset.objects.store_changes(
-                user = request.user,
+                request = request,
                 asset = bot,
                 meta = meta,
                 changes = changes,
@@ -210,7 +210,7 @@ def bot(request, asset_type, asset_id):
             meta.append('_lost_access')
 
         models.AssetChangeset.objects.apply_changes(
-            user = request.user,
+            request = request,
             asset = bot,
             changes = form.EditBotForm.clean_data,
             meta = meta,
