@@ -650,7 +650,7 @@ fe_set_nonchannel (struct session *sess, int state)
 void
 fe_set_nick (struct server *serv, char *newnick)
 {
-	set_nickname (serv, newnick);
+	set_nickname_label (serv, newnick);
 }
 
 void
@@ -1122,7 +1122,7 @@ fe_set_current (session *sess)
 	}
 
 	// Set nickname button
-	set_nickname (sess->server, NULL);
+	set_nickname_label (sess->server, NULL);
 
 	// Set the label of the user list button
 	userlist_set_user_button (u, sess);
