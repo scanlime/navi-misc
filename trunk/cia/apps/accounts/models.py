@@ -107,7 +107,7 @@ class AssetChangesetManager(models.Manager):
                 break
         return model, segments[-1]
 
-    def apply_changes(self, user, asset, changes={}, meta=(), fieldmap={}):
+    def apply_changes(self, request, asset, changes={}, meta=(), fieldmap={}):
         """Apply a dictionary of changes to an asset. If anything in
            fact changed, this will create a record of those changes
            and save the asset.
@@ -138,12 +138,12 @@ class AssetChangesetManager(models.Manager):
                 changed_models[model] = True
                 setattr(model, name, new)
 
-        self.store_changes(user, asset, new_changes, meta, previous)
+        self.store_changes(request, asset, new_changes, meta, previous)
 
         for model in changed_models:
             model.save()
 
-    def store_changes(self, user, asset, changes={}, meta=(), previous={}):
+    def store_changes(self, request, asset, changes={}, meta=(), previous={}):
         """Like apply_changes, but don't actually modify
            the asset and don't prune anything from 'changes'.
            If no dictionary of previous values is provided,
@@ -156,7 +156,8 @@ class AssetChangesetManager(models.Manager):
 
         # Create the changeset
         cset = self.create(
-            user = user,
+            user = request.user,
+            remote_addr = request.META.get('REMOTE_ADDR'),
             content_type = ContentType.objects.get_for_model(asset.__class__),
             object_id = asset.id,
             )
@@ -188,6 +189,7 @@ class AssetChangeset(models.Model):
 
     time = models.DateTimeField(auto_now_add=True, db_index=True)
     user = models.ForeignKey(User)
+    remote_addr = models.CharField(maxlength=32, null=True)
 
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField(db_index=True)

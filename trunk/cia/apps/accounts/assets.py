@@ -264,7 +264,7 @@ def stats_asset(request, asset_type, asset_id):
             meta.append('_lost_access')
 
         models.AssetChangeset.objects.apply_changes(
-            user = request.user,
+            request = request,
             asset = asset,
             changes = form.StatsMetadataForm.clean_data,
             meta = meta,
@@ -335,7 +335,7 @@ def add_stats_asset(request, asset_type, prefix, template):
 
             # Record these changes
             models.AssetChangeset.objects.store_changes(
-                user = request.user,
+                request = request,
                 asset = asset,
                 meta = meta,
                 )

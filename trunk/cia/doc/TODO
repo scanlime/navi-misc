@@ -10,8 +10,6 @@ user accounts and assets (such as bots, projects, and authors).
 
 - Top priorities: abuse prevention
 
-  - Log the IP address each change was made from
-
   - Exclusive access
 
   - The ability to revert changes from the change history page

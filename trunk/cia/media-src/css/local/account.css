@@ -176,6 +176,15 @@ p.narrow {
   font-size: 0.8em;
 }
 
+p.warning {
+  width: 40em;
+  font-size: 0.8em;
+  padding: 4px;
+  background: #fcc;
+  border: 1px solid #f88;
+  color: #800;
+}
+
 .message p {
   margin: 0 0 0 24px;
 }
