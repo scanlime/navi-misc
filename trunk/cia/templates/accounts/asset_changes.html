@@ -5,7 +5,7 @@
       #{{ changeset.id }}{% if changeset.remote_addr %}, from {{ changeset.remote_addr }}{% endif %}
     </span>
     <img src="/media/img/person-16-eee.png" width="16" height="16" />
-    <span class="person">{{ changeset.user.get_full_name|escape }}</span>
+    <span class="person{% if not changeset.user.is_active %} deleted-account{% endif %}">{{ changeset.user.get_full_name|escape }}</span>
     on <span class="timestamp">{{ changeset.time|date:"Y-m-d @ H:i T"  }}</span>
   </p>
   <ul class="change-items">

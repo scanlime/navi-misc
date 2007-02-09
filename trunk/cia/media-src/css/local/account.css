@@ -481,6 +481,10 @@ legend {
   font-weight: bold;
 }
 
+#changesets .deleted-account {
+  text-decoration: line-through;
+}
+
 #changesets img {
   vertical-align: middle;
 }
