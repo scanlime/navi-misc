@@ -161,7 +161,6 @@ timeout_cb (gpointer user_data)
 	switch (state) {
 		case STATE_ACTIVE:
 			if (get_screensaver_active ()) {
-				xchat_print (ph, _("Screensaver activated, going away."));
 				set_away ();
 				state = STATE_AWAY;
 			}
@@ -169,7 +168,6 @@ timeout_cb (gpointer user_data)
 
 		case STATE_AWAY:
 			if (get_screensaver_active () == FALSE) {
-				xchat_print (ph, _("Screensaver is off, welcome back"));
 				come_back ();
 				state = STATE_ACTIVE;
 			}
@@ -244,8 +242,6 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 	screensaver_type = get_screensaver_type ();
 
 	/* All done */
-	xchat_printf (ph, "Auto-away plugin %s loaded (using %s screensaver)\n", AUTOAWAY_VERSION,
-	              screensaver_type == SS_GNOME ? "GNOME" : screensaver_type == SS_X11 ? "X11" : "no");
 
 	/* FIXME: Perhaps return FALSE if we failed to find a running screensaver? */
 	return TRUE;
@@ -264,6 +260,5 @@ xchat_plugin_deinit (void)
 	close_gs_connection ();
 
 	xchat_set_context (ph, xchat_find_context (ph, NULL, NULL));
-	xchat_print (ph, _("Auto-away plugin unloaded\n"));
 	return TRUE;
 }
