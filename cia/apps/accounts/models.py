@@ -304,8 +304,8 @@ class AssetChangeItem(models.Model):
         """Compute a diff between old and new values, and return a sequence
            of dictionaries with 'text' and 'style' keys.
            """
-        a = (self.old_value or '').rstrip().split("\n")
-        b = (self.new_value or '').rstrip().split("\n")
+        a = (self.old_value or '').split("\n")
+        b = (self.new_value or '').split("\n")
 
         chunks = []
         for group in difflib.SequenceMatcher(None,a,b).get_grouped_opcodes(context):
