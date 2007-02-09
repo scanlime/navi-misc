@@ -1,3 +1,8 @@
+2007-02-08  David Trowbridge  <trowbrds@gmail.com>
+
+	* plugins/autoaway/autoaway.c:
+	  - Remove noisy print messages.  Bug #405847.
+
 2007-02-05  David Trowbridge  <trowbrds@gmail.com>
 
 	* plugins/python/CVS/Entries:
