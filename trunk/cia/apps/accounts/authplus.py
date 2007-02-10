@@ -72,6 +72,20 @@ def login(request, next_page, template_name="accounts/login.html"):
 #     Lost Password       #
 ###########################
 
+def get_email_for_user(user):
+    """Sanitize the user's name for inclusion in an RFC822 header,
+       and combine that with the user's registered e-mail address.
+       """
+    full_name = re.sub("[!<>@:;\\\\'\"\[\]\r\n\t]", "", user.get_full_name().strip())
+    return "%s <%s>" % (full_name, user.email)
+
+def render_to_email(template_name, context):
+    """Render a template, splitting the result into subject and message.
+       The first non-blank line is taken as the message's subject.
+       """
+    subject, message = loader.render_to_string(template_name, context).lstrip().split("\n", 1)
+    return subject.strip(), message.strip()
+
 def send_mail_to_user(user, template_name, **context_dict):
     """Send a single email message to a registered user. This formats their
        email address using their full name, and automatically treats the
@@ -81,13 +95,8 @@ def send_mail_to_user(user, template_name, **context_dict):
        """
     context = Context(context_dict)
     context['user'] = user
-    subject, message = loader.render_to_string(template_name, context).lstrip().split("\n", 1)
-    subject = subject.strip()
-    message = message.strip()
-
-    # Sanitize the user's name for inclusion in an RFC822 header
-    full_name = re.sub("[!<>@:;\\\\'\"\[\]\r\n\t]", "", user.get_full_name().strip())
-    send_mail(subject, message, None, ["%s <%s>" % (full_name, user.email)])
+    subject, message = render_to_email(template_name, context)
+    send_mail(subject, message, None, [get_email_for_user(user)])
 
 def lost(request, next_page, recovery_page):
     error = None

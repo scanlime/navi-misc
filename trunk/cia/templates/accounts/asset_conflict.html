@@ -10,9 +10,11 @@
   </p>
 
   <p class="narrow">
-  If you would like to challenge this ownership claim, use the
-  form below to send a message to the {{ asset_type_name }}'s
+  If you would like to challenge this ownership claim, use the form
+  below to send an e-mail message to the {{ asset_type_name }}'s
   current owner. A moderator will also receive a copy of the message.
+  The recipients will be able to reply to the e-mail address specified
+  in <a href="/account/">your profile</a>.
   </p>
 {% endblock %}
 
@@ -25,12 +27,8 @@
     {% endif %}
   </div>
 
-  <div class="form-row">
-    {{ form.include_reply_email }}
-  </div>
-
   <div class="submit-row">
-    <div>&raquo;</div> <input type="submit" value="Send Message" />
+    <div>&raquo;</div> <input type="submit" value="Send Message" {% if disable_submit %}disabled="1"{% endif %} />
   </div>
 </form>
 {% endblock %}

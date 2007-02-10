@@ -82,6 +82,9 @@ class UserAsset(models.Model):
             self.asset,
             self.user)
 
+    def get_asset_type_verbose_name(self):
+        return self.content_type.model_class()._meta.verbose_name
+
     class Admin:
         pass
 

@@ -1,7 +1,6 @@
 from cia.apps.accounts import models, assets, authplus, formtools
 from django import newforms as forms
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
