@@ -17,7 +17,7 @@
    version="1.0"
    sodipodi:docbase="/home/micah/cia/media-src/img"
    sodipodi:docname="lock.svg"
-   inkscape:export-filename="/home/micah/cia/media/img/lock-10-fe8.png"
+   inkscape:export-filename="/home/micah/cia/media/img/lock-10.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -108,7 +108,7 @@
   </defs>
   <sodipodi:namedview
      id="base"
-     pagecolor="#fe8"
+     pagecolor="white"
      bordercolor="#666666"
      borderopacity="1.0"
      gridtolerance="10000"
@@ -116,7 +116,7 @@
      objecttolerance="10"
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
-     inkscape:zoom="32"
+     inkscape:zoom="1"
      inkscape:cx="12.687085"
      inkscape:cy="5.2439567"
      inkscape:document-units="px"
@@ -183,14 +183,18 @@
      id="layer2"
      inkscape:label="new"
      style="display:inline">
-    <path
-       style="fill:url(#linearGradient3052);fill-opacity:1;fill-rule:evenodd;stroke:black;stroke-width:0.74969667px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 1.4164824,5.6251517 C 1.4164824,5.6251517 0.71369984,0.36089747 5.0829388,0.39122136 C 9.5663278,0.42220281 8.7114011,5.6251517 8.7114011,5.6251517 L 6.8876712,5.5299894 C 6.8876712,5.5299894 7.4582706,2.1235345 5.0829388,2.1231765 C 2.6708142,2.1228131 3.240212,5.6251517 3.240212,5.6251517 L 1.4164824,5.6251517 z "
-       id="path2129"
-       sodipodi:nodetypes="csccscc" />
-    <path
-       style="fill:url(#linearGradient3044);fill-opacity:1;fill-rule:evenodd;stroke:black;stroke-width:0.82840186px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 0.41420093,9.5857991 L 0.41420093,4.4142009 L 9.5857991,4.4142009 L 9.5857991,9.5857991 L 0.41420093,9.5857991 z "
-       id="path2127" />
+    <g
+       id="g1973"
+       style="opacity:0.5">
+      <path
+         sodipodi:nodetypes="csccscc"
+         id="path2129"
+         d="M 1.4164824,5.6251517 C 1.4164824,5.6251517 0.71369984,0.36089747 5.0829388,0.39122136 C 9.5663278,0.42220281 8.7114011,5.6251517 8.7114011,5.6251517 L 6.8876712,5.5299894 C 6.8876712,5.5299894 7.4582706,2.1235345 5.0829388,2.1231765 C 2.6708142,2.1228131 3.240212,5.6251517 3.240212,5.6251517 L 1.4164824,5.6251517 z "
+         style="fill:url(#linearGradient3052);fill-opacity:1;fill-rule:evenodd;stroke:black;stroke-width:0.74969667px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         id="path2127"
+         d="M 0.41420093,9.5857991 L 0.41420093,4.4142009 L 9.5857991,4.4142009 L 9.5857991,9.5857991 L 0.41420093,9.5857991 z "
+         style="fill:url(#linearGradient3044);fill-opacity:1;fill-rule:evenodd;stroke:black;stroke-width:0.82840186px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    </g>
   </g>
 </svg>
