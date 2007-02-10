@@ -222,6 +222,51 @@ def changes(request, asset_type, asset_id, page_number, num_per_page=10):
         }
 
 
+class ConflictForm(forms.Form):
+    message = forms.CharField(widget=forms.Textarea)
+    include_reply_email = forms.BooleanField(
+        required = False,
+        initial = True,
+        widget = forms.CheckboxInput(attrs = {'class': 'checkbox'}),
+        )
+
+@authplus.login_required
+def conflict(request, asset_type, asset_id):
+    """Asset conflict resolution. We redirect to this page when an
+       'add asset' page encounters an exclusive access restriction.
+       This informs the user of the situation, and gives them an
+       opportunity to complain.
+       """
+    model = get_asset_by_type(asset_type)
+    ctx = get_asset_add_context(request, asset_type)
+    try:
+        asset = model.objects.get(pk=int(asset_id))
+    except model.DoesNotExist:
+        raise Http404
+
+    # Find the exclusive owner of this asset. If there is none, this
+    # page is not valid: return a 404.
+    try:
+        owner_ua = asset.assets.get(access__gte = models.ACCESS.EXCLUSIVE)
+    except models.UserAsset.DoesNotExist:
+        raise Http404
+
+    form = ConflictForm(request.POST)
+    if request.POST:
+        form.full_clean()
+        if form.is_valid():
+            #send_conflict_message(request, asset, owner_ua, form.clean_data['message'])
+            request.user.message_set.create(message="Message sent.")
+    
+    ctx.update({
+        'form': form,
+        'asset': asset,
+        'owner_ua': owner_ua,
+        })
+    return render_to_response(('accounts/%s_conflict.html' % model._meta.object_name.lower(),
+                               'accounts/asset_conflict.html'), RequestContext(request, ctx))
+
+
 ###########################
 #      Stats Assets       #
 ###########################
