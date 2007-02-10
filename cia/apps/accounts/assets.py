@@ -3,9 +3,10 @@ from cia.apps.api.util import json_result
 from cia.apps.images.widgets import ImageWidget
 from cia.apps.stats.models import StatsTarget
 from django.core.paginator import ObjectPaginator
+from django.core.mail import mail_managers, send_mail
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response
-from django.template.context import RequestContext
+from django.template.context import RequestContext, Context
 from django.contrib.contenttypes.models import ContentType
 import django.newforms as forms
 from django.template import loader
@@ -222,13 +223,23 @@ def changes(request, asset_type, asset_id, page_number, num_per_page=10):
         }
 
 
+def send_conflict_message(request, user_asset, message):
+    """Send an e-mail message for conflict resolution purposes.
+       The disputed user_asset must be provided, as well as a message
+       to be sent to that user_asset's owner. A customized moderator
+       message will be sent to all managers.
+       """
+    ctx = Context(locals())
+    
+    subject, message = authplus.render_to_email("accounts/conflict_mail_managers.txt", ctx)
+    mail_managers(subject, message)
+
+    subject, message = authplus.render_to_email("accounts/conflict_mail_user.txt", ctx)
+    send_mail(subject, message, authplus.get_email_for_user(request.user),
+              [authplus.get_email_for_user(user_asset.user)])
+
 class ConflictForm(forms.Form):
     message = forms.CharField(widget=forms.Textarea)
-    include_reply_email = forms.BooleanField(
-        required = False,
-        initial = True,
-        widget = forms.CheckboxInput(attrs = {'class': 'checkbox'}),
-        )
 
 @authplus.login_required
 def conflict(request, asset_type, asset_id):
@@ -237,6 +248,7 @@ def conflict(request, asset_type, asset_id):
        This informs the user of the situation, and gives them an
        opportunity to complain.
        """
+    disable_submit = False
     model = get_asset_by_type(asset_type)
     ctx = get_asset_add_context(request, asset_type)
     try:
@@ -250,15 +262,20 @@ def conflict(request, asset_type, asset_id):
         owner_ua = asset.assets.get(access__gte = models.ACCESS.EXCLUSIVE)
     except models.UserAsset.DoesNotExist:
         raise Http404
+    assert owner_ua.asset == asset
 
     form = ConflictForm(request.POST)
     if request.POST:
         form.full_clean()
         if form.is_valid():
-            #send_conflict_message(request, asset, owner_ua, form.clean_data['message'])
+            send_conflict_message(request, owner_ua, form.clean_data['message'])
             request.user.message_set.create(message="Message sent.")
+
+            # Make it less convenient to send a bunch of rapid-fire messages
+            disable_submit = True
     
     ctx.update({
+        'disable_submit': disable_submit,
         'form': form,
         'asset': asset,
         'owner_ua': owner_ua,

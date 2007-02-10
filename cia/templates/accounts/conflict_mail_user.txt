@@ -1,0 +1,20 @@
+Ownership conflict over CIA {{ user_asset.get_asset_type_verbose_name }}
+
+{% filter wordwrap:"60" %}
+This is an automatically generated mail, sent by the CIA web site (http://cia.navi.cx).
+
+You are receiving this message because you are registered as the exclusive owner of a CIA {{ user_asset.get_asset_type_verbose_name }}, and another user is challenging your exclusive ownership.
+
+The {{ user_asset.get_asset_type_verbose_name }} in question is {{ user_asset.asset }}. Its ownership is being challenged by {{ request.user.get_full_name }}. You can verify your settings for this {{ user_asset.get_asset_type_verbose_name }} by visiting your CIA account:
+
+  http://cia.navi.cx/account/
+
+{{ request.user.get_full_name }} has composed the following message for you. You can reply by replying to this email.
+
+-----------------
+{{ message }}
+-----------------
+
+-
+The CIA Team
+{% endfilter %}
