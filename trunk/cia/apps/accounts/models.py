@@ -21,7 +21,49 @@ access_choices = (
     (ACCESS.TRUSTED,    'Trusted'),
     )
 
+class UserAssetManager(models.Manager):
+    def get_or_create_if_allowed(self, user, asset, meta):
+        """If the user already owns the given asset instance, return
+           the matching UserAsset instance. If not, this might create
+           a new UserAsset.
+
+           A new UserAsset will only be created if the user is allowed
+           to have access to the asset in question. If the user is not
+           allowed, this function will return None and the caller can
+           redirect to a conflict resolution page.
+
+           If a new UserAsset was created, the provided 'meta' list
+           will be populated with a special changeset field indicating
+           the operation that was performed.
+           """
+        # Is there already an exclusive owner?
+        try:
+            exclusive_ua = self.get(
+                content_type = ContentType.objects.get_for_model(asset.__class__),
+                object_id = asset.id,
+                access__gte = ACCESS.EXCLUSIVE,
+                )
+            if exclusive_ua.user == user:
+                # We're already the exclusive owner
+                return exclusive_ua
+            else:
+                # Someone else owns it
+                return None
+        except UserAsset.DoesNotExist:
+            pass
+
+        user_asset, created_user_asset = self.get_or_create(
+            user = user,
+            content_type = ContentType.objects.get_for_model(asset.__class__),
+            object_id = asset.id,
+            )
+        if created_user_asset:
+            meta.append('_gained_access')
+        return user_asset
+
 class UserAsset(models.Model):
+    objects = UserAssetManager()
+    
     user = models.ForeignKey(User)
 
     content_type = models.ForeignKey(ContentType)
@@ -109,8 +151,8 @@ class AssetChangesetManager(models.Manager):
 
     def apply_changes(self, request, asset, changes={}, meta=(), fieldmap={}):
         """Apply a dictionary of changes to an asset. If anything in
-           fact changed, this will create a record of those changes
-           and save the asset.
+           fact changed, this will create a record of those changes,
+           save the asset(s), and present a message to the user.
 
            Fields may be present in the asset itself, or they may
            be fields in related models specified using dot notation.
@@ -137,6 +179,10 @@ class AssetChangesetManager(models.Manager):
                 new_changes[field] = new
                 changed_models[model] = True
                 setattr(model, name, new)
+
+        if new_changes:
+            request.user.message_set.create(
+                message = "Your %s was updated successfully." % model.__class__._meta.verbose_name)
 
         self.store_changes(request, asset, new_changes, meta, previous)
 
@@ -200,10 +246,12 @@ class AssetChangeset(models.Model):
 
 
 special_changes = {
-    '_created':       ('/media/img/added-16.png',   "created"),
-    '_gained_access': ('/media/img/added-16.png',   "gained access"),
-    '_lost_access':   ('/media/img/removed-16.png', "lost access"),
-    None:             ('/media/img/pencil-16.png',  "other change"),
+    '_created':            ('/media/img/added-16.png',   "created"),
+    '_gained_access':      ('/media/img/added-16.png',   "gained access"),
+    '_lost_access':        ('/media/img/removed-16.png', "lost access"),
+    '_exclusive_access':   ('/media/img/added-16.png',   "gained exclusive access"),
+    '_community_access':   ('/media/img/removed-16.png', "lost exclusive access"),
+    None:                  ('/media/img/pencil-16.png',  "other change"),
     }
 
 class AssetChangeItem(models.Model):

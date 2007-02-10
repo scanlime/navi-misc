@@ -1,4 +1,5 @@
 {% extends 'accounts/asset_base.html' %}
+{% load account_nav %}
 
 {% block scripts %}
   {{ block.super }}
@@ -32,44 +33,56 @@
       <h2 class="tabset_label">Ownership</h2>
 
       <div class="form-row">
-	{{ levels.NONE }}
-	<div class="radio">
-	  <p class="note">
-	    Remove this {{ asset_type_name }} from your inventory.
-	    The {{ asset_type_name }} and its change history will continue
-	    to exist. You or another user may reclaim this {{ asset_type_name }} later.
-	  </p>
-	</div>
+        {{ levels.NONE }}
+        <div class="radio">
+          <p class="note">
+            Remove this {{ asset_type_name }} from your inventory.
+            The {{ asset_type_name }} and its change history will continue
+            to exist. You or another user may reclaim this {{ asset_type_name }} later.
+          </p>
+        </div>
       </div>
 
       <div class="form-row">
-	{{ levels.COMMUNITY }}
-	<div class="radio">
-	  <p class="note">
-	    Anyone can add this {{ asset_type_name }} to their inventory, and
-	    anyone can change its settings. This {{ asset_type_name }} keeps a
-	    permanent change history. Any changes can be audited and, if necessary,
-	    reverted.
-	  </p>
-	</div>
+        {{ levels.COMMUNITY }}
+        <div class="radio">
+          <p class="note">
+            Anyone can add this {{ asset_type_name }} to their inventory, and
+            anyone can change its settings. This {{ asset_type_name }} keeps a
+            permanent change history. Any changes can be audited and, if necessary,
+            reverted.
+          </p>
+        </div>
       </div>
 
       <div class="form-row">
-	<label class="radio"><input value="2" type="radio" class="radio" name="access" id="id_access_2" disabled="1" /> Exclusive access</label>
-	<div class="radio">
-	  <p class="note">
-	    You have total control over this {{ asset_type_name }}. Only one person
-	    may claim exclusive access for a single {{ asset_type_name }}. You may choose
-	    whether or not to allow other users to edit this {{ asset_type_name }}.
-	  </p>
-	  <p class="note">
-	    By selecting exclusive access for this {{ asset_type_name }} you agree to
-	    allow us to e-mail you in the event of an ownership dispute.
-	  </p>
-	  <p class="note">
-	    (Coming soon)
-	  </p>
-	</div>
+        {{ levels.EXCLUSIVE }}
+        <div class="radio">
+          <p class="note">
+            You have total control over this {{ asset_type_name }}. Only one person
+            may claim exclusive access for a single {{ asset_type_name }}. You may choose
+            whether or not to allow other users to edit this {{ asset_type_name }}.
+          </p>
+          {% if other_community_user_assets %}
+            <p class="note">
+	      <strong>Other people currently have community-level access to this {{ asset_type_name }}.</strong>
+              If you select exclusive access for {{ user_asset.asset|capfirst }}, these people
+	      will have their access revoked:
+              <ul class="person-list">
+                {% for userasset in other_community_user_assets|dictsort:"user" %}
+                  <li>
+                    <span class="change-detail">Access since {{ userasset.date_added|date:"Y-m-d @ H:i T" }}</span>
+                    {% person userasset.user %}
+                  </li>
+                {% endfor %}
+              </ul>
+            </p>
+          {% endif %}
+          <p class="note">
+            By selecting exclusive access for this {{ asset_type_name }}, you agree to
+            allow us to e-mail you in the event of an ownership dispute.
+          </p>
+        </div>
       </div>
     </div>
 
@@ -85,11 +98,15 @@
 
     <div class="unlabeled"> <div class="submit-row">
       <div>&raquo;</div> <input type="submit" value="Save" />
-      <p class="warning">
-         <strong>Please be considerate when submitting changes.</strong>
-	 Your IP address will be logged publicly,
-	 and vandalism will not be tolerated.
-      </p>
+
+      {% ifequal user_asset.access ACCESS.COMMUNITY %}
+        <p class="warning">
+           This is a community-owned {{ asset_type_name }}.
+           <em>Please be considerate when submitting changes.</em>
+           Your IP address will be logged publicly,
+           and vandalism will not be tolerated.
+        </p>
+      {% endifequal %}
     </div></div>
 
   </form>

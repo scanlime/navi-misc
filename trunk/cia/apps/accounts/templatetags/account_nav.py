@@ -21,3 +21,7 @@ def paren(value):
     if value:
         return '(%s)' % value
     return ''
+
+@register.inclusion_tag('accounts/person.html')
+def person(user):
+    return {'user': user}
