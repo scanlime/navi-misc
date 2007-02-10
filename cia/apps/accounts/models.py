@@ -185,7 +185,7 @@ class AssetChangesetManager(models.Manager):
 
         if new_changes:
             request.user.message_set.create(
-                message = "Your %s was updated successfully." % model.__class__._meta.verbose_name)
+                message = "Your %s was updated successfully." % asset.__class__._meta.verbose_name)
 
         self.store_changes(request, asset, new_changes, meta, previous)
 
