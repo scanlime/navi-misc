@@ -1,0 +1,2 @@
+<img class="person" src="/media/img/person-16-eee.png" width="16" height="16" />
+<span class="person{% if not user.is_active %} deleted-account{% endif %}">{{ user.get_full_name|escape }}</span>

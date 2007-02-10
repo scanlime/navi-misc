@@ -180,9 +180,9 @@ p.warning {
   width: 40em;
   font-size: 0.8em;
   padding: 4px;
-  background: #fcc;
-  border: 1px solid #f88;
-  color: #800;
+  background: #fff0f0;
+  border: 1px solid #fbb;
+  color: #600;
 }
 
 .message p {
@@ -466,7 +466,12 @@ legend {
   border: 1px solid #aaa;
 }
 
-#changesets .number {
+#changesets img {
+  vertical-align: middle;
+}
+
+/* This is also used within person-lists */
+span.change-detail {
   float: right;
   color: #888;
   font-weight: bold;
@@ -477,16 +482,8 @@ legend {
   padding: 0 0 0.5em 0;
 }
 
-#changesets .person {
-  font-weight: bold;
-}
-
 #changesets .deleted-account {
   text-decoration: line-through;
-}
-
-#changesets img {
-  vertical-align: middle;
 }
 
 #changesets .change-items {
@@ -523,4 +520,29 @@ legend {
 .diff-prefix {
   font-weight: bold;
   color: #666;
+}
+
+ul.person-list {
+  list-style-type: none;
+  font-size: 0.8em;
+  margin: 0;
+  padding: 0;
+  background: #eee;
+  border-top: 1px solid #aaa;
+  border-left: 1px solid #aaa;
+  border-right: 1px solid #aaa;
+}
+
+ul.person-list li {
+  padding: 2px;
+  margin: 0;
+  border-bottom: 1px solid #aaa;
+}  
+
+img.person {
+  vertical-align: middle;
+}
+
+span.person {
+  font-weight: bold;
 }
