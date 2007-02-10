@@ -14,11 +14,16 @@
 
     {% block user_assets %}
       {% for user_asset in user_assets|dictsort:"asset.__str__" %}
-	{% ifequal user_asset.id asset_id %}
-	  <li class="active">{{ user_asset.asset }}</li>
-	{% else %}
-	  <li><a href="/account/{{ asset_type }}/{{ user_asset.id }}/">{{ user_asset.asset }}</a></li>
-	{% endifequal %}
+	{% ifequal user_asset.id asset_id %} <li class="active"> {% else %} <li><a href="/account/{{ asset_type }}/{{ user_asset.id }}/"> {% endifequal %}
+
+        {{ user_asset.asset }}
+
+	{% ifequal user_asset.access ACCESS.EXCLUSIVE %}
+          <img src="/media/img/lock-10{% ifequal user_asset.id asset_id %}-fe8{% endifequal %}.png"
+               width="10" height="10" alt="Exclusive access" title="Exclusive access" />
+        {% endifequal %}
+
+        {% ifequal user_asset.id asset_id %} </li> {% else %} </a></li> {% endifequal %}
       {% endfor %}
     {% endblock %}
   </ul>
