@@ -8,12 +8,10 @@ EXTRA_DIST =			\
 	intltool-merge.in	\
 	intltool-update.in
 
-CLEANFILES =			\
+DISTCLEANFILES =		\
 	intltool-extract	\
 	intltool-merge		\
-	intltool-update
-
-DISTCLEANFILES =		\
+	intltool-update		\
 	gnome-doc-utils.make
 
 DISTCHECK_CONFIGURE_FLAGS = \
