@@ -546,3 +546,12 @@ img.person {
 span.person {
   font-weight: bold;
 }
+
+#message-composer textarea {
+  width: 40em;
+  height: 20em;
+  background: #f0f0f0;
+  border: 1px solid #aaa;
+  padding: 0;
+  margin: 0;
+}

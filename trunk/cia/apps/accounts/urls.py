@@ -40,4 +40,5 @@ urlpatterns = patterns('',
     (r'^(?P<asset_type>(projects|authors))/(?P<asset_id>\d+)/$', assets.stats_asset),
 
     (r'^changes/(?P<asset_type>[a-z]+)/(?P<asset_id>\d+)/page(?P<page_number>\d+)/$', assets.changes),
+    (r'^conflict/(?P<asset_type>[a-z]+)/(?P<asset_id>\d+)/$', assets.conflict),
 )
