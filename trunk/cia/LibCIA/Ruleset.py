@@ -202,6 +202,10 @@ class Ruleset(XML.XMLFunction):
            it's the root node it's responsible for initializing and returning
            the ruleset's result.
            """
+        if element is not self.xml.documentElement:
+            raise XML.XMLValidityError("The <ruleset> element must only occur at the document " +
+                                       "root. Use <rule> to create nested rules.")
+        
         # Go ahead and store the URI attribute if we have one.
         # If not, this will be None.
         self.uri = element.getAttributeNS(None, 'uri') or None
