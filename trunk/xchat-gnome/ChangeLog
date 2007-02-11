@@ -1,5 +1,12 @@
 2007-02-10  David Trowbridge  <trowbrds@gmail.com>
 
+	* src/common/cfgfiles.c:
+	* src/fe-gnome/preferences.c:
+	* src/fe-gnome/preferences.h:
+	  - Use a better download directory.  Bug #363661.
+
+2007-02-10  David Trowbridge  <trowbrds@gmail.com>
+
 	* src/fe-gnome/preferences.c:
 	  - Tighten things up a bit more.
 
