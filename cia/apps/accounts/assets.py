@@ -9,6 +9,7 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext, Context
 from django.contrib.contenttypes.models import ContentType
 import django.newforms as forms
+from django.newforms.util import smart_unicode
 from django.template import loader
 
 
@@ -216,11 +217,11 @@ def changes(request, asset_type, asset_id, page_number, num_per_page=10):
     return {
         'remaining': paginator.hits - paginator.last_on_page(page_number),
 
-        'html': loader.render_to_string(
+        'html': smart_unicode(loader.render_to_string(
             'accounts/asset_changes.html',
             RequestContext(request, {
                 'changesets': paginator.get_page(page_number),
-            })),
+            }))),
         }
 
 
