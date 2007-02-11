@@ -406,7 +406,7 @@ class Project(models.Model):
     target = models.ForeignKey(StatsTarget)
 
     def __str__(self):
-        return str(self.target)
+        return unicode(self.target)
 
     class Admin:
         pass
