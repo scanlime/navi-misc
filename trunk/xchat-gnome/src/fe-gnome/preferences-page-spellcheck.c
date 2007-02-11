@@ -277,9 +277,9 @@ preferences_page_spellcheck_dispose (GObject *object)
 		g_object_unref (page->spellcheck_store);
 		page->spellcheck_store = NULL;
 	}
- 
+
 	G_OBJECT_CLASS (preferences_page_spellcheck_parent_class)->dispose (object);
-}	
+}
 
 static void
 preferences_page_spellcheck_finalize (GObject *object)

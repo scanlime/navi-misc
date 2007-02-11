@@ -193,7 +193,7 @@ channel_list_window_list_showed (ChannelListWindow *win)
 	width  = gconf_client_get_int (client, "/apps/xchat/channel_list/width",  NULL);
 	height = gconf_client_get_int (client, "/apps/xchat/channel_list/height", NULL);
 	g_object_unref (client);
-	
+
 	if (width == 0 || height == 0) {
 		gtk_window_resize (GTK_WINDOW (win->window), 640, 480);
 	} else {
@@ -216,10 +216,11 @@ channel_list_window_list_hidden (ChannelListWindow *win)
 static void
 expander_activated (GtkExpander *expander, GParamSpec *param_spec, ChannelListWindow *win)
 {
-	if (gtk_expander_get_expanded (expander))
+	if (gtk_expander_get_expanded (expander)) {
 		channel_list_window_list_showed (win);
-	else
+	} else {
 		channel_list_window_list_hidden (win);
+	}
 }
 
 static void
@@ -265,16 +266,15 @@ channel_list_sensitive_join_button (ChannelListWindow *win, gboolean sensitive)
 static gboolean
 test_channel_name (const char *channel)
 {
-	gint len;
-
-	if (!channel)
+	if (!channel) {
 		return FALSE;
+	}
 
-	len = strlen (channel);
-	if (len > 1 || (len == 1 && channel[0] != '#'))
+	gint len = strlen (channel);
+	if (len > 1 || (len == 1 && channel[0] != '#')) {
 		return TRUE;
-	else
-		return FALSE;
+	}
+	return FALSE;
 }
 
 static void
@@ -288,9 +288,9 @@ channel_entry_changed (GtkWidget *entry, ChannelListWindow *win)
 		gtk_entry_set_text (GTK_ENTRY (entry), "#");
 		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
 		channel_list_sensitive_join_button (win, FALSE);
-	}
-	else
+	} else {
 		channel_list_sensitive_join_button (win, test_channel_name (text));
+	}
 }
 
 static void
@@ -369,9 +369,6 @@ channel_list_window_new (session *sess, gboolean show_list)
 	GtkWidget *treeview, *widget;
 	GtkCellRenderer *channel_r, *users_r, *topic_r;
 	GtkTreeViewColumn *channel_c, *users_c, *topic_c;
-	GtkTreeSelection *select;
-	GSList *tmp;
-	gchar *title, *path;
 
 	if (sess == NULL) {
 		return NULL;
@@ -382,7 +379,8 @@ channel_list_window_new (session *sess, gboolean show_list)
 	}
 
 	/* check to see if we already have a channel list GUI available */
-	tmp = g_slist_find_custom (chanlists, sess->server, (GCompareFunc) channel_list_window_compare_p);
+	GSList *tmp = g_slist_find_custom (chanlists, sess->server,
+		(GCompareFunc) channel_list_window_compare_p);
 	if (tmp) {
 		return tmp->data;
 	}
@@ -401,7 +399,7 @@ channel_list_window_new (session *sess, gboolean show_list)
 
 	win->refresh_timeout = 0;
 
-	path = locate_data_file ("channel-list.glade");
+	gchar *path = locate_data_file ("channel-list.glade");
 	if (!path) {
 		g_free (win);
 		return NULL;
@@ -415,12 +413,12 @@ channel_list_window_new (session *sess, gboolean show_list)
 	}
 
 	win->window = glade_xml_get_widget (win->xml, "channel_list_window");
-	title = g_strdup_printf (_("%s Channel List"), server_get_network (sess->server, FALSE));
+	gchar *title = g_strdup_printf (_("%s Channel List"), server_get_network (sess->server, FALSE));
 	gtk_window_set_title (GTK_WINDOW (win->window), title);
 	g_free (title);
 	g_signal_connect (G_OBJECT (win->window), "delete-event", G_CALLBACK (channel_list_window_delete_event), win);
 	g_signal_connect (G_OBJECT (win->window), "key-press-event", G_CALLBACK (channel_list_window_key_press), win);
-	
+
 	widget = glade_xml_get_widget (win->xml, "channel_entry");
 	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (channel_entry_changed), win);
 	g_signal_connect (G_OBJECT (widget), "activate", G_CALLBACK (channel_entry_activated), win);
@@ -462,7 +460,8 @@ channel_list_window_new (session *sess, gboolean show_list)
 	gtk_tree_view_column_set_sort_column_id (topic_c, 2);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), topic_c);
 
-	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+	GtkTreeSelection *select =
+		gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
 	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (channel_list_window_selected), win);
 

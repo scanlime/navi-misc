@@ -226,14 +226,6 @@ preferences_page_effects_init (PreferencesPageEffects *page)
 }
 
 static void
-preferences_page_effects_dispose (GObject *object)
-{
-	//PreferencesPageEffects *page = (PreferencesPageEffects *) object;
- 
-	G_OBJECT_CLASS (preferences_page_effects_parent_class)->dispose (object);
-}	
-
-static void
 preferences_page_effects_finalize (GObject *object)
 {
 	PreferencesPageEffects *page = (PreferencesPageEffects *) object;
@@ -254,6 +246,5 @@ preferences_page_effects_class_init (PreferencesPageEffectsClass *klass)
 {
 	GObjectClass *object_class = (GObjectClass *) klass;
 
-	object_class->dispose = preferences_page_effects_dispose;
 	object_class->finalize = preferences_page_effects_finalize;
 }

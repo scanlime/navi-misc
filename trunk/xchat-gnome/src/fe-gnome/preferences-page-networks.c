@@ -32,10 +32,6 @@
 
 G_DEFINE_TYPE(PreferencesPageNetworks, preferences_page_networks, PREFERENCES_PAGE_TYPE)
 
-/*******************************************************************************
- * CRUFT BARRIER ***************************************************************
- *******************************************************************************/
-
 static void
 populate (PreferencesPageNetworks *page)
 {
@@ -213,9 +209,9 @@ preferences_page_networks_dispose (GObject *object)
 		g_object_unref (page->network_store);
 		page->network_store = NULL;
 	}
- 
+
 	G_OBJECT_CLASS (preferences_page_networks_parent_class)->dispose (object);
-}	
+}
 
 static void
 preferences_page_networks_class_init (PreferencesPageNetworksClass *klass)

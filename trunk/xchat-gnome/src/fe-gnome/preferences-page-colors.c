@@ -282,14 +282,6 @@ preferences_page_colors_init (PreferencesPageColors *page)
 }
 
 static void
-preferences_page_colors_dispose (GObject *object)
-{
-	//PreferencesPageColors *page = (PreferencesPageColors *) object;
-
-	G_OBJECT_CLASS (preferences_page_colors_parent_class)->dispose (object);
-}	
-
-static void
 preferences_page_colors_finalize (GObject *object)
 {
 	PreferencesPageColors *page = (PreferencesPageColors *) object;
@@ -310,6 +302,5 @@ preferences_page_colors_class_init (PreferencesPageColorsClass *klass)
 {
 	GObjectClass *object_class = (GObjectClass *) klass;
 
-	object_class->dispose = preferences_page_colors_dispose;
 	object_class->finalize = preferences_page_colors_finalize;
 }
