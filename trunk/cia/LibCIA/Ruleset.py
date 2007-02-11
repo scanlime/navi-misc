@@ -391,8 +391,8 @@ class RulesetDelivery(object):
                 self.uriHandler.message(self.ruleset.uri, message, result)
         except:
             e = sys.exc_info()[1]
-            log.msg("Exception occurred in RulesetDelivery for %r\n" +
-                    "--- Original message\n%s\n--- Exception\n%s" %
+            log.msg(("Exception occurred in RulesetDelivery for %r\n" +
+                    "--- Original message\n%s\n--- Exception\n%s") %
                     (self.ruleset.uri,
                      unicode(message).encode('ascii', 'replace'),
                      "".join(traceback.format_exception(*sys.exc_info()))))
