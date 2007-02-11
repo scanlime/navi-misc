@@ -28,13 +28,12 @@
 #include "../common/xchat.h"
 #include "../common/xchatc.h"
 
-static void nickname_changed   (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data);
-static void realname_changed   (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data);
-static void awaymsg_changed    (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data);
-static void quitmsg_changed    (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data);
-static void partmsg_changed    (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data);
-static void showcolors_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data);
-static void colors_changed     (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data);
+static void nickname_changed   (GConfClient *client, guint cnxn_id,
+                                GConfEntry *entry, gpointer data);
+static void showcolors_changed (GConfClient *client, guint cnxn_id,
+                                GConfEntry *entry, gpointer data);
+static void colors_changed     (GConfClient *client, guint cnxn_id,
+                                GConfEntry *entry, gpointer data);
 
 gboolean
 preferences_exist (void)
@@ -56,65 +55,64 @@ preferences_exist (void)
 	return TRUE;
 }
 
+static void
+string_preference_changed (GConfClient *client, guint cnxn_id,
+                           GConfEntry *entry, gpointer user_data)
+{
+	gchar *text = gconf_client_get_string (client, entry->key, NULL);
+	if (text) {
+		strcpy (user_data, text);
+		g_free (text);
+	}
+}
+
 void
 load_preferences (void)
 {
-	GConfClient *client;
-	int color_scheme;
-	gboolean showcolors;
-	gchar *text;
+	GConfClient *client = gconf_client_get_default ();
+	GConfEntry entry;
 
-	client = gconf_client_get_default ();
+	gconf_client_notify_add (client, "/apps/xchat/irc/nickname",
+	                         nickname_changed, NULL, NULL, NULL);
 
-	gconf_client_notify_add (client, "/apps/xchat/irc/nickname", nickname_changed, NULL, NULL, NULL);
+	entry.key = "/apps/xchat/irc/realname";
+	string_preference_changed (client, 0, &entry, prefs.realname);
+	gconf_client_notify_add (client, entry.key, string_preference_changed,
+	                         (gpointer) prefs.realname, NULL, NULL);
 
-	text = gconf_client_get_string (client, "/apps/xchat/irc/realname", NULL);
-	if (text) {
-		strcpy (prefs.realname, text);
-		g_free (text);
-	}
-	gconf_client_notify_add (client, "/apps/xchat/irc/realname", realname_changed, NULL, NULL, NULL);
+	entry.key = "/apps/xchat/irc/awaymsg";
+	string_preference_changed (client, 0, &entry, prefs.awayreason);
+	gconf_client_notify_add (client, entry.key, string_preference_changed,
+	                         (gpointer) prefs.awayreason, NULL, NULL);
 
-	text = gconf_client_get_string (client, "/apps/xchat/irc/awaymsg", NULL);
-	if (text) {
-		strcpy (prefs.awayreason, text);
-		g_free (text);
-	}
-	gconf_client_notify_add (client, "/apps/xchat/irc/awaymsg", awaymsg_changed, NULL, NULL, NULL);
+	entry.key = "/apps/xchat/irc/quitmsg";
+	string_preference_changed (client, 0, &entry, prefs.quitreason);
+	gconf_client_notify_add (client, entry.key, string_preference_changed,
+	                         (gpointer) prefs.quitreason, NULL, NULL);
 
-	text = gconf_client_get_string (client, "/apps/xchat/irc/quitmsg", NULL);
-	if (text) {
-		strcpy (prefs.quitreason, text);
-		g_free (text);
-	}
-	gconf_client_notify_add (client, "/apps/xchat/irc/quitmsg", quitmsg_changed, NULL, NULL, NULL);
+	entry.key = "/apps/xchat/irc/partmsg";
+	string_preference_changed (client, 0, &entry, prefs.partreason);
+	gconf_client_notify_add (client, entry.key, string_preference_changed,
+	                         (gpointer) prefs.partreason, NULL, NULL);
 
-	text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
-	if (text) {
-		strcpy (prefs.partreason, text);
-		g_free (text);
-	}
-	gconf_client_notify_add (client, "/apps/xchat/irc/partmsg", partmsg_changed, NULL, NULL, NULL);
+	entry.key = "/apps/xchat/irc/showcolors";
+	showcolors_changed (client, 0, &entry, NULL);
+	gconf_client_notify_add (client, entry.key, showcolors_changed,
+	                         NULL, NULL, NULL);
 
-	showcolors = gconf_client_get_bool (client, "/apps/xchat/irc/showcolors", NULL);
-	prefs.stripcolor = (unsigned int) (!showcolors);
-	gconf_client_notify_add (client, "/apps/xchat/irc/showcolors", showcolors_changed, NULL, NULL, NULL);
-
-	color_scheme = gconf_client_get_int (client, "/apps/xchat/irc/color_scheme", NULL);
-	load_colors (color_scheme);
-	load_palette (color_scheme);
-	gconf_client_notify_add (client, "/apps/xchat/irc/color_scheme", colors_changed, NULL, NULL, NULL);
+	entry.key = "/apps/xchat/irc/color_scheme";
+	colors_changed (client, 0, &entry, NULL);
+	gconf_client_notify_add (client, entry.key, colors_changed,
+	                         NULL, NULL, NULL);
 
 	g_object_unref (client);
 }
 
 void set_version (void)
 {
-	GConfClient *client;
-
-	client = gconf_client_get_default ();
-
-	gconf_client_set_string (client, "/apps/xchat/version", PACKAGE_VERSION, NULL);
+	GConfClient *client = gconf_client_get_default ();
+	gconf_client_set_string (client, "/apps/xchat/version",
+	                         PACKAGE_VERSION, NULL);
 	g_object_unref (client);
 }
 
@@ -138,64 +136,27 @@ set_nickname (const gchar *text)
 }
 
 static void
-nickname_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data)
+nickname_changed (GConfClient *client, guint cnxn_id,
+                  GConfEntry *entry, gpointer data)
 {
-	gchar *text = gconf_client_get_string (client, "/apps/xchat/irc/nickname", NULL);
+	gchar *text = gconf_client_get_string (client, entry->key, NULL);
 	set_nickname (text);
 	g_free (text);
 }
 
 static void
-realname_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data)
+showcolors_changed (GConfClient *client, guint cnxn_id,
+                    GConfEntry *entry, gpointer data)
 {
-	gchar *text = gconf_client_get_string (client, "/apps/xchat/irc/realname", NULL);
-	if (text) {
-		strcpy (prefs.realname, text);
-		g_free (text);
-	}
+	prefs.stripcolor = (unsigned int)
+		(!gconf_client_get_bool (client, entry->key, NULL));
 }
 
 static void
-awaymsg_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data)
+colors_changed (GConfClient *client, guint cnxn_id,
+                GConfEntry *entry, gpointer data)
 {
-	gchar *text = gconf_client_get_string (client, "/apps/xchat/irc/awaymsg", NULL);
-	if (text) {
-		strcpy (prefs.awayreason, text);
-		g_free (text);
-	}
-}
-
-static void
-quitmsg_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data)
-{
-	gchar *text = gconf_client_get_string (client, "/apps/xchat/irc/quitmsg", NULL);
-	if (text) {
-		strcpy (prefs.quitreason, text);
-		g_free (text);
-	}
-}
-
-static void
-partmsg_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data)
-{
-	gchar *text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
-	if (text) {
-		strcpy (prefs.partreason, text);
-		g_free (text);
-	}
-}
-
-static void
-showcolors_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data)
-{
-	gboolean showcolors = gconf_client_get_bool (client, "/apps/xchat/irc/showcolors", NULL);
-	prefs.stripcolor = (unsigned int) (!showcolors);
-}
-
-static void
-colors_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data)
-{
-	gint color_scheme = gconf_client_get_int (client, "/apps/xchat/irc/color_scheme", NULL);
+	gint color_scheme = gconf_client_get_int (client, entry->key, NULL);
 	load_colors (color_scheme);
 	load_palette (color_scheme);
 }
