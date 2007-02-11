@@ -118,7 +118,7 @@ def add_bot(request, asset_type):
                 return HttpResponseRedirect("/account/%s/%s/" % (asset_type, user_asset.id))
 
     # Automatically initialize the Network list, if it's empty.
-    allNetworks = list(models.Network.objects.all())
+    allNetworks = list(models.Network.objects.all().order_by('-is_popular', 'description'))
     if not allNetworks:
         models.Network.objects.importNetworks()
         allNetworks = list(models.Network.objects.all())
