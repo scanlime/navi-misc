@@ -4,6 +4,7 @@ from django.utils.html import escape
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 import django.newforms as forms
+from django.newforms.util import smart_unicode
 from cia.apps.stats.models import StatsTarget
 import urlparse, xmlrpclib, re, difflib
 
@@ -177,7 +178,7 @@ class AssetChangesetManager(models.Manager):
             model, name = self._lookup_model(asset, field)
 
             p = getattr(model, name, None)
-            if p != new:
+            if smart_unicode(p) != smart_unicode(new):
                 previous[field] = p
                 new_changes[field] = new
                 changed_models[model] = True
@@ -355,8 +356,8 @@ class AssetChangeItem(models.Model):
         """Compute a diff between old and new values, and return a sequence
            of dictionaries with 'text' and 'style' keys.
            """
-        a = (self.old_value or '').split("\n")
-        b = (self.new_value or '').split("\n")
+        a = smart_unicode(self.old_value or '').split("\n")
+        b = smart_unicode(self.new_value or '').split("\n")
 
         chunks = []
         for group in difflib.SequenceMatcher(None,a,b).get_grouped_opcodes(context):
