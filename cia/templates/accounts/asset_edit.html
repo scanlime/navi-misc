@@ -13,7 +13,7 @@
   ChangeHistory.init("/account/changes/{{ asset_type }}/{{ user_asset.asset.id }}/");
 {% endblock %}
 
-{% block h1 %}{{ user_asset.asset|capfirst }}{% endblock %}
+{% block h1 %}{{ user_asset.asset|capfirst|escape }}{% endblock %}
 
 {% block account-forms %}
   <div id="tabs-and-sidebar">

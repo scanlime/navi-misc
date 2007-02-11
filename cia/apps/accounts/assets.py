@@ -377,6 +377,7 @@ def stats_asset(request, asset_type, asset_id):
 
     ctx.update({
         'form': form,
+        'HTTP_HOST': request.META['HTTP_HOST'],
         'levels': formtools.RadioChoices(form['access'], models.ACCESS),
         })
 
@@ -389,7 +390,7 @@ class AddStatsAssetForm(forms.Form):
         )
 
 @authplus.login_required
-def add_stats_asset(request, asset_type, prefix, template):
+def add_stats_asset(request, asset_type, prefix, template, name=None):
     """Generic form for adding stats-based assets"""
     model = get_asset_by_type(asset_type)
     ctx = get_asset_add_context(request, asset_type)
@@ -398,34 +399,45 @@ def add_stats_asset(request, asset_type, prefix, template):
 
     if request.POST:
         if form.is_valid():
-            meta = []
-
-            # Get/create the stats target
-            target = StatsTarget.objects.get_or_create(path = prefix + form.clean_data['name'])[0]
-
-            # Now get/create the matching asset
-            asset, created_asset = model.objects.get_or_create(target = target)
-            if created_asset:
-                meta.append('_created')
-
-            # Finally, create a new UserAsset.
-            user_asset = models.UserAsset.objects.get_or_create_if_allowed(request.user, asset, meta)
-
-            # Record these changes, if any
-            models.AssetChangeset.objects.store_changes(
-                request = request,
-                asset = asset,
-                meta = meta,
-                )
-
-            # Redirect either to the new UserAsset or to a conflict resolution page
-            if user_asset is None:
-                return HttpResponseRedirect("/account/conflict/%s/%s/" % (asset_type, asset.id))
-            else:
-                return HttpResponseRedirect("/account/%s/%s/" % (asset_type, user_asset.id))
+            name = form.clean_data['name']
     else:
         # Don't show errors if the form hasn't been submitted once
         form.errors = None
+
+    # Names may be supplied via the form or via the URL.
+    #
+    # XXX: Generally it's a bad idea for GET requests to have side-effects
+    #      like this. Our excuse is that the operation requires login and
+    #      that the result is idempotent. If this turns out to be a problem
+    #      anyway, we could redirect the user if the asset exists but only
+    #      pre-fill the form if it doesn't yet exist.
+    #
+    if name:
+        meta = []
+
+        # Get/create the stats target
+        target = StatsTarget.objects.get_or_create(path = prefix + name)[0]
+
+        # Now get/create the matching asset
+        asset, created_asset = model.objects.get_or_create(target = target)
+        if created_asset:
+            meta.append('_created')
+
+        # Finally, create a new UserAsset.
+        user_asset = models.UserAsset.objects.get_or_create_if_allowed(request.user, asset, meta)
+
+        # Record these changes, if any
+        models.AssetChangeset.objects.store_changes(
+            request = request,
+            asset = asset,
+            meta = meta,
+            )
+
+        # Redirect either to the new UserAsset or to a conflict resolution page
+        if user_asset is None:
+            return HttpResponseRedirect("/account/conflict/%s/%s/" % (asset_type, asset.id))
+        else:
+            return HttpResponseRedirect("/account/%s/%s/" % (asset_type, user_asset.id))
 
     ctx.update({
         'form': form,

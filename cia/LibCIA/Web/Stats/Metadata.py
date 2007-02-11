@@ -44,17 +44,38 @@ class Info(Template.Section):
         WHERE ST.path = %s
         """ % Database.quote(self.target.path, 'varchar')
 
+        # XXX: This is hacky. Search for exclusive owners of this target.
+        owner_query = """
+        SELECT UA.id, UA.access, UA.user_id
+        FROM stats_statstarget ST
+
+        LEFT OUTER JOIN accounts_project PROJ ON (PROJ.target_id = ST.id)
+        LEFT OUTER JOIN accounts_author AUTH ON (AUTH.target_id = ST.id)
+
+        LEFT OUTER JOIN django_content_type CT_AUTH
+          ON (CT_AUTH.app_label = 'accounts' AND CT_AUTH.model = 'author')
+        LEFT OUTER JOIN django_content_type CT_PROJ
+          ON (CT_PROJ.app_label = 'accounts' AND CT_PROJ.model = 'project')
+
+        LEFT OUTER JOIN accounts_userasset UA
+          ON (   (UA.content_type_id = CT_AUTH.id AND UA.object_id = AUTH.id)
+              OR (UA.content_type_id = CT_PROJ.id AND UA.object_id = PROJ.id))
+
+        WHERE ST.path = %s AND UA.access > 1
+        """ % Database.quote(self.target.path, 'varchar')
+
         # Grab the metadata keys we'll need and wait for them to become available
         result = defer.Deferred()
         defer.gatherResults([
             self.metadata.getValue('url'),
             self.metadata.getValue('description'),
             Database.pool.runQuery(photo_query),
+            Database.pool.runQuery(owner_query),
             ]).addCallback(self._render_rows, context, result).addErrback(result.errback)
         return result
 
     def _render_rows(self, metadata, context, result):
-        url, description, photo_results = metadata
+        url, description, photo_results, owner_results = metadata
         rows = []
         if url:
             rows.append(tag('a', href=url)[url])
@@ -63,6 +84,19 @@ class Info(Template.Section):
             rows.append(Template.Photo('/images/db/' + path, width=width, height=height))
         if description:
             rows.append(description)
+
+        # XXX: This is kind of a hack, but it should improve usability
+        #      between the old and new sites. Show 'edit' links if
+        #      this is something users can edit (projects or authors)
+        #      and if it isn't claimed exclusively already.
+
+        if (not owner_results and
+            len(self.target.pathSegments) >= 2 and
+            self.target.pathSegments[0] in ('project', 'author')):
+            rows.append(tag('a', href='/account/%ss/add/%s/' % (
+                self.target.pathSegments[0], '/'.join(self.target.pathSegments[1:])))
+                        ["Edit..."])
+
         result.callback(rows)
 
 
