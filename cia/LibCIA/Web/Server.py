@@ -48,7 +48,7 @@ class Request(server.Request):
         """
         log.err(reason)
         page = ServerPages.InternalErrorPage(reason)
-        self.write(page.render(self))
+        page.render(self)
         self.finish()
         return reason
 
