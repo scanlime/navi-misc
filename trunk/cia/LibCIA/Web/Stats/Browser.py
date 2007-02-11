@@ -26,7 +26,7 @@ to metadata or RSS pages.
 from twisted.python import log
 from twisted.internet import defer
 from twisted.protocols import http
-from twisted.web import resource, server
+from twisted.web import error, resource, server
 from LibCIA.Web import Template, Info, Server
 from LibCIA import Stats, Message, TimeUtil, Formatters, XML
 from Nouvelle import tag, place
@@ -89,7 +89,13 @@ class Page(Template.Page):
             return childFactories[name](self)
         else:
             # Return the stats page for a child
-            return self.__class__(self.component, self.target.child(name))
+            try:
+                child = self.target.child(name)
+            except ValueError:
+                # Reserved word in stats target
+                return error.NoResource("Invalid stats path")
+            else:
+                return self.__class__(self.component, child)
 
     def preRender(self, context):
         context['component'] = self.component
