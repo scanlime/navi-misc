@@ -8,13 +8,46 @@ There is a new web interface under development, using Django. It will eventually
 replace the old web interface entirely, but it's currently only used for managing
 user accounts and assets (such as bots, projects, and authors).
 
-- Top priorities: abuse prevention
-
-  - Exclusive access
+- Abuse prevention
 
   - The ability to revert changes from the change history page
 
-- Ruleset editor improvements:
+  - Enforce network uniqueness. Currently, users may create multiple IRC "networks"
+    which actually refer to the same physical network. This can happen by accident,
+    or it might be abused maliciously to cause multiple CIA bots to join a single
+    channel or to introduce bots into channels where they aren't wanted.
+
+    This is a difficult problem to solve. Two servers may refer to the same network
+    because they are multiple DNS names for the same IP, multiple IPs on the same
+    server, or multiple servers linked together on a single IRC network.
+
+    Various methods could be used to determine server uniqueness at network creation
+    time:
+
+      - Deduce the network's identity from the MOTD or other information given to
+        us by the IRC server. This is unreliable.
+
+      - Create a 'fuzzy' hash of the network's identity by examining the names and
+        topics of the most popular IRC channels on a server. This wouldn't be guaranteed
+        against false positives, but false negatives (which can be abused) would never
+        occur. This approach has the advantage of requiring no extra IRC connections
+        aside from a single connect while adding new networks.
+
+      - Look for other CIA bots, and verify the identity of those bots. This would be
+        very reliable, but it requires changes to the bot daemon and it requires
+        that we maintain at least one bot on all networks in order to perform these
+        checks.
+
+     Verifying networks at creation-time solves most problems, but it isn't quite
+     a complete solution. Servers may at some later time switch networks. The result is
+     that we may have to merge our own concept of a "network". This will be harder
+     to solve, and will definitely require support from the bot daemon.
+
+  - Require the consent of IRC channel operators in order to install new IRC bots.
+    In theory this is a fairly simple thing to do- but it requires changes in the bot
+    daemon, which makes it fairly difficult at the moment. See below.
+
+- Ruleset editor improvements
 
   - Automatically size the ruleset editor textarea to fit the screen?
 
