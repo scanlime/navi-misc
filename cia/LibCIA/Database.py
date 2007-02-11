@@ -21,7 +21,7 @@ Utilities for accessing CIA's persistent data stored in an SQL database
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.enterprise.adbapi import ConnectionPool
+from twisted.enterprise import adbapi
 import MySQLdb.cursors
 import _mysql
 import os
@@ -45,6 +45,19 @@ try:
     removeBlobConversions()
 except:
     pass
+
+
+class ConnectionPool(adbapi.ConnectionPool):
+    """Our own ConnectionPool subclass, sets the connection
+       encoding for MySQL 5.x automatically.
+       """
+    def connect(self):
+        conn = adbapi.ConnectionPool.connect(self)
+        cur = conn.cursor()
+        cur.execute("SET NAMES UTF8")
+        cur.close()
+        conn.commit()
+        return conn
 
 
 def readDictFile(path):
