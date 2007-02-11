@@ -31,49 +31,20 @@
 G_DEFINE_TYPE(PreferencesPageDCC, preferences_page_dcc, PREFERENCES_PAGE_TYPE)
 
 static void
-download_dir_changed (GtkFileChooser *file_chooser, gpointer data)
+path_changed (GtkFileChooser *file_chooser, char *target)
 {
 	gchar *dir = gtk_file_chooser_get_filename (file_chooser);
 	if (dir) {
-		strncpy (prefs.dccdir, dir, PATHLEN);
-		prefs.dccdir[PATHLEN] = '\0';
+		strncpy (target, dir, PATHLEN);
+		target[PATHLEN] = '\0';
 		g_free (dir);
 	}
 }
 
 static void
-completed_dir_changed (GtkFileChooser *file_chooser, gpointer data)
+toggle_changed (GtkToggleButton *button, unsigned int *target)
 {
-	gchar *dir = gtk_file_chooser_get_filename (file_chooser);
-	if (dir) {
-		strncpy (prefs.dcc_completed_dir, dir, PATHLEN);
-		prefs.dccdir[PATHLEN] = '\0';
-		g_free (dir);
-	}
-}
-
-static void
-convert_spaces_changed (GtkToggleButton *button, gpointer data)
-{
-	prefs.dcc_send_fillspaces = gtk_toggle_button_get_active (button);
-}
-
-static void
-save_nicknames_changed (GtkToggleButton *button, gpointer data)
-{
-	prefs.dccwithnick = gtk_toggle_button_get_active (button);
-}
-
-static void
-autoaccept_chat_changed (GtkToggleButton *button, gpointer data)
-{
-	prefs.autodccchat = gtk_toggle_button_get_active (button);
-}
-
-static void
-autoaccept_file_changed (GtkToggleButton *button, gpointer data)
-{
-	prefs.autodccsend = gtk_toggle_button_get_active (button);
+	*target = gtk_toggle_button_get_active (button);
 }
 
 static void
@@ -93,37 +64,18 @@ special_ip_changed (GtkEntry *entry, gpointer data)
 }
 
 static void
-ist_changed (GtkSpinButton *button, gpointer data)
+spin_changed (GtkSpinButton *button, int *target)
 {
-	prefs.dcc_max_send_cps = gtk_spin_button_get_value_as_int (button);
-}
-
-static void
-gst_changed (GtkSpinButton *button, gpointer data)
-{
-	prefs.dcc_global_max_send_cps = gtk_spin_button_get_value_as_int (button);
-}
-
-static void
-irt_changed (GtkSpinButton *button, gpointer data)
-{
-	prefs.dcc_max_get_cps = gtk_spin_button_get_value_as_int (button);
-}
-
-static void
-grt_changed (GtkSpinButton *button, gpointer data)
-{
-	prefs.dcc_global_max_get_cps = gtk_spin_button_get_value_as_int (button);
+	*target = gtk_spin_button_get_value_as_int (button);
 }
 
 PreferencesPageDCC *
 preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 {
 	PreferencesPageDCC *page = g_object_new (PREFERENCES_PAGE_DCC_TYPE, NULL);
-	GtkTreeIter iter;
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
 
-#define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
+#define GW(name) GtkWidget *name = glade_xml_get_widget (xml, #name)
 	GW(download_dir_button);
 	GW(completed_dir_button);
 	GW(convert_spaces);
@@ -139,50 +91,53 @@ preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 	GW(global_receive_throttle);
 #undef GW
 
-	gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (page->download_dir_button), prefs.dccdir);
+	page->special_ip_address = special_ip_address;
+
+	gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (download_dir_button), prefs.dccdir);
 	if (strlen (prefs.dcc_completed_dir) == 0) {
-		gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (page->completed_dir_button), prefs.dccdir);
+		gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (completed_dir_button), prefs.dccdir);
 	} else {
-		gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (page->completed_dir_button), prefs.dcc_completed_dir);
+		gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (completed_dir_button), prefs.dcc_completed_dir);
 	}
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->convert_spaces), prefs.dcc_send_fillspaces);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->save_nicknames_dcc), prefs.dccwithnick);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->autoaccept_dcc_chat), prefs.autodccchat);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->autoaccept_dcc_file), prefs.autodccsend);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (convert_spaces), prefs.dcc_send_fillspaces);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (save_nicknames_dcc), prefs.dccwithnick);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (autoaccept_dcc_chat), prefs.autodccchat);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (autoaccept_dcc_file), prefs.autodccsend);
 
 	if (prefs.ip_from_server) {
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->get_dcc_ip_from_server), TRUE);
-		gtk_widget_set_sensitive (page->special_ip_address, FALSE);
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (get_dcc_ip_from_server), TRUE);
+		gtk_widget_set_sensitive (special_ip_address, FALSE);
 	} else {
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->use_specified_dcc_ip), TRUE);
-		gtk_entry_set_text (GTK_ENTRY (page->special_ip_address), prefs.dcc_ip_str);
-		gtk_widget_set_sensitive (page->special_ip_address, FALSE);
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (use_specified_dcc_ip), TRUE);
+		gtk_entry_set_text (GTK_ENTRY (special_ip_address), prefs.dcc_ip_str);
+		gtk_widget_set_sensitive (special_ip_address, FALSE);
 	}
 
-	gtk_spin_button_set_value (GTK_SPIN_BUTTON (page->individual_send_throttle), (gdouble) prefs.dcc_max_send_cps);
-	gtk_spin_button_set_value (GTK_SPIN_BUTTON (page->global_send_throttle), (gdouble) prefs.dcc_global_max_send_cps);
-	gtk_spin_button_set_value (GTK_SPIN_BUTTON (page->individual_receive_throttle), (gdouble) prefs.dcc_max_get_cps);
-	gtk_spin_button_set_value (GTK_SPIN_BUTTON (page->global_receive_throttle), (gdouble) prefs.dcc_global_max_get_cps);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON (individual_send_throttle), (gdouble) prefs.dcc_max_send_cps);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON (global_send_throttle), (gdouble) prefs.dcc_global_max_send_cps);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON (individual_receive_throttle), (gdouble) prefs.dcc_max_get_cps);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON (global_receive_throttle), (gdouble) prefs.dcc_global_max_get_cps);
 
-	g_signal_connect (G_OBJECT (page->download_dir_button),         "selection-changed", G_CALLBACK (download_dir_changed),      page);
-	g_signal_connect (G_OBJECT (page->completed_dir_button),        "selection-changed", G_CALLBACK (completed_dir_changed),     page);
+	g_signal_connect (G_OBJECT (download_dir_button),         "selection-changed", G_CALLBACK (path_changed), prefs.dccdir);
+	g_signal_connect (G_OBJECT (completed_dir_button),        "selection-changed", G_CALLBACK (path_changed), prefs.dcc_completed_dir);
 
-	g_signal_connect (G_OBJECT (page->convert_spaces),              "toggled",           G_CALLBACK (convert_spaces_changed),     page);
-	g_signal_connect (G_OBJECT (page->save_nicknames_dcc),          "toggled",           G_CALLBACK (save_nicknames_changed),     page);
-	g_signal_connect (G_OBJECT (page->autoaccept_dcc_chat),         "toggled",           G_CALLBACK (autoaccept_chat_changed),    page);
-	g_signal_connect (G_OBJECT (page->autoaccept_dcc_file),         "toggled",           G_CALLBACK (autoaccept_file_changed),    page);
+	g_signal_connect (G_OBJECT (convert_spaces),              "toggled",           G_CALLBACK (toggle_changed), &prefs.dcc_send_fillspaces);
+	g_signal_connect (G_OBJECT (save_nicknames_dcc),          "toggled",           G_CALLBACK (toggle_changed), &prefs.dccwithnick);
+	g_signal_connect (G_OBJECT (autoaccept_dcc_chat),         "toggled",           G_CALLBACK (toggle_changed), &prefs.autodccchat);
+	g_signal_connect (G_OBJECT (autoaccept_dcc_file),         "toggled",           G_CALLBACK (toggle_changed), &prefs.autodccsend);
 
-	g_signal_connect (G_OBJECT (page->get_dcc_ip_from_server),      "toggled",           G_CALLBACK (get_ip_from_server_changed), page);
-	g_signal_connect (G_OBJECT (page->special_ip_address),          "changed",           G_CALLBACK (special_ip_changed),         page);
+	g_signal_connect (G_OBJECT (get_dcc_ip_from_server),      "toggled",           G_CALLBACK (get_ip_from_server_changed), page);
+	g_signal_connect (G_OBJECT (special_ip_address),          "changed",           G_CALLBACK (special_ip_changed),         NULL);
 
-	g_signal_connect (G_OBJECT (page->individual_send_throttle),    "value-changed",     G_CALLBACK (ist_changed),                page);
-	g_signal_connect (G_OBJECT (page->global_send_throttle),        "value-changed",     G_CALLBACK (gst_changed),                page);
-	g_signal_connect (G_OBJECT (page->individual_receive_throttle), "value-changed",     G_CALLBACK (irt_changed),                page);
-	g_signal_connect (G_OBJECT (page->global_receive_throttle),     "value-changed",     G_CALLBACK (grt_changed),                page);
+	g_signal_connect (G_OBJECT (individual_send_throttle),    "value-changed",     G_CALLBACK (spin_changed), &prefs.dcc_max_send_cps);
+	g_signal_connect (G_OBJECT (global_send_throttle),        "value-changed",     G_CALLBACK (spin_changed), &prefs.dcc_global_max_send_cps);
+	g_signal_connect (G_OBJECT (individual_receive_throttle), "value-changed",     G_CALLBACK (spin_changed), &prefs.dcc_max_get_cps);
+	g_signal_connect (G_OBJECT (global_receive_throttle),     "value-changed",     G_CALLBACK (spin_changed), &prefs.dcc_global_max_get_cps);
 
 	GtkIconTheme *theme = gtk_icon_theme_get_default ();
 	PREFERENCES_PAGE (page)->icon = gtk_icon_theme_load_icon (theme, "xchat-gnome-dcc", 16, 0, NULL);
 
+	GtkTreeIter iter;
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, PREFERENCES_PAGE (page)->icon, 1, _("File Transfers & DCC"), 2, 3, -1);
 
@@ -195,17 +150,6 @@ preferences_page_dcc_init (PreferencesPageDCC *page)
 }
 
 static void
-preferences_page_dcc_dispose (GObject *object)
-{
-	//PreferencesPageDCC *page = (PreferencesPageDCC *) object;
-
-	G_OBJECT_CLASS (preferences_page_dcc_parent_class)->dispose (object);
-}	
-
-static void
 preferences_page_dcc_class_init (PreferencesPageDCCClass *klass)
 {
-	GObjectClass *object_class = (GObjectClass *) klass;
-
-	object_class->dispose = preferences_page_dcc_dispose;
 }

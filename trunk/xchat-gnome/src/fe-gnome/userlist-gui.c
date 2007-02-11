@@ -468,16 +468,16 @@ get_user_vbox_infos (struct User *user)
 static GtkWidget*
 get_user_tooltip (SexyTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, gpointer data)
 {
-	struct User *user;
-
 	if (FALSE == GTK_WIDGET_VISIBLE (gui.userlist_window)) {
 		return NULL;
 	}
 
-	user = userlist_get_selected ();
+	struct User *user = userlist_get_selected ();
 
 	if (user) {
 		return get_user_vbox_infos (user);
 	}
+
+	return NULL;
 }
 #endif
