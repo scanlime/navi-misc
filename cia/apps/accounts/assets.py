@@ -76,6 +76,7 @@ def get_asset_add_context(request, asset_type):
         'asset_type': asset_type,
         'asset_type_name': model._meta.verbose_name,
         'user_assets': model.objects.all_for_user(request.user),
+        'ACCESS': models.ACCESS,
         'add': True,
         'form_path': request.path,
         }
