@@ -63,16 +63,6 @@ user accounts and assets (such as bots, projects, and authors).
   - Unicode support is broken in a few places now. It definitely doesn't work in the
     metadata editor, and in anything that persists via a Django model.
 
-- Usability
-
-  - Improve integration between the old and new sites. Stats pages on the old site should
-    have an "edit" link that directs the user to log in if necessary, then adds that object
-    to their account.
-
-    This link should only be shown for stats pages which are editable via the new interface
-    (authors and projects) and it should probably be hidden for objects which are already
-    owned exclusively.
-
 - Ruleset editor improvements
 
   - Automatically size the ruleset editor textarea to fit the screen?

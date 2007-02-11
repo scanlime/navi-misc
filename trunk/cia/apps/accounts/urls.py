@@ -29,11 +29,11 @@ urlpatterns = patterns('',
     (r'^(?P<asset_type>bots)/add/$', bots.add_bot),
     (r'^(?P<asset_type>bots)/(?P<asset_id>\d+)/$', bots.bot),
 
-    (r'^(?P<asset_type>projects)/add/$', assets.add_stats_asset, {
+    (r'^(?P<asset_type>projects)/add(/(?P<name>.*))?/$', assets.add_stats_asset, {
         'prefix': 'project/',
         'template': 'accounts/project_add.html',
     }),
-    (r'^(?P<asset_type>authors)/add/$', assets.add_stats_asset, {
+    (r'^(?P<asset_type>authors)/add(/(?P<name>.*))?/$', assets.add_stats_asset, {
         'prefix': 'author/',
         'template': 'accounts/author_add.html',
     }),

@@ -7,12 +7,18 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import loader
 from django.template.context import RequestContext, Context
-import datetime, re
+import datetime, re, urllib
 
 
 ###########################
 #       User Login        #
 ###########################
+
+def login_url(next_page):
+    if next_page:
+        return settings.LOGIN_URL + "?next_page=" + urllib.quote(next_page)
+    else:
+        return settings.LOGIN_URL
 
 def login_required(view_func):
     """Simplified version of auth.decorators.login_required,
@@ -23,7 +29,7 @@ def login_required(view_func):
         if request.user.is_authenticated() and request.user.is_active:
             return view_func(request, *args, **kwargs)
         else:
-            return HttpResponseRedirect(settings.LOGIN_URL)
+            return HttpResponseRedirect(login_url(request.path))
     _checklogin.__doc__ = view_func.__doc__
     _checklogin.__dict__ = view_func.__dict__
     return _checklogin
@@ -53,6 +59,8 @@ def login(request, next_page, template_name="accounts/login.html"):
     """Simple login form view which doesn't rely on Django's current
        inflexible oldforms-based auth view.
        """
+    next_page = request.GET.get('next_page', next_page)
+
     if request.POST:
         error = internal_login(request,
                                request.POST.get('username'),
@@ -64,7 +72,7 @@ def login(request, next_page, template_name="accounts/login.html"):
     request.session.set_test_cookie()
     return render_to_response(template_name, RequestContext(request, {
         'error': error,
-        'login_url': settings.LOGIN_URL,
+        'login_url': login_url(next_page),
         }))
 
 
