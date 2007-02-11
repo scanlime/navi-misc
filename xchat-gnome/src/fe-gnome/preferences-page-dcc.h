@@ -36,24 +36,11 @@ typedef struct _PreferencesPageDCCClass PreferencesPageDCCClass;
 #define IS_PREFERENCES_PAGE_DCC(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), PREFERENCES_PAGE_DCC_TYPE))
 #define IS_PREFERENCES_PAGE_DCC_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), PREFERENCES_PAGE_DCC_TYPE))
 
-
 struct _PreferencesPageDCC
 {
 	PreferencesPage parent;
 
-	GtkWidget *download_dir_button;
-	GtkWidget *completed_dir_button;
-	GtkWidget *convert_spaces;
-	GtkWidget *save_nicknames_dcc;
-	GtkWidget *autoaccept_dcc_chat;
-	GtkWidget *autoaccept_dcc_file;
-	GtkWidget *get_dcc_ip_from_server;
-	GtkWidget *use_specified_dcc_ip;
 	GtkWidget *special_ip_address;
-	GtkWidget *individual_send_throttle;
-	GtkWidget *global_send_throttle;
-	GtkWidget *individual_receive_throttle;
-	GtkWidget *global_receive_throttle;
 };
 
 struct _PreferencesPageDCCClass
@@ -61,7 +48,7 @@ struct _PreferencesPageDCCClass
 	PreferencesPageClass parent_class;
 };
 
-GType              	preferences_page_dcc_get_type (void) G_GNUC_CONST;
+GType               preferences_page_dcc_get_type (void) G_GNUC_CONST;
 PreferencesPageDCC* preferences_page_dcc_new  (gpointer prefs_dialog, GladeXML *xml);
 
 G_END_DECLS
