@@ -24,8 +24,19 @@ user accounts and assets (such as bots, projects, and authors).
     Various methods could be used to determine server uniqueness at network creation
     time:
 
-      - Deduce the network's identity from the MOTD or other information given to
-        us by the IRC server. This is unreliable.
+      - Use the NETWORK= portion of the 005 (server capabilities) message. This is
+        simple and straight-forward, and it's supported by most networks I've tested.
+        The biggest exception is Freenode.
+
+        Networks that don't send a NETWORK= field will still work with CIA, they'll
+	just have to be installed by an administrator first. The "add bot" page will
+	conduct a network identification test when the user submits the page with
+        a network of "Other...".
+
+        Note that this means we'll no longer ask the user for a network description.
+        Either it comes from the NETWORK= field, or we need to involve an admin.
+
+        Some test code for this method is in tools/irc-tester.py
 
       - Create a 'fuzzy' hash of the network's identity by examining the names and
         topics of the most popular IRC channels on a server. This wouldn't be guaranteed
