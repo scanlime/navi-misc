@@ -75,35 +75,32 @@ load_preferences (void)
 	gconf_client_notify_add (client, "/apps/xchat/irc/nickname",
 	                         nickname_changed, NULL, NULL, NULL);
 
-	entry.key = "/apps/xchat/irc/realname";
-	string_preference_changed (client, 0, &entry, prefs.realname);
-	gconf_client_notify_add (client, entry.key, string_preference_changed,
-	                         (gpointer) prefs.realname, NULL, NULL);
+	/*
+	 * This goes through the mechanics of hooking up a gconf notify for
+	 * the given key, and also calls the callback once to populate the
+	 * initial value.
+	 */
+	void hook_preference(gchar *path, GConfClientNotifyFunc callback,
+	                     gpointer preference)
+	{
+		entry.key = path;
+		callback (client, 0, &entry, preference);
+		gconf_client_notify_add (client, entry.key, callback,
+		                         preference, NULL, NULL);
+	}
 
-	entry.key = "/apps/xchat/irc/awaymsg";
-	string_preference_changed (client, 0, &entry, prefs.awayreason);
-	gconf_client_notify_add (client, entry.key, string_preference_changed,
-	                         (gpointer) prefs.awayreason, NULL, NULL);
-
-	entry.key = "/apps/xchat/irc/quitmsg";
-	string_preference_changed (client, 0, &entry, prefs.quitreason);
-	gconf_client_notify_add (client, entry.key, string_preference_changed,
-	                         (gpointer) prefs.quitreason, NULL, NULL);
-
-	entry.key = "/apps/xchat/irc/partmsg";
-	string_preference_changed (client, 0, &entry, prefs.partreason);
-	gconf_client_notify_add (client, entry.key, string_preference_changed,
-	                         (gpointer) prefs.partreason, NULL, NULL);
-
-	entry.key = "/apps/xchat/irc/showcolors";
-	showcolors_changed (client, 0, &entry, NULL);
-	gconf_client_notify_add (client, entry.key, showcolors_changed,
-	                         NULL, NULL, NULL);
-
-	entry.key = "/apps/xchat/irc/color_scheme";
-	colors_changed (client, 0, &entry, NULL);
-	gconf_client_notify_add (client, entry.key, colors_changed,
-	                         NULL, NULL, NULL);
+	hook_preference("/apps/xchat/irc/realname",
+	                string_preference_changed, prefs.realname);
+	hook_preference("/apps/xchat/irc/awaymsg",
+	                string_preference_changed, prefs.awayreason);
+	hook_preference("/apps/xchat/irc/quitmsg",
+	                string_preference_changed, prefs.quitreason);
+	hook_preference("/apps/xchat/irc/partmsg",
+	                string_preference_changed, prefs.partreason);
+	hook_preference("/apps/xchat/irc/showcolors",
+	                showcolors_changed, NULL);
+	hook_preference("/apps/xchat/irc/color_scheme",
+	                colors_changed, NULL);
 
 	g_object_unref (client);
 }
