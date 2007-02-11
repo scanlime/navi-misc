@@ -80,8 +80,8 @@ load_preferences (void)
 	 * the given key, and also calls the callback once to populate the
 	 * initial value.
 	 */
-	void hook_preference(gchar *path, GConfClientNotifyFunc callback,
-	                     gpointer preference)
+	void hook_preference (gchar *path, GConfClientNotifyFunc callback,
+	                      gpointer preference)
 	{
 		entry.key = path;
 		callback (client, 0, &entry, preference);
@@ -103,6 +103,8 @@ load_preferences (void)
 	                colors_changed, NULL);
 
 	g_object_unref (client);
+
+	strncpy (prefs.dccdir, get_save_directory(), sizeof (prefs.dccdir));
 }
 
 void set_version (void)
@@ -156,4 +158,50 @@ colors_changed (GConfClient *client, guint cnxn_id,
 	gint color_scheme = gconf_client_get_int (client, entry->key, NULL);
 	load_colors (color_scheme);
 	load_palette (color_scheme);
+}
+
+gchar *
+get_save_directory(void)
+{
+	char *dir = prefs.dccdir;
+	if (0 == strlen (dir)) {
+		dir = NULL;
+	}
+
+	/* Starts with ~/ ? */
+	if (dir != NULL && dir[0] == '~' && dir[1] == '/') {
+		dir = g_build_filename (g_get_home_dir (),
+		                        dir + 2, NULL);
+	}
+
+	/* Try ~/Desktop/Downloads */
+	if (dir == NULL || strlen (dir) == 0 ||
+	    g_file_test (dir, G_FILE_TEST_IS_DIR) == FALSE) {
+		const char *translated_folder;
+		char *converted;
+
+		g_free (dir);
+		/* The name of the default downloads folder,
+		 * Needs to be the same as Epiphany's */
+		translated_folder = _("Downloads");
+
+		converted = g_filename_from_utf8 (translated_folder, -1, NULL,
+		                                   NULL, NULL);
+		dir = g_build_filename (g_get_home_dir (), "Desktop",
+		                        converted, NULL);
+		g_free (converted);
+	}
+
+	/* Try ~/Desktop */
+	if (g_file_test (dir, G_FILE_TEST_IS_DIR) == FALSE) {
+		g_free (dir);
+		dir = g_build_filename (g_get_home_dir (), "Desktop", NULL);
+	}
+
+	/* Try ~/ */
+	if (g_file_test (dir, G_FILE_TEST_IS_DIR) == FALSE) {
+		g_free (dir);
+		dir = g_strdup (g_get_home_dir ());
+	}
+	return dir;
 }
