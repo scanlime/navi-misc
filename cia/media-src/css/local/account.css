@@ -482,10 +482,6 @@ span.change-detail {
   padding: 0 0 0.5em 0;
 }
 
-#changesets .deleted-account {
-  text-decoration: line-through;
-}
-
 #changesets .change-items {
   margin: 0;
   padding: 0;
@@ -545,6 +541,10 @@ img.person {
 
 span.person {
   font-weight: bold;
+}
+
+span.deleted-account {
+  text-decoration: line-through;
 }
 
 #message-composer textarea {
