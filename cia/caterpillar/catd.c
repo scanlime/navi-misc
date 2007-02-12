@@ -42,8 +42,14 @@ static struct {
     int epoll_fd;
 } catd;
 
-/* Look up a dynamically sized heap object. Returns NULL on failure. */
-#define HOBJ_SIZED(offset, type, size)  ((type *) ( ((offset) + (size) <= catd.heap_size) ? (catd.heap_base + (offset)) : NULL ))
+/*
+ * Look up a dynamically sized heap object. Returns NULL on
+ * failure. Note that this must be safe against overflow and negative
+ * values.
+ */
+#define HOBJ_SIZED(offset, type, size)  ((type *) ( ((offset) + (size) <= catd.heap_size && \
+                                                     (offset) >= 0 && \
+                                                     (offset) < catd.heap_size) ? (catd.heap_base + (offset)) : NULL ))
 
 /* Look up a statically sized heap object */
 #define HOBJ(offset, type)  HOBJ_SIZED(offset, type, sizeof(type))
@@ -162,7 +168,7 @@ catd_init_poll(void)
 static void
 catd_init_pipes(void)
 {
-    struct epoll_event ev;
+    struct epoll_event ev = { 0 };
 
     /*
      * The command and event pipes are used to send idempotent wakeups
@@ -269,7 +275,7 @@ catd_cleanup_daemon(void)
 static void
 catd_process_command(catd_command_t *command)
 {
-
+    printf("Dequeueing command %d\n", command->id);
 }
 
 static void
@@ -278,14 +284,21 @@ catd_process_commands(void)
     catd_queue_t *queue = &catd.header->commands;
     int write_index = AO_load(&queue->write_index);
     int read_index = AO_load(&queue->read_index);
+    int size = queue->array_size;
 
-    if (!queue->array_size) {
+    /*
+     * Sanity checks: in order for us to process the
+     * queue without crashing or looping infinitely,
+     * the array size must be nonzero and both the read
+     * and write index must be within range.
+     */
+    if (size <= 0 || read_index >= size || write_index >= size) {
         return;
     }
     
     while (read_index != write_index) {
-        catd_command_t *command = HOBJ(
-            queue->offset + read_index * sizeof(catd_command_t), catd_command_t);
+        off_t offset = queue->offset + read_index * sizeof(catd_command_t);
+        catd_command_t *command = HOBJ(offset, catd_command_t);
         if (command) {
             catd_process_command(command);
         }
