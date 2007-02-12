@@ -22,6 +22,14 @@ TEMPLATE_DEBUG = DEBUG
 #
 CIA_REGISTRATION_IS_CLOSED = False
 
+#
+# Optional integration with Google Analytics.
+# Set this either to None or to the _uacct value from Google.
+#
+# XXX: This value must be defined separately for the old site, in official.web.tac
+#
+GOOGLE_ANALYTICS_ACCOUNT = "UA-247340-1"
+
 ADMINS = (
     ('Micah Dowty', 'micah@navi.cx'),
 )
@@ -101,6 +109,14 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.load_template_source',
     'django.template.loaders.app_directories.load_template_source',
 #     'django.template.loaders.eggs.load_template_source',
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.core.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'cia.apps.context_processors.analytics',
+#    'django.core.context_processors.request',
 )
 
 MIDDLEWARE_CLASSES = (
