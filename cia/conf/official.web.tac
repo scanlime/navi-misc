@@ -14,12 +14,23 @@ port = int(os.getenv("PORT"))
 
 from twisted.application import service, internet
 from LibCIA import Database, Message, Web, RpcServer, Stats
+from Nouvelle import xml
 from twisted.internet import tcp
 
 Database.init()
 
 # Remove the non-main CIA server notice, since this is in fact the main server.
 Web.Template.Page.site_mainServerNotice = []
+
+# Add the Google Analytics integration
+Web.Template.Page.site_bottomOfFooter = [xml("""
+  <script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+  </script>
+  <script type="text/javascript">
+  _uacct = "UA-247340-1";
+  urchinTracker();
+  </script>
+""")]
 
 application = service.Application("web_server")
 
