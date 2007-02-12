@@ -140,6 +140,15 @@ class Network(models.Model):
         list_display = ('uri', 'description', 'reviewed_by_admin', 'created_by')
 
 
+def smart_unicode_cmp(a, b):
+    """Compare two values, converting both to Unicode via
+       smart_unicode() if either value is a string."""
+    if type(a) in (str, unicode) or type(b) in (str, unicode):
+        a = smart_unicode(a)
+        b = smart_unicode(b)
+    return cmp(a, b)
+
+
 class AssetChangesetManager(models.Manager):
     def _lookup_model(self, asset, field):
         """Parse dotted fields, looking up their model instance.
@@ -178,7 +187,7 @@ class AssetChangesetManager(models.Manager):
             model, name = self._lookup_model(asset, field)
 
             p = getattr(model, name, None)
-            if smart_unicode(p) != smart_unicode(new):
+            if smart_unicode_cmp(p, new) != 0:
                 previous[field] = p
                 new_changes[field] = new
                 changed_models[model] = True
