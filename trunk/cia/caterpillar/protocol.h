@@ -16,10 +16,10 @@
  * total number of usable slots is actually array_size-1.
  */
 typedef struct {
-  AO_t write_index;  /* Next slot to write */
-  AO_t read_index;   /* Next slot to read */
-  int array_size;    /* Number of slots total */
-  off_t offset;
+    AO_t write_index;  /* Next slot to write */
+    AO_t read_index;   /* Next slot to read */
+    int array_size;    /* Number of slots total */
+    off_t offset;
 } catd_queue_t;
 
 /*
@@ -27,7 +27,7 @@ typedef struct {
  * file. It defines the location of all other heap objects.
  */
 typedef struct {
-  catd_queue_t commands;
+    catd_queue_t commands;
 } catd_header_t;
 
 /*
@@ -35,7 +35,7 @@ typedef struct {
  * 'commands' queue.
  */
 typedef struct {
-
+    int id;
 } catd_command_t;
 
 
