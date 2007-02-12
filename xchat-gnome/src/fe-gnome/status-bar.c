@@ -138,16 +138,15 @@ status_bar_remove_server (StatusBar *bar, struct server *sess)
 static void
 status_bar_update (StatusBar *bar)
 {
-	gchar *lag, *queue, *text;
-
 	if (bar->priv->current == NULL) {
 		gtk_statusbar_pop  (GTK_STATUSBAR (bar), bar->priv->context);
 		return;
 	}
 
-	lag   = g_hash_table_lookup (bar->priv->lags,   bar->priv->current);
-	queue = g_hash_table_lookup (bar->priv->queues, bar->priv->current);
+	gchar *lag   = g_hash_table_lookup (bar->priv->lags,   bar->priv->current);
+	gchar *queue = g_hash_table_lookup (bar->priv->queues, bar->priv->current);
 
+	gchar *text;
 	if (lag && queue) {
 		text = g_strdup_printf ("%s, %s", lag, queue);
 	} else if (lag) {

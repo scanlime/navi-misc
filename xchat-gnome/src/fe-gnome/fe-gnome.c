@@ -236,19 +236,6 @@ fe_new_window (struct session *sess, int focus)
 		navigation_model_add_channel (gui.tree_model, sess);
 	}
 
-	/*
-	} else if (sess->type == SESS_DIALOG) {
-		struct User *user = NULL;
-
-		user = userlist_find_global (sess->server, sess->channel);
-
-		navigation_tree_create_new_channel_entry (gui.server_tree, sess, (gboolean) focus);
-		if (user) {
-			topic_label_set_topic (TOPIC_LABEL (gui.topic_label), sess, user->hostname);
-		}
-	}
-	*/
-
 	if (focus) {
 		navigation_tree_select_session (gui.server_tree, sess);
 	}
@@ -718,29 +705,29 @@ fe_serverlist_open (session * sess)
 }
 
 void
-fe_ctrl_gui (session * sess, int action, int arg)
+fe_ctrl_gui (session * sess, fe_gui_action action, int arg)
 {
 	switch (action) {
-	case 0:
+	case FE_GUI_HIDE:
 		gtk_widget_hide (gui.main_window);
 		break;
 
-	case 1:
+	case FE_GUI_SHOW:
 		gtk_widget_show (gui.main_window);
 		gtk_window_present (GTK_WINDOW (gui.main_window));
 		break;
 
-	case 2:
-		break;
-
-	case 3:
-		break;
-
-	case 4:
-		break;
-
-	case 5:
+	case FE_GUI_ICONIFY:
 		gtk_window_iconify (GTK_WINDOW (gui.main_window));
+		break;
+
+	case FE_GUI_FOCUS:
+	case FE_GUI_FLASH:
+	case FE_GUI_MENU:
+	case FE_GUI_ATTACH:
+	case FE_GUI_APPLY:
+	case FE_GUI_COLOR:
+		/* These are unhandled for now */
 		break;
 	}
 }

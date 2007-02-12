@@ -50,8 +50,8 @@ check_version (guint major, guint minor, guint micro)
 		return 0;
 	}
 
+	guint desired[3] = {major, minor, micro};
 	guint effective[3] = {0, 0, 0};
-	guint result;
 
 	gchar **nbs = g_strsplit (version, ".", 0);
 	for (int i = 0; i < 3; i++) {
@@ -72,24 +72,13 @@ check_version (guint major, guint minor, guint micro)
 	g_strfreev (nbs);
 	g_free (version);
 
-	if (major < effective[0]) {
-		return -1;
-	} else if (major > effective[0]) {
-		return 1;
+	for (int i = 0; i < 3; i++) {
+		if (desired[i] < effective[i]) {
+			return -1;
+		} else if (desired[i] > effective[i]) {
+			return 1;
+		}
 	}
-
-	if (minor < effective[1]) {
-		return -1;
-	} else if (minor > effective[1]) {
-		return 1;
-	}
-
-	if (micro < effective[2]) {
-		return -1;
-	} else if (micro > effective[2]) {
-		return 1;
-	}
-
 	return 0;
 }
 

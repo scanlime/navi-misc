@@ -70,9 +70,7 @@ G_DEFINE_TYPE (FindBar, find_bar, GTK_TYPE_HBOX);
 static void
 find_bar_class_init (FindBarClass *klass)
 {
-	GObjectClass *gobject_class;
-
-	parent_class = g_type_class_peek_parent (klass);
+	GObjectClass *gobject_class = g_type_class_peek_parent (klass);
 
 	gobject_class = G_OBJECT_CLASS (klass);
 	gobject_class->finalize = find_bar_finalize;
@@ -81,24 +79,16 @@ find_bar_class_init (FindBarClass *klass)
 static void
 find_bar_init (FindBar *bar)
 {
-	GtkWidget *close;
-	GtkWidget *close_image;
-	GtkWidget *find_label;
-	GtkWidget *previous;
-	GtkWidget *previous_image;
-	GtkWidget *next;
-	GtkWidget *next_image;
-
 	bar->priv = g_new0 (FindBarPriv, 1);
 
-	close            = gtk_button_new ();
-	close_image      = gtk_image_new_from_stock (GTK_STOCK_CLOSE, GTK_ICON_SIZE_BUTTON);
-	find_label       = gtk_label_new (_("Find:"));
+	GtkWidget *close            = gtk_button_new ();
+	GtkWidget *close_image      = gtk_image_new_from_stock (GTK_STOCK_CLOSE, GTK_ICON_SIZE_BUTTON);
+	GtkWidget *find_label       = gtk_label_new (_("Find:"));
+	GtkWidget *previous         = gtk_button_new_with_mnemonic (_("_Previous"));
+	GtkWidget *previous_image   = gtk_image_new_from_stock (GTK_STOCK_GO_BACK, GTK_ICON_SIZE_BUTTON);
+	GtkWidget *next             = gtk_button_new_with_mnemonic (_("_Next"));
+	GtkWidget *next_image       = gtk_image_new_from_stock (GTK_STOCK_GO_FORWARD, GTK_ICON_SIZE_BUTTON);
 	bar->priv->entry = gtk_entry_new ();
-	previous         = gtk_button_new_with_mnemonic (_("_Previous"));
-	previous_image   = gtk_image_new_from_stock (GTK_STOCK_GO_BACK, GTK_ICON_SIZE_BUTTON);
-	next             = gtk_button_new_with_mnemonic (_("_Next"));
-	next_image       = gtk_image_new_from_stock (GTK_STOCK_GO_FORWARD, GTK_ICON_SIZE_BUTTON);
 
 	bar->priv->status_wrapped = gtk_image_new_from_icon_name ("xchat-gnome-search-wrapped", GTK_ICON_SIZE_MENU);
 	bar->priv->status_notfound = gtk_image_new_from_stock (GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_BUTTON);
@@ -186,11 +176,10 @@ find_bar_search (FindBar *bar, gboolean reverse)
 	position = conversation_panel_search (CONVERSATION_PANEL (gui.conversation_panel), text, bar->priv->last_position, FALSE, reverse);
 
 	if ((position == NULL) && (bar->priv->last_position != NULL)) {
+		position = conversation_panel_search (CONVERSATION_PANEL (gui.conversation_panel), text, NULL, FALSE, reverse);
 		if (reverse) {
-			position = conversation_panel_search (CONVERSATION_PANEL (gui.conversation_panel), text, NULL, FALSE, reverse);
 			find_bar_set_status (bar, STATUS_WRAPPED_REVERSE);
 		} else {
-			position = conversation_panel_search (CONVERSATION_PANEL (gui.conversation_panel), text, NULL, FALSE, reverse);
 			find_bar_set_status (bar, STATUS_WRAPPED);
 		}
 	} else if (position == NULL) {

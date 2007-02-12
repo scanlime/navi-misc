@@ -1,3 +1,13 @@
+2007-02-11  David Trowbridge  <trowbrds@gmail.com>
+
+	* src/common/outbound.c:
+	* src/common/fe.h:
+	* src/fe-gnome/migration.c:
+	* src/fe-gnome/fe-gnome.c:
+	* src/fe-gnome/status-bar.c:
+	* src/fe-gnome/find-bar.c:
+	  - More cleanup.
+
 2007-02-10  David Trowbridge  <trowbrds@gmail.com>
 
 	* src/common/cfgfiles.c:

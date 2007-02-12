@@ -2031,19 +2031,19 @@ cmd_gui (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 {
 	switch (str_ihash (word[2]))
 	{
-	case 0x058b836e: fe_ctrl_gui (sess, 8, 0); break; /* APPLY */
-	case 0xac1eee45: fe_ctrl_gui (sess, 7, 2); break; /* ATTACH */
-	case 0x05a72f63: fe_ctrl_gui (sess, 4, atoi (word[3])); break; /* COLOR */
-	case 0xb06a1793: fe_ctrl_gui (sess, 7, 1); break; /* DETACH */
-	case 0x05cfeff0: fe_ctrl_gui (sess, 3, 0); break; /* FLASH */
-	case 0x05d154d8: fe_ctrl_gui (sess, 2, 0); break; /* FOCUS */
-	case 0x0030dd42: fe_ctrl_gui (sess, 0, 0); break; /* HIDE */
-	case 0x61addbe3: fe_ctrl_gui (sess, 5, 0); break; /* ICONIFY */
+	case 0x058b836e: fe_ctrl_gui (sess, FE_GUI_APPLY, 0); break;
+	case 0xac1eee45: fe_ctrl_gui (sess, FE_GUI_ATTACH, 2); break;
+	case 0x05a72f63: fe_ctrl_gui (sess, FE_GUI_COLOR, atoi (word[3])); break;
+	case 0xb06a1793: fe_ctrl_gui (sess, FE_GUI_ATTACH, 1); break;
+	case 0x05cfeff0: fe_ctrl_gui (sess, FE_GUI_FLASH, 0); break;
+	case 0x05d154d8: fe_ctrl_gui (sess, FE_GUI_FOCUS, 0); break;
+	case 0x0030dd42: fe_ctrl_gui (sess, FE_GUI_HIDE, 0); break;
+	case 0x61addbe3: fe_ctrl_gui (sess, FE_GUI_ICONIFY, 0); break;
 	case 0xc0851aaa: fe_message (word[3], FE_MSG_INFO|FE_MSG_MARKUP); break; /* MSGBOX */
-	case 0x0035dafd: fe_ctrl_gui (sess, 1, 0); break; /* SHOW */
-	case 0x0033155f: /* MENU */
+	case 0x0035dafd: fe_ctrl_gui (sess, FE_GUI_SHOW, 0); break;
+	case 0x0033155f:
 		if (!strcasecmp (word[3], "TOGGLE"))
-			fe_ctrl_gui (sess, 6, 0);
+			fe_ctrl_gui (sess, FE_GUI_MENU, 0);
 		else
 			return FALSE;
 		break;
