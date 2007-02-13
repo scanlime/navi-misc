@@ -26,7 +26,7 @@ def upload(request):
         try:
             im = Image.open(StringIO(request.FILES['file']['content']))
             im.load()
-        except IOError:
+        except (IOError, ValueError):
             error = True
         else:
             image = models.ImageInstance.objects.create_original(im, request.user)
