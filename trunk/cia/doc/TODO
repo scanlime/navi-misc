@@ -1,6 +1,17 @@
 To-do List
 ==========
 
+Current priorities
+------------------
+
+- Usability improvements
+
+  - Server-side repository support, with polling or email-pings
+
+  - Documentation updates, especially the main /doc page
+
+  - Sparklines and interactive graphs, produced with fidtool
+
 New Web Interface
 -----------------
 
@@ -66,6 +77,13 @@ user accounts and assets (such as bots, projects, and authors).
 
   - Ruleset error/syntax hilighting using CodePress (which apparently does indeed work on Safari)
 
+- Image uploader improvements
+
+  - Support more image formats: In particular, the current uploader doesn't handle interlaced PNG
+
+  - Optimize the resulting PNG files. Look into using optipng or pngcrush
+
+  - Ditch PIL's buggy thumbnailing code (and all my workarounds)
 
 Deep Changes
 ------------
