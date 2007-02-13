@@ -9,6 +9,11 @@ from cia.apps.stats.models import StatsTarget
 import urlparse, xmlrpclib, re, difflib
 
 
+yes_no_choices = (
+    (False, 'No'),
+    (True,  'Yes'),
+    )
+
 class ACCESS:
     NONE = 0
     COMMUNITY = 1
@@ -414,6 +419,13 @@ class Project(models.Model):
     assets = models.GenericRelation(UserAsset)
     target = models.ForeignKey(StatsTarget)
 
+    secret_key = models.CharField(maxlength=64, null=True)
+    allow_anonymous_messages = models.BooleanField(default=True, choices=yes_no_choices)
+    allow_trusted_messages = models.BooleanField(default=True, choices=yes_no_choices)
+
+    def getName(self):
+        return self.target.path.split('/', 1)[1]
+
     def __str__(self):
         return unicode(self.target)
 
@@ -521,9 +533,7 @@ class Bot(models.Model):
 
     # For FILTER.PROJECT_LIST
     project_list = models.TextField("Project list", blank=True)
-    show_project_names = models.BooleanField("Show project names", default=True, choices=(
-        (False, 'No'),
-        (True,  'Yes')))
+    show_project_names = models.BooleanField("Show project names", default=True, choices=yes_no_choices)
 
     def getURI(self):
         s = self.network.uri
