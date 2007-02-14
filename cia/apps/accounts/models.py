@@ -4,7 +4,7 @@ from django.utils.html import escape
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 import django.newforms as forms
-from django.newforms.util import smart_unicode
+from django.newforms.util import smart_unicode, StrAndUnicode
 from cia.apps.stats.models import StatsTarget
 import urlparse, xmlrpclib, re, difflib
 
@@ -414,7 +414,7 @@ class AssetManager(models.Manager):
         return UserAsset.objects.filter(user=user, content_type=ct)
 
 
-class Project(models.Model):
+class Project(StrAndUnicode, models.Model):
     objects = AssetManager()
     assets = models.GenericRelation(UserAsset)
     target = models.ForeignKey(StatsTarget)
@@ -426,18 +426,18 @@ class Project(models.Model):
     def getName(self):
         return self.target.path.split('/', 1)[1]
 
-    def __str__(self):
+    def __unicode__(self):
         return unicode(self.target)
 
     class Admin:
         pass
 
-class Author(models.Model):
+class Author(StrAndUnicode, models.Model):
     objects = AssetManager()
     assets = models.GenericRelation(UserAsset)
     target = models.ForeignKey(StatsTarget)
 
-    def __str__(self):
+    def __unicode__(self):
         return unicode(self.target)
 
     class Admin:
