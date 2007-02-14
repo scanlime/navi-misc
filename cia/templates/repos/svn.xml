@@ -1,0 +1,38 @@
+{% spaceless %}
+<message>
+
+    <generator>
+        <name>Built-in Subversion repository interface</name>
+        <version>0.1</version>
+    </generator>
+
+    <source>
+        <project>{{ repos.project_name|escape }}</project>
+
+        {% if path_info.module %}
+            <module>{{ path_info.module|escape }}</module>
+        {% endif %}
+
+        {% if path_info.branch %}
+            <branch>{{ path_info.branch|escape }}</branch>
+        {% endif %}
+    </source>
+
+    <body><commit>
+        <revision>{{ commit.revision.number }}</revision>
+        <author>{{ commit.author|escape }}</author>
+        <log>{{ commit.message|escape }}</log>
+
+        {% if url %}
+            <url>{{ url }}</url>
+        {% endif %}
+
+	<files>
+            {% for file in files %}
+                <file action="{{ file.action }}" uri="{{ repos.root_url|escape }}{{ file.full_path|escape }}">{{ file.path|escape }}</file>
+            {% endfor %}
+	</files>
+
+    </commit></body>
+</message>
+{% endspaceless %}
