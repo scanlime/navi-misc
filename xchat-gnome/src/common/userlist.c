@@ -157,9 +157,9 @@ userlist_free (session *sess)
 {
 	tree_foreach (sess->usertree, (tree_traverse_func *)free_user, NULL);
 	tree_destroy (sess->usertree);
-	tree_destroy (sess->usertree_alpha);
-
 	sess->usertree = NULL;
+
+	tree_destroy (sess->usertree_alpha);
 	sess->usertree_alpha = NULL;
 	sess->me = NULL;
 
