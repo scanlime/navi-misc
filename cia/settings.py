@@ -138,7 +138,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
-    'django.contrib.admin',
+#    'django.contrib.admin',
     'cia.apps.accounts',
     'cia.apps.stats',
     'cia.apps.images',
