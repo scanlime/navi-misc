@@ -34,8 +34,10 @@ tree_destroy (tree *t)
 {
 	if (t)
 	{
-		if (t->array)
+		if (t->array) {
 			free (t->array);
+			t->array = NULL;
+		}
 		free (t);
 	}
 }
