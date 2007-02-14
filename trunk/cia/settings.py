@@ -142,4 +142,5 @@ INSTALLED_APPS = (
     'cia.apps.accounts',
     'cia.apps.stats',
     'cia.apps.images',
+    'cia.apps.repos',
 )
