@@ -1,8 +1,9 @@
 from django.db import models
 from cia.apps.images.models import ImageSource
+from django.newforms.util import smart_unicode, StrAndUnicode
 
 
-class StatsTarget(models.Model):
+class StatsTarget(StrAndUnicode, models.Model):
     """Refers to stats stored by the stats subsystem. This is a
        location in the database where information about a project,
        author, etc. are stored.
@@ -29,8 +30,8 @@ class StatsTarget(models.Model):
     def get_default_title(self):
         return self.path.rsplit('/', 1)[-1]
 
-    def __str__(self):
-        return self.title or self.get_default_title()
+    def __unicode__(self):
+        return smart_unicode(self.title) or self.get_default_title()
 
     class Admin:
         pass
