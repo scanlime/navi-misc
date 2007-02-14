@@ -31,7 +31,7 @@ class StatsTarget(StrAndUnicode, models.Model):
         return self.path.rsplit('/', 1)[-1]
 
     def __unicode__(self):
-        return smart_unicode(self.title) or self.get_default_title()
+        return smart_unicode(self.title or self.get_default_title())
 
     class Admin:
         pass
