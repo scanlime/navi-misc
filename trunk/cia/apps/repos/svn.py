@@ -1,7 +1,9 @@
 from cia.apps.repos.models import Repository
 from django.conf import settings
 from django.template import loader
-import re, pysvn, xmlrpclib
+from django.template.context import Context
+import re, xmlrpclib, datetime
+import pysvn, httplib, urlparse
 
 
 class SvnClient:
@@ -14,205 +16,202 @@ class SvnClient:
         self.model = model
 
     def probe(self):
-        """Test the repository. On success, stores extra information about
-           that repository including the root URL and the latest revision.
+        """Test the repository. On success, stores extra information
+           about that repository including the root URL and the latest
+           revision.
        
            This must be called any time the repository location is
            modified.  Since it resets our latest revision counter, all
            changes prior to this call will be ignored.
 
-           On success, saves the repository. On failure, raises a pysvn error.
+           On success, saves the repository. On failure, raises a
+           pysvn error or a ValueError.  This function may block for
+           an arbitrary amount of time!
            """
-        client = pysvn.Client()
+        if not self.client.is_url(self.model.location):
+            raise ValueError("Subversion repository must be a remote URL")
 
+        info = self.client.info2(self.model.location, recurse=False)[0][1]
 
-        repo_info = pysvn.Client().info2(repos.locationrepository, recurse=False)[0][1]
-        config.repositoryURI = repo_info['repos_root_URL']
-        latest_rev = repo_info['rev'].number    
-    
+        if info['kind'] != pysvn.node_kind.dir:
+            raise ValueError("%s is not a directory" % self.model.location)
 
+        self.model.root_url = info['repos_root_URL']
+        self.model.last_revision = info['rev'].number
+        self.model.uuid = info['repos_UUID']
+        self.model.save()
 
-
-
-loader.render_to_string(template_name, context).lstrip().split("\n", 1)
-
-
-
-
-
-
-
-
-
-
-
-########################
-
-class File:
-    """A changed file in a Subversion repository, constructed using
-       changed_paths data from pysvn.
-       """
-
-    # Map svn's status letters to our action names
-    actionMap = {
-        'U': 'modify',
-        'A': 'add',
-        'D': 'remove',
-        }
-
-    def __init__(self, changed_path):
-        fullPath = changed_path['path']
-        if fullPath.startswith('/'):
-            fullPath = fullPath[1:]
-
-        self.fullPath = fullPath
-        self.path = fullPath
-        self.action = self.actionMap.get(changed_path['action'])
-
-    def getURI(self, repo):
-        """Get the URI of this file, given the repository's URI. This
-           encodes the full path and joins it to the given URI.
+    def poll(self):
+        """Looks for updates to this repository since the last
+           poll. Submits CIA messages for any commits that have
+           occurred since then.
            """
-        quotedPath = urllib.quote(self.fullPath)
-        if quotedPath[0] == '/':
-            quotedPath = quotedPath[1:]
-        if repo[-1] != '/':
-            repo = repo + '/'
-        return repo + quotedPath
 
-    def makeTag(self, repo=None):
-        """Return an XML tag for this file. The optional repository URI
-           will be used if it was specified.
-           """
-        attrs = {}
+        # Have there been any new revisions? Get the last revision for
+        # the whole repository. Note that this may be later than the
+        # revision of the last commit we retrieve.
 
-        if config.repositoryURI is not None:
-            attrs['uri'] = self.getURI(config.repositoryURI)
+        last_revision = self._pollLatestRev()
+        if last_revision <= self.model.last_revision:
+            return
 
-        if self.action:
-            attrs['action'] = self.action
-
-        attrString = ''.join([' %s="%s"' % (key, escapeToXml(value,1))
-                              for key, value in attrs.items()])
-        return "<file%s>%s</file>" % (attrString, escapeToXml(self.path))
-
-
-def store_repos_info(projectModel):
-    """Given a Project model, poll that project's subversion repository
-       for updates. This will update the model's state information
-       as necessary, and send commit messages for any new projects
-       we haven't seen before.
-
-       Assumes that the project is configured for CLIENT_TYPE.SERVER_SVN.
-       """
-    
-
-    
-
-class RemoteSvnClient:
-    """A CIA client for remote Subversion repositories, using pysvn."""
-
-    def __init__(self, project):
-        client = pysvn.Client()
-
-
-        repo_info = client.info2(repository, recurse=False)[0][1]
-        config.repositoryURI = repo_info['repos_root_URL']
-        latest_rev = repo_info['rev'].number
-
-        self.commits = client.log(repository,
-                                  revision_start = pysvn.Revision(pysvn.opt_revision_kind.number, revision),
-                                  revision_end = pysvn.Revision(pysvn.opt_revision_kind.number, latest_rev),
-                                  discover_changed_paths = True)
-
-
-class CommitTranslator:
-    """Translates Subversion commits from pysvn's format to CIA's XML messages."""
-
-    name = 'Server-side Subversion interface for CIA'
-    version = '0.1'
-
-    def __init__(self, projectModel, commit):
-        self.project = project
-        self.commit = commit
-
-    def getMessage(self):
-        return ("<message>" +
-                self.makeGeneratorTag() +
-                self.makeSourceTag() +
-                self.makeBodyTag() +
-                "</message>")
-
-    def deliver(self):
-        xmlrpclib.ServerProxy(settings.CIA_RPC_URL).hub.deliver(self.getMessage())
-
-    def makeAttrTags(self, *names):
-        """Given zero or more attribute names, generate XML elements for
-           those attributes only if they exist and are non-None.
-           """
-        s = ''
-        for name in names:
-            if hasattr(self, name):
-                v = getattr(self, name)
-                if v is not None:
-                    s += "<%s>%s</%s>" % (name, escapeToXml(v), name)
-        return s
-
-    def makeGeneratorTag(self):
-        return "<generator>%s</generator>" % self.makeAttrTags(
-            'name',
-            'version',
+        changes = self.client.log(
+            self.model.location,
+            revision_start = pysvn.Revision(pysvn.opt_revision_kind.number, self.model.last_revision + 1),
+            revision_end = pysvn.Revision(pysvn.opt_revision_kind.number, last_revision),
+            discover_changed_paths = True,
             )
 
-    def makeSourceTag(self):
-        return "<source>%s</source>" % self.makeAttrTags(
-            'project',
-            'module',
-            'branch',
-            )
+        for change in changes:
+            self._deliverCommit(change)
 
-    def makeBodyTag(self):
-        return "<body><commit>%s%s</commit></body>" % (
-            self.makeAttrTags(
-            'revision',
-            'author',
-            'log',
-            'url',
-            ),
-            self.makeFileTags(),
-            )
+        self.model.last_revision = last_revision
+        self.model.last_update_time = datetime.datetime.now()
+        self.model.save()
 
-    def makeFileTags(self):
-        """Return XML tags for our file list"""
-        return "<files>%s</files>" % ''.join([file.makeTag(self.config)
-                                              for file in self.files])
+    _pollerData = ('<?xml version="1.0" encoding="utf-8"?>' +
+                    '<propfind xmlns="DAV:">' +
+                    '<prop><checked-in xmlns="DAV:"/></prop>' +
+                    '</propfind>')
 
-    def collectData(self, commit):
-        self.log = commit['message']
-        self.files = self.collectFiles(commit['changed_paths'])
-        self.author = commit['author']
-        self.revision = commit['revision'].number
-        self.project = self.config.project
-        if self.config.revisionURI is not None:
-            self.url = self.config.revisionURI % self.__dict__
-        else:
-            self.url = None
+    _pollerUserAgent = 'CIA Repository Poller (http://cia.navi.cx)'
 
-    def collectFiles(self, changed_paths):
+    _pollerRegex = re.compile('/!svn/bln/(\d+)</D:href>')
+
+    def _pollLatestRev(self):
+        """Determine the repository's latest revision. This version should
+           always succeed if the repository is correct and the server is
+           up. On failure, returns a pysvn error.
+           """
+        # Fast path...
+        rev = self._pollLatestRevFast()
+        if rev is not None:
+            return rev
+        
+        info = self.client.info2(self.model.location, recurse=False)[0][1]
+        return info['rev'].number
+
+    def _pollLatestRevFast(self):
+        """Do the minimal work possible in order to determine a repository's
+           latest revision. This only works for HTTP repositories, and it may
+           fail for any reason. If this fails, we have to fall back on pysvn.
+           This function simply gives us a lighter-weight polling mechanism
+           that works 90% of the time.
+
+           Returns an integer revision, or None if we can't determine the
+           revision with certainty. May also raise an exception if a network
+           error occurs.
+           """
+        url = self.model.root_url + '/!svn/vcc/default'
+        scheme, netloc, path, _, _, _ =  urlparse.urlparse(url)
+        if scheme != 'http':
+            return
+
+        host, port = (netloc + ':80').split(':')[:2]
+
+        http = httplib.HTTPConnection(host, port)
+        http.putrequest('PROPFIND', path)
+        http.putheader('User-Agent', self._pollerUserAgent)
+        http.putheader('Content-Length', str(len(self._pollerData)))
+        http.putheader('Depth', '0')
+        http.endheaders()
+        http.send(self._pollerData)
+
+        response = http.getresponse()
+        if response.status < 200 or response.status >= 300:
+            response.close()
+            return
+
+        data = response.read()
+        response.close()
+
+        m = self._pollerRegex.search(data)
+        if m:
+            return int(m.group(1))
+
+    def _deliverCommit(self, change):
+        """Given pysvn's object describing a change log, generate and
+           deliver a CIA XML message. This uses a Django template to
+           do most of our conversion work.
+           """
+
+        path_info = {
+            'module': self.model.default_module_name,
+            'branch': None,
+            }
+        files = self._collectFiles(change['changed_paths'], path_info)
+
+        root_url = self.model.root_url
+        if root_url.split('://', 1)[0] not in ('http', 'https'):
+            # Only use the repository root URL if it's something we expect
+            # web browsers to understand...
+            root_url = None
+
+        print loader.render_to_string('repos/svn.xml', Context({
+            'model': self.model,
+            'change': change,
+            'path_info': path_info,
+            'files': files,
+            'root_url': root_url,
+            }))
+
+    _pathRegexes = None
+
+    def _updatePathRegexCache(self):
+        """Update _pathRegexes. This is a list of compiled regular
+           expressions taken from the lines of text in model.path_regexes.
+           """
+        if self._pathRegexes is not None:
+            return
+        self._pathRegexes = []
+
+        if self.model.path_regexes:
+            for line in self.model.path_regexes.split("\n"):
+                line = line.strip()
+                if line:
+                    print repr(line)
+                    self._pathRegexes.append(re.compile(line, re.VERBOSE))
+
+    def _collectFiles(self, changed_paths, path_info):
+        """Convert pysvn's chnaged_paths list into a list of
+           File objects, and apply our path regexes on those files.
+           """
         files = map(File, changed_paths)
 
         # Try each of our several regexes. To be applied, the same
         # regex must mach every file under consideration and they must
         # all return the same results. If we find one matching regex,
         # or we try all regexes without a match, we're done.
-        matchDict = None
-        for regex in self.config.pathRegexes:
-            matchDict = matchAgainstFiles(regex, files)
-            if matchDict is not None:
-                self.__dict__.update(matchDict)
+
+        self._updatePathRegexCache()
+        for regex in self._pathRegexes:
+            matches = matchAgainstFiles(regex, files)
+            if matches is not None:
+                path_info.update(matches)
                 break
 
         return files
+
+
+class File:
+    """A changed file in a Subversion repository, constructed using
+       changed_paths data from pysvn.
+       """
+
+    action_map = {
+        'M': 'modify',
+        'A': 'add',
+        'D': 'remove',
+        }
+
+    def __init__(self, changed_path):
+        full_path = changed_path['path']
+        if full_path.startswith('/'):
+            full_path = full_path[1:]
+
+        self.full_path = full_path
+        self.path = full_path
+        self.action = self.action_map.get(changed_path['action'])
 
 
 def matchAgainstFiles(regex, files):
@@ -225,7 +224,7 @@ def matchAgainstFiles(regex, files):
     compiled = re.compile(regex, re.VERBOSE)
     for f in files:
 
-        match = compiled.match(f.fullPath)
+        match = compiled.match(f.full_path)
         if not match:
             # Give up, it must match every file
             return None
@@ -241,21 +240,5 @@ def matchAgainstFiles(regex, files):
     # the same results.  Now filter the matched portion out of
     # each file and store the matches we found.
     for f in files:
-        f.path = compiled.sub('', f.fullPath)
+        f.path = compiled.sub('', f.full_path)
     return prevMatchDict
-
-
-def escapeToXml(text, isAttrib=0):
-    text = unicode(text)
-    text = text.replace("&", "&amp;")
-    text = text.replace("<", "&lt;")
-    text = text.replace(">", "&gt;")
-    if isAttrib == 1:
-        text = text.replace("'", "&apos;")
-        text = text.replace("\"", "&quot;")
-    return text
-
-if __name__ == "__main__":
-    RemoteSvnClient("http://svn.navi.cx/misc/trunk/", 11240, config).main()
-
-### The End ###
