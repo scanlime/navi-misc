@@ -7,7 +7,7 @@
     </generator>
 
     <source>
-        <project>{{ repos.project_name|escape }}</project>
+        <project>{{ model.project_name|escape }}</project>
 
         {% if path_info.module %}
             <module>{{ path_info.module|escape }}</module>
@@ -19,9 +19,9 @@
     </source>
 
     <body><commit>
-        <revision>{{ commit.revision.number }}</revision>
-        <author>{{ commit.author|escape }}</author>
-        <log>{{ commit.message|escape }}</log>
+        <revision>{{ change.revision.number }}</revision>
+        <author>{{ change.author|escape }}</author>
+        <log>{{ change.message|escape }}</log>
 
         {% if url %}
             <url>{{ url }}</url>
@@ -29,7 +29,7 @@
 
 	<files>
             {% for file in files %}
-                <file action="{{ file.action }}" uri="{{ repos.root_url|escape }}{{ file.full_path|escape }}">{{ file.path|escape }}</file>
+                <file{% if file.action %} action="{{ file.action }}"{% endif %}{% if root_url %} uri="{{ root_url|escape }}/{{ file.full_path|escape }}"{% endif %}>{{ file.path|escape }}</file>
             {% endfor %}
 	</files>
 

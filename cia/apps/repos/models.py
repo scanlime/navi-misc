@@ -37,5 +37,8 @@ class Repository(models.Model):
     last_revision = models.PositiveIntegerField(default=0, null=True)
     last_update_time = models.DateTimeField(null=True)
 
+    def __str__(self):
+        return "%s repository at %s" % (self.get_type_display(), self.location)
+
     class Admin:
         pass
