@@ -169,7 +169,6 @@ class SvnClient:
             for line in self.model.path_regexes.split("\n"):
                 line = line.strip()
                 if line:
-                    print repr(line)
                     self._pathRegexes.append(re.compile(line, re.VERBOSE))
 
     def _collectFiles(self, changed_paths, path_info):
@@ -242,3 +241,4 @@ def matchAgainstFiles(regex, files):
     for f in files:
         f.path = compiled.sub('', f.full_path)
     return prevMatchDict
+
