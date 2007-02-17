@@ -1,0 +1,52 @@
+{% extends 'accounts/stats_asset_edit.html' %}
+
+{% block tabs %}
+  <li><a href="#repository" class="active"> Repository
+  </a></li>
+  {{ block.super }}
+{% endblock %}
+
+{% block tab-content %}
+  <div id="repository" class="tabset_content">
+    <h2 class="tabset_label">Repository</h2>
+
+    <p class="narrow">The {{ user_asset.asset|escape }} project can feed data to CIA in any of the following ways:</p>
+
+    <ol>
+      <li>
+        <p class="narrow">
+          You may already be using a hosting service, like <a href="http://sourceforge.net">SourceForge.net</a>
+          or <a href="http://gna.org">Gna!</a>, which provide built-in CIA integration.
+        </p>
+        <p class="narrow">
+          Check with your hosting provider for details. You may need to ensure that CIA and your hosting provider
+          use the same project name.
+        </p>
+      </li>
+
+      <li>
+        <p class="narrow">
+          You may install a <a href="/doc/clients/">client script</a> in your project's source repository. This
+          option provides the fastest response time, and supports the widest variety of revision control systems.
+        </p>
+        <p class="narrow">
+	  Your client script must be configured to use the project name "<code>{{ user_asset.asset.get_name|escape }}</code>".
+	</p>
+      </li>
+
+      <li>
+        <p class="narrow">
+          If your project uses a public <a href="http://subversion.tigris.org/">Subversion</a> repository, the CIA
+          server can contact it directly and check for commits. It can poll your server periodically, or it can check
+	  for updates in response to 'pings' sent via e-mail. You can add a simple post-commit hook to send these
+	  pings, or you can take advantage of an existing mailer script or mailing list.
+        </p>
+        <p class="narrow">
+	  (Coming soon)
+	</p>
+      </li>
+
+    </ol>
+  </div>
+  {{ block.super }}
+{% endblock %}

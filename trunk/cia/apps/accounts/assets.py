@@ -340,7 +340,6 @@ class StatsMetadataForm(forms.Form):
         if target.icon:
             target.icon.reference()
 
-
 @authplus.login_required
 def stats_asset(request, asset_type, asset_id):
     """Generic form for editing stats-based assets."""
@@ -420,3 +419,44 @@ def add_stats_asset(request, asset_type, prefix, template, name=None):
         'form': form,
         })
     return render_to_response(template, RequestContext(request, ctx))
+
+
+###########################
+#     Project Editing     #
+###########################
+
+class ProjectForm(forms.Form):
+    add_svn_repo = forms.CharField(
+        required = False,
+        widget = forms.TextInput(attrs = {'class': 'text'}),
+        )
+
+@authplus.login_required
+def project(request, asset_type, asset_id):
+    """Generic form for editing stats-based assets."""
+    ctx = get_asset_edit_context(request, asset_type, asset_id)
+    user_asset = ctx['user_asset']
+    asset = user_asset.asset
+    asset.target.enforce_defaults()
+
+    # Non-top-level projects are currently only editable as generic stats items.
+    if not asset.is_top_level():
+        return stats_asset(request, asset_type, asset_id)
+
+    form = formtools.MultiForm(request.POST)
+    form.validate(EditAssetForm, user_asset)
+    form.validate(StatsMetadataForm, asset.target)
+    form.validate(ProjectForm)
+    ctx['form'] = form
+
+    if request.POST and form.is_valid():
+        cset = models.AssetChangeset.objects.begin(request, asset)
+        form.StatsMetadataForm.apply(cset)
+        form.EditAssetForm.apply(cset, request, user_asset)
+        cset.finish()
+
+        if form.EditAssetForm.should_delete():
+            return form.EditAssetForm.delete(request, user_asset)
+
+    return render_to_response('accounts/project_edit.html', RequestContext(request, ctx))
+
