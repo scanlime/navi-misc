@@ -143,6 +143,10 @@ class EditAssetForm(forms.Form):
         widget = forms.RadioSelect,
         )
 
+    def __init__(self, data=None):
+        forms.Form.__init__(self, data)
+        self.access_levels = formtools.RadioChoices(self['access'], models.ACCESS)
+
     def clean_access(self):
         return int(self.clean_data['access'])
 
@@ -350,6 +354,7 @@ def stats_asset(request, asset_type, asset_id):
     form = formtools.MultiForm(request.POST)
     form.validate(EditAssetForm, user_asset)
     form.validate(StatsMetadataForm, asset.target)
+    ctx['form'] = form
 
     if request.POST and form.is_valid():
         cset = models.AssetChangeset.objects.begin(request, asset)
@@ -359,11 +364,6 @@ def stats_asset(request, asset_type, asset_id):
 
         if form.EditAssetForm.should_delete():
             return form.EditAssetForm.delete(request, user_asset)
-
-    ctx.update({
-        'form': form,
-        'levels': formtools.RadioChoices(form['access'], models.ACCESS),
-        })
 
     return render_to_response('accounts/stats_asset_edit.html', RequestContext(request, ctx))
 
