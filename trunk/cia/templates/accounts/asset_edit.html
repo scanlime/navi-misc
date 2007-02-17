@@ -33,7 +33,7 @@
       <h2 class="tabset_label">Ownership</h2>
 
       <div class="form-row">
-        {{ levels.NONE }}
+        {{ form.EditAssetForm.access_levels.NONE }}
         <div class="radio">
           <p class="note">
             Remove this {{ asset_type_name }} from your inventory.
@@ -44,7 +44,7 @@
       </div>
 
       <div class="form-row">
-        {{ levels.COMMUNITY }}
+        {{ form.EditAssetForm.access_levels.COMMUNITY }}
         <div class="radio">
           <p class="note">
             Anyone can add this {{ asset_type_name }} to their inventory, and
@@ -56,7 +56,7 @@
       </div>
 
       <div class="form-row">
-        {{ levels.EXCLUSIVE }}
+        {{ form.EditAssetForm.access_levels.EXCLUSIVE }}
         <div class="radio">
           <p class="note">
             You have total control over this {{ asset_type_name }}. Only one person
