@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block account-forms %}
-<form action="{{ form_path }}" method="post">
+<form action="{{ request.path }}" method="post">
   <fieldset><legend>IRC Bot</legend>
 
   <div class="form-row">

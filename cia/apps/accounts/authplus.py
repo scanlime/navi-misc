@@ -182,7 +182,6 @@ def reset(request, key, next_page):
 
     request.session.set_test_cookie()
     return render_to_response('accounts/reset_password.html', RequestContext(request, {
-        'form_path': request.path,
         'username': user.username,
         'form': form,
         }))
