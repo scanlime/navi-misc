@@ -79,7 +79,6 @@ def get_asset_add_context(request, asset_type):
         'user_assets': model.objects.all_for_user(request.user),
         'ACCESS': models.ACCESS,
         'add': True,
-        'form_path': request.path,
         }
 
 def get_asset_edit_context(request, asset_type, asset_id):
@@ -107,7 +106,6 @@ def get_asset_edit_context(request, asset_type, asset_id):
         'asset_id': asset_id,
         'user_asset': user_asset,
         'other_community_user_assets': user_asset.asset.assets.exclude(user=request.user),
-        'form_path': request.path,
         }
 
 

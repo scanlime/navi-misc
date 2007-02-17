@@ -19,7 +19,7 @@
 {% endblock %}
 
 {% block account-forms %}
-<form action="{{ form_path }}" method="post" class="unlabeled">
+<form action="{{ request.path }}" method="post" class="unlabeled">
   <div id="message-composer">
     {{ form.message }}
     {% if form.data %}

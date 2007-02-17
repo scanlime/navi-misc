@@ -3,7 +3,7 @@
 {% block h1 %} Add {{ asset_type_name }}{% endblock %}
 
 {% block account-forms %}
-<form action="{{ form_path }}" method="post">
+<form action="{{ request.path }}" method="post">
   <fieldset><legend>{{ asset_type_name|capfirst }}</legend>
 
   <div class="form-row">

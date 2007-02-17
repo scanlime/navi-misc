@@ -17,7 +17,7 @@
 
 {% block account-forms %}
   <div id="tabs-and-sidebar">
-  <form id="edit-form" action="{{ form_path }}" method="post">
+  <form id="edit-form" action="{{ request.path }}" method="post">
 
     <ul class="tabset_tabs" id="form-tabs">
       {% block tabs %}
