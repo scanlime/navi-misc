@@ -420,8 +420,11 @@ class Project(StrAndUnicode, models.Model):
     allow_anonymous_messages = models.BooleanField(default=True, choices=yes_no_choices)
     allow_trusted_messages = models.BooleanField(default=True, choices=yes_no_choices)
 
-    def getName(self):
+    def get_name(self):
         return self.target.path.split('/', 1)[1]
+
+    def is_top_level(self):
+        return len(self.target.path.split('/')) == 2
 
     def __unicode__(self):
         return unicode(self.target)

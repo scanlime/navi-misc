@@ -37,7 +37,9 @@ urlpatterns = patterns('',
         'prefix': 'author/',
         'template': 'accounts/author_add.html',
     }),
-    (r'^(?P<asset_type>(projects|authors))/(?P<asset_id>\d+)/$', assets.stats_asset),
+
+    (r'^(?P<asset_type>projects)/(?P<asset_id>\d+)/$', assets.project),
+    (r'^(?P<asset_type>authors)/(?P<asset_id>\d+)/$', assets.stats_asset),
 
     (r'^changes/(?P<asset_type>[a-z]+)/(?P<asset_id>\d+)/page(?P<page_number>\d+)/$', assets.changes),
     (r'^conflict/(?P<asset_type>[a-z]+)/(?P<asset_id>\d+)/$', assets.conflict),

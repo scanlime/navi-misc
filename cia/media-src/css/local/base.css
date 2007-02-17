@@ -15,6 +15,11 @@ img {
   border: none;
 }
 
+code {
+  font-family: monospace;
+  font-weight: bold;
+}
+
 .heading {
   position: relative;
   margin: 0.5em;
