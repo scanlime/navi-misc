@@ -28,7 +28,7 @@ access_choices = (
     )
 
 class UserAssetManager(models.Manager):
-    def get_or_create_if_allowed(self, user, asset, meta):
+    def get_or_create_if_allowed(self, user, asset, cset):
         """If the user already owns the given asset instance, return
            the matching UserAsset instance. If not, this might create
            a new UserAsset.
@@ -38,9 +38,8 @@ class UserAssetManager(models.Manager):
            allowed, this function will return None and the caller can
            redirect to a conflict resolution page.
 
-           If a new UserAsset was created, the provided 'meta' list
-           will be populated with a special changeset field indicating
-           the operation that was performed.
+           If a new UserAsset was created, the provided changeset will
+           be updated accordingly.
            """
         # Is there already an exclusive owner?
         try:
@@ -64,7 +63,7 @@ class UserAssetManager(models.Manager):
             object_id = asset.id,
             )
         if created_user_asset:
-            meta.append('_gained_access')
+            cset.set_meta('_gained_access')
         return user_asset
 
 class UserAsset(models.Model):
@@ -153,95 +152,23 @@ def smart_unicode_cmp(a, b):
         b = smart_unicode(b)
     return cmp(a, b)
 
-
 class AssetChangesetManager(models.Manager):
-    def _lookup_model(self, asset, field):
-        """Parse dotted fields, looking up their model instance.
-           Returns a (model, fieldname) tuple.
+    def begin(self, request, asset):
+        """Begin a changeset. This changeset will be saved automatically,
+           but only if changes are actually made. Any change started with
+           begin() should be finish()'ed.
            """
-        segments = field.split('.')
-        model = asset
-        for name in segments[:-1]:
-            model = getattr(model, name, None)
-            if model is None:
-                break
-        return model, segments[-1]
-
-    def apply_changes(self, request, asset, changes={}, meta=(), fieldmap={}):
-        """Apply a dictionary of changes to an asset. If anything in
-           fact changed, this will create a record of those changes,
-           save the asset(s), and present a message to the user.
-
-           Fields may be present in the asset itself, or they may
-           be fields in related models specified using dot notation.
-           If the field names are not already in the right format,
-           they may be remapped using the 'fieldmap' dictionary.
-
-           The optional 'meta' list contains a set of fields, with no
-           data, to add to the changeset. This can be used to store
-           ownership changes and other events which aren't directly
-           represented by an asset's fields.
-           """
-        changed_models = {}
-        new_changes = {}
-        previous = {}
-
-        # Apply the changes while storing differences
-        for field, new in changes.items():
-            field = fieldmap.get(field, field)
-            model, name = self._lookup_model(asset, field)
-
-            p = getattr(model, name, None)
-            if smart_unicode_cmp(p, new) != 0:
-                previous[field] = p
-                new_changes[field] = new
-                changed_models[model] = True
-                setattr(model, name, new)
-
-        if new_changes:
-            request.user.message_set.create(
-                message = "Your %s was updated successfully." % asset.__class__._meta.verbose_name)
-
-        self.store_changes(request, asset, new_changes, meta, previous)
-
-        for model in changed_models:
-            model.save()
-
-    def store_changes(self, request, asset, changes={}, meta=(), previous={}):
-        """Like apply_changes, but don't actually modify
-           the asset and don't prune anything from 'changes'.
-           If no dictionary of previous values is provided,
-           we assume all previous values were None. This is
-           convenient for creating new assets.
-           """           
-        # Don't create empty changesets
-        if not (changes or meta):
-            return
-
-        # Create the changeset
-        cset = self.create(
+        cset = AssetChangeset(
             user = request.user,
             remote_addr = request.META.get('REMOTE_ADDR'),
             content_type = ContentType.objects.get_for_model(asset.__class__),
             object_id = asset.id,
             )
 
-        # Create each change in the changeset
-        for field, new in changes.items():
-            AssetChangeItem.objects.create(
-                changeset = cset,
-                field = field,
-                new_value = new,
-                old_value = previous.get(field),
-                )
-
-        # Create meta-fields
-        for field in meta:
-            AssetChangeItem.objects.create(
-                changeset = cset,
-                field = field,
-                )
-
+        cset._changed_models = {}
+        cset._finished = False
+        cset._request = request
+        return cset
 
 class AssetChangeset(models.Model):
     """A single set of changes made to an asset, committed atomically
@@ -261,6 +188,77 @@ class AssetChangeset(models.Model):
 
     def __str__(self):
         return "Change %d for %s by %s" % (self.id, self.asset, self.user)
+
+    def _lookup_model(self, field):
+        """Parse dotted fields, looking up their model instance.
+           Returns a (model, fieldname) tuple.
+           """
+        segments = field.split('.')
+        model = self.asset
+        for name in segments[:-1]:
+            model = getattr(model, name, None)
+            if model is None:
+                break
+        return model, segments[-1]
+
+    def set_field(self, field_name, value):
+        """Apply a single-field change to an asset. If we're actually
+           changing the field's current value, this creates a changeset
+           item to represent the change, saves the changeset if necessary,
+           and adds the relevant model to our list of models to save.
+           """
+        assert self._finished == False
+
+        model, name = self._lookup_model(field_name)
+        prev = getattr(model, name, None)
+
+        if smart_unicode_cmp(prev, value) == 0:
+            # No change
+            return
+        
+        if self.id is None:
+            self.save()
+
+        AssetChangeItem.objects.create(
+            changeset = self,
+            field = field_name,
+            new_value = value,
+            old_value = prev,
+            )
+
+        self._changed_models[model] = True
+        setattr(model, name, value)
+
+    def set_field_dict(self, d, prefix=''):
+        for field, value in d.items():
+            self.set_field(prefix + field, value)
+
+    def set_meta(self, name):
+        """Add a special-case field name to this changeset."""
+        assert self._finished == False
+        if self.id is None:
+            self.save()
+
+        AssetChangeItem.objects.create(
+            changeset = self,
+            field = name,
+            )
+
+    def finish(self):
+        """Finish a changeset. This saves any models that have been changed,
+           and it may generate a user-visible success message.
+           """
+        assert self._finished == False
+        self._finished = True
+        if not self._changed_models:
+            return
+
+        for model in self._changed_models:
+            model.save()
+
+        self._request.user.message_set.create(
+            message = "Your %s was updated successfully." %
+            self.asset.__class__._meta.verbose_name)        
 
 
 special_changes = {
@@ -305,8 +303,7 @@ class AssetChangeItem(models.Model):
 
     def get_field(self):
         """Return the Field instance corresponding to self.field"""
-        model, name = AssetChangeset.objects._lookup_model(
-            self.changeset.asset, self.field)
+        model, name = self.changeset._lookup_model(self.field)
 
         # Drop an "_id" prefix automatically
         if name.endswith("_id"):
