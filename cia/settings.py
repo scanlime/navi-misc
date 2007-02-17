@@ -116,7 +116,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.debug',
     'django.core.context_processors.i18n',
     'cia.apps.context_processors.analytics',
-#    'django.core.context_processors.request',
+    'django.core.context_processors.request',
 )
 
 MIDDLEWARE_CLASSES = (

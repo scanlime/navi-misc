@@ -173,6 +173,10 @@ class EditBotForm(forms.Form):
         # the client side.. but this is sufficient for now.
         return models.validate_ruleset(self.clean_data['custom_ruleset'], allow_empty)
 
+    def apply(self, cset):
+        cset.set_field_dict(self.clean_data)
+        cset.asset.syncToServer()
+
 
 @authplus.login_required
 def bot(request, asset_type, asset_id):
@@ -191,10 +195,9 @@ def bot(request, asset_type, asset_id):
 
     if request.POST and form.is_valid():
         cset = models.AssetChangeset.objects.begin(request, bot)
-        cset.set_field_dict(form.EditBotForm.clean_data)
         form.EditAssetForm.apply(cset, request, user_asset)
+        form.EditBotForm.apply(cset)
         cset.finish()
-        bot.syncToServer()
 
         if form.EditAssetForm.should_delete():
             return form.EditAssetForm.delete(request, user_asset)
