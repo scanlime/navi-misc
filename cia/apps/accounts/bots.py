@@ -78,8 +78,6 @@ def add_bot(request, asset_type):
             form.validate(AddNetworkForm)
 
         if form.is_valid():
-            meta = []
-
             # Get/create the network, now that we know all forms validated
             network = form.clean_data['network'] or form.AddNetworkForm.get_or_create(request)
             location = normalize_channel_to_location(form.clean_data['channel'])
@@ -94,22 +92,15 @@ def add_bot(request, asset_type):
                 location__iexact = location,
                 defaults = defaults,
                 )
+            cset = models.AssetChangeset.objects.begin(request, bot)
             if created_bot:
-                meta.append('_created')
-                changes = defaults
-            else:
-                changes = {}
+                cset.set_meta('_created')
+                cset.set_field_dict(default)
 
             # Finally, create a new UserAsset.
-            user_asset = models.UserAsset.objects.get_or_create_if_allowed(request.user, bot, meta)
+            user_asset = models.UserAsset.objects.get_or_create_if_allowed(request.user, bot, cset)
 
-            # Record these changes, if any
-            models.AssetChangeset.objects.store_changes(
-                request = request,
-                asset = bot,
-                meta = meta,
-                changes = changes,
-                )
+            cset.finish()
 
             # Redirect either to the new UserAsset or to a conflict resolution page
             if user_asset is None:
@@ -199,12 +190,10 @@ def bot(request, asset_type, asset_id):
     form.validate(assets.EditAssetForm, user_asset)
 
     if request.POST and form.is_valid():
-        models.AssetChangeset.objects.apply_changes(
-            request = request,
-            asset = bot,
-            changes = form.EditBotForm.clean_data,
-            meta = form.EditAssetForm.apply_meta_changes(request, user_asset),
-            )
+        cset = models.AssetChangeset.objects.begin(request, bot)
+        cset.set_field_dict(form.EditBotForm.clean_data)
+        form.EditAssetForm.apply(cset, request, user_asset)
+        cset.finish()
         bot.syncToServer()
 
         if form.EditAssetForm.should_delete():

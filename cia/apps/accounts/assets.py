@@ -161,25 +161,24 @@ class EditAssetForm(forms.Form):
         return HttpResponseRedirect("/account/%s/add/" % 
                                     user_asset.asset._meta.asset_type)
 
-    def apply_meta_changes(self, request, user_asset):
-        """Apply changes to a UserAsset, returning a 'meta' dictionary
-           with special asset changeset items describing those changes.
+    def apply(self, cset, request, user_asset):
+        """Apply changes to a UserAsset, saving information about
+           those changes in the provided changeset.
            """
-        meta = []
         new_access = self.clean_data['access']
         if new_access != user_asset.access:
 
             if new_access == models.ACCESS.NONE:
                 # We'll actually do the deletion later
 
-                meta.append('_lost_access')
+                cset.set_meta('_lost_access')
 
             elif new_access == models.ACCESS.COMMUNITY:
                 # Decreasing the access level
 
                 request.user.message_set.create(message="You now have community-level access to %s" % user_asset.asset)
                 assert user_asset.access > new_access
-                meta.append('_community_access')
+                cset.set_meta('_community_access')
                 user_asset.access = new_access
                 user_asset.save()
 
@@ -189,12 +188,10 @@ class EditAssetForm(forms.Form):
                 # (community-access) users!
                 
                 request.user.message_set.create(message="You have taken exclusive access to %s" % user_asset.asset)
-                meta.append('_exclusive_access')
+                cset.set_meta('_exclusive_access')
                 user_asset.access = new_access
                 user_asset.save()
                 user_asset.asset.assets.exclude(user=request.user).delete()
-
-        return meta
 
 
 @authplus.login_required
@@ -353,20 +350,10 @@ def stats_asset(request, asset_type, asset_id):
     form.validate(StatsMetadataForm, asset.target)
 
     if request.POST and form.is_valid():
-        models.AssetChangeset.objects.apply_changes(
-            request = request,
-            asset = asset,
-            changes = form.StatsMetadataForm.clean_data,
-            meta = form.EditAssetForm.apply_meta_changes(request, user_asset),
-            fieldmap = {
-                'title': 'target.title',
-                'subtitle': 'target.subtitle',
-                'url': 'target.url',
-                'description': 'target.description',
-                'photo_id': 'target.photo_id',
-                'icon_id': 'target.icon_id',
-                },
-            )
+        cset = models.AssetChangeset.objects.begin(request, asset)
+        cset.set_field_dict(form.StatsMetadataForm.clean_data, prefix='target.')
+        form.EditAssetForm.apply(cset, request, user_asset)
+        cset.finish()
 
         if asset.target.photo:
             asset.target.photo.reference()
@@ -414,25 +401,19 @@ def add_stats_asset(request, asset_type, prefix, template, name=None):
     #      pre-fill the form if it doesn't yet exist.
     #
     if name:
-        meta = []
-
         # Get/create the stats target
         target = StatsTarget.objects.get_or_create(path = prefix + name)[0]
 
         # Now get/create the matching asset
         asset, created_asset = model.objects.get_or_create(target = target)
+        cset = models.AssetChangeset.objects.begin(request, asset)
         if created_asset:
-            meta.append('_created')
+            cset.set_meta('_created')
 
         # Finally, create a new UserAsset.
-        user_asset = models.UserAsset.objects.get_or_create_if_allowed(request.user, asset, meta)
+        user_asset = models.UserAsset.objects.get_or_create_if_allowed(request.user, asset, cset)
 
-        # Record these changes, if any
-        models.AssetChangeset.objects.store_changes(
-            request = request,
-            asset = asset,
-            meta = meta,
-            )
+        cset.finish()
 
         # Redirect either to the new UserAsset or to a conflict resolution page
         if user_asset is None:
