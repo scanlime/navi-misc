@@ -30,6 +30,11 @@ class StatsTarget(StrAndUnicode, models.Model):
     def get_default_title(self):
         return self.path.rsplit('/', 1)[-1]
 
+    def enforce_defaults(self):
+        if not self.title:
+            self.title = self.get_default_title()
+            self.save()
+
     def __unicode__(self):
         return smart_unicode(self.title or self.get_default_title())
 

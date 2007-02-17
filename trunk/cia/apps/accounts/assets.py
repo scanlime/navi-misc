@@ -329,6 +329,16 @@ class StatsMetadataForm(forms.Form):
     def clean_icon_id(self):
         return self.clean_data.get('icon_id') or None
 
+    def apply(self, cset):
+        target = cset.asset.target
+        cset.set_field_dict(self.clean_data, prefix='target.')
+
+        if target.photo:
+            target.photo.reference()
+        if target.icon:
+            target.icon.reference()
+
+
 @authplus.login_required
 def stats_asset(request, asset_type, asset_id):
     """Generic form for editing stats-based assets
@@ -337,35 +347,23 @@ def stats_asset(request, asset_type, asset_id):
     ctx = get_asset_edit_context(request, asset_type, asset_id)
     user_asset = ctx['user_asset']
     asset = user_asset.asset
+    asset.target.enforce_defaults()
 
     form = formtools.MultiForm(request.POST)
     form.validate(EditAssetForm, user_asset)
-
-    # Don't allow blank titles- replace them with the
-    # default title (based on our stats path) before
-    # displaying the title for edit.
-    if not asset.target.title:
-        asset.target.title = asset.target.get_default_title()
-
     form.validate(StatsMetadataForm, asset.target)
 
     if request.POST and form.is_valid():
         cset = models.AssetChangeset.objects.begin(request, asset)
-        cset.set_field_dict(form.StatsMetadataForm.clean_data, prefix='target.')
+        form.StatsMetadataForm.apply(cset)
         form.EditAssetForm.apply(cset, request, user_asset)
         cset.finish()
 
-        if asset.target.photo:
-            asset.target.photo.reference()
-        if asset.target.icon:
-            asset.target.icon.reference()
-        
         if form.EditAssetForm.should_delete():
             return form.EditAssetForm.delete(request, user_asset)
 
     ctx.update({
         'form': form,
-        'HTTP_HOST': request.META['HTTP_HOST'],
         'levels': formtools.RadioChoices(form['access'], models.ACCESS),
         })
 
@@ -403,6 +401,7 @@ def add_stats_asset(request, asset_type, prefix, template, name=None):
     if name:
         # Get/create the stats target
         target = StatsTarget.objects.get_or_create(path = prefix + name)[0]
+        target.enforce_defaults()
 
         # Now get/create the matching asset
         asset, created_asset = model.objects.get_or_create(target = target)

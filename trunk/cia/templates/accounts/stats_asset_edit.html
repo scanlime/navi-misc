@@ -17,8 +17,8 @@
 
     <div class="form-row">
       <label for="id_url">Statistics URL:</label>
-      <div id="id_url" class="field"><a href="http://{{ HTTP_HOST }}/stats/{{ user_asset.asset.target.path|urlencode|escape }}"
-        >http://{{ HTTP_HOST }}/stats/{{ user_asset.asset.target.path|urlencode|escape }}</a></div>
+      <div id="id_url" class="field"><a href="http://{{ request.META.HTTP_HOST }}/stats/{{ user_asset.asset.target.path|urlencode|escape }}"
+        >http://{{ request.META.HTTP_HOST }}/stats/{{ user_asset.asset.target.path|urlencode|escape }}</a></div>
     </div>
 
     <div class="form-row">
