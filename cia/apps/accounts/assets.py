@@ -343,9 +343,7 @@ class StatsMetadataForm(forms.Form):
 
 @authplus.login_required
 def stats_asset(request, asset_type, asset_id):
-    """Generic form for editing stats-based assets
-       XXX: This whole function need refactoring and cleanup.
-       """
+    """Generic form for editing stats-based assets."""
     ctx = get_asset_edit_context(request, asset_type, asset_id)
     user_asset = ctx['user_asset']
     asset = user_asset.asset

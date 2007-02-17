@@ -140,6 +140,10 @@ class EditBotForm(forms.Form):
         widget = forms.CheckboxInput(attrs = {'class': 'checkbox'}),
         )
 
+    def __init__(self, data=None):
+        forms.Form.__init__(self, data)
+        self.filter_modes = formtools.RadioChoices(self['filter_mode'], models.FILTER)
+
     def clean_filter_mode(self):
         return int(self.clean_data['filter_mode'])
 
@@ -204,12 +208,6 @@ def bot(request, asset_type, asset_id):
 
     ctx.update({
         'form': form,
-
-        'FILTER': models.FILTER,
-        'modes': formtools.RadioChoices(form['filter_mode'], models.FILTER),
-
-        'levels': formtools.RadioChoices(form['access'], models.ACCESS),
-
         'network_host': bot.network.getHost('irc'),
         'channel': get_channel_from_location(bot.location),
         })

@@ -14,8 +14,8 @@
   BotStatus.init("/api/irc-bot-requests/{{ network_host|urlencode }}/{{ channel|urlencode }}/status/");
   Validator.init("/api/validators/ruleset/", "Filter passed validation.",
                  "id_custom_ruleset", "ruleset-status", "ruleset-loading");
-  setCheckboxOnTextChanged("id_filter_mode_{{ FILTER.CUSTOM }}", "id_custom_ruleset");
-  setCheckboxOnTextChanged("id_filter_mode_{{ FILTER.PROJECT_LIST }}", "id_project_list");
+  setCheckboxOnTextChanged("id_filter_mode_{{ form.EditBotForm.filter_modes.enum.CUSTOM }}", "id_custom_ruleset");
+  setCheckboxOnTextChanged("id_filter_mode_{{ form.EditBotForm.filter_modes.enum.PROJECT_LIST }}", "id_project_list");
 {% endblock %}
 
 {% block sidebar %}
@@ -47,7 +47,7 @@
     <h2 class="tabset_label">Basic Filtering</h2>
 
     <div class="form-row">
-      {{ modes.INACTIVE }}      
+      {{ form.EditBotForm.filter_modes.INACTIVE }}
       <div class="radio">
 	<p class="note">
 	  The bot will be disabled. All settings will be preserved,
@@ -57,7 +57,7 @@
     </div>
 
     <div class="form-row">
-      {{ modes.PROJECT_LIST }}
+      {{ form.EditBotForm.filter_modes.PROJECT_LIST }}
       <div class="radio">
 	<p class="note">
 	  The bot will report commits to any of the following projects.
@@ -74,7 +74,7 @@
     </div>
 
     <div class="form-row">
-      {{ modes.CUSTOM }}
+      {{ form.EditBotForm.filter_modes.CUSTOM }}
       <div class="radio">
 	<p class="note">
 	  You can define and edit a custom filter using the
