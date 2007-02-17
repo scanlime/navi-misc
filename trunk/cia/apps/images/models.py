@@ -40,7 +40,10 @@ class ImageSource(models.Model):
 
     def to_html(self):
         # Currently this is used only by the change history browser.
-        return self.get_thumbnail(size=64).to_html()
+        return '<a href="%s">%s</a>' % (
+            self.get_original().get_url(),
+            self.get_thumbnail(size=64).to_html(),
+            )
 
     def __str__(self):
         original = self.get_original()
