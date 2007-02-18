@@ -150,8 +150,14 @@ if (!Object.prototype.toJSONString) {
 
         s.parseJSON = function (filter) {
             try {
-                if (/^("(\\.|[^"\\\n\r])*?"|[,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t])+?$/.
-                        test(this)) {
+
+		/* XXX: This regex crashes Safari and Konqueror with an infinite recursion.
+                 *      We can disable it for now, since we never execute JSON from untrusted
+                 *      sources.
+                 */
+                /* if (/^("(\\.|[^"\\\n\r])*?"|[,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t])+?$/.test(this)) { */
+                if (1) {
+
                     var j = eval('(' + this + ')');
                     if (typeof filter === 'function') {
                         function walk(k, v) {
