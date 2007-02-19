@@ -99,10 +99,7 @@ class GmailNotify:
 			self.tray_icon.set_icon(ICON2_PATH)
 		else:
 			print "no new messages"
-			self.popup.set_custom_text(self.lang.get_string(18),"")
-			self.tray_icon.set_tooltip(self.lang.get_string(18))
-			self.tray_icon.set_icon(ICON_PATH)
-#			self.tray_icon.hide()
+			self.tray_icon.hide()
 		
 		self.unreadmsgcount=attrs[0]
 		self.mailcheck=0
