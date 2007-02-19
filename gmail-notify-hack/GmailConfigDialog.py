@@ -170,3 +170,5 @@ class GmailConfigDialog:
         self.wnd.show_all()
         gtk.main()
         return self.result
+
+# vim: ts=4:sw=4:et

@@ -75,3 +75,5 @@ class GmailPopupBox:
 		if( event.button==1):
 			self.notifier.gotourl()
 			
+
+# vim: ts=4:sw=4:et

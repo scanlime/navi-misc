@@ -11,3 +11,5 @@ print dir(n)
 n.show()
 
 time.sleep(13513)
+
+# vim: ts=4:sw=4:et

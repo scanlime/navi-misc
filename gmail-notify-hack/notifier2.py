@@ -206,3 +206,5 @@ if __name__ == "__main__":
 	warnings.filterwarnings( action="ignore", category=DeprecationWarning)
 	gmailnotifier = GmailNotify()
 	gmailnotifier.main()
+
+# vim: ts=4:sw=4:et

@@ -34,3 +34,5 @@ class GmailTrayIcon:
 
 	def hide(self):
 		self.tray.hide()
+
+# vim: ts=4:sw=4:et

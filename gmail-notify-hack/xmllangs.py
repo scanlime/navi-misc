@@ -116,3 +116,5 @@ class LangsParser:
 			if one_lang.get_name()==langname:
 				return one_lang
 		return self.lh.langs[0]
+
+# vim: ts=4:sw=4:et

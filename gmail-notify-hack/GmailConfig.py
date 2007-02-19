@@ -60,3 +60,4 @@ class GmailConfig:
 				
 	def remove_option(self, key):
 		self.options[key] = None
+# vim: ts=4:sw=4:et
