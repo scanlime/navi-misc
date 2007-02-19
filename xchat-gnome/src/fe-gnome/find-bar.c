@@ -70,7 +70,9 @@ G_DEFINE_TYPE (FindBar, find_bar, GTK_TYPE_HBOX);
 static void
 find_bar_class_init (FindBarClass *klass)
 {
-	GObjectClass *gobject_class = g_type_class_peek_parent (klass);
+	GObjectClass *gobject_class;
+
+	parent_class = g_type_class_peek_parent (klass);
 
 	gobject_class = G_OBJECT_CLASS (klass);
 	gobject_class->finalize = find_bar_finalize;
@@ -132,9 +134,7 @@ find_bar_init (FindBar *bar)
 static void
 find_bar_finalize (GObject *object)
 {
-	FindBar *bar;
-
-	bar = FIND_BAR (object);
+	FindBar *bar = FIND_BAR (object);
 
 	g_free (bar->priv);
 
