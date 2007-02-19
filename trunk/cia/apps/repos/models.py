@@ -44,12 +44,12 @@ class Repository(models.Model):
     location = models.CharField("Repository location", maxlength=255, blank=False)
 
     # Optional polling
-    enable_polling = models.BooleanField(default=False)
+    enable_polling = models.BooleanField(default=False, choices=yes_no_choices)
     poll_frequency = models.PositiveIntegerField("Polling frequency in minutes", default=15)
 
     # Optional e-mail pinger
     pinger_name = models.CharField(maxlength=64, db_index=True)
-    forward_pinger_mail = models.BooleanField(default=False)
+    forward_pinger_mail = models.BooleanField(default=False, choices=yes_no_choices)
 
     # Who owns this repository?
     project_name = models.CharField(maxlength=128, db_index=True, blank=False)

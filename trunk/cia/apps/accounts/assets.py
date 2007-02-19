@@ -459,10 +459,25 @@ class RepositoryForm(forms.Form):
         required = False,
         widget = forms.CheckboxInput(attrs = {'class': 'checkbox'}),
         )
+    forward_pinger_mail = forms.BooleanField(
+        required = False,
+        widget = forms.CheckboxInput(attrs = {'class': 'checkbox'}),
+        )
     poll_frequency = forms.IntegerField(
         widget = forms.TextInput(attrs = {'class': 'text'}),
         )
-    
+    revision_url = forms.CharField(
+        required = False,
+        widget = forms.TextInput(attrs = {'class': 'text'}),
+        )
+    path_regexes = forms.CharField(
+        required = False,
+        widget = forms.Textarea,
+        )
+
+    def apply(self, cset):
+        cset.set_field_dict(self.clean_data, prefix='repos.')
+        
 
 @authplus.login_required
 def project(request, asset_type, asset_id):
@@ -494,6 +509,8 @@ def project(request, asset_type, asset_id):
         form.StatsMetadataForm.apply(cset)
         form.EditAssetForm.apply(cset, request, user_asset)
         form.ProjectForm.apply(cset, request)
+        if asset.repos:
+            form.RepositoryForm.apply(cset)
         cset.finish()
 
         if form.EditAssetForm.should_delete():

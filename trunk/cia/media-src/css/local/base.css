@@ -24,6 +24,14 @@ code {
   color: black;
 }
 
+pre.code {
+  font-family: monospace;
+  background: #ffc;
+  padding: 0 2px;	
+  border: 1px solid #dd8;
+  color: black;
+}
+
 .heading {
   position: relative;
   margin: 0.5em;
