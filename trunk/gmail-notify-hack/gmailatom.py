@@ -166,3 +166,5 @@ class GmailAtom:
 if __name__ == "__main__":
 	c = GmailAtom('marshall.mcmullen@gmail.com','8tu9x3hu')
 	c.refreshInfo()
+
+# vim: ts=4:sw=4:et

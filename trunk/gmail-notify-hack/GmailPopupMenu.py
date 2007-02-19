@@ -36,3 +36,5 @@ class GmailPopupMenu:
 		# Display the menu
 		self.menu.popup( None, None, None, event.button, event.time)
 		return
+
+# vim: ts=4:sw=4:et
