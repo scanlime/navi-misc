@@ -344,7 +344,7 @@ session_new (server *serv, char *from, int type, int focus)
 session *
 new_ircwindow (server *serv, char *name, int type, int focus)
 {
-	session *sess;
+	session *sess = NULL;
 
 	switch (type)
 	{
@@ -459,30 +459,30 @@ session_free (session *killsess)
 	if (current_tab == killsess)
 		current_tab = NULL;
 
-	if (killserv->server_session == killsess)
-		killserv->server_session = NULL;
-
-	if (killserv->front_session == killsess)
-	{
-		/* front_session is closed, find a valid replacement */
-		killserv->front_session = NULL;
-		list = sess_list;
-		while (list)
-		{
-			sess = (session *) list->data;
-			if (sess != killsess && sess->server == killserv)
-			{
-				killserv->front_session = sess;
-				if (!killserv->server_session)
-					killserv->server_session = sess;
-				break;
-			}
-			list = list->next;
+	if (killserv) {
+		if (killserv->server_session == killsess) {
+			killserv->server_session = NULL;
 		}
-	}
 
-	if (!killserv->server_session)
-		killserv->server_session = killserv->front_session;
+		if (killserv->front_session == killsess) {
+			/* front_session is closed, find a valid replacement */
+			killserv->front_session = NULL;
+			list = sess_list;
+			while (list) {
+				sess = (session *) list->data;
+				if (sess != killsess && sess->server == killserv) {
+					killserv->front_session = sess;
+					if (!killserv->server_session)
+						killserv->server_session = sess;
+					break;
+				}
+				list = list->next;
+			}
+		}
+
+		if (!killserv->server_session)
+			killserv->server_session = killserv->front_session;
+	}
 
 	sess_list = g_slist_remove (sess_list, killsess);
 
