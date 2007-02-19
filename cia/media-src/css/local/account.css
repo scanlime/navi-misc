@@ -21,6 +21,10 @@ h1 {
   margin: 0;
 }
 
+span.error {
+  padding: 0 0.5em;
+}
+
 .columns {
   position: relative;
   width: 100%;   /* IE6 */
@@ -155,6 +159,13 @@ p.note {
   margin: 0.5em 0 1em 0;
 }
 
+blockquote.note {
+  color: #666;
+  font-size: 0.75em;
+  padding-left: 2em;
+  margin: 0.5em 0 1em 0;
+}
+
 .message {
   position: relative;
   margin: 0.25em 0em 0.75em 0em;
@@ -238,13 +249,16 @@ legend {
   padding: 0;
 }
 
+input.text {
+  background: #f0f0f0;
+  border: 1px solid #aaa;
+  padding: 0.3em;
+}
+
 .form-row input.text {
   width: 20em;
   font-size: 0.75em;
   margin: 0.25em 0;
-  background: #f0f0f0;
-  border: 1px solid #aaa;
-  padding: 0.3em;
 }
 
 .form-row div.radio {

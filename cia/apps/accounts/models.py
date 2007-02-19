@@ -162,9 +162,12 @@ class AssetChangesetManager(models.Manager):
         cset = AssetChangeset(
             user = request.user,
             remote_addr = request.META.get('REMOTE_ADDR'),
-            content_type = ContentType.objects.get_for_model(asset.__class__),
-            object_id = asset.id,
             )
+
+        # It's important that cset.asset points to the same object
+        # instance as 'asset', so that they can be used interchangably
+        # without danger that one of them has older data than the other.
+        cset.asset = asset
 
         cset._changed_models = {}
         cset._finished = False
