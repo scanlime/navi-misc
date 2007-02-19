@@ -65,10 +65,10 @@
 	  the names set in the CIA client scripts for your projects.
 	</p>
 	{{ form.project_list }}
-	<p class="note">
+	<div>
 	  {{ form.show_project_names }}
           <label class="checkbox" for="id_show_project_names">Prefix each commit with its project name</label>
-	</p>
+	</div>
         <p class="error">{{ form.errors.project_list.0 }}</p>
       </div>
     </div>

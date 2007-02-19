@@ -30,7 +30,7 @@
           option provides the fastest response time, and supports the widest variety of revision control systems.
         </p>
         <p class="narrow">
-	  Your client script must be configured to use the project name "<code>{{ user_asset.asset.get_name|escape }}</code>".
+	  Your client script must be configured to use the project name <code>{{ user_asset.asset.get_name|escape }}</code>
 	</p>
       </li>
 
@@ -42,11 +42,40 @@
 	  pings, or you can take advantage of an existing mailer script or mailing list.
         </p>
         <p class="narrow">
-	  (Coming soon)
-	</p>
+	  {{ form.use_repository }}
+          <label class="checkbox" for="id_use_repository">Connect to a public Subversion repository</label>
+        </p>
+	<fieldset id="repository_details">
+          <legend>Basic Configuration</legend>
+
+          <div class="form-row">
+            <label for="id_location">Repository URL:</label>
+	    {{ form.location }}
+            <div class="error">{{ form.errors.location.0 }}</div>
+	  </div>
+
+	  {% if user_asset.asset.repos %}
+ 	    <p class="note">
+	       For best performance, CIA needs to be notified by e-mail when a change is committed to this
+               repository. Send any message to the address <code>{{ user_asset.asset.repos.get_pinger_email|escape }}</code>
+	       in order to trigger an update for this project.
+	    </p>
+
+            <p>
+	      {{ form.enable_polling }}
+              <label class="checkbox" for="id_enable_polling">Also poll for changes periodically</label>
+            </p>
+          {% endif %}
+
+        </fieldset>
       </li>
 
     </ol>
   </div>
   {{ block.super }}
+{% endblock %}
+
+{% block scripts-init %}
+  {{ block.super }}
+  autohideWithCheckbox("id_use_repository", "repository_details");
 {% endblock %}

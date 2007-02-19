@@ -224,6 +224,7 @@ legend {
 }
 
 .form-row label.checkbox {
+  font-size: 0.8em;
   color: black;
   position: static;
   left: 0;
