@@ -29,7 +29,8 @@ merge(DEST + 'js/asset-edit.js', [
     'js/yui-0.12.2/build/connection/connection.js',
     'js/json-20070110/json.js',
     'js/local/change-history.js',
-    'js/local/iframe.js'
+    'js/local/iframe.js',
+    'js/local/autohide.js',
     ], jsmin)
 
 # Requires asset-edit.js

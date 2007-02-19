@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 import django.newforms as forms
 from django.newforms.util import smart_unicode, StrAndUnicode
 from cia.apps.stats.models import StatsTarget
+from cia.apps.repos.models import Repository
 import urlparse, xmlrpclib, re, difflib
 
 
@@ -201,11 +202,12 @@ class AssetChangeset(models.Model):
                 break
         return model, segments[-1]
 
-    def set_field(self, field_name, value):
+    def set_field(self, field_name, value, quiet=False):
         """Apply a single-field change to an asset. If we're actually
-           changing the field's current value, this creates a changeset
-           item to represent the change, saves the changeset if necessary,
-           and adds the relevant model to our list of models to save.
+           changing the field's current value, and 'quiet' is false,
+           this creates a changeset item to represent the change. It
+           saves the changeset if necessary, and adds the relevant
+           model to our list of models to save.
            """
         assert self._finished == False
 
@@ -215,16 +217,17 @@ class AssetChangeset(models.Model):
         if smart_unicode_cmp(prev, value) == 0:
             # No change
             return
-        
-        if self.id is None:
-            self.save()
 
-        AssetChangeItem.objects.create(
-            changeset = self,
-            field = field_name,
-            new_value = value,
-            old_value = prev,
-            )
+        if not quiet:
+            if self.id is None:
+                self.save()
+
+            AssetChangeItem.objects.create(
+                changeset = self,
+                field = field_name,
+                new_value = value,
+                old_value = prev,
+                )
 
         self._changed_models[model] = True
         setattr(model, name, value)
@@ -415,6 +418,8 @@ class Project(StrAndUnicode, models.Model):
     objects = AssetManager()
     assets = models.GenericRelation(UserAsset)
     target = models.ForeignKey(StatsTarget)
+
+    repos = models.ForeignKey(Repository, null=True)
 
     secret_key = models.CharField(maxlength=64, null=True)
     allow_anonymous_messages = models.BooleanField(default=True, choices=yes_no_choices)

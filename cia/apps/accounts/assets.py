@@ -2,6 +2,7 @@ from cia.apps.accounts import models, authplus, formtools
 from cia.apps.api.util import json_result
 from cia.apps.images.widgets import ImageWidget
 from cia.apps.stats.models import StatsTarget
+from cia.apps.repos.models import Repository
 from django.core.paginator import ObjectPaginator
 from django.core.mail import mail_managers, send_mail
 from django.http import Http404, HttpResponseRedirect
@@ -426,10 +427,42 @@ def add_stats_asset(request, asset_type, prefix, template, name=None):
 ###########################
 
 class ProjectForm(forms.Form):
-    add_svn_repo = forms.CharField(
+    use_repository = forms.BooleanField(
         required = False,
+        widget = forms.CheckboxInput(attrs = {'class': 'checkbox'}),
+        )
+
+    def apply(self, cset, request):
+        if cset.asset.repos and cset.asset.repos.is_active and not self.clean_data.get('use_repository'):
+            # Deactivate repository
+            cset.set_field('repos.is_active', False)
+
+        elif self.clean_data.get('use_repository'):
+            if not cset.asset.repos:
+                # Create the blank Repository object as needed. We create it as inactive,
+                # so that it is only first activated when the changeset is finished.
+
+                cset.set_field('repos', Repository.objects.create(
+                    created_by = request.user,
+                    project_name = cset.asset.get_name(),
+                    pinger_name = Repository.objects.get_new_pinger_name(),
+                    is_active = False,
+                    ), quiet=True)
+
+            cset.set_field('repos.is_active', True)
+
+class RepositoryForm(forms.Form):
+    location = forms.CharField(
         widget = forms.TextInput(attrs = {'class': 'text'}),
         )
+    enable_polling = forms.BooleanField(
+        required = False,
+        widget = forms.CheckboxInput(attrs = {'class': 'checkbox'}),
+        )
+    poll_frequency = forms.IntegerField(
+        widget = forms.TextInput(attrs = {'class': 'text'}),
+        )
+    
 
 @authplus.login_required
 def project(request, asset_type, asset_id):
@@ -444,15 +477,23 @@ def project(request, asset_type, asset_id):
         return stats_asset(request, asset_type, asset_id)
 
     form = formtools.MultiForm(request.POST)
+    ctx['form'] = form
     form.validate(EditAssetForm, user_asset)
     form.validate(StatsMetadataForm, asset.target)
-    form.validate(ProjectForm)
-    ctx['form'] = form
+    form.validate(ProjectForm,
+                  post_defaults = {'use_repository': False},
+                  defaults = {'use_repository': asset.repos and asset.repos.is_active})
+
+    if form.ProjectForm.clean_data.get('use_repository'):
+        form.validate(RepositoryForm, asset.repos or Repository())
+    else:
+        form.add_blank(RepositoryForm)
 
     if request.POST and form.is_valid():
         cset = models.AssetChangeset.objects.begin(request, asset)
         form.StatsMetadataForm.apply(cset)
         form.EditAssetForm.apply(cset, request, user_asset)
+        form.ProjectForm.apply(cset, request)
         cset.finish()
 
         if form.EditAssetForm.should_delete():

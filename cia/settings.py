@@ -75,6 +75,11 @@ CIA_RPC_URL = 'http://localhost:3910'
 CIA_KEY = open(os.path.expanduser('~/.cia_key')).read().strip()
 CIA_BOT_SOCKET = rel_path('bots.socket')
 
+#
+# Preferred domain for incoming mail: CIA requests, repository pingers.
+#
+CIA_INCOMING_MAIL_DOMAIN = "cia.navi.cx"
+
 # Local time zone for this installation. All choices can be found here:
 # http://www.postgresql.org/docs/current/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
 TIME_ZONE = 'PST'

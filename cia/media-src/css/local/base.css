@@ -17,7 +17,11 @@ img {
 
 code {
   font-family: monospace;
-  font-weight: bold;
+  font-size: 1.1em;
+  background: #ffc;
+  padding: 0 2px;	
+  border: 1px solid #dd8;
+  color: black;
 }
 
 .heading {
