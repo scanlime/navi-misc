@@ -10,36 +10,30 @@
   <div id="repository" class="tabset_content">
     <h2 class="tabset_label">Repository</h2>
 
-    <p class="narrow">The {{ user_asset.asset|escape }} project can feed data to CIA in any of the following ways:</p>
+    <p>The {{ user_asset.asset|escape }} project can feed data to CIA in any of the following ways:</p>
 
     <ol>
       <li>
-        <p class="narrow">
+        <p class="note">
           You may already be using a hosting service, like <a href="http://sourceforge.net">SourceForge.net</a>
-          or <a href="http://gna.org">Gna!</a>, which provide built-in CIA integration.
-        </p>
-        <p class="narrow">
+          or <a href="http://gna.org">Gna!</a>, which provides <strong>built-in CIA integration</strong>.
           Check with your hosting provider for details. You may need to ensure that CIA and your hosting provider
           use the same project name.
         </p>
       </li>
 
       <li>
-        <p class="narrow">
-          You may install a <a href="/doc/clients/">client script</a> in your project's source repository. This
-          option provides the fastest response time, and supports the widest variety of revision control systems.
+        <p class="note">
+          You may <strong>install a client script</strong> in your project's source repository. This
+          option provides the fastest response time and supports a variety of revision control systems.
+	  Download a <a href="/doc/clients/">client script</a> and configure it for the <code>{{ user_asset.asset.get_name|escape }}</code> project.
         </p>
-        <p class="narrow">
-	  Your client script must be configured to use the project name <code>{{ user_asset.asset.get_name|escape }}</code>
-	</p>
       </li>
 
       <li>
-        <p class="narrow">
+        <p class="note">
           If your project uses a public <a href="http://subversion.tigris.org/">Subversion</a> repository, the CIA
-          server can contact it directly and check for commits. It can poll your server periodically, or it can check
-	  for updates in response to 'pings' sent via e-mail. You can add a simple post-commit hook to send these
-	  pings, or you can take advantage of an existing mailer script or mailing list.
+          server can <strong>contact your repository directly</strong> and check for commits.
         </p>
         <p>
 	  {{ form.use_repository }}
@@ -97,50 +91,73 @@
 		<label for="id_revision_url">Revision URL patttern:</label>
 		{{ form.revision_url }}
 		<div class="error">{{ form.errors.revision_url.0 }}</div>
-                <p class="note">
-                  This optional setting allows you to give each CIA commit message a URL which points to additional
-		  information about that change. These URLs show up on your project's
-                  <a href="http://{{ request.META.HTTP_HOST }}/stats/{{ user_asset.asset.target.path|urlencode|escape }}">stats page</a>
-		  and RSS feed, and they can optionally be displayed by IRC bots.
-		  You can use this to integrate CIA with tools
-		  like <a href="http://websvn.tigris.org/">WebSVN</a> and <a href="http://trac.edgewall.org/">Trac</a>.
-		</p>
-		<p class="note">
-		  Placeholders like <code>{project}</code>, <code>{author}</code>, and <code>{revision}</code>
-		  are substituted appropriately for each commit. For example:
-		</p>
-		<p class="note">
-		  <code>http://svn.sourceforge.net/viewvc/{project}?view=rev&amp;revision={revision}</code>
-		</p>
+		<a class="help" id="rev_url_help_link">Help...</a>
+		<div id="rev_url_help_text">
+		  <p class="note">
+		    This optional setting allows you to give each CIA commit message a URL which points to additional
+		    information about that change. These URLs show up on your project's
+		    <a href="http://{{ request.META.HTTP_HOST }}/stats/{{ user_asset.asset.target.path|urlencode|escape }}">stats page</a>
+		    and RSS feed, and they can optionally be displayed by IRC bots.
+		    You can use this to integrate CIA with tools
+		    like <a href="http://websvn.tigris.org/">WebSVN</a> and <a href="http://trac.edgewall.org/">Trac</a>.
+		  </p>
+		  <p class="note">
+		    Placeholders like <code>{project}</code>, <code>{author}</code>, and <code>{revision}</code>
+		    are substituted appropriately for each commit. For example:
+		  </p>
+		  <p class="note">
+		    <code>http://svn.sourceforge.net/viewvc/{project}?view=rev&amp;revision={revision}</code>
+		  </p>
+		</div>
 	      </div>
 
 	      <div class="form-row">
 		<label for="id_path_regexes">Path regex list:</label>
 		{{ form.path_regexes }}
 		<p class="error">{{ form.errors.path_regexes.0 }}</p>
-                <p class="note">
-		  This is a list of regular expressions, one per line, which lets CIA automatically extract
-                  branch and module information from file paths in your Subversion repository. Each regular
-		  expression contains named groups for extracting module and/or branch names. Whitespace
-		  in the pattern is ignored.
-		</p>
-                <p class="note">
-		  The regular expressions are tested in the order specified. If the regex matches every path
-		  in the commit with identical results, the extracted information is added to the commit
-		  and the matched portion of each path is removed.
-		</p>
-                <p class="note">
-		  For example, the following regex list would be
-		  appropriate for repositories with paths of the form
-		  "trunk/module-name/..."  and "branches/module-name/branch-name/...":
-		</p>
-                <p class="note">
-		  <pre class="code">^trunk/ (?P&lt;module>[^/]+)/
-^(branches|tags)/ (?P&lt;module>[^/]+)/ (?P&lt;branch>[^/]+)/</pre>
-		</p>
+		<a class="help" id="path_re_help_link">Help...</a>
+		<div id="path_re_help_text">
+		  <p class="note">
+		    This is a list of regular expressions, one per line, which lets CIA automatically extract
+		    branch and module information from file paths in your Subversion repository. Each regular
+		    expression contains named groups for extracting module and/or branch names. Whitespace
+		    in the pattern is ignored.
+		  </p>
+		  <p class="note">
+		    The regular expressions are tested in the order specified. If the regex matches every path
+		    in the commit with identical results, the extracted information is added to the commit
+		    and the matched portion of each path is removed.
+		  </p>
+		  <p class="note">
+		    For example, the following regex list would be
+		    appropriate for repositories with paths of the form
+		    "trunk/module-name/..."  and "branches/module-name/branch-name/...":
+		  </p>
+		  <p class="note">
+		    <pre class="code">^trunk/ (?P&lt;module>[^/]+)/
+  ^(branches|tags)/ (?P&lt;module>[^/]+)/ (?P&lt;branch>[^/]+)/</pre>
+		  </p>
+		</div>
 	    </fieldset>
 
 	    <fieldset><legend>Repository Status</legend>
+              <div class="form-row">
+                <label>Root URL:</label>
+                <div class="field">{{ user_asset.asset.repos.root_url|escape }}</div>
+              </div>
+              <div class="form-row">
+                <label>Unique ID:</label>
+                <div class="field">{{ user_asset.asset.repos.uuid|escape }}</div>
+              </div>
+              <div class="form-row">
+                <label>Last updated at:</label>
+                <div class="field">{% if user_asset.asset.repos.last_update_time %}{{ user_asset.asset.repos.last_update_time|date:"Y-m-d @ H:i T" }}
+                                   {% else %}Never updated{% endif %}</div>
+              </div>
+              <div class="form-row">
+                <label>Current revision:</label>
+                <div class="field">{{ user_asset.asset.repos.last_revision }}</div>
+              </div>
 	    </fieldset>
 	  {% endif %}
 
@@ -154,4 +171,6 @@
 {% block scripts-init %}
   {{ block.super }}
   autohideWithCheckbox("id_use_repository", "repository_details");
+  autohideWithLink("rev_url_help_link", "rev_url_help_text", 0);
+  autohideWithLink("path_re_help_link", "path_re_help_text", 0);
 {% endblock %}

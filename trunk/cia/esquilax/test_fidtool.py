@@ -69,8 +69,8 @@ def graph_test(fd, fromTime, toTime):
         (0.0, 0.0, 0.0, 0.2),
         (0.0, 0.0, 1.0, 0.6),
         )
-    x_scale = (fromTime, float(toTime - fromTime) / 20)
-    y_scale = 5000
+    x_scale = (fromTime, float(toTime - fromTime) / size[0])
+    y_scale = 2000
     x_grid = dayGrid(x_scale[0])
     y_grid = ( (10*i, _fidtool.GRID_SOLID) for i in xrange(1, y_scale // 10 +1) )
 
@@ -90,11 +90,11 @@ if __name__ == "__main__":
     
     fd = os.open("foo", os.O_CREAT | os.O_RDWR, 0666)
 
-    #print "Building FID"
-    #build_fid(dataset, fd)
+#    print "Building FID"
+#    build_fid(dataset, fd)
 
-    #print "Testing FID"
-    #test_fid(dataset, fd)
+#    print "Testing FID"
+#    test_fid(dataset, fd)
  
     print "Graphing"
     graph_test(fd, dataset[0], dataset[-1])
