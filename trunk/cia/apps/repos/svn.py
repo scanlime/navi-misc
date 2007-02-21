@@ -188,9 +188,7 @@ class SvnClient:
 
         if self.model.path_regexes:
             for line in self.model.path_regexes.split("\n"):
-                line = line.strip()
-                if line:
-                    self._pathRegexes.append(re.compile(line, re.VERBOSE))
+                self._pathRegexes.append(re.compile(line, re.VERBOSE))
 
     def _collectFiles(self, changed_paths, path_info):
         """Convert pysvn's chnaged_paths list into a list of

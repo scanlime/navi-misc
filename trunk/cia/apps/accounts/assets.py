@@ -12,6 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 import django.newforms as forms
 from django.newforms.util import smart_unicode
 from django.template import loader
+import re
 
 
 ###########################
@@ -450,7 +451,7 @@ class ProjectForm(forms.Form):
 
 class RepositoryForm(forms.Form):
     location = forms.CharField(
-        widget = forms.TextInput(attrs = {'class': 'text'}),
+        widget = forms.TextInput(attrs = {'class': 'text-wide'}),
         )
     enable_polling = forms.BooleanField(
         required = False,
@@ -465,7 +466,7 @@ class RepositoryForm(forms.Form):
         )
     revision_url = forms.CharField(
         required = False,
-        widget = forms.TextInput(attrs = {'class': 'text'}),
+        widget = forms.TextInput(attrs = {'class': 'text-wide'}),
         )
     path_regexes = forms.CharField(
         required = False,
@@ -487,12 +488,18 @@ class RepositoryForm(forms.Form):
         return self.clean_data.get('revision_url') or None
 
     def clean_path_regexes(self):
-        # Remove extra whitespace and blank lines
+        # Remove extra whitespace and blank lines, then parse the resulting regexes.
         regexes = []
+        line_no = 1
         for line in self.clean_data.get('path_regexes', '').split('\n'):
             line = line.strip()
             if line:
+                try:
+                    re.compile(line, re.VERBOSE)
+                except re.error, e:
+                    raise forms.ValidationError("Syntax error on line %d: %s" % (line_no, e))
                 regexes.append(line)
+            line_no += 1
         if regexes:
             return '\n'.join(regexes)
 

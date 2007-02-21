@@ -43,7 +43,7 @@
 	<div id="repository_details">
 	  <fieldset><legend>Basic Configuration</legend>
 
-	    <div class="form-row">
+	    <div class="form-row wide">
 	      <label for="id_location">Repository URL:</label>
 	      {{ form.location }}
 	      <p class="error">{{ form.errors.location.0 }}</p>
@@ -90,7 +90,7 @@
 	      <div class="form-row">
 		<label for="id_revision_url">Revision URL patttern:</label>
 		{{ form.revision_url }}
-		<div class="error">{{ form.errors.revision_url.0 }}</div>
+		<p class="error">{{ form.errors.revision_url.0 }}</p>
 		<a class="help" id="rev_url_help_link">Help...</a>
 		<div id="rev_url_help_text">
 		  <p class="note">
