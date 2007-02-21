@@ -46,7 +46,7 @@
 	    <div class="form-row">
 	      <label for="id_location">Repository URL:</label>
 	      {{ form.location }}
-	      <div class="error">{{ form.errors.location.0 }}</div>
+	      <p class="error">{{ form.errors.location.0 }}</p>
 	    </div>
 
 	    {% if user_asset.asset.repos %}
@@ -171,6 +171,8 @@
 {% block scripts-init %}
   {{ block.super }}
   autohideWithCheckbox("id_use_repository", "repository_details");
-  autohideWithLink("rev_url_help_link", "rev_url_help_text", 0);
-  autohideWithLink("path_re_help_link", "path_re_help_text", 0);
+  {% if user_asset.asset.repos %}
+    autohideWithLink("rev_url_help_link", "rev_url_help_text", 0);
+    autohideWithLink("path_re_help_link", "path_re_help_text", 0);
+  {% endif %}
 {% endblock %}

@@ -2,6 +2,7 @@ from cia.apps.repos.models import Repository
 from django.conf import settings
 from django.template import loader
 from django.template.context import Context
+import django.newforms as forms
 import re, xmlrpclib, datetime
 import pysvn, httplib, urlparse
 
@@ -12,10 +13,17 @@ class SvnClient:
        """
 
     def __init__(self, model):
-        self.client = pysvn.Client()
         self.model = model
+        self.client = pysvn.Client()
+        self.client.callback_ssl_server_trust_prompt = self._ssl_server_trust_prompt
 
-    def probe(self):
+    def _ssl_server_trust_prompt(self, trust_dict):
+        retcode = True
+        accepted_failures = ~0
+        save = False
+        return retcode, accepted_failures, save
+
+    def probe(self, location=None):
         """Test the repository. On success, stores extra information
            about that repository including the root URL and the latest
            revision.
@@ -24,22 +32,35 @@ class SvnClient:
            modified.  Since it resets our latest revision counter, all
            changes prior to this call will be ignored.
 
-           On success, saves the repository. On failure, raises a
-           pysvn error or a ValueError.  This function may block for
-           an arbitrary amount of time!
+           On success, updates the repository model but does not save it.
+           On failure, raises a form validation error.
+           This function may block for an arbitrary amount of time!
            """
-        if not self.client.is_url(self.model.location):
-            raise ValueError("Subversion repository must be a remote URL")
+        location = location or self.model.location
 
-        info = self.client.info2(self.model.location, recurse=False)[0][1]
+        if not self.client.is_url(location):
+            raise forms.ValidationError("Must be a valid URL")
+
+        # XXX: svn+ssh might be useful too, but by default ssh will try to
+        #      prompt interactively!
+
+        scheme = location.split(':/', 1)[0]
+        valid_schemes = ('http', 'https', 'svn')
+        if not scheme in valid_schemes:
+            raise forms.ValidationError("Only the %s, and '%s' URL schemes are allowed" % (
+                ', '.join(["'%s'" % s for s in valid_schemes[:-1]]), valid_schemes[-1]))
+
+        try:
+            info = self.client.info2(location, recurse=False)[0][1]
+        except pysvn.ClientError, e:
+            raise forms.ValidationError(str(e))
 
         if info['kind'] != pysvn.node_kind.dir:
-            raise ValueError("%s is not a directory" % self.model.location)
+            raise forms.ValidationError("Must be a directory")
 
         self.model.root_url = info['repos_root_URL']
         self.model.last_revision = info['rev'].number
         self.model.uuid = info['repos_UUID']
-        self.model.save()
 
     def poll(self):
         """Looks for updates to this repository since the last

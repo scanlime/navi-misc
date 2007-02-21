@@ -72,5 +72,10 @@ class Repository(models.Model):
     def get_pinger_email(self):
         return "ping-%s@%s" % (self.pinger_name, settings.CIA_INCOMING_MAIL_DOMAIN)
 
+    def get_client(self):
+        if self.type == REPOS_TYPE.SUBVERSION:
+            from cia.apps.repos.svn import SvnClient
+            return SvnClient(self)
+
     class Admin:
         pass

@@ -432,23 +432,20 @@ class ProjectForm(forms.Form):
         widget = forms.CheckboxInput(attrs = {'class': 'checkbox'}),
         )
 
-    def apply(self, cset, request):
+    def apply(self, cset, request, repos):
         if cset.asset.repos and cset.asset.repos.is_active and not self.clean_data.get('use_repository'):
             # Deactivate repository
+
             cset.set_field('repos.is_active', False)
 
         elif self.clean_data.get('use_repository'):
-            if not cset.asset.repos:
-                # Create the blank Repository object as needed. We create it as inactive,
-                # so that it is only first activated when the changeset is finished.
+            # Activate repository, using either the asset's existing
+            # repository or a temporary repository we created before
+            # we knew it would definitely be needed.
 
-                cset.set_field('repos', Repository.objects.create(
-                    created_by = request.user,
-                    project_name = cset.asset.get_name(),
-                    pinger_name = Repository.objects.get_new_pinger_name(),
-                    is_active = False,
-                    ), quiet=True)
-
+            if repos.id is None:
+                repos.save()
+            cset.set_field('repos', repos, quiet=True)
             cset.set_field('repos.is_active', True)
 
 class RepositoryForm(forms.Form):
@@ -475,9 +472,33 @@ class RepositoryForm(forms.Form):
         widget = forms.Textarea,
         )
 
+    def clean_location(self):
+        # On success, this will set up internal state in the
+        # model but *not* set the location itself. That will
+        # be done during apply(), so that it's included in
+        # the changeset.
+
+        location = self.clean_data['location']
+        if location != self.data.model.location:
+            self.data.model.get_client().probe(location)
+        return location
+
+    def clean_revision_url(self):
+        return self.clean_data.get('revision_url') or None
+
+    def clean_path_regexes(self):
+        # Remove extra whitespace and blank lines
+        regexes = []
+        for line in self.clean_data.get('path_regexes', '').split('\n'):
+            line = line.strip()
+            if line:
+                regexes.append(line)
+        if regexes:
+            return '\n'.join(regexes)
+
     def apply(self, cset):
         cset.set_field_dict(self.clean_data, prefix='repos.')
-        
+
 
 @authplus.login_required
 def project(request, asset_type, asset_id):
@@ -500,16 +521,32 @@ def project(request, asset_type, asset_id):
                   defaults = {'use_repository': asset.repos and asset.repos.is_active})
 
     if form.ProjectForm.clean_data.get('use_repository'):
-        form.validate(RepositoryForm, asset.repos or Repository())
+        repos = asset.repos
+        if not repos:
+            # Create a blank Repository immediately and bind it to the RepositoryForm,
+            # but don't save it to the database until we know the submission is valid.
+            # We need to do this because the process of probing a repository must occur
+            # before we know the form is valid, but it changes model state which needs
+            # to be saved if the form turns out to be valid.
+    
+            repos = Repository(
+                created_by = request.user,
+                project_name = asset.get_name(),
+                pinger_name = Repository.objects.get_new_pinger_name(),
+                is_active = False,
+                )
+
+        form.validate(RepositoryForm, repos)
     else:
+        repos = None
         form.add_blank(RepositoryForm)
 
     if request.POST and form.is_valid():
         cset = models.AssetChangeset.objects.begin(request, asset)
         form.StatsMetadataForm.apply(cset)
         form.EditAssetForm.apply(cset, request, user_asset)
-        form.ProjectForm.apply(cset, request)
-        if asset.repos:
+        form.ProjectForm.apply(cset, request, repos)
+        if repos:
             form.RepositoryForm.apply(cset)
         cset.finish()
 
