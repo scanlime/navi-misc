@@ -10,17 +10,17 @@ class MultiForm:
         self.errors = {}
         self._bound = {}
 
-    def add_blank(self, form):
-        """Instantiate a new form and add it to this MultiForm without
-           binding it to any data or validating it.
-           """
-        inst = form()
+    def add(self, form, model=None, post_defaults=None, defaults=None):
+        """Instantiate a new form and add it to this MultiForm without validating."""
+        inst = form(ModelData(model, self.POST, post_defaults=post_defaults, defaults=defaults))
         setattr(self, form.__name__, inst)
 
         for name, field in inst.fields.items():
-            self._bound[name] = inst[name]        
+            self._bound[name] = inst[name]
 
-    def validate(self, form, model=None, post_defaults=None, defaults=None):
+        return inst
+
+    def validate(self, *args, **kw):
         """Add the supplied form class to the list of forms we're
            using, validate that form, and merge its errors/results in.
 
@@ -30,12 +30,7 @@ class MultiForm:
            Individual forms will be made available via attributes
            named after that form's class.
            """
-        inst = form(ModelData(model, self.POST, post_defaults=post_defaults, defaults=defaults))
-        setattr(self, form.__name__, inst)
-
-        for name, field in inst.fields.items():
-            self._bound[name] = inst[name]
-
+        inst = self.add(*args, **kw)
         inst.full_clean()
         self.is_valid = lambda _=(self.is_valid() and inst.is_valid()): _
         self.errors.update(inst.errors)

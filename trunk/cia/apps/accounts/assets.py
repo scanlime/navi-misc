@@ -545,8 +545,9 @@ def project(request, asset_type, asset_id):
 
         form.validate(RepositoryForm, repos)
     else:
-        repos = None
-        form.add_blank(RepositoryForm)
+        # It's okay to use a blank one here, we're guaranteed not to save it.
+        repos = asset.repos or Repository()
+        form.add(RepositoryForm, repos)
 
     if request.POST and form.is_valid():
         cset = models.AssetChangeset.objects.begin(request, asset)

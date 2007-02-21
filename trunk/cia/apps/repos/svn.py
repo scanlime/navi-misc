@@ -4,7 +4,7 @@ from django.template import loader
 from django.template.context import Context
 import django.newforms as forms
 import re, xmlrpclib, datetime
-import pysvn, httplib, urlparse
+import pysvn, httplib, urlparse, urllib
 
 
 class SvnClient:
@@ -168,12 +168,26 @@ class SvnClient:
             # web browsers to understand...
             root_url = None
 
+        revision_url = self.model.revision_url
+        if revision_url:
+            for key, value in (
+                ("project", self.model.project_name),
+                ("module", path_info['module']),
+                ("branch", path_info['branch']),
+                ("revision", change['revision'].number),
+                ("author", change['author']),
+                ):
+                revision_url = revision_url.replace("{%s}" % key,
+                                                    urllib.quote(str(value), safe=''))
+
         print loader.render_to_string('repos/svn.xml', Context({
+            'timestamp': int(change['date']),
             'model': self.model,
             'change': change,
             'path_info': path_info,
             'files': files,
             'root_url': root_url,
+            'revision_url': revision_url,
             }))
 
     _pathRegexes = None
