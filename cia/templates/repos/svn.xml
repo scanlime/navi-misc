@@ -1,5 +1,6 @@
 {% spaceless %}
 <message>
+    <timestamp>{{ timestamp }}</timestamp>
 
     <generator>
         <name>Built-in Subversion repository interface</name>
@@ -23,8 +24,8 @@
         <author>{{ change.author|escape }}</author>
         <log>{{ change.message|escape }}</log>
 
-        {% if url %}
-            <url>{{ url }}</url>
+        {% if revision_url %}
+            <url>{{ revision_url }}</url>
         {% endif %}
 
 	<files>
