@@ -68,6 +68,10 @@ class SvnClient:
            occurred since then.
            """
 
+        if not self.model.root_url:
+            self.probe()
+            self.model.save()
+
         # Have there been any new revisions? Get the last revision for
         # the whole repository. Note that this may be later than the
         # revision of the last commit we retrieve.
@@ -123,14 +127,15 @@ class SvnClient:
            revision with certainty. May also raise an exception if a network
            error occurs.
            """
-        url = self.model.root_url + '/!svn/vcc/default'
+        # Note the str(): sockets don't like Unicode hostnames.
+        url = str(self.model.root_url + '/!svn/vcc/default')
         scheme, netloc, path, _, _, _ =  urlparse.urlparse(url)
         if scheme != 'http':
             return
 
         host, port = (netloc + ':80').split(':')[:2]
 
-        http = httplib.HTTPConnection(host, port)
+        http = httplib.HTTPConnection(host, int(port))
         http.putrequest('PROPFIND', path)
         http.putheader('User-Agent', self._pollerUserAgent)
         http.putheader('Content-Length', str(len(self._pollerData)))
