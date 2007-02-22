@@ -21,14 +21,6 @@ PYTHONPATH=$HOME
 | $CIADIR/mail/filter_plone.py
 
 :0
-* ^To: cvs-commits-list@(mail.)?gnome.org
-| $CIADIR/mail/filter_gnome.py
-
-:0
-* ^To: mono-cvs-list@lists.ximian.com
-| $CIADIR/mail/filter_mono.py
-
-:0
 * ^List-Id:.*XFree86
 | $CIADIR/mail/filter_xfree86.py
 
