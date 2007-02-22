@@ -7,13 +7,11 @@ All Commits :: /stats/total/commits
 
 - About CIA
 
-Introduction to CIA :: /doc
-How CIA Works :: /doc/how-cia-works
-FAQ :: /doc/faq
-
-Adding projects :: /doc/adding-projects
-Clients :: /doc/clients
-Sourceforge HOWTO :: /doc/sourceforge-howto
+What is CIA? :: /doc/
+Inside CIA :: /doc/inside/
+FAQ :: /doc/faq/
+Adding Projects :: /doc/adding-projects/
+Client Scripts :: /doc/clients/
 
 - Development
 

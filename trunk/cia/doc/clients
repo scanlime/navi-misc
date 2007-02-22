@@ -52,8 +52,13 @@ for client-side filtering of unwanted messages.
 If you're using version 1.12 of CVS, you'll need to use a version of the client script that supports
 its new loginfo format. ciabot_cvs_1.12.pl_ was contributed by Jeffrey Carlyle.
 
+There is a `HOW-TO document`_ with a walk-through for using the CVS client script with `SourceForge.net`_.
+
 .. _ciabot_cvs.pl: /clients/cvs/ciabot_cvs.pl
 .. _ciabot_cvs_1.12.pl: /clients/cvs/ciabot_cvs_1.12.pl
+.. _HOW-TO document: /doc/sourceforge-howto/
+.. _SourceForge.net: http://sourceforge.net
+
 
 Darcs
 -----
@@ -68,6 +73,9 @@ or grab the `local copy of cia_darcs.pl`_.
 
 Subversion
 ----------
+
+The CIA server now has built-in support for Subversion repositories. You don't need a client
+script when using this built-in support.
 
 Micah Dowty has written two CIA clients for Subversion. The simpler of the two, ciabot_svn.sh_,
 only supports email, and provides no way to include branch or module information. A more complex

@@ -2,23 +2,26 @@
 Adding Projects
 ===============
 
-There are only a few steps in connecting a project with CIA:
+To add your project, you'll need either:
 
-- Make sure you understand `how CIA works`_
+  - Any public Subversion repository
 
-- Download the `client script`_ that's right for you, following the
-  instructions within to install it. If you're using Sourceforge, we
-  have a detailed `HOWTO document`_ for setting up CIA.
+      (For instant notification, you also need a way to send
+      a *ping* e-mail to CIA any time a change is committed.
+      You can use an existing commits mailing list, or a very
+      simple post-commit hook.)
 
-- Tada. The next time you commit, your project should show up in the
-  #commits IRC channel on Freenode_, and in the `stats browser`_.
+  - A hosting provider like `SourceForge.net`_ or `Gna!`_ which
+    includes built-in CIA support
 
-- If you want CIA to join a new IRC channel or if you want to customize
-  the appearance of your project on the web, `create an account`_.
+  - A `CIA client script`_ for your project's revision control system
 
-.. _HOWTO document: /doc/sourceforge-howto
-.. _create an account: /account/
-.. _how CIA works: /doc/how-cia-works
-.. _stats browser: /stats
-.. _Freenode: http://freenode.org
-.. _client script: /doc/clients
+You'll also need a CIA account. `Register an account`_ if you
+don't already have one, then `add your project`_.
+
+.. _SourceForge.net: http://sourceforge.net
+.. _Gna!: http://gna.org
+.. _CIA client script: /doc/clients/
+.. _Register an account: /account/register/
+.. _add your project: /account/projects/add/
+
