@@ -30,18 +30,15 @@ def main():
     if repos.forward_pinger_mail:
         from cia.apps.accounts.authplus import send_mail_to_user
         from cia.apps.accounts.models import Project, UserAsset
+        from django.contrib.contenttypes.models import ContentType
 
-        # Try to look up the UserAsset for this repository's project, so
-        # we can give the user a direct link back to the account page for
-        # disabling this email.
-        try:
-            project = Project.objects.get(repos=repos)
-            user_asset = Project.objects.all_for_user(repos.created_by).get(object_id=project.id)
-        except (Project.DoesNotExist, UserAsset.DoesNotExist):
-            user_asset = None
-        
-        send_mail_to_user(repos.created_by, "repos/pinger-fwd.txt", msg['from'],
-                          msg=msg, repos=repos, user_asset=user_asset)
+        # Forward pinger mail to all project owners
+        project = Project.objects.get(repos=repos)
+        ct = ContentType.objects.get_for_model(Project)
+        for user_asset in UserAsset.objects.filter(content_type=ct, object_id=project.id):
+
+            send_mail_to_user(user_asset.user, "repos/pinger-fwd.txt", msg['from'],
+                              msg=msg, repos=repos, user_asset=user_asset)
 
 if __name__ == '__main__':
     main()

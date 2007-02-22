@@ -203,7 +203,7 @@ p.warning {
 fieldset {
   position: relative;
   margin: 1em 0em;
-  padding: 0.5em 0.5em 0.75em 0.5em;
+  padding: 0.5em;
   border: 2px solid #ccc;
 }
 
@@ -584,10 +584,15 @@ strong {
   font-weight: bold;
 }
 
+div.help {
+  font-size: 0.7em;
+  margin: 0 0 0.5em 0;
+}
+
 a.help {
-  display: block;
-  font-size: 0.8em;
   cursor: pointer;
+  border-bottom: 1px dotted #00c;
+  padding: 0;
 }
 
 ul.arrows {
