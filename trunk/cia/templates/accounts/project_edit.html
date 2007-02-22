@@ -164,8 +164,8 @@
                 <div class="field">{{ user_asset.asset.repos.uuid|escape }}</div>
               </div>
               <div class="form-row">
-                <label>Last updated at:</label>
-                <div class="field">{% if user_asset.asset.repos.last_update_time %}{{ user_asset.asset.repos.last_update_time|date:"Y-m-d @ H:i T" }}
+                <label>Last updated:</label>
+                <div class="field">{% if user_asset.asset.repos.last_update_time %}{{ user_asset.asset.repos.last_update_time|timesince }} ago
                                    {% else %}Never updated{% endif %}</div>
               </div>
               <div class="form-row">
