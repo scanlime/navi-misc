@@ -185,7 +185,7 @@ class SvnClient:
                 revision_url = revision_url.replace("{%s}" % key,
                                                     urllib.quote(str(value), safe=''))
 
-        print loader.render_to_string('repos/svn.xml', Context({
+        xml = loader.render_to_string('repos/svn.xml', Context({
             'timestamp': int(change['date']),
             'model': self.model,
             'change': change,
@@ -194,6 +194,8 @@ class SvnClient:
             'root_url': root_url,
             'revision_url': revision_url,
             }))
+
+        xmlrpclib.ServerProxy(settings.CIA_RPC_URL).hub.deliver(xml)
 
     _pathRegexes = None
 
