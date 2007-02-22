@@ -23,7 +23,9 @@ Frequently Asked Questions
 
 * Does CIA work with Sourceforge_?
 
-    Yes. Many projects on CIA are `hosted by sourceforge`_. We even have a `HOWTO document`_ specifically focused on Sourceforge.
+    Yes. Many projects on CIA are `hosted by sourceforge`_. We have a `HOWTO document`_ for setting up
+    SourceForge's CVS repositories with CIA, and their Subversion repositories include built-in CIA
+    support.
 
 .. _Sourceforge: http://sourceforge.net
 .. _hosted by sourceforge: /stats/host/sourceforge
@@ -39,19 +41,3 @@ Frequently Asked Questions
 
     Yes. CIA exports RSS feeds for every stats target, so you can use any existing RSS aggregation
     software that can generate HTML.
-
-* Why doesn't CIA use XSLT to format its messages?
-
-    This possibility was examined, however XSLT is badly suited to several of the formatting
-    operations common to CIA, such as reducing lists of file names or wrapping text. For XSLT
-    to be practical for formatting CIA messages, several extension functions would have to
-    be added. While XSLT isn't quite powerful enough to format CIA messages easily, it is
-    powerful enough it could be abused for denial of service attacks. As a consequence, it was
-    decided that it would be better to write formatters primarily in Python but provide a way
-    to control them using XML.
-
-* Will you fix my broken HTML?
-
-    No.
-
-
