@@ -15,21 +15,18 @@ img {
   border: none;
 }
 
-code {
-  font-family: monospace;
-  font-size: 1.1em;
+.code {
   background: #ffc;
   padding: 0 2px;	
   border: 1px solid #dd8;
   color: black;
-}
 
-pre.code {
-  font-family: monospace;
-  background: #ffc;
-  padding: 0 2px;	
-  border: 1px solid #dd8;
-  color: black;
+  /*
+   * Work around Firefox monospace font weirdness, as described by:
+   * http://virtuelvis.com/archives/2005/02/monospace-firefox-braindeath
+   */
+  font-family: "not-a-font", monospace;
+  font-size: 1em;
 }
 
 .heading {

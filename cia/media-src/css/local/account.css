@@ -152,10 +152,9 @@ form {
   margin: 0;
 }
 
-p.note {
+.note {
   color: #666;
   font-size: 0.75em;
-  padding: 0;
   margin: 0.5em 0 1em 0;
 }
 
