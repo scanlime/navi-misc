@@ -95,7 +95,7 @@ def add_bot(request, asset_type):
             cset = models.AssetChangeset.objects.begin(request, bot)
             if created_bot:
                 cset.set_meta('_created')
-                cset.set_field_dict(default)
+                cset.set_field_dict(defaults)
 
             # Finally, create a new UserAsset.
             user_asset = models.UserAsset.objects.get_or_create_if_allowed(request.user, bot, cset)
