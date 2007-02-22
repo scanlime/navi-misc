@@ -57,9 +57,8 @@
 	      </p>
 	      <p>
 		{{ form.forward_pinger_mail }}
-		<label class="checkbox" for="id_forward_pinger_mail">Forward mail from 
-		  <code>{{ user_asset.asset.repos.get_pinger_email|escape }}</code> to
-		  <code>{{ user_asset.asset.repos.created_by.email|escape }}</code></label>
+		<label class="checkbox" for="id_forward_pinger_mail">Forward mail</label> from 
+		  <code>{{ user_asset.asset.repos.get_pinger_email|escape }}</code> to all project owners</label>
 		<blockquote class="note">
 		  This setting may be useful to enable temporarily if you're trying to subscribe
 		  the above email address to an existing mailing list, and you need to confirm the
@@ -91,7 +90,7 @@
 		<label for="id_revision_url">Revision URL patttern:</label>
 		{{ form.revision_url }}
 		<p class="error">{{ form.errors.revision_url.0 }}</p>
-		<a class="help" id="rev_url_help_link">Help...</a>
+		<div class="help">(<a class="help" id="rev_url_help_link">help</a>)</div>
 		<div id="rev_url_help_text">
 		  <p class="note">
 		    This optional setting allows you to give each CIA commit message a URL which points to additional
@@ -115,7 +114,7 @@
 		<label for="id_path_regexes">Path regex list:</label>
 		{{ form.path_regexes }}
 		<p class="error">{{ form.errors.path_regexes.0 }}</p>
-		<a class="help" id="path_re_help_link">Help...</a>
+		<div class="help">(<a class="help" id="path_re_help_link">help</a>)</div>
 		<div id="path_re_help_text">
 		  <p class="note">
 		    This is a list of regular expressions, one per line, which lets CIA automatically extract

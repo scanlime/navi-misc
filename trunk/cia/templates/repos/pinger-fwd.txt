@@ -3,9 +3,9 @@ Fw: {{ msg.subject }}
 {% filter wordwrap:"75" %}
 This is an automatically generated mail, sent by the CIA web site (http://cia.navi.cx).
 
-This is a forwarded message, originally delivered to {{ msg.to }}, the 'ping' address associated with the {{ repos }}. This repository is configured to forward you a copy of all 'ping' messages, to facilitate mailing list subscription. {% if user_asset %}If you wish to stop receiving such messages, please visit the following page to adjust your settings:
+This is a forwarded message, originally delivered to {{ msg.to }}, the 'ping' address associated with the {{ repos }}. This repository is configured to forward you a copy of all 'ping' messages, to facilitate mailing list subscription. If you wish to stop receiving such messages, please visit the following page to adjust your settings:
 
-  http://cia.navi.cx/account/projects/{{ user_asset.id }}/#repository{% endif %}
+  http://cia.navi.cx/account/projects/{{ user_asset.id }}/#repository
 
 A full copy of the forwarded message is reproduced below. Replies will be directed to the original sender.
 
