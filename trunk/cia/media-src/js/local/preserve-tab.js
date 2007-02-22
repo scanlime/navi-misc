@@ -13,7 +13,7 @@ var preserveCurrentTab = function(formId, tabsId)
 
     AttachEvent(form, "submit", function() {
 	if (tabs.activeTab) {
-	    form.action = tabs.activeTab;
+	    form.action = tabs.activeTab.tabHref;
 	}
     });
 };

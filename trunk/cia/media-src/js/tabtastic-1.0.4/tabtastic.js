@@ -80,9 +80,17 @@ var TabtasticInit = function(){
 		for (var i=0,len=document.links.length;i<len;i++){
 			var a = document.links[i];
 			if (!(match=anchorMatch.exec(a.href))) continue;
-			if (a.semanticTab = everyTabThereIsById[match[1]]) AttachEvent(a,'click',SetTabFromAnchor,false);
+			if (a.semanticTab = everyTabThereIsById[match[1]]) {
+	 			AttachEvent(a,'click',SetTabFromAnchor,false);
+
+				// Disable the link itself as a hack to prevent the page from scrolling.
+				// Save the original, so we can still explicitly create anchor URLs for
+				// the current tab later.
+				a.tabHref = a.href;
+				a.href = "javascript:void(0)";
+			}
 		}
-		
+
 		if ((match=anchorMatch.exec(location.href)) && (a=everyTabThereIsById[match[1]])) SetTabActive(a);
 		
 		//Comment out the next line and include the file directly if you need IE5Mac or Opera7 support.
