@@ -17,6 +17,16 @@ iFrameLoaded = function(childDocument, childWindow)
 	if (cd.body.scrollHeight) h = Math.max(h, cd.body.scrollHeight);
     }
 
+    /*
+     * XXX: If we couldn't guess the height correctly, assign a reasonable
+     *      default. This may happen if the iframe is within a hidden
+     *      block when it loads, and it always happens on some browsers
+     *      (like Konqueror).
+     */
+    if (h < 10) {
+	h = 150;
+    }
+
     childWindow.frameElement.style.height = h + "px";
 
     /*
