@@ -434,12 +434,13 @@ class ProjectForm(forms.Form):
         )
 
     def apply(self, cset, request, repos):
-        if cset.asset.repos and cset.asset.repos.is_active and not self.clean_data.get('use_repository'):
+        use_repository = bool(self.clean_data.get('use_repository'))
+        if cset.asset.repos and cset.asset.repos.is_active and not use_repository:
             # Deactivate repository
 
             cset.set_field('repos.is_active', False)
 
-        elif self.clean_data.get('use_repository'):
+        elif use_repository:
             # Activate repository, using either the asset's existing
             # repository or a temporary repository we created before
             # we knew it would definitely be needed.
@@ -527,7 +528,8 @@ def project(request, asset_type, asset_id):
                   post_defaults = {'use_repository': False},
                   defaults = {'use_repository': asset.repos and asset.repos.is_active})
 
-    if form.ProjectForm.clean_data.get('use_repository'):
+    use_repository = bool(form.ProjectForm.clean_data.get('use_repository'))
+    if use_repository:
         repos = asset.repos
         if not repos:
             # Create a blank Repository immediately and bind it to the RepositoryForm,
@@ -556,7 +558,7 @@ def project(request, asset_type, asset_id):
         form.StatsMetadataForm.apply(cset)
         form.EditAssetForm.apply(cset, request, user_asset)
         form.ProjectForm.apply(cset, request, repos)
-        if repos:
+        if use_repository:
             form.RepositoryForm.apply(cset)
         cset.finish()
 
