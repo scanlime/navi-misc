@@ -25,7 +25,10 @@ def main():
     minute = time.time() // 60
 
     for repo in Repository.objects.filter(enable_polling=True, is_active=True):
-        if repo.poll_frequency < 1 or minute % repo.poll_frequency == 0:
+        # Note that we stagger each repository's polling
+        # schedule, to avoid a flood of simultaneous polls
+        # for projects with common freuqencies.
+        if repo.poll_frequency < 1 or (minute + repo.id) % repo.poll_frequency == 0:
             PollerThread(repo).start()
 
 if __name__ == '__main__':
