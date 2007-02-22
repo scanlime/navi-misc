@@ -7,7 +7,7 @@
   <fieldset><legend>{{ asset_type_name|capfirst }}</legend>
 
   <div class="form-row">
-    <label for="id_name">Name:</label>
+    <label for="id_name">{% block name-label %}Name{% endblock %}:</label>
     {{ form.name }}
     <div class="error">{{ form.errors.name.0 }}</div>
     {% block name-notes %}{% endblock %}

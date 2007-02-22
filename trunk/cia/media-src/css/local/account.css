@@ -589,3 +589,12 @@ a.help {
   font-size: 0.8em;
   cursor: pointer;
 }
+
+ul.arrows {
+  margin: 0 0 0 20px;
+  padding: 0;
+}
+
+ul.arrows li {
+  list-style-image: url("/media/img/raquo-10.png");
+}
