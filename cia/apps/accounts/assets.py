@@ -516,7 +516,7 @@ def project(request, asset_type, asset_id):
     asset.target.enforce_defaults()
 
     # Non-top-level projects are currently only editable as generic stats items.
-    if not asset.is_top_level():
+    if not (asset.is_top_level() and 'beta' in request.GET):
         return stats_asset(request, asset_type, asset_id)
 
     form = formtools.MultiForm(request.POST)
