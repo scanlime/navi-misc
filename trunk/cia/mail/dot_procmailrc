@@ -1,21 +1,18 @@
 CIADIR=$HOME/cia
-MAILDIR=$HOME/.maildir/
 LOGFILE=/dev/null
 UMASK=033
+DJANGO_SETTINGS_MODULE=cia.settings
+PYTHONPATH=$HOME
 
 # Log all incoming messages
 :0 c
-$CIADIR/mail.log
+/var/log/cia/mail.log
 
+###### Repository pingers
 
-###### Addresses that aren't allowed to send to CIA
-
-# This one seems to be spamming it with
-# changes made to a particular wiki page
 :0
-* ^From: zwiki-wiki@zwiki.org
-/dev/null
-
+* ^To: +ping\+[a-zA-Z0-9]+@
+| $CIADIR/conf/repos-ping.py
 
 ###### Filters for mailing list commit messages
 
@@ -52,8 +49,8 @@ $CIADIR/mail.log
 * ^Subject: +(Announce|Deliver)
 | $CIADIR/mail/incoming.py
 
-###### Preserve all other mail in our inbox
+###### Other mail (spam) goes to the bitbucket
 
 :0
-$MAILDIR
+/dev/null
 
