@@ -59,7 +59,7 @@
 		{{ form.forward_pinger_mail }}
 		<label class="checkbox" for="id_forward_pinger_mail">Forward mail from 
 		  <code>{{ user_asset.asset.repos.get_pinger_email|escape }}</code> to
-		  <code>{{ request.user.email|escape }}</code></label>
+		  <code>{{ user_asset.asset.repos.created_by.email|escape }}</code></label>
 		<blockquote class="note">
 		  This setting may be useful to enable temporarily if you're trying to subscribe
 		  the above email address to an existing mailing list, and you need to confirm the

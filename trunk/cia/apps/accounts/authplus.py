@@ -94,7 +94,7 @@ def render_to_email(template_name, context):
     subject, message = loader.render_to_string(template_name, context).lstrip().split("\n", 1)
     return subject.strip(), message.strip()
 
-def send_mail_to_user(user, template_name, **context_dict):
+def send_mail_to_user(user, template_name, from_email=None, **context_dict):
     """Send a single email message to a registered user. This formats their
        email address using their full name, and automatically treats the
        first non-blank line of the rendered template as a message subject.
@@ -104,7 +104,7 @@ def send_mail_to_user(user, template_name, **context_dict):
     context = Context(context_dict)
     context['user'] = user
     subject, message = render_to_email(template_name, context)
-    send_mail(subject, message, None, [get_email_for_user(user)])
+    send_mail(subject, message, from_email, [get_email_for_user(user)])
 
 def lost(request, next_page, recovery_page):
     error = None
