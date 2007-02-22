@@ -6,8 +6,6 @@ Current priorities
 
 - Usability improvements
 
-  - Server-side repository support, with polling or email-pings
-
   - Documentation updates, especially the main /doc page
 
   - Sparklines and interactive graphs, produced with fidtool
