@@ -543,7 +543,9 @@ def project(request, asset_type, asset_id):
                 is_active = False,
                 )
 
-        form.validate(RepositoryForm, repos)
+        form.validate(RepositoryForm, repos,
+                      post_defaults = {'enable_polling': False,
+                                       'forward_pinger_mail': False})
     else:
         # It's okay to use a blank one here, we're guaranteed not to save it.
         repos = asset.repos or Repository()

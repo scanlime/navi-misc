@@ -70,7 +70,7 @@ class Repository(models.Model):
         return "%s repository at %s" % (self.get_type_display(), self.location)
 
     def get_pinger_email(self):
-        return "ping-%s@%s" % (self.pinger_name, settings.CIA_INCOMING_MAIL_DOMAIN)
+        return "ping+%s@%s" % (self.pinger_name, settings.CIA_INCOMING_MAIL_DOMAIN)
 
     def get_client(self):
         if self.type == REPOS_TYPE.SUBVERSION:
