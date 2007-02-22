@@ -29,10 +29,6 @@ PYTHONPATH=$HOME
 | $CIADIR/mail/filter_mono.py
 
 :0
-* ^Subject: \[Python-checkins\]
-| $CIADIR/mail/filter_python.py
-
-:0
 * ^List-Id:.*XFree86
 | $CIADIR/mail/filter_xfree86.py
 
