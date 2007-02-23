@@ -3,6 +3,7 @@ from django.template.context import RequestContext
 from django.http import Http404, HttpResponseRedirect
 from django.conf import settings
 from docutils.core import publish_parts
+from django.views.decorators.cache import cache_page
 import os
 
 def find_sidebar_path(path, format=".%s.sidebar"):
@@ -49,6 +50,7 @@ def parse_sidebar(path):
     return sections
 
 
+@cache_page
 def page(request, path):
     filePath = os.path.join(settings.CIA_DOC_PATH, path)
 
