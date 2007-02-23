@@ -19,9 +19,6 @@ from twisted.internet import tcp
 
 Database.init()
 
-# Remove the non-main CIA server notice, since this is in fact the main server.
-Web.Template.Page.site_mainServerNotice = []
-
 # Add the Google Analytics integration
 Web.Template.Page.site_bottomOfFooter = [xml("""
   <script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
@@ -34,17 +31,9 @@ Web.Template.Page.site_bottomOfFooter = [xml("""
 
 application = service.Application("web_server")
 
-# Create components we'll need in multiple places later
-doc   = Web.Doc.Component('doc')
-stats = Web.Stats.Component()
-
-# Present an overview page at the top of our web site, using the documentation
-# system's default sidebar to give us an easy way to navigate the site.
-frontPage = Web.Overview.OverviewPage(doc.resource, stats)
-
 # Our front page gives us an overview of CIA, but unless otherwise specified
 # we load other pages from the 'htdocs' directory, as static files.
-webRoot = Web.Server.StaticJoiner('htdocs', frontPage)
+webRoot = Web.Server.StaticJoiner('htdocs', Web.Overview.OverviewPage())
 site = Web.Server.Site(webRoot)
 
 # We still need to install RPC components that are accessed locally via
@@ -54,16 +43,11 @@ rpc = RpcServer.getRootInterface()
 rpc.putSubHandler('stats', Stats.Interface.StatsInterface())
 
 # The user-navigable areas of our site are all Component instances
-site.putComponent('stats', stats)
-site.putComponent('doc', doc)
+site.putComponent('stats', Web.Stats.Component())
 
-# External components, implemented in DJango
+# External components, implemented in Django
+site.putComponent('doc', Web.Server.Component("Documentation"))
 site.putComponent('account', Web.Server.Component("Your Account"))
-
-# These components don't work across the Web/RPC split yet
-#site.putComponent('irc', Web.BotStatus.Component(remoteBots))
-#site.putComponent('rulesets', Web.RulesetBrowser.Component(rulesetStorage))
-#site.putComponent('info', Web.Info.Component())
 
 # Run the HTTP server
 internet.TCPServer(port, site, interface='localhost').setServiceParent(application)

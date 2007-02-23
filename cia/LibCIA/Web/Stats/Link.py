@@ -48,7 +48,7 @@ class TargetRelativeLink:
             hostport = ''
         else:
             hostport = ':%d' % port
-        path = posixpath.join(context['component'].url,
+        path = posixpath.join('/stats',
                               *(tuple(self.target.pathSegments) + self.relativePathSegments))
         return quote('http%s://%s%s%s' % (
             req.isSecure() and 's' or '',

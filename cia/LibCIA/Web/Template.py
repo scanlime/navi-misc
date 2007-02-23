@@ -289,21 +289,9 @@ class Page(Nouvelle.Twisted.Page):
     extraHeaders = []
 
     # Placeholders for site-specific customization
-    site_aboveLeftColumn = []
-    site_belowFirstSidebox = []
     site_belowLeftColumn = [
             SiteSearch(),
         ]
-    site_hostingNotice = []
-    site_topOfFooter = []
-    site_mainServerNotice = tag('p', _class='smallprint')[
-            "This is not the primary CIA server. It may be found at ",
-            tag('a', href="http://cia.navi.cx")[ "cia.navi.cx" ], ".",
-            tag('br'),
-            ". Please report problems with this server to its administrator, "
-            "rather than to the CIA project."
-        ]
-    site_middleOfFooter = []
     site_bottomOfFooter = []
 
     document = [
@@ -347,32 +335,6 @@ class Page(Nouvelle.Twisted.Page):
                 ]],
 
                 tag('div', _class="footer")[
-
-                    place("site_topOfFooter"),
-
-                    # Yep, this should be valid XHTML
-                    tag('a', href="http://validator.w3.org/check/referer")[
-                        tag('img', src="/images/xhtml.png",
-                            alt="Valid XHTML 1.1!", height=15, width=80, _class="footer"),
-                    ],
-
-                    xml(" "),
-
-                    # This is a good place for a message about our hosting
-                    place("site_hostingNotice"),
-
-                    xml(" "),
-
-                    # And valid CSS
-                    tag('a', href="http://jigsaw.w3.org/css-validator/check/referer")[
-                        tag('img', src="/images/css.png",
-                            alt="Valid CSS!", height=15, width=80, _class="footer"),
-                    ],
-
-                    # By default include a notice that this isn't the "main" CIA server
-                    place("site_mainServerNotice"),
-
-                    place("site_middleOfFooter"),
 
                     # Legal goop
                     tag('p', _class='smallprint')[
@@ -421,10 +383,7 @@ class Page(Nouvelle.Twisted.Page):
            this won't work if render_leftColumn returns a Deferred, but
            nothing in the CIA server does this yet.
            """
-        boxes = (self.site_aboveLeftColumn +
-                 self.render_leftColumn(context) +
-                 self.site_belowLeftColumn)
-        return [boxes[0]] + self.site_belowFirstSidebox + boxes[1:]
+        return self.render_leftColumn(context) + self.site_belowLeftColumn
 
     def render_siteName(self, context):
         return self.siteName
