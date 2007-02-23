@@ -6,6 +6,26 @@ Current priorities
 
 - Usability improvements
 
+  - Now that it's finally easy to get started with CIA and easy to administer
+    your projects and bots, the biggest user-visible problem is the decrepit
+    state of the actual stats pages. For a great example of how much the
+    current UI sucks, see the KDE_ or GNOME_ pages.
+
+    These pages are hard to navigate due to the clumsy 'catalog' with no
+    search or pagination. The page layout does not put the most important
+    information first. Top priorities should be:
+
+     - Port the stats target page to the new site. This can probably be
+       done in stages, starting with the stats pages themselves and moving
+       the RSS feeds and per-message pages later. URLs must remain
+       backward-compatible, though it should make an effort to strip out
+       unfriendly characters.
+
+     - Search-based interface for locating stats targets, both on a site-wide
+       level and within children of the current target.
+
+     - Pagination, probably based on the code used for changeset lists.
+
   - Sparklines and interactive graphs, produced with fidtool. Prerequisites:
 
     - We need a place to store the fidtool files. This probably means cleaning
@@ -21,6 +41,9 @@ Current priorities
       items. We can probably use the database to keep an upper bound on activity
       which is incremented on every commit. These upper bounds, after sorting, would
       be lowered by performing fidtool interval queries.
+
+.. _KDE: /stats/project/kde
+.. _GNOME: /stats/project/gnome
 
 
 New Web Interface
@@ -145,39 +168,6 @@ Documentation
 
 .. _API Documentation: /doc/api/index
 
-
-Old Web Interface
------------------
-
-- Make CIA more accessable to text browsers and non-CSS browsers.
-
-- Some of the stats catalogs are getting rather big and it would be good
-  to make the full message list accessable and searchable. An SQL-aware table
-  widget for this has been started in the cia-data-driven-tables branch.
-
-  - While implementing the searchability for these new tables, it would be possible
-    for example to make URLs that query for commits between two dates. That would be
-    a handy thing to have for ChipX86's status reports :)
-
-- Clean up the relation graphing interface so it isn't stuck hackishly at /graph.
-  Maybe stats metadata could be used to attach graphs to individual targets?
-
-- Link from authors and projects in the stats browser's message lists to the appropriate
-  author and project pages. It would be great to, while browsing a project, be able
-  to easily see what a particular person is working on elsewhere. A few things to consider:
-
-    - stats metadata could be used to make the connection without hardcoding
-      any assumptions about the stats hierarchy into CIA, but where do these go?
-
-    - How do we account for any differences in commit authors with stats author
-      pages, as caused by the ruleset?
-
-  One potential solution is, for each potentially linkable part of the commit message,
-  the formatter (or some preprocessor that the runs before the formatter) looks for a
-  stats:// ruleset using that part of the message in a path= attribute. If it finds one,
-  it hyperlinks to the stats target that results from running the message through that
-  ruleset. If there are multiple messages with matching path= attributes, it would have
-  some way to determine which one is best.
 
 IRC
 ---
