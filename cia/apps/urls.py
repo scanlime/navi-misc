@@ -10,6 +10,14 @@ urlpatterns = patterns('',
     (r'^images/', include('cia.apps.images.urls')),
 )
 
+# XXX: Experimental
+if settings.DEBUG:
+    urlpatterns += patterns('',
+        (r'^testing/fidtool/graph/', 'cia.apps.stats.views.fidtool_graph'),
+        (r'^testing/fidtool/counts/', 'cia.apps.stats.views.fidtool_counts'),
+        (r'^testing/fidtool/page/', 'cia.apps.stats.views.fidtool_page'),
+    )
+
 if settings.DEBUG:
     urlpatterns += patterns('',
         (r'^media/(?P<path>.*)$', 'django.views.static.serve', {

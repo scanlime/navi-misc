@@ -40,3 +40,10 @@ merge(DEST + 'js/bot-edit.js', [
     'js/local/validator.js',
     ], jsmin)
 
+# XXX: For testing
+merge(DEST + 'js/fidtool.js', [
+    'js/yui-0.12.2/build/yahoo/yahoo.js',
+    'js/yui-0.12.2/build/connection/connection.js',
+    'js/json-20070110/json.js',
+    'js/local/fidtool.js',
+    ], str)
