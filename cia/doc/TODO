@@ -6,9 +6,22 @@ Current priorities
 
 - Usability improvements
 
-  - Documentation updates, especially the main /doc page
+  - Sparklines and interactive graphs, produced with fidtool. Prerequisites:
 
-  - Sparklines and interactive graphs, produced with fidtool
+    - We need a place to store the fidtool files. This probably means cleaning
+      up the filesystem-based Stats storage a little.
+
+    - Fidtool itself is fairly complete, but needs much testing.
+
+    - Implement a frontend for fidtool. At first this can be in the form of
+      static sparklines and interval queries, however a draggable AJAX graph
+      would be nice.
+
+    - Use interval queries to build indexes of 'most active' and 'most recent'
+      items. We can probably use the database to keep an upper bound on activity
+      which is incremented on every commit. These upper bounds, after sorting, would
+      be lowered by performing fidtool interval queries.
+
 
 New Web Interface
 -----------------
@@ -105,11 +118,6 @@ these projects or you're curious how they work, please contact Micah_ directly.
 .. _Esquilax: http://zero.navi.cx/wiki/index.php/Esquilax
 .. _Caterpillar: http://zero.navi.cx/wiki/index.php/CaterpillarDaemon
 
-Fires to put out
-----------------
-
-- The Python mailing list filter is broken, and it has been for a while
-
 Messages
 --------
 
@@ -130,12 +138,10 @@ Messages
 Documentation
 -------------
 
-- Add examples and definitions for messages of various types, and rulesets
-
-- Good ruleset documentation, including the recent Modular Formatters
-
 - Add some more info on the XML-RPC interface. There's a little `API Documentation`_
   but it's incomplete.
+
+- Document the XML message format, for client script maintainers.
 
 .. _API Documentation: /doc/api/index
 
@@ -143,13 +149,7 @@ Documentation
 Old Web Interface
 -----------------
 
-- Make CIA more accessable to text browsers and non-CSS browsers. This probably
-  means using some tricks like Plone does to have headings and links that are hidden when
-  using CSS, and making headings and tabs into <h1> tags and <li> tags rather than
-  just <div>s and such.
-
-- Clean up the CSS. It still uses tables to position the heading and the columns,
-  where it should be using CSS positioning.
+- Make CIA more accessable to text browsers and non-CSS browsers.
 
 - Some of the stats catalogs are getting rather big and it would be good
   to make the full message list accessable and searchable. An SQL-aware table
@@ -161,14 +161,6 @@ Old Web Interface
 
 - Clean up the relation graphing interface so it isn't stuck hackishly at /graph.
   Maybe stats metadata could be used to attach graphs to individual targets?
-
-- Possibly allow anyone to edit metadata before a project has been 'claimed' by one person
-  and assigned a key?
-
-- Implement a web interface for editing rulesets. This should be fairly easy
-  since the Keyring object was implemented for the metadata editor.
-
-- rrdtool (or similar) for graphing stats target activity
 
 - Link from authors and projects in the stats browser's message lists to the appropriate
   author and project pages. It would be great to, while browsing a project, be able
