@@ -66,6 +66,12 @@ CIA_DOC_PATH = rel_path('doc')
 CIA_DATA_PATH = rel_path('data') 
 
 #
+# Caching setup
+#
+CACHE_BACKEND = 'file://' + rel_path('data/cache')
+CACHE_MIDDLEWARE_SECONDS = 60 * 60
+
+#
 # These settings control our connection with CIA. We use its XML-RPC interface
 # for most management tasks, but we also need to talk directly to the bot server
 # occasionally. We also need to know where to find login information for the RPC
