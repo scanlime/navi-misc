@@ -1,0 +1,20 @@
+{% extends 'layout_base.html' %}
+
+{% block page_title %}FID Graphing Test{% endblock %}
+{% block head_title %}FID Graphing Test{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script type="text/javascript" src="/media/js/fidtool.js" ></script>
+{% endblock %}
+
+{% block scripts-init %}
+  {{ block.super }}
+  new FIDGraph("/testing/fidtool/", "fid_graph_1");
+{% endblock %}
+
+{% block content %}
+
+  <div id="fid_graph_1" />
+
+{% endblock %}
