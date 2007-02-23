@@ -21,10 +21,6 @@ PYTHONPATH=$HOME
 ###### Filters for mailing list commit messages
 
 :0
-* ^To: plone-cvs@lists.sourceforge.net
-| $CIADIR/mail/filter_plone.py
-
-:0
 * ^List-Id:.*XFree86
 | $CIADIR/mail/filter_xfree86.py
 
