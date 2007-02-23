@@ -149,20 +149,39 @@ class OverviewPage(Template.Page):
         "We know where you're going today",
         ]
 
-    def __init__(self, leftColumnFrom, statsComponent):
-        self.leftColumnFrom = leftColumnFrom
-        self.statsComponent = statsComponent
+    def __init__(self, sidebarPath='doc/.default.sidebar'):
+        self.leftColumn = self._loadSidebar(sidebarPath)
+
+    def _loadSidebar(self, path):
+        """Load sidebar links from a simple text file format.
+           Lines beginning with a dash specify a new section heading,
+           links are made by lines of the form 'title :: URL'.
+           Other lines are ignored.
+           """
+        sections = []
+        for line in open(path).xreadlines():
+            line = line.strip()
+            if not line:
+                continue
+
+            if line[0] == '-':
+                sections.append(Template.StaticSection(line[1:].strip()))
+                continue
+
+            pieces = line.split("::", 1)
+            if len(pieces) > 1:
+                title, url = pieces
+                sections[-1].rows.append( tag('a', href=url.strip())[title.strip()] )
+
+        return sections
 
     def render_subTitle(self, context):
         return random.choice(self.taglines)
 
-    def render_leftColumn(self, context):
-        return self.leftColumnFrom.leftColumn
-
     def render_mainColumn(self, context):
         return [
             self.heading,
-            Nouvelle.subcontext(component=self.statsComponent)[
+            [
                 Template.SectionGrid(
                     [
                         ActivitySection("project", "Most active projects today"),

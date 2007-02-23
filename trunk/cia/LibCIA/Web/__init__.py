@@ -23,10 +23,7 @@ twisted.web resources and templates implementing CIA's web interface
 
 # Convenience imports
 import Stats
-import RulesetBrowser
-import BotStatus
 import Server
-import Doc
 import Overview
 
 ### The End ###
