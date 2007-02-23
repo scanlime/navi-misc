@@ -11,7 +11,8 @@ from cia.apps.repos.models import Repository
 import sys, re, email
 
 def get_repository_for_message(msg):
-    match = re.search(r"ping\+([a-zA-Z0-9]+)@", msg['to'])
+    ping_re = re.compile(r"ping\+([a-zA-Z0-9]+)@")
+    match = ping_re.search(msg['to']) or ping_re.search(msg['x-original-to'])
     if match:
         name = match.group(1)
         try:
