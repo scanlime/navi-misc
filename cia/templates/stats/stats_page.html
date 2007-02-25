@@ -1,0 +1,41 @@
+{% extends 'layout_base.html' %}
+
+{% block stylesheets %}
+{{ block.super }}
+  <link href="/media/css/stats.css" type="text/css" rel="stylesheet" />
+{% endblock %}
+
+{% block page_title %}{{ target.get_default_title }}{% endblock %}
+{% block head_title %}{{ target.get_default_title }}{% endblock %}
+
+{% block content %}
+<div id="columns">
+
+<div id="info-column">
+  {% if target.subtitle %}
+    <p class="subtitle">{{ target.subtitle|escape }}</p>
+  {% endif %}
+  {% if target.url %}
+    <p class="url"><a href="{{ target.url|escape }}">{{ target.url|escape }}</a></p>
+  {% endif %}
+  {% if target.photo %}
+    <p class="photo">{{ target.photo.get_large_thumbnail.to_html }}</p>
+  {% endif %}
+  {% if target.description %}
+    <p class="description">{{ target.description|escape }}</p>
+  {% endif %}
+  {% if target.is_editable %}
+    <p class="edit"><a href="{{ target.get_asset_edit_url }}">Edit...</a></p>
+  {% endif %}
+</div>
+
+<div id="message-column">
+
+  {% for message in recent_messages %}
+    <a href=".message/{{ message.hex_id }}" />(link)</a> {{ message.to_html }}
+  {% endfor %}
+
+</div>
+
+</div>
+{% endblock %}
