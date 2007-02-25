@@ -2,12 +2,12 @@ from django import newforms as forms
 from django.conf import settings
 from django.contrib import auth
 from django.contrib.sessions.models import Session
-from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
+from cia.apps.mailutil import send_mail_to_user
 from django.template import loader
 from django.template.context import RequestContext, Context
-import datetime, re, urllib
+import datetime, urllib
 
 
 ###########################
@@ -79,32 +79,6 @@ def login(request, next_page, template_name="accounts/login.html"):
 ###########################
 #     Lost Password       #
 ###########################
-
-def get_email_for_user(user):
-    """Sanitize the user's name for inclusion in an RFC822 header,
-       and combine that with the user's registered e-mail address.
-       """
-    full_name = re.sub("[!<>@:;\\\\'\"\[\]\r\n\t]", "", user.get_full_name().strip())
-    return "%s <%s>" % (full_name, user.email)
-
-def render_to_email(template_name, context):
-    """Render a template, splitting the result into subject and message.
-       The first non-blank line is taken as the message's subject.
-       """
-    subject, message = loader.render_to_string(template_name, context).lstrip().split("\n", 1)
-    return subject.strip(), message.strip()
-
-def send_mail_to_user(user, template_name, from_email=None, **context_dict):
-    """Send a single email message to a registered user. This formats their
-       email address using their full name, and automatically treats the
-       first non-blank line of the rendered template as a message subject.
-
-       The template context will automatically include 'user'.
-       """
-    context = Context(context_dict)
-    context['user'] = user
-    subject, message = render_to_email(template_name, context)
-    send_mail(subject, message, from_email, [get_email_for_user(user)])
 
 def lost(request, next_page, recovery_page):
     error = None

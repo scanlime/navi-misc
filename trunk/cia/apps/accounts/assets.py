@@ -3,6 +3,7 @@ from cia.apps.api.util import json_result
 from cia.apps.images.widgets import ImageWidget
 from cia.apps.stats.models import StatsTarget
 from cia.apps.repos.models import Repository
+from cia.apps.mailutil import get_email_for_user, render_to_email
 from django.core.paginator import ObjectPaginator
 from django.core.mail import mail_managers, send_mail
 from django.http import Http404, HttpResponseRedirect
@@ -234,12 +235,12 @@ def send_conflict_message(request, user_asset, message):
        """
     ctx = Context(locals())
     
-    subject, message = authplus.render_to_email("accounts/conflict_mail_managers.txt", ctx)
+    subject, message = render_to_email("accounts/conflict_mail_managers.txt", ctx)
     mail_managers(subject, message)
 
-    subject, message = authplus.render_to_email("accounts/conflict_mail_user.txt", ctx)
-    send_mail(subject, message, authplus.get_email_for_user(request.user),
-              [authplus.get_email_for_user(user_asset.user)])
+    subject, message = render_to_email("accounts/conflict_mail_user.txt", ctx)
+    send_mail(subject, message, get_email_for_user(request.user),
+              [get_email_for_user(user_asset.user)])
 
 class ConflictForm(forms.Form):
     message = forms.CharField(widget=forms.Textarea)

@@ -1,0 +1,52 @@
+{% extends 'layout_base.html' %}
+
+{% block stylesheets %}
+{{ block.super }}
+  <link href="/media/css/feedback.css" type="text/css" rel="stylesheet" />
+{% endblock %}
+
+{% block page_title %}Feedback{% endblock %}
+{% block head_title %}Feedback{% endblock %}
+{% block feedback_link %}{% endblock %}
+
+{% block content %}
+<div id="content">
+<form action="/feedback/" method="post" id="feedback-form">
+
+  <p>
+    You can use this form to send feedback to this site's
+    managers. You may send anonymous feedback, but you must
+    include your e-mail address here if you would like a
+    response.
+  </p>
+  <p>
+    While we cannot personally respond to each message,
+    we do read all feedback.
+  </p>
+
+  <div class="form-row">
+    <label for="id_name">Your name:</label>
+    {{ form.name }}
+    <span class="note">(optional)</span>
+    <div class="error">{{ form.errors.name.0 }}</div>
+  </div>
+
+  <div class="form-row">
+    <label for="id_name">Your e-mail:</label>
+    {{ form.email }}
+    <span class="note">(optional)</span>
+    <div class="error">{{ form.errors.email.0 }}</div>
+  </div>
+
+  <div>
+    {{ form.comment.as_textarea }}
+  </div>
+
+  <div class="submit-row">
+    {{ form.referrer.as_hidden }}
+    <span>&raquo;</span> <input type="submit" value="Send Feedback" />
+  </div>
+
+</form>
+</div>
+{% endblock %}
