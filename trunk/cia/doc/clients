@@ -101,3 +101,12 @@ information to a variety of services, including mail, news, and CIA.
 .. _ciabot_svn.py: /clients/svn/ciabot_svn.py
 .. _ciabot_svn.sh: /clients/svn/ciabot_svn.sh
 .. _svnmailer: http://opensource.perlig.de/svnmailer/
+
+Trac
+----
+
+Interested in developing CIA support for Trac? There is an open `enhancement request for a notification plugin`_.
+This ticket includes a patch with a very simple CIA client.
+
+.. _enhancement request for a notification plugin: http://trac.edgewall.org/ticket/3517
+
