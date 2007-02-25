@@ -185,3 +185,5 @@ IRC
   the bots by rearranging requests among them, and it would make a nice indicator
   for the IRC status page
 
+- Support SSL connections to IRC servers. Some (mostly-private) networks only allow SSL connections.
+
