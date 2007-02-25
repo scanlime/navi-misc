@@ -416,6 +416,15 @@ class AssetManager(models.Manager):
         ct = ContentType.objects.get_for_model(self.model)
         return UserAsset.objects.filter(user=user, content_type=ct)
 
+    def is_editable(self):
+        """Determine, via a QuerySet, whether this asset is editable.
+           It is editable if there are no UserAssets for it which claim
+           exclusive access.
+           """
+        # XXX: This doesn't work...
+        # return not bool(self.filter(assets__access__gte = ACCESS.EXCLUSIVE))
+        return False
+
 
 class Project(StrAndUnicode, models.Model):
     objects = AssetManager()

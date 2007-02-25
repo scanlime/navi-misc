@@ -1,0 +1,31 @@
+#columns {
+    position: relative;
+    height: 1%;
+}
+
+#info-column {
+  position: absolute;
+  width: 256px;  /* This is dictated by the thumbnail size we use */
+  border: 1px solid red;
+}
+
+#message-column {
+  padding: 0 0 0 256px;
+}
+
+#info-column p {
+  margins: 0 0 0.5em 0;
+}
+
+#info-column p.subtitle {
+  font-style: italic;
+}
+
+#info-column p.photo {
+  text-align: center;
+}
+
+#info-column p.url {
+  font-size: 0.9em;
+  font-family: monospace;
+}

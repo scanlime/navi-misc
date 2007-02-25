@@ -12,11 +12,9 @@
 {% block body %}
 <div class="heading">
   <a class="logo" href="/">CIA</a>
-  {% block head_title_container %}
-    <span class="sep">:</span>
-    <span class="title">{% block head_title %}{% endblock %}</span>
-  {% endblock %}
-
+  <span class="sep">:</span>
+  <span class="title">{% block head_title %}{% endblock %}</span>
+  
   <ul>
     {% if user.is_authenticated %}
       <li>&bull; Welcome, {{ user.get_full_name|escape }}.</li>

@@ -30,6 +30,32 @@ class StatsTarget(StrAndUnicode, models.Model):
     def get_default_title(self):
         return self.path.rsplit('/', 1)[-1]
 
+    def get_asset_set(self):
+        """Return a QuerySet for the assets associated with this stats target,
+           or None of this path has no corresponding asset type.
+           """
+        if self.path.startswith('project/'):
+            return self.project_set
+        if self.path.startswith('author/'):
+            return self.author_set
+
+    def is_editable(self):
+        """A stats target is considered 'editable' if there are
+           no exclusive owners, and it's either a project or author.
+           """
+        aset = self.get_asset_set()
+        if not aset:
+            return
+        return aset.is_editable()
+
+    def get_asset_edit_url(self):
+        """Return a URL pointing at the Add Asset page for this target's
+           corresponding asset type, with the asset path already filled in.
+
+           Assumes that is_editable() has already been checked.
+           """
+        return "/account/%ss/add/%s/" % self.path.split('/', 1)
+
     def enforce_defaults(self):
         if not self.title:
             self.title = self.get_default_title()
