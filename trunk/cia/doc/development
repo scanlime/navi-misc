@@ -1,0 +1,92 @@
+==============================
+Getting Started Developing CIA
+==============================
+
+Want to help with CIA? Below are a few common starting points. We encourage
+you to join the IRC channel, #cia on Freenode_,  or `drop us a line`_.
+
+.. _Freenode: http://freenode.net
+.. _drop us a line: mailto:micah@navi.cx
+
+Writing Client Scripts
+----------------------
+
+This is the easiest way to get involved with CIA. Do you want to add support
+for a new revision control system? Do you want to improve one of the existing
+client scripts?
+
+The best way to get started is probably by using some of the existing
+`existing scripts`_ as examples. There is also an `XML schema`_ for the
+messages accepted by CIA.
+
+.. _existing scripts: /doc/clients/
+.. _XML schema: http://svn.navi.cx/misc/trunk/cia/xml/schema.xsd
+
+Getting the Source
+------------------
+
+The CIA source is available in a public `Subversion repository`_::
+
+  svn co http://svn.navi.cx/misc/trunk/cia
+
+.. _Subversion repository: http://svn.navi.cx/misc/trunk/cia/
+
+Running Your Own Server
+-----------------------
+
+CIA is a complex system. It was designed to be a centrally-administered
+service, so it is fairly difficult to install and maintain. This is a diagram
+of CIA's major components:
+
+.. image:: /media/img/cia-architecture.png
+   :height: 568
+   :width: 682
+   :alt: A diagram of CIA's architecture
+
+If you're interested in running or developing on an isolated part of CIA,
+it may not be necessary to run every service that a production server would
+run. If you do want to run the entire application, setup can be daunting.
+
+The Development and Small Deployment VM
+---------------------------------------
+
+To make this process a bit easier, you can now download a virtual machine
+image which contains a full Ubuntu Linux server with nearly all of CIA
+already installed and configured. This is a VMware_ virtual machine, so you'll
+need either the free `VMware Player`_ or another of their products.
+
+ * `Download the CIA DSD VM, 2006-02-24 release`_ (407 MB)
+
+.. _VMware: http://vmware.com
+.. _VMware Player: http://www.vmware.com/products/player/
+.. _Download the CIA DSD VM, 2006-02-24 release: http://releases.navi.cx/cia/cia-dsd-vm-20060224.tar.bz2
+
+After booting, you can use SSH or the local console to log in with the
+username "cia" and password "changeme". A web server should automatically
+start on port 80.
+
+For secure deployment:
+
+  1. Change the 'cia' account password
+  2. Generate a new OpenSSH private key
+  3. Generate a new Django secret (~/.django_secret)
+  4. Generate a new CIA capability key (~/.cia_key)
+  5. Generate a new HTTPS certificate for Pound
+
+Other things to change:
+
+  1. Set a publically-visible hostname in settings.py and bootstrap.sh
+  2. Set up admin addresses in settings.py and /etc/aliases
+
+Known problems:
+
+  1. There is no init script for the Twisted daemons. They will be
+     started automatically by an @reboot line in crontab, but you'll
+     need to maintain them using the scripts in ~/cia/conf.
+  2. Several URLs on the site will point to http://cia-dsd-vm/... until
+     you change the hostname in bootstrap.sh. (Or whichever script you're
+     using to start up the Twisted Web daemons)
+  3. E-mail support is not yet configured. You'll need to set up procmail
+     correctly, then set up /etc/aliases, .forward, and .procmailrc using
+     the templates in ~/cia/conf.
+
