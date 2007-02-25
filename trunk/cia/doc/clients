@@ -71,11 +71,24 @@ or grab the `local copy of cia_darcs.pl`_.
 .. _from Patrick's site: http://www.shadowconflict.com/darcs/darcs-cia/darcs
 .. _local copy of cia_darcs.pl: /clients/darcs/cia_darcs.pl
 
+Git
+---
+
+The `Git Wiki's page on Interfaces, Frontends, and Tools`_ has a section for CIA clients.
+Petr Baudis wrote the ciabot.pl client script, available in Cogito's "contrib" directory.
+Fernando J. Pereda wrote a shell-script alternative.
+You can download a `local copy of ciabot.pl`_ or `ciabot.bash`_.
+
+.. _Git Wiki's page on Interfaces, Frontends, and Tools: http://git.or.cz/gitwiki/InterfacesFrontendsAndTools#ciabot
+.. _local copy of ciabot.pl: /clients/git/ciabot.pl
+.. _ciabot.bash: /clients/git/ciabot.bash
+
 Subversion
 ----------
 
 The CIA server now has built-in support for Subversion repositories. You don't need a client
-script when using this built-in support.
+script when using this built-in support. (However, the client script is more customizable and
+a little faster.)
 
 Micah Dowty has written two CIA clients for Subversion. The simpler of the two, ciabot_svn.sh_,
 only supports email, and provides no way to include branch or module information. A more complex
