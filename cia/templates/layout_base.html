@@ -18,16 +18,19 @@
   {% endblock %}
 
   <ul>
-  {% if user.is_authenticated %}
-    <li>&bull; Welcome, {{ user.get_full_name|escape }}.</li>
-    <li>&raquo; <a href="/account/">Profile</a></li>
-    <li>&raquo; <a href="/account/logout/">Log out</a></li>
-  {% else %}
-    {% block log_in %}
-    <li>&raquo; <a href="/account/login/">Log in</a></li>
-    <li>&raquo; <a href="/account/register/">Register</a></li>
+    {% if user.is_authenticated %}
+      <li>&bull; Welcome, {{ user.get_full_name|escape }}.</li>
+      <li>&raquo; <a href="/account/">Profile</a></li>
+      <li>&raquo; <a href="/account/logout/">Log out</a></li>
+    {% else %}
+      {% block log_in %}
+        <li>&raquo; <a href="/account/login/">Log in</a></li>
+        <li>&raquo; <a href="/account/register/">Register</a></li>
+      {% endblock %}
+    {% endif %}
+    {% block feedback_link %}
+      <li>&raquo; <a href="/feedback/?ref={{ request.path }}">Feedback</a></li>
     {% endblock %}
-  {% endif %}
   </ul>
 </div>
 {% block content %}
