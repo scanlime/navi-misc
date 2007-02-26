@@ -1,6 +1,7 @@
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from cia.apps.stats.models import StatsTarget
+import datetime
 
 # Legacy imports
 from LibCIA.Stats.Target import StatsTarget as OldStatsTarget
@@ -19,9 +20,12 @@ class Message:
         self.id = id
         self.hex_id = "%x" % id
         self.oldmsg = OldMessage(xml)
+
+        self.timestamp = datetime.datetime.fromtimestamp(
+            XML.digValue(self.oldmsg.xml, float, "message", "timestamp"))
+
         self.formatter = self.formatter_factory.findMedium('xhtml', self.oldmsg)
         self.is_commit = isinstance(self.formatter, CommitFormatter)
-
         if self.is_commit:
             for shortcut, path in XML.pathShortcuts.items():
                 doc = XML.XPath(path).queryObject(self.oldmsg)
