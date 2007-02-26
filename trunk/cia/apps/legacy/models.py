@@ -78,8 +78,8 @@ class StatsMetadata(models.Model):
         db_table = 'stats_metadata'
 
 class StatsRelations(models.Model):
-    target_a_path = models.ForeignKey(StatsCatalog, db_column='target_a_path')
-    target_b_path = models.ForeignKey(StatsCatalog, db_column='target_b_path')
+    target_a_path = models.ForeignKey(StatsCatalog, db_column='target_a_path', primary_key=True)
+    target_b_path = models.ForeignKey(StatsCatalog, db_column='target_b_path', primary_key=True)
     strength = models.IntegerField()
     freshness = models.IntegerField(null=True, blank=True)
     class Meta:

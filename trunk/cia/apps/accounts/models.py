@@ -421,10 +421,16 @@ class AssetManager(models.Manager):
            It is editable if there are no UserAssets for it which claim
            exclusive access.
            """
-        # XXX: This doesn't work...
-        # return not bool(self.filter(assets__access__gte = ACCESS.EXCLUSIVE))
-        return False
+        # XXX: It should be possible to do this in a single SQL query
+        #      using bool(self.filter(assets__access__gte = ACCESS.EXCLUSIVE)),
+        #      but Django is generating the wrong SQL for that: it's doing
+        #      a join  on `m2m_accounts_project__assets`.`object_id` =
+        #      `accounts_project__assets`.`id`.
 
+        for asset in self.all():
+            if len(asset.assets.filter(access__gte = ACCESS.EXCLUSIVE)[:1]):
+                return False
+        return True
 
 class Project(StrAndUnicode, models.Model):
     objects = AssetManager()
