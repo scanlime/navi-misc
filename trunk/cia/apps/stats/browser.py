@@ -32,6 +32,10 @@ class Message:
                 if doc:
                     setattr(self, shortcut, XML.shallowText(doc[0]))
 
+    def get_year_and_month(self):
+        """The template needs this for use with {% ifchanged %}"""
+        return (self.timestamp.year, self.timestamp.month)
+
     def to_html(self):
         """Format any message as XHTML, using the LibCIA formatters and
            Nouvelle serializer. This is used as a fallback for non-commit

@@ -5,6 +5,11 @@
   <link href="/media/css/stats.css" type="text/css" rel="stylesheet" />
 {% endblock %}
 
+{% block scripts %}
+  {{ block.super }}
+  <script type="text/javascript" src="/media/js/stats.js" ></script>
+{% endblock %}
+
 {% block page_title %}{{ target.title }}{% endblock %}
 {% block head_title %}{{ target.title }}{% endblock %}
 
@@ -34,26 +39,42 @@
   <div id="timeline-bar"> </div>
 
   <div id="messages">
-  {% for message in recent_messages %}
+    <div><div><div>
+    {% for message in recent_messages %}
 
-    <div class="timestamp-headings">
+    {% ifchanged message.timestamp.date %}
+      </div>
+      {% ifchanged message.get_year_and_month %}</div>{% endifchanged %}
+      {% ifchanged message.timestamp.year %}</div>{% endifchanged %}
 
-      {% ifchanged %}
-	<span class="year"><img class="expander" src="/media/img/tlexpand-open.png" />
-	  {{ message.timestamp|date:"Y" }}</span>
-      {% endifchanged %}
+      <div class="timestamp-headings">
+	{% ifchanged message.timestamp.year %}
+	  <span class="expander-open" id="expander-{{ message.timestamp|date:"Y" }}"
+	        onclick="expandYear({{ message.timestamp|date:"'Y','m','d'" }})">
+	    <img src="/media/img/tlexpand-open.png" width="10" height="10" />
+	    {{ message.timestamp|date:"Y" }}
+	  </span>
+	{% endifchanged %}
 
-      {% ifchanged %}
-	<span class="month"><img class="expander" src="/media/img/tlexpand-open.png" />
-	  {{ message.timestamp|date:"F" }}</span>
-      {% endifchanged %}
+	{% ifchanged message.get_year_and_month %}
+	  <span class="expander-open" id="expander-{{ message.timestamp|date:"Y-m" }}"
+	        onclick="expandMonth({{ message.timestamp|date:"'Y','m','d'" }})">
+	    <img src="/media/img/tlexpand-open.png" width="10" height="10" />
+	    {{ message.timestamp|date:"F" }}
+	  </span>
+	{% endifchanged %}
 
-      {% ifchanged %}
-	<span class="day"><img class="expander" src="/media/img/tlexpand-open.png" />
-	  {{ message.timestamp|date:"l \t\h\e jS" }}</span>
-      {% endifchanged %}
+	<span class="expander-open" id="expander-{{ message.timestamp|date:"Y-m-d" }}"
+	      onclick="expandDay({{ message.timestamp|date:"'Y','m','d'" }})">
+	  <img src="/media/img/tlexpand-open.png" width="10" height="10" />
+	  {{ message.timestamp|date:"l \t\h\e jS" }}
+	</span>
+      </div>
 
-    </div>
+      {% ifchanged message.timestamp.year %}<div id="msg-{{ message.timestamp|date:"Y" }}">{% endifchanged %}
+      {% ifchanged message.get_year_and_month %}<div id="msg-{{ message.timestamp|date:"Y-m" }}">{% endifchanged %}
+      <div id="msg-{{ message.timestamp|date:"Y-m-d" }}">
+    {% endifchanged %}
 
     <div class="message">
       <div class="timestamp"><span>{{ message.timestamp|time:"H:i" }}</span></div>
@@ -77,7 +98,8 @@
       {% endif %}
     </div>
 
-  {% endfor %}
+    {% endfor %}
+    </div></div></div>
   </div>
 
 </div>
