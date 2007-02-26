@@ -39,41 +39,38 @@
   <div id="timeline-bar"> </div>
 
   <div id="messages">
-    <div><div><div>
+    <div><div><div><div><div><div>
     {% for message in recent_messages %}
 
     {% ifchanged message.timestamp.date %}
-      </div>
-      {% ifchanged message.get_year_and_month %}</div>{% endifchanged %}
-      {% ifchanged message.timestamp.year %}</div>{% endifchanged %}
+      </div></div>
+      {% ifchanged message.get_year_and_month %}</div></div>{% endifchanged %}
+      {% ifchanged message.timestamp.year %}</div></div>{% endifchanged %}
 
       <div class="timestamp-headings">
 	{% ifchanged message.timestamp.year %}
 	  <span class="expander-open" id="expander-{{ message.timestamp|date:"Y" }}"
 	        onclick="expandYear({{ message.timestamp|date:"'Y','m','d'" }})">
 	    <img src="/media/img/tlexpand-open.png" width="10" height="10" />
-	    {{ message.timestamp|date:"Y" }}
-	  </span>
+	    {{ message.timestamp|date:"Y" }}</span>
 	{% endifchanged %}
 
 	{% ifchanged message.get_year_and_month %}
 	  <span class="expander-open" id="expander-{{ message.timestamp|date:"Y-m" }}"
 	        onclick="expandMonth({{ message.timestamp|date:"'Y','m','d'" }})">
 	    <img src="/media/img/tlexpand-open.png" width="10" height="10" />
-	    {{ message.timestamp|date:"F" }}
-	  </span>
+	    {{ message.timestamp|date:"F" }}</span>
 	{% endifchanged %}
 
 	<span class="expander-open" id="expander-{{ message.timestamp|date:"Y-m-d" }}"
 	      onclick="expandDay({{ message.timestamp|date:"'Y','m','d'" }})">
 	  <img src="/media/img/tlexpand-open.png" width="10" height="10" />
-	  {{ message.timestamp|date:"l \t\h\e jS" }}
-	</span>
+	  {{ message.timestamp|date:"l \t\h\e jS" }}</span>
       </div>
 
-      {% ifchanged message.timestamp.year %}<div id="msg-{{ message.timestamp|date:"Y" }}">{% endifchanged %}
-      {% ifchanged message.get_year_and_month %}<div id="msg-{{ message.timestamp|date:"Y-m" }}">{% endifchanged %}
-      <div id="msg-{{ message.timestamp|date:"Y-m-d" }}">
+      {% ifchanged message.timestamp.year %}<div id="msg-{{ message.timestamp|date:"Y" }}"><div>{% endifchanged %}
+      {% ifchanged message.get_year_and_month %}<div id="msg-{{ message.timestamp|date:"Y-m" }}"><div>{% endifchanged %}
+      <div id="msg-{{ message.timestamp|date:"Y-m-d" }}"><div>
     {% endifchanged %}
 
     <div class="message">
@@ -99,7 +96,7 @@
     </div>
 
     {% endfor %}
-    </div></div></div>
+    </div></div></div></div></div></div>
   </div>
 
 </div>
