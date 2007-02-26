@@ -310,17 +310,6 @@ class XPathBase:
     """Abstract base XPath implementation"""
 
     def queryObject(self, obj):
-        """Query an XMLObject, using its cache if possible"""        
-        if obj.immutable:
-            idc = id(self.compiled)
-            if not obj._xpcache:
-                obj._xpcache = {}
-            if idc in obj._xpcache:
-                return obj._xpcache[idc]
-            else:
-                r = self.queryForNodes(obj.xml)
-                obj._xpcache[idc] = r
-                return r
         return self.queryForNodes(obj.xml)
 
 
