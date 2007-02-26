@@ -43,8 +43,12 @@ merge(DEST + 'js/bot-edit.js', [
 
 merge(DEST + 'js/stats.js', [
     'js/tabtastic-1.0.4/addclasskillclass.js',
+    'js/yui-0.12.2/build/yahoo/yahoo.js',
+    'js/yui-0.12.2/build/dom/dom.js',
+    'js/yui-0.12.2/build/event/event.js',
+    'js/yui-0.12.2/build/animation/animation.js',
     'js/local/expander.js',
-    ], str)
+    ], jsmin)
 
 # XXX: For testing
 merge(DEST + 'js/fidtool.js', [
