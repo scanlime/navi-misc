@@ -5,27 +5,93 @@
 
 #info-column {
   position: absolute;
-  width: 256px;  /* This is dictated by the thumbnail size we use */
-  border: 1px solid red;
+  width: 256px;        /* This is dictated by the thumbnail size we use */
+  padding: 0 10px;
 }
 
 #message-column {
-  padding: 0 0 0 256px;
+  margin: 0 276px 0 276px;
 }
 
 #info-column p {
-  margins: 0 0 0.5em 0;
+  margin: 0 0 15px 0;
 }
 
 #info-column p.subtitle {
   font-style: italic;
+  font-size: 0.8em;
 }
 
 #info-column p.photo {
   text-align: center;
 }
 
-#info-column p.url {
+p.url a {
+  display: block;
+  font-size: 0.8em;
+  overflow: hidden;
+  background: #eef;
+  padding: 2px;
+  border: 1px solid #ddf;
+}
+
+p.url {
+  margin: 1px 0;
+}
+
+#info-column p.description {
   font-size: 0.9em;
-  font-family: monospace;
+  text-align: justify;
+}
+
+#info-column p.edit a {
+  display: block;
+  font-size: 0.9em;
+  overflow: hidden;
+  padding: 2px;
+  border: 1px dashed #ccf;
+}
+
+#info-column p.edit a:hover {
+  border: 1px dashed #008;
+  background: #eef;
+}
+
+a.message {
+  font-size: 0.8em;
+  display: block;
+  border-top: 1px solid #888;
+  background: #ddd;
+  padding: 3px;
+  color: #333;
+}
+
+a.message:hover {
+  background: #bbf;
+}
+
+a.message .revision {
+  font-weight: bold;
+}
+
+a.message .version {
+  font-weight: bold;
+}
+
+a.message .module {
+  font-weight: bold;
+}
+
+a.message .separator {
+  font-weight: bold;
+  color: #888;
+}
+
+div.log {
+  margin: 1em 0;
+}
+
+div.log ul {
+  list-style-type: square;
+  padding: 0 0 0 1.5em;
 }

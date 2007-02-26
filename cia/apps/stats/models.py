@@ -28,7 +28,12 @@ class StatsTarget(StrAndUnicode, models.Model):
     related_filter = models.TextField(null=True, blank=True)
 
     def get_default_title(self):
-        return self.path.rsplit('/', 1)[-1]
+        title = self.path.rsplit('/', 1)[-1]
+        if title:
+            return title[0].upper() + title[1:]
+        else:
+            # Default name for the root page
+            return "Stats"
 
     def get_asset_set(self):
         """Return a QuerySet for the assets associated with this stats target,
@@ -54,7 +59,7 @@ class StatsTarget(StrAndUnicode, models.Model):
 
            Assumes that is_editable() has already been checked.
            """
-        return "/account/%ss/add/%s/" % self.path.split('/', 1)
+        return "/account/%ss/add/%s/" % tuple(self.path.split('/', 1))
 
     def enforce_defaults(self):
         if not self.title:

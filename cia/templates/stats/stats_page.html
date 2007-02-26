@@ -5,8 +5,8 @@
   <link href="/media/css/stats.css" type="text/css" rel="stylesheet" />
 {% endblock %}
 
-{% block page_title %}{{ target.get_default_title }}{% endblock %}
-{% block head_title %}{{ target.get_default_title }}{% endblock %}
+{% block page_title %}{{ target.title }}{% endblock %}
+{% block head_title %}{{ target.title }}{% endblock %}
 
 {% block content %}
 <div id="columns">
@@ -24,15 +24,32 @@
   {% if target.description %}
     <p class="description">{{ target.description|escape }}</p>
   {% endif %}
+
   {% if target.is_editable %}
-    <p class="edit"><a href="{{ target.get_asset_edit_url }}">Edit...</a></p>
+    <p class="edit"><a href="{{ target.get_asset_edit_url }}">Edit this page...</a></p>
   {% endif %}
 </div>
 
 <div id="message-column">
 
   {% for message in recent_messages %}
-    <a href=".message/{{ message.hex_id }}" />(link)</a> {{ message.to_html }}
+    {% if message.is_commit %}
+
+      <a class="message" href=".message/{{ message.hex_id }}">
+        {% if message.version %}<span class="version">{{ message.version|escape }}</span>{% endif %}
+        {% if message.revision %}r<span class="revision">{{ message.revision|escape }}</span>{% endif %}
+	<span class="separator">::</span>
+	<span class="module">{{ message.module }}</span>/{{ message.format_files }}
+      </a>
+
+      {% if message.url %}<p class="url"><a href="{{ message.url|escape }}">{{ message.url|escape }}</a></p>{% endif %}
+
+      <div class="log">{{ message.format_log }}</div>
+
+    {% else %}
+      {{ message.to_html }}
+      <p><a href=".message/{{ message.hex_id }}" >Details...</a></p>
+    {% endif %}
   {% endfor %}
 
 </div>
