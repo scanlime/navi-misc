@@ -5,12 +5,15 @@
 
 #info-column {
   position: absolute;
-  width: 256px;        /* This is dictated by the thumbnail size we use */
+  width: 256px;        /* This is dictated by our thumbnail image sizes */
   padding: 0 10px;
 }
 
 #message-column {
-  margin: 0 276px 0 276px;
+  position: relative;
+  height: 1%;  /* IE6 */
+  margin: 0 0 0 266px;
+  padding: 0 0.5em;
 }
 
 #info-column p {
@@ -41,7 +44,6 @@ p.url {
 
 #info-column p.description {
   font-size: 0.9em;
-  text-align: justify;
 }
 
 #info-column p.edit a {
@@ -88,10 +90,72 @@ a.message .separator {
 }
 
 div.log {
-  margin: 1em 0;
+  margin: 0.5em 0 1em 0;
+  overflow: hidden;
+}
+
+div.log pre {
+  margin: 0;
 }
 
 div.log ul {
   list-style-type: square;
   padding: 0 0 0 1.5em;
+}
+
+#messages {
+  margin: 0 0 0 5em;
+}
+
+#timeline-bar {
+  position: absolute;
+  width: 4em;
+  height: 100%;
+  background: #bbbfaa;
+}
+
+div.timestamp-headings {
+  position: relative;
+  left: -4em;
+  margin: 0 0 1em 0;
+}
+
+div.timestamp-headings span {
+  background: #66695d;
+  color: #fff;
+
+  font-weight: bold;
+  font-size: 0.9em;
+  padding: 0.15em 0.5em;
+  margin: 0 0.25em;
+}
+
+div.timestamp-headings span:hover {
+  background: #7f8274;
+}
+
+div.timestamp {
+  position: absolute;
+
+  /* Lines up with #timeline-bar */
+  left: -5em;
+  width: 4em;
+}
+
+div.timestamp span {
+  font-weight: bold;
+  background: #66695d;
+  color: #fff;
+
+  display: block;
+  margin: 0;
+  width: auto;
+  padding: 2px 0;
+  text-align: center;
+  font-size: 0.7em;
+}
+
+div.message {
+  position: relative;
+  height: 1%;  /* IE6 */
 }

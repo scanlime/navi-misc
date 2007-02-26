@@ -31,26 +31,54 @@
 </div>
 
 <div id="message-column">
+  <div id="timeline-bar"> </div>
 
+  <div id="messages">
   {% for message in recent_messages %}
-    {% if message.is_commit %}
 
-      <a class="message" href=".message/{{ message.hex_id }}">
-        {% if message.version %}<span class="version">{{ message.version|escape }}</span>{% endif %}
-        {% if message.revision %}r<span class="revision">{{ message.revision|escape }}</span>{% endif %}
-	<span class="separator">::</span>
-	<span class="module">{{ message.module }}</span>/{{ message.format_files }}
-      </a>
+    <div class="timestamp-headings">
 
-      {% if message.url %}<p class="url"><a href="{{ message.url|escape }}">{{ message.url|escape }}</a></p>{% endif %}
+      {% ifchanged %}
+	<span class="year"><img class="expander" src="/media/img/tlexpand-open.png" />
+	  {{ message.timestamp|date:"Y" }}</span>
+      {% endifchanged %}
 
-      <div class="log">{{ message.format_log }}</div>
+      {% ifchanged %}
+	<span class="month"><img class="expander" src="/media/img/tlexpand-open.png" />
+	  {{ message.timestamp|date:"F" }}</span>
+      {% endifchanged %}
 
-    {% else %}
-      {{ message.to_html }}
-      <p><a href=".message/{{ message.hex_id }}" >Details...</a></p>
-    {% endif %}
+      {% ifchanged %}
+	<span class="day"><img class="expander" src="/media/img/tlexpand-open.png" />
+	  {{ message.timestamp|date:"l \t\h\e jS" }}</span>
+      {% endifchanged %}
+
+    </div>
+
+    <div class="message">
+      <div class="timestamp"><span>{{ message.timestamp|time:"H:i" }}</span></div>
+
+      {% if message.is_commit %}
+
+        <a class="message" href=".message/{{ message.hex_id }}">
+          {% if message.version %}<span class="version">{{ message.version|escape }}</span>{% endif %}
+          {% if message.revision %}r<span class="revision">{{ message.revision|escape }}</span>{% endif %}
+  	  <span class="separator">::</span>
+	  <span class="module">{{ message.module }}</span>/{{ message.format_files }}
+        </a>
+
+        {% if message.url %}<p class="url"><a href="{{ message.url|escape }}">{{ message.url|escape }}</a></p>{% endif %}
+
+        <div class="log">{{ message.format_log }}</div>
+
+      {% else %}
+        {{ message.to_html }}
+        <p><a href=".message/{{ message.hex_id }}" >Details...</a></p>
+      {% endif %}
+    </div>
+
   {% endfor %}
+  </div>
 
 </div>
 
