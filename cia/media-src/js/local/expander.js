@@ -38,27 +38,22 @@ var animateMessages = function(id, visible)
 	parent_div.currentAnim.stop();
     }
 
-    /* Save the original height */
-    var height = parent_div.offsetHeight;
-    if (parent_div.originalHeight) {
-	height = parent_div.originalHeight;
-    } else {
-	parent_div.originalHeight = height;
-    }
-
     var resize = new YAHOO.util.Anim(parent_div);
 
     if (visible) {
-	resize.attributes.height = { from: 0, to: height };
+	resize.attributes.height = { from: 0, to: parent_div.originalHeight };
     } else {
-	resize.attributes.height = { from: height, to: 0 };
-	resize.setAttribute('height', height, 'px')
+	parent_div.originalHeight = parent_div.offsetHeight;
+	resize.attributes.height = { from: parent_div.originalHeight, to: 0 };
+
+	resize.setAttribute('height', parent_div.originalHeight, 'px')
 	content_div.style.display = "none";
     }
 
     resize.onComplete.subscribe(function() {
 	if (visible) {
 	    content_div.style.display = "block";
+	    parent_div.style.height = "";
 	}
 	parent_div.currentAnim = null;
     });
