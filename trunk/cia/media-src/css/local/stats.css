@@ -131,20 +131,22 @@ div.timestamp-headings span {
 
 div.timestamp-headings span.expander-open {
   background: #66695d;
+  border: 1px solid #66695d;
   color: #fff;
 }
 
 div.timestamp-headings span.expander-open:hover {
-  background: #666970;
+  background: #66697d;
 }
 
 div.timestamp-headings span.expander-closed {
-  background: #bbccc0;
+  background: #ccc;
+  border: 1px solid #aaa;
   color: #fff;
 }
 
 div.timestamp-headings span.expander-closed:hover {
-  background: #bbccd0;
+  background: #cce;
 }
 
 div.timestamp {
