@@ -41,6 +41,11 @@ merge(DEST + 'js/bot-edit.js', [
     'js/local/validator.js',
     ], jsmin)
 
+merge(DEST + 'js/stats.js', [
+    'js/tabtastic-1.0.4/addclasskillclass.js',
+    'js/local/expander.js',
+    ], str)
+
 # XXX: For testing
 merge(DEST + 'js/fidtool.js', [
     'js/yui-0.12.2/build/yahoo/yahoo.js',
