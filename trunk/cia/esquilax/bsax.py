@@ -407,6 +407,17 @@ def iter_messages_after(day=None, offset=0):
         day += 1
         offset = 0
 
+def benchmark():
+    import time
+    c = 0
+    start = time.time()
+    for m in iter_messages_after():
+        c += 1
+        if c > 100000:
+            break
+    end = time.time()
+    print "%.2f msg/sec" % (c / (end - start))
+
 
 class MessageArchiver:
     """A MessageArchiver stores incoming messages in an archive
