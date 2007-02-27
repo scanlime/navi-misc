@@ -21,10 +21,55 @@ Current priorities
        backward-compatible, though it should make an effort to strip out
        unfriendly characters.
 
+       - This has already started, at /stats-experimental
+
      - Search-based interface for locating stats targets, both on a site-wide
        level and within children of the current target.
 
-     - Pagination, probably based on the code used for changeset lists.
+       - Unified search. A single real-time search widget should be able to
+         find child targets and messages.
+
+     - Expand/collapse with automatic loading and purging
+
+       - The stats page itself, on the client side, should be seen as a cache
+         for server-side data. It is statically populated with a small default
+         dataset, which also serves as static content for non-javascript
+         browsers. The client needs to be able to load new data for date
+         ranges that have just been expanded. It should also be able to
+         purge data for date ranges that have not been opened recently.
+
+     - Real-time updates. I was planning to write a lengthy section on how
+       this should be implemented. It turns out that this has not only already
+       been invented, it has already been given a corny name. See `cometd`_
+       and `mod_mailbox`. 
+
+     - Extended details about a message should be visible in-line. By default,
+       the log message should be truncated and the file list will be summarized.
+       An expander can reveal the full log message and file list.
+
+     - Next-generation stats relations
+
+        - Each visible message has an icon or text advertising each other
+          stats target that received the same message. This allows each
+          message to act as a link between projects, VCSes, authors...
+
+          These links/icons can show up in the right margin of the stats page.
+
+          This usage model supports the idea of adding an SQL index
+          alongside the current message archives: each row would include a
+          message ID (archive # and message offset), a timestamp, and a
+          target ID.
+
+             - Test the efficiency of such an SQL table
+             - Implement BSAX in C, in order to quickly index existing messages.
+
+        - In addition to messages, collapsed date headings should also
+          show links to other stats targets. This will make it natural to see
+          who was working on a particular project last month, for example.
+
+          For efficiency, this will require a separate database table relating
+          multi-resolution time periods (years, months, days) to stats targets.
+          Each relation should include strength/freshness.
 
   - Sparklines and interactive graphs, produced with fidtool. Prerequisites:
 
@@ -44,6 +89,8 @@ Current priorities
 
 .. _KDE: /stats/project/kde
 .. _GNOME: /stats/project/gnome
+.. _cometd: http://cometd.com/
+.. _mod_mailbox: http://blog.lighttpd.net/articles/2006/11/27/comet-meets-mod_mailbox
 
 
 New Web Interface
