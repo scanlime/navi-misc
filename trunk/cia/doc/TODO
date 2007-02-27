@@ -41,7 +41,7 @@ Current priorities
      - Real-time updates. I was planning to write a lengthy section on how
        this should be implemented. It turns out that this has not only already
        been invented, it has already been given a corny name. See `cometd`_
-       and `mod_mailbox`. 
+       and `mod_mailbox`_. 
 
      - Extended details about a message should be visible in-line. By default,
        the log message should be truncated and the file list will be summarized.
