@@ -51,7 +51,7 @@ class SvnClient:
                 ', '.join(["'%s'" % s for s in valid_schemes[:-1]]), valid_schemes[-1]))
 
         try:
-            info = self.client.info2(location, recurse=False)[0][1]
+            info = self._info(location)
         except pysvn.ClientError, e:
             raise forms.ValidationError(str(e))
 
@@ -61,6 +61,25 @@ class SvnClient:
         self.model.root_url = info['repos_root_URL']
         self.model.last_revision = info['rev'].number
         self.model.uuid = info['repos_UUID']
+
+    def _info(self, location):
+        """Return a dictionary of info about a single repository URL.
+           May raise a pysvn.ClientError or a forms.ValidationError.
+           """
+        items = self.client.info2(location, recurse=False)
+        if items:
+            return items[0][1]
+
+        # I'm not sure why this happens yet, but some repositories
+        # return an empty info dict. We can work around this by
+        # picking an arbitrary child item and getting info from that
+        # child.
+        for child in self.client.ls(location):
+            items = self.client.info2(child['name'], recurse=False)
+            if items:
+                return items[0][1]
+
+        raise forms.ValidationError("Can't retrieve repository info")
 
     def poll(self):
         """Looks for updates to this repository since the last
@@ -113,7 +132,7 @@ class SvnClient:
         if rev is not None:
             return rev
         
-        info = self.client.info2(self.model.location, recurse=False)[0][1]
+        info = self._info(self.model.location)
         return info['rev'].number
 
     def _pollLatestRevFast(self):
