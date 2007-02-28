@@ -2,7 +2,6 @@
 #document-and-sidebar {
     background: #718070 url("/media/img/fringes-787.png") repeat-x scroll top left;
     border-bottom: 1px solid #444;
-    padding: 0 0 2px 0;
 }
 
 #sidebar {
@@ -46,12 +45,10 @@
     font-size: 0.9em;
 
     background: white;
-    padding: 0 1em 1em 1em;
-
     width: 48em;
 
-    margin-left: auto;
-    margin-right: auto;
+    padding: 0 1em;
+    margin: 0 auto 1em auto;
 
     /* These two are for looks.. */
     border-left: 1px solid #898;
@@ -102,7 +99,7 @@
      * IE6: This is broken, the border doesn't show up at all. That's
      *      an acceptable failure mode...
      */
-    margin: 1.5em 0em 0em -2em;
+    margin: 1.5em 0em 1.5em -2em;
 
     border-left: 1em solid #898;
     padding: 0em 1em;
@@ -117,7 +114,7 @@
 
 h1 {
   font-size: 1.5em;
-  padding: 0 0 0.25em 0;
+  padding: 0.4em 0 0.25em 0;
   margin: 0 0 0.25em 0;
   border-bottom: 2px solid #ccc;
 }

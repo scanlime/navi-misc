@@ -1,0 +1,40 @@
+{% extends 'layout_doc.html' %}
+
+{% block page_title %}Blog{% endblock %}
+{% block head_title %}Blog{% endblock %}
+
+{% block content %}
+<div id="document-and-sidebar">
+
+<ul id="sidebar">
+  <li>
+    <p>foo</h1>
+
+    <ul class="links">  
+         <li><a href="">Title</a></li>
+         <li><a href="">Title</a></li>
+         <li><a href="">Title</a></li>
+    </ul>
+  </li>
+  <li>
+    <p>foo</h1>
+
+    <ul class="links">  
+         <li><a href="">Title</a></li>
+         <li><a href="">Title</a></li>
+         <li><a href="">Title</a></li>
+    </ul>
+  </li>
+</ul>
+
+{% for post in latest %}
+<div id="document">
+    <h1>{{post.title}}</h1>
+    <h2 class="subtitle">Posted by {{ post.posted_by.first_name|escape }} at {{ post.pub_date|date:"H:i \o\n Y-m-d" }}</h2>
+
+    {{ post.render.fragment }}
+</div>
+{% endfor %}
+
+</div>
+{% endblock %}
