@@ -55,11 +55,11 @@ image which contains a full Ubuntu Linux server with nearly all of CIA
 already installed and configured. This is a VMware_ virtual machine, so you'll
 need either the free `VMware Player`_ or another of their products.
 
- * `Download the CIA DSD VM, 2006-02-24 release`_ (407 MB)
+ * `Download the CIA DSD VM, 2007-02-24 release`_ (407 MB)
 
 .. _VMware: http://vmware.com
 .. _VMware Player: http://www.vmware.com/products/player/
-.. _Download the CIA DSD VM, 2006-02-24 release: http://releases.navi.cx/cia/cia-dsd-vm-20060224.tar.bz2
+.. _Download the CIA DSD VM, 2007-02-24 release: http://releases.navi.cx/cia/cia-dsd-vm-20070224.tar.bz2
 
 After booting, you can use SSH or the local console to log in with the
 username "cia" and password "changeme". A web server should automatically
@@ -89,4 +89,6 @@ Known problems:
   3. E-mail support is not yet configured. You'll need to set up procmail
      correctly, then set up /etc/aliases, .forward, and .procmailrc using
      the templates in ~/cia/conf.
+  4. This was originally posted with the date **2006**-02-24. Honest
+     mistake ;)
 
