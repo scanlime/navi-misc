@@ -451,6 +451,15 @@ class ProjectForm(forms.Form):
             cset.set_field('repos', repos, quiet=True)
             cset.set_field('repos.is_active', True)
 
+            # If we're activating an old repository, re-probe() it.
+            # This will make sure the server still exists, but more
+            # importantly it will update our latest-rev. Otherwise,
+            # we'll soon start downloading all the revisions we missed
+            # while the repository was inactive!
+
+            if repos.location:
+                repos.get_client().probe()
+
 class RepositoryForm(forms.Form):
     location = forms.CharField(
         widget = forms.TextInput(attrs = {'class': 'text-wide'}),
