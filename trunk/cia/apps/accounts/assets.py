@@ -456,6 +456,10 @@ class ProjectForm(forms.Form):
             # importantly it will update our latest-rev. Otherwise,
             # we'll soon start downloading all the revisions we missed
             # while the repository was inactive!
+            #
+            # Note that probe() does not explicitly save() the
+            # repository, but these changes will be saved automatically
+            # by our changeset since we touched repos.is_active.
 
             if repos.location:
                 repos.get_client().probe()
