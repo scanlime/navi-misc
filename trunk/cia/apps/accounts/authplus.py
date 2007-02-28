@@ -1,6 +1,7 @@
 from django import newforms as forms
 from django.conf import settings
 from django.contrib import auth
+from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
@@ -27,6 +28,19 @@ def login_required(view_func):
        """
     def _checklogin(request, *args, **kwargs):
         if request.user.is_authenticated() and request.user.is_active:
+
+            # This is a big hammer for superusers: if you're logged
+            # in as a superuser, you can add ?impersonate=username
+            # to nearly any URL to morph your current session
+            # into a session for that user. This is useful as an
+            # abuse management tool.
+            if request.user.is_superuser:
+                impersonate = request.GET.get('impersonate')
+                if impersonate:
+                    user = User.objects.get(username=impersonate)
+                    user.backend = "django.contrib.auth.backends.ModelBackend"
+                    auth.login(request, user)
+
             return view_func(request, *args, **kwargs)
         else:
             return HttpResponseRedirect(login_url(request.path))
