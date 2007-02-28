@@ -3,7 +3,7 @@ from django.template.context import RequestContext
 from django.http import Http404, HttpResponseRedirect
 from django.conf import settings
 from docutils.core import publish_parts
-from django.views.decorators.cache import cache_page
+from django.core.cache import cache
 import os
 
 def find_sidebar_path(path, format=".%s.sidebar"):
@@ -50,7 +50,6 @@ def parse_sidebar(path):
     return sections
 
 
-@cache_page
 def page(request, path):
     filePath = os.path.join(settings.CIA_DOC_PATH, path)
 
@@ -65,14 +64,20 @@ def page(request, path):
     if not os.path.isfile(filePath):
         raise Http404
 
-    return render_to_response('layout_doc.html', RequestContext(request, {
-        'parts': publish_parts(
-            source = open(filePath).read(),
-            writer_name = "html4css1",
-            settings_overrides = {
-                'cloak_email_addresses': True,
-                'initial_header_level': 2,
+    key = 'cia.apps.doc.%s-%d' % (path.replace('/', '.'), os.stat(filePath).st_mtime)
+    ctx = cache.get(key)
+    if not ctx:
+        ctx = {
+            'parts': publish_parts(
+                source = open(filePath).read(),
+                writer_name = "html4css1",
+                settings_overrides = {
+                    'cloak_email_addresses': True,
+                    'initial_header_level': 2,
                 },
             ),
-        'sidebar': parse_sidebar(find_sidebar_path(filePath)),
-        }))
+            'sidebar': parse_sidebar(find_sidebar_path(filePath)),
+        }
+        cache.set(key, ctx)
+
+    return render_to_response('layout_doc.html', RequestContext(request, ctx))
