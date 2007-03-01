@@ -611,6 +611,12 @@ ul.arrows li {
   list-style-image: url("/media/img/raquo-10.png");
 }
 
+p.cloud {
+  background: #ffd;
+  padding: 0.5em;
+  border: 1px solid #fcc;
+}  
+
 p.cloud span {
   margin: 0 0.1em;
 }
