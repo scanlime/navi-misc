@@ -9,7 +9,7 @@
      <h2>{{ server.name|escape }}</h2>
      <p class="cloud">
         {% for request in server.requests|dictsort:"channel" %}
-            <span style="font-size: {{ request.size }}em" {% if not request.is_fulfilled %}class="error"{% endif %}
+            <span {% if not request.is_fulfilled %}class="error"{% else %}style="font-size: {{ request.size }}em"{% endif %}
 	       >{{ request.channel|escape }}</span>
         {% endfor %}
      </p>
