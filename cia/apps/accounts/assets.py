@@ -129,7 +129,6 @@ def profile(request):
         profile_form = authplus.ChangeProfileForm(request.user)
 
     return render_to_response('accounts/profile.html', RequestContext(request, {
-        'profile': True,
         'asset_types': get_user_asset_types(request),
         'password_form': password_form,
         'profile_form': profile_form,

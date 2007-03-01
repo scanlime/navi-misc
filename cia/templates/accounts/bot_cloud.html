@@ -1,0 +1,17 @@
+{% extends 'layout_account.html' %}
+
+{% block h1 %}Channel Status for All Bots{% endblock %}
+
+{% block nav-bot-cloud %}<li class="active">Bot Cloud</li>{% endblock %}
+
+{% block account-forms %}
+  {% for server in servers|dictsortreversed:"num_requests" %}
+     <h2>{{ server.name|escape }}</h2>
+     <p class="cloud">
+        {% for request in server.requests|dictsort:"channel" %}
+            <span style="font-size: {{ request.size }}em" {% if not request.is_fulfilled %}class="error"{% endif %}
+	       >{{ request.channel|escape }}</span>
+        {% endfor %}
+     </p>
+  {% endfor %}
+{% endblock %}
