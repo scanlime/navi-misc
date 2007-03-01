@@ -28,6 +28,7 @@ urlpatterns = patterns('',
 
     (r'^(?P<asset_type>bots)/add/$', bots.add_bot),
     (r'^(?P<asset_type>bots)/(?P<asset_id>\d+)/$', bots.bot),
+    (r'^bot-cloud/', bots.bot_cloud),
 
     (r'^(?P<asset_type>projects)/add(/(?P<name>.*))?/$', assets.add_stats_asset, {
         'prefix': 'project/',

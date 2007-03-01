@@ -1,9 +1,11 @@
 from cia.apps.accounts import models, assets, authplus, formtools
+from cia.apps.legacy.bots import get_bot_request_info, needs_bot_server
 from django import newforms as forms
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
+import math
 
 
 def get_channel_from_location(location):
@@ -212,3 +214,34 @@ def bot(request, asset_type, asset_id):
         'channel': get_channel_from_location(bot.location),
         })
     return render_to_response('accounts/bot_edit.html', RequestContext(request, ctx))
+
+
+###########################
+#        Bot Cloud        #
+###########################
+
+@authplus.login_required
+@needs_bot_server
+def bot_cloud(request, server):
+    bot_requests = get_bot_request_info(server)
+
+    # Group by server, including a tiny bit of annotation on each server
+    servers = {}
+    for bot_request in bot_requests:
+        s = bot_request['server']
+        if not s in servers:
+            servers[s] = {'requests': []}
+
+        # Annotation for font size within the cloud
+        bot_request['size'] = max(0.5, math.log(2 + bot_request['user_count']) / math.log(20.0))
+
+        servers[s]['requests'].append(bot_request)
+
+    for name, server in servers.iteritems():
+        server['num_requests'] = len(server['requests'])
+        server['name'] = name
+
+    return render_to_response('accounts/bot_cloud.html', RequestContext(request, {
+        'asset_types': assets.get_user_asset_types(request),
+        'servers': servers.values(),
+        }))

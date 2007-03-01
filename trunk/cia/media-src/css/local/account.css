@@ -394,9 +394,17 @@ input.text {
   right: 0;
 }
 
+/* Currently this is only needed by the bot cloud page */
+h2 {
+  font-size: 1.3em;
+  font-weight: normal;
+  margin: 0 0 0.5em 0;
+  color: #444;
+}
+
 #sidebar h2 {
   font-size: 1em;
-  font-weight: normal;
+  color: black;
   margin: 0 0 0.5em 0;
   padding: 0 0 2px 0;
   border-bottom: 4px solid #c8c8c8;
@@ -601,4 +609,14 @@ ul.arrows {
 
 ul.arrows li {
   list-style-image: url("/media/img/raquo-10.png");
+}
+
+p.cloud span {
+  margin: 0 0.1em;
+}
+
+p.cloud span.error {
+  margin: 0 0.2em;
+  padding: 0;
+  color: #c00;
 }

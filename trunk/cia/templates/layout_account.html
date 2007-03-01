@@ -26,11 +26,7 @@
 
 {% block nav-columns %}
 <ul class="c1">
-  {% if profile %}
-    <li class="active">Profile</li>
-  {% else %}
-    <li><a href="/account/">Profile</a></li>
-  {% endif %}
+  {% block nav-profile %}<li><a href="/account/">Profile</a></li>{% endblock %}
 
   <li class="spacer"></li>
 
@@ -42,6 +38,11 @@
 	  {{ type.count|paren }}</a></li>
     {% endif %}
   {% endfor %}
+
+  <li class="spacer"></li>
+
+  {% block nav-bot-cloud %}{% endblock %}
+
 </ul>
 {% endblock %}
 

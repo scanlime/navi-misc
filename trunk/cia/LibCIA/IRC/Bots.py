@@ -223,7 +223,7 @@ class BotNetwork(pb.Root):
     """A collection of IRC bots that work to satisfy a collection of Request objects.
        Users should interact with the BotNetwork via Request instances.
        """
-    # In addition to checking bot status immediately after changes that
+    # In addition to checking bot status immediately after changes that*******
     # are likely to be important, we check bot status periodically, every
     # botCheckInterval seconds.
     botCheckInterval = 60
