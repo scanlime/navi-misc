@@ -166,6 +166,16 @@ user accounts and assets (such as bots, projects, and authors).
 
   - Ditch PIL's buggy thumbnailing code (and all my workarounds)
 
+New Syndication Methods
+-----------------------
+
+- XMPP publish/subscribe
+
+- Instant Messaging
+
+- cometd_
+
+
 Deep Changes
 ------------
 
