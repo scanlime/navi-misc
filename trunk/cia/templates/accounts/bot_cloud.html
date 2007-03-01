@@ -2,11 +2,12 @@
 
 {% block h1 %}Channel Status for All Bots{% endblock %}
 
+{% block page_title %}Bot Cloud{% endblock %}
 {% block nav-bot-cloud %}<li class="active">Bot Cloud</li>{% endblock %}
 
 {% block account-forms %}
   {% for server in servers|dictsortreversed:"num_requests" %}
-     <h2>{{ server.name|escape }}</h2>
+     <h2>{{ server.name|escape }} ({{ server.num_requests }})</h2>
      <p class="cloud">
         {% for request in server.requests|dictsort:"channel" %}
             <span {% if not request.is_fulfilled %}class="error"{% else %}style="font-size: {{ request.size }}em"{% endif %}
