@@ -11,10 +11,14 @@ To configure it, set the following options in your hgrc:
 user = foo
 # the name of the project in CIA
 project = foo
+# the module (subproject) (optional)
+#module = foo
+# Append a diffstat to the log message (optional)
+#diffstat = False
 # The URL of the CIA notification service (optional)
-url = http://cia.navi.cx/
+#url = http://cia.navi.cx/
 # print message instead of sending it (optional)
-test = False
+#test = False
 
 [hooks]
 # one of these:
@@ -22,14 +26,14 @@ changegroup.cia = python:hgcia.hook
 #incoming.cia = python:hgcia.hook
 
 [web]
-# If you want hyperlinks
+# If you want hyperlinks (optional)
 baseurl = http://server/path/to/repo
 '''
 
 from mercurial.i18n import *
 from mercurial.node import *
+from mercurial import version, patch
 
-import sys
 import xmlrpclib
 from xml.sax import saxutils
 
@@ -62,16 +66,38 @@ class ciamsg(object):
 
         return '\n'.join(msg)
 
+    def diffstat(self):
+        class patchbuf:
+            def __init__(self):
+                self.lines = []
+                # diffstat is stupid
+                self.name = 'cia'
+            def write(self, data):
+                self.lines.append(data)
+            def close(self):
+                pass
+
+        n = self.ctx.node()
+        pbuf = patchbuf()
+        patch.export(self.cia.repo, [n], fp=pbuf)
+        return patch.diffstat(pbuf.lines) or ''
+
     def xml(self):
         n = short(self.ctx.node())
-        src = self.sourceelem(self.cia.project, branch=self.ctx.branch())
+        src = self.sourceelem(self.cia.project, module=self.cia.module,
+                              branch=self.ctx.branch())
         # unix timestamp
         dt = self.ctx.date()
         timestamp = dt[0]
 
         author = saxutils.escape(self.ctx.user())
-        version = '%d:%s' % (self.ctx.rev(), n)
-        log = saxutils.escape(self.ctx.description())
+        rev = '%d:%s' % (self.ctx.rev(), n)
+
+        log = self.ctx.description()
+        if self.cia.diffstat:
+            log = '%s\n-- \n%s' % (log, self.diffstat())
+        log = saxutils.escape(log)
+
         url = self.url and '<url>%s/rev/%s</url>' % (saxutils.escape(self.url),
                                                      n) or ''
         files = '\n'.join([self.fileelem(f) for f in self.ctx.files()])
@@ -79,7 +105,7 @@ class ciamsg(object):
         msg = '''
 <message>
   <generator>
-    <name>hgcia</name>
+    <name>Mercurial</name>
     <version>%s</version>
     <url>%s</url>
   </generator>
@@ -95,18 +121,22 @@ class ciamsg(object):
   </body>
   <timestamp>%d</timestamp>
 </message>
-        ''' % (HGCIA_VERSION, saxutils.escape(HGCIA_URL), src,
-               author, version, log, url, files, timestamp)
+        ''' % (version.get_version(), saxutils.escape(HGCIA_URL), src,
+               author, rev, log, url, files, timestamp)
 
         return msg
 
 class hgcia(object):
     '''CIA notification class'''
-    def __init__(self, ui, repo, hooktype):
+    def __init__(self, ui, repo):
         self.ui = ui
+        self.repo = repo
+
         self.ciaurl = self.ui.config('cia', 'url', 'http://cia.navi.cx')
         self.user = self.ui.config('cia', 'user')
         self.project = self.ui.config('cia', 'project')
+        self.module = self.ui.config('cia', 'module')
+        self.diffstat = self.ui.configbool('cia', 'diffstat')
         self.dryrun = self.ui.configbool('cia', 'test')
         self.url = self.ui.config('web', 'baseurl')
 
@@ -124,7 +154,7 @@ def hook(ui, repo, hooktype, node=None, url=None, **kwargs):
             cia.sendrpc(msg)
 
     n = bin(node)
-    cia = hgcia(ui, repo, hooktype)
+    cia = hgcia(ui, repo)
     if not cia.user:
         ui.debug(_('cia: no user specified'))
         return
