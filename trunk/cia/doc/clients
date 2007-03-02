@@ -102,6 +102,17 @@ information to a variety of services, including mail, news, and CIA.
 .. _ciabot_svn.sh: /clients/svn/ciabot_svn.sh
 .. _svnmailer: http://opensource.perlig.de/svnmailer/
 
+Mercurial (Hg)
+--------------
+
+Brendan Cully contributed a CIA client for Mercurial_, with support for
+XML-RPC message delivery. You can get it from `Brendan's repository`_ or
+you can download a `local copy of hgcia.py`_.
+
+.. _Mercurial: http://www.selenic.com/mercurial/wiki/
+.. _Brendan's repository: http://hg.kublai.com/mercurial/hgcia
+.. _local copy of hgcia.py: /clients/hg/hgcia.py
+
 Trac
 ----
 
