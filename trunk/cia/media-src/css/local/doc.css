@@ -2,6 +2,7 @@
 #document-and-sidebar {
     background: #718070 url("/media/img/fringes-787.png") repeat-x scroll top left;
     border-bottom: 1px solid #444;
+    padding: 0 0 1em 0;
 }
 
 #sidebar {
@@ -40,7 +41,7 @@
     padding: 0;
 }
 
-#document {
+.document {
     /* Global document font size */
     font-size: 0.9em;
 
@@ -48,7 +49,7 @@
     width: 48em;
 
     padding: 0 1em;
-    margin: 0 auto 1em auto;
+    margin: 0 auto 0 auto;
 
     /* These two are for looks.. */
     border-left: 1px solid #898;
@@ -58,7 +59,7 @@
     border-bottom: 1px solid #aaa;
 }
 
-#document p {
+.document p {
     margin: 1em 0;
 
     /*
@@ -68,18 +69,18 @@
     padding: 1px;
 }
 
-#document ul {
+.document ul {
     list-style-type: square;
     margin: 0.5em;
     padding: 0 0 0 1.5em;
 }
 
-#document li {
+.document li {
     margin: 0;
     padding: 0;
 }
 
-#document blockquote {
+.document blockquote {
     /*
      * Using padding here instead of margin works around some
      * disappearing-border issues with <pre> inside <blockquote>
@@ -89,7 +90,7 @@
     font-size: 0.9em;
 }
 
-#document .section {
+.document .section {
     /*
      * Sections have a 1em border and 1em padding, which is cancelled
      * out by a -2em margin.  This gives the effect of a border
@@ -119,11 +120,134 @@ h1 {
   border-bottom: 2px solid #ccc;
 }
 
+/* Smaller headings for the blog index pages */
+h1.blog-index {
+  font-size: 1.2em;
+  padding: 0.4em 0 2px 0;
+  margin: 0 0 2px 0;;
+}
+
+div.comments-link {
+  background: #454;
+  color: white;
+
+  font-size: 0.9em;
+  width: 48em;                /* Same as .document width */
+  margin: 0 auto 1em auto;
+  padding: 2px 1em;
+}
+
+div.comments-link span {
+  font-weight: bold;
+}
+
+div.comments-link a {
+  color: #cef;
+}
+
+div.comments-link div.by-line {
+  color: #898;
+  float: right;
+}
+
+.comment {
+  font-size: 0.9em;
+  width: 48em;              /* Same as .document width */
+  margin: 0 auto;
+  padding: 0 1em;
+
+  border-left: 1px solid #898;
+  border-right: 1px solid #898;
+  border-bottom: 1px solid #898;
+}
+
+.comment-even {
+  background: #eee;
+}
+
+.comment-odd {
+  background: #fff;
+}
+
+/* Comment heading */
+.comment div {
+  padding: 0.5em 0;
+  font-size: 0.8em;
+}
+
+/* Comment permalink */
+.comment div a {
+  display: block;
+  float: right;
+}
+
+.comment p {
+  margin: 0 0 1em 1em;
+  overflow: hidden;
+}
+
+.error {
+  color: #c00;
+  font-weight: bold;
+}
+
+.comment-form {
+  font-size: 0.9em;
+  width: 48em;              /* Same as .document width */
+  margin: 1em auto;
+  padding: 0 1em;
+
+  background: #eee;
+  border: 1px solid #898;
+}
+
+.comment-form textarea {
+  font-family: sans-serif;
+  font-size: 1em;
+  width: 100%;
+  height: 15em;
+  border: 1px solid #aaa;
+  background: white;
+  padding: 0;
+  margin: 0;
+}
+
+/* Big textarea for editing document content */
+#id_content {
+  height: 30em;
+}
+
+.comment-form label {
+  font-size: 0.8em;
+}
+
+.comment-form input[type="text"] {
+  width: 20em;
+  font-size: 0.75em;
+  margin: 0.25em 0;
+  border: 1px solid #aaa;
+  background: white;
+  padding: 2px;
+  margin: 0;
+}
+
+input.submit {
+  font-size: 1em;
+  padding: 0em 1em;
+}
+
 h2.subtitle {
   color: #444;
   font-size: 0.9em;
   margin: 0em 2em;
 }
+
+div.pub-date {
+  text-align: right;
+  color: #888;
+  font-size: 0.8em;
+}
+
 
 /*
  * h2: Section headings
@@ -135,6 +259,10 @@ h2 {
 }
 
 h2 a {
+    color: #005;
+}
+
+h1 a {
     color: #005;
 }
 

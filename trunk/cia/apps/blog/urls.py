@@ -1,15 +1,11 @@
 from django.conf.urls.defaults import *
 from cia.apps.blog import models
 
-info_dict = {
-    'queryset': models.Post.objects.filter(listed = True),
-    'date_field': 'pub_date',
-}
-
-urlpatterns = patterns('django.views.generic.date_based',
-   (r'^(?P<year>\d{4})/(?P<month>[a-z]{3})/(?P<day>\w{1,2})/(?P<slug>[-\w]+)/$', 'object_detail', dict(info_dict, slug_field='slug')),
-   (r'^(?P<year>\d{4})/(?P<month>[a-z]{3})/(?P<day>\w{1,2})/$',                  'archive_day',   info_dict),
-   (r'^(?P<year>\d{4})/(?P<month>[a-z]{3})/$',                                   'archive_month', info_dict),
-   (r'^(?P<year>\d{4})/$',                                                       'archive_year',  info_dict),
-   (r'^/?$',                                                                     'archive_index', info_dict),
+urlpatterns = patterns('cia.apps.blog.views',
+   (r'^(?P<year>\d{4})/(?P<month>\d{2})/(?P<slug>[-\w]+)/$', 'detail'),
+   (r'^(?P<year>\d{4})/(?P<month>\d{2})/$',                  'archive'),
+   (r'^$',                                                   'archive'),
+   (r'^feed/$',                                              'feed'),
+   (r'^post-comment/$',                                      'post_comment'),
+   (r'^new-post/$',                                          'detail'),
 )
