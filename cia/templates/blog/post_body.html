@@ -1,0 +1,11 @@
+{% if post.listed %}
+  <div class="pub-date">Published on {{ post.pub_date|date:"l, F j, Y" }}</div>
+{% else %}
+  <div class="pub-date">Draft post</div>
+{% endif %}
+
+{% if post.content %}
+  {{ post.render.fragment }}
+{% else %}
+  <p><em>Empty post</em></p>
+{% endif %}

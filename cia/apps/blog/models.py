@@ -15,8 +15,14 @@ class Post(models.Model):
     def __str__(self):
         return '"%s" posted by %s at %s' % (self.title, self.posted_by, self.pub_date)
 
+    def get_absolute_url(self):
+        return '/blog/%04d/%02d/%s/' % (self.pub_date.year, self.pub_date.month, self.slug)
+
+    def invalidate_cache(self):
+        cache.delete('cia.apps.blog.%d' % self.id)
+
     def render(self):
-        key = 'cia.apps.blog.%s.%s' % (self.slug, str(self.pub_date).replace(' ','_'))
+        key = 'cia.apps.blog.%d' % self.id
         parts = cache.get(key)
         if parts:
             return parts

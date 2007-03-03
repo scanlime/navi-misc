@@ -6,6 +6,7 @@
   {% block stylesheets %}
     <link href="/media/css/base.css" type="text/css" rel="stylesheet" />
   {% endblock %}
+  {% block feeds %}{% endblock %}
   {% block scripts %}{% endblock %}
 {% endblock %}
 
@@ -18,17 +19,23 @@
   <ul>
     {% if user.is_authenticated %}
       <li>&bull; Welcome, {{ user.get_full_name|escape }}.</li>
+    {% else %}
+      {% block logged-out-status %}{% endblock %}
+    {% endif %}
+
+    {% block feedback-nav %}<li>&raquo; <a href="/feedback/?ref={{ request.path }}">Feedback</a></li>{% endblock %}
+    <li>&raquo; <a href="/doc/">About</a></li>
+    <li>&raquo; <a href="/blog/">Blog</a></li>
+
+    {% if user.is_authenticated %}
       <li>&raquo; <a href="/account/">Profile</a></li>
       <li>&raquo; <a href="/account/logout/">Log out</a></li>
     {% else %}
-      {% block log_in %}
+      {% block login-nav %}
         <li>&raquo; <a href="/account/login/">Log in</a></li>
         <li>&raquo; <a href="/account/register/">Register</a></li>
       {% endblock %}
     {% endif %}
-    {% block feedback_link %}
-      <li>&raquo; <a href="/feedback/?ref={{ request.path }}">Feedback</a></li>
-    {% endblock %}
   </ul>
 </div>
 {% block content %}

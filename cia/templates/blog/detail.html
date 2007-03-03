@@ -1,0 +1,49 @@
+{% extends 'layout_blog.html' %}
+{% load comments.comments %}
+
+{% block page_title %}{{ post.title }}{% endblock %}
+
+{% block posts %}
+
+  <div class="document">
+    <h1><a href="{{ post.get_absolute_url|escape }}">{% if post.title %}{{ post.title }}{% else %}Untitled{% endif %}</a></h1>
+    {% include "blog/post_body.html" %}
+  </div>
+
+  {% include "blog/post_comments_link.html" %}
+
+  {% if post.listed %}
+    {% get_free_comment_list for blog.Post post.id as comment_list %}
+
+    {% for comment in comment_list %}
+      <div class="comment comment-{% cycle odd,even %}" id="c{{ comment.id }}">
+	<div>
+	  <a id="c{{ comment.id }}" href="#c{{ comment.id }}">#{{ forloop.counter }}</a>
+	  <strong>{{ comment.person_name }}</strong> wrote, on {{ comment.submit_date|date:"Y-m-d" }}:
+	</div>
+
+	{{ comment.comment|escape|urlizetrunc:40|linebreaks }}
+      </div>
+    {% endfor %}
+
+    <div class="comment-form">
+      {% free_comment_form for blog.Post post.id %}
+    </div>
+  {% endif %}
+
+  {% if post_form %}
+     <div class="comment-form">
+       <form action="{{ post.get_absolute_url }}" method="post">
+         <p><label for="id_title">Title:</label> {{ post_form.title }}
+           <span class="error">{{ post_form.errors.title.0 }}</span>
+           </p>
+         <p>{{ post_form.listed }}<label for="id_listed">Post is publicly listed</label></p>
+         <p><label for="id_content">reStructuredText markup:</label><br />{{ post_form.content }}
+           <div class="error">{{ post_form.errors.content.0 }}</div>
+           </p>
+         <p><input class="submit" type="submit" value="Save Post" /></p>
+       </form>
+     </div>
+  {% endif %}
+
+{% endblock %}

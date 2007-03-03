@@ -1,0 +1,45 @@
+{% extends 'layout_doc.html' %}
+
+{% block page_title %}Blog{% endblock %}
+{% block head_title %}Blog{% endblock %}
+
+{% block feeds %}
+  {{ block.super }}
+  <link rel="alternate" type="application/rss+xml" href="/blog/feed/" />
+{% endblock %}
+
+{% block content %}
+<div id="document-and-sidebar">
+
+<ul id="sidebar">
+  <li>
+    <p>CIA Blog</p>
+    <ul class="links">  
+      <li><a href="/blog/">Latest Entries</a></li>
+      <li><a href="/blog/feed/">Feed</a></li>
+      {% if can_post %}<li><a href="/blog/new-post/">New Post</a></li>{% endif %}
+    </ul>
+  </li>
+
+  <li>
+    <p>Archives</p>
+    <ul class="links">  
+      {% for date in archive_dates %}    
+         <li>
+           {% ifequal date current_archive_date %} 
+             {{ date|date:"F Y" }}
+           {% else %}
+             <a href="/blog/{{ date|date:"Y/m" }}/">{{ date|date:"F Y" }}</a>
+           {% endifequal %}
+         </li>
+      {% endfor %}
+    </ul>
+  </li>
+
+  {% include "doc/default_sidebar.html" %}
+</ul>
+
+{% block posts %}{% endblock %}
+
+</div>
+{% endblock %}

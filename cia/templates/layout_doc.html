@@ -12,21 +12,10 @@
 <div id="document-and-sidebar">
 
 {% if sidebar %}
-<ul id="sidebar">
-{% for section in sidebar %}
-  <li>
-    <p>{{ section.title }}</p>
-    <ul class="links">  
-      {% for link in section.links %}
-         <li><a href="{{ link.url }}">{{ link.title }}</a></li>
-      {% endfor %}
-    </ul>
-  </li>
-{% endfor %}
-</ul>
+<ul id="sidebar">{{ sidebar }}</ul>
 {% endif %}
 
-<div id="document">
+<div class="document">
 {{ parts.html_title }}
 {{ parts.html_subtitle }}
 {{ parts.fragment }}

@@ -4,9 +4,27 @@ from django.http import Http404, HttpResponseRedirect
 from django.conf import settings
 from docutils.core import publish_parts
 from django.core.cache import cache
+from django.template import loader
 import os
 
-def find_sidebar_path(path, format=".%s.sidebar"):
+def get_sidebar_templates(path):
+    """Return a list of sidebar template names to try for the
+       given documentation path. A path of 'foo/bar' could
+       have any of the following templates:
+
+           doc/foo_bar_sidebar.html
+           doc/foo_sidebar.html
+           doc/default_sidebar.html
+
+       """
+    pattern = "doc/%s_sidebar.html"
+    paths = []
+    p = path.split('/')
+    for i in range(len(p), 0, -1):
+        paths.append(pattern % '_'.join(p[:i]))
+    paths.append(pattern % "default")
+    return paths
+    
     dir, basename = os.path.split(path)
     specific = os.path.join(dir, format % basename)
     if os.path.isfile(specific):
@@ -14,59 +32,24 @@ def find_sidebar_path(path, format=".%s.sidebar"):
     else:
         return os.path.join(dir, format % 'default')
 
-def parse_sidebar(path):
-    """Parse sidebar links from a simple text file format.
-       Lines beginning with a dash specify a new section heading,
-       links are made by lines of the form 'title :: URL'.
-       Other lines are ignored.
-
-       Returns a list of sections. Each section is a dictionary
-       with 'title' and 'links' keys. Each link is a dictionary
-       with 'title' and 'url' keys.
-       """
-    if not os.path.isfile(path):
-        return None
-
-    sections = []
-    for line in open(path).xreadlines():
-        line = line.strip()
-        if not line:
-            continue
-
-        if line[0] == '-':
-            sections.append({
-                'title': line[1:].strip(),
-                'links': [],
-                })
-            continue
-
-        pieces = line.split("::", 1)
-        if len(pieces) == 2:
-            title, url = pieces
-            sections[-1]['links'].append({
-                'title': title.strip(),
-                'url': url.strip(),
-                })
-    return sections
-
-
 def page(request, path):
-    filePath = os.path.join(settings.CIA_DOC_PATH, path)
-
-    # "index" is the document representing its parent
-    # directory. We canonicalize URLs here such that they
-    # never include "index".
-    #
-    if os.path.basename(filePath) == 'index':
-        return HttpResponseRedirect("..")
-    if os.path.isdir(filePath):
-        filePath = os.path.join(filePath, 'index')
-    if not os.path.isfile(filePath):
-        raise Http404
-
-    key = 'cia.apps.doc.%s-%d' % (path.replace('/', '.'), os.stat(filePath).st_mtime)
+    key = 'cia.apps.doc.page.%s' % (path.replace('/', '.'))
     ctx = cache.get(key)
     if not ctx:
+
+        filePath = os.path.join(settings.CIA_DOC_PATH, path)
+
+        # "index" is the document representing its parent
+        # directory. We canonicalize URLs here such that they
+        # never include "index".
+        #
+        if os.path.basename(filePath) == 'index':
+            return HttpResponseRedirect("..")
+        if os.path.isdir(filePath):
+            filePath = os.path.join(filePath, 'index')
+        if not os.path.isfile(filePath):
+            raise Http404
+
         ctx = {
             'parts': publish_parts(
                 source = open(filePath).read(),
@@ -76,7 +59,7 @@ def page(request, path):
                     'initial_header_level': 2,
                 },
             ),
-            'sidebar': parse_sidebar(find_sidebar_path(filePath)),
+            'sidebar': loader.render_to_string(get_sidebar_templates(path)),
         }
         cache.set(key, ctx)
 
