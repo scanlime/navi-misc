@@ -29,8 +29,7 @@ class ImageSource(models.Model):
 
     def get_large_thumbnail(self):
         """Convenience method for templates. If we need more than one
-           or two sizes, this should turn into a template filter.
-           """
+           or two sizes, this should turn into a template filter."""
         return self.get_thumbnail(256)
 
     def get_original(self):
