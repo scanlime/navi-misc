@@ -50,6 +50,10 @@ merge(DEST + 'js/stats.js', [
     'js/local/expander.js',
     ], jsmin)
 
+merge(DEST + 'js/blog-admin.js', [
+    'js/local/iframe.js',
+    ], jsmin)
+
 # XXX: For testing
 merge(DEST + 'js/fidtool.js', [
     'js/yui-0.12.2/build/yahoo/yahoo.js',
