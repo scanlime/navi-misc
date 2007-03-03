@@ -4,12 +4,12 @@ from django.core.cache import cache
 from docutils.core import publish_doctree, Publisher
 from docutils.readers import doctree
 from docutils.io import DocTreeInput, StringOutput
-from docutils.nodes import SparseNodeVisitor
+from docutils import nodes
 from cia.apps.images.models import ImageSource, ImageInstance
 import re
 
 
-class ImageTranslator(SparseNodeVisitor):
+class ImageTranslator(nodes.SparseNodeVisitor):
     """This Docutils translator implements support for a new type of
        image element with a numeric URL, referring to an image managed
        by our cia.apps.images app. Examples:
@@ -32,9 +32,20 @@ class ImageTranslator(SparseNodeVisitor):
           .. image:: #123/256
              :class: float
 
+       We include in-line styles for such images, so that we can still
+       float them when we're rendered without doc.css (for example,
+       via RSS).
        """
+
+    styles = {
+        'float': ('div', 'float: right; margin: 1em 0 1em 1em;'),
+        'centered': ('div', 'text-align: center;'),
+        'dashed': ('img', 'border: 1px dashed #888; padding: 2px;'),
+        'framed': ('img', 'border: 1px solid black; padding: 0;'),
+        }
+
     def __init__(self, document):
-        SparseNodeVisitor.__init__(self, document)
+        nodes.SparseNodeVisitor.__init__(self, document)
         self.images = []
     
     def visit_image(self, node):
@@ -52,22 +63,53 @@ class ImageTranslator(SparseNodeVisitor):
 
         try:
             if use_thumbnail:
-                if thumbnail_size:
-                    instance = image.get_thumbnail(int(thumbnail_size))
-                else:
-                    instance = image.get_thumbnail()
+                # Use a thumbnail, and link to the full image
+                instance = image.get_thumbnail(int(thumbnail_size or 128))
+                href = image.get_original().get_url()
             else:
+                # No link, put the whole thing in directly
                 instance = image.get_original()
+                href = None
         except ImageInstance.DoesNotExist:
             err = self.document.reporter.error("Image not available in the specified size")
             node.replace_self(err)
             return
-            
+
+        # Apply all of the image's styles. Some styles go on the
+        # image itself, some go on a containing div.
+
+        styles = {}
+        for c in node.get('classes'):
+            if c in self.styles:
+                element, style = self.styles[c]
+                styles[element] = styles.get(element, '') + style
+
+        # If we got this far, there are no more potential user errors.
+        # Store this image in our list of images to reference.
+
         self.images.append(image)
 
-        node['uri'] = instance.get_url()
-        node['width'] = str(instance.width)
-        node['height'] = str(instance.height)
+        # Build some raw HTML output, which will replace this image in the doc tree
+
+        parts = []
+
+        if 'div' in styles:
+            parts.append('<div style="%s">' % styles['div'])
+        if href:
+            parts.append('<a href="%s">' % href)
+
+        parts.append('<img src="%s" width="%d" height="%d" style="%s" />' % (
+            instance.get_url(),
+            instance.width, instance.height,
+            styles.get('img', ''),
+            ))
+    
+        if href:
+            parts.append('</a>')
+        if 'div' in styles:
+            parts.append('</div>')
+
+        node.parent.replace(node, nodes.raw(text=''.join(parts), format='html'))
 
 
 class Post(models.Model):
