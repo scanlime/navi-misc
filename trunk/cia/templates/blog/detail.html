@@ -65,11 +65,13 @@
 
 {% block scripts-init %}
   {{ block.super }}
-  iFrameResultCallbacks["image_iframe"] = function(result) {
-    if (result) {
-      var content = document.getElementById("id_content");
-      content.value += "\n.. image:: #"+result+"\n";
+  {% if post_form %}
+    iFrameResultCallbacks["image_iframe"] = function(result) {
+      if (result) {
+        var content = document.getElementById("id_content");
+        content.value += "\n.. image:: #"+result+"\n";
+      }
     }
-  }
+  {% endif %}
 {% endblock %}
 
