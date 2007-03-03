@@ -46,7 +46,8 @@ rpc.putSubHandler('stats', Stats.Interface.StatsInterface())
 site.putComponent('stats', Web.Stats.Component())
 
 # External components, implemented in Django
-site.putComponent('doc', Web.Server.Component("Documentation"))
+site.putComponent('doc', Web.Server.Component("About"))
+site.putComponent('blog', Web.Server.Component("Blog"))
 site.putComponent('account', Web.Server.Component("Your Account"))
 
 # Run the HTTP server

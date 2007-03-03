@@ -127,6 +127,22 @@ h1.blog-index {
   margin: 0 0 2px 0;;
 }
 
+/*
+ * This element just exists to clear the floats
+ * before closing div.document.
+ *
+ * XXX: This also has the side-effect of clearing
+ *      the sidebar, since it's a float: right. 
+ *      That may turn out to be a problem...
+ */
+.document div.footer {
+  clear: right;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  height: 0px;
+}
+
 div.comments-link {
   background: #454;
   color: white;
@@ -212,9 +228,14 @@ div.comments-link div.by-line {
   margin: 0;
 }
 
-/* Big textarea for editing document content */
+/*
+ * Big textarea for editing document content. This also needs
+ * to be monospace, for editing reST markup. 
+ */
 #id_content {
   height: 30em;
+  padding: 2px;
+  font-family: monospace;
 }
 
 .comment-form label {
@@ -229,6 +250,13 @@ div.comments-link div.by-line {
   background: white;
   padding: 2px;
   margin: 0;
+}
+
+.comment-form .image-upload {
+  background: white;
+  border: 1px solid #aaa;
+  width: 80%;
+  padding: 5px;
 }
 
 input.submit {
@@ -304,4 +332,41 @@ pre.literal-block {
     padding: 0.5em;
     background: #ffc;
     border: 1px solid #b77;
+}
+
+/*
+ * Some image styles to use in blog posts
+ */
+img.float-dashed {
+    float: right;
+    margin: 1em 0 1em 1em;
+    border: 1px dashed #888;
+    padding: 2px;
+}
+
+img.float-framed {
+    float: right;
+    margin: 1em 0 1em 1em;
+    border: 1px solid black;
+    padding: 0;
+}
+
+img.float {
+    float: right;
+    margin: 1em 0 1em 1em;
+}
+
+
+/*
+ * Docutils-generated error messages
+ */
+.system-message {
+    border: 1px dashed red;
+    margin: 0.25em;
+    padding: 0.5em;
+    font-size: 0.8em;
+}
+
+.system-message p {
+    margin: 0.25em;
 }

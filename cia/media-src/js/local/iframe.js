@@ -2,6 +2,8 @@
  * Copyright (c) 2007 Micah Dowty <micah@navi.cx>
  */
 
+var iFrameResultCallbacks = {}
+
 /* This is called by child iframes when they load. We'll update their size */
 iFrameLoaded = function(childDocument, childWindow)
 {
@@ -31,13 +33,21 @@ iFrameLoaded = function(childDocument, childWindow)
 
     /*
      * If the child iframe has a "form-result" hidden input element,
-     * copy its value to the proper hidden input element in our parent
-     * document. The result element will have an ID equal to our iframe's
-     * name plus '_result'.
+     * propagate that value to the parent...
      */
     var childResult = childDocument.getElementById("form-result");
-    var parentResult = document.getElementById(childWindow.name + "_result");
-    if (childResult && parentResult) {
-	parentResult.value = childResult.value;
+    if (childResult) {
+
+	/* If the parent has a corresponding form field, copy the value there */
+	var parentResult = document.getElementById(childWindow.name + "_result");
+	if (parentResult) {
+	    parentResult.value = childResult.value;
+	}
+
+	/* If we have a special handler function in the parent, call it */
+	var handler = iFrameResultCallbacks[childWindow.name];
+	if (handler) {
+	    handler(childResult.value);
+	}
     }
 }

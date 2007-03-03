@@ -73,7 +73,7 @@ def detail(request, year=None, month=None, slug=None):
                              pub_date__month = int(month),
                              slug = slug)
         except Post.DoesNotExist:
-            return Http404
+            raise Http404
 
     # Show an editing form if this user is allowed to make posts
     # and if they own the current post.
@@ -90,12 +90,19 @@ def detail(request, year=None, month=None, slug=None):
                 post.content = post_form.clean_data['content']
                 post.title = post_form.clean_data['title']
 
+                # Bump the publication date if we're transitioning from draft to listed.
                 if (not post.pub_date) or (post_form.clean_data['listed'] and not post.listed):
                     post.pub_date = datetime.datetime.now()
                 post.listed = post_form.clean_data['listed']
 
-                if not post.slug:
+                # Update the slug if the post is unlisted
+                if (not post.slug) or (not post.listed):
                     post.slug = slugify(post.title)
+
+                # If the post is listed, mark all of its images as permanent.
+                # Images in drafts are temporary!
+                if post.listed:
+                    post.reference_images()
 
                 post.save()
                 post.invalidate_cache()

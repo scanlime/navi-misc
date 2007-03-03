@@ -15,7 +15,7 @@ class ImageWidget(Widget):
             value = ''
         
         return """
-<iframe src="/images/upload?image-id=%(value)s"
+<iframe src="/images/upload/?image-id=%(value)s"
         name="%(name)s_iframe"
         width="100%%" height="0px"
         frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
