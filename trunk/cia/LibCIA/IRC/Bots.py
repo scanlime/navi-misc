@@ -102,6 +102,16 @@ class Request(pb.Referenceable):
             if nicks:
                 return len(nicks) - len(self.bots)
 
+    def remote_getInfoDict(self):
+        return {
+            'server': str(self.network),
+            'channel': self.channel,
+            'user_count': self.getUserCount(),
+            'is_fulfilled': self.isFulfilled(),
+            'is_active': self.active(),
+            'bots': [bot.remote_getInfoDict() for bot in self.bots],
+            }
+
     def remote_active(self):
         return self.active()
 
@@ -462,6 +472,16 @@ class BotNetwork(pb.Root):
         for request in self.requests:
             d[ request.network.getIdentity() + (request.channel,) ] = request
         return d
+
+    def remote_getAllRequestInfo(self):
+        """Return a list of dictionaries describing each request."""
+        return [req.remote_getInfoDict() for req in self.requests]
+
+    def remote_findRequestInfo(self, host, port, channel):
+        """Return an info dictionary for a single request"""
+        req = self.remote_findRequest(host, port, channel, create=False)
+        if req:
+            return req.remote_getInfoDict()
 
     def remote_getTotals(self):
         """Return a dictionary of impressive-looking totals related to the bots"""
@@ -1154,6 +1174,19 @@ class Bot(irc.IRCClient, pb.Referenceable):
 
         elif text == "rubs %s's tummy" % me:
 	    self.say(channel, "*purr*")
+
+    def remote_getInfoDict(self):
+        return {
+            'nickname': self.nickname,
+            'current_channels': self.channels.keys(),
+            'requested_channels': self.requestedChannels.keys(),
+            'network': self.remote_getNetworkInfo(),
+            'current_time': time.time(),
+            'connect_time': self.connectTimestamp,
+            'inactive_time': self.remote_getInactivity(),
+            'is_full': self.isFull(),
+            'lag': self.getLag(),
+            }
 
     def remote_msg(self, target, text):
         """A remote request directly to this bot, ignoring the usual queueing"""

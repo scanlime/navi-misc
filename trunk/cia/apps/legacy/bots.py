@@ -43,15 +43,3 @@ def needs_bot_server(view_func):
     _wrapper.__dict__ = view_func.__dict__
     return _wrapper
 
-def get_bot_request_info(server):
-    request_info = []
-    for (host, port, channel), req in block(server.root.callRemote('getRequests')).iteritems():
-        if port:
-            host = "%s:%d" % (host, port) 
-        request_info.append({
-            'server': host,
-            'channel': channel,
-            'user_count': block(req.callRemote('getUserCount')) or 0,
-            'is_fulfilled': block(req.callRemote('isFulfilled')),
-            })
-    return request_info
