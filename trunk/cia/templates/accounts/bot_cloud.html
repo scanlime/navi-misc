@@ -10,8 +10,10 @@
      <h2>{{ server.name|escape }} ({{ server.num_requests }})</h2>
      <p class="cloud">
         {% for request in server.requests|dictsort:"channel" %}
-            <span {% if not request.is_fulfilled %}class="error"{% else %}style="font-size: {{ request.size }}em"{% endif %}
-	       >{{ request.channel|escape }}</span>
+            <span {% if not request.is_fulfilled %}class="error"{% else %}
+                  style="font-size: {{ request.size|floatformat:4 }}em"
+		  title="{{ request.user_count }} people ({{ request.bots.0.nickname }})"
+                  {% endif %}>{{ request.channel|escape }}</span>
         {% endfor %}
      </p>
   {% endfor %}
