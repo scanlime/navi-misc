@@ -7,7 +7,7 @@ import time
 class TimeoutError(Exception):
     pass
 
-def block(d, timeout=5.0):
+def block(d, timeout=15.0):
     """Block on a deferred, resolving it into a value or an exception.
        If the entire operation doesn't complete within a specified
        timeout, in seconds, this raises TimeoutError.
