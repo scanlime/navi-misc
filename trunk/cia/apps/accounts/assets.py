@@ -135,6 +135,19 @@ def profile(request):
         }))
 
 
+@authplus.login_required
+def generic_page(request, template):
+    """This is a generic template-only page, plus the information needed
+       by the navigation templates.
+
+       XXX: If asset_types could be provided by a template tag,
+            this would be a normal generic view.
+       """
+    return render_to_response(template, RequestContext(request, {
+        'asset_types': get_user_asset_types(request),
+        }))
+
+
 ###########################
 #      Asset Editing      #
 ###########################
@@ -200,19 +213,37 @@ class EditAssetForm(forms.Form):
 
 @authplus.login_required
 @json_result
-def changes(request, asset_type, asset_id, page_number, num_per_page=10):
-    """Return a paginated list of changes to a particular asset. This
-       is called by some AJAX code in order to populate an asset's
-       Change History box.
-       """
-    # Don't bother checking whether the user owns this asset, change
-    # history should be public information anyway.
-    changes = models.AssetChangeset.objects.filter(
-        content_type = ContentType.objects.get_for_model(get_asset_by_type(asset_type)),
-        object_id = int(asset_id),
-        ).order_by('-id')
+def changes(request, asset_type=None, asset_id=None,
+            current_user=True, page_number=0, num_per_page=10):
+    """Return a paginated list of recent asset changes,
+       filtered in the following ways:
 
-    paginator = ObjectPaginator(changes,
+        - If 'asset_type' and 'asset_id' are supplied, this limits
+          the changes to those from a single asset.
+
+        - If 'current_user' is set, this only shows changes to objects
+          that are owned by the currently logged-in user.
+
+       This returns a JSON result which is used by client-side
+       pagination code.
+       """
+    changes = models.AssetChangeset.objects.all()
+
+    if asset_id is not None:
+        changes = changes.filter(
+            content_type = ContentType.objects.get_for_model(get_asset_by_type(asset_type)),
+            object_id = int(asset_id),
+            )
+
+    if current_user:
+        changes = changes.extra(
+            tables = ["accounts_userasset"],
+            where = ["accounts_userasset.content_type_id = accounts_assetchangeset.content_type_id",
+                     "accounts_userasset.object_id = accounts_assetchangeset.object_id",
+                     "accounts_userasset.user_id = %d" % request.user.id],
+            )
+
+    paginator = ObjectPaginator(changes.order_by('-id'),
                                 num_per_page = num_per_page,
                                 orphans = num_per_page / 2)
     return {
@@ -222,6 +253,7 @@ def changes(request, asset_type, asset_id, page_number, num_per_page=10):
             'accounts/asset_changes.html',
             RequestContext(request, {
                 'changesets': paginator.get_page(page_number),
+                'show_asset_name': asset_id is None,
             }))),
         }
 
