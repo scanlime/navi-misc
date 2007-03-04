@@ -3,10 +3,133 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.db.models import signals
 from django.dispatch import dispatcher
-import os, re, Image
+import os, re, commands, random
+from popen2 import Popen4
 
 # These must be listed from largest to smallest
 THUMBNAIL_SIZES = (256, 128, 64, 32, 16)
+
+
+class ImageException(Exception):
+    pass
+
+class ImageMagick:
+    """Simple interface to ImageMagick. Why ImageMagick? PIL's
+       thumbnailing is very buggy, and I'm tired of working around
+       those bugs. The most severe problems with PIL for me have been:
+
+         - Lack of support for interlaced PNGs, buggy (or just confusing?)
+           support for transparent GIFs.
+
+         - A fraction of a pixel is cut off of the right and bottom sides
+           of an image when thumbnailing. This can severely reduce the quality
+           of our 16x16 and 32x32 icons.
+
+       There is no actively maintained ImageMagick interface for Python-
+       and even if there were, we are probably better off doing large image
+       manipulation operations in a separate address space. This just calls
+       out to ImageMagick using popen.
+       """
+    
+    # Note the 'composite' option: Some input images are treated as
+    # multi-image sequences. A common example is the Windows .ico format.
+    #
+    # The -background option here should give us transparent PNGs when rendering vector images.
+    #
+    CONVERT = "convert -background none -composite -quality 100"
+
+    IDENTIFY = "identify -ping"
+
+    def get_image_size(self, file_path):
+        """Probe the size of an on-disk image, returning a (width, height) tuple.
+           """
+        child = Popen4("%s -ping %s" % (self.IDENTIFY, commands.mkarg(file_path)))
+        output = child.fromchild.read()
+        status = child.wait()
+        match = re.search(r" (\d+)x(\d+) ", output)
+
+        if status or not match:
+            raise ImageException(output)
+
+        return int(match.group(1)), int(match.group(2))
+
+    def _get_temp_path(self, filename_hint=None):
+        """Return a new path to a temporary file, using
+           the provided filename as a hint for the temporary
+           file's extension.
+           """
+        dir = os.path.join(settings.CIA_DATA_PATH, 'temp')
+        try:
+            os.makedirs(dir)
+        except OSError:
+            pass
+
+        path = os.path.join(dir, "image-%d-%d" % (
+            os.getpid(), random.randint(1000, 9999)))
+
+        if filename_hint:
+            m = re.search(r"(\.[a-z]+)$", filename_hint.lower())
+            if m:
+                path += m.group(1)
+
+        return path
+
+    def store_image(self, dest_path, data, filename_hint=None):
+        """Given an in-memory image, store it to the provided
+           path. This will validate the image and convert it to the
+           file format indicated by the target path.  On error, no
+           file will be written.
+
+           Some formats cannot be reliably identified by
+           ImageMagick. For these formats, the filename_hint may be
+           necessary.
+           """
+        src_path = self._get_temp_path(filename_hint)
+        try:
+            # We could stream the data to ImageMagick over stdin rather
+            # than writing it to a tempoary file, but:
+            #
+            #   1. ImageMagick just uses a temporary file internally anyway
+            #
+            #   2. Reading and writing the child process simultaneously,
+            #      without introducing deadlocks, would significantly
+            #      complicate this function.
+
+            f = open(src_path, "wb")
+            f.write(data)
+            f.close()
+            del data
+            
+            child = Popen4("%s %s %s" % (
+                self.CONVERT,
+                commands.mkarg(src_path),
+                commands.mkarg(dest_path),
+                ))
+
+            output = child.fromchild.read()
+            status = child.wait()
+            if status:
+                raise ImageException(output)
+
+        finally:
+            try:
+                os.unlink(src_path)
+            except OSError:
+                pass
+
+    def thumbnail_image(self, src_path, dest_path, size):
+        """Generate a square thumbnail, with on-disk source and destination paths."""
+        child = Popen4("%s -geometry %dx%d %s %s" % (
+            self.CONVERT,
+            size, size,
+            commands.mkarg(src_path),
+            commands.mkarg(dest_path),
+            ))
+
+        output = child.fromchild.read()
+        status = child.wait()
+        if status:
+            raise ImageException(output)
 
 
 class ImageSource(models.Model):
@@ -20,7 +143,7 @@ class ImageSource(models.Model):
     created_by = models.ForeignKey(User, null=True)
     date_added = models.DateTimeField(auto_now_add=True)
 
-    def create_path(self, suffix, extension=".png"):
+    def create_path(self, suffix="", extension=".png"):
         id_dirs = "/".join(re.findall("..?", "%x" % self.id))
         return "".join((id_dirs, suffix, extension))
 
@@ -58,57 +181,54 @@ class ImageSource(models.Model):
         return s
 
 class ImageInstanceManager(models.Manager):
-    def create_from_image(self, image, source, suffix="", **kw):
-        """Create an image instance from a PIL image, using
-           the provided path suffix.
+    magick = ImageMagick()
+
+    def create_from_file(self, image, source, suffix="", **kw):
+        """Create an image instance, after the image file has
+           already been created on disk.
            """
-        path = source.create_path(suffix)
-        i = ImageInstance(source = source,
-                          path = path,
-                          width = image.size[0],
-                          height = image.size[1],
-                          **kw)
-        i.store_image(image)
-        i.save()
 
     def create_original(self, image, created_by, is_temporary=True):
-        """Create an original image from uploaded data, given a PIL
-           Image object. The resulting image will always be saved as
-           a PNG file. Automatically creates all default thumbnail sizes.
+        """Create an original image from uploaded data, in the form of
+           a FILES dictionary entry. The resulting image will always
+           be saved as a PNG file. Automatically creates all default
+           thumbnail sizes.
 
-           Returns the new ImageSource instance.
+           Returns the new ImageSource instance on success. If the
+           image is bad, raises ImageException.
            """
-        source = ImageSource.objects.create(created_by=created_by,
-                                            is_temporary=is_temporary)
-        self.create_from_image(image, source, is_original=True)
-        self.create_standard_thumbnails(image, source)
+
+        # Must create the ImageSource first, since our path is based on its ID.
+        source = ImageSource.objects.create(created_by = created_by,
+                                            is_temporary = is_temporary)
+
+        original = ImageInstance(source = source,
+                                 path = source.create_path(),
+                                 is_original = True)
+
+        try:
+            self.magick.store_image(original.get_path(create=True),
+                                    image['content'], image.get('filename'))
+        except:
+            source.delete()
+            raise
+
+        original.update_image_size()
+        original.save()
+
+        self.create_standard_thumbnails(source, original)
         return source
 
-    def create_standard_thumbnails(self, image, source):
-        """Warning, may modify the input image!"""
-
-        if image.mode not in ('RGB', 'RGBA', 'L'):
-            image = image.convert("RGBA")
-
-        # To save time, first scale the original image down
-        # to the largest of the thumbnail sizes. This doesn't
-        # sacrifice much quality, but it greatly improves memory
-        # and CPU usage when thumbnailing big images.
-
-        max_size = THUMBNAIL_SIZES[0]
-        if max(*image.size) > max_size:
-            image.thumbnail((max_size, max_size), Image.ANTIALIAS)
-
+    def create_standard_thumbnails(self, source, original):
         for size in THUMBNAIL_SIZES:
-            self.create_thumbnail(image, source, size)
+            self.create_thumbnail(source, original, size)
 
-    def create_thumbnail(self, image, source, size):
+    def create_thumbnail(self, source, original, size):
         """Create a thumbnail at the specified size."""
 
         # If the image is already small enough, we can skip the
         # actual thumbnailing stage and just link back to the
         # original image.
-        original = source.get_original()
         if max(original.width, original.height) <= size:
             return ImageInstance.objects.create(source = source,
                                                 path = original.path,
@@ -117,27 +237,15 @@ class ImageInstanceManager(models.Manager):
                                                 delete_file = False,
                                                 thumbnail_size = size)
 
-        if image.mode not in ('RGB', 'RGBA', 'L'):
-            image = image.convert("RGBA")
+        thumb = ImageInstance(source = source,
+                              path = source.create_path("-t%d" % size),
+                              thumbnail_size = size)
 
-        # Our thumbnails look much better if we paste the image into
-        # a larger transparent one first with a margin about equal to one
-        # pixel in our final thumbnail size. This smoothly blends
-        # the edge of the image to transparent rather than chopping
-        # off a fraction of a pixel. It looks, from experimentation,
-        # like this margin is only necessary on the bottom and right
-        # sides of the image.
+        self.magick.thumbnail_image(original.get_path(), thumb.get_path(), size)
 
-        margins = (image.size[0] // size + 1,
-                   image.size[1] // size + 1)
-        bg = Image.new("RGBA",
-                       (image.size[0] + margins[0],
-                        image.size[1] + margins[1]),
-                       (255, 255, 255, 0))
-        bg.paste(image, (0,0))
-        bg.thumbnail((size, size), Image.ANTIALIAS)
-        return self.create_from_image(bg, source, "-t%d" % size, thumbnail_size=size)
-
+        thumb.update_image_size()
+        thumb.save()
+                                    
 
 class ImageInstance(models.Model):
     """An image file representing a source image in a particular
@@ -160,17 +268,18 @@ class ImageInstance(models.Model):
     def get_url(self):
         return '/images/db/' + self.path
 
-    def get_path(self):
-        return os.path.join(settings.CIA_DATA_PATH, 'db', 'images' , self.path)
+    def get_path(self, create=False):
+        full_path = os.path.join(settings.CIA_DATA_PATH, 'db', 'images' , self.path)
+        if create:
+            directory = os.path.dirname(full_path)
+            try:
+                os.makedirs(directory)
+            except OSError:
+                pass
+        return full_path
 
-    def store_image(self, im):
-        full_path = self.get_path()
-        directory = os.path.dirname(full_path)
-        try:
-            os.makedirs(directory)
-        except OSError:
-            pass
-        im.save(full_path)
+    def update_image_size(self):
+        self.width, self.height = ImageInstance.objects.magick.get_image_size(self.get_path())
 
     def to_html(self):
         return '<img src="%s" width="%d" height="%d" />' % (
