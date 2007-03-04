@@ -7,7 +7,7 @@
   {% endifchanged %}{% endif %}
   <p class="change-heading">
     <span class="change-detail">
-      #{{ changeset.id }}{% if changeset.remote_addr %}, from {{ changeset.remote_addr }}{% endif %}
+      #{{ changeset.id }}{% if changeset.remote_addr and request.user.is_staff %}, from {{ changeset.remote_addr }}{% endif %}
     </span>
     {% person changeset.user %} on <span class="timestamp">{{ changeset.time|date:"Y-m-d @ H:i T"  }}</span>
   </p>
