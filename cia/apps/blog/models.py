@@ -38,7 +38,7 @@ class ImageTranslator(nodes.SparseNodeVisitor):
        """
 
     styles = {
-        'float': ('div', 'float: right; margin: 1em 0 1em 1em;'),
+        'float': ('div', 'float: right; margin: 0 0 1em 1em;'),
         'centered': ('div', 'text-align: center;'),
         'dashed': ('img', 'border: 1px dashed #888; padding: 2px;'),
         'framed': ('img', 'border: 1px solid black; padding: 0;'),
