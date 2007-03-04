@@ -11,7 +11,11 @@ ChangeHistory.init = function(url, changesetListId, loadingId)
     this.loading = document.getElementById("changes-loading");
     this.moreChanges = document.getElementById("more-changes");
     this.moreChangesCount = document.getElementById("more-changes-count");
+
     this.nextPage = 0;
+    this.changesetList.innerHTML = '';
+    this.moreChanges.style.display = "none";
+
     this.loadNextPage();
 }
 

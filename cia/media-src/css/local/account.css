@@ -474,6 +474,10 @@ h2 {
   list-style-type: none;
 }
 
+#changesets.indented {
+  padding: 0 0 0 1.5em;
+}
+
 #more-changes {
   display: none;
   margin: 0.5em 0;
@@ -489,7 +493,14 @@ h2 {
   cursor: pointer;
 }
 
-#changesets p {
+#changesets p.change-asset-name {
+  margin: 1em 0 0.5em -1em;
+  color: #666;
+  font-size: 1.25em;
+  font-weight: bold;
+}
+
+#changesets p.change-heading {
   margin: 0;
   padding: 2px;
   background: #eee;
