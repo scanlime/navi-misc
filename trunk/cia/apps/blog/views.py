@@ -2,8 +2,10 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.contrib.syndication.feeds import Feed
 from django.contrib.comments.views.comments import post_free_comment
+from django.contrib.comments.models import FreeComment
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.template.defaultfilters import slugify
+from django.conf import settings
 from cia.apps.blog.models import Post
 import django.newforms as forms
 import datetime
@@ -137,11 +139,48 @@ class BlogFeed(Feed):
     def item_pubdate(self, item):
         return item.pub_date
 
-def feed(request):
+def blog_feed(request):
     f = BlogFeed('blog', request.path).get_feed()
     response = HttpResponse(mimetype = f.mime_type)
     f.write(response, 'utf-8')
     return response
+
+
+class CommentFeed(Feed):
+    title = 'CIA Blog Comments'
+    link = '/blog/'
+
+    def items(self):
+        return FreeComment.objects.filter(
+            site__pk = settings.SITE_ID,
+            is_public = True,
+            content_type__app_label__exact = 'blog',
+            content_type__model__exact = 'Post',
+            )
+
+    def item_author_name(self, item):
+        return item.person_name
+
+    def item_pubdate(self, item):
+        return item.submit_date
+
+    def item_link(self, item):
+        obj = item.get_content_object()
+        if obj:
+            item_url = obj.get_absolute_url()
+        else:
+            # The object doesn't exist any more, but this will at
+            # least give us a unique URL for the comment.
+            item_url = '/'
+        return "%s#c%d" % (item_url, item.id)
+
+
+def comment_feed(request):
+    f = CommentFeed('comment', request.path).get_feed()
+    response = HttpResponse(mimetype = f.mime_type)
+    f.write(response, 'utf-8')
+    return response
+
 
 def post_comment(request):
     """Post a comment, and redirect back to the blog entry on success."""
