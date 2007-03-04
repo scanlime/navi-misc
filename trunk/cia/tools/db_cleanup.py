@@ -17,12 +17,12 @@ def clean_up():
         expire_date__lt = datetime.datetime.now(),
         ).delete()
 
-    # Remove temporary images older than a day.
+    # Remove temporary images older than a week.
     # This automatically removes image instances and their files on disk.
     
     ImageSource.objects.filter(
         is_temporary = True,
-        date_added__lt = datetime.datetime.now() - datetime.timedelta(days=1),
+        date_added__lt = datetime.datetime.now() - datetime.timedelta(days=7),
         ).delete()
 
 if __name__ == "__main__":
