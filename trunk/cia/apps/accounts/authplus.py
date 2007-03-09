@@ -50,7 +50,11 @@ def login_required(view_func):
 
 
 def internal_login(request, username, password):
-    user = auth.authenticate(username=username, password=password)
+    try:
+        user = auth.authenticate(username = username.encode('ascii'),
+                                 password = password)
+    except UnicodeDecodeError:
+        user = None
     if user is None:
         return "Incorrect username or password."
     elif not user.is_active:
