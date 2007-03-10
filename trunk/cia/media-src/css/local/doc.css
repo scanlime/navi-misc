@@ -3,34 +3,31 @@
     background: #718070 url("/media/img/fringes-787.png") repeat-x scroll top left;
     border-bottom: 1px solid #444;
     padding: 0 0 1em 0;
+    position: relative;
 }
 
 #sidebar {
-    /*
-     * We could put the sidebar on the right using absolute
-     * positioning, but float causes text to gracefully flow
-     * around it if the display isn't wide enough for it to
-     * fit entirely in the margins.
-     */
-    float: right;
+    position: absolute;
 
     /*
-     * More padding on the left to cover list bullets.
-     * No padding on the top, because we have the <p>
-     * element's top margin.
+     * Use absolute positioning to put the left edge of the sidebar div
+     * at the page's midpoint, then use padding to scoot over across the
+     * right half of the document. Also skip past the fringes background.
+     * using padding.
      */
-    padding: 0 1em 1em 2em;
-    margin: 0 1em;
+    left: 50%;
+    right: 0;
+    top: 48px;
+    margin: 0;
+    padding: 0 0 0 33em;
 
+    color: white;
     font-size: 0.75em;
     list-style-type: none;
-
-    background: #f8f8f8;
-    border: 1px solid #aaa;
 }
 
 #sidebar p {
-    margin: 1em 0 0.5em 0;
+    margin: 1em 1em 0.5em 0;
     padding: 0;
     font-weight: bold;
     border-bottom: 1px solid #aaa;
@@ -44,6 +41,14 @@
 
 #sidebar .links li {
     margin: 0.25em 0;
+}
+
+#sidebar a {
+    color: #cef;
+}
+
+#sidebar a.summary span {
+    color: #9a9;
 }
 
 .document {
@@ -135,15 +140,11 @@ h1.blog-index {
 /*
  * This element just exists to clear the floats
  * before closing div.document.
- *
- * XXX: This also has the side-effect of clearing
- *      the sidebar, since it's a float: right. 
- *      That may turn out to be a problem...
  */
 .document div.footer {
   clear: right;
   padding: 0;
-  margin: 0;
+  margin: 1em 0 0 0;
   overflow: hidden;
   height: 0px;
 }
@@ -279,6 +280,7 @@ div.pub-date {
   text-align: right;
   color: #888;
   font-size: 0.8em;
+  margin: 0 0 1em 0;
 }
 
 
@@ -357,9 +359,4 @@ a.summary {
     display: block;
     overflow: hidden;
     white-space: nowrap;
-    width: 20em;
-}
-
-a.summary span {
-    color: #888;
 }
