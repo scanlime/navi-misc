@@ -1,6 +1,6 @@
 
 #document-and-sidebar {
-    background: #718070 url("/media/img/fringes-787.png") repeat-x scroll top left;
+    background: #454 url("/media/img/fringes-454.png") repeat-x scroll top left;
     border-bottom: 1px solid #444;
     padding: 0 0 1em 0;
     position: relative;
@@ -8,6 +8,7 @@
 
 #sidebar {
     position: absolute;
+    overflow: hidden;
 
     /*
      * Use absolute positioning to put the left edge of the sidebar div
@@ -30,7 +31,7 @@
     margin: 1em 1em 0.5em 0;
     padding: 0;
     font-weight: bold;
-    border-bottom: 1px solid #aaa;
+    border-bottom: 1px solid #898;
 }
 
 #sidebar .links {
@@ -44,11 +45,11 @@
 }
 
 #sidebar a {
-    color: #cef;
+    color: #ffa;
 }
 
 #sidebar a.summary span {
-    color: #9a9;
+    color: #898;
 }
 
 .document {
@@ -62,8 +63,8 @@
     margin: 0 auto 0 auto;
 
     /* These two are for looks.. */
-    border-left: 1px solid #898;
-    border-right: 1px solid #898;
+    border-left: 1px solid #343;
+    border-right: 1px solid #343;
 
     /* This is to prevent margin collapsing. */
     border-bottom: 1px solid #aaa;
@@ -112,7 +113,7 @@
      */
     margin: 1.5em 0em 1.5em -2em;
 
-    border-left: 1em solid #898;
+    border-left: 1em solid #343;
     padding: 0em 1em;
 
     text-align: justify;
@@ -150,7 +151,7 @@ h1.blog-index {
 }
 
 div.comments-link {
-  background: #454;
+  background: #343;
   color: white;
 
   font-size: 0.9em;
@@ -164,7 +165,7 @@ div.comments-link span {
 }
 
 div.comments-link a {
-  color: #cef;
+  color: #ffa;
 }
 
 div.comments-link div.by-line {
@@ -220,7 +221,7 @@ div.comments-link div.by-line {
   padding: 0 1em;
 
   background: #eee;
-  border: 1px solid #898;
+  border: 1px solid #343;
 }
 
 .comment-form textarea {
