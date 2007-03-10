@@ -7,7 +7,7 @@ import os, re, commands, random
 from popen2 import Popen4
 
 # These must be listed from largest to smallest
-THUMBNAIL_SIZES = (256, 128, 64, 32, 16)
+THUMBNAIL_SIZES = (512, 256, 128, 64, 32, 16)
 
 
 class ImageException(Exception):
