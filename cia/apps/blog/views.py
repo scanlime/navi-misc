@@ -13,17 +13,36 @@ import datetime
 def is_blog_admin(request):
     return request.user.is_authenticated() and request.user.is_staff
 
-def archive(request, num_latest=15, year=None, month=None):
-    can_post = is_blog_admin(request)
-    if can_post:
+def get_recent_comments():
+    return FreeComment.objects.filter(
+        site__pk = settings.SITE_ID,
+        is_public = True,
+        content_type__app_label__exact = 'blog',
+        content_type__model__exact = 'Post',
+        )
+
+def get_blog_context(request):
+    is_admin = is_blog_admin(request)
+
+    if is_admin:
         posts = Post.objects.all()
     else:
         posts = Post.objects.filter(
             pub_date__lte = datetime.datetime.now(),
             listed = True)
-    
+
+    return RequestContext(request, {
+        'posts': posts,
+        'archive_dates': posts.dates('pub_date', 'month')[::-1],
+        'can_post': is_admin,
+        'recent_comments': get_recent_comments().order_by('-id')[:10],
+        })
+
+def archive(request, num_latest=None, year=None, month=None):
+    ctx = get_blog_context(request)
+
     # Filter by a month/year
-    latest = posts
+    latest = ctx['posts']
     if year and month:
         latest = latest.filter(pub_date__year = int(year),
                                pub_date__month = int(month))
@@ -33,10 +52,15 @@ def archive(request, num_latest=15, year=None, month=None):
     else:
         current_archive_date = None
 
-    latest = latest.order_by('-pub_date')[:num_latest]
-    archive_dates = posts.dates('pub_date', 'month')[::-1]
+    latest = latest.order_by('-pub_date')
+    if num_latest:
+        latest = latest[:num_latest]
 
-    return render_to_response('blog/archive.html', RequestContext(request, locals()))
+    ctx.update({
+        'latest': latest,
+        'current_archive_date': current_archive_date,
+        })
+    return render_to_response('blog/archive.html', ctx)
 
 
 class EditPostForm(forms.Form):
@@ -50,20 +74,14 @@ class EditPostForm(forms.Form):
         )
 
 def detail(request, year=None, month=None, slug=None):
-    # Note that all posts are visible in the detail view. Unlisted
-    # posts are never listed in the archive or the feeds, but if you
-    # know the URL of an unlisted post, you can see it. This can be
-    # used to share drafts of blog posts.
-    posts = Post.objects.all()
-    archive_dates = posts.dates('pub_date', 'month')[::-1]
-    can_post = is_blog_admin(request)
+    ctx = get_blog_context(request)
 
     if slug is None:
         # Start a new blank Post. If the user isn't logged in,
         # this link won't even show up on the page- so let's
         # just keep it hidden with a 404.
 
-        if not can_post:
+        if not ctx['can_post']:
             raise Http404
         post = Post(posted_by = request.user)
 
@@ -71,9 +89,9 @@ def detail(request, year=None, month=None, slug=None):
         # Look up an existing post. The slug and date must both match.
 
         try:
-            post = posts.get(pub_date__year = int(year),
-                             pub_date__month = int(month),
-                             slug = slug)
+            post = Post.objects.get(pub_date__year = int(year),
+                                    pub_date__month = int(month),
+                                    slug = slug)
         except Post.DoesNotExist:
             raise Http404
 
@@ -81,7 +99,7 @@ def detail(request, year=None, month=None, slug=None):
     # and if they own the current post.
 
     post_form = None
-    if can_post and post.posted_by.id == request.user.id:
+    if ctx['can_post'] and post.posted_by.id == request.user.id:
 
         if request.POST:
             model = dict(request.POST.items())
@@ -112,12 +130,12 @@ def detail(request, year=None, month=None, slug=None):
         else:
             post_form = EditPostForm(initial = post.__dict__)
 
-    return render_to_response('blog/detail.html', RequestContext(request, {
-        'can_post': can_post,
-        'archive_dates': archive_dates,
+    ctx.update({
+        'latest': ctx['posts'].order_by('-pub_date')[:15],
         'post': post,
         'post_form': post_form,
-        }))
+        })        
+    return render_to_response('blog/detail.html', ctx)
 
 
 class BlogFeed(Feed):
@@ -151,12 +169,7 @@ class CommentFeed(Feed):
     link = '/blog/'
 
     def items(self):
-        return FreeComment.objects.filter(
-            site__pk = settings.SITE_ID,
-            is_public = True,
-            content_type__app_label__exact = 'blog',
-            content_type__model__exact = 'Post',
-            )
+        return get_recent_comments()
 
     def item_author_name(self, item):
         return item.person_name
