@@ -76,6 +76,8 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'character_vitae.Character',
+    'character_vitae.MetaCharacter',
 )
 
 # vim: ts=4:sw=4:et
