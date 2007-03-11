@@ -17,11 +17,11 @@
     {% include "blog/post_body.html" %}
   </div>
 
-  {% include "blog/post_comments_link.html" %}
-
   {% if post.listed %}
     {% get_free_comment_list for blog.Post post.id as comment_list %}
 
+    {% if comment_list %}
+    <div class="comments">
     {% for comment in comment_list %}
       <div class="comment comment-{% cycle odd,even %}" id="c{{ comment.id }}">
 	<div>
@@ -33,6 +33,8 @@
 
       </div>
     {% endfor %}
+    </div>
+    {% endif %}
 
     <div class="comment-form">
       {% free_comment_form for blog.Post post.id %}

@@ -12,11 +12,13 @@ def cssmin(source):
        but doesn't really understand strings or multiline comments
        correctly.
        """
+    # Remove single-line comments
+    source = re.sub(r"//[^\n]*", "", source)
+
     # Collapse lines first, to make the following regexes simpler.
     source = source.replace("\n", "")
     
-    # Remove comments
-    source = re.sub(r"//[^\n]", "", source)
+    # Remove multiline comments
     source = re.sub(r"/\*(.*?)\*/", "", source)
 
     # Collapse duplicate whitespace
@@ -25,6 +27,33 @@ def cssmin(source):
     # Remove whitespace surrounding certain punctuation
     source = re.sub(r" ?([;{}:]) ?", r"\1", source)
     return source
+
+def preprocess(source):
+    """Very simple macro preprocessor. Supported commands:
+
+       //!DEF MACRO value...
+
+       """
+    # Collect symbol definitons
+    syms = {}
+    for line in source.split("\n"):
+        m = re.match(r"^\s*//!DEF\s+(\S+)\s+(.*)\s*$", line)
+        if m:
+            syms[m.group(1)] = m.group(2)
+
+    # Sort by length- apply longer symbol substitutions first,
+    # to avoid problems with symbol names which are strict
+    # substrings of other symbol names.
+    sorted_syms = syms.keys()
+    sorted_syms.sort(lambda a,b: cmp(len(b), len(a)))
+
+    for name in sorted_syms:
+        source = source.replace(name, syms[name])
+    return source
+
+def csspp(source):
+    """Minified CSS, with macro preprocessing"""
+    return cssmin(preprocess(source))
 
 def merge(destPath, sourcePaths, minifier):
     """Build the specified destination file from any number of source

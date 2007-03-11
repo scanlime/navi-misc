@@ -1,8 +1,40 @@
+/*
+ * Green dark pastel color scheme: http://tinyurl.com/3y5kfc
+ */
+//!DEF BASE_COLOR             6b9977
+//!DEF DARK_COLOR             598063
+//!DEF LIGHT_COLOR            9fcc8f
+//!DEF ACCENT_COLOR           597b7e
+//!DEF LIGHT_ACCENT_COLOR     cfe4e6
+
+/*
+ * Orange color scheme
+ */
+// //!DEF BASE_COLOR             e6b873
+// //!DEF DARK_COLOR             806640
+// //!DEF LIGHT_COLOR            ffddaa
+// //!DEF ACCENT_COLOR           e6a573
+// //!DEF LIGHT_ACCENT_COLOR     e6d9cf
+
+//!DEF BORDER_COLOR           aaa
+//!DEF TEXT_BG_COLOR          fff
+//!DEF TEXT_BG_DARK_COLOR     eee
+//!DEF ERROR_COLOR            c00
+//!DEF TEXT_FG_LIGHT_COLOR    444
+//!DEF TEXT_FG_LIGHTER_COLOR  888
+//!DEF TEXT_HEADING_COLOR     005
+
+//!DEF TEXT_REVERSE_BG_COLOR  444
+//!DEF TEXT_REVERSE_FG_COLOR  fff
+
+//!DEF CODE_BG_COLOR          ffc
+//!DEF CODE_BORDER_COLOR      b77
+
 
 #document-and-sidebar {
-    background: #454 url("/media/img/fringes-454.png") repeat-x scroll top left;
-    border-bottom: 1px solid #444;
-    padding: 0 0 1em 0;
+    background: #BASE_COLOR url("/media/img/fringes-BASE_COLOR.png") repeat-x scroll top left;
+    border-bottom: 1px solid #DARK_COLOR;
+    padding: 0;
     position: relative;
 }
 
@@ -22,16 +54,17 @@
     margin: 0;
     padding: 0 0 0 33em;
 
-    color: white;
     font-size: 0.75em;
     list-style-type: none;
+
+    color: #TEXT_FG_LIGHT_COLOR;
 }
 
 #sidebar p {
     margin: 1em 1em 0.5em 0;
     padding: 0;
     font-weight: bold;
-    border-bottom: 1px solid #898;
+    border-bottom: 1px solid #DARK_COLOR;
 }
 
 #sidebar .links {
@@ -45,11 +78,11 @@
 }
 
 #sidebar a {
-    color: #ffa;
+    color: white;
 }
 
 #sidebar a.summary span {
-    color: #898;
+    color: #LIGHT_COLOR;
 }
 
 .document {
@@ -60,14 +93,11 @@
     width: 48em;
 
     padding: 0 1em;
-    margin: 0 auto 0 auto;
+    margin: 0 auto 1em auto;
 
-    /* These two are for looks.. */
-    border-left: 1px solid #343;
-    border-right: 1px solid #343;
-
-    /* This is to prevent margin collapsing. */
-    border-bottom: 1px solid #aaa;
+    border-left: 1px solid #DARK_COLOR;
+    border-right: 1px solid #DARK_COLOR;
+    border-bottom: 1px solid #DARK_COLOR;
 }
 
 .document p {
@@ -102,19 +132,8 @@
 }
 
 .document .section {
-    /*
-     * Sections have a 1em border and 1em padding, which is cancelled
-     * out by a -2em margin.  This gives the effect of a border
-     * floating out in the left margin, while the text in sections
-     * will line up with text in non-sections.
-     *
-     * IE6: This is broken, the border doesn't show up at all. That's
-     *      an acceptable failure mode...
-     */
-    margin: 1.5em 0em 1.5em -2em;
-
-    border-left: 1em solid #343;
-    padding: 0em 1em;
+    margin: 1.5em 0em;
+    padding: 0;
 
     text-align: justify;
 }
@@ -128,7 +147,8 @@ h1 {
   font-size: 1.5em;
   padding: 0.4em 0 0.25em 0;
   margin: 0 0 0.25em 0;
-  border-bottom: 2px solid #ccc;
+  border-bottom: 2px solid #ACCENT_COLOR;
+  color: #TEXT_HEADING_COLOR;
 }
 
 /* Smaller headings for the blog index pages */
@@ -138,58 +158,46 @@ h1.blog-index {
   margin: 0 0 2px 0;;
 }
 
-/*
- * This element just exists to clear the floats
- * before closing div.document.
- */
-.document div.footer {
-  clear: right;
-  padding: 0;
-  margin: 1em 0 0 0;
-  overflow: hidden;
-  height: 0px;
-}
-
 div.comments-link {
-  background: #343;
-  color: white;
+  clear: right;
+  font-size: 0.8em;
+  margin: 0.5em -1em 1em -1em;
+  padding: 2px 1.25em;  /* 1.25 = 1 / 0.8 */
 
-  font-size: 0.9em;
-  width: 48em;                /* Same as .document width */
-  margin: 0 auto 1em auto;
-  padding: 2px 1em;
+  background: #TEXT_BG_DARK_COLOR;
 }
 
 div.comments-link span {
   font-weight: bold;
-}
-
-div.comments-link a {
-  color: #ffa;
+  color: #ACCENT_COLOR;
 }
 
 div.comments-link div.by-line {
-  color: #898;
+  color: #TEXT_FG_LIGHTER_COLOR;
   float: right;
 }
 
-.comment {
+.comments {
   font-size: 0.9em;
-  width: 48em;              /* Same as .document width */
-  margin: 0 auto;
-  padding: 0 1em;
+  width: 50em;             /* Document width +2 */
+  margin: 1em auto;
 
-  border-left: 1px solid #898;
-  border-right: 1px solid #898;
-  border-bottom: 1px solid #898;
+  border-top: 1px solid #DARK_COLOR;
+  border-left: 1px solid #DARK_COLOR;
+  border-right: 1px solid #DARK_COLOR;
+}
+
+.comment {
+  padding: 0 1em;
+  border-bottom: 1px solid #DARK_COLOR;
 }
 
 .comment-even {
-  background: #eee;
+  background: #TEXT_BG_DARK_COLOR;
 }
 
 .comment-odd {
-  background: #fff;
+  background: #TEXT_BG_COLOR;
 }
 
 /* Comment heading */
@@ -210,7 +218,7 @@ div.comments-link div.by-line {
 }
 
 .error {
-  color: #c00;
+  color: #ERROR_COLOR;
   font-weight: bold;
 }
 
@@ -220,8 +228,8 @@ div.comments-link div.by-line {
   margin: 1em auto;
   padding: 0 1em;
 
-  background: #eee;
-  border: 1px solid #343;
+  background: #TEXT_BG_DARK_COLOR;
+  border: 1px solid #DARK_COLOR;
 }
 
 .comment-form textarea {
@@ -229,7 +237,7 @@ div.comments-link div.by-line {
   font-size: 1em;
   width: 100%;
   height: 15em;
-  border: 1px solid #aaa;
+  border: 1px solid #BORDER_COLOR;
   background: white;
   padding: 0;
   margin: 0;
@@ -253,7 +261,7 @@ div.comments-link div.by-line {
   width: 20em;
   font-size: 0.75em;
   margin: 0.25em 0;
-  border: 1px solid #aaa;
+  border: 1px solid #BORDER_COLOR;
   background: white;
   padding: 2px;
   margin: 0;
@@ -261,7 +269,7 @@ div.comments-link div.by-line {
 
 .comment-form .image-upload {
   background: white;
-  border: 1px solid #aaa;
+  border: 1px solid #BORDER_COLOR;
   width: 80%;
   padding: 5px;
 }
@@ -272,14 +280,14 @@ input.submit {
 }
 
 h2.subtitle {
-  color: #444;
+  color: #TEXT_FG_LIGHT_COLOR;
   font-size: 0.9em;
   margin: 0em 2em;
 }
 
 div.pub-date {
   text-align: right;
-  color: #888;
+  color: #TEXT_FG_LIGHTER_COLOR;
   font-size: 0.8em;
   margin: 0 0 1em 0;
 }
@@ -291,15 +299,15 @@ div.pub-date {
 
 h2 {
     font-size: 1.25em;
-    color: #005;
+    color: #ACCENT_COLOR;
 }
 
 h2 a {
-    color: #005;
+    color: #ACCENT_COLOR;
 }
 
 h1 a {
-    color: #005;
+    color: #TEXT_HEADING_COLOR;
 }
 
 table {
@@ -313,7 +321,7 @@ td {
     border: none;
     margin: 0;
     padding: 4px 15px 4px 2px;
-    border-bottom: 1px solid #aaa;
+    border-bottom: 1px solid #BORDER_COLOR;
 }
 
 tr {
@@ -326,8 +334,8 @@ th {
     text-align: left;
     font-weight: bold;
     border: none;
-    background: #444;
-    color: white;
+    background: #TEXT_REVERSE_BG_COLOR;
+    color: #TEXT_REVERSE_FG_COLOR;
     padding: 2px 15px 2px 2px;
     margin: 0;
 }
@@ -338,8 +346,8 @@ pre.literal-block {
     font-family: "Lucida Console" monospace;
     margin-left: 3em;
     padding: 0.5em;
-    background: #ffc;
-    border: 1px solid #b77;
+    background: #CODE_BG_COLOR;
+    border: 1px solid #CODE_BORDER_COLOR;
 }
 
 /*
