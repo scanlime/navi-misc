@@ -2,6 +2,7 @@ from cia.apps.repos.models import Repository
 from django.conf import settings
 from django.template import loader
 from django.template.context import Context
+from django.contrib.sites.models import Site
 import django.newforms as forms
 import re, xmlrpclib, datetime
 import pysvn, httplib, urlparse, urllib
@@ -118,7 +119,7 @@ class SvnClient:
                     '<prop><checked-in xmlns="DAV:"/></prop>' +
                     '</propfind>')
 
-    _pollerUserAgent = 'CIA Repository Poller (http://cia.navi.cx)'
+    _pollerUserAgent = 'CIA-Repository-Poller/1.0 (+http://%s)' % Site.objects.get_current().domain
 
     _pollerRegex = re.compile('/!svn/bln/(\d+)</D:href>')
 

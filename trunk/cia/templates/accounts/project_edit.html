@@ -10,14 +10,14 @@
   <div id="repository" class="tabset_content">
     <h2 class="tabset_label">Repository</h2>
 
-    <p>The {{ user_asset.asset|escape }} project can feed data to CIA in any of the following ways:</p>
+    <p>The {{ user_asset.asset|escape }} project can feed data to {{ site.name }} in any of the following ways:</p>
 
     <ol>
       <li>
         <p class="note">
           You may already be using a hosting service, like <a href="http://sourceforge.net">SourceForge.net</a>
-          or <a href="http://gna.org">Gna!</a>, which provides <strong>built-in CIA integration</strong>.
-          Check with your hosting provider for details. You may need to ensure that CIA and your hosting provider
+          or <a href="http://gna.org">Gna!</a>, which provides <strong>built-in {{ site.name }} integration</strong>.
+          Check with your hosting provider for details. You may need to ensure that {{ site.name }} and your hosting provider
           use the same project name.
         </p>
       </li>
@@ -33,7 +33,7 @@
 
       <li>
         <p class="note">
-          If your project uses a public <a href="http://subversion.tigris.org/">Subversion</a> repository, the CIA
+          If your project uses a public <a href="http://subversion.tigris.org/">Subversion</a> repository, the {{ site.name }}
           server can <strong>contact your repository directly</strong> and check for commits.
         </p>
         <p>
@@ -57,7 +57,7 @@
 		<div class="help">(<a class="help" id="pinger_help_link">help</a>)</div>
 		<div id="pinger_help_text">
 	          <p class="note">
-		    For best performance, CIA needs to be notified by e-mail when a change is committed to this
+		    For best performance, {{ site.name }} needs to be notified by e-mail when a change is committed to this
 		    repository. Send any message to this address in order to trigger an update.
 		  </p>
 		  <p class="note">
@@ -107,11 +107,11 @@
 		<div class="help">(<a class="help" id="rev_url_help_link">help</a>)</div>
 		<div id="rev_url_help_text">
 		  <p class="note">
-		    This optional setting allows you to give each CIA commit message a URL which points to additional
+		    This optional setting allows you to give each {{ site.name }} commit message a URL which points to additional
 		    information about that change. These URLs show up on your project's
 		    <a href="http://{{ request.META.HTTP_HOST }}/stats/{{ user_asset.asset.target.path|urlencode|escape }}">stats page</a>
 		    and RSS feed, and they can optionally be displayed by IRC bots.
-		    You can use this to integrate CIA with tools
+		    You can use this to integrate {{ site.name }} with tools
 		    like <a href="http://websvn.tigris.org/">WebSVN</a> and <a href="http://trac.edgewall.org/">Trac</a>.
 		  </p>
 		  <p class="note">
@@ -131,7 +131,7 @@
 		<div class="help">(<a class="help" id="path_re_help_link">help</a>)</div>
 		<div id="path_re_help_text" class="note">
 		  <p>
-		    This is a list of regular expressions, one per line, which lets CIA automatically extract
+		    This is a list of regular expressions, one per line, which lets {{ site.name }} automatically extract
 		    branch and module information from file paths in your Subversion repository. Each regular
 		    expression contains named groups for extracting module and/or branch names. Whitespace
 		    in the pattern is ignored.

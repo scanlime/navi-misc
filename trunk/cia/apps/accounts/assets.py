@@ -8,7 +8,7 @@ from django.core.paginator import ObjectPaginator
 from django.core.mail import mail_managers, send_mail
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response
-from django.template.context import RequestContext, Context
+from django.template.context import RequestContext
 from django.contrib.contenttypes.models import ContentType
 import django.newforms as forms
 from django.newforms.util import smart_unicode
@@ -264,7 +264,9 @@ def send_conflict_message(request, user_asset, message):
        to be sent to that user_asset's owner. A customized moderator
        message will be sent to all managers.
        """
-    ctx = Context(locals())
+    ctx = {'request': request,
+           'user_asset': user_asset,
+           'message': message}
     
     subject, message = render_to_email("accounts/conflict_mail_managers.txt", ctx)
     mail_managers(subject, message)

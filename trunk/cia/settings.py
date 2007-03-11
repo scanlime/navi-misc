@@ -95,6 +95,7 @@ TIME_ZONE = 'PST'
 # http://blogs.law.harvard.edu/tech/stories/storyReader$15
 LANGUAGE_CODE = 'en-us'
 
+# Make sure the Django site domain and site name are set correctly!
 SITE_ID = 1
 
 # Absolute path to the directory that holds media.
@@ -127,6 +128,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.debug',
     'django.core.context_processors.i18n',
     'cia.apps.context_processors.analytics',
+    'cia.apps.context_processors.site',
     'django.core.context_processors.request',
 )
 
