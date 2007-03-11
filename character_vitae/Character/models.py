@@ -66,7 +66,8 @@ class Character(models.Model):
         list_display = ["player", "name"]
 
 class Skill(models.Model):
-    character = models.ForeignKey(Character, edit_inline=models.TABULAR)
+    character = models.ForeignKey(Character, edit_inline=models.TABULAR,
+            related_name="skills")
     skill = models.ForeignKey(MetaCharacter.Skill)
     ranks = models.IntegerField(core=True)
     misc_mod = models.IntegerField()
