@@ -36,27 +36,30 @@
     border-bottom: 1px solid #DARK_COLOR;
     padding: 0;
     position: relative;
+    height: 1%;  /* IE6 */
 }
 
-#sidebar {
+/*
+ * The sidebar container is positioned such that its right side is at the right
+ * edge of the page, and its left side is along the center of the document. The
+ * #sidebar element then uses margins to sit itself on the right edge of the
+ * fixed-width document element.
+ */
+#sidebar-container {
     position: absolute;
     overflow: hidden;
-
-    /*
-     * Use absolute positioning to put the left edge of the sidebar div
-     * at the page's midpoint, then use padding to scoot over across the
-     * right half of the document. Also skip past the fringes background.
-     * using padding.
-     */
-    left: 50%;
+    width: 50%;
     right: 0;
     top: 48px;
     margin: 0;
-    padding: 0 0 0 33em;
+    padding: 0;
+}
 
+#sidebar {
+    margin: 0;
+    padding: 0 0 0 32em;
     font-size: 0.75em;
     list-style-type: none;
-
     color: #TEXT_FG_LIGHT_COLOR;
 }
 
@@ -151,18 +154,10 @@ h1 {
   color: #TEXT_HEADING_COLOR;
 }
 
-/* Smaller headings for the blog index pages */
-h1.blog-index {
-  font-size: 1.2em;
-  padding: 0.4em 0 2px 0;
-  margin: 0 0 2px 0;;
-}
-
 div.comments-link {
   clear: right;
-  font-size: 0.8em;
   margin: 0.5em -1em 1em -1em;
-  padding: 2px 1.25em;  /* 1.25 = 1 / 0.8 */
+  padding: 2px 1em;
 
   background: #TEXT_BG_DARK_COLOR;
 }
@@ -280,7 +275,7 @@ input.submit {
 }
 
 h2.subtitle {
-  color: #TEXT_FG_LIGHT_COLOR;
+  color: #ACCENT_COLOR;
   font-size: 0.9em;
   margin: 0em 2em;
 }
@@ -299,11 +294,11 @@ div.pub-date {
 
 h2 {
     font-size: 1.25em;
-    color: #ACCENT_COLOR;
+    color: #TEXT_HEADING_COLOR;
 }
 
 h2 a {
-    color: #ACCENT_COLOR;
+    color: #TEXT_HEADING_COLOR;
 }
 
 h1 a {
