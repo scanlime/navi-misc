@@ -32,9 +32,9 @@ class Class(models.Model):
         pass
 
 class Race(models.Model):
-    name = models.CharField(maxlength=64, primary_key=True, core=True)
-    size = models.CharField(maxlength=64, core=True)
-    speed = models.IntegerField(core=True)
+    name = models.CharField(maxlength=64, primary_key=True)
+    size = models.CharField(maxlength=64)
+    speed = models.IntegerField()
     favored_class = models.ForeignKey(Class)
 
     def __str__(self):
@@ -45,7 +45,7 @@ class Race(models.Model):
 
 class RaceTrait(models.Model):
     race = models.ForeignKey(Race, edit_inline=models.TABULAR)
-    description = models.CharField(maxlength=128)
+    description = models.CharField(maxlength=128, core=True)
     full_txt = models.TextField(null=True, blank=True)
 
     def __str__(self):
@@ -53,8 +53,8 @@ class RaceTrait(models.Model):
 
 class RaceAbilityMods(models.Model):
     race = models.ForeignKey(Race, edit_inline=models.TABULAR)
-    ability = models.CharField(maxlength=3, choices=ABILITIES)
-    modifier = models.IntegerField()
+    ability = models.CharField(maxlength=3, choices=ABILITIES, core=True)
+    modifier = models.IntegerField(core=True)
 
     def __str__(self):
         return "%s %d" % (self.ability, self.modifier)
