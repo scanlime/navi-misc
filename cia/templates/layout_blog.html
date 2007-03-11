@@ -12,7 +12,7 @@
 {% block content %}
 <div id="document-and-sidebar">
 
-<ul id="sidebar">
+<div id="sidebar-container"><ul id="sidebar">
   {% if can_post %}
     <li>
       <p>Staff Members</p>
@@ -22,6 +22,7 @@
     </li>
   {% endif %}
 
+  {% if latest %}
   <li>
     <p>
        {% if current_archive_date %}
@@ -39,8 +40,10 @@
       {% endfor %}
     </ul>
   </li>
+  {% endif %}
 
 
+  {% if recent_comments %}
   <li>
     <p>Latest Comments
        <a href="/blog/comment-feed/"><img src="/media/img/feed-icon-14x14.png" width="14" height="14"
@@ -55,7 +58,9 @@
       {% endfor %}
     </ul>
   </li>
+  {% endif %}
 
+  {% if archive_dates %}
   <li>
     <p>Archives</p>
     <ul class="links">  
@@ -70,9 +75,10 @@
       {% endfor %}
     </ul>
   </li>
+  {% endif %}
 
   {% include "doc/default_sidebar.html" %}
-</ul>
+</ul></div>
 
 {% block posts %}{% endblock %}
 

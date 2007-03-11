@@ -4,7 +4,7 @@
 <div class="document">
 {% for post in latest %}
 
-  <h1 class="blog-index"><a href="{{ post.get_absolute_url|escape }}">{{post.title}}</a></h1>
+  <h1><a href="{{ post.get_absolute_url|escape }}">{{post.title}}</a></h1>
   {% include "blog/post_body.html" %}
 
 {% endfor %}
