@@ -59,7 +59,8 @@ def page(request, path):
                     'initial_header_level': 2,
                 },
             ),
-            'sidebar': loader.render_to_string(get_sidebar_templates(path)),
+            'sidebar': loader.render_to_string(get_sidebar_templates(path),
+                                               RequestContext(request)),
         }
         cache.set(key, ctx)
 
