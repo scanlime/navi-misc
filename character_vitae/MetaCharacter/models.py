@@ -9,7 +9,7 @@ ABILITIES = (
         ("Cha", "Charisma"),
 )
 
-class Skills(models.Model):
+class Skill(models.Model):
     name = models.CharField(maxlength=64, primary_key=True)
     modifier = models.CharField(maxlength=3, choices=ABILITIES)
 
@@ -21,7 +21,7 @@ class Skills(models.Model):
 
 class Class(models.Model):
     name = models.CharField(maxlength=64, primary_key=True)
-    class_skills = models.ManyToManyField(Skills)
+    class_skills = models.ManyToManyField(Skill)
     hit_dice = models.IntegerField()
     skill_pts = models.IntegerField()
 
@@ -51,7 +51,7 @@ class RaceTrait(models.Model):
     def __str__(self):
         return str(self.description)
 
-class RaceAbilityMods(models.Model):
+class RaceAbilityMod(models.Model):
     race = models.ForeignKey(Race, edit_inline=models.TABULAR)
     ability = models.CharField(maxlength=3, choices=ABILITIES, core=True)
     modifier = models.IntegerField(core=True)
