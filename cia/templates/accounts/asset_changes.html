@@ -2,9 +2,16 @@
 
 <li class="changeset">
 {% for changeset in changesets %}
+
   {% if show_asset_name %}{% ifchanged %}
-    <p class="change-asset-name">{{ changeset.asset|escape }}</p>
+    <p class="change-asset-name">
+       {{ changeset.asset|escape }}
+       {% if changeset.asset.target %}
+         <a href="/stats/{{ changeset.asset.target.path|urlencode|escape }}">(stats)</a>
+       {% endif %}
+    </p>
   {% endifchanged %}{% endif %}
+
   <p class="change-heading">
     <span class="change-detail">
       #{{ changeset.id }}{% if changeset.remote_addr and request.user.is_staff %}, from {{ changeset.remote_addr }}{% endif %}
