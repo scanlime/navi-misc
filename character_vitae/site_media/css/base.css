@@ -2,19 +2,29 @@
 
 html {
 	background-color: #02290b;
-	padding: 120px;
 	padding-top: 50px;
 }
 
 body {
-	padding: 5px;
+	width: 800px;
+	margin: auto;
+	padding: 2px;
 	background-color: #fdffdc;
+}
+
+img#header {
+	margin-bottom: 10px;
 }
 
 table#login {
 	margin: auto;
 	background-color: #fcffc2;
 	border: 1px solid #711100;
+}
+
+p.note {
+	font-size: small;
+	font-style: italic;
 }
 
 /* vim: ts=4:sw=4
