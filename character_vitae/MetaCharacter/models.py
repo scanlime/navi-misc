@@ -9,7 +9,7 @@ ABILITIES = (
         ("Cha", "Charisma"),
 )
 
-def Skills(models.Model):
+class Skills(models.Model):
     name = models.CharField(maxlength=64, primary_key=True)
     modifier = models.CharField(maxlength=3, choices=ABILITIES)
 
