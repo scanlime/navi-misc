@@ -1,6 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
 Logged in as {{ name }}
+{% if character_list %}
+<h1>Available Characters</h1>
+<ul>
+	{% for char in character_list %}
+	<li>
+	<a href="/character/{{ char.id }}">{{ char }}</a>
+	</li>
+	{% endfor %}
+</ul>
+{% else %}
+<p class="note">
+	No characters available. <a href="new_character">Create a new
+		character</a>
+</p>
+{% endif %}
 {% endblock %}
 {# vim: ts=4:sw=4:ft=htmldjango
 #}
