@@ -1,3 +1,5 @@
+{% load comments.comments %}
+
 {% if post.listed %}
   <div class="pub-date">Published on {{ post.pub_date|date:"l, F j, Y" }}</div>
 {% else %}
@@ -10,4 +12,11 @@
   <p><em>Empty post</em></p>
 {% endif %}
 
-  <div class="footer"></div>
+<div class="comments-link">
+  {% get_free_comment_count for blog.Post post.id as comment_count %}
+  <div class="by-line">Posted by {{ post.posted_by.get_full_name|escape }}</div>
+  <span>&raquo;</span>
+  <a href="{{ post.get_absolute_url|escape }}">Permanent Link /
+    {{ comment_count }} Comment{{ comment_count|pluralize }}</a>
+</div>
+

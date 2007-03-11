@@ -17,7 +17,7 @@ for single_css in [
     ]:
     merge('%scss/%s.css' % (DEST, single_css), [
     'css/local/%s.css' % single_css,
-    ], cssmin)
+    ], csspp)
 
 merge(DEST + 'js/asset-edit.js', [
     'js/tabtastic-1.0.4/addclasskillclass.js',

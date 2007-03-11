@@ -1,14 +1,12 @@
 {% extends 'layout_blog.html' %}
 
 {% block posts %}
+<div class="document">
 {% for post in latest %}
 
-  <div class="document">
-    <h1 class="blog-index"><a href="{{ post.get_absolute_url|escape }}">{{post.title}}</a></h1>
-    {% include "blog/post_body.html" %}
-  </div>
-
-  {% include "blog/post_comments_link.html" %}
+  <h1 class="blog-index"><a href="{{ post.get_absolute_url|escape }}">{{post.title}}</a></h1>
+  {% include "blog/post_body.html" %}
 
 {% endfor %}
+</div>
 {% endblock %}

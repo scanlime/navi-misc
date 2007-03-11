@@ -14,7 +14,7 @@
    id="svg2"
    sodipodi:version="0.32"
    inkscape:version="0.44"
-   sodipodi:docbase="/home/micah/cia/media-src/img"
+   sodipodi:docbase="/home/micah/trunk/navi-misc/cia/media-src/img"
    sodipodi:docname="sidebar-fringes.svg"
    inkscape:export-filename="/home/micah/cia/media-src/img/sidebar-fringes.png"
    inkscape:export-xdpi="90"
@@ -24,7 +24,7 @@
     <linearGradient
        id="linearGradient3351">
       <stop
-         style="stop-color:#718070;stop-opacity:1;"
+         style="stop-color:#6b9977;stop-opacity:1;"
          offset="0"
          id="stop3353" />
       <stop
@@ -66,14 +66,14 @@
      inkscape:pageshadow="2"
      inkscape:zoom="1"
      inkscape:cx="341.07646"
-     inkscape:cy="603.78565"
+     inkscape:cy="603.28565"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="856"
      inkscape:window-height="617"
-     inkscape:window-x="495"
-     inkscape:window-y="306" />
+     inkscape:window-x="383"
+     inkscape:window-y="252" />
   <metadata
      id="metadata7">
     <rdf:RDF>
