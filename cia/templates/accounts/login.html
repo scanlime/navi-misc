@@ -28,6 +28,9 @@
     <div class="form-row">
       <label for="id_password">Password:</label><input type="password" class="text" name="password" id="id_password" />
     </div>
+    <div class="form-row">
+      {% include "security_widget.html" %}
+    </div>
     <div class="submit-row">
       <div>&raquo;</div> <input type="submit" value="Log in" />
     </div>

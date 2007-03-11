@@ -1,0 +1,12 @@
+<div class="security-widget">
+   {% if request.is_secure %}
+      <strong>Secure</strong> <img src="/media/img/lock-10.png" width="10" height="10" />
+      |
+      <a href="http://{{ request.META.HTTP_HOST }}{{ request.path|escape }}">Insecure</a>
+   {% else %}
+      <a href="https://{{ request.META.HTTP_HOST }}{{ request.path|escape }}">Secure
+         <img src="/media/img/lock-10.png" width="10" height="10" /></a>
+      |
+      <strong>Insecure</strong>
+   {% endif %}
+</div>
