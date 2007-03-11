@@ -1,0 +1,21 @@
+@import "forms.css";
+
+html {
+	background-color: #133918;
+	padding: 120px;
+	padding-top: 50px;
+}
+
+body {
+	padding: 5px;
+	background-color: #fdffdc;
+}
+
+table#login {
+	margin: auto;
+	background-color: #fcffc2;
+	border: 1px solid #711100;
+}
+
+/* vim: ts=4:sw=4
+ */
