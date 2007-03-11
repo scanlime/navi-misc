@@ -4,6 +4,7 @@
 
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
+from django.template.context import RequestContext
 from cia.esquilax import _fidtool
 from cia.apps.api.util import json_result
 import os, time, datetime
@@ -70,5 +71,5 @@ def fidtool_graph(request):
     return response
 
 def fidtool_page(request):
-    return render_to_response("fidtool_page.html")
+    return render_to_response("fidtool_page.html", RequestContext(request))
 

@@ -120,7 +120,7 @@ def lost(request, next_page, recovery_page):
             send_mail_to_user(user, "accounts/recovery_mail.txt",
                               request = request,
                               recovery_path = recovery_page % key)
-            return render_to_response('accounts/recovery_mail_sent.html')
+            return render_to_response('accounts/recovery_mail_sent.html', RequestContext(request))
     return render_to_response('accounts/recovery_form.html', RequestContext(request, {'error': error}))
 
 def get_recovery_session(key):
