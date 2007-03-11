@@ -28,4 +28,4 @@ The following message was submitted on {% now "Y-m-d \a\t H:i T" %}:
 -----------------
 
 -
-The CIA Team
+The {{ site.name }} Team

@@ -16,7 +16,7 @@
   <div class="br"></div>
 
   <h1>Log in</h1>
-  <div class="h1-continuation">to your CIA account.</div>
+  <div class="h1-continuation">to your {{ site.name }} account.</div>
 
   <form action="{{ login_url }}" method="post" id="login-form">
     {% if error %}
@@ -39,7 +39,7 @@
                                  authors, and bots.</li>
 <li><a href="/account/lost/">Forgot your password?</a></li>
 {% if error %}
-  <li>Remember that your CIA username may not be the same as your author name.</li>
+  <li>Remember that your {{ site.name }} username may not be the same as your author name.</li>
   <li>Username and password are both case sensitive.</li>
 {% endif %}
 </ul>

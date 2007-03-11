@@ -1,7 +1,7 @@
 {% extends 'skeleton.html' %}
 
 {% block head %}
-  <title>CIA - {% block page_title %}{% endblock %}</title>
+  <title>{{ site.name }} - {% block page_title %}{% endblock %}</title>
   <link href="/media/img/favicon.png" type="image/png" rel="shortcut icon" />
   {% block stylesheets %}
     <link href="/media/css/base.css" type="text/css" rel="stylesheet" />
@@ -12,7 +12,7 @@
 
 {% block body %}
 <div class="heading">
-  <a class="logo" href="/">CIA</a>
+  <a class="logo" href="/">{{ site.name }}</a>
   <span class="sep">:</span>
   <span class="title">{% block head_title %}{% endblock %}</span>
   
@@ -41,7 +41,7 @@
 {% block content %}
 {% endblock %}
 <div class="footer">
-  The design and implementation of the CIA service is Copyright &copy; 2003-2007 Micah Dowty. <br />
+  The design and implementation of the {{ site.name }} service is Copyright &copy; 2003-2007 Micah Dowty. <br />
   All hosted messages and metadata are owned by their respective authors.
 </div>
 

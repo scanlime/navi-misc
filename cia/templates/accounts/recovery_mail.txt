@@ -1,7 +1,7 @@
 Lost Password
 
 {% filter wordwrap:"60" %}
-A request has been made to reset the password of the CIA account associated with this e-mail address. This request was made from the IP address {{ request.META.REMOTE_ADDR }} using this form:
+A request has been made to reset the password of the {{ site.name }} account associated with this e-mail address. This request was made from the IP address {{ request.META.REMOTE_ADDR }} using this form:
 
 http://{{ request.META.HTTP_HOST }}{{ request.path|escape }}
 
@@ -12,5 +12,5 @@ http://{{ request.META.HTTP_HOST }}{{ recovery_path|escape }}
 If you did not request that your password be reset, please disregard this message. Your password will not be changed.
 
 -
-The CIA Team
+The {{ site.name }} Team
 {% endfilter %}

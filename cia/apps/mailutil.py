@@ -1,6 +1,7 @@
 from django.template import loader
 from django.core.mail import send_mail
 from django.template.context import Context
+from django.contrib.sites.models import Site
 import re
 
 def get_email_for_user(user):
@@ -16,10 +17,12 @@ def get_email_with_name(name, email):
     name = re.sub("[!<>@:;\\\\'\"\[\]\r\n\t]", "", name.strip())
     return "%s <%s>" % (name, email)
 
-def render_to_email(template_name, context):
+def render_to_email(template_name, context_dict):
     """Render a template, splitting the result into subject and message.
        The first non-blank line is taken as the message's subject.
        """
+    context = Context(context_dict)
+    context['site'] = Site.objects.get_current()
     subject, message = loader.render_to_string(template_name, context).lstrip().split("\n", 1)
     return subject.strip(), message.strip()
 
@@ -30,7 +33,6 @@ def send_mail_to_user(user, template_name, from_email=None, **context_dict):
 
        The template context will automatically include 'user'.
        """
-    context = Context(context_dict)
-    context['user'] = user
-    subject, message = render_to_email(template_name, context)
+    context_dict['user'] = user
+    subject, message = render_to_email(template_name, context_dict)
     send_mail(subject, message, from_email, [get_email_for_user(user)])
