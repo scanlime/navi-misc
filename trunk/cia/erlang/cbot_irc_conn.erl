@@ -50,6 +50,9 @@
 %% to any other messages, including connect_behaviour/2, until login
 %% is complete.
 %%
+%% Options: nick, username, hostname, servername, realname,
+%%          temp_nick_prefix
+%%   
 
 start_link(ConnectInfo, Options) ->
     gen_server:start_link(?MODULE, {ConnectInfo, Options}, []).
@@ -166,10 +169,14 @@ log_in(Options, State) ->
 	    send_message(#message{ command="PASS", params=[Password] }, State)
     end,
 
+    %% This is just an initial guess at a nickname.  If there's a
+    %% collision, we'll respond by picking a random nick.  It's the
+    %% behaviour process's job to make sure we got a nick we like, and
+    %% to change it if necessary.
+
     send_message(#message{command="NICK",
 			  params=[ proplists:get_value(nick, Options, "CIA") ]},
 		 State),
-
 
     {ok, Hostname} = inet:gethostname(),
     Username = case os:getenv("USER") of
@@ -181,11 +188,11 @@ log_in(Options, State) ->
 			  params=[ proplists:get_value(username, Options, Username),
 				   proplists:get_value(hostname, Options, Hostname),
 				   proplists:get_value(servername, Options, "server"),
-				   proplists:get_value(realname, Options, "CIA Bot") ]},
+				   proplists:get_value(realname, Options, "CIA Bot")]},
 		 State),
 
     cbot_logger:log(state, wait_for_login),
-    State2 = wait_for_login(State#conn_state{ login_messages=[] }),
+    State2 = wait_for_login(Options, State#conn_state{ login_messages=[] }),
     cbot_logger:log(state, logged_in),
 
     %% Put the login_messages list back in order
@@ -199,7 +206,7 @@ log_in(Options, State) ->
 %% reverse order)
 %%
 
-wait_for_login(State) ->
+wait_for_login(Options, State) ->
     ok, Message = wait_for_message(State),
     cbot_logger:log(login_message, Message),
 
@@ -214,7 +221,18 @@ wait_for_login(State) ->
 	%% Always handle pings, even during login
 	#message{command="PING"} ->
 	    handle_local_message(Message, State2),
-	    wait_for_login(State2);
+	    wait_for_login(Options, State2);
+
+	%% "Nickname is already in use." Pick a random nickname
+	%% so we can finish logging in. Finding an available nick
+	%% might require performing WHOIS queries, which we can't
+	%% do before logging in.
+	#message{command="433"} ->
+	    send_message(#message{command="NICK",
+				  params=[ proplists:get_value(temp_nick_prefix, Options, "CIA-temp")
+					   ++ integer_to_list(100 + random:uniform(999 - 100)) ]},
+			 State2),
+	    wait_for_login(Options, State2);
 	
 	%% "MOTD file is missing." Done with login.
 	#message{command="422"} ->
@@ -225,7 +243,7 @@ wait_for_login(State) ->
 	    State2;
 
 	_ ->
-	    wait_for_login(State2)
+	    wait_for_login(Options, State2)
     end.
 
 
