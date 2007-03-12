@@ -51,7 +51,7 @@ init(_) ->
     {ok, default}.
 
 handle_cast({log, From, Type, Message}, State) ->
-    io:format("[~p ~p] ~p~n", [From, Type, Message]),
+    io:format("[~w ~w] ~p~n", [From, Type, Message]),
     {noreply, State};
 handle_cast(_, State) ->
     {noreply, State}.

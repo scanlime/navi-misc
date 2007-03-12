@@ -1,5 +1,5 @@
 %%
-%% cbot_irc_conn
+%% cbot_irc_connection
 %%
 %% This is a gen_server process which maintains a single IRC client
 %% connection. This process is responsible for:
@@ -20,15 +20,17 @@
 %%
 %%---------------------------------------------------------------------------
 
--module(cbot_irc_conn).
--include("cbot_irc_proto.hrl").
+-module(cbot_irc_connection).
+-include("cbot_irc_protocol.hrl").
 -behaviour(gen_server).
 
 %% Public API
--export([start_link/2, start/2, send_data/2, connect_behaviour/2, get_login_messages/1]).
+-export([start_link/2, send_data/2, connect_behaviour/2, get_login_messages/1]).
 
 %% gen_server callbacks
 -export([init/1, terminate/2, code_change/3, handle_call/3, handle_cast/2, handle_info/2]).
+
+-define(LOGIN_TIMEOUT, 120000).
 
 -record(conn_state, {
 	  sock,            % cbot_socket tuple
@@ -57,9 +59,6 @@
 start_link(ConnectInfo, Options) ->
     gen_server:start_link(?MODULE, {ConnectInfo, Options}, []).
 
-start(ConnectInfo, Options) ->
-    gen_server:start(?MODULE, {ConnectInfo, Options}, []).
-
 %%
 %% Send raw data to this bot's socket. The caller is expected to
 %% encode the data. This improves reliability of this process, and
@@ -86,9 +85,22 @@ send_data(Pid, Data) ->
 %% Note that all raw lines are delivered to the behaviour process,
 %% even lines from messages that we also handle internally (pings).
 %%
+%% This function implements the login timeout. If the connection
+%% doesn't respond for ?LOGIN_TIMEOUT milliseconds, we kill it and
+%% propagate the connection_timeout error.
+%%
 
 connect_behaviour(Pid, BehaviourPid) ->
-    gen_server:call(Pid, {connect_behaviour, BehaviourPid}).
+    case catch(gen_server:call(Pid, {connect_behaviour, BehaviourPid},
+			       ?LOGIN_TIMEOUT)) of
+	{'EXIT', {timeout, _}} ->
+	    exit(Pid, connection_timeout),
+	    exit(connection_timeout);
+	{'EXIT', Reason} ->
+	    exit(Reason);
+	Res ->
+	    Res
+    end.
 
 %%
 %% Retrieve a list of the messages processed and stored during login.
@@ -108,7 +120,6 @@ send_data_local(Line, #conn_state{sock=Sock}) ->
     cbot_socket:send(Sock, Line).
 
 received_line(Line, #conn_state{behaviour=Behaviour}=State) ->
-    cbot_logger:log(receive_data, Line),
     gen_server:cast(Behaviour, {'irc_message', Line}),
 
     case catch(deliver_local_message(Line, State)) of
@@ -117,11 +128,11 @@ received_line(Line, #conn_state{behaviour=Behaviour}=State) ->
     end.
 
 send_message(#message{}=Message, State) ->
-    {ok, Encoded} = cbot_irc_proto:encode_message(Message),
+    {ok, Encoded} = cbot_irc_protocol:encode_message(Message),
     send_data_local(Encoded, State).
 
 deliver_local_message(Line, State) ->
-    case cbot_irc_proto:decode_message(Line) of
+    case cbot_irc_protocol:decode_message(Line) of
 	{ok, #message{command="PING"}=M} ->
 	    handle_local_message(M, State);
 	_ ->
@@ -153,7 +164,7 @@ handle_local_message(#message{ command="PING", params=Params }, State) ->
 wait_for_message(#conn_state{sock=Sock}) ->
     case cbot_socket:recv_blocking() of
 	{data, Sock, Line} ->
-	    {ok, #message{}=Message} = cbot_irc_proto:decode_message(Line),
+	    {ok, #message{}=Message} = cbot_irc_protocol:decode_message(Line),
 	    Message;
 	Other -> exit(Other)
     end.
@@ -191,9 +202,9 @@ log_in(Options, State) ->
 				   proplists:get_value(realname, Options, "CIA Bot")]},
 		 State),
 
-    cbot_logger:log(state, wait_for_login),
+    cbot_logger:log(connection_state, wait_for_login),
     State2 = wait_for_login(Options, State#conn_state{ login_messages=[] }),
-    cbot_logger:log(state, logged_in),
+    cbot_logger:log(connection_state, logged_in),
 
     %% Put the login_messages list back in order
     State2#conn_state{ login_messages=lists:reverse(State2#conn_state.login_messages) }.
@@ -273,7 +284,7 @@ code_change(_OldVsn, State, _Extra) ->
 %%
 
 init({ ConnectInfo, Options }) ->
-    cbot_logger:log(state, started),
+    cbot_logger:log(connection_state, started),
     ok = gen_server:cast(self(), {connect, ConnectInfo, Options}),
     {ok, not_connected}.
 
@@ -286,10 +297,10 @@ init({ ConnectInfo, Options }) ->
 %%
 
 handle_cast({connect, ConnectInfo, Options}, not_connected) ->
-    cbot_logger:log(state, connecting),
+    cbot_logger:log(connection_state, connecting),
 
     Sock = cbot_socket:connect(ConnectInfo),
-    cbot_logger:log(state, connected),
+    cbot_logger:log(connection_state, connected),
 
     {noreply, log_in(Options, #conn_state{sock=Sock})};
 
@@ -329,7 +340,7 @@ handle_call(get_login_messages, _From, #conn_state{login_messages=Messages}=Stat
 
 handle_call(Call, From, State) ->
     cbot_logger:log(unhandled_call, {Call, From}),
-    {noreply, {error, unhandled_call}, State}.
+    {reply, {error, unhandled_call}, State}.
 
 %%
 %% Handle generic Erlang messages: in this case, they should
