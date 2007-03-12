@@ -36,28 +36,44 @@
     border-bottom: 1px solid #DARK_COLOR;
     padding: 0;
     position: relative;
-    height: 1%;  /* IE6 */
+
+    height: 1%; /* IE6 */
 }
 
 /*
  * The sidebar container is positioned such that its right side is at the right
  * edge of the page, and its left side is along the center of the document. The
- * #sidebar element then uses margins to sit itself on the right edge of the
- * fixed-width document element.
+ * #sidebar-container-2 element is then placed with absolute positioning.
  */
 #sidebar-container {
     position: absolute;
-    overflow: hidden;
+
     width: 50%;
     right: 0;
-    top: 48px;
+    top: 0;
     margin: 0;
     padding: 0;
+
+    height: 1px;
 }
 
-#sidebar {
+/*
+ * Positioned to the right of the (centered) document.
+ * This element is responsible for clipping overflow from #sidebar.
+ */
+#sidebar-container-2 {
+    position: absolute;
+    left: 21.5em;
+    right: 0;
+    top: 48px;
+
+    padding: 0;
     margin: 0;
-    padding: 0 0 0 32em;
+    overflow: hidden;
+}
+
+/* The sidebar <ul> element */
+#sidebar {
     font-size: 0.75em;
     list-style-type: none;
     color: #TEXT_FG_LIGHT_COLOR;
