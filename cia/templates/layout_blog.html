@@ -12,7 +12,7 @@
 {% block content %}
 <div id="document-and-sidebar">
 
-<div id="sidebar-container"><ul id="sidebar">
+<div id="sidebar-container"><div id="sidebar-container-2"><ul id="sidebar">
   {% if can_post %}
     <li>
       <p>Staff Members</p>
@@ -78,7 +78,7 @@
   {% endif %}
 
   {% include "doc/default_sidebar.html" %}
-</ul></div>
+</ul></div></div>
 
 {% block posts %}{% endblock %}
 
