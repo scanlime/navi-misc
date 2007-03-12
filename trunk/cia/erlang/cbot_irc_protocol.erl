@@ -1,5 +1,5 @@
 %%
-%% cbot_irc_proto
+%% cbot_irc_protocol
 %%
 %% Library implementing the IRC protocol, mostly-according to RFC 1459.
 %% This includes message quoting, encoding, and decoding.
@@ -8,8 +8,8 @@
 %%
 %%---------------------------------------------------------------------------
 
--module(cbot_irc_proto).
--include("cbot_irc_proto.hrl").
+-module(cbot_irc_protocol).
+-include("cbot_irc_protocol.hrl").
 
 -export([encode_message/1, decode_message/1]).
 
