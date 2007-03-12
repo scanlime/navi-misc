@@ -10,9 +10,14 @@ def character_form(request):
     if request.method == "POST":
         form = character_form(request.POST)
     else:
-        form = forms.form_for_model(Character)
+        form = character_form()
+
+    if form.is_valid():
+        form.save()
+        response = HttpResponseRedirect("/")
+    else:
         context = {
-                "form": form(),
+                "form": form,
                 "user": "%s %s" % (user.first_name, user.last_name)
         }
         response = render_to_response("Character/character_form.html", context)
