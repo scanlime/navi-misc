@@ -15,10 +15,16 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 from django.conf.urls.defaults import *
+from models import Character
+
+character_dict = {
+        "queryset": Character.objects.all(),
+        "template_name": "Character/character_detail.html",
+}
 
 urlpatterns = patterns("",
         (r"^(?P<object_id>\d+)/$",
-            "django.views.generic.list_detail.object_detail"),
+            "django.views.generic.list_detail.object_detail", character_dict),
         (r"^new/$", "character_vitae.Character.views.character_form"),
 )
 
