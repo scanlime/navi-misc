@@ -19,10 +19,31 @@
 		<tr>
 			<td>{{ form.gender.label }}</td>
 			<td>{{ form.gender }}</td>
+			<td>{{ form.size.label }}</td>
+			<td>{{ form.size }}</td>
 		</tr>
-	</table>
-	<h4>Abilities and Saving Throws</h4>
-	<table>
+		<tr>
+			<td>{{ form.deity.label }}</td>
+			<td>{{ form.deity }}</td>
+			<td>{{ form.age.label }}</td>
+			<td>{{ form.age }}</td>
+		</tr>
+		<tr>
+			<td>{{ form.height.label }}</td>
+			<td>{{ form.height }}</td>
+			<td>{{ form.weight.label }}</td>
+			<td>{{ form.weight }}</td>
+		</tr>
+		<tr>
+			<td>{{ form.eye_color.label }}</td>
+			<td>{{ form.eye_color }}</td>
+			<td>{{ form.hair_color.label }}</td>
+			<td>{{ form.hair_color }}</td>
+		</tr>
+		<tr>
+			<td>{{ form.skin_color.label }}</td>
+			<td>{{ form.skin_color }}</td>
+		</tr>
 		<tr>
 			<td>{{ form.strength.label }}</td>
 			<td>{{ form.strength }}</td>
@@ -53,7 +74,14 @@
 			<td>{{ form.charisma.label }}</td>
 			<td>{{ form.charisma }}</td>
 		</tr>
+		<tr>
+			<td>{{ form.attack.label }}</td>
+			<td>{{ form.attack }}</td>
+			<td>{{ form.spell_resist.label }}</td>
+			<td>{{ form.spell_resist }}</td>
+		</tr>
 	</table>
+	<button type="submit">Save</button>
 </form>
 {% endblock %}
 {# vim: ts=4:sw=4:ft=htmldjango
