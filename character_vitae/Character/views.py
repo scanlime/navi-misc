@@ -1,5 +1,6 @@
 from django import newforms as forms
 from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from models import Character
 
@@ -8,7 +9,9 @@ def character_form(request):
     character_form = forms.form_for_model(Character)
 
     if request.method == "POST":
-        form = character_form(request.POST)
+        data = request.POST.copy()
+        data.update({"player": user.id})
+        form = character_form(data)
     else:
         form = character_form()
 
