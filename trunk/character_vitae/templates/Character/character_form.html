@@ -1,6 +1,60 @@
 {% extends "base.html" %}
 {% block content %}
-{{ form.as_table }}
+<form method="post">
+	<table>
+		<tr>
+			<td>Player:</td>
+			<td><span style="font-style: italic">{{ user }}</span></td>
+		</tr>
+		<tr>
+			<td>{{ form.name.label }}</td>
+			<td>{{ form.name }}</td>
+			<td>{{ form.alignment.label }}</td>
+			<td>{{ form.alignment }}</td>
+		</tr>
+		<tr>
+			<td>{{ form.race.label }}</td>
+			<td>{{ form.race }}</td>
+		</tr>
+		<tr>
+			<td>{{ form.gender.label }}</td>
+			<td>{{ form.gender }}</td>
+		</tr>
+	</table>
+	<h4>Abilities and Saving Throws</h4>
+	<table>
+		<tr>
+			<td>{{ form.strength.label }}</td>
+			<td>{{ form.strength }}</td>
+			<td>{{ form.fortitude.label }}</td>
+			<td>{{ form.fortitude }}</td>
+		</tr>
+		<tr>
+			<td>{{ form.dexterity.label }}</td>
+			<td>{{ form.dexterity }}</td>
+			<td>{{ form.reflex.label }}</td>
+			<td>{{ form.reflex }}</td>
+		</tr>
+		<tr>
+			<td>{{ form.constitution.label }}</td>
+			<td>{{ form.constitution }}</td>
+			<td>{{ form.will.label }}</td>
+			<td>{{ form.will }}</td>
+		</tr>
+		<tr>
+			<td>{{ form.intelligence.label }}</td>
+			<td>{{ form.intelligence }}</td>
+		</tr>
+		<tr>
+			<td>{{ form.wisdom.label }}</td>
+			<td>{{ form.wisdom }}</td>
+		</tr>
+		<tr>
+			<td>{{ form.charisma.label }}</td>
+			<td>{{ form.charisma }}</td>
+		</tr>
+	</table>
+</form>
 {% endblock %}
 {# vim: ts=4:sw=4:ft=htmldjango
 #}
