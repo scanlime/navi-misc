@@ -30,7 +30,13 @@
 %% gen_server callbacks
 -export([init/1, terminate/2, code_change/3, handle_call/3, handle_cast/2, handle_info/2]).
 
--define(LOGIN_TIMEOUT, 120000).
+%% Milliseconds to wait for login to complete. This timeout is
+%% enforced by connect_behaviour.
+-define(LOGIN_TIMEOUT, 120000).        
+
+%% Milliseconds to sleep after connect fails, before exiting and
+%% letting the supervisor retry
+-define(CONNECT_FAIL_DELAY, 15000).
 
 -record(conn_state, {
 	  sock,            % cbot_socket tuple
@@ -298,11 +304,15 @@ init({ ConnectInfo, Options }) ->
 
 handle_cast({connect, ConnectInfo, Options}, not_connected) ->
     cbot_logger:log(connection_state, connecting),
-
-    Sock = cbot_socket:connect(ConnectInfo),
-    cbot_logger:log(connection_state, connected),
-
-    {noreply, log_in(Options, #conn_state{sock=Sock})};
+    case catch(cbot_socket:connect(ConnectInfo)) of
+	{ok, Sock} ->
+	    cbot_logger:log(connection_state, connected),
+	    {noreply, log_in(Options, #conn_state{sock=Sock})};
+	Error->
+	    cbot_logger:log(connection_state, {failed, Error}),
+	    timer:sleep(?CONNECT_FAIL_DELAY),
+	    exit(Error)
+    end;
 
 %%
 %% Log unhandled broadcast messages
