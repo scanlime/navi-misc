@@ -61,10 +61,28 @@ get_child1([_|T], Id) ->
 
 init({ConnectInfo, Options}) ->
     {ok, {
-       %% Restart Strategy
+       %%
+       %% Restart Strategy:
+       %%
+       %% Note that any time the bot loses its connection, it will
+       %% exit. If login fails after LOGIN_TIMEOUT, it will exit.
+       %% If connect() fails, after a timeout or not, we will wait
+       %% CONNECT_FAIL_DELAY and exit.
+       %% 
+       %% Those timeouts combined with the supervisor's restart
+       %% strategy will define our bot's reconnection behaviour.
+       %%
+       %% Please note the amount of time that it takes for a
+       %% connection to time out, when setting the supervisor
+       %% parameters: If CONNECT_FAIL_DELAY is 15000 and
+       %% CONNECT_TIMEOUT is 60000, it would take 750 seconds to
+       %% restart 10 times even if the bot was doing nothing but
+       %% failing to connect and restarting. The parameters must be
+       %% set such to avoid this scenario.
+       %% 
        { rest_for_one,
-	 2,              %% Max restarts (# of restarts)
-	 120             %% Max restarts (in X seconds)
+	 10,             %% Max restarts (# of restarts)
+	 60 * 60         %% Max restarts (in X seconds)
 	},
 
        %% Child processes

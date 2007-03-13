@@ -16,7 +16,8 @@
 
 -export([connect/1, connect/3, send/2, recv_message/1, recv_blocking/0]).
 
--define(TIMEOUT, 60000).
+-define(CONNECT_TIMEOUT, 60000).
+-define(RECV_TIMEOUT,    60000).
 
 start_inet_db()->
     case inet_db:start() of
@@ -48,7 +49,7 @@ connect(ConnectSpec) ->
 	    [list,
 	     {packet, line},
 	     {nodelay, true}],
-	    ?TIMEOUT).
+	    ?CONNECT_TIMEOUT).
 
 connect({ tcp, Host, Port }, Options, Timeout) ->
     start_inet_db(),
@@ -59,9 +60,9 @@ connect({ tcp, Host, Port }, Options, Timeout) ->
 				     {sndbuf, 16384}],
 			 Timeout) of
 	{ok, Sock} ->
-	    {tcp, Sock};
+	    {ok, {tcp, Sock}};
 	Error ->
-	    throw(Error)
+	    Error
     end;
 
 connect({ ssl, Host, Port }, Options, Timeout) ->
@@ -69,9 +70,9 @@ connect({ ssl, Host, Port }, Options, Timeout) ->
     start_ssl(),
     case ssl:connect(Host, Port, Options, Timeout) of
 	{ok, Sock} ->
-	    {ssl, Sock};
+	    {ok, {ssl, Sock}};
 	Error ->
-	    throw(Error)
+	    Error
     end.
 
 
@@ -123,7 +124,7 @@ recv_blocking() ->
 	{tcp, _, _}=M -> recv_message(M);
 	{ssl_closed, _}=M -> recv_message(M);
 	{ssl, _, _}=M -> recv_message(M)
-    after ?TIMEOUT -> timeout
+    after ?RECV_TIMEOUT -> timeout
     end.
 	    
 
