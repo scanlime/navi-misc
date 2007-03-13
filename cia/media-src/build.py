@@ -54,6 +54,10 @@ merge(DEST + 'js/blog-admin.js', [
     'js/local/iframe.js',
     ], jsmin)
 
+merge(DEST + 'js/login.js', [
+    'js/local/form-state.js',
+    ], jsmin)
+
 # XXX: For testing
 merge(DEST + 'js/fidtool.js', [
     'js/yui-0.12.2/build/yahoo/yahoo.js',

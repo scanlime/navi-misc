@@ -210,7 +210,7 @@ def register(request, next_page, template_name="accounts/register.html"):
         return render_to_response("accounts/registration_closed.html", RequestContext(request))
 
     if request.POST:
-        form = RegistrationForm(request.POST)
+        form = RegistrationForm(request.POST, initial=request.GET)
         form.full_clean()
         validate_password_confirmation(form)
         validate_test_cookie(form, request)
@@ -243,7 +243,7 @@ def register(request, next_page, template_name="accounts/register.html"):
             return HttpResponseRedirect(next_page)
 
     else:
-        form = None
+        form = RegistrationForm(initial=request.GET)
 
     request.session.set_test_cookie()
     return render_to_response(template_name, RequestContext(request, {'form': form}))

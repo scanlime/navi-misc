@@ -1,12 +1,15 @@
 <div class="security-widget">
    {% if request.is_secure %}
-      <strong>Secure</strong> <img src="/media/img/lock-10.png" width="10" height="10" />
-      |
-      <a href="http://{{ request.META.HTTP_HOST }}{{ request.path|escape }}">Insecure</a>
+      <strong>Secure</strong> <img src="/media/img/lock-10.png" width="10" height="10" /> |
+   {% endif %}
+      
+      <a href="http{% if not request.is_secure %}s{% endif %}://{{ request.META.HTTP_HOST }}{{ request.get_full_path|escape }}"
+         onmouseover="formStateToLink(this, document.forms[0])"
+
+   {% if request.is_secure %}
+      >Insecure</a>
    {% else %}
-      <a href="https://{{ request.META.HTTP_HOST }}{{ request.path|escape }}">Secure
-         <img src="/media/img/lock-10.png" width="10" height="10" /></a>
-      |
+      >Secure <img src="/media/img/lock-10.png" width="10" height="10" /></a> |
       <strong>Insecure</strong>
    {% endif %}
 </div>
