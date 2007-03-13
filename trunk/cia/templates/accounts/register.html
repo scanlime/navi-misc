@@ -15,7 +15,7 @@
   <form action="/account/register/" method="post" id="login-form">
     <div class="form-row">
       <label for="id_first_name">First name:</label>
-      <input type="text" class="text" name="first_name" id="id_first_name" value="{{ form.data.first_name|escape }}" />
+      {{ form.first_name }}
       {% if form.errors.first_name %}
         <div class="margin-error">{{ form.errors.first_name.0 }}</div>
       {% endif %}
@@ -23,7 +23,7 @@
 
     <div class="form-row">
       <label for="id_last_name">Last name:</label>
-      <input type="text" class="text" name="last_name" id="id_last_name" value="{{ form.data.last_name|escape }}" />
+      {{ form.last_name }}
       {% if form.errors.last_name %}
         <div class="margin-error">{{ form.errors.last_name.0 }}</div>
       {% endif %}
@@ -33,7 +33,7 @@
 
     <div class="form-row">
       <label for="id_email">E-mail address:</label>
-      <input type="text" class="text" name="email" id="id_email" value="{{ form.data.email|escape }}" />
+      {{ form.email }}
       {% if form.errors.email %}
         <div class="margin-error">{{ form.errors.email.0 }}</div>
       {% else %}
@@ -47,7 +47,7 @@
 
     <div class="form-row">
       <label for="id_username">Username:</label>
-      <input type="text" class="text" name="username" id="id_username" value="{{ form.data.username|escape }}" />
+      {{ form.username }}
       {% if form.errors.username %}
         <div class="margin-error">{{ form.errors.username.0 }}</div>
       {% else %}
