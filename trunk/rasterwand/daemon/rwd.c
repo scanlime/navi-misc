@@ -3,7 +3,7 @@
  *
  * The implementation of wand startup is incomplete, and it does
  * not yet support changing parameters at runtime. Reads binary
- * frames from stdin.
+ * frames over UDP.
  *
  * Copyright (C) 2007 Micah Dowty <micah@navi.cx>
  */
@@ -16,6 +16,8 @@
 #include <sys/time.h>
 #include <time.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <netinet/ip.h>
 #include <linux/usbdevice_fs.h>
 #include <rwand_protocol.h>
 
@@ -107,6 +109,7 @@ struct async_urb {
 
 static struct {
    int fd;
+   int input_fd;
 
    enum {
       STATE_OFF,
@@ -398,7 +401,7 @@ status_urb_complete(struct async_urb *async)
 
       if (!device.flip_pending) {
          /* See if we can read a new frame */
-         width = read(STDIN_FILENO, frame_buffer, sizeof frame_buffer);
+         width = read(device.input_fd, frame_buffer, sizeof frame_buffer);
          if (width >= 0) {
             write_frame(frame_buffer, width);
          }
@@ -466,19 +469,41 @@ device_init()
 int
 main(int argc, char **argv)
 {
-   if (argc != 2) {
-      fprintf(stderr, "usage: %s /proc/bus/usb/<BUS>/<ADDR>\n", argv[0]);
+   struct sockaddr_in listen_addr;
+
+   if (argc != 3) {
+      fprintf(stderr, "usage: %s /proc/bus/usb/<BUS>/<ADDR> <UDP port>\n", argv[0]);
       return 1;
    }
 
+   /*
+    * Open the USB device
+    */
    device.fd = open(argv[1], O_RDWR);
    if (device.fd < 0) {
       perror("open");
       return 1;
    }
 
-   /* Make stdin nonblocking */
-   if (fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL) | O_NONBLOCK) < 0) {
+   /*
+    * Open a nonblocking UDP socket
+    */
+   memset(&listen_addr, 0, sizeof listen_addr);
+   listen_addr.sin_family = AF_INET;
+   listen_addr.sin_port = htons(atoi(argv[2]));
+
+   device.input_fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+   if (device.input_fd < 0) {
+      perror("socket");
+      return 1;
+   }
+
+   if (bind(device.input_fd, (void*) &listen_addr, sizeof listen_addr) < 0) {
+      perror("bind");
+      return 1;
+   }
+   if (fcntl(device.input_fd, F_SETFL,
+             fcntl(device.input_fd, F_GETFL) | O_NONBLOCK) < 0) {
       perror("fcntl");
       return 1;
    }
