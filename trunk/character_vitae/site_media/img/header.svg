@@ -8,8 +8,8 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="800"
-   height="150"
+   width="574.95599"
+   height="63.337906"
    id="svg2"
    sodipodi:version="0.32"
    inkscape:version="0.45"
@@ -20,7 +20,7 @@
    inkscape:export-filename="/home/sheehanw/projects/character_vitae/site_media/img/header.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90"
-   sodipodi:modified="TRUE">
+   sodipodi:modified="true">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -40,8 +40,8 @@
      inkscape:current-layer="layer1"
      width="800px"
      height="150px"
-     inkscape:window-width="1024"
-     inkscape:window-height="697"
+     inkscape:window-width="1014"
+     inkscape:window-height="692"
      inkscape:window-x="0"
      inkscape:window-y="25" />
   <metadata
@@ -58,25 +58,8 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
-    <rect
-       ry="0"
-       rx="0"
-       y="1.5"
-       x="0"
-       height="150"
-       width="800"
-       id="rect4104"
-       style="fill:#02290b;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    <rect
-       style="fill:#fdffdc;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect2160"
-       width="800"
-       height="150"
-       x="0"
-       y="1.5"
-       rx="31"
-       ry="31" />
+     id="layer1"
+     transform="translate(-112.52201,-43.331056)">
     <text
        xml:space="preserve"
        style="font-size:85.59176636px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Stonehenge"
