@@ -1,14 +1,31 @@
 <!DOCTYPE html PUBLIC
 "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 	<head>
 		<title>Character Vitae</title>
 		<link rel="stylesheet" type="text/css" href="/site_media/css/base.css" />
 	</head>
 	<body>
-		<img id="header" src="/site_media/img/header.png" />
+		<div id="userbar">
+			<span style="font-style: italic">
+				{% if user %}
+				Logged in as {{ user }}
+				{% else %}
+				Not logged in
+				{% endif %}
+			</span>
+		</div>
+		<div id="header">
+			<img src="/site_media/img/header.png" />
+		</div>
+		<div id="sidebar">
+			<ul>
+				<li>test</li>
+				<li>test2</li>
+				<li>moose</li>
+			</ul>
+		</div>
 		{% block content %}{% endblock %}
 	</body>
 </html>

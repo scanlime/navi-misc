@@ -1,25 +1,51 @@
 @import "forms.css";
 
 html {
-	background: #02290b url("/site_media/img/bg.png") repeat;
-	padding: 50px 0;
+	height: 100%;
 }
 
 body {
-	width: 800px;
-	margin: auto;
-	padding: 2px;
+	height: 100%;
+	margin: 0;
 	background-color: #fdffdc;
 }
 
-img#header {
-	margin-bottom: 10px;
+#header {
+	background-color: #60bf74;
+	border-bottom: 3px solid #020e29;
+	padding: 5px 10px;
+}
+
+#userbar {
+	background-color: #02290b;
+	border-bottom: 3px solid #020e29;
+	border-top: 3px solid #020e29;
+	color: #fff;
+	font-size: small;
+	padding: 3px 5px;
+	text-align: right;
+}
+
+#sidebar {
+	background-color: #fcffc2;
+	border-left: 1px solid #711100;
+	border-right: 1px solid #711100;
+	float: left;
+	margin: 0 15px;
+	height: 100%;
+	width: 200px;
+}
+
+#sidebar ul {
+	list-style: none inside;
+	padding: 0 15px;
 }
 
 table#login {
-	margin: auto;
 	background-color: #fcffc2;
 	border: 1px solid #711100;
+	margin: auto;
+	position: absolute;
 	table-layout: auto;
 }
 
