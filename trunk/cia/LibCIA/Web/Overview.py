@@ -134,19 +134,12 @@ class OverviewPage(Template.Page):
        a jumping-off point for the rest of the site, so this page doesn't
        include its own sidebar- it will copy the sidebar from a given page.
        """
-    mainTitle = "CIA - The open source informant"
+    mainTitle = "CIA - Commits in Action"
+    subTitle = "The open source informant"
 
     heading = Template.pageBody[
         "This is a brief overview of the information collected recently. ",
         tag("a", href="/doc")[ "Learn more about CIA" ],
-        ]
-
-    taglines = [
-        "Where were YOU at 04:00?",
-        "The last best hope",
-        "Resistance is useless",
-        "More fun than a bucket of anchovies",
-        "We know where you're going today",
         ]
 
     def __init__(self, sidebarPath='doc/.default.sidebar'):
@@ -174,9 +167,6 @@ class OverviewPage(Template.Page):
                 sections[-1].rows.append( tag('a', href=url.strip())[title.strip()] )
 
         return sections
-
-    def render_subTitle(self, context):
-        return random.choice(self.taglines)
 
     def render_mainColumn(self, context):
         return [
