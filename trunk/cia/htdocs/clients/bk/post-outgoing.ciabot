@@ -29,7 +29,7 @@ for s in `cat $BK_CSETLIST`; do
 done
 
 # Send logs to CIA
-echo "Sending notification to CIA irc bot (cia.navi.cx)."
+echo "Sending notification to CIA irc bot (cia.vc)."
 (
     for n in $nums; do
         $BK_ROOT/BitKeeper/triggers/ciabot_bk.sh $n

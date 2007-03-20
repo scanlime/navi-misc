@@ -8,7 +8,7 @@ import string
 ################
 
 debug = False
-server = "http://cia.navi.cx"
+server = "http://cia.vc"
 
 # Your project name, as known by CIA. You may wish to use your
 # computer's name here, as arch archives are often personal in nature.

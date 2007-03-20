@@ -25,7 +25,7 @@ class config:
     # We need an RSS 2.0 feed to get the <cloud> element. Ask for plain text
     # because stdout probably isn't a web browser. We only want one item,
     # since we should be notified every time a new message comes in.
-    url = "http://cia.navi.cx/stats/total/commits/.rss?ver=2&medium=plaintext&limit=1"
+    url = "http://cia.vc/stats/total/commits/.rss?ver=2&medium=plaintext&limit=1"
 
     # This is the port we'll listen on, expecting a connection back from the CIA server
     port = 23692

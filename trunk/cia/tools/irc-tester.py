@@ -22,7 +22,7 @@ def set_socket_deadline(socket, deadline):
 
 def getServerNetwork(host, port, timeout=20.0):
     tempNick = "CIA-temp%03d" % random.randint(0, 999)
-    realname = "Network Tester for cia.navi.cx"
+    realname = "Network Tester for cia.vc"
     username = "cia"
     network = None
     deadline = time.time() + timeout

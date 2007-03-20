@@ -5,7 +5,7 @@
 # minimize the impact this has on our I/O quota.
 #
 
-CIA_HOST=cia@cia.navi.cx
+CIA_HOST=cia@cia.vc
 BACKUPDIR=~/download/cia-backups
 
 FILE_PREFIX=`date "+cia-%F"`

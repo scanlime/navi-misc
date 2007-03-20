@@ -16,7 +16,7 @@ project = foo
 # Append a diffstat to the log message (optional)
 #diffstat = False
 # The URL of the CIA notification service (optional)
-#url = http://cia.navi.cx/
+#url = http://cia.vc/
 # print message instead of sending it (optional)
 #test = False
 
@@ -132,7 +132,7 @@ class hgcia(object):
         self.ui = ui
         self.repo = repo
 
-        self.ciaurl = self.ui.config('cia', 'url', 'http://cia.navi.cx')
+        self.ciaurl = self.ui.config('cia', 'url', 'http://cia.vc')
         self.user = self.ui.config('cia', 'user')
         self.project = self.ui.config('cia', 'project')
         self.module = self.ui.config('cia', 'module')

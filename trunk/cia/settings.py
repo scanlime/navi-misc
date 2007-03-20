@@ -34,7 +34,7 @@ ADMINS = (
     ('Micah Dowty', 'micah@navi.cx'),
 )
 
-DEFAULT_FROM_EMAIL = 'webmaster@cia.navi.cx'
+DEFAULT_FROM_EMAIL = 'webmaster@cia.vc'
 
 MANAGERS = ADMINS
 
@@ -84,7 +84,7 @@ CIA_BOT_SOCKET = rel_path('bots.socket')
 #
 # Preferred domain for incoming mail: CIA requests, repository pingers.
 #
-CIA_INCOMING_MAIL_DOMAIN = "cia.navi.cx"
+CIA_INCOMING_MAIL_DOMAIN = "cia.vc"
 
 # Local time zone for this installation. All choices can be found here:
 # http://www.postgresql.org/docs/current/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE

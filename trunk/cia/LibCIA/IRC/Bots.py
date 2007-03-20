@@ -161,7 +161,7 @@ class NickAllocator:
        and generating a list of valid nicks. This is an abstract base class.
        """
     username = 'CIA'
-    realname = 'CIA Bot (http://cia.navi.cx)'
+    realname = 'CIA Bot (http://cia.vc)'
 
     def isValid(self, nick):
         """Returns True if the given nickname would be a valid output for our generator"""

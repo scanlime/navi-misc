@@ -5,7 +5,7 @@
 #
 # Based on ciabot_svn.sh by Micah Dowty <micah@navi.cx>
 #
-# See http://cia.navi.cx
+# See http://cia.vc
 # for more information on what the CIA bot is and how it works.
 #
 ############# There are some parameters for this script that you can customize:
@@ -32,7 +32,7 @@ sendmail_command="/usr/sbin/sendmail -t"
 REV="$1"
 
 # The email address CIA lives at
-cia_address="cia@cia.navi.cx"
+cia_address="cia@cia.vc"
 
 author=`echo $BK_USER | sed 's/\&/\&amp;/g;s/</\&lt;/g;s/>/\&gt;/g'`
 module=`basename $BKD_ROOT | sed 's/\&/\&amp;/g;s/</\&lt;/g;s/>/\&gt;/g'`
