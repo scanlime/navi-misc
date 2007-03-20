@@ -29,7 +29,7 @@ noisy=false
 
 # Addresses for the e-mail
 from="you@yourthing.com"
-to="cia@cia.navi.cx"
+to="cia@cia.vc"
 
 # SMTP client to use
 sendmail="/usr/bin/nbsmtp -f ${from}"

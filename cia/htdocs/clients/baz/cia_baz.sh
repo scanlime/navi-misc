@@ -54,7 +54,7 @@ sendmail_wrapper()
 # -- svn version by Micah Dowty <micah@navi.cx>
 # -- adapted by Robert Collins <robert.collins@canonical.com>
 #
-# See http://cia.navi.cx
+# See http://cia.vc
 # for more information on what the CIA bot is and how it works.
 #
 # To use the CIA bot in your Arch repository...
@@ -243,7 +243,7 @@ inform_cia()
 ############# Below this line you shouldn't have to change anything
 
 # The email address CIA lives at
-   local cia_address="cia@cia.navi.cx"
+   local cia_address="cia@cia.vc"
 
 # Send an email with the final XML message
    cia_revision | $MAILX -s "DeliverXML" $cia_address

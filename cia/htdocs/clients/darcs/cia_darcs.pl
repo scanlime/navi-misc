@@ -17,7 +17,7 @@ use Cwd;
 # Loosely based on cvslog by Russ Allbery <rra@stanford.edu>
 # Copyright 1998  Board of Trustees, Leland Stanford Jr. University
 # Copyright 2001, 2003, 2004  Petr Baudis <pasky@ucw.cz>
-# http://cia.navi.cx/clients/cvs/ciabot_cvs.pl
+# http://cia.vc/clients/cvs/ciabot_cvs.pl
 
 # Bug tracker: https://sourceforge.net/tracker/?group_id=37810
 
@@ -57,13 +57,13 @@ my $use_method = 0;
 my $darcs = '/usr/bin/darcs.real';
 
 # If using XML-RPC, connect to this URI.
-my $rpc_uri = 'http://cia.navi.cx/RPC2';
+my $rpc_uri = 'http://cia.vc/RPC2';
 
 # If using email, the From: address in generated mails
 my $from_email = 'you@your.host';
 
 # If using email, the To: address in generated mails
-my $dest_email = 'cia@cia.navi.cx';
+my $dest_email = 'cia@cia.vc';
 
 # If using email, path to your USCD sendmail compatible binary 
 my $sendmail = '/usr/sbin/sendmail';

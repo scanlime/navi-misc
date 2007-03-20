@@ -15,7 +15,7 @@
 #   http://pasky.or.cz/~pasky/dev/cvs/ciabot.pl.
 #
 # This version has been modified a bit, and is available on CIA's web site:
-#   http://cia.navi.cx/clients/cvs/ciabot_cvs.pl
+#   http://cia.vc/clients/cvs/ciabot_cvs.pl
 #
 # This program is designed to run from the loginfo CVS administration file. It
 # takes a log message, massaging it and mailing it to the address given below.
@@ -57,10 +57,10 @@ $project = 'YOUR_PROJECT_HERE';
 $from_email = 'YOUR_EMAIL_HERE';
 
 # Mail all reports to this address.
-$dest_email = 'cia@cia.navi.cx';
+$dest_email = 'cia@cia.vc';
 
 # If using XML-RPC, connect to this URI.
-$rpc_uri = 'http://cia.navi.cx/RPC2';
+$rpc_uri = 'http://cia.vc/RPC2';
 
 # Path to your USCD sendmail compatible binary (your mailer daemon created this
 # program somewhere).
@@ -236,7 +236,7 @@ if (-f $syncfile and -w $syncfile) {
 
 
 my ($VERSION) = '2.4';
-my ($URL) = 'http://cia.navi.cx/clients/cvs/ciabot_cvs.pl';
+my ($URL) = 'http://cia.vc/clients/cvs/ciabot_cvs.pl';
 my $ts = time;
 
 $message = <<EM

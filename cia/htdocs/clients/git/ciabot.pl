@@ -56,10 +56,10 @@ $project = 'Cogito';
 $from_email = 'pasky@ucw.cz';
 
 # Mail all reports to this address.
-$dest_email = 'cia@cia.navi.cx';
+$dest_email = 'cia@cia.vc';
 
 # If using XML-RPC, connect to this URI.
-$rpc_uri = 'http://cia.navi.cx/RPC2';
+$rpc_uri = 'http://cia.vc/RPC2';
 
 # Path to your USCD sendmail compatible binary (your mailer daemon created this
 # program somewhere).

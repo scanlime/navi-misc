@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Simple post-commit hook for bzr that submits the commit to 
-# CIA (http://cia.navi.cx/)
+# CIA (http://cia.vc/)
 
 # Requires a recent version of bzr (0.7 or higher)
 
@@ -40,7 +40,7 @@ def post_commit(branch, revision_id):
 
     server = config.get_user_option('cia_server')
     if not server:
-        server = "http://cia.navi.cx"
+        server = "http://cia.vc"
 
     author = config.get_user_option('cia_user')
     if not author:

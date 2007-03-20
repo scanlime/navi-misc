@@ -18,17 +18,17 @@ are considered stable- they aren't likely to change, and any changes
 should remain backward compatible. Many other functions are supported,
 but aren't finalized. Also note that the availability of XML-RPC
 functions may vary from server to server. This list is consistent with
-the official CIA server at http://cia.navi.cx but individual server
+the official CIA server at http://cia.vc but individual server
 owners may customize the RPC modules provided by their .tac file.
 
 Accessing the Server
 --------------------
 
 The XML-RPC server runs at /RPC2 on the CIA server's usual HTTP port.
-The official server, for example, provides XML-RPC at <http://cia.navi.cx/RPC2>.
+The official server, for example, provides XML-RPC at <http://cia.vc/RPC2>.
 It is strongly recommended, but not strictly required, that clients use
 SSL when executing functions that require authentication. The official
-server provides an identical SSL service at <https://cia.navi.cx/RPC2>.
+server provides an identical SSL service at <https://cia.vc/RPC2>.
 Note that some XML-RPC clients, including Python's xmlrpclib_, will
 implicitly assume /RPC2 if a URL is given with no path and no trailing slash.
 
@@ -42,7 +42,7 @@ Python's interactive command line::
   [GCC 3.3.4 20040623 (Gentoo Linux 3.3.4-r1, ssp-3.3.2-2, pie-8.7.6)] on linux2
   Type "help", "copyright", "credits" or "license" for more information.
   >>> import xmlrpclib
-  >>> cia = xmlrpclib.ServerProxy("https://cia.navi.cx")
+  >>> cia = xmlrpclib.ServerProxy("https://cia.vc")
   >>> cia.stats.getCounterValues("project/gnome", "forever")
   {'firstEventTime': 1073733315, 'lastEventTime': 1112073700, 'eventCount': 99509}
 
@@ -59,7 +59,7 @@ Common Concepts
 
   These paths and the hierarchy they represent should be familiar from
   the web interface. For example, the page
-  http://cia.navi.cx/stats/project/bzflag corresponds with the stats
+  http://cia.vc/stats/project/bzflag corresponds with the stats
   path "project/bzflag". Most useful stats paths are of the form
   "project/foo" or "author/foo", but paths like "total/commits" or
   "project/gnome/gimp" are valid and useful as well.

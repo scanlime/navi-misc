@@ -1,5 +1,5 @@
 export LOGDIR=/var/log/cia
-export REQUEST_HOST=cia.navi.cx
+export REQUEST_HOST=cia.vc
 export REQUEST_PORT=80
 
 export PORT=3920

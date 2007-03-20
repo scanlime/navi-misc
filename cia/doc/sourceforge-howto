@@ -25,7 +25,7 @@ The script you need is called a "Client Script". Visit CIA's `list of clients`_ 
 `CVS client script`_. Once you have the script, you can move on to the next step.
 
 .. _list of clients: /doc/clients
-.. _CVS client script: http://cia.navi.cx/clients/cvs/ciabot_cvs.pl
+.. _CVS client script: http://cia.vc/clients/cvs/ciabot_cvs.pl
 
 
 Setting up CIA: Step two, CVSROOT:

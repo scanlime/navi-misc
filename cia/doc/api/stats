@@ -18,7 +18,7 @@ for controlling CIA over XML-RPC
   Python example::
 
     >>> import xmlrpclib
-    >>> cia = xmlrpclib.ServerProxy("https://cia.navi.cx")
+    >>> cia = xmlrpclib.ServerProxy("https://cia.vc")
 
     >>> cia.stats.catalog()
     ['author', 'format', 'host', 'project', 'total', 'vcs']
@@ -53,7 +53,7 @@ for controlling CIA over XML-RPC
   Python example::
 
     >>> import xmlrpclib
-    >>> cia = xmlrpclib.ServerProxy("https://cia.navi.cx")
+    >>> cia = xmlrpclib.ServerProxy("https://cia.vc")
 
     >>> latestFiveCommits = cia.stats.getLatestMessages('total/commits', 5)
     >>> len(latestFiveCommits)
@@ -101,7 +101,7 @@ for controlling CIA over XML-RPC
   Python example::
 
     >>> import xmlrpclib, time
-    >>> cia = xmlrpclib.ServerProxy("https://cia.navi.cx")
+    >>> cia = xmlrpclib.ServerProxy("https://cia.vc")
 
     >>> n = cia.stats.getCounterValues('project/gnome', 'thisWeek')['eventCount']
     >>> print "There have been %d commits to GNOME this week." % n
@@ -122,7 +122,7 @@ for controlling CIA over XML-RPC
   Python example::
 
     >>> import xmlrpclib, os
-    >>> cia = xmlrpclib.ServerProxy("https://cia.navi.cx")
+    >>> cia = xmlrpclib.ServerProxy("https://cia.vc")
     >>> key = open(os.path.expanduser("~/.cia_key")).read()
 
     >>> cia.stats.clearTarget(key, "project/DeleteMe")
