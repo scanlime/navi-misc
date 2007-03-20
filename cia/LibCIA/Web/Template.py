@@ -281,7 +281,7 @@ class Page(Nouvelle.Twisted.Page):
        features- section tabs at the top, and a 'breadcrumbs' display
        linking to and showing a page's parent pages.
        """
-    siteName = "CIA"
+    siteName = "CIA.vc"
     mainTitle = None
     subTitle = []
     leftColumn  = []
@@ -294,6 +294,25 @@ class Page(Nouvelle.Twisted.Page):
         ]
     site_bottomOfFooter = []
 
+    pageHeading = [
+        tag('div', _class="heading")[
+            tag('table', _class="heading")[ tag('tr', _class="heading")[
+                tag('td', _class="title")[
+                    tag('div', _class="mainTitle")[ place("mainTitle") ],
+                    tag('div', _class="subTitle")[ place("subTitle") ],
+                ],
+                tag('td', _class="topRight")[
+                    tag('a', _class="sitename", href="/")[
+                        tag('img', src='/media/img/nameplate-24.png', width=87, height=24,
+                            alt='CIA.vc'),
+                        ],
+                    ],
+                ]],
+            tag('div', _class="tabs")[ place("tabs") ],
+            tag('div', _class="tabBar")[ place("breadcrumbs") ],
+        ],
+    ]
+                
     document = [
         xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" '
             '"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n'),
@@ -309,20 +328,7 @@ class Page(Nouvelle.Twisted.Page):
                 ],
             tag('body')[
 
-                # Page heading, including title, subtitle, site name, and tabs
-                tag('div', _class="heading")[
-                    tag('table', _class="heading")[ tag('tr', _class="heading")[
-                        tag('td', _class="title")[
-                            tag('div', _class="mainTitle")[ place("mainTitle") ],
-                            tag('div', _class="subTitle")[ place("subTitle") ],
-                        ],
-                        tag('td', _class="topRight")[
-                            tag('a', _class="sitename", href="/")[ place("siteName") ]
-                        ],
-                    ]],
-                    tag('div', _class="tabs")[ place("tabs") ],
-                    tag('div', _class="tabBar")[ place("breadcrumbs") ],
-                ],
+                place('pageHeading'),
 
                 # The page body. We really shouldn't still be using a table for this...
                 tag('table', _class="columns")[ tag('tr')[
@@ -338,7 +344,7 @@ class Page(Nouvelle.Twisted.Page):
 
                     # Legal goop
                     tag('p', _class='smallprint')[
-                        xml("The CIA server is Copyright &copy; 2003-2007 "),
+                        xml("The CIA.vc server is Copyright &copy; 2003-2007 "),
                         EmailLink('mailto:micah@navi.cx')["Micah Dowty"],
                         ", and released under the ",
                         tag('a', _href='/doc/COPYING')["GNU GPL"], ".", tag('br'),
@@ -366,6 +372,10 @@ class Page(Nouvelle.Twisted.Page):
     def _render_pageTitle(self, titleAndSite, context, result):
         # Now that the title and site name have fully resolved, we can apply some heuristics...
         title, siteName = titleAndSite
+
+        if title is None:
+            result.callback(siteName)
+            return
 
         if type(title) in types.StringTypes and type(siteName) in types.StringTypes:
             # The title and site are plain strings. If it starts with or ends with the site name,

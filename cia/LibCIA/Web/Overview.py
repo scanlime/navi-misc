@@ -134,8 +134,15 @@ class OverviewPage(Template.Page):
        a jumping-off point for the rest of the site, so this page doesn't
        include its own sidebar- it will copy the sidebar from a given page.
        """
-    mainTitle = "CIA - Commits in Action"
-    subTitle = "The open source informant"
+
+    pageHeading = [
+        tag('div', _class="heading")[
+            tag('img', _class='banner', src='/media/img/banner-70-nb.png', width=329, height=52,
+                alt='CIA.vc: The open source version control informant.'),
+            tag('div', _class="tabs")[ place("tabs") ],
+            tag('div', _class="tabBar")[ place("breadcrumbs") ],
+        ],
+    ]
 
     heading = Template.pageBody[
         "This is a brief overview of the information collected recently. ",

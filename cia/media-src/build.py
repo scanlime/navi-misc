@@ -13,7 +13,7 @@ DEST = '../media/'
 for single_css in [
     'base', 'login', 'account',
     'tabtastic', 'doc', 'image-upload',
-    'feedback', 'stats',
+    'stats',
     ]:
     merge('%scss/%s.css' % (DEST, single_css), [
     'css/local/%s.css' % single_css,

@@ -24,10 +24,10 @@ def send_feedback_mail(form):
         settings.EMAIL_SUBJECT_PREFIX,
         re.sub(r'\s+', ' ', form.clean_data['comment'])[:30].strip())
 
-    message = ("Name: %(name)s\n"
-               "E-mail: %(email)s\n"
-               "Referrer: %(referrer)s\n"
-               "\n%(comment)s" % form.clean_data)
+    message = unicode("Name: %(name)s\n"
+                      "E-mail: %(email)s\n"
+                      "Referrer: %(referrer)s\n"
+                      "\n%(comment)s" % form.clean_data).encode("utf-8")
 
     send_mail(subject, message, from_addr, [a[1] for a in settings.MANAGERS])
 
