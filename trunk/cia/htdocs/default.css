@@ -176,7 +176,6 @@ div.section {
   border: 1px solid #8CACBB;
   margin: 0em 0em 2em 0em;
   background-color: white;
-  background-image: url(/images/dots.png);
   background-repeat: repeat-y;
   background-position: right;
 }
@@ -325,6 +324,14 @@ img {
 img.photo {
   border: 1px dashed #8CACBB;
   padding: 0.5em;
+}
+
+.heading .banner {
+  padding: 1em;
+}
+
+a.sitename img {
+  vertical-align: top;
 }
 
 span.error {

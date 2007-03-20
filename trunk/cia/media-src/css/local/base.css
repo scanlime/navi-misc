@@ -31,9 +31,8 @@ img {
 
 .heading {
   position: relative;
-  margin: 0.5em;
-  padding: 0em 0em 0.25em 0em;
-  border-bottom: 2px solid #888;
+  margin: 0.5em 0.5em 0.75em 0.5em;
+  padding: 0;
   white-space: nowrap;
 }
 
@@ -46,29 +45,43 @@ img {
   margin: 0;
 }
 
+/*
+ * All heading vertical spacing must be in pixels,
+ * since we're constrained by the size of our image nameplate/logo.
+ */
 .heading .logo {
   position: relative;
-  font: 175% sans-serif;
+  font-size: 24px;
   color: black;
+}
+
+.heading .logo img {
+  width: 87px;
+  height: 24px;
+  vertical-align: baseline;
+  border: none;
 }
 
 .heading .sep {
   position: relative;
-  top: -0.3em;
-  padding: 0em 0.2em;
+  font-size: 20px;
+  top: -4px;
+  padding: 0;
+  margin: 0 0.2em;
+  color: #ccc;
   font-weight: bold;
 }
 
 .heading .title {
-  font: 120% sans-serif;
+  font-size: 20px;
   position: relative;
-  top: -0.15em;
+  top: -4px;
 }
 
 .heading ul {
   position: absolute;
-  font: 80% sans-serif;
-  top: 0.7em;
+  font: 12px sans-serif;
+  top: 4px;
   right: 1em;
 
   display: inline;

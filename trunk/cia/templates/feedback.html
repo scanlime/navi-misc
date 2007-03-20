@@ -1,17 +1,12 @@
-{% extends 'layout_base.html' %}
-
-{% block stylesheets %}
-{{ block.super }}
-  <link href="/media/css/feedback.css" type="text/css" rel="stylesheet" />
-{% endblock %}
+{% extends 'layout_doc.html' %}
 
 {% block page_title %}Feedback{% endblock %}
 {% block head_title %}Feedback{% endblock %}
 {% block feedback-nav %}<li>&raquo; Feedback</li>{% endblock %}
 
 {% block content %}
-<div id="content">
-<form action="/feedback/" method="post" id="feedback-form">
+<div id="document-and-sidebar">
+<form action="/feedback/" method="post" class="comment-form">
 
   <p>
     You can use this form to send feedback to this site's
@@ -24,37 +19,35 @@
     we do read all feedback.
   </p>
 
-{% ifequal site.name "CIA" %}
   <p>
     This site is <strong>not</strong> affiliated with the Central
     Intelligence Agency, the Culinary Institute of America, the
     Celestial Intervention Agency, the Calgary International Airport,
     or any other CIA. <a href="/doc/">What is this site all about?</a>
   </p>
-{% endifequal %}
 
-  <div class="form-row">
+  <p>
     <label for="id_name">Your name:</label>
     {{ form.name }}
     <span class="note">(optional)</span>
     <div class="error">{{ form.errors.name.0 }}</div>
-  </div>
+  </p>
 
-  <div class="form-row">
+  <p>
     <label for="id_name">Your e-mail:</label>
     {{ form.email }}
     <span class="note">(optional)</span>
     <div class="error">{{ form.errors.email.0 }}</div>
-  </div>
+  </p>
 
-  <div>
+  <p>
     {{ form.comment.as_textarea }}
-  </div>
+  </p>
 
-  <div class="submit-row">
+  <p>
     {{ form.referrer.as_hidden }}
-    <span>&raquo;</span> <input type="submit" value="Send Feedback" />
-  </div>
+    <input class="submit" type="submit" value="Send Feedback" />
+  </p>
 
 </form>
 </div>
