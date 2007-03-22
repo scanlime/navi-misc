@@ -11,7 +11,7 @@ import time
 @needs_bot_server
 def request_status(request, server, host, channel, port=None):
     return {
-        'request': block(server.root.callRemote('findRequestInfo', host, int(port or 0), channel))
+        'request': block(server.root.callRemote('findRequestInfo', host, int(port or 0) or None, channel))
         }
 
 
