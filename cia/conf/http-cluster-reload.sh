@@ -18,6 +18,3 @@ for port in 3930 3931 3932 3933; do
     sleep 20
 done
 
-# The first web server is primarily for spiders: make it lower-priority
-snice +10 `cat ~/cia/server-3930.pid`
-
