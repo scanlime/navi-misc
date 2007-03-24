@@ -104,6 +104,16 @@ user accounts and assets (such as bots, projects, and authors).
 
   - The ability to revert changes from the change history page
 
+  - More tools to easily close accounts, lock assets, and revert all of a user's changes
+
+  - IP- and cookie-based bans. This will be a quick fix to silence the less
+    persistant troublemakers.
+
+  - IP- and login-based sandboxing. Let the mailicious users log in and change settings,
+    but keep those changes in a private sandbox.
+
+  - Fix the IRC channel redirect bugs
+
   - Enforce network uniqueness. Currently, users may create multiple IRC "networks"
     which actually refer to the same physical network. This can happen by accident,
     or it might be abused maliciously to cause multiple CIA bots to join a single
