@@ -29,15 +29,33 @@ CIASearch.toggleResults = function(enable)
 	    context: [this.fieldId, 'tl', 'bl'],
 	    width: "25em",
 	    visible: true,
+	    constraintoviewport: true,
 	    effect: { effect: YAHOO.widget.ContainerEffect.FADE,
-		      duration:0.25 }
+		      duration:0.25 },
+
+	    /*
+	     * The resize monitor doesn't seem to work right, and
+	     * it sometimes causes the page to momentarily grow a scroll bar.
+	     */
+	    monitorresize: false
 	});
 	this.results = res;
+	
+	/*
+	 * YUI seems to use relative positioning by default. Override this,
+	 * since the relatively positioned results box will still cause blank
+	 * space to appear at the bottom of the document.
+	 */
+	YAHOO.util.Dom.setStyle(res.element, "position", "absolute");
+
 	res.setBody("");
 	res.render(document.body);
     }
 
     if (enable) {
+	/* Recalculate the alignment, in case our context element moved */
+	res.align('tl', 'bl');
+
 	res.show();
     } else {
 	res.hide();
@@ -90,6 +108,13 @@ CIASearch.updateQuery = function()
     }
 }
 
+CIASearch.delayedUpdateQuery = function()
+{
+    /* The new value won't be valid until the event finishes propagating */
+    var self = this;
+    setTimeout(function() { self.updateQuery() }, 0);
+}
+
 CIASearch.sendQuery = function()
 {
     var self = this;
@@ -132,9 +157,6 @@ CIASearch.displayResults = function(results)
     /*
      * First, check whether there is a single exact match
      */
-    
-
-
 
     var list = document.createElement('div');
     for (var i in results) {
@@ -150,36 +172,78 @@ CIASearch.displayResults = function(results)
 
 CIASearch.init = function(url, fieldId, defaultText)
 {
-    var self = this;
-    self.url = url;
+    this.url = url;
+
     this.fieldId = fieldId;
-    self.field = document.getElementById(fieldId);
+    this.field = document.getElementById(fieldId);
+    this.field.setAttribute('autocomplete', 'off');
 
-    self.defaultText = defaultText;
-    self.toggleDefaultText(true);
+    this.defaultText = defaultText;
+    this.toggleDefaultText(true);
 
-    self.field.onfocus = function()
-    {
-	if (self.hasDefaultText) {
-	    self.toggleDefaultText(false);
+    var Event = YAHOO.util.Event;
+    Event.on(this.field, "focus", this.onFocus, this, true);
+    Event.on(this.field, "blur", this.onBlur, this, true);
+    Event.on(this.field, "change", this.onChange, this, true);
+    Event.on(this.field, "keypress", this.onKeyPress, this, true);
+}
+
+CIASearch.onFocus = function(ev)
+{
+    if (this.hasDefaultText) {
+	this.toggleDefaultText(false);
+    }
+
+    this.hasFocus = true;
+    this.updateQuery();
+}
+
+CIASearch.onBlur = function(ev)
+{
+    this.hasFocus = false;
+    this.updateQuery();
+
+    if (this.field.value == "") {
+	this.toggleDefaultText(true);
+    }
+}
+
+CIASearch.onChange = function(ev)
+{
+    /*
+     * This doesn't actually help us in the real world,
+     * since browsers only send us onChange when the field
+     * is about to blur...
+     *
+     * Our usual change notifications come via onKeyPress.
+     */
+    this.delayedUpdateQuery();
+}
+
+CIASearch.onKeyPress = function(ev)
+{
+    var Event = YAHOO.util.Event;
+    var kc = Event.getCharCode(ev);
+    switch (kc) {
+
+    case 0x26: // up
+    case 0x28: // down
+	Event.preventDefault(ev);
+	break;
+
+    case 0x0d: // enter
+	if (this.field.value != this.resultsQuery && !this.request) {
+	    this.cancel();
+	    this.sendQuery();
 	}
+	Event.preventDefault(ev);
+	break;
 
-	self.hasFocus = true;
-	self.updateQuery();
-    };
+    case 0x09: // tab
+	break;
 
-    self.field.onblur = function()
-    {
-	self.hasFocus = false;
-	self.updateQuery();
+    default:
+	this.delayedUpdateQuery();
 
-	if (self.field.value == "") {
-	    self.toggleDefaultText(true);
-	}
-    };
-
-    attachOnTextareaChanged(self.field, function() {
-	/* The new value won't be valid until the event finishes propagating */
-	setTimeout(function() { self.updateQuery() }, 0);
-    });
+    }
 }
