@@ -2,6 +2,12 @@
   color: #888;
 }
 
+#search-results {
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+}
+
+
 #search-results .bd {
   border: 1px solid #88f;
   background: #eef;
