@@ -34,14 +34,13 @@ merge(DEST + 'js/base.js', [
     'js/yui-0.12.2/build/event/event.js',
     'js/yui-0.12.2/build/container/container_core.js',
     'js/yui-0.12.2/build/animation/animation.js',
-    'js/tabtastic-1.0.4/attachevent.js',
     'js/local/json.js',
-    'js/local/on-text-changed.js',
     'js/local/html.js',
     'js/local/search.js'
     ], jsmin)
 
 merge(DEST + 'js/asset-edit.js', [
+    'js/tabtastic-1.0.4/attachevent.js',
     'js/tabtastic-1.0.4/addclasskillclass.js',
     'js/tabtastic-1.0.4/addcss.js',
     'js/tabtastic-1.0.4/tabtastic.js',
@@ -53,6 +52,7 @@ merge(DEST + 'js/asset-edit.js', [
 
 # Requires asset-edit.js
 merge(DEST + 'js/bot-edit.js', [
+    'js/local/on-text-changed.js',
     'js/local/units.js',
     'js/local/bot-status.js',
     'js/local/validator.js',
