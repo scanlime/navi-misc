@@ -4,7 +4,7 @@
 
 var CIASearch = {}
 
-CIASearch.editTimeout = 100.0;
+CIASearch.editTimeout = 1000.0;
 
 CIASearch.iconSize = 16;
 
@@ -82,6 +82,10 @@ CIASearch.toggleResults = function(enable)
 
 CIASearch.cancel = function()
 {
+    this.selectionList = null;
+    this.currentSelection = null;
+    this.confirmedQuery = null;
+
     /*
      * Cancel an existing update timer or connection
      */
@@ -174,6 +178,25 @@ CIASearch.sendQuery = function()
     self.request = YAHOO.util.Connect.asyncRequest('GET', this.url + q, callback)
 }
 
+CIASearch.setCurrentSelection = function(selection)
+{
+    var cls = 'search-selected';
+
+    if (selection < 0) {
+	selection = 0;
+    }
+    if (selection >= this.selectionList.length) {
+	selection = this.selectionList.length - 1;
+    }
+
+    if (this.currentSelection != null) {
+	YAHOO.util.Dom.removeClass(this.selectionList[this.currentSelection], cls);
+    }
+
+    YAHOO.util.Dom.addClass(this.selectionList[selection], cls);
+    this.currentSelection = selection;
+}
+
 CIASearch.displayResults = function(results, query)
 {
     if (!results.length) {
@@ -184,6 +207,8 @@ CIASearch.displayResults = function(results, query)
     var lcQuery = query.toLowerCase();
     var list = document.createElement('div');
     var numExact = 0;
+    this.selectionList = [];
+    this.currentSelection = null;
 
     /* Divide the results up by section, and look for exact matches */
     var sectionMap = {};
@@ -267,6 +292,28 @@ CIASearch.displayResults = function(results, query)
 	    item.href = result.url;
 	    list.appendChild(item);
 
+	    var selectionIndex = this.selectionList.length;
+	    this.selectionList.push(item);
+
+	    YAHOO.util.Event.on(item, "mouseover", function(ev, ctx) {
+		ctx.this.setCurrentSelection(ctx.index);
+	    }, {
+		'this': this,
+		'index': selectionIndex,
+	    });
+
+	    if (result.isExactMatch && numExact == 1) {
+		YAHOO.util.Dom.addClass(item, 'search-exact-match');
+
+		/*
+		 * If we got exactly one exact match, and the user
+		 * already confirmed this query, visit the match now.
+		 */
+		if (query == this.confirmedQuery) {
+		    this.visitSelection(item);
+		}
+	    }
+
 	    /* Reserve some space equal to our maximum icon size */
 	    var iconBox = document.createElement('div');
 	    YAHOO.util.Dom.addClass(iconBox, 'search-icon');
@@ -284,16 +331,18 @@ CIASearch.displayResults = function(results, query)
 	    }
 
 	    var title = document.createElement('span');
-	    if (result.isExactMatch && numExact == 1) {
-		title.innerHTML = "<strong>" + htmlEscape(result.title) + "</strong>";
-	    } else {
-		title.innerHTML = htmlEscape(result.title);
-	    }
+	    title.innerHTML = htmlEscape(result.title);
 	    item.appendChild(title);
 	}
     }
 
+    this.setCurrentSelection(0);
     this.results.setBody(list);
+}
+
+CIASearch.visitSelection = function(item)
+{
+    window.location.href = item.href;
 }
 
 CIASearch.init = function(url, fieldId, defaultText)
@@ -306,6 +355,8 @@ CIASearch.init = function(url, fieldId, defaultText)
 
     this.defaultText = defaultText;
     this.toggleDefaultText(true);
+
+    this.cancel();
 
     var Event = YAHOO.util.Event;
     Event.on(this.field, "focus", this.onFocus, this, true);
@@ -353,17 +404,54 @@ CIASearch.onKeyPress = function(ev)
     switch (kc) {
 
     case 0x26: // up
-    case 0x28: // down
+	if (this.selectionList && this.selectionList.length) {
+	    this.setCurrentSelection(this.currentSelection - 1);
+	}
 	Event.preventDefault(ev);
 	break;
 
-    case 0x0d: // enter
+    case 0x28: // down
+	/*
+	 * The down arrow can be used, like Enter, to expedite a query-
+	 * but without the side effect of confirming that query.
+	 */
 	if (this.field.value != this.resultsQuery && !this.request) {
 	    this.cancel();
 	    this.sendQuery();
 	}
+
+	if (this.selectionList && this.selectionList.length) {
+	    this.setCurrentSelection(this.currentSelection + 1);
+	}
 	Event.preventDefault(ev);
 	break;
+
+    case 0x0d: // enter
+	if (this.field.value) {
+	    if (this.field.value == this.resultsQuery) {
+		/* The current query is valid. */
+
+		if (this.selectionList && this.currentSelection < this.selectionList.length) {
+		    /* We have a selection. Make it so! */
+		    this.visitSelection(this.selectionList[this.currentSelection]);
+		}
+	    } else {
+		if (!this.request) {
+		    /* If we don't already have a request in progress, expedite the process */
+		    this.cancel();
+		    this.sendQuery();
+		}
+
+		/*
+		 * Remember that the user confirmed this query. If we get an exact match later,
+		 * visit it immediately. This enables a convenient one-keypress "I'm feeling lucky"
+		 * style search.
+		 */
+		this.confirmedQuery = this.field.value;
+	    }
+	    Event.preventDefault(ev);
+	    break;
+	}
 
     case 0x09: // tab
 	break;
