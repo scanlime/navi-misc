@@ -120,3 +120,12 @@ img {
   background: #eef;
   padding: 2px;
 }
+
+#search-results a {
+  display: block;
+  color: #004;
+}
+
+#search-results a:hover {
+  background: #ccf;
+}

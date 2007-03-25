@@ -256,24 +256,6 @@ class StaticSection(Section):
         return self.__class__(self.title, [rows])
 
 
-class SiteSearch(Section):
-    """A renderable that provides a Google search of this site"""
-    title = "site search"
-
-    def __init__(self, width=20):
-        self.width = width
-
-    def render_rows(self, context):
-        domain = context['request'].host[1]
-        return [tag('form', method="get", action="http://www.google.com/search")[
-                    tag('div')[
-                        tag('img', src="/images/google32.png", width=70, height=32, alt="Google"), " ",
-                        tag('input', _type='text', _name='q', size=self.width, maxlength=255, value=''),
-                        tag('input', _type='hidden', _name='domains', value=domain),
-                        tag('input', _type='hidden', _name='sitesearch', value=domain),
-                    ]]]
-
-
 class Page(Nouvelle.Twisted.Page):
     """A template for pages using our CSS- all pages have a heading with
        title, subtitle, and site name. The content of each page is in
@@ -289,30 +271,21 @@ class Page(Nouvelle.Twisted.Page):
     extraHeaders = []
 
     # Placeholders for site-specific customization
-    site_belowLeftColumn = [
-            SiteSearch(),
-        ]
+    site_belowLeftColumn = []
     site_bottomOfFooter = []
 
-    pageHeading = [
-        tag('div', _class="heading")[
-            tag('table', _class="heading")[ tag('tr', _class="heading")[
-                tag('td', _class="title")[
-                    tag('div', _class="mainTitle")[ place("mainTitle") ],
-                    tag('div', _class="subTitle")[ place("subTitle") ],
-                ],
-                tag('td', _class="topRight")[
-                    tag('a', _class="sitename", href="/")[
-                        tag('img', src='/media/img/nameplate-24.png', width=87, height=24,
-                            alt='CIA.vc'),
-                        ],
-                    ],
-                ]],
-            tag('div', _class="tabs")[ place("tabs") ],
-            tag('div', _class="tabBar")[ place("breadcrumbs") ],
+    titleElements = [
+        tag('div', _class="mainTitle")[ place("mainTitle") ],
+        tag('div', _class="subTitle")[ place("subTitle") ],
+    ]
+
+    logoElements = [
+        tag('a', _class="sitename", href="/")[
+            tag('img', src='/media/img/nameplate-24.png', width=87, height=24,
+                alt='CIA.vc'),
         ],
     ]
-                
+
     document = [
         xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" '
             '"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n'),
@@ -324,11 +297,22 @@ class Page(Nouvelle.Twisted.Page):
 		xml('<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />'),
                 tag('link', rel='stylesheet', href='/default.css', type='text/css'),
                 tag('link', rel='shortcut icon', href='/favicon.ico', type='image/png'),
+                tag('script', type='text/javascript', src='/media/js/base.js')[ " " ],
                 place('extraHeaders'),
-                ],
+            ],
             tag('body')[
 
-                place('pageHeading'),
+                tag('div', _class="heading")[
+                    tag('div', _class="topRight")[
+                        tag('input', type='text', id='search'),
+                        place('logoElements'),
+                    ],
+                    tag('div', _class="topLeft")[
+                        place('titleElements'),
+                    ],
+                    tag('div', _class="tabs")[ place("tabs") ],
+                    tag('div', _class="tabBar")[ place("breadcrumbs") ],
+                ],
 
                 # The page body. We really shouldn't still be using a table for this...
                 tag('table', _class="columns")[ tag('tr')[
@@ -355,8 +339,13 @@ class Page(Nouvelle.Twisted.Page):
                     place("site_bottomOfFooter"),
 
                 ],
+
+                xml('<script type="text/javascript">'
+                    'CIASearch.init("/api/search/?q=", "search", "Search CIA.vc");'
+                    '</script>'),
             ],
-        ]]
+        ],
+    ]
 
     def render_pageTitle(self, context):
         # Wait for the title and site name to resolve into strings so we can mess with them a bit more

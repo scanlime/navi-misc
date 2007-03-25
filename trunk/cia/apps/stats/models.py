@@ -1,4 +1,5 @@
 from django.db import models
+from urllib import quote
 from cia.apps.images.models import ImageSource
 from django.newforms.util import smart_unicode, StrAndUnicode
 
@@ -52,6 +53,9 @@ class StatsTarget(StrAndUnicode, models.Model):
         if not aset:
             return
         return aset.is_editable()
+
+    def get_absolute_url(self):
+        return "/stats/" + quote(self.path)
 
     def get_asset_edit_url(self):
         """Return a URL pointing at the Add Asset page for this target's

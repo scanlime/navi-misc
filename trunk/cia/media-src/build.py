@@ -25,18 +25,19 @@ merge(DEST + 'js/base.js', [
     'js/yui-0.12.2/build/connection/connection.js',
     'js/yui-0.12.2/build/event/event.js',
     'js/yui-0.12.2/build/container/container_core.js',
+    'js/yui-0.12.2/build/animation/animation.js',
     'js/tabtastic-1.0.4/attachevent.js',
+    'js/local/json.js',
     'js/local/on-text-changed.js',
     'js/local/html.js',
     'js/local/search.js'
-    ], jsmin)
+    ], str)#jsmin)
 
 merge(DEST + 'js/asset-edit.js', [
     'js/tabtastic-1.0.4/addclasskillclass.js',
     'js/tabtastic-1.0.4/addcss.js',
     'js/tabtastic-1.0.4/tabtastic.js',
     'js/local/preserve-tab.js',
-    'js/json-20070110/json.js',
     'js/local/change-history.js',
     'js/local/iframe.js',
     'js/local/autohide.js',
@@ -52,7 +53,6 @@ merge(DEST + 'js/bot-edit.js', [
 merge(DEST + 'js/stats.js', [
     'js/tabtastic-1.0.4/addclasskillclass.js',
     'js/yui-0.12.2/build/event/event.js',
-    'js/yui-0.12.2/build/animation/animation.js',
     'js/local/expander.js',
     ], jsmin)
 
@@ -66,6 +66,5 @@ merge(DEST + 'js/login.js', [
 
 # XXX: For testing
 merge(DEST + 'js/fidtool.js', [
-    'js/json-20070110/json.js',
     'js/local/fidtool.js',
     ], str)

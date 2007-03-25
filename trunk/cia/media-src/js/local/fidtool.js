@@ -29,7 +29,7 @@ var FIDGraph = function(url, containerId) {
 	 * sample_time is the timestamp on the matching FID sample,
 	 * and sample_index is the index of the matching sample.
 	 */
-        var counts = req.responseText.parseJSON();
+        var counts = parseJSON(req.responseText);
 
 	/*
 	 * Select the interval over which we'll scale the graph

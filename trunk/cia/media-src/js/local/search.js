@@ -4,7 +4,7 @@
 
 var CIASearch = {}
 
-CIASearch.editTimeout = 500.0;
+CIASearch.editTimeout = 1000.0;
 
 CIASearch.toggleDefaultText = function(enable)
 {
@@ -19,18 +19,18 @@ CIASearch.toggleDefaultText = function(enable)
 
 CIASearch.toggleResults = function(enable)
 {
-    if (enable == this.resultsVisible) {
-	return;
-    }
-    this.resultsVisible = enable;
-
-    this.results 
-
     var res = this.results;
     if (!res) {
+	if (!enable) {
+	    return;
+	}
+
 	res = new YAHOO.widget.Overlay(this.fieldId + "-results", {
 	    context: [this.fieldId, 'tl', 'bl'],
 	    width: "25em",
+	    visible: true,
+	    effect: { effect: YAHOO.widget.ContainerEffect.FADE,
+		      duration:0.25 }
 	});
 	this.results = res;
 	res.setBody("");
@@ -66,10 +66,10 @@ CIASearch.updateQuery = function()
     if (this.hasFocus && query) {
 	this.toggleResults(true);
 
-	if (query != this.query) {
-	    this.query = query;
+	if (query != this.resultsQuery) {
 	    this.cancel();
 
+	    this.resultsQuery = null;
 	    this.results.setBody("Searching for <strong>" +
 				 htmlEscape(query) +
 				 "</strong>...");
@@ -93,14 +93,23 @@ CIASearch.updateQuery = function()
 CIASearch.sendQuery = function()
 {
     var self = this;
+    var query = this.field.value;
 
     var responseSuccess = function(req) {
 	self.request = null;
-	self.results.setBody(req.responseText);
+	self.resultsQuery = query;
+	try {
+	    var obj = parseJSON(req.responseText);
+	    self.displayResults(obj.results);
+	}
+	catch (e) {
+	    self.results.setBody("Internal error (" + e + ")");
+	}
     }
 
     var responseFailure = function(req) {
 	self.request = null;
+	self.resultsQuery = null;
 	self.results.setBody("Connection error during search (" + req.status + ")");
     }
 
@@ -110,8 +119,33 @@ CIASearch.sendQuery = function()
 	timeout: 5000
     };
 
-    self.request = YAHOO.util.Connect.asyncRequest('POST', this.url, callback,
-						   'query=' + escape(this.field.value));
+    self.request = YAHOO.util.Connect.asyncRequest('GET', this.url + escape(query), callback)
+}
+
+CIASearch.displayResults = function(results)
+{
+    if (!results.length) {
+	this.results.setBody("No results");
+	return;
+    }
+
+    /*
+     * First, check whether there is a single exact match
+     */
+    
+
+
+
+    var list = document.createElement('div');
+    for (var i in results) {
+	var result = results[i];
+	var item = document.createElement('a');
+	item.href = result.url;
+	item.innerHTML = htmlEscape(result.title);
+	list.appendChild(item);
+    }
+
+    this.results.setBody(list);
 }
 
 CIASearch.init = function(url, fieldId, defaultText)
@@ -121,7 +155,6 @@ CIASearch.init = function(url, fieldId, defaultText)
     this.fieldId = fieldId;
     self.field = document.getElementById(fieldId);
 
-    self.resultsVisible = false;
     self.defaultText = defaultText;
     self.toggleDefaultText(true);
 
@@ -137,12 +170,12 @@ CIASearch.init = function(url, fieldId, defaultText)
 
     self.field.onblur = function()
     {
+	self.hasFocus = false;
+	self.updateQuery();
+
 	if (self.field.value == "") {
 	    self.toggleDefaultText(true);
 	}
-
-	self.hasFocus = false;
-	self.updateQuery();
     };
 
     attachOnTextareaChanged(self.field, function() {

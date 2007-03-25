@@ -35,7 +35,7 @@ ChangeHistory.loadNextPage = function()
 	self.request = null;
 	self.nextPage += 1;
 
-	var obj = req.responseText.parseJSON();
+	var obj = parseJSON(req.responseText);
 	if (obj.remaining) {
 	    self.moreChangesCount.innerHTML = obj.remaining;
 	    self.moreChanges.style.display = "block";

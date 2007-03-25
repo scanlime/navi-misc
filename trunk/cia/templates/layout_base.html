@@ -51,7 +51,7 @@
 
 <script type="text/javascript">
 {% block scripts-init %}
-  CIASearch.init("/api/search/html/{% block search-args %}{% endblock %}", "search", "Search {{ site.name }}");
+  CIASearch.init("/api/search/?{% block search-args %}{% endblock %}q=", "search", "Search {{ site.name }}");
 {% endblock %}
 </script>
 
