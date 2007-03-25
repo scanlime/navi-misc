@@ -109,6 +109,7 @@ div.topRight {
 
 a.sitename {
   padding: 0.25em;
+  margin: 0 0 0 1em;
 }
 
 div.mainTitle {
@@ -120,7 +121,7 @@ div.mainTitle {
 div.subTitle {
   font: 100% sans-serif;
   font-style: italic;
-  padding: 0 0 0 2.5em;
+  padding: 0 0 0.75em 2.5em;
   margin: 0;
 }
 
@@ -182,31 +183,24 @@ div.tabs {
   text-align: center;
 }
 
-a.tab {
-  background: white;
-  border: 1px solid #8CACBB;
-  color: #436976;
-  font: 110% Bold;
-  padding: 0em 1.5em;
-  margin: 0em 0.5em;
-  text-decoration: none;
-  white-space: nowrap;
+ul.heading {
+  font: 12px sans-serif;
+  display: inline;
+  padding: 0;
+  margin: 0;
 }
 
-a.tab#active {
-  background: #dee7ec;
-  border-bottom: #dee7ec 1px solid;
-}
-
-a.tab:hover {
-  background: #dee7ec;
+ul.heading li {
+  display: inline;
+  padding: 0;
+  margin: 4px 0.5em 0 0.5em;
 }
 
 div.tabBar {
   color: #436976;
   background: #dee7ec;
   padding: 0em 1.5em;
-  margin: 0em 0em 1.5em 0em;
+  margin: 0.5em 0em 1.5em 0em;
   border-top: 1px solid #8CACBB;
   border-bottom: 1px solid #8CACBB;
 }
@@ -411,32 +405,13 @@ form {
   border: 1px solid white;
   padding: 0.3em;
   width: 20em;
-  margin: 0.2em 4em 0 0;
-}
-
-#search.default-text {
-  color: #888;
+  margin: 4px 0 0 0;
 }
 
 #search-results {
   overflow: hidden;
   border-right: 1px solid #ccc;
   border-bottom: 1px solid #ddd;
-}
-
-#search-results .bd {
-  border: 1px solid #88f;
-  background: #eef;
-  padding: 2px;
-}
-
-#search-results a {
-  display: block;
-  color: #004;
-}
-
-#search-results a:hover {
-  background: #ccf;
 }
 
 /* The End */

@@ -104,28 +104,9 @@ img {
   width: 15em;
 }
 
-#search.default-text {
-  color: #888;
-}
-
 #search-results {
   font-size: 0.8em;
   overflow: hidden;
   border-right: 1px solid #ccc;
   border-bottom: 1px solid #ddd;
-}
-
-#search-results .bd {
-  border: 1px solid #88f;
-  background: #eef;
-  padding: 2px;
-}
-
-#search-results a {
-  display: block;
-  color: #004;
-}
-
-#search-results a:hover {
-  background: #ccf;
 }
