@@ -13,7 +13,7 @@
 }
 
 #search-results div.search-heading {
-  background: #aaa;
+  background: #ccc;
   color: white;
   font-size: 0.8em;
   font-weight: bold;
@@ -28,8 +28,13 @@
   margin: 1px 0;
 }
 
-#search-results a:hover {
-  background: #ccf;
+#search-results a.search-exact-match {
+  font-weight: bold;
+}
+
+#search-results a.search-selected {
+  background: #888;
+  color: white;
 }
 
 #search-results div.search-icon {
