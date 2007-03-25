@@ -6,13 +6,45 @@
   border: 1px solid #88f;
   background: #eef;
   padding: 2px;
+
+  font-size: 12px;   /* Sized according to icon */
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+#search-results div.search-heading {
+  background: #aaa;
+  color: white;
+  font-size: 0.8em;
+  font-weight: bold;
+  margin: 1px 0;
+  padding: 1px;
 }
 
 #search-results a {
   display: block;
   color: #004;
+  height: 16px;   /* Sized according to icon */
+  margin: 1px 0;
 }
 
 #search-results a:hover {
   background: #ccf;
+}
+
+#search-results div.search-icon {
+  /* Must match CIASearch.iconSize */
+  width: 16px;
+  height: 16px;
+
+  margin: 0 2px 0 0;
+  position: relative;
+
+  float: left;
+}
+
+#search-results div.search-icon img {
+  /* Our Javascript code centers this in div.icon */
+  position: absolute;
+  border: none;
 }

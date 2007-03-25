@@ -103,10 +103,3 @@ img {
   padding: 0.3em;
   width: 15em;
 }
-
-#search-results {
-  font-size: 0.8em;
-  overflow: hidden;
-  border-right: 1px solid #ccc;
-  border-bottom: 1px solid #ddd;
-}

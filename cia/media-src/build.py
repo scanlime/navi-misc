@@ -9,6 +9,8 @@ from lib import *
 os.chdir('media-src')
 DEST = '../media/'
 
+jsmin = str
+
 for single_css in [
     'login', 'account', 'tabtastic',
     'doc', 'image-upload', 'stats',

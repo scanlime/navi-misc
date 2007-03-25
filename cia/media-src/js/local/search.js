@@ -4,7 +4,16 @@
 
 var CIASearch = {}
 
-CIASearch.editTimeout = 1000.0;
+CIASearch.editTimeout = 100.0;
+
+CIASearch.iconSize = 16;
+
+CIASearch.sectionInfo = {
+    'projects': { heading: 'Projects:',     priority: 3 },
+    'authors':  { heading: 'Authors:',      priority: 2 },
+    'stats':    { heading: 'Other stats:',  priority: 1 }
+};
+
 
 CIASearch.toggleDefaultText = function(enable)
 {
@@ -29,9 +38,18 @@ CIASearch.toggleResults = function(enable)
 	    context: [this.fieldId, 'tl', 'bl'],
 	    width: "25em",
 	    visible: true,
-	    constraintoviewport: true,
+	    zIndex: 10,
+
 	    effect: { effect: YAHOO.widget.ContainerEffect.FADE,
 		      duration:0.25 },
+
+	    /*
+	     * Currently disabled: this can come in handy if the search
+	     * box is flowing off the right edge of the page, but it
+	     * can cause problems if the result set is long and it ends
+	     * up flowing off the *bottom* of the page.
+	     */
+	    // constraintoviewport: true,
 
 	    /*
 	     * The resize monitor doesn't seem to work right, and
@@ -125,7 +143,7 @@ CIASearch.sendQuery = function()
 	self.resultsQuery = query;
 	try {
 	    var obj = parseJSON(req.responseText);
-	    self.displayResults(obj.results);
+	    self.displayResults(obj.results, query);
 	}
 	catch (e) {
 	    self.results.setBody("Internal error (" + e + ")");
@@ -144,27 +162,135 @@ CIASearch.sendQuery = function()
 	timeout: 5000
     };
 
-    self.request = YAHOO.util.Connect.asyncRequest('GET', this.url + escape(query), callback)
+    /*
+     * Must use encodeURIComponent() instead of escape().  escape()
+     * will try to encode text in latin-1 (or some other unspecified
+     * character set?) and it will emit %u1234-style escapes for other
+     * Unicode characters.  encodeURIComponent() generates UTF-8
+     * url-encoded text, which is exactly what we want.
+     */
+    var q = encodeURIComponent(query);
+
+    self.request = YAHOO.util.Connect.asyncRequest('GET', this.url + q, callback)
 }
 
-CIASearch.displayResults = function(results)
+CIASearch.displayResults = function(results, query)
 {
     if (!results.length) {
 	this.results.setBody("No results");
 	return;
     }
 
-    /*
-     * First, check whether there is a single exact match
-     */
-
+    var lcQuery = query.toLowerCase();
     var list = document.createElement('div');
+    var numExact = 0;
+
+    /* Divide the results up by section, and look for exact matches */
+    var sectionMap = {};
+    var sectionList = []
     for (var i in results) {
 	var result = results[i];
-	var item = document.createElement('a');
-	item.href = result.url;
-	item.innerHTML = htmlEscape(result.title);
-	list.appendChild(item);
+
+	var section = sectionMap[result.section];
+	if (!section) {
+	    section = sectionMap[result.section] = {
+		results: [],
+		name: result.section,
+	        hasExactMatch: false,
+		hasPrefixMatch: false,
+		info: this.sectionInfo[result.section]
+	    };
+	    sectionList.push(section);
+	}
+
+	var lcTitle = result.title.toLowerCase();
+
+	if (lcTitle == lcQuery) {
+	    result.isExactMatch = true;
+	    result.isPrefixMatch = true;
+	    section.hasExactMatch = true;
+	    numExact += 1;
+	} else {
+	    result.isExactMatch = false;
+	    if (lcTitle.indexOf(lcQuery) == 0) {
+		result.isPrefixMatch = true;
+		section.hasPrefixMatch = true;
+	    } else {
+		result.isPrefixMatch = false;
+	    }
+	}
+
+	section.results.push(result);
+    }
+
+    sectionList.sort(function(a, b) {
+	if (a.hasExactMatch != b.hasExactMatch) {
+	    return b.hasExactMatch - a.hasExactMatch;
+	}
+	if (a.hasPrefixMatch != b.hasPrefixMatch) {
+	    return b.hasPrefixMatch - a.hasPrefixMatch;
+	}
+	return b.info.priority - a.info.priority;
+    });
+
+    /* For each section with results... */
+    for (var i in sectionList) {
+	var section = sectionList[i];
+
+	/* Section heading */
+	var heading = document.createElement('div');
+	YAHOO.util.Dom.addClass(heading, 'search-heading');
+	heading.innerHTML = section.info.heading;
+	list.appendChild(heading);
+
+	section.results.sort(function(a, b) {
+	    if (a.isExactMatch != b.isExactMatch) {
+		return b.isExactMatch - a.isExactMatch;
+	    }
+	    if (a.isPrefixMatch != b.isPrefixMatch) {
+		return b.isPrefixMatch - a.isPrefixMatch;
+	    }
+	    if (a.title < b.title) {
+		return -1;
+	    }
+	    if (a.title > b.title) {
+		return 1;
+	    }
+	    return 0;
+	});
+
+	for (var j in section.results) {
+	    var result = section.results[j];
+
+	    /* Each result row is an <a> element */
+	    var item = document.createElement('a');
+	    item.href = result.url;
+	    list.appendChild(item);
+
+	    /* Reserve some space equal to our maximum icon size */
+	    var iconBox = document.createElement('div');
+	    YAHOO.util.Dom.addClass(iconBox, 'search-icon');
+	    item.appendChild(iconBox);
+
+	    if (result.icon) {
+		/* Center the icon in iconBox */
+		var icon = document.createElement('img');
+		icon.src = result.icon.url;
+		icon.style.width = result.icon.width + 'px';
+		icon.style.height = result.icon.height + 'px';
+		icon.style.left = (this.iconSize - result.icon.width) / 2 + 'px';
+		icon.style.top = (this.iconSize - result.icon.height) / 2 + 'px';
+		iconBox.appendChild(icon);
+	    }
+
+	    var title = document.createElement('span');
+	    if (result.isExactMatch && numExact == 1) {
+		title.innerHTML = "<strong>" + htmlEscape(result.title) + "</strong>";
+	    } else {
+		title.innerHTML = htmlEscape(result.title);
+	    }
+	    item.appendChild(title);
+	}
     }
 
     this.results.setBody(list);
@@ -172,7 +298,7 @@ CIASearch.displayResults = function(results)
 
 CIASearch.init = function(url, fieldId, defaultText)
 {
-    this.url = url;
+    this.url = url + '?ico=' + this.iconSize + '&q=';
 
     this.fieldId = fieldId;
     this.field = document.getElementById(fieldId);
