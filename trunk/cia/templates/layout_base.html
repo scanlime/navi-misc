@@ -7,7 +7,9 @@
     <link href="/media/css/base.css" type="text/css" rel="stylesheet" />
   {% endblock %}
   {% block feeds %}{% endblock %}
-  {% block scripts %}{% endblock %}
+  {% block scripts %}
+     <script type="text/javascript" src="/media/js/base.js" ></script>
+  {% endblock %}
 {% endblock %}
 
 {% block body %}
@@ -17,6 +19,8 @@
   <span class="title">{% block head_title %}{% endblock %}</span>
   
   <ul>
+    <li><input type="text" id="search" /></li>
+
     {% if user.is_authenticated %}
       <li>&bull; Welcome, {{ user.get_full_name|escape }}.</li>
     {% else %}
@@ -46,7 +50,9 @@
 </div>
 
 <script type="text/javascript">
-{% block scripts-init %}{% endblock %}
+{% block scripts-init %}
+  CIASearch.init("/api/search/html/{% block search-args %}{% endblock %}", "search", "Search {{ site.name }}");
+{% endblock %}
 </script>
 
 {% if GOOGLE_ANALYTICS_ACCOUNT %}
