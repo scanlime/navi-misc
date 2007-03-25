@@ -146,8 +146,12 @@ class Worldforge(BaseNetwork):
 class IRCNet(BaseNetwork):
     alias = 'ircnet'
     servers = (
-        ('irc.osanet.cz', None),
+        #('irc.osanet.cz', None),
         #('irc.felk.cvut.cz', 6666),
+
+	# Bert Hubert claims either of these should be fine
+	('us.ircnet.org', None),
+	('irc.choopa.net', None),
         )
 
 _aliasCache = None
