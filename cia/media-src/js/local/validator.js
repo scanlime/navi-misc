@@ -104,7 +104,7 @@ Validator.updateData = function()
 	if (obj.is_valid) {
 	    self.show(self.validMessage);
 	} else {
-	    self.show(obj.messages[0].replace(/&/g, '&amp;').replace(/</g, '&lt;'), true);
+	    self.show(htmlEscape(obj.messages[0]), true);
 	}
     }
 

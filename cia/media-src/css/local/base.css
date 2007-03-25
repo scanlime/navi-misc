@@ -94,3 +94,29 @@ img {
   padding: 0;
   margin: 0em 0em 0em 0.75em;
 }
+
+#search {
+  display: none;  /* Search requires Javascript currently */
+
+  background: #f0f0f0;
+  border: 1px solid white;
+  padding: 0.3em;
+  width: 15em;
+}
+
+#search.default-text {
+  color: #888;
+}
+
+#search-results {
+  font-size: 0.8em;
+  overflow: hidden;
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ddd;
+}
+
+#search-results .bd {
+  border: 1px solid #88f;
+  background: #eef;
+  padding: 2px;
+}
