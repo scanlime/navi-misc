@@ -408,10 +408,4 @@ form {
   margin: 4px 0 0 0;
 }
 
-#search-results {
-  overflow: hidden;
-  border-right: 1px solid #ccc;
-  border-bottom: 1px solid #ddd;
-}
-
 /* The End */

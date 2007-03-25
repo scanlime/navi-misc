@@ -341,7 +341,7 @@ class Page(Nouvelle.Twisted.Page):
                 ],
 
                 xml('<script type="text/javascript">'
-                    'CIASearch.init("/api/search/?q=", "search", "Search CIA.vc");'
+                    'CIASearch.init("/api/search/", "search", "Search CIA.vc");'
                     '</script>'),
             ],
         ],
