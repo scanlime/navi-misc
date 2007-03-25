@@ -135,14 +135,12 @@ class OverviewPage(Template.Page):
        include its own sidebar- it will copy the sidebar from a given page.
        """
 
-    pageHeading = [
-        tag('div', _class="heading")[
-            tag('img', _class='banner', src='/media/img/banner-70-nb.png', width=329, height=52,
-                alt='CIA.vc: The open source version control informant.'),
-            tag('div', _class="tabs")[ place("tabs") ],
-            tag('div', _class="tabBar")[ place("breadcrumbs") ],
-        ],
+    titleElements = [
+        tag('img', _class='banner', src='/media/img/banner-70-nb.png', width=329, height=52,
+            alt='CIA.vc: The open source version control informant.'),
     ]
+
+    logoElements = []
 
     heading = Template.pageBody[
         "This is a brief overview of the information collected recently. ",

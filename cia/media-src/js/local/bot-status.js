@@ -168,7 +168,7 @@ BotStatus.updateData = function()
     
     var responseSuccess = function(req) {
 	self.div_loading.style.display = "none";
-	self.showBotStatus(req.responseText.parseJSON());
+	self.showBotStatus(parseJSON(req.responseText));
     }
     
     var responseFailure = function(req) {

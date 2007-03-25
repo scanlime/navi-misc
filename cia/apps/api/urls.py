@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import *
-from cia.apps.api import bots, validator
+from cia.apps.api import bots, validator, search
 
 # IRC Network names are like hostnames. They can be fully-qualified
 # domain names, or they can be special local "hostnames" that refer to
@@ -21,4 +21,5 @@ urlpatterns = patterns('',
     (r'^irc-message-log/recent/$', bots.message_log),
     (r'^irc-stats/totals/$', bots.totals),
     (r'^validators/ruleset/$', validator.ruleset),
+    (r'^search/$', search.search),
 )
