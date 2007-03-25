@@ -1,0 +1,18 @@
+#search.default-text {
+  color: #888;
+}
+
+#search-results .bd {
+  border: 1px solid #88f;
+  background: #eef;
+  padding: 2px;
+}
+
+#search-results a {
+  display: block;
+  color: #004;
+}
+
+#search-results a:hover {
+  background: #ccf;
+}

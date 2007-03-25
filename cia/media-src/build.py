@@ -9,14 +9,22 @@ from lib import *
 os.chdir('media-src')
 DEST = '../media/'
 
-# All of our CSS files so far have single individual sources
 for single_css in [
-    'base', 'login', 'account',
-    'tabtastic', 'doc', 'image-upload',
-    'stats',
+    'login', 'account', 'tabtastic',
+    'doc', 'image-upload', 'stats',
     ]:
     merge('%scss/%s.css' % (DEST, single_css), [
     'css/local/%s.css' % single_css,
+    ], csspp)
+
+merge(DEST + 'css/base.css', [
+    'css/local/base.css',
+    'css/local/search-results.css',
+    ], csspp)
+
+merge(DEST + 'css/old-site.css', [
+    'css/local/old-site.css',
+    'css/local/search-results.css',
     ], csspp)
 
 merge(DEST + 'js/base.js', [
@@ -31,7 +39,7 @@ merge(DEST + 'js/base.js', [
     'js/local/on-text-changed.js',
     'js/local/html.js',
     'js/local/search.js'
-    ], str)#jsmin)
+    ], jsmin)
 
 merge(DEST + 'js/asset-edit.js', [
     'js/tabtastic-1.0.4/addclasskillclass.js',

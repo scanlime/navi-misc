@@ -295,7 +295,7 @@ class Page(Nouvelle.Twisted.Page):
                 tag('title')[ place("pageTitle") ],
                 place('baseTag'),
 		xml('<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />'),
-                tag('link', rel='stylesheet', href='/default.css', type='text/css'),
+                tag('link', rel='stylesheet', href='/media/css/old-site.css', type='text/css'),
                 tag('link', rel='shortcut icon', href='/favicon.ico', type='image/png'),
                 tag('script', type='text/javascript', src='/media/js/base.js')[ " " ],
                 place('extraHeaders'),
@@ -305,12 +305,12 @@ class Page(Nouvelle.Twisted.Page):
                 tag('div', _class="heading")[
                     tag('div', _class="topRight")[
                         tag('input', type='text', id='search'),
+                        place("tabs"),
                         place('logoElements'),
                     ],
                     tag('div', _class="topLeft")[
                         place('titleElements'),
                     ],
-                    tag('div', _class="tabs")[ place("tabs") ],
                     tag('div', _class="tabBar")[ place("breadcrumbs") ],
                 ],
 
@@ -437,22 +437,12 @@ class Page(Nouvelle.Twisted.Page):
         tabs = []
         for component in context['request'].site.components:
             if component.name:
+                tabs.append(tag('li')[
+                    xml('&raquo; '),
+                    tag('a', href=component.url)[ component.name ],
+                ])
 
-                # Allow the component to decide if it owns the current page
-                if self in component:
-                    id = 'active'
-                else:
-                    id = None
-
-                # Some spacing between tabs. With CSS this won't have any effect,
-                # but in non-CSS browsers it keeps the tabs from all appearing
-                # as one squished together link.
-                if tabs:
-                    tabs.append(xml(" "))
-
-                tabs.append(tag('a', _class='tab', id=id, href=component.url)[ component.name ])
-
-        return tabs
+        return tag('ul', _class='heading')[ tabs ]
 
     def getURL(self, context):
         """Retrieve a URL suitable for linking to this page."""
