@@ -125,7 +125,6 @@ CIASearch.updateQuery = function()
 	}
 
     } else {
-	this.cancel();
 	this.toggleResults(false);
     }
 }
