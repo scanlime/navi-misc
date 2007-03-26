@@ -4,7 +4,7 @@
 
 var CIASearch = {}
 
-CIASearch.editTimeout = 1000.0;
+CIASearch.editTimeout = 250.0;
 
 CIASearch.iconSize = 16;
 
@@ -182,19 +182,21 @@ CIASearch.setCurrentSelection = function(selection)
 {
     var cls = 'search-selected';
 
-    if (selection < 0) {
-	selection = 0;
-    }
-    if (selection >= this.selectionList.length) {
-	selection = this.selectionList.length - 1;
-    }
+    if (this.selectionList && this.selectionList.length) {
+        if (selection < 0) {
+            selection = 0;
+        }
+        if (selection >= this.selectionList.length) {
+            selection = this.selectionList.length - 1;
+        }
 
-    if (this.currentSelection != null) {
-	YAHOO.util.Dom.removeClass(this.selectionList[this.currentSelection], cls);
-    }
+        if (this.currentSelection != null) {
+            YAHOO.util.Dom.removeClass(this.selectionList[this.currentSelection], cls);
+        }
 
-    YAHOO.util.Dom.addClass(this.selectionList[selection], cls);
-    this.currentSelection = selection;
+        YAHOO.util.Dom.addClass(this.selectionList[selection], cls);
+        this.currentSelection = selection;
+    }
 }
 
 CIASearch.displayResults = function(results, query)
@@ -295,11 +297,13 @@ CIASearch.displayResults = function(results, query)
 	    var selectionIndex = this.selectionList.length;
 	    this.selectionList.push(item);
 
-	    YAHOO.util.Event.on(item, "mouseover", function(ev, ctx) {
-		ctx.this.setCurrentSelection(ctx.index);
-	    }, {
-		'this': this,
-		'index': selectionIndex,
+            var mouseOverHandler = function(ev, ctx) {
+		ctx.me.setCurrentSelection(ctx.index);
+            };
+
+	    YAHOO.util.Event.on(item, "mouseover", mouseOverHandler, {
+		'me': this,
+		'index': selectionIndex
 	    });
 
 	    if (result.isExactMatch && numExact == 1) {
@@ -404,9 +408,9 @@ CIASearch.onKeyPress = function(ev)
     switch (kc) {
 
     case 0x26: // up
-	if (this.selectionList && this.selectionList.length) {
+        if (this.currentSelection != null) {
 	    this.setCurrentSelection(this.currentSelection - 1);
-	}
+        }
 	Event.preventDefault(ev);
 	break;
 
@@ -420,9 +424,9 @@ CIASearch.onKeyPress = function(ev)
 	    this.sendQuery();
 	}
 
-	if (this.selectionList && this.selectionList.length) {
+        if (this.currentSelection != null) {
 	    this.setCurrentSelection(this.currentSelection + 1);
-	}
+        }
 	Event.preventDefault(ev);
 	break;
 
