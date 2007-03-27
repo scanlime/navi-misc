@@ -319,7 +319,7 @@ class LinksSection(Template.Section):
        action and a link name regex, separated by whitespace. The action can be "+" to add the
        link(s) or "-" to remove the link(s).
        """
-    title = 'links'
+    title = 'syndicate'
 
     availableLinkNames = [
         "RSSLink",
