@@ -154,6 +154,14 @@ class IRCNet(BaseNetwork):
 	('irc.choopa.net', None),
         )
 
+class EFNet(BaseNetwork):
+    alias = 'efnet'
+    servers = (
+        ('irc.desync.com', None),
+        ('efnet.xs4all.nl', None),
+        ('irc.mzima.net', None),
+        )
+
 _aliasCache = None
 _instCache = {}
 
