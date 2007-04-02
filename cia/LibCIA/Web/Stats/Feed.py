@@ -24,12 +24,14 @@ Pages for getting real-time message feeds in RSS and unformatted XML
 from twisted.internet import defer
 from twisted.protocols import http
 from twisted.web import resource, server
+from twisted.python import log
 from LibCIA import Message, Formatters, TimeUtil, XML, Database
 import Nouvelle
 import Nouvelle.Twisted
 from Nouvelle import tag, place, xml, quote
 from LibCIA.Web import Template
 import Link
+import sys, traceback
 
 
 class BaseFeed(Nouvelle.Twisted.Page):
@@ -151,7 +153,12 @@ class RSS2Feed(RSSFeed):
     def formatItems(self, messages, context):
         items = []
         for id, content in messages:
-            items.append(tag('item')[self.messageToItemContent(context, Message.Message(content), id)])
+            try:
+                items.append(tag('item')[self.messageToItemContent(context, Message.Message(content), id)])
+            except:
+                log.msg("Exception occurred in %s.formatItems\n%s" % (
+                    self.__class__.__name__,
+                    "".join(traceback.format_exception(*sys.exc_info()))))
         return items
 
     def messageToItemContent(self, context, m, id):
@@ -219,7 +226,12 @@ class RSS1Feed(RSSFeed):
 
         # Add <item>s for each message
         for id, messageContent in messages:
-            content.append(self.render_item(context, id, messageContent))
+            try:
+                content.append(self.render_item(context, id, messageContent))
+            except:
+                log.msg("Exception occurred in %s.formatItems\n%s" % (
+                    self.__class__.__name__, 
+                    "".join(traceback.format_exception(*sys.exc_info()))))
         return content
 
     def render_channel(self, context, messages):
