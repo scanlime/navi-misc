@@ -281,7 +281,7 @@ class XMLFeed(BaseFeed):
     def formatItem(self, content):
 	# Convert the root node, not the document- we don't want to
 	# be outputting another XML declaration inside our larger document.
-	return xml(XML.toString(content.childNodes[0]))
+	return xml(XML.toString(content.childNodes[0]).encode('utf8'))
 
     def render_metadata(self, context):
         # Look up all the metadata first

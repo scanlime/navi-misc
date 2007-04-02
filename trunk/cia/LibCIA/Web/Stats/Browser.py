@@ -240,10 +240,17 @@ class MessageDateColumn(Nouvelle.Column):
     heading = 'date'
 
     def getValue(self, message):
-        return XML.digValue(message.xml, int, "message", "timestamp")
+	try:
+            return XML.digValue(message.xml, int, "message", "timestamp")
+        except ValueError:
+            return None
 
     def render_data(self, context, message):
-        return TimeUtil.formatRelativeDate(self.getValue(message))
+        value = self.getValue(message)
+        if value:
+            return TimeUtil.formatRelativeDate(value)
+        else:
+            return Template.error[ "Invalid Date" ]
 
 
 class MessageProjectColumn(Nouvelle.Column):
