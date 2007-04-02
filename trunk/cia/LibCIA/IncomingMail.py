@@ -62,6 +62,12 @@ class IncomingMailParser:
        """
     def parseString(self, string):
         """Convert the given string to an email.Message, then parse it"""
+
+        # The 'email' module does not support Unicode objects! It will
+        # generate a garbage message if we pass it in.
+        if type(string) is unicode:
+            string = string.encode('utf8')
+ 
         return self.parse(email.message_from_string(string))
 
     def parse(self, message):
@@ -157,6 +163,7 @@ class IncomingMailParser:
 
     def command_DeliverXML(self):
         """Deliver a message already formatted in XML"""
+        # Note that parseString will convert UTF8 to Unicode for us.
         return XML.parseString(self.message.get_payload())
 
 
