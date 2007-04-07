@@ -42,10 +42,12 @@
 
   <p>
     {{ form.comment.as_textarea }}
+    <div class="error">{{ form.errors.token.0 }}</div>
   </p>
 
   <p>
     {{ form.referrer.as_hidden }}
+    {{ form.token.as_hidden }}
     <input class="submit" type="submit" value="Send Feedback" />
   </p>
 

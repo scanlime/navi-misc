@@ -2,12 +2,12 @@ from django import newforms as forms
 from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.models import User
-from django.contrib.sessions.models import Session
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
-from cia.apps.mailutil import send_mail_to_user
 from django.template import loader
 from django.template.context import RequestContext, Context
+from cia.apps.mailutil import send_mail_to_user
+from cia.apps.token import TokenClass
 import datetime, urllib
 
 
@@ -98,6 +98,8 @@ def login(request, next_page, template_name="accounts/login.html"):
 #     Lost Password       #
 ###########################
 
+PasswordToken = TokenClass("account_recovery_session", expire_hours=12)
+
 def lost(request, next_page, recovery_page):
     error = None
     if request.POST:
@@ -105,50 +107,21 @@ def lost(request, next_page, recovery_page):
         if not user:
             error = "Incorrect username."
         if not error:
-            # Password recovery works via a special kind of session
-            # which is transmitted over e-mail, rather than via a
-            # cookie. Create a session which includes the username
-            # this request was generated for.
-
-            key = Session.objects.get_new_session_key()
-            expire_date = datetime.datetime.now() + datetime.timedelta(hours=12)
-            Session.objects.save(key, {
-                'account_recovery_session': True,
-                'username': user.username,
-                }, expire_date)
-            
             send_mail_to_user(user, "accounts/recovery_mail.txt",
                               request = request,
-                              recovery_path = recovery_page % key)
+                              recovery_path = recovery_page % PasswordToken.new({'username': user.username}))
             return render_to_response('accounts/recovery_mail_sent.html', RequestContext(request))
     return render_to_response('accounts/recovery_form.html', RequestContext(request, {'error': error}))
-
-def get_recovery_session(key):
-    """Get an account recovery session, with extra checks to make sure
-       it's the right type of session and it hasn't expired.
-       """
-    try:
-        session = Session.objects.get(session_key=key)
-    except Session.DoesNotExist:
-        return None
-
-    if session.expire_date < datetime.datetime.now():
-        return None
-
-    decoded = session.get_decoded()
-    if not decoded.get('account_recovery_session'):
-        return None
-    return decoded
 
 class ResetPasswordForm(forms.Form):
     password = forms.CharField(min_length=5, max_length=30)
     password2 = forms.CharField()
 
 def reset(request, key, next_page):
-    session = get_recovery_session(key)
-    if not session:
+    t = PasswordToken.get(key)
+    if not t:
         return render_to_response('accounts/recovery_key_error.html', RequestContext(request))
-    user = get_user(session.get('username'))
+    user = get_user(t.get('username'))
 
     if request.POST:
         form = ResetPasswordForm(request.POST)
@@ -167,7 +140,7 @@ def reset(request, key, next_page):
                 form.errors['submit'] = forms.util.ErrorList([loginError])
             else:
                 # We're in successfully. Expire the recovery session.
-                Session.objects.save(key, None, datetime.datetime.now())
+                PasswordToken.delete(key)
                 return HttpResponseRedirect(next_page)
     else:
         form = None
