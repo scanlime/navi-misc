@@ -53,17 +53,21 @@ The Development and Small Deployment VM
 To make this process a bit easier, you can now download a virtual machine
 image which contains a full Ubuntu Linux server with nearly all of CIA
 already installed and configured. This is a VMware_ virtual machine, so you'll
-need either the free `VMware Player`_ or another of their products.
+need either the free VMware Player, VMware Server, or another of their
+products.
 
- * `Download the CIA DSD VM, 2007-02-24 release`_ (407 MB)
+ * `Download the CIA DSD VM, 2007-04-07 release`_ (152 MB)
 
 .. _VMware: http://vmware.com
-.. _VMware Player: http://www.vmware.com/products/player/
-.. _Download the CIA DSD VM, 2007-02-24 release: http://releases.navi.cx/cia/cia-dsd-vm-20070224.tar.bz2
+.. _Download the CIA DSD VM, 2007-04-07 release: http://releases.navi.cx/cia/cia-dsd-vm-20070407.tar.bz2
 
 After booting, you can use SSH or the local console to log in with the
 username "cia" and password "changeme". A web server should automatically
-start on port 80.
+start on port 80. The VM will try to obtain an IP address via DHCP by
+default, so you'll need to log in and use "ifconfig" to see what IP it
+ended up with. You should be able to immediately connect to the CIA web
+interface, and either create a new user or log in with username "admin"
+and password "changeme".
 
 For secure deployment:
 
@@ -72,10 +76,11 @@ For secure deployment:
   3. Generate a new Django secret (~/.django_secret)
   4. Generate a new CIA capability key (~/.cia_key)
   5. Generate a new HTTPS certificate for Pound
+  6. Either deactivate the "admin" Django user or change its password
 
 Other things to change:
 
-  1. Set a publically-visible hostname in settings.py and bootstrap.sh
+  1. Set a publically-visible hostname in settings.py and bootstrap.sh, and in the django_site database table.
   2. Set up admin addresses in settings.py and /etc/aliases
 
 Known problems:
@@ -89,6 +94,4 @@ Known problems:
   3. E-mail support is not yet configured. You'll need to set up procmail
      correctly, then set up /etc/aliases, .forward, and .procmailrc using
      the templates in ~/cia/conf.
-  4. This was originally posted with the date **2006**-02-24. Honest
-     mistake ;)
 
