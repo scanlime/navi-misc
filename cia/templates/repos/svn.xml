@@ -25,7 +25,7 @@
         <log>{{ change.message|escape }}</log>
 
         {% if revision_url %}
-            <url>{{ revision_url }}</url>
+            <url>{{ revision_url|escape }}</url>
         {% endif %}
 
 	<files>
