@@ -24,7 +24,6 @@
 /************************************************** Local Definitions *********/
 /******************************************************************************/
 
-#include <linux/config.h>
 #include <linux/kernel.h>
 #include <linux/errno.h>
 #include <linux/init.h>
@@ -33,11 +32,12 @@
 #include <linux/input.h>
 #include <linux/smp_lock.h>
 #include <linux/completion.h>
-#include <asm/uaccess.h>
 #include <linux/usb.h>
-#include <rwand_dev.h>
+#include <asm/uaccess.h>
 
-#define DRIVER_VERSION "v0.1"
+#include "../include/rwand_dev.h"
+
+#define DRIVER_VERSION "v1.0"
 #define DRIVER_AUTHOR  "Micah Dowty <micah@navi.cx>"
 #define DRIVER_DESC    "Raster Wand driver"
 
@@ -175,8 +175,8 @@ static int     rwand_release     (struct inode *inode, struct file *file);
 static int     rwand_probe       (struct usb_interface *interface, const struct usb_device_id *id);
 static void    rwand_disconnect  (struct usb_interface *interface);
 
-static void    rwand_status_irq  (struct urb *urb, struct pt_regs *regs);
-static void    rwand_nb_irq      (struct urb *urb, struct pt_regs *regs);
+static void    rwand_status_irq  (struct urb *urb);
+static void    rwand_nb_irq      (struct urb *urb);
 
 static void    rwand_delete      (struct rwand_dev *dev);
 
@@ -208,7 +208,9 @@ static void    rwand_enter_state_running      (struct rwand_dev *dev);
 
 static void    rwand_ensure_mode       (struct rwand_dev *dev, struct rwand_status *new_status, int mode);
 
+#ifdef VERTICAL_FLIP
 static unsigned char reverse_bits      (unsigned char b);
+#endif
 
 static int     filter_push       (struct filter *filter, int new_value);
 static void    filter_reset      (struct filter *filter);
@@ -310,6 +312,7 @@ static void filter_reset(struct filter *filter)
 	filter->pointer = 0;
 }
 
+#ifdef VERTICAL_FLIP
 static unsigned char reverse_bits(unsigned char b)
 {
 	/* Developed by Sean Anderson in July 13, 2001.
@@ -317,6 +320,7 @@ static unsigned char reverse_bits(unsigned char b)
 	 */
 	return ((b * 0x0802LU & 0x22110LU) | (b * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
 }
+#endif
 
 
 /******************************************************************************/
@@ -467,7 +471,7 @@ static void rwand_ensure_mode(struct rwand_dev *dev, struct rwand_status *new_st
 }
 
 
-static void rwand_status_irq(struct urb *urb, struct pt_regs *regs)
+static void rwand_status_irq(struct urb *urb)
 {
 	/* Callback for processing incoming interrupt transfers from the IR receiver */
 	struct rwand_dev *dev = (struct rwand_dev*)urb->context;
@@ -492,7 +496,7 @@ static void rwand_status_irq(struct urb *urb, struct pt_regs *regs)
 	rwand_process_status(dev, dev->irq_data);
 
 	/* Resubmit the URB to get another interrupt transfer going */
-	usb_submit_urb(urb, SLAB_ATOMIC);
+	usb_submit_urb(urb, GFP_ATOMIC);
 }
 
 
@@ -500,7 +504,7 @@ static void rwand_status_irq(struct urb *urb, struct pt_regs *regs)
  * errors, but normally just frees the URB and goes on. Frees the
  * additional data in urb->context if not NULL.
  */
-static void rwand_nb_irq(struct urb *urb, struct pt_regs *regs)
+static void rwand_nb_irq(struct urb *urb)
 {
 	if (urb->status < 0)
 		err("Bad URB status/size: status=%d, length=%d", urb->status, urb->actual_length);
@@ -643,7 +647,7 @@ static void rwand_nb_request(struct rwand_dev *dev, unsigned short request,
 	dr->wIndex = cpu_to_le16p(&wIndex);
 	dr->wLength = 0;
 
-	urb = usb_alloc_urb(0, SLAB_ATOMIC);
+	urb = usb_alloc_urb(0, GFP_ATOMIC);
 	if (!urb) {
 		kfree(dr);
 		err("Out of memory in rwand_nb_request");
@@ -654,7 +658,7 @@ static void rwand_nb_request(struct rwand_dev *dev, unsigned short request,
 			     (unsigned char*)dr, NULL, 0,
 			     rwand_nb_irq, dr);
 
-	retval = usb_submit_urb(urb, SLAB_ATOMIC);
+	retval = usb_submit_urb(urb, GFP_ATOMIC);
 	if (retval) {
 		dbg("Error in rwand_nb_request, retval=%d", retval);
 	}
@@ -1140,7 +1144,7 @@ static int rwand_probe(struct usb_interface *interface, const struct usb_device_
 	dev->status_request.bRequestType = USB_TYPE_VENDOR;
 	dev->status_request.bRequest = RWAND_CTRL_READ_STATUS;
 
-	dev->irq_data = usb_buffer_alloc(udev, STATUS_PACKET_SIZE, SLAB_ATOMIC, &dev->irq_dma);
+	dev->irq_data = usb_buffer_alloc(udev, STATUS_PACKET_SIZE, GFP_ATOMIC, &dev->irq_dma);
 	if (!dev->irq_data) {
 		retval = -ENOMEM;
 		goto error;
