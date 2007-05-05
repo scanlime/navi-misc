@@ -76,7 +76,7 @@ void *refresh_thread(void *foo) {
 static void plugin_init(void) {
   struct rwand_settings s;
 
-  fd = open("/dev/usb/rwand0", O_WRONLY);
+  fd = open("/dev/rwand0", O_WRONLY);
   if (fd < 0) {
     perror("open");
     return;
