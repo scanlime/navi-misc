@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, socket
+import os, sys, socket
 
 font = {
     'a': '\x18$$<',
@@ -99,15 +99,27 @@ font = {
     '9': '\x04**\x1c',
 }
 
-def send_text(text, min_width=50):
-    packet = '\0'.join([font.get(c, '') for c in text])
-
-    if min_width and min_width > len(packet):
-        packet = packet.center(min_width, '\0')
-
+def send_frame(frame):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.sendto(packet, ("micah-lx", 12345))
+    s.sendto(frame, (os.getenv("RWD"), 12345))
+    
+def scroll_frame(frame):
+    for shift in range(8, -1, -1):
+        for reps in range(3):
+            send_frame(''.join([chr((ord(c) >> shift) & 0xFF) for c in frame]))
+
+def send_text(text, min_width=50):
+    frame = '\0'.join([font.get(c, '') for c in text])
+
+    if min_width and min_width > len(frame):
+        frame = frame.center(min_width, '\0')
+
+    scroll_frame(frame)
 
 if __name__ == "__main__":
-    send_text(' '.join(sys.argv[1:]))
-
+    while True:
+        line = sys.stdin.readline()
+        if line:
+            send_text(line.strip())
+        else:
+            break
