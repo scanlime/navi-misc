@@ -140,7 +140,7 @@ void particle_loop(int fd, int num_particles) {
 }
 
 int main() {
-    int fd = rwand_open("/dev/rwand0");
+    int fd = 1;
     rwand_init(fd);
     particle_loop(fd, 100);
     return 0;
