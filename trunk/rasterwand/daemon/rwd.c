@@ -2,22 +2,90 @@
  * Userspace Raster Wand driver
  *
  * This is a reimplementation of the rasterwand driver (rwand.ko) as a
- * userspace daemon. It automatically scans the USB bus for a rwand
- * device, identifies its version, and maintains a connection to that
- * device. It should support most of the features of the kernelspace
- * driver.
+ * userspace daemon. It attaches to an rwand device specified on the
+ * command line, identifies its version, and runs the state machine
+ * and filters required to keep the device running.
  *
- * This process accepts video frames on stdin, and writes button updates
- * (one update per line, whitespace-separated button tokens) to stdout.
+ * In the event of an error, including device disconnection, this
+ * process will exit. It's the caller's responsibility to re-scan for
+ * new rasterwand devices and start a new instance of this process.
  *
- * No support for tweaking timing parameters at runtime yet.
+ * --------------------------------------------------------------------
+ *
+ * This process uses a simple line-based protocol on both stdin and
+ * stdout. Each line is a sequence of space-separated tokens ending
+ * in a newline. The first token identifies the command type.
+ *
+ * Commands received on stdin:
+ *
+ *   frame <data>
+ *
+ *      Set the contents of the framebuffer. This overwrites the
+ *      existing framebuffer completely, and sets the display width if
+ *      necessary. Framebuffer data is specified as a hexadecimal
+ *      string, 2 ASCII bytes per framebuffer byte.
+ *
+ *      This command triggers a page flip. The controlling process
+ *      should not send another frame until the 'frame_ack' command is
+ *      sent in response. If another frame is sent first, the device
+ *      could exhibit video tearing.
+ *
+ *   setting <setting> <value>
+ *
+ *      Change a setting, by name, to the specified integer value.
+ *      Unknown settings are silently ignored. Supported settings:
+ *
+ *      display_center, display_width, coil_center, coil_width,
+ *      duty_cycle, fine_adjust
+ *
+ *   power 1|0
+ *
+ *      Turn the device on or off.
+ *
+ * Responses sent via stdout:
+ *
+ *   frame_ack
+ *
+ *      The last 'frame' command is now visible on the device. We're
+ *      now ready to accept another frame. Note that this response
+ *      is actually sent any time the device completes a page flip,
+ *      so 'frame' commands sent while a page flip is already in
+ *      progress will not generate a corresponding frame_ack.
+ *
+ *   state <name>
+ *
+ *      The device's state machine switched states. Current state
+ *      names are:
+ *
+ *      off, starting, stabilizing, running
+ *
+ *   buttons [<button> <button>...]
+ *
+ *      The state of the device's buttons has changed. This response
+ *      includes a list of the zero or more buttons that are currently
+ *      down. Button names are:
+ *
+ *      power, left, right, up, down, select
+ *
+ *   setting <setting> <value>
+ *
+ *      This reports the current value of a setting. One such command
+ *      is sent at power-on for every supported setting, in order to
+ *      report the default values for the detected rasterwand model.
+ *
+ *   model <name>
+ *
+ *      Reports the model name of a rasterwand we've successfully
+ *      identified.
+ *
+ * --------------------------------------------------------------------
  *
  * Copyright(c) 2004-2007 Micah Dowty <micah@picogui.org>
  *
- *	This program is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  */
 
 #include <stdio.h>
@@ -29,6 +97,7 @@
 #include <time.h>
 #include <string.h>
 #include <endian.h>
+#include <errno.h>
 #include <linux/usbdevice_fs.h>
 #include <rwand_protocol.h>
 
@@ -83,35 +152,38 @@ struct rwand_startup {
     int  starting_edges;        /* Number of edges to successfully exit startup */
 };
 
-struct rwand_settings {
-    int display_center;         /* The center of the display. 0 is full left,
+union rwand_settings {
+    struct {
+	int display_center;     /* The center of the display. 0 is full left,
 				 * 0xFFFF is full right.
 				 */
-    int display_width;          /* The total width of the display, from 0 (nothing)
+	int display_width;      /* The total width of the display, from 0 (nothing)
 				 * to 0xFFFF (the entire wand sweep)
 				 */
-    int coil_center;            /* The center of the coil pulse. 0 is full left,
+	int coil_center;        /* The center of the coil pulse. 0 is full left,
 				 * 0x4000 is the center on the left-right pass,
 				 * 0x8000 is full-right, 0xC000 is center on the
 				 * right-left pass, and 0xFFFF is full left again.
 				 */
-    int coil_width;             /* The width of the coil pulse, from 0 (nothing) to
+	int coil_width;         /* The width of the coil pulse, from 0 (nothing) to
 				 * 0xFFFF (the entire period)
 				 */
-    int duty_cycle;             /* The ratio of pixels to gaps. 0xFFFF has no gap,
+	int duty_cycle;         /* The ratio of pixels to gaps. 0xFFFF has no gap,
 				 * 0x0000 is all gap and no pixel.
 				 */
-    int fine_adjust;            /* Fine tuning for the front/back alignment */
-    int num_columns;            /* The number of columns actually being displayed.
+	int fine_adjust;        /* Fine tuning for the front/back alignment */
+	int num_columns;        /* The number of columns actually being displayed.
 				 * This is set automatically on write().
 				 */
+    } s;
+    int items[1];
 };
 
 /* Settings peculiar to each model of rasterwand clock */
 struct model_intrinsics {
     int model;
     const char *name;
-    struct rwand_settings settings;
+    union rwand_settings settings;
     struct rwand_startup startup;
 };
 
@@ -164,7 +236,7 @@ static struct {
     struct timeval state_timer;
     struct async_urb last_status_urb;
     struct filter filter;
-    struct rwand_settings settings;
+    union rwand_settings settings;
     struct model_intrinsics *intrinsics;
 } device;
 
@@ -173,18 +245,31 @@ static struct {
 /******************************************************** Data Tables *********/
 /******************************************************************************/
 
+/* These must be in the same order as the items in rwand_settings */
+static const char *setting_names_table[] = {
+    "display_center",
+    "display_width",
+    "coil_center",
+    "coil_width",
+    "duty_cycle",
+    "fine_adjust",
+    NULL,
+};
+
 static struct model_intrinsics model_table[] = {
     {
 	.model          = 1,
-	.name           = "Original Ravinia",
+	.name           = "ravinia",
 	.settings       = {
-	    .display_center = 0x8000,
-	    .display_width  = 0x7C00,
-	    .coil_center    = 0x4000,
-	    .coil_width     = 0x7000,
-	    .duty_cycle     = 0xA000,
-	    .fine_adjust    = -185,
-	    .num_columns    = 80,
+	    .s          = {
+		.display_center = 0x8000,
+		.display_width  = 0x7C00,
+		.coil_center    = 0x4000,
+		.coil_width     = 0x7000,
+		.duty_cycle     = 0xA000,
+		.fine_adjust    = -185,
+		.num_columns    = 80,
+	    },
 	},
 	.startup        = {
 	    .min_period     = 45000,
@@ -195,15 +280,17 @@ static struct model_intrinsics model_table[] = {
     },
     {
 	.model          = 2,
-	.name           = "Fascinations XP3",
+	.name           = "fascinations_xp3",
 	.settings       = {
-	    .display_center = 0x8000,
-	    .display_width  = 0x7C00,
-	    .coil_center    = 0x4000,
-	    .coil_width     = 0x7000,
-	    .duty_cycle     = 0xA000,
-	    .fine_adjust    = -80,
-	    .num_columns    = 80,
+	    .s          = {
+		.display_center = 0x8000,
+		.display_width  = 0x7C00,
+		.coil_center    = 0x4000,
+		.coil_width     = 0x6400,
+		.duty_cycle     = 0xA000,
+		.fine_adjust    = -80,
+		.num_columns    = 80,
+	    },
 	},
 	.startup        = {
 	    .min_period     = 42316,
@@ -261,6 +348,7 @@ async_urb_submit(struct async_urb *async)
 {
     if (ioctl(device.fd, USBDEVFS_SUBMITURB, async) < 0) {
 	perror("USBDEVFS_SUBMITURB");
+	exit(1);
     }
 }
 
@@ -337,6 +425,7 @@ rwand_read_byte(unsigned short request, unsigned short wValue, unsigned short wI
 
     if (ioctl(device.fd, USBDEVFS_CONTROL, &xfer) < 0) {
 	perror("USBDEVFS_CONTROL");
+	exit(1);
     }
 
     return byte;
@@ -354,7 +443,7 @@ rwand_set_modes(int modes)
 
 /* Calculate all the fun little timing parameters needed by the hardware */
 static void
-rwand_calc_timings(struct rwand_settings *settings,
+rwand_calc_timings(union rwand_settings *settings,
 		   int period,
                    struct rwand_timings *timings)
 {
@@ -364,35 +453,35 @@ rwand_calc_timings(struct rwand_settings *settings,
      * multiplied by our predictor's current period. This is fixed
      * point math with 16 digits to the right of the binary point.
      */
-    timings->coil_begin = (period * (settings->coil_center -
-				     settings->coil_width/2)) >> 16;
-    timings->coil_end   = (period * (settings->coil_center +
-				     settings->coil_width/2)) >> 16;
+    timings->coil_begin = (period * (settings->s.coil_center -
+				     settings->s.coil_width/2)) >> 16;
+    timings->coil_end   = (period * (settings->s.coil_center +
+				     settings->s.coil_width/2)) >> 16;
 
-    if (settings->num_columns > 0) {
+    if (settings->s.num_columns > 0) {
 	/* Now calculate the display timings. We start out with the precise
 	 * width of our columns, so that the width of the whole display
 	 * can be calculated accurately.
 	 */
-	col_and_gap_width = (period / settings->num_columns *
-			     settings->display_width) >> 17;
-	timings->column_width = (col_and_gap_width * settings->duty_cycle) >> 16;
+	col_and_gap_width = (period / settings->s.num_columns *
+			     settings->s.display_width) >> 17;
+	timings->column_width = (col_and_gap_width * settings->s.duty_cycle) >> 16;
 	timings->gap_width = col_and_gap_width - timings->column_width;
 	total_width =
-	    (settings->num_columns) * timings->column_width +
-	    (settings->num_columns-1) * timings->gap_width;
+	    (settings->s.num_columns) * timings->column_width +
+	    (settings->s.num_columns-1) * timings->gap_width;
 
 
 	/* Now that we know the true width of the display, we can calculate the
 	 * two phase timings. These indicate when it starts the forward scan and the
 	 * backward scan, relative to the left position. The alignment between
 	 * the forward and backward scans should be calculated correctly, but it
-	 * can be tweaked using settings->fine_adjust. This value is set per-model
+	 * can be tweaked using settings->s.fine_adjust. This value is set per-model
 	 * to account for latency in the interruption sensor and LED drive hardware.
 	 */
-	timings->fwd_phase = ((period * settings->display_center) >> 17) - total_width/2;
+	timings->fwd_phase = ((period * settings->s.display_center) >> 17) - total_width/2;
 	timings->rev_phase = period - timings->fwd_phase -
-	    total_width + settings->fine_adjust;
+	    total_width + settings->s.fine_adjust;
     }
     else {
 	/* We can't calculate timings for a zero-width display without dividing by
@@ -412,8 +501,8 @@ rwand_calc_timings(struct rwand_settings *settings,
 static void
 rwand_write_frame(unsigned char *data, int width)
 {
-    if (width != device.settings.num_columns) {
-	device.settings.num_columns = width;
+    if (width != device.settings.s.num_columns) {
+	device.settings.s.num_columns = width;
 	device.settings_dirty = 1;
     }
 
@@ -577,7 +666,7 @@ rwand_update_state_running(struct async_urb *status_urb)
 	control_write_async(RWAND_CTRL_SET_DISPLAY_PHASE,
 			    timings.fwd_phase, timings.rev_phase, 0, NULL);
 	control_write_async(RWAND_CTRL_SET_NUM_COLUMNS,
-			    device.settings.num_columns, 0, 0, NULL);
+			    device.settings.s.num_columns, 0, 0, NULL);
     }
 }
 
@@ -587,6 +676,97 @@ rwand_update_state_running(struct async_urb *status_urb)
 /******************************************************************************/
 
 /*
+ * Convert a hex digit to an integer. Returns 0 if the character is
+ * not a valid hex digit.
+ */
+int
+hexdigit_to_int(char digit)
+{
+    if (digit >= '0' && digit <= '9') {
+	return digit - '0';
+    }
+    if (digit >= 'a' && digit <= 'f') {
+	return digit - 'a' + 10;
+    }
+    if (digit >= 'A' && digit <= 'F') {
+	return digit - 'A' + 10;
+    }
+    return 0;
+}
+
+/*
+ * Convert a NUL-terminated hexadecimal string to binary, in-place.
+ * Returns the length of the converted data.
+ *
+ * Every input byte is converted to an output nybble, no matter what.
+ * Whitespace is not ignored. Characters that aren't valid hex digits
+ * are treated as zero. This includes the NUL terminator, in the case
+ * that the input string is an odd number of characters long.
+ */
+size_t
+hex_to_bin_inplace(unsigned char *data)
+{
+    unsigned char *in = data, *out = data;
+
+    while (*in) {
+	*out = (hexdigit_to_int(in[0]) << 4) | hexdigit_to_int(in[1]);
+	out++;
+	if (!in[1]) {
+	    break;
+	}
+	in += 2;
+    }
+    
+    return out - data;
+}
+
+
+/*
+ * Process a complete line received over stdin. (Not including the newline
+ * character itself). Bogus commands are ignored.
+ */
+void
+handle_command(char *line)
+{
+    const char *delim = " \t";
+    char *sptr;
+    char *command = strtok_r(line, delim, &sptr);
+    if (!command)
+	return;
+
+    if (strcmp(command, "frame") == 0) {
+	unsigned char *data = (unsigned char *) strtok_r(NULL, delim, &sptr);
+	rwand_write_frame(data, hex_to_bin_inplace(data));
+	return;
+    }
+
+    if (strcmp(command, "setting") == 0) {
+	char *name = strtok_r(NULL, delim, &sptr);
+	char *value = strtok_r(NULL, delim, &sptr);
+	if (name && value) {
+	    int i;
+	    for (i=0; setting_names_table[i]; i++) {
+		if (strcmp(setting_names_table[i], name) == 0) {
+		    device.settings.items[i] = atoi(value);
+		    device.settings_dirty = 1;
+		    break;
+		}
+	    }
+	}
+	return;
+    }
+
+    if (strcmp(command, "power") == 0) {
+	char *value = strtok_r(NULL, delim, &sptr);
+	if (value) {
+	    device.power = atoi(value);
+	}
+	return;
+    }
+}
+
+
+/*
  * Completion callback for status URBs. This drives the main control
  * loop for the device. We always re-submit the status URB, in order
  * to keep the loop going.
@@ -594,20 +774,26 @@ rwand_update_state_running(struct async_urb *status_urb)
 void
 status_urb_complete(struct async_urb *async)
 {
-    /* Report changes in button/device state */
-    if (async->status.buttons != device.last_status_urb.status.buttons ||
-	device.state != device.last_state) {
-	if (device.state == STATE_OFF)                   printf("off ");
-	if (device.state == STATE_STARTING)              printf("starting ");
-	if (device.state == STATE_STABILIZING)           printf("stabilizing ");
-	if (device.state == STATE_RUNNING)               printf("running ");
-	if (async->status.buttons & RWAND_BUTTON_SQUARE) printf("select ");
-	if (async->status.buttons & RWAND_BUTTON_RIGHT)  printf("right ");
-	if (async->status.buttons & RWAND_BUTTON_LEFT)   printf("left ");
-	if (async->status.buttons & RWAND_BUTTON_UP)     printf("up ");
-	if (async->status.buttons & RWAND_BUTTON_DOWN)   printf("down ");
+    /* Report button changes */
+    if (async->status.buttons != device.last_status_urb.status.buttons) {
+	printf("buttons");
+	if (async->status.buttons & RWAND_BUTTON_POWER)  printf(" power");
+	if (async->status.buttons & RWAND_BUTTON_SQUARE) printf(" select");
+	if (async->status.buttons & RWAND_BUTTON_RIGHT)  printf(" right");
+	if (async->status.buttons & RWAND_BUTTON_LEFT)   printf(" left");
+	if (async->status.buttons & RWAND_BUTTON_UP)     printf(" up");
+	if (async->status.buttons & RWAND_BUTTON_DOWN)   printf(" down");
 	printf("\n");
+    }
 
+    /* Report changes in device state */
+    if (device.state != device.last_state) {
+	printf("state");
+	if (device.state == STATE_OFF)                   printf(" off");
+	if (device.state == STATE_STARTING)              printf(" starting");
+	if (device.state == STATE_STABILIZING)           printf(" stabilizing");
+	if (device.state == STATE_RUNNING)               printf(" running");
+	printf("\n");
 	device.last_state = device.state;
     }
 
@@ -620,7 +806,9 @@ status_urb_complete(struct async_urb *async)
      * If the page flip counter has incremented, clear our flip pending
      * flag to let us start writing a new frame.
      */
-    if (async->status.flip_count != device.last_status_urb.status.flip_count) {
+    if (device.flip_pending &&
+	async->status.flip_count != device.last_status_urb.status.flip_count) {
+	printf("frame_ack\n");
 	device.flip_pending = 0;
     }
 
@@ -670,6 +858,7 @@ rwand_set_model()
 	if (intrinsics->model == model) {
 	    /* Found it */
 	    device.intrinsics = intrinsics;
+	    printf("model %s\n", intrinsics->name);
 	    return;
 	}
     }
@@ -685,19 +874,34 @@ rwand_set_model()
 /*
  * Initialize the device by resetting its mode and submitting all
  * initial status requests. This also probes the device model and
- * initializes its intrinsics.
+ * initializes its intrinsics, and outputs information about the
+ * model and initial settings.
+ *
+ * This initializes the hardware by clearing all mode flags and
+ * sending a minimal framebuffer, and it starts polling for status
+ * changes.
  */
 void
 rwand_init()
 {
     int i;
+    unsigned char frame[4] = { 0 };
 
     filter_reset(&device.filter);
     device.power = 1;
     rwand_set_model();
+
     device.settings = device.intrinsics->settings;
 
+    for (i=0; setting_names_table[i]; i++) {
+	printf("setting %s %d\n",
+	       setting_names_table[i],
+	       device.settings.items[i]);
+    }
+
     control_write_async(RWAND_CTRL_SET_MODES, 0, 0, 0, NULL);
+    rwand_write_frame(frame, 1);
+    device.flip_pending = 0;
 
     for (i=0; i<NUM_OVERLAPPED_URBS; i++) {
 	async_urb_submit(async_urb_new_control(0xc0, RWAND_CTRL_READ_STATUS, 8,
@@ -706,8 +910,13 @@ rwand_init()
 }
 
 /*
- * Open the device, initialize it, then run the main loop. This waits
- * for completed URBs and invokes the proper callbacks.
+ * Open the device, initialize it, then run the main loop. The main
+ * loop responds to input from two sources:
+ *
+ *  - On URB completion, invoke the URB's callback
+ *
+ *  - On receiving input from stdin, buffer it into
+ *    complete lines and send those lines to handle_command.
  */
 int
 main(int argc, char **argv)
@@ -728,13 +937,80 @@ main(int argc, char **argv)
 
    rwand_init();
 
+   /* Make stdin nonblocking */
+   if (fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK | fcntl(STDIN_FILENO, F_GETFL)) < 0) {
+       perror("fcntl");
+       return 1;
+   }
+
    while (1) {
-      struct async_urb *async = NULL;
-      if (ioctl(device.fd, USBDEVFS_REAPURB, &async) < 0) {
-         perror("USBDEVFS_REAPURB");
-      }
-      if (async) {
-         async->callback(async);
-      }
+       fd_set read_fds, write_fds;
+       
+       /*
+	* Wait for either a completed URB or data on stdin. Note that URB
+	* completion counts as 'write' as far as select() and poll() are
+	* concerned.
+	*/
+       FD_ZERO(&read_fds);
+       FD_ZERO(&write_fds);
+       FD_SET(STDIN_FILENO, &read_fds);
+       FD_SET(device.fd, &write_fds);
+       if (select(device.fd + 1, &read_fds, &write_fds, NULL, NULL) < 0) {
+	   perror("select");
+	   return 1;
+       }
+
+       /*
+	* Read and handle all pending URBs
+	*/
+       if (FD_ISSET(device.fd, &write_fds)) {
+	   while (1) {
+	       struct async_urb *async = NULL;
+	       if (ioctl(device.fd, USBDEVFS_REAPURBNDELAY, &async) < 0) {
+		   if (errno == EAGAIN) {
+		       break;
+		   }
+		   perror("USBDEVFS_REAPURBNDELAY");
+		   return 1;
+	       }
+	       async->callback(async);
+	   };
+       }
+
+       /*
+	* Read from stdin and reassemble complete lines without blocking.
+	*/
+       if (FD_ISSET(STDIN_FILENO, &read_fds)) {
+	   static char read_buffer[1024];
+	   static size_t bytes_read;
+
+	   while (1) {
+	       char *newline;
+	       int retval = read(STDIN_FILENO,
+				 read_buffer + bytes_read,
+				 sizeof read_buffer - bytes_read);
+
+	       if (retval <= 0) {
+		   if (errno == EAGAIN) {
+		       break;
+		   }
+		   perror("read");		   
+		   return 1;
+	       }
+
+	       bytes_read += retval;
+	       newline = memchr(read_buffer, '\n', bytes_read);
+	       if (newline) {
+		   size_t line_size = newline - read_buffer + 1;
+		   *newline = '\0';
+		   handle_command(read_buffer);
+		   bytes_read -= line_size;
+		   memmove(read_buffer, newline+1, bytes_read);
+	       } else if (bytes_read == sizeof read_buffer) {
+		   /* Line too long, discard it */
+		   bytes_read = 0;
+	       }
+	   }
+       }
    }
 }
