@@ -564,7 +564,7 @@ rwand_update_state_off(struct async_urb *status_urb)
 static void
 rwand_update_state_starting(struct async_urb *status_urb)
 {
-    int new_period;
+    int old_period, new_period;
     struct rwand_timings timings;
     struct rwand_startup *startup = &device.intrinsics->startup;
     struct timeval now;
@@ -572,7 +572,7 @@ rwand_update_state_starting(struct async_urb *status_urb)
     rwand_set_modes(RWAND_MODE_ENABLE_COIL);
 
     /* Cycle through different frequencies trying to get our wand to start up */
-    new_period = status_urb->status.period;
+    old_period = new_period = LE16_SWAP(status_urb->status.period);
 
     if (new_period > startup->max_period ||
 	new_period < startup->min_period) {
@@ -585,14 +585,17 @@ rwand_update_state_starting(struct async_urb *status_urb)
     gettimeofday(&now, NULL);
     new_period += (now.tv_sec - device.state_timer.tv_sec) * startup->climb_rate +
 	(now.tv_usec - device.state_timer.tv_usec) * startup->climb_rate / 1000000;
-    device.state_timer = now;
 
-    /* Set the new period and coil phase */
-    rwand_calc_timings(&device.settings, new_period, &timings);
-    control_write_async(RWAND_CTRL_SET_PERIOD,
-			new_period, 0, 0, NULL);
-    control_write_async(RWAND_CTRL_SET_COIL_PHASE,
-			timings.coil_begin, timings.coil_end, 0, NULL);
+    if (abs(new_period - old_period) > PERIOD_TOLERANCE) {
+        device.state_timer = now;
+
+        /* Set the new period and coil phase */
+        rwand_calc_timings(&device.settings, new_period, &timings);
+        control_write_async(RWAND_CTRL_SET_PERIOD,
+    			    new_period, 0, 0, NULL);
+        control_write_async(RWAND_CTRL_SET_COIL_PHASE,
+			    timings.coil_begin, timings.coil_end, 0, NULL);
+    }
 
     if (device.edge_count > startup->starting_edges) {
 	rwand_enter_state_stabilizing();
