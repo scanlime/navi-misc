@@ -901,6 +901,7 @@ rwand_init()
 	       setting_names_table[i],
 	       device.settings.items[i]);
     }
+    printf("end_settings\n");
 
     control_write_async(RWAND_CTRL_SET_MODES, 0, 0, 0, NULL);
     rwand_write_frame(frame, 1);
@@ -1002,14 +1003,17 @@ main(int argc, char **argv)
 	       }
 
 	       bytes_read += retval;
-	       newline = memchr(read_buffer, '\n', bytes_read);
-	       if (newline) {
+
+	       /* Process all (zero or more) lines in the buffer */
+	       while ((newline = memchr(read_buffer, '\n', bytes_read))) {
 		   size_t line_size = newline - read_buffer + 1;
 		   *newline = '\0';
 		   handle_command(read_buffer);
 		   bytes_read -= line_size;
 		   memmove(read_buffer, newline+1, bytes_read);
-	       } else if (bytes_read == sizeof read_buffer) {
+	       }
+
+	       if (bytes_read == sizeof read_buffer) {
 		   /* Line too long, discard it */
 		   bytes_read = 0;
 	       }
