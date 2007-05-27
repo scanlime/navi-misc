@@ -1,6 +1,7 @@
 #
 # Lightweight Python interface for the Raster Wand, based on the
-# userspace-only 'rwd' driver.
+# userspace-only 'rwd' driver. This includes animated transitions,
+# and a simple menu system.
 #
 # Copyright(c) 2004-2007 Micah Dowty <micah@navi.cx>
 #
@@ -11,7 +12,7 @@
 #
 
 import os, re, time, popen2, fcntl
-import binascii, random, threading
+import binascii, random, threading, ConfigParser
 
 
 class RwdClient(threading.Thread):
@@ -30,19 +31,47 @@ class RwdClient(threading.Thread):
        list (top of the stack) get first priority on incoming events.
        """
     _connectPollInterval = 0.5
+    _lastButtonTimestamp = 0
+    model = None
+    rwd = None
     
     def __init__(self, renderer=None, listeners=None,
                  devicePath=None, rwdPath=None):
-
         threading.Thread.__init__(self)
 
         self.renderer = renderer
         self.listeners = listeners or []
         self.devicePath = devicePath
         self.rwdPath = rwdPath
-        self.rwd = None
         self.settings = {}
         self.buttons = set()
+
+    def _getConfigFilePath(self):
+        return os.path.join(os.getenv("HOME"), ".rwandrc")
+
+    def loadSettings(self):
+        """If the user has a .rwandrc file in their home directory,
+           this loads all model-specific settings from it.
+           """
+        cp = ConfigParser.RawConfigParser()
+        cp.read(self._getConfigFilePath())
+        if cp.has_section(self.model):
+            for option in cp.options(self.model):
+                self.send_setting(option, cp.getint(self.model, option))
+
+    def saveSettings(self):
+        """Persist all current model-specific settings to a
+           dotfile (.rwandrc) in the user's home directory.
+           """
+        cp = ConfigParser.RawConfigParser()
+        cp.read(self._getConfigFilePath())
+        if not cp.has_section(self.model):
+            cp.add_section(self.model)
+
+        for name, value in self.settings.iteritems():
+            cp.set(self.model, name, str(value))
+
+        cp.write(open(self._getConfigFilePath(), 'w'))
 
     def run(self):
         """poll() this client in an infinite loop."""
@@ -81,10 +110,14 @@ class RwdClient(threading.Thread):
             rwdPath = "./%s" % rwdPath
 
         if devicePath:
-            self.rwd = popen2.Popen3((rwdPath, devicePath), capturestderr=False)
+            self.rwd = popen2.Popen3((rwdPath, devicePath),
+                                     capturestderr=False)
             self.connected()
         else:
             self.rwd = None
+
+    def getInactivityTime(self):
+        return time.time() - self._lastButtonTimestamp
 
     def send_command(self, tokens):
         try:
@@ -94,12 +127,8 @@ class RwdClient(threading.Thread):
         except IOError:
             self.rwd = None
 
-    def send_frame(self, data, min_width=50, max_width=80):
-        if min_width and min_width > len(data):
-            # Optionally, pad the framebuffer up to a minimum width
-            data = data.center(min_width, '\0')
-
-        self.send_command(('frame', binascii.b2a_hex(data[:max_width])))
+    def send_frame(self, data):
+        self.send_command(('frame', binascii.b2a_hex(data)))
 
     def send_setting(self, name, value):
         self.settings[name] = value
@@ -139,6 +168,15 @@ class RwdClient(threading.Thread):
         else:
             self.rwd = None
 
+    def recv_model(self, tokens):
+        self.model = tokens[1]
+
+    def recv_end_settings(self, tokens):
+        """rwd just finished sending us the default settings.
+           Now we can override some of those with our own saved settings.
+           """
+        self.loadSettings()
+
     def recv_setting(self, tokens):
         self.settings[tokens[1]] = int(tokens[2])
 
@@ -146,6 +184,7 @@ class RwdClient(threading.Thread):
         new_buttons = set(tokens[1:])
 
         for pressed in new_buttons.difference(self.buttons):
+            self._lastButtonTimestamp = time.time()
             for listener in reversed(self.listeners):
                 if listener.keyPress(self, pressed):
                     break
@@ -158,6 +197,10 @@ class RwdClient(threading.Thread):
         self.buttons = new_buttons
 
     def recv_frame_ack(self, tokens=None):
+        for listener in reversed(self.listeners):
+            if listener.pollKeys(self, self.buttons):
+                break
+
         self.send_frame(self.renderer and self.renderer.render(self) or '')
 
 
@@ -183,6 +226,16 @@ class KeyListener:
     def keyRelease(self, rwdc, button):
         pass
 
+    def pollKeys(self, rwdc, buttons):
+        """Called once per frame with a set of all buttons that are down"""
+        pass
+
+    def activate(self, rwdc):
+        rwdc.listeners.append(self)
+
+    def deactivate(self, rwdc):
+        rwdc.listeners.remove(self)
+
 
 class Font:
     """An 8-pixel font for the Raster Wand, represented as a
@@ -197,7 +250,7 @@ class Font:
         return self.spacing.join([self.data.get(c, self.default) for c in str])
 
 
-class TextRenderer:
+class TextRenderer(Renderer):
     """Renderer which displays a static string of text, rendered with
        a particular font.
        """
@@ -253,14 +306,17 @@ class TextRenderer:
         u'\ufffd': '\x7f\x7d\x55\x75\x7b\x7f',          # Replacement character (inverted '?')
         })
 
-    def __init__(self, str, font=None):
-        self.frame = (font or self.defaultFont).render(str)
+    def __init__(self, str, font=None, min_width=50, max_width=80):
+        self.frame = (font or self.defaultFont).render(str)[:max_width]
+        if min_width and min_width > len(self.frame):
+            # Optionally, pad the framebuffer up to a minimum width
+            self.frame = self.frame.center(min_width, '\0')
 
     def render(self, rwdc):
         return self.frame
 
 
-class Transition:
+class Transition(Renderer):
     """Abstract base class for transitions that operate on the output
        of two distinct renderers. When the transition completes, the old
        renderer is discarded and the new one is installed directly into
@@ -299,25 +355,47 @@ class Transition:
         return frame
 
 
-class VScroll(Transition):
-    """Vertical scrolling transition"""
-    UP, DOWN = range(2)
+class VisualBell(Renderer):
+    """Renders a bright single-frame flash, then reverts back to
+       another renderer. This signals invalid key input.
+       """
+    def __init__(self, toRenderer):
+        self.toRenderer = toRenderer
+
+    def render(self, rwdc):
+        rwdc.renderer = self.toRenderer
+        return '\xFF' * len(self.toRenderer.render(rwdc))
+
+
+class Scroll(Transition):
+    """Vertical/horizontal scrolling transition"""
+    UP, DOWN, LEFT, RIGHT = range(4)
     
     def __init__(self, fromRenderer, toRenderer, dir=UP, duration=8):
         self.dir = dir
         Transition.__init__(self, fromRenderer, toRenderer, duration)
     
     def tween(self, rwdc, fromFrame, toFrame):
-        shift = self.frameNum * 8 / self.duration
 
         if self.dir == self.UP:
+            shift = self.frameNum * 8 / self.duration
             return ''.join([ chr(0xFF & ((ord(a) >> shift) |
                                          (ord(b) << (8-shift))))
                              for a, b in zip(fromFrame, toFrame) ])
-        elif self.dir == self.DOWN:
+
+        if self.dir == self.DOWN:
+            shift = self.frameNum * 8 / self.duration
             return ''.join([ chr(0xFF & ((ord(a) << shift) |
                                          (ord(b) >> (8-shift))))
                              for a, b in zip(fromFrame, toFrame) ])
+
+        if self.dir == self.LEFT:
+            shift = self.frameNum * len(toFrame) / self.duration
+            return (fromFrame + toFrame)[shift:shift+len(toFrame)]
+
+        if self.dir == self.RIGHT:
+            shift = len(toFrame) - self.frameNum * len(toFrame) / self.duration
+            return (toFrame + fromFrame)[shift:shift+len(toFrame)]
 
 
 class Dissolve(Transition):
@@ -354,3 +432,192 @@ class Dissolve(Transition):
             b.append(chr( (ord(fromFrame[i]) & ~mask) |
                           (ord(toFrame[i]) & mask) ))
         return ''.join(b)
+
+
+class MenuItem(KeyListener):
+    def __init__(self, renderer):
+        self.renderer = renderer
+
+
+class TextMenuItem(MenuItem):
+    def __init__(self, text):
+        MenuItem.__init__(self, TextRenderer(text))
+
+
+class MenuList(KeyListener):
+    def __init__(self, items, root=False):
+        self.items = items
+        self.root = root
+
+    def activate(self, rwdc):
+        """Enter this menu, temporarily or permanently displacing
+           whichever menu was previously active.  If this is a root
+           menu, it permanently replaces all other menus in the
+           current stack.
+           """
+        if self.root:
+            del rwdc.listeners[:]
+        
+        self._previousRenderer = rwdc.renderer
+        self.index = 0
+        item = self.items[self.index]        
+        KeyListener.activate(self, rwdc)
+        item.activate(rwdc)
+
+        if self.root:
+            rwdc.renderer = Dissolve(rwdc.renderer, item.renderer)
+        else:
+            rwdc.renderer = Scroll(rwdc.renderer, item.renderer, Scroll.LEFT)
+
+    def deactivate(self, rwdc):
+        """Exit this menu, returning to the previous one"""
+        item = self.items[self.index]
+        item.deactivate(rwdc)
+        KeyListener.deactivate(self, rwdc)
+        rwdc.renderer = Scroll(rwdc.renderer, self._previousRenderer, Scroll.RIGHT)
+        self._previousRenderer = None
+        self.index = None
+
+    def select(self, rwdc, index):
+        """Select a new item, given its index. The menu is a torus. Out-of-range
+           indices will wrap around. This automatically picks a transition, based
+           on the old and new indices.
+           """
+        wrappedIndex = index % len(self.items)
+        if wrappedIndex == self.index:
+            # No items to scroll to
+            rwdc.renderer = VisualBell(rwdc.renderer)
+
+        else:
+            self.items[self.index].deactivate(rwdc)
+            item = self.items[wrappedIndex]
+
+            if index > self.index:
+                rwdc.renderer = Scroll(rwdc.renderer, item.renderer, Scroll.UP)
+            else:
+                rwdc.renderer = Scroll(rwdc.renderer, item.renderer, Scroll.DOWN)
+
+            self.index = wrappedIndex
+            self.items[self.index].activate(rwdc)
+
+    def press_down(self, rwdc):
+        self.select(rwdc, self.index + 1)
+        return True
+
+    def press_up(self, rwdc):
+        self.select(rwdc, self.index - 1)
+        return True
+
+    def press_left(self, rwdc):
+        if self.root:
+            rwdc.renderer = VisualBell(rwdc.renderer)
+        else:
+            self.deactivate(rwdc)
+        return True
+
+    def press_right(self, rwdc):
+        rwdc.renderer = VisualBell(rwdc.renderer)
+        return True
+
+    def press_select(self, rwdc):
+        rwdc.renderer = VisualBell(rwdc.renderer)
+        return True
+
+
+class AutoMenuList(MenuList):
+    """A menu that automatically scrolls at a fixed rate
+       when the controls have been inactive for a while.
+       """
+    def __init__(self, items, root=False,
+                 inactivityDelay = 10,
+                 autoScrollDelay = 2,
+                 ):
+        MenuList.__init__(self, items, root)
+        self.inactivityDelay = inactivityDelay
+        self.autoScrollDelay = autoScrollDelay
+        self._lastScrollTimestamp = time.time()
+
+    def pollKeys(self, rwdc, buttons):
+        if rwdc.getInactivityTime() > self.inactivityDelay:
+            now = time.time()
+            if now >= self._lastScrollTimestamp + self.autoScrollDelay:
+                self.select(rwdc, self.index + 1)
+                self._lastScrollTimestamp = now
+
+
+class SubMenuItem(TextMenuItem):
+    """A MenuItem that enters a submenu"""
+    def __init__(self, text, menu):
+        TextMenuItem.__init__(self, u"%s \u2192" % text)
+        self.menu = menu
+
+    def press_right(self, rwdc):
+        self.menu.activate(rwdc)
+        return True
+
+    def press_select(self, rwdc):
+        self.menu.activate(rwdc)
+        return True
+
+
+class SettingMenuItem(TextMenuItem):
+    """A menu item that, while active, lets the user adjust Raster Wand settings"""
+    def __init__(self, text, setting, increment,
+                 minimum=0, maximum=0xFFFF):
+        self.text = text
+        TextMenuItem.__init__(self, u"\u2190 %s \u2192" % text)
+        self.setting = setting
+        self.increment = increment
+        self.minimum = minimum
+        self.maximum = maximum
+
+    def activate(self, rwdc):
+        TextMenuItem.activate(self, rwdc)
+
+        # Even though we take action during pollKeys, we make
+        # sure a corresponding 'press' event has been received.
+        # This is important when a button was already down when
+        # this listener became active. The 'right' button used
+        # to enter this menu item should not also cause a setting
+        # adjustment to be made.
+        self.pressed = set()
+
+    def deactivate(self, rwdc):
+        TextMenuItem.deactivate(self, rwdc)
+        rwdc.saveSettings()
+
+    def press_left(self, rwdc):
+        self.pressed.add('left')
+        return True
+
+    def press_right(self, rwdc):
+        self.pressed.add('right')
+        return True
+
+    def pollKeys(self, rwdc, buttons):
+        if rwdc.settings:
+            value = rwdc.settings[self.setting]
+
+            buttons = buttons.intersection(self.pressed)
+            if 'left' in buttons:
+                value -= self.increment
+            if 'right' in buttons:
+                value += self.increment
+
+            value = min(self.maximum, max(self.minimum, value))
+            if value != rwdc.settings[self.setting]:
+                rwdc.renderer = TextRenderer(u"%s: %d" % (self.text, value / self.increment))
+                rwdc.send_setting(self.setting, value)
+                return True
+
+
+class SettingsMenu(MenuList):
+    def __init__(self):
+        MenuList.__init__(self, [
+            SettingMenuItem("Position", "display_center", 100),
+            SettingMenuItem("Width", "display_width", 100),
+            SettingMenuItem("Bright", "duty_cycle", 1000),
+            SettingMenuItem("Wiggle", "fine_adjust", 1, minimum=-200, maximum=200),
+            SettingMenuItem("Power", "coil_width", 100, maximum=0x8000),
+            TextMenuItem(u"\u2190 Back"),
+            ])

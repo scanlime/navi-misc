@@ -15,7 +15,7 @@ try:
         if not line:
             break
         text = rwand.TextRenderer(unicode(line, 'utf-8').strip())
-        rwdc.renderer = rwand.VScroll(rwdc.renderer, text)
+        rwdc.renderer = rwand.Scroll(rwdc.renderer, text)
 
     print 'done'
 
