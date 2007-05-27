@@ -2,7 +2,7 @@
 # Lightweight Python interface for the Raster Wand, based on the
 # userspace-only 'rwd' driver.
 #
-# Copyright(c) 2004-2007 Micah Dowty <micah@picogui.org>
+# Copyright(c) 2004-2007 Micah Dowty <micah@navi.cx>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -10,10 +10,11 @@
 # (at your option) any later version.
 #
 
-import os, re, time, popen2, fcntl, binascii, random
+import os, re, time, popen2, fcntl
+import binascii, random, threading
 
 
-class RwdClient:
+class RwdClient(threading.Thread):
     """Client for communicating to a rasterwand via a spawned rwd
        process.  This is a base class which knows how to keep the
        connection alive, automatically locate the device, render
@@ -22,13 +23,21 @@ class RwdClient:
        Application-specific functionality, such as handling button
        presses and deciding what to draw, is governed by other objects
        that are attached to the RwdClient in a stateless way: the
-       Renderer and KeyListener. These may be swapped freely at
+       Renderer and list of KeyListeners. These may be swapped freely at
        runtime.
+
+       Listeners are arranged in a stack: those at the end of the
+       list (top of the stack) get first priority on incoming events.
        """
-    def __init__(self, renderer=None, keyListener=None,
+    _connectPollInterval = 0.5
+    
+    def __init__(self, renderer=None, listeners=None,
                  devicePath=None, rwdPath=None):
+
+        threading.Thread.__init__(self)
+
         self.renderer = renderer
-        self.keyListener = keyListener
+        self.listeners = listeners or []
         self.devicePath = devicePath
         self.rwdPath = rwdPath
         self.rwd = None
@@ -37,8 +46,13 @@ class RwdClient:
 
     def run(self):
         """poll() this client in an infinite loop."""
-        while True:
+        self._running = True
+        while self._running:
             self.poll()
+
+    def stop(self):
+        """Stop the current run() loop"""
+        self._running = False
 
     def _findDevice(self, usbfsPath="/proc/bus/usb"):
         """Return the usbfs path of the first attached Raster Wand,
@@ -73,16 +87,19 @@ class RwdClient:
             self.rwd = None
 
     def send_command(self, tokens):
-        self.rwd.tochild.write(' '.join(tokens))
-        self.rwd.tochild.write('\n')
-        self.rwd.tochild.flush()
+        try:
+            self.rwd.tochild.write(' '.join(tokens))
+            self.rwd.tochild.write('\n')
+            self.rwd.tochild.flush()
+        except IOError:
+            self.rwd = None
 
-    def send_frame(self, data, min_width=50):
+    def send_frame(self, data, min_width=50, max_width=80):
         if min_width and min_width > len(data):
             # Optionally, pad the framebuffer up to a minimum width
             data = data.center(min_width, '\0')
 
-        self.send_command(('frame', binascii.b2a_hex(data)))
+        self.send_command(('frame', binascii.b2a_hex(data[:max_width])))
 
     def send_setting(self, name, value):
         self.settings[name] = value
@@ -102,14 +119,14 @@ class RwdClient:
            """
         # Disconnect if rwd died
         if self.rwd and self.rwd.poll() != -1:
-            time.sleep(1)
+            time.sleep(self._connectPollInterval)
             self.rwd = None
 
         # Try to reconnect if we need to
         while not self.rwd:
             self.connect()
             if not self.rwd:
-                time.sleep(1)
+                time.sleep(self._connectPollInterval)
 
         # Wait for output from rwd
         line = self.rwd.fromchild.readline()
@@ -127,11 +144,17 @@ class RwdClient:
 
     def recv_buttons(self, tokens):
         new_buttons = set(tokens[1:])
-        if self.keyListener:
-            for pressed in new_buttons.difference(self.buttons):
-                self.keyListener.keyPress(self, pressed)
-            for released in self.buttons.difference(new_buttons):
-                self.keyListener.keyRelease(self, released)        
+
+        for pressed in new_buttons.difference(self.buttons):
+            for listener in reversed(self.listeners):
+                if listener.keyPress(self, pressed):
+                    break
+
+        for released in self.buttons.difference(new_buttons):
+            for listener in reversed(self.listeners):
+                if listener.keyRelease(self, released):
+                    break
+
         self.buttons = new_buttons
 
     def recv_frame_ack(self, tokens=None):
@@ -148,11 +171,14 @@ class KeyListener:
     """Abstract base class for a RwdClient key event listener.
        The default implementation dispatches key presses to
        a member function, and ignores releases.
+
+       Handlers should return True to absorb an event,
+       preventing it from reaching other KeyListeners.
        """
     def keyPress(self, rwdc, button):
        f = getattr(self, 'press_' + button, None)
        if f:
-           f(rwdc)
+           return f(rwdc)
 
     def keyRelease(self, rwdc, button):
         pass
@@ -162,10 +188,10 @@ class Font:
     """An 8-pixel font for the Raster Wand, represented as a
        dictionary mapping characters to binary strings.
        """
-    def __init__(self, data, spacing='\0', default=None):
+    def __init__(self, data, spacing='\0', missing=u'\ufffd'):
         self.data = data
         self.spacing = spacing
-        self.default = default or data['?']
+        self.default = data[missing]
 
     def render(self, str):
         return self.spacing.join([self.data.get(c, self.default) for c in str])
@@ -175,36 +201,57 @@ class TextRenderer:
     """Renderer which displays a static string of text, rendered with
        a particular font.
        """
-    defaultFont = Font({ 'a': '\x18$$<', 'b': '>$$\x18', 'c': '\x18$$',
-                         'd': '\x18$$>', 'e': '\x184,\x08', 'f': '\x08<\x0a', 'g':
-                         '\x18\xa4\xa4|', 'h': '>\x04\x048', 'i': ':', 'j': '\x80z', 'k':
-                         '>\x10\x18$', 'l': '>', 'm': '<\x04<\x048', 'n': '<\x04\x048',
-                         'o': '\x18$$\x18', 'p': '\xfc$$\x18', 'q': '\x18$$\xfc', 'r':
-                         '<\x08\x04', 's': '(,4\x14', 't': '\x04\x1e$', 'u':
-                         '\x1c\x20\x20<', 'v': '\x1c\x20\x10\x0c', 'w': '\x0c0\x0c0\x0c',
-                         'x': '$\x18$', 'y': '\x1c\xa0\xa0|', 'z': '$4,$', 'A':
-                         '<\x12\x12<', 'B': '>**\x14', 'C': '\x1c\x22\x22', 'D':
-                         '>\x22\x22\x1c', 'E': '>**', 'F': '>\x0a\x0a', 'G': '\x1c\x22*:',
-                         'H': '>\x08\x08>', 'I': '\x22>\x22', 'J': '\x10\x20\x22\x1e', 'K':
-                         '>\x08\x14\x22', 'L': '>\x20\x20', 'M': '>\x04\x08\x04>', 'N':
-                         '>\x04\x08>', 'O': '\x1c\x22\x22\x1c', 'P': '>\x12\x12\x0c', 'Q':
-                         '\x1c\x22\x22\x5c', 'R': '>\x12\x12,', 'S': '$**\x12', 'T':
-                         '\x02>\x02', 'U': '\x1e\x20\x20\x1e', 'V': '\x1e\x20\x18\x06',
-                         'W': '\x1e\x20\x1c\x20\x1e', 'X': '6\x08\x086', 'Y': '\x06((\x1e',
-                         'Z': '2*&', '!': '.', '"': '\x06\x00\x06', '#': '\x14>\x14>\x14',
-                         '$': '(,v\x14', '%': '\x020\x08\x06\x20', '&': '\x14**\x10(',
-                         '\'': '\x06', '(': '\x1c\x22', ')': '\x22\x1c', '*':
-                         '\x0a\x04\x0a', '+': '\x08\x1c\x08', ',': '@\x20', '-':
-                         '\x08\x08\x08', '.': '\x20', '/': '\x20\x10\x08\x04\x02', ':':
-                         '\x14', ';': '4', '<': '\x08\x14\x22', '=': '\x14\x14\x14', '>':
-                         '\x22\x14\x08', '?': '\x02*\x0a\x04', '@': '\x1c\x22:*\x1c', '[':
-                         '>\x22', '\\': '\x02\x04\x08\x10\x20', ']': '\x22>', '^':
-                         '\x04\x02\x04', '_': '\x20\x20\x20\x20', '`': '\x02\x04', '{':
-                         '\x086\x22', '|': '>', '}': '\x226\x08', '~': '\x04\x02\x04\x02',
-                         '0': '\x1c\x22\x22\x1c', '1': '\x02>', '2': '2**$', '3':
-                         '\x22**\x14', '4': '\x18\x14>\x10', '5': '.**\x12', '6':
-                         '\x1c**\x10', '7': '\x022\x0a\x06', '8': '\x14**\x14', '9':
-                         '\x04**\x1c', })
+    defaultFont = Font({
+        #
+        # ASCII character set, from the 8-pixel 04B_03 font. Converted with genfont.py
+        #
+        'a': '\x18$$<', 'b': '>$$\x18', 'c': '\x18$$',
+        'd': '\x18$$>', 'e': '\x184,\x08', 'f': '\x08<\x0a', 'g':
+        '\x18\xa4\xa4|', 'h': '>\x04\x048', 'i': ':', 'j': '\x80z', 'k':
+        '>\x10\x18$', 'l': '>', 'm': '<\x04<\x048', 'n': '<\x04\x048',
+        'o': '\x18$$\x18', 'p': '\xfc$$\x18', 'q': '\x18$$\xfc', 'r':
+        '<\x08\x04', 's': '(,4\x14', 't': '\x04\x1e$', 'u':
+        '\x1c\x20\x20<', 'v': '\x1c\x20\x10\x0c', 'w': '\x0c0\x0c0\x0c',
+        'x': '$\x18$', 'y': '\x1c\xa0\xa0|', 'z': '$4,$', 'A':
+        '<\x12\x12<', 'B': '>**\x14', 'C': '\x1c\x22\x22', 'D':
+        '>\x22\x22\x1c', 'E': '>**', 'F': '>\x0a\x0a', 'G': '\x1c\x22*:',
+        'H': '>\x08\x08>', 'I': '\x22>\x22', 'J': '\x10\x20\x22\x1e', 'K':
+        '>\x08\x14\x22', 'L': '>\x20\x20', 'M': '>\x04\x08\x04>', 'N':
+        '>\x04\x08>', 'O': '\x1c\x22\x22\x1c', 'P': '>\x12\x12\x0c', 'Q':
+        '\x1c\x22\x22\x5c', 'R': '>\x12\x12,', 'S': '$**\x12', 'T':
+        '\x02>\x02', 'U': '\x1e\x20\x20\x1e', 'V': '\x1e\x20\x18\x06',
+        'W': '\x1e\x20\x1c\x20\x1e', 'X': '6\x08\x086', 'Y': '\x06((\x1e',
+        'Z': '2*&', '!': '.', '"': '\x06\x00\x06', '#': '\x14>\x14>\x14',
+        '$': '(,v\x14', '%': '\x020\x08\x06\x20', '&': '\x14**\x10(',
+        '\'': '\x06', '(': '\x1c\x22', ')': '\x22\x1c', '*':
+        '\x0a\x04\x0a', '+': '\x08\x1c\x08', ',': '@\x20', '-':
+        '\x08\x08\x08', '.': '\x20', '/': '\x20\x10\x08\x04\x02', ':':
+        '\x14', ';': '4', '<': '\x08\x14\x22', '=': '\x14\x14\x14', '>':
+        '\x22\x14\x08', '?': '\x02*\x0a\x04', '@': '\x1c\x22:*\x1c', '[':
+        '>\x22', '\\': '\x02\x04\x08\x10\x20', ']': '\x22>', '^':
+        '\x04\x02\x04', '_': '\x20\x20\x20\x20', '`': '\x02\x04', '{':
+        '\x086\x22', '|': '>', '}': '\x226\x08', '~': '\x04\x02\x04\x02',
+        '0': '\x1c\x22\x22\x1c', '1': '\x02>', '2': '2**$', '3':
+        '\x22**\x14', '4': '\x18\x14>\x10', '5': '.**\x12', '6':
+        '\x1c**\x10', '7': '\x022\x0a\x06', '8': '\x14**\x14', '9':
+        '\x04**\x1c',
+
+        #
+        # Miscellaneous whitespace and Unicode characters, added by hand
+        #
+        ' ': '\x00',
+        u'\u2665': '\x0e\x3f\x7e\xfc\x7e\x3f\x0e',      # Heart
+        u'\u2190': '\x08\x1c\x2a\x08\x08',              # Left arrow
+        u'\u2191': '\x08\x04\x3e\x04\x08',              # Up arrow
+        u'\u2192': '\x08\x08\x2a\x1c\x08',              # Right arrow
+        u'\u2193': '\x08\x10\x3e\x10\x08',              # Down arrow
+        u'\u231A': '\x7e\x81\x81\x9d\x91\x81\x7e',      # Watch
+        u'\u2301': '\x08\x10\x3c\x08\x10',              # Electric Arrow
+        u'\u263A': '\x7e\x81\x95\xa1\xa1\x95\x81\x7e',  # White smiling face
+        u'\u25a1': '\xff\x81\x81\xff',                  # White square
+        u'\u266b': '\x30\x30\x3f\x01\xc2\xc4\xfc',      # Beamed eighth notes
+        u'\ufffd': '\x7f\x7d\x55\x75\x7b\x7f',          # Replacement character (inverted '?')
+        })
 
     def __init__(self, str, font=None):
         self.frame = (font or self.defaultFont).render(str)
@@ -235,7 +282,10 @@ class Transition:
                 rwdc.renderer = self.toRenderer
             return self.toRenderer.render(rwdc)
 
-        fromFrame = self.fromRenderer.render(rwdc)
+        if self.fromRenderer:
+            fromFrame = self.fromRenderer.render(rwdc)
+        else:
+            fromFrame = ''
         toFrame = self.toRenderer.render(rwdc)
 
         # Pad the two input frames to identical widths
@@ -304,31 +354,3 @@ class Dissolve(Transition):
             b.append(chr( (ord(fromFrame[i]) & ~mask) |
                           (ord(toFrame[i]) & mask) ))
         return ''.join(b)
-    
-
-class MyListener(KeyListener):
-    def press_left(self, rwdc):
-        rwdc.send_setting('display_center', rwdc.settings['display_center'] - 1000)
-
-    def press_right(self, rwdc):
-        rwdc.send_setting('display_center', rwdc.settings['display_center'] + 1000)
-
-    def press_down(self, rwdc):
-        t = TextRenderer("%.06f" % random.random())
-        rwdc.renderer = VScroll(rwdc.renderer, t, VScroll.UP)
-
-    def press_up(self, rwdc):
-        t = TextRenderer("%.06f" % random.random())
-        rwdc.renderer = VScroll(rwdc.renderer, t, VScroll.DOWN)
-
-    def press_select(self, rwdc):
-        t = TextRenderer("Wobble")
-        rwdc.renderer = Dissolve(rwdc.renderer, t)
-
-
-if __name__ == "__main__":
-    r = RwdClient(renderer=TextRenderer("Ploo"), keyListener=MyListener())
-    while True:
-        r.poll()
-
-
