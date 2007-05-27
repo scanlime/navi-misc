@@ -1,3 +1,9 @@
+#
+# Tool to generate font dictionaries for rwand.Font
+#
+# -- Micah Dowty <micah@navi.cx>
+#
+
 import ImageFont
 import sys, string
 
