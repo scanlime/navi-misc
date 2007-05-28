@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-import time, math
-import rwand, netif
+import time, feedparser, rwand, netif
 
 class NetworkInterfaceMenu(rwand.MenuList):
     def __init__(self):
@@ -24,30 +23,20 @@ class ClockRenderer(rwand.Renderer):
         return rwand.TextRenderer(text).render(rwdc)
 
 
-class GraphRenderer(rwand.Renderer):
-    def __init__(self):
-        self.bars = [0] * 20
-        self.theta = 0
+class HeadlineMenu(rwand.AutoMenuList):
+    def __init__(self, feed):
+        self.feed = feed
+        rwand.AutoMenuList.__init__(self, [], root=True)
 
-    def render(self, rwdc):
-        for i in range(len(self.bars)):
-            self.bars[i] *= 0.95
-
-        self.bars[int((math.sin(self.theta) + 1) * len(self.bars) / 2)] = 1
-        self.theta += 0.05
-
-        return ''.join([chr(0xFF & (0xFF00 >> int(bar * 8 + 0.5)))
-                        for bar in self.bars])
-
-
-class InfoMenu(rwand.AutoMenuList):
-    def __init__(self):
-        rwand.AutoMenuList.__init__(self, [
-            rwand.TextMenuItem("orange"),
-            rwand.TextMenuItem("banana"),
+    def update(self):
+        d = feedparser.parse(self.feed)
+        self.items = [
             rwand.MenuItem(ClockRenderer()),
-            rwand.MenuItem(GraphRenderer()),
-            ], root=True)
+            rwand.TextMenuItem('%s:' % d.feed.title),
+        ]+[
+            rwand.TextMenuItem(entry.title)
+            for entry in d.entries
+        ]
 
     def press_select(self, rwdc):
         SetupMenu().activate(rwdc)
@@ -67,6 +56,19 @@ class SetupMenu(rwand.MenuList):
             InfoMenu().activate(rwdc)
 
 
-rwdc = rwand.RwdClient()
-InfoMenu().activate(rwdc)
-rwdc.run()
+if __name__ == "__main__":
+    rwdc = rwand.RwdClient()
+    headlines = HeadlineMenu('http://www.theonion.com/content/feeds/daily')
+    rwdc.start()
+    try:
+        headlines.update()
+        headlines.activate(rwdc)
+        while True:        
+            time.sleep(60 * 30)
+            headlines.update()
+
+    except KeyboardInterrupt:
+        pass
+    finally:
+        rwdc.stop()
+        rwdc.join()    
