@@ -252,7 +252,8 @@ class Font:
 
 class TextRenderer(Renderer):
     """Renderer which displays a static string of text, rendered with
-       a particular font.
+       a particular font. Supports padding short strings, and scrolling
+       long ones.
        """
     defaultFont = Font({
         #
@@ -306,14 +307,47 @@ class TextRenderer(Renderer):
         u'\ufffd': '\x7f\x7d\x55\x75\x7b\x7f',          # Replacement character (inverted '?')
         })
 
-    def __init__(self, str, font=None, min_width=50, max_width=80):
-        self.frame = (font or self.defaultFont).render(str)[:max_width]
-        if min_width and min_width > len(self.frame):
-            # Optionally, pad the framebuffer up to a minimum width
-            self.frame = self.frame.center(min_width, '\0')
+    def __init__(self, str, font=None, min_width=60, max_width=80, gap=8):
+        # Precompute a buffer from which we'll take slices, in order
+        # to implement scrolling. This buffer will have two copies
+        # of the original string, separated by some space. 
+
+        rendered = (font or self.defaultFont).render(str)
+
+        # Shorter than min_width: pad the string, use a minimum-sized
+        # scrolling window.
+        if min_width > len(rendered):
+            self._frame = rendered.center(min_width, '\0')
+            self._wrap = 1
+            self._window = min_width
+
+        # Longer than max_width: Duplicate the string, and set up a
+        # scrolling window.
+        elif max_width < len(rendered):
+            self._frame = rendered + ('\0' * gap) + rendered
+            self._wrap = len(rendered) + gap
+            self._window = max_width
+
+        # The string is already a good size
+        else:
+            self._frame = rendered
+            self._wrap = 1
+            self._window = len(rendered)
+
+        self.resetScrolling()
+
+    def resetScrolling(self):
+        self._scroll = 0
+        self._delay = 16
 
     def render(self, rwdc):
-        return self.frame
+        frame = self._frame[self._scroll:self._scroll + self._window]
+        if self._delay:
+            self._delay -= 1
+        else:
+            self._scroll = (self._scroll + 1) % self._wrap
+        return frame
+    
 
 
 class Transition(Renderer):
@@ -443,6 +477,10 @@ class TextMenuItem(MenuItem):
     def __init__(self, text):
         MenuItem.__init__(self, TextRenderer(text))
 
+    def activate(self, rwdc):
+        self.renderer.resetScrolling()
+        MenuItem.activate(self, rwdc)
+
 
 class MenuList(KeyListener):
     def __init__(self, items, root=False):
@@ -529,8 +567,8 @@ class AutoMenuList(MenuList):
        when the controls have been inactive for a while.
        """
     def __init__(self, items, root=False,
-                 inactivityDelay = 10,
-                 autoScrollDelay = 2,
+                 inactivityDelay = 15,
+                 autoScrollDelay = 4,
                  ):
         MenuList.__init__(self, items, root)
         self.inactivityDelay = inactivityDelay
