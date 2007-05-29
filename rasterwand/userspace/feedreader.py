@@ -1,6 +1,13 @@
 #!/usr/bin/env python
+#
+# RSS reader for the Raster Wand, with configuration and network info
+# menus, as well as a clock.
+#
+# -- Micah Dowty <micah@navi.cx>
+#
 
-import time, feedparser, rwand, netif
+import sys, time, feedparser, rwand, netif
+
 
 class NetworkInterfaceMenu(rwand.MenuList):
     def __init__(self):
@@ -26,17 +33,14 @@ class ClockRenderer(rwand.Renderer):
 class HeadlineMenu(rwand.AutoMenuList):
     def __init__(self, feed):
         self.feed = feed
-        rwand.AutoMenuList.__init__(self, [], root=True)
-
-    def update(self):
         d = feedparser.parse(self.feed)
-        self.items = [
+        rwand.AutoMenuList.__init__(self, [
             rwand.MenuItem(ClockRenderer()),
             rwand.TextMenuItem('%s:' % d.feed.title),
-        ]+[
+            ]+[
             rwand.TextMenuItem(entry.title)
             for entry in d.entries
-        ]
+        ], root=True)
 
     def press_select(self, rwdc):
         SetupMenu().activate(rwdc)
@@ -57,15 +61,20 @@ class SetupMenu(rwand.MenuList):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) == 3:
+        url = sys.argv[1]
+        interval = 60 * int(sys.argv[2])
+    else:
+        sys.stderr.write("usage: %s <URL> <Update interval (minutes)>\n" % sys.argv[0])
+        sys.exit(1)
+    
     rwdc = rwand.RwdClient()
-    headlines = HeadlineMenu('http://www.theonion.com/content/feeds/daily')
     rwdc.start()
     try:
-        headlines.update()
-        headlines.activate(rwdc)
         while True:        
-            time.sleep(60 * 30)
-            headlines.update()
+            headlines = HeadlineMenu(url)
+            headlines.activate(rwdc)
+            time.sleep(interval)
 
     except KeyboardInterrupt:
         pass
