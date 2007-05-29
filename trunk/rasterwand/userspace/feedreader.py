@@ -43,21 +43,22 @@ class HeadlineMenu(rwand.AutoMenuList):
         ], root=True)
 
     def press_select(self, rwdc):
-        SetupMenu().activate(rwdc)
+        SetupMenu(self).activate(rwdc)
 
 
 class SetupMenu(rwand.MenuList):
-    def __init__(self, inactivityDelay=10):
+    def __init__(self, defaultMenu, inactivityDelay=10):
         rwand.MenuList.__init__(self, [
             rwand.TextMenuItem(u"Setup \u2191\u2193"),
             rwand.SubMenuItem("Display", rwand.SettingsMenu()),
             rwand.SubMenuItem("Network", NetworkInterfaceMenu()),
             ])
+        self.defaultMenu = defaultMenu
         self.inactivityDelay = inactivityDelay
 
     def pollKeys(self, rwdc, buttons):
         if rwdc.getInactivityTime() > self.inactivityDelay:
-            InfoMenu().activate(rwdc)
+            self.defaultMenu.activate(rwdc)
 
 
 if __name__ == "__main__":
@@ -71,13 +72,13 @@ if __name__ == "__main__":
     rwdc = rwand.RwdClient()
     rwdc.start()
     try:
-        while True:        
-            headlines = HeadlineMenu(url)
-            headlines.activate(rwdc)
-            time.sleep(interval)
-
-    except KeyboardInterrupt:
-        pass
+        try:
+            while True:        
+                headlines = HeadlineMenu(url)
+                headlines.activate(rwdc)
+                time.sleep(interval)
+        except KeyboardInterrupt:
+            pass
     finally:
         rwdc.stop()
         rwdc.join()    
