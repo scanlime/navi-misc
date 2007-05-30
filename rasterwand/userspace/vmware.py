@@ -15,13 +15,17 @@ def countTinderboxBreakages(branch):
     return len(re.findall(r"flames1\.gif", u.read()))
 
 
-def getStockQuotes(symbols):
-    """Query Yahoo's stock API for current prices on one or more stock symbols.
-       Returns a CSV reader object (an interable) representing the returned table.
+def getStockQuotes(symbols, format="sl1"):
+    """Query Yahoo's stock API for current prices on one or more stock
+       symbols.  Returns a CSV reader object (an interable)
+       representing the returned table.  The default format will give
+       a CSV file containing just stock symbols and current prices.
        """
-    o = urllib2.build_opener(urllib2.ProxyHandler({'http': 'http://proxy.vmware.com:3128'}))
-    u = o.open("http://finance.yahoo.com/d/quotes.csv?s=%s&f=sohgpv&e=.csv" %
-               ' '.join(symbols))
+    o = urllib2.build_opener(urllib2.ProxyHandler({
+        'http': 'http://proxy.vmware.com:3128'
+        }))
+    u = o.open("http://finance.yahoo.com/d/quotes.csv?s=%s&f=%s&e=.csv" %
+               (' '.join(symbols), format))
     return csv.reader(u)
 
 
@@ -55,11 +59,9 @@ class VMwareMenu(rwand.AutoMenuList):
 
     def updateStocks(self):
         try:
-            for info in getStockQuotes(self.stockSymbols):
-                symbol = info[0]
-                current = info[1]
+            for symbol, current in getStockQuotes(self.stockSymbols):
                 self.stockQuotes[symbol].renderer = rwand.TextRenderer(
-                    "%s %s" % (symbol, current)) 
+                    "%s %s" % (symbol, current))
         except Exception, e:
             print "Error updating stocks: %s" % e
 
