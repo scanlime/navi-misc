@@ -25,6 +25,7 @@
 
 #include <tusb.h>
 #include <string.h>
+#include <stdio.h>
 #include "util.h"
 #include "usb_driver.h"
 
@@ -77,7 +78,13 @@ static void usb_handle_descriptor_request() {
 }
 
 static void usb_handle_standard_request() {
+  static unsigned char status[2] = { 0, 0 };
+
   switch (usb_setup_buffer.bRequest) {
+
+  case USB_REQ_GET_STATUS:
+    usb_write_ep0_buffer(status, sizeof status);
+    break;
 
   case USB_REQ_SET_ADDRESS:
     /* Set the device address and send a 0-length response */
@@ -276,6 +283,12 @@ void usb_poll() {
 
 void usb_init() {
   usb_idle_handler = watchdog_reset;
+
+  /* Disconnect the bootloader if necessary */
+  if (USBCTL & CONT) {
+    USBCTL &= ~CONT;
+    delay(20000);
+  }
 
   FUNADR = 0;       /* We haven't been assigned an address yet */
   USBMSK = 0;       /* No USB interrupts */
