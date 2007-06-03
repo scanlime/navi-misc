@@ -38,7 +38,7 @@ install-ram: psxcard-fw
 
 # Install a nonvolatile copy of the firmware in the device's EEPROM
 install-eeprom: psxcard-fw.eeprom
-	$(TUSB_DIR)/bootload/i2c-rom -w psxcard-fw.eeprom
+	$(TUSB_DIR)/bootload/i2c-rom -z 16384 -p 0xFF -w psxcard-fw.eeprom
 
 # Intel HEX -> Flat Binary
 psxcard-fw: psxcard-fw.ihx

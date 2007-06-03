@@ -7,39 +7,8 @@
 # purposes. It contains a copy of the firmware itself, and no
 # descriptor info.
 #
-# We aren't expecting the bootloader to connect to the USB at all, but
-# the TI docs say we still need to provide at least a device
-# descriptor and some strings. Indeed, it seems that the bootloader
-# ignores our EEPROM unless the descriptors are present. Grr. Below
-# are dummy values for the descriptors.
-#
 
 device = BootDevice()[
-
-    DeviceDescriptorBootBlock()[
-	DeviceDescriptor(idVendor  = 0xE461,
-			 idProduct = 0x0013,
-			 ),
-    ],
-
-    # We need to include a config descriptor, but all
-    # settings are left at their defaults.
-    ConfigurationDescriptorBootBlock() [
-	ConfigurationDescriptor() [
-	    InterfaceDescriptor() [
-		EndpointDescriptor(),
-	    ],
-	],
-    ],
-
-    # These two strings are referred to by default values in the device descriptor.
-    StringDescriptorBootBlock() [
-	LanguageTable(),
-	# String 1, the manufacturer
-	StringDescriptor("x"),
-	# String 2, the product name
-	StringDescriptor("x"),
-    ],
 
     AutoexecFirmwareBootBlock()[
         BinaryFile("psxcard-fw"),
