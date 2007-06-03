@@ -255,6 +255,75 @@ uint8 cardslot_read_frame(uint16 frame, xdata uint8 *buffer)
 }
 
 
+/*
+ * Write one frame to a Playstation memory card. Returns TRUE if the
+ * write was successful, FALSE on any error. Does not verify the
+ * write- that should be the host software's job, so as to also
+ * protect against any USB or firmware errors.
+ */
+uint8 cardslot_write_frame(uint16 frame, xdata uint8 *buffer)
+{
+    uint8 i;
+    uint8 frameHigh = frame >> 8;
+    uint8 frameLow = (uint8) frame;
+    uint8 checkbyte = frameHigh ^ frameLow;
+
+    cardslot_begin();
+
+    /* Select the memory card, slot 1 */
+    cardslot_txrx_byte(0x81);
+    if (!cardslot_wait_for_ack()) goto error;
+
+    /* Memory card write */
+    cardslot_txrx_byte(0x57);
+    if (!cardslot_wait_for_ack()) goto error;
+
+    /* Some magic 2-byte response... */
+    if (cardslot_txrx_byte(0x00) != 0x5a) goto error;
+    if (!cardslot_wait_for_ack()) goto error;
+    if (cardslot_txrx_byte(0x00) != 0x5d) goto error;
+    if (!cardslot_wait_for_ack()) goto error;
+
+    /* Send address */
+    cardslot_txrx_byte(frameHigh);
+    if (!cardslot_wait_for_ack()) goto error;
+    cardslot_txrx_byte(frameLow);
+    if (!cardslot_wait_for_ack()) goto error;
+
+    /*
+     * Send data, updating our copy of the XOR byte while we're here.
+     */
+    for (i=0; i<PSXCARD_FRAME_SIZE; i++) {
+	uint8 byte = buffer[i];
+	cardslot_txrx_byte(byte);
+	checkbyte ^= byte;
+	if (!cardslot_wait_for_ack()) goto error;
+    }
+
+    /* Send the XOR check byte */
+    cardslot_txrx_byte(checkbyte);
+    if (!cardslot_wait_for_ack()) goto error;
+    
+    /*
+     * Receive a few magic end-of-something bytes..  The last of these
+     * is the same end-of-data mark used for card reads, and it isn't
+     * ACK'ed.
+     */
+    if (cardslot_txrx_byte(0x00) != 0x5c) goto error;
+    if (!cardslot_wait_for_ack()) goto error;
+    if (cardslot_txrx_byte(0x00) != 0x5d) goto error;
+    if (!cardslot_wait_for_ack()) goto error;
+    if (cardslot_txrx_byte(0x00) != 0x47) goto error;
+
+    cardslot_end();
+    return TRUE;
+
+ error:
+    cardslot_end();
+    return FALSE;
+}
+
+
 /********************************************************************/
 /************************************************* USB Interface ****/
 /********************************************************************/
@@ -303,10 +372,10 @@ void usbreq_read(uint16 frame)
 	}
     }
     
-    blockSize = MIN(sizeof ep1_out_x, PSXCARD_FRAME_SIZE);
-    memcpy(ep1_out_x, buffers.read, blockSize);
+    blockSize = MIN(sizeof ep1_in_x, PSXCARD_FRAME_SIZE);
+    memcpy(ep1_in_x, buffers.read, blockSize);
     usb_dma_unstall(EDB_IEP1);
-    usb_dma_setup(EDB_IEP1, ep1_out_x, blockSize);
+    usb_dma_setup(EDB_IEP1, ep1_in_x, blockSize);
 
     buffers.read_offset = blockSize;
     buffers.read_active = 1;
@@ -325,14 +394,65 @@ void usbreq_read_next(void)
 	return;
     }
 
-    blockSize = MIN(sizeof ep1_out_x, PSXCARD_FRAME_SIZE - buffers.read_offset);
-    memcpy(ep1_out_x, buffers.read + buffers.read_offset, blockSize);
-    usb_dma_setup(EDB_IEP1, ep1_out_x, blockSize);
+    blockSize = MIN(sizeof ep1_in_x, PSXCARD_FRAME_SIZE - buffers.read_offset);
+    memcpy(ep1_in_x, buffers.read + buffers.read_offset, blockSize);
+    usb_dma_setup(EDB_IEP1, ep1_in_x, blockSize);
     buffers.read_offset += blockSize;
 }
 
 void usbreq_write(uint16 frame)
 {
+    /*
+     * If the frame is now out of range, end the write
+     * without triggering an error.
+     */
+    if (frame >= 1024) {
+	buffers.write_active = 0;
+	return;
+    }
+
+    /* Prepare to receive the first writable frame */
+    buffers.write_frame = frame;
+    buffers.write_size = 0;
+    buffers.write_active = 1;
+
+    usb_dma_unstall(EDB_OEP1);
+    usb_dma_setup(EDB_OEP1, ep1_out_x, sizeof ep1_out_x);
+}
+
+/*
+ * We just received a write packet from the host.  Store it, request
+ * the next packet, and if we have a complete frame start writing that
+ * to the card.
+ */
+void usbreq_write_next(uint8 packetLen)
+{
+    /* Write this packet */
+    packetLen = MIN(packetLen, PSXCARD_FRAME_SIZE - buffers.write_size);
+    memcpy(buffers.write + buffers.write_size, ep1_out_x, packetLen);
+    buffers.write_size += packetLen;
+
+    /* Is this buffer full yet? */
+    if (buffers.write_size == PSXCARD_FRAME_SIZE) {
+	uint8 retries = 10;
+
+	while (!cardslot_write_frame(buffers.write_frame, buffers.write)) {
+	    usbreq_count_error(&errors.soft);
+	    if (!--retries) {
+		usbreq_count_error(&errors.hard);
+		buffers.write_active = 0;
+		return;
+	    }
+	}
+
+	/* Our buffer is now empty. Start the next frame.. */
+	usbreq_write(buffers.write_frame + 1);
+	return;
+    }
+
+    /* Request the rest of this frame */
+    usb_dma_setup(EDB_OEP1, ep1_out_x,
+		  MIN(sizeof ep1_out_x, PSXCARD_FRAME_SIZE - buffers.write_size));
 }
 
 void main()
@@ -353,6 +473,13 @@ void main()
 
     if (buffers.read_active && usb_dma_status(EDB_IEP1)) {
 	usbreq_read_next();
+    }
+
+    if (buffers.write_active) {
+	int bytes = usb_dma_status(EDB_OEP1);
+	if (bytes) {
+	    usbreq_write_next(bytes);
+	}
     }
   }
 }

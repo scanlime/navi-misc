@@ -18,7 +18,7 @@
 
 #define PSXCARD_VENDOR_ID    0xE461
 #define PSXCARD_PRODUCT_ID   0x0013
-#define PSXCARD_REVISION     0x0100
+#define PSXCARD_REVISION     0x0102   /* Even LSB == 'stable' */
 
 /*
  * The bulk IN/OUT endpoints are used to perform sequential
