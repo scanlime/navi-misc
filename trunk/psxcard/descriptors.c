@@ -3,6 +3,7 @@
  */
 
 #include "usb_driver.h"
+#include "psxcard-proto.h"
 
 const static struct usb_device_descriptor dev_descript = {
   /* bLength            */  sizeof(struct usb_device_descriptor),
@@ -12,9 +13,9 @@ const static struct usb_device_descriptor dev_descript = {
   /* bDeviceSubClass    */  0,
   /* bDeviceProtocol    */  0,
   /* bMaxPacketSize0    */  8,
-  /* idVendor           */  0xE461,
-  /* idProduct          */  0x0013,
-  /* bcdDevice          */  0x0100,
+  /* idVendor           */  PSXCARD_VENDOR_ID,
+  /* idProduct          */  PSXCARD_PRODUCT_ID,
+  /* bcdDevice          */  PSXCARD_REVISION,
   /* iManufacturer      */  1,
   /* iProduct           */  2,
   /* iSerialNumber      */  0,
@@ -79,7 +80,7 @@ const struct usb_descriptor_entry usb_descriptors[] = {
   {USB_DT_CONFIG, 0, (void*)&config_descript, sizeof(config_descript), 0},
   {USB_DT_STRING, 0, (void*)str_lang_table,   sizeof(str_lang_table), 0},
   {USB_DT_STRING, 1, "Micah Dowty <micah@navi.cx>", 0, 0},
-  {USB_DT_STRING, 2, "Playstation Memory Card Interface", 0, 0},
+  {USB_DT_STRING, 2, "PSX Memory Card Interface", 0, 0},
   {0},
 };
 
