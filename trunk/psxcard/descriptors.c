@@ -26,6 +26,7 @@ const static struct {
   struct usb_config_descriptor config;
   struct usb_interface_descriptor if0;
   struct usb_endpoint_descriptor if0_ep0;
+  struct usb_endpoint_descriptor if0_ep1;
 } config_descript = {
   /* Configuration */
   {
@@ -44,7 +45,7 @@ const static struct {
     /* bDescriptorType     */  USB_DT_INTERFACE,
     /* bInterfaceNumber    */  0,
     /* bAlternateSetting   */  0,
-    /* bNumEndpoints       */  1,
+    /* bNumEndpoints       */  2,
     /* bInterfaceClass     */  USB_CLASS_VENDOR_SPEC,
     /* bInterfaceSubClass  */  USB_CLASS_VENDOR_SPEC,
     /* bInterfaceProtocol  */  USB_CLASS_VENDOR_SPEC,

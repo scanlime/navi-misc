@@ -293,7 +293,6 @@ void *generic_file_read(GenericFile *file,
     assert(buffer != NULL);
 
     if (file->card) {
-	fprintf(stderr, "Reading...\n");
 	psxcard_transfer(file->card, PSXCARD_REQ_READ,
 			 (blockOffset + file->block) * PSXCARD_FRAMES_PER_BLOCK +
 			 frameOffset, buffer, size, 1);
@@ -330,7 +329,8 @@ void generic_file_write(GenericFile *file,
 	fprintf(stderr, "Verifying...\n");
 	verified = generic_file_read(file, 0, 0, size);
 	if (memcmp(buffer, verified, size)) {
-	    fprintf(stderr, "Verification FAILED\n");
+	    fprintf(stderr, "*** Verification failed!\n");
+	    exit(1);
 	} else {
 	    fprintf(stderr, "Write successful.\n");
 	}
@@ -473,13 +473,16 @@ int cmd_list(const char *filename)
 int cmd_copy(const char *fromSpec, const char *toSpec)
 {
     GenericFile fromFile, toFile;
+    int copySize;
     void *buffer;
 
     generic_file_open(&fromFile, fromSpec, O_RDONLY, NULL);
     generic_file_open(&toFile, toSpec, O_RDWR | O_CREAT, NULL);
 
-    buffer = generic_file_read(&fromFile, 0, 0, fromFile.size);
-    generic_file_write(&toFile, buffer, MIN(fromFile.size, toFile.size));
+    copySize = MIN(fromFile.size, toFile.size);
+
+    buffer = generic_file_read(&fromFile, 0, 0, copySize);
+    generic_file_write(&toFile, buffer, copySize);
     free(buffer);
 
     return 0;
