@@ -253,6 +253,8 @@ class AutoexecFirmwareBootBlock(BootBlock):
        """
     blockType = 7
 
+    def attachHeader(self, joined):
+        return BootBlock.attachHeader(self, joined) + '\0'
 
 class BinaryFile(SerializableValue):
     """Opens the given file and returns all data in it. This
