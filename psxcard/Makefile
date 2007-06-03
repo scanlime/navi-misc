@@ -1,9 +1,11 @@
-BINS = psxcard-fw psxcopy
+SRCDIR = src
+FW_BINDIR = firmware
+BINS = $(FW_BINDIR)/psxcard-fw psxcopy
 
 all: $(BINS)
 
 clean:
-	rm -f *.ihx *.lnk *.lst *.map *.mem *.rst *.sym *.asm
+	rm -f $(FW_BINDIR)/*
 	rm -f psxcard-fw.eeprom
 	rm -f $(BINS)
 	rm -f $(OBJS)
@@ -13,8 +15,8 @@ clean:
 ## PC Software
 ###############
 
-psxcopy: psxcopy.c
-	cc -o psxcopy psxcopy.c -lusb
+psxcopy: $(SRCDIR)/psxcopy.c
+	cc -o $@ $< -lusb
 
 
 ###############
@@ -23,8 +25,8 @@ psxcopy: psxcopy.c
 
 TUSB_DIR = ../tusb
 OBJS = \
-	psxcard-fw.rel \
-	descriptors.rel \
+	$(FW_BINDIR)/psxcard-fw.rel \
+	$(FW_BINDIR)/descriptors.rel \
 	$(TUSB_DIR)/src/usb_driver.rel \
 	$(TUSB_DIR)/src/uart_driver.rel \
 	$(TUSB_DIR)/src/util.rel
@@ -33,23 +35,26 @@ CFLAGS = -I $(TUSB_DIR)/include
 LDFLAGS = --xram-loc 0xF800 --xram-size 0x500
 
 # Install a temporary copy of the firmware via the USB bootloader, for development purposes.
-install-ram: psxcard-fw
-	$(TUSB_DIR)/bootload/bootload psxcard-fw
+install-ram: $(FW_BINDIR)/psxcard-fw
+	$(TUSB_DIR)/bootload/bootload $<
 
 # Install a nonvolatile copy of the firmware in the device's EEPROM
-install-eeprom: psxcard-fw.eeprom
-	$(TUSB_DIR)/bootload/i2c-rom -z 16384 -p 0xFF -w psxcard-fw.eeprom
+install-eeprom: $(FW_BINDIR)/psxcard-fw.eeprom
+	$(TUSB_DIR)/bootload/i2c-rom -z 16384 -p 0xFF -w $<
 
 # Intel HEX -> Flat Binary
-psxcard-fw: psxcard-fw.ihx
-	objcopy -I ihex -O binary psxcard-fw.ihx psxcard-fw
+$(FW_BINDIR)/psxcard-fw: $(FW_BINDIR)/psxcard-fw.ihx
+	objcopy -I ihex -O binary $< $@
 
 # Flat binary -> EEPROM image
-psxcard-fw.eeprom: psxcard-fw boot-eeprom.desc
-	$(TUSB_DIR)/bootload/i2c-header.py boot-eeprom.desc psxcard-fw.eeprom
+$(FW_BINDIR)/psxcard-fw.eeprom: $(SRCDIR)/boot-eeprom.desc $(FW_BINDIR)/psxcard-fw
+	$(TUSB_DIR)/bootload/i2c-header.py $< $@
 
-psxcard-fw.ihx: $(OBJS)
-	sdcc -o psxcard-fw.ihx $(OBJS) $(LDFLAGS)
+$(FW_BINDIR)/psxcard-fw.ihx: $(OBJS)
+	sdcc -o $@ $(OBJS) $(LDFLAGS)
+
+$(FW_BINDIR)/%.rel: $(SRCDIR)/%.c $(TUSB_DIR)/include/*.h
+	sdcc -o $@ -c $< $(CFLAGS)
 
 %.rel: %.c $(TUSB_DIR)/include/*.h
 	sdcc -o $@ -c $< $(CFLAGS)
