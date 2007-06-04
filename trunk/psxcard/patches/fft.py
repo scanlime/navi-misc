@@ -28,7 +28,7 @@ def frameParity(savedata, frameNumber):
 
     byte = 0
     for offset in range(FRAME_SIZE):
-        byte ^= data[frameNumber * FRAME_SIZE + offset]
+        byte ^= savedata[frameNumber * FRAME_SIZE + offset]
     parity = 0
     for bit in range(8):
         if byte & (1<<bit):
