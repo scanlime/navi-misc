@@ -1,11 +1,11 @@
-CFLAGS += `pkg-config --cflags gobject-2.0`
+CFLAGS += `pkg-config --cflags gobject-2.0` -g
 
 LIBS += `pkg-config --libs gobject-2.0`
-LIBS += -lusb
+LIBS += -lusb -lm
 
 ALSA_LIBS += -lasound
 
-all:		calibrate filter tune theremin
+all:		calibrate filter tune theremin theremin2
 
 field-sensor.o:	field-sensor.c field-sensor.h
 	gcc -c -o $@ field-sensor.c $(CFLAGS)
@@ -33,3 +33,11 @@ theremin.o:	theremin.c field-sensor.h
 
 theremin:	theremin.o field-sensor.o
 	gcc -o $@ theremin.o field-sensor.o $(LIBS) $(ALSA_LIBS)
+
+theremin2.o:     theremin2.c field-sensor.h
+	gcc -c -o $@ theremin2.c $(CFLAGS)
+
+theremin2:       theremin2.o field-sensor.o
+	gcc -o $@ theremin2.o field-sensor.o $(LIBS) $(ALSA_LIBS)
+
+
