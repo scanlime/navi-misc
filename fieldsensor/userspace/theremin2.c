@@ -25,13 +25,14 @@
 
 guchar phase[]  = {24,     33,     21,     28,     26,     34,     17,     14};
 guchar period[] = {27,     26,     29,     26,     27,     30,     29,     29};
-float  mean[]   = {179.27, 199.08, 190.07, 178.63, 205.96, 167.80, 251.76, 236.91};
+float  mean[]   = {190.050140, 221.423645, 201.651016, 187.882416, 226.742813, 173.381256, 252.022629, 250.073822 
+};
 float  lbound[] = {168,    167,    172,    164,    179,    158,    183,    176};
 float  ubound[] = {212,    254,    252,    253,    255,    198,    253,    240};
 
 #define max(n,m) ((n > m) ? (n) : (m))
 
-#define N_FRAMES 1024
+#define N_FRAMES 32
 #define N_VOICES 2
 
 struct filter{
@@ -44,8 +45,9 @@ struct filter{
 
 snd_pcm_t *playback_handle;
 
-struct {
-   float frequency, magnitude, theta;
+volatile struct {
+  double frequency, freqLatch;
+  double magnitude, theta;
 } voices[N_VOICES];
 
 
@@ -91,107 +93,80 @@ scale (float input, int channel)
 }
 
 void
-sound_init ()
+sound_init (const char *device)
 {
-   snd_pcm_hw_params_t *hw_params;
-   snd_pcm_sw_params_t *sw_params;
-   snd_pcm_sframes_t frames_to_deliver;
-   int nfds;
-   int rate = 44100;
    int err;
 
-   if ((err = snd_pcm_open (&playback_handle, "hw:0", SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
+   if ((err = snd_pcm_open (&playback_handle, device, SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
       fprintf (stderr, "cannot open audio device (%s)\n", 
                snd_strerror (err));
       exit (1);
    }
 
-   if ((err = snd_pcm_hw_params_malloc (&hw_params)) < 0) {
-      fprintf (stderr, "cannot allocate hardware parameter structure (%s)\n",
-               snd_strerror (err));
-      exit (1);
+   if ((err = snd_pcm_set_params(playback_handle,
+				 SND_PCM_FORMAT_S16_LE,
+				 SND_PCM_ACCESS_RW_INTERLEAVED,
+				 2,
+				 44100,
+				 1,
+				 10000))) {
+     printf("Playback open error: %s\n", snd_strerror(err));
+     exit(1);
    }
-
-   if ((err = snd_pcm_hw_params_any (playback_handle, hw_params)) < 0) {
-      fprintf (stderr, "cannot initialize hardware parameter structure (%s)\n",
-               snd_strerror (err));
-      exit (1);
-   }
-
-   if ((err = snd_pcm_hw_params_set_access (playback_handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED)) < 0) {
-      fprintf (stderr, "cannot set access type (%s)\n",
-               snd_strerror (err));
-      exit (1);
-   }
-
-   if ((err = snd_pcm_hw_params_set_format (playback_handle, hw_params, SND_PCM_FORMAT_S16_LE)) < 0) {
-      fprintf (stderr, "cannot set sample format (%s)\n",
-               snd_strerror (err));
-      exit (1);
-   }
-
-   if ((err = snd_pcm_hw_params_set_rate_near (playback_handle, hw_params, &rate, 0)) < 0) {
-      fprintf (stderr, "cannot set sample rate (%s)\n",
-               snd_strerror (err));
-      exit (1);
-   }
-
-   if ((err = snd_pcm_hw_params_set_channels (playback_handle, hw_params, 2)) < 0) {
-      fprintf (stderr, "cannot set channel count (%s)\n",
-               snd_strerror (err));
-      exit (1);
-   }
-
-   if ((err = snd_pcm_hw_params (playback_handle, hw_params)) < 0) {
-      fprintf (stderr, "cannot set parameters (%s)\n",
-               snd_strerror (err));
-      exit (1);
-   }
-
-   snd_pcm_hw_params_free (hw_params);
 }
 
 void
 sound_poll()
 {
-   int frames_to_deliver, err, i;
+   int frames, i, voice;
    struct {
-      signed short l, r;
-   } buf[N_FRAMES];
+     signed short l,r;
+   } buffer[N_FRAMES];
 
-   if ((frames_to_deliver = snd_pcm_avail_update (playback_handle)) < 0) {
-      if (frames_to_deliver == -EPIPE) {
-         fprintf (stderr, "an xrun occured\n");
-         return;
-      } else {
-         fprintf (stderr, "unknown ALSA avail update return value (%d)\n", 
-                  frames_to_deliver);
-         return;
-      }
+   for (voice=0; voice<N_VOICES; voice++) {
+     voices[voice].freqLatch = voices[voice].frequency;
    }
 
-   frames_to_deliver = frames_to_deliver > N_FRAMES ? N_FRAMES : frames_to_deliver;
+   for (i=0; i<N_FRAMES; i++) {
+     int acc = 0;
 
-   for (i=0; i<frames_to_deliver; i++) {
-      int acc = 0;
-      int voice;
+     for (voice=0; voice<N_VOICES; voice++) {
+       acc += sin(voices[voice].theta + 
+		  (i * voices[voice].freqLatch / 44100.0 * 2*M_PI)) * 0x3000 * voices[voice].magnitude;
+     }
 
-      for (voice=0; voice<N_VOICES; voice++) {
-         voices[voice].theta = fmod(voices[voice].theta +
-                                    (voices[voice].frequency / 44100.0 * 2 * M_PI), 2*M_PI);
-         acc += sin(voices[voice].theta) * 0x3000 * voices[voice].magnitude;
-      }
+     if (acc > 0x7fff) acc = 0x7fff;
+     if (acc < -0x7fff) acc = -0x7fff;
 
-      if (acc > 0x7fff) acc = 0x7fff;
-      if (acc < -0x7fff) acc = -0x7fff;
-
-      buf[i].l = buf[i].r = acc;
+     buffer[i].l = buffer[i].r = acc;
    }
 
-   if ((err = snd_pcm_writei (playback_handle, buf, frames_to_deliver)) < 0) {
-      fprintf (stderr, "write failed (%s)\n", snd_strerror (err));
+   frames = snd_pcm_writei(playback_handle, buffer, N_FRAMES);
+   if (frames < 0) {
+     int err = snd_pcm_recover(playback_handle, frames, 0);
+     if (err < 0) {
+       printf("snd_pcm_recover failed: %s\n", snd_strerror(err));
+     }
+     return;
    }
+
+   for (voice=0; voice<N_VOICES; voice++) {
+     voices[voice].theta = fmod(voices[voice].theta +
+				(frames * voices[voice].freqLatch / 44100.0 * 2*M_PI), 2*M_PI);
+   }
+
+   snd_pcm_start(playback_handle);
 }
+
+void 
+sound_thread(void *arg)
+{
+  sound_init((char*) arg);
+  while (1) {
+    sound_poll();
+  }
+}
+
 
 int
 main (int argc, char *argv[])
@@ -201,14 +176,17 @@ main (int argc, char *argv[])
    struct filter filter;
    struct filter slow_filter;
    FieldSensor *sensor;
+   pthread_t thread;
+
+   if (pthread_create(&thread, NULL, sound_thread, argv[1]) < 0) {
+     perror("pthread_create");
+   }
 
    g_type_init ();
 
    sensor = field_sensor_new ();
-   filter_init (&filter, 8, 2);
-   filter_init (&slow_filter, 8, 16);
-
-   sound_init();
+   filter_init (&filter, 8, 16);
+   filter_init (&slow_filter, 8, 32);
 
    for (i = 0; i < 8; i++) {
       int tx = i / 2;
@@ -222,8 +200,6 @@ main (int argc, char *argv[])
       else       field_sensor_set_adcon_select (sensor, i, FS_RX_0);
       field_sensor_set_lc_tristate (sensor, i, (1 << tx));
    }
-
-   fcntl(1, F_SETFL, O_NONBLOCK);
 
    for (j = 0;; j++) {
       float scaled[8];
@@ -241,13 +217,13 @@ main (int argc, char *argv[])
       }
       mag = max(0, log(mag) - log(0.01)) * 0.5;
 
-      voices[0].frequency = pow(440, 1 + (scaled[4] - scaled[1]) * 0.7);
+      voices[0].frequency = pow(440, 1 + (scaled[1] - scaled[4]) * 0.5);
       voices[0].magnitude = mag;
+
+      printf("%.04f %.04f %f\n", voices[0].frequency, voices[0].magnitude, scaled[6]);
 
       voices[1].frequency = voices[0].frequency * (1 - scaled[6]);
       voices[1].magnitude = voices[0].magnitude * 0.8;
-
-      sound_poll();
    }
 }
 
