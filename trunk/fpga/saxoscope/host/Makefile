@@ -1,0 +1,1 @@
+all: fifocapture vcdwriter psxdecode
