@@ -11,7 +11,7 @@
 
 module psxtest(FX2_CLK, FX2_FD, FX2_SLRD, FX2_SLWR, FX2_flags, 
 	       FX2_PA_2, FX2_PA_3, FX2_PA_4, FX2_PA_5, FX2_PA_6, FX2_PA_7,
-	       LED, BUTTON,
+	       LED, BUTTON, SERIAL_RX,
 	       PSX_ACK, PSX_CLK, PSX_SEL, PSX_CMD, PSX_DAT);
 
     /********************************************************************
@@ -68,24 +68,25 @@ module psxtest(FX2_CLK, FX2_FD, FX2_SLRD, FX2_SLWR, FX2_flags,
     /********************************************************************
      * 
      * LED and Button
-     * 
-     * One LED just blinks to indicate activity and clock speed, the
-     * other indicates error. The button is our reset.
      */
 
     output [1:0] LED;
     input 	 BUTTON;
 
-    reg [22:0] 	 led_counter;
+    reg [20:0] 	 led_counter;
     wire         error;
+    wire         activity;
+    
     wire         reset 	  = ~BUTTON;
     assign       LED[1]   = error;
-    assign 	 LED[0]   = led_counter[22];
+    assign 	 LED[0]   = ~led_counter[20];
 
     always @(posedge FIFO_clk or posedge reset)
       if (reset)
 	led_counter   <= 0;
-      else
+      else if (activity)
+	led_counter   <= 0;
+      else if (~led_counter[20])
 	led_counter   <= led_counter + 1;
 
     
@@ -129,7 +130,7 @@ module psxtest(FX2_CLK, FX2_FD, FX2_SLRD, FX2_SLWR, FX2_flags,
 
     /********************************************************************
      * 
-     * Playstation device port
+     * Playstation controller emulator (and serial port glue)
      *
      */
 
@@ -139,7 +140,55 @@ module psxtest(FX2_CLK, FX2_FD, FX2_SLRD, FX2_SLWR, FX2_flags,
     input  PSX_CMD;
     inout  PSX_DAT;
 
+    input  SERIAL_RX;
+
+    wire   serial_data_ready;
+    wire   serial_end_of_packet;
+    wire   serial_idle;
+    wire [7:0]  serial_data;
+    reg [7:0] 	write_addr;
+    reg [7:0] 	write_data;
+    reg         write_en;
+    reg 	have_addr;
+    
     psx_controller #(12) controller_1(FIFO_clk, reset,
-				      PSX_ACK, PSX_CLK, PSX_SEL, PSX_CMD, PSX_DAT);
+				      PSX_ACK, PSX_CLK, PSX_SEL, PSX_CMD, PSX_DAT,
+				      write_addr[4:0], write_data, write_en);
+
+    async_receiver #(12000000) serial_port(FIFO_clk, SERIAL_RX, serial_data_ready,
+					   serial_data, serial_end_of_packet, serial_idle);
+
+    assign 	activity = serial_data_ready;
+    
+    always @(posedge FIFO_clk or posedge reset) begin
+	if (reset) begin
+	    write_addr 	 <= 0;
+	    write_data 	 <= 0;
+	    write_en 	 <= 0;
+	    have_addr 	 <= 0;
+	end
+	else if (serial_end_of_packet) begin
+	    write_en 	<= 0;
+	    have_addr 	<= 0;
+	end
+	else if (serial_data_ready) begin
+
+	    if (have_addr) begin
+		write_addr   <= write_addr + 1;
+		write_data   <= serial_data;
+		write_en     <= 1;		
+	    end
+	    else begin
+		write_addr   <= serial_data - 1;
+		write_data   <= 0;
+		write_en     <= 0;
+		have_addr    <= 1;
+	    end
+
+	end
+	else begin
+	    write_en   <= 0;
+	end
+    end
     
 endmodule
