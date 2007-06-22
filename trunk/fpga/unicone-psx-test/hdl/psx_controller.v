@@ -8,7 +8,8 @@
 
 
 module psx_controller(clk, reset,
-		      PSX_ack, PSX_clk, PSX_sel, PSX_cmd, PSX_dat);
+		      PSX_ack, PSX_clk, PSX_sel, PSX_cmd, PSX_dat,
+		      write_addr, write_data, write_en);
 
     parameter CLOCK_MHZ = 25;
 
@@ -16,6 +17,11 @@ module psx_controller(clk, reset,
     inout     PSX_ack, PSX_dat;
     input     PSX_clk, PSX_sel, PSX_cmd;
 
+    input [4:0] write_addr;
+    input [7:0] write_data;
+    input 	write_en;
+    
+    
     /********************************************************************
      * 
      * Low-level controller port.
@@ -34,7 +40,6 @@ module psx_controller(clk, reset,
 				      PPB_packet_reset, PPB_command, PPB_command_strobe,
 				      PPB_reply, PPB_reply_ready, PPB_ack_strobe);
  
-				      
     /********************************************************************
      * 
      * Main state machine
@@ -54,10 +59,12 @@ module psx_controller(clk, reset,
     
     /* Packet state */
     reg [3:0] 	 packet_state;
+    reg [4:0] 	 byte_count;
     
     /* Controller state */
     reg [3:0] 	 current_mode;
     reg [3:0] 	 current_reply_len;
+    reg [7:0] 	 input_state [31:0];
 
     assign PPB_ack_strobe = (packet_state != S_IDLE);
 
@@ -67,17 +74,21 @@ module psx_controller(clk, reset,
 	  /*
 	   * Reset all controller state.
 	   */
-	  packet_state 	      <= S_IDLE;
 	  current_mode 	      <= MODE_DIGITAL;
 	  current_reply_len   <= 1;
+
+	  PPB_reply 	      <= 8'hFF;
+	  byte_count 	      <= 0;
+	  packet_state 	      <= S_IDLE;
       end
       else if (PPB_packet_reset) begin
 	  /*
 	   * Begin a new packet. Wait for the address byte.
 	   * The response to the address byte is always 0xFF.
 	   */
-	  PPB_reply 	 <= 8'hFF;
-	  packet_state 	 <= S_HEADER_ADDRESS;
+	  PPB_reply 	      <= 8'hFF;
+	  byte_count 	      <= 0;
+	  packet_state 	      <= S_HEADER_ADDRESS;
       end
       else if (PPB_command_strobe) begin
 	  case (packet_state)
@@ -91,6 +102,7 @@ module psx_controller(clk, reset,
 		   * a combination of the current mode and current reply length.
 		   */
 		  PPB_reply 	 <= {current_mode, current_reply_len};
+		  byte_count     <= 0;
 		  packet_state 	 <= (PPB_command == 8'h01) ? S_HEADER_COMMAND : S_IDLE;
 	      end
 
@@ -101,6 +113,7 @@ module psx_controller(clk, reset,
 		   * The next (third) reply byte is padding.
 		   */
 		  PPB_reply   <= PADDING_BYTE;
+		  byte_count  <= 0;
 
 		  case (PPB_command)
 		      8'h42:    packet_state   <= S_CMD_POLL;
@@ -109,16 +122,30 @@ module psx_controller(clk, reset,
 	      end
 
 	      S_IDLE: begin
-		  packet_state 	<= S_IDLE;
-		  PPB_reply     <= PADDING_BYTE;
+		  packet_state 		       <= S_IDLE;
+		  PPB_reply 		       <= PADDING_BYTE;
+		  byte_count 		       <= 0;
 	      end
 
 	      S_CMD_POLL: begin
-		  packet_state  <= S_CMD_POLL;
-		  PPB_reply     <= 8'h55;
+		  packet_state 		       <= S_CMD_POLL;
+		  byte_count 		       <= byte_count + 1;
+		  PPB_reply 		       <= input_state[byte_count];
 	      end
 	      
 	  endcase // case (packet_state)
       end
+
+
+    /********************************************************************
+     * 
+     * Input state modifications
+     *
+     */
+
+    always @(posedge clk) begin
+	if (write_en)
+	  input_state[write_addr] <= write_data;
+    end
     
 endmodule
