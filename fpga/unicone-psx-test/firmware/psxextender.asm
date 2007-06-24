@@ -26,6 +26,11 @@
 	;;     clock used on the Playstation bus. It has ~1 bit
 	;;     of latency above the latency imposed by the
 	;;     controller itself and our polling schedule.
+	;; 
+	;;     Packet format:
+	;;       - Start-of-packet flag (0x50) OR'ed with slot number
+	;;       - State bits
+	;;       - Data from controller (0 to 18 bytes, length depending only on state)
 	;;
 	;; The remote unit has a free-running update clock, sending
 	;; back update packets as often as possible.
@@ -138,54 +143,140 @@
 
 	
 	;; ****************************************************
-	;; Reset/Interrupt Vectors
-	;; ****************************************************
-
-	org 0
-	goto	startup
-	org 4
-	retfie
-
-
-	;; ****************************************************
 	;; Variables and Constants
 	;; ****************************************************
 
+	#define START_OF_PACKET		0x50
+	
 	#define NUM_SLOTS		.2
 	#define	MAX_ACTUATORS_LEN	.2
 	#define NUM_PRESSURE_BUTTONS	.12
 
 	#define DEBOUNCE_CYCLE_COUNT	.50
 
-	;; Some controllers (Logitech wireless) are particularly
-	;; sensitive to the interval between poll cycles. 13ms is
-	;; close to what most games seem to use, and the Logitech
-	;; controller is happy at this frequency.
+	;; Longer-period timing is based on TMR0 with a 1:16 prescaler.
+	;; At 20 MHz, this gives us about 1221 Hz.
 
-	#define POLL_INTERVAL_MS	.13
+	#define TMR0_HZ			.1221
+	
+	;; Some controllers (Logitech wireless) are particularly
+	;; sensitive to the interval between poll cycles.  This
+	;; constant is the target polling rate that our per-slot
+	;; accumulators try to hit. 
+	;;
+	;; On average, each slot will poll at TMR0_HZ / POLL_INTERVAL_TICKS Hz.
+	
+	#define POLL_INTERVAL_TICKS	.15
 	
 	#define STATE_CONNECTED_BIT	0
 	#define STATE_ANALOG_BIT	1
 	#define STATE_DUALSHOCK_BIT	2
 		
-	;; Variables
 	cblock	0x20
+		;; General purpose
 		temp
 		temp2
 
+		;; Low-level I/O 
 		cmd_byte
 		reply_byte
 		psx_port_latch
-	
+
+		;; Controller I/O
 		current_slot
 		next_state_on_error
 		debounce_count
 		packet_iter
+		byte_count
 
 		slot_states:NUM_SLOTS
 		slot_mapping:NUM_SLOTS
 		slot_actuators:(NUM_SLOTS * MAX_ACTUATORS_LEN)
+
+		;; Interrupt handler registers
+		slot_poll_timers:NUM_SLOTS
 	endc
+
+	;; Bank-free RAM
+	cblock	0x70
+		w_temp
+		status_temp
+		pclath_temp
+	endc
+
+
+	;; ****************************************************
+	;; Reset/Interrupt Vectors
+	;; ****************************************************
+
+	org 0
+	pagesel	startup
+	goto	startup
+
+	;; XXX: The interrupt vector is supposed to be 0x0004,
+	;;      but for some reason I'm seeing execution start at
+	;;      0x0008. Let's hope this is a quirk of the bootloader
+	;;      I'm using, and not a memory paging bug elsewhere...
+
+	org 4
+interrupt
+	nop
+	nop
+	nop
+	nop
+
+	;; ----------------------------------------------------
+	;;
+	;; Save registers
+	;;
+
+	movwf	w_temp
+	swapf	STATUS, w
+	clrf	STATUS
+	movwf	status_temp
+	movf	PCLATH, w
+	movwf	pclath_temp
+	clrf	PCLATH
+
+	;; ----------------------------------------------------
+	;;
+	;; Timer 0 interrupt
+	;;
+
+	btfss	INTCON, TMR0IF
+	goto	not_tmr0_interrupt
+	bcf	INTCON, TMR0IF
+
+	;; Decrement the two polling timers
+	decf	slot_poll_timers+0, f
+	decf	slot_poll_timers+1, f
+
+not_tmr0_interrupt
+
+	;; ----------------------------------------------------
+	;;
+	;; USART Receive interrupt
+	;;
+
+	btfss	PIR1, RCIF
+	goto	not_usart_interrupt
+	
+not_usart_interrupt
+
+
+	;; ----------------------------------------------------
+	;;
+	;; Restore registers
+	;;
+	
+	movf	pclath_temp, w
+	movwf	PCLATH
+	swapf	status_temp, w
+	movwf	STATUS
+	swapf	w_temp, f
+	swapf	w_temp, w
+	retfie
+
 
 	;; ****************************************************
 	;; Hardware Initialization
@@ -226,29 +317,57 @@ mem_clear_loop
 	btfss	FSR, 7		; Stop at 0x80
 	goto	mem_clear_loop
 
-	banksel	PORTA		; Stay in the first bank by default
+	banksel	OPTION_REG
+	movlw	0x03		; Give TMR0 a 1:16 prescaler
+	movwf	OPTION_REG	;
+	banksel	TMR0		; ... and clear it 
+	clrf	TMR0
+
+	movlw	LED_DIGIT_A
+	movwf	SLOT2_LEDS
+	
+	banksel	PIE1		; Enable TMR0 and USART receive interrupts
+	movlw	0x20
+	movwf	PIE1
+	movlw	0xE0 
+	movwf	INTCON
+		
+	banksel	PORTA
 
 	
 	;; ****************************************************
 	;; Main Loop
 	;; ****************************************************
 
+	;; ----------------------------------------------------
+	;;
+	;; The main loop uses two timers, decremented
+	;; by the TMR0 interrupt handler, to control
+	;; the rate at which we poll each controller.
+	;; Each slot gets its own timer, so that changes
+	;; in one controller's state don't affect the
+	;; other controller's poll frequency.
+	;;
+	;; This macro divides up the main loop's per-slot work.
+	;;
+main_loop_slot_m	macro	slot
+	local	done
+
+	btfss	slot_poll_timers + slot, 7	; Check for timer underflow
+	goto	done
+	movlw	POLL_INTERVAL_TICKS		; Reset the timer
+	addwf	slot_poll_timers + slot, f
+	
+	movlw	slot				; Make this slot current, and poll it 
+	movwf	current_slot 
+	lcall	controller_poll
+done
+	endm
+	
+
 main_loop
-	movlw	POLL_INTERVAL_MS
-	lcall	delay_ms
-
-	clrf	current_slot
-	lcall	controller_poll
-	incf	current_slot, f
-	lcall	controller_poll
-
-	movf	slot_states, w	; XXX, display slot states
-	call	led_digit_table	
-	movwf	SLOT1_LEDS
-	movf	slot_states+1, w
-	call	led_digit_table	
-	movwf	SLOT2_LEDS
-			
+	main_loop_slot_m 0
+	main_loop_slot_m 1
 	goto	main_loop
 
 
@@ -369,8 +488,10 @@ delay_us_loop
 	;;
 controller_xfer_sub
 	movwf	cmd_byte
-	lcall	psx_xfer_tx_byte
+	bcf	INTCON, GIE
+	lcall	psx_xfer_byte
 	lcall	psx_ack_wait
+	bsf	INTCON, GIE
 	return
 
 controller_xfer_w	macro
@@ -388,7 +509,9 @@ controller_xfer		macro	literal
 controller_xfer_no_ack	macro	literal
 	movlw	literal
 	movwf	cmd_byte
-	lcall	psx_xfer_tx_byte
+	bcf	INTCON, GIE
+	lcall	psx_xfer_byte
+	bsf	INTCON, GIE
 	endm
 
 controller_xfer_f	macro	file
@@ -631,9 +754,15 @@ controller_escape
 	
 	;; ----------------------------------------------------
 	;; 
-	;; Poll the current controller. Sends all actuator
-	;; changes to the controller, while reading current
-	;; status.
+	;; Poll the current controller.
+	;; 
+	;; Sends current actuator values to the controller, and
+	;; generates a packet on the TX line containing the
+	;; controller's current status. This TX packet has very
+	;; low latency (~1 bit period).
+	;; 
+	;; Automatically connects/disconnects the controller as
+	;; necessary.
 	;;
 	;; Inputs:
 	;;	current_slot
@@ -644,42 +773,63 @@ controller_escape
 	;;	slot_state
 	;; 
 controller_poll
-	fsr_slot_state			; Not connected? Try to connect.
+	;; Not connected? Try to connect.
+	fsr_slot_state
 	btfss	INDF, STATE_CONNECTED_BIT
 	call	controller_detect
 
-	fsr_slot_state			; Still not connected? Give up.
+	;; Send the TX packet's header
+	movf	current_slot, w	
+	iorlw	START_OF_PACKET
+	lcall	tx_byte				; 1. Start of packet + slot number
+	fsr_slot_state
+	movf	INDF, w
+	lcall	tx_byte				; 2. Current state
+
+	;; We're done if the controller is disconnected
+	fsr_slot_state
 	btfss	INDF, STATE_CONNECTED_BIT
 	return
 
-	clrf	next_state_on_error	; Disconnect on error
+	;; Figure out how many bytes to expect
+	movlw	.2				; Plain digital controller
+	btfsc	INDF, STATE_ANALOG_BIT
+	movlw	.6				; Plain analog controller
+	btfsc	INDF, STATE_DUALSHOCK_BIT
+	movlw	.18				; Dual shock controller
+	movwf	byte_count
+	
+	;; Set up our error handling behaviour, (disconnect on error) and begin the PSX packet
+	clrf	next_state_on_error
 	lcall	psx_begin
 
-	lcall	psx_begin
+	;; Send the PSX polling command
 	controller_xfer		PSX_ADDRESS_CONTROLLER_1
 	controller_xfer		PSX_CMD_POLL
 	controller_xfer		0x00
 
-	controller_xfer		0x00	; Digital 0
-	controller_xfer		0x00	; Digital 1	
- 	controller_xfer		0x00	; Axes	0
- 	controller_xfer		0x00	; Axes	1
- 	controller_xfer		0x00	; Axes	2
- 	controller_xfer		0x00	; Axes	3
-  	controller_xfer		0x00	; Analog Buttons 0
-  	controller_xfer		0x00	; Analog Buttons 1
-  	controller_xfer		0x00	; Analog Buttons 2
-  	controller_xfer		0x00	; Analog Buttons 3
-  	controller_xfer		0x00	; Analog Buttons 4
-  	controller_xfer		0x00	; Analog Buttons 5
-  	controller_xfer		0x00	; Analog Buttons 6
-  	controller_xfer		0x00	; Analog Buttons 7
-  	controller_xfer		0x00	; Analog Buttons 8
-  	controller_xfer		0x00	; Analog Buttons 9
-  	controller_xfer		0x00	; Analog Buttons 10
-  	controller_xfer_no_ack	0x00	; Analog Buttons 11
-	lcall	psx_end
+	clrf	packet_iter
+cpoll_byte_loop
 
+	clrf	cmd_byte			; XXX, actuator data goes here
+	bcf	INTCON, GIE
+	lcall	psx_xfer_tx_byte
+
+	incf	packet_iter, f			; Done yet? 
+	movf	byte_count, w
+	xorwf	packet_iter, w
+	btfsc	STATUS, Z
+	goto	cpoll_done
+
+	lcall	psx_ack_wait			; Only check for ACK if this isn't the last byte
+	bsf	INTCON, GIE
+	btfss	STATUS, C
+	goto	controller_error
+	goto	cpoll_byte_loop
+
+cpoll_done	
+	bsf	INTCON, GIE
+	lcall	psx_end
 	return
 
 	
@@ -704,7 +854,7 @@ controller_error
 
 
 	;; ****************************************************
-	;; Low level Playstation port I/O
+	;; Low level bit-banged I/O
 	;; ****************************************************
 
 	;; ----------------------------------------------------
@@ -883,7 +1033,56 @@ psx_xfer_tx_byte_m	macro	dat_p, dat_b
 	movwf	PSX_PORT			; L(7)   Transmit the TX bit
 		
 	endm
+
+
+	;; ----------------------------------------------------
+	;;
+	;; Transfer one byte out via the TX port, without touching
+	;; the Playstation ports. This is used to send header bytes
+	;; on our high-speed serial line.
+	;;
+	;; Inputs:
+	;;	Byte to send in 'w'
+	;;
+	;; Side effects:
+	;;	Modifies psx_port_latch
+	;;	Modifies 'temp' and 'temp2'
+	;;
+tx_byte
+	movwf	temp2
+	bcf	INTCON, GIE		; Interrupts off
 	
+	movf	PSX_PORT, w		; Prepare psx_port_latch for use
+	andlw	~(TX_MARK_MASK | TX_SPACE_MASK)
+	movwf	psx_port_latch
+
+	clrc				; Put start bit into C
+	
+	movlw	.10			; Loop over 10 bits total (start, 8 data, stop)
+	movwf	temp
+tx_bit_loop				; This loop must be 20 cycles, but that's our only constraint.
+
+	movf	psx_port_latch, w	; (1) Convert C to a mark/space 
+	btfss	STATUS, C		; (2)
+	iorlw	TX_SPACE_MASK		; (3)
+	btfsc	STATUS, C		; (4) 
+	iorlw	TX_MARK_MASK		; (5)
+	movwf	PSX_PORT		; (6) Output the bit 
+
+	goto	$+1			; (8)
+	goto	$+1			; (10)
+	goto	$+1			; (12)
+	goto	$+1			; (14)
+	nop				; (15)
+
+	setc				; (16) This will become our stop bit
+	rrf	temp2, f		; (17) Next data/stop bit...
+	decfsz	temp, f			; (18) 
+	goto	tx_bit_loop		; (20) 
+
+	bsf	INTCON, GIE		; Interrupts on
+	return
+
 			
 	;; ----------------------------------------------------
 	;;
@@ -951,10 +1150,10 @@ psx_end_m	macro	sel_p, sel_b
 	;; 'current_slot' variable.
 	;;
 	;; The psx_xfer_byte macro also initializes psx_port_latch.
-	;; 
+	;;
 
 psx_xfer_byte
-	movf	PSX_PORT, w
+	movf	PSX_PORT, w			; Prepare psx_port_latch
 	andlw	PSX_OTHER_MASK
 	iorlw	CLK_MASK | TX_MARK_MASK
 	movwf	psx_port_latch
@@ -966,11 +1165,12 @@ psx_xfer_byte
 	return
 
 psx_xfer_tx_byte
-	movf	PSX_PORT, w
+	movf	PSX_PORT, w			; Prepare psx_port_latch
 	andlw	PSX_OTHER_MASK
 	iorlw	CLK_MASK | TX_MARK_MASK
 	movwf	psx_port_latch
-	clrf	reply_byte
+
+	clrf	reply_byte			; Clear reply_byte to initialize start bit
 	
 	pagesel	pxtb_slot2
 	btfsc	current_slot, 0
