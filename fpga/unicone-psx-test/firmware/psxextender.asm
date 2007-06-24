@@ -18,6 +18,8 @@
 	errorlevel -302
 	#include p16f877a.inc
 
+	;; Oscillator:	 20 MHz XTAL
+
 	__CONFIG _CP_OFF & _WDT_OFF & _BODEN_OFF & _PWRTE_ON & _HS_OSC & _WRT_OFF & _LVP_OFF & _DEBUG_OFF & _CPD_OFF
 
 	#define SLOT1_LEDS	PORTB
@@ -83,6 +85,7 @@
 	#define PSX_MODE_DIGITAL			0x40
 	#define PSX_MODE_ANALOG				0x70
 	#define PSX_MODE_ESCAPE				0xF0
+	#define PSX_MODEMASK				0xF0
 
 	#define PSX_CMD_INIT_PRESSURE			0x40
 	#define	PSX_CMD_GET_AVAILABLE_POLL_RESULTS	0x41
@@ -116,9 +119,17 @@
 
 	#define DEBOUNCE_CYCLE_COUNT	.10
 	#define DEBOUNCE_DELAY_MS	.5
+
+	;; Some controllers (Logitech wireless) are particularly
+	;; sensitive to the interval between poll cycles. 13ms is
+	;; close to what most games seem to use, and the Logitech
+	;; controller is happy at this frequency.
+
+	#define POLL_INTERVAL_MS	.13
 	
 	#define STATE_CONNECTED_BIT	0
 	#define STATE_ANALOG_BIT	1
+	#define STATE_DUALSHOCK_BIT	2
 		
 	;; Variables
 	cblock	0x20
@@ -185,7 +196,7 @@ mem_clear_loop
 	;; ****************************************************
 
 main_loop
-	movlw	.10
+	movlw	POLL_INTERVAL_MS
 	lcall	delay_ms
 
 	clrf	current_slot
@@ -207,6 +218,8 @@ main_loop
 	;; Utility Macros
 	;; ****************************************************
 
+
+	;; ----------------------------------------------------
 	;;
 	;; Copy the carry flag to a pin
 	;;
@@ -234,6 +247,7 @@ done
 	endm
 
 
+	;; ----------------------------------------------------
 	;;
 	;; Copy a pin to the carry flag
 	;;
@@ -255,6 +269,7 @@ mov_pin_to_c	macro	p_port, p_bit, negate
 	;; LED Displays
 	;; ****************************************************
 	
+	;; ----------------------------------------------------
 	;;
 	;; Display a byte, from 'w', in hexadecimal on the LED displays.
 	;; 
@@ -272,6 +287,7 @@ display_hex_byte
 	return
 				
 
+	;; ----------------------------------------------------
 	;;
 	;; Look-up table: hexadecimal digit to 7-segment display
 	;; 
@@ -300,6 +316,7 @@ led_digit_table
 	;; Delay Loops
 	;; ****************************************************
 
+	;; ----------------------------------------------------
 	;;
 	;; Busy-loop for at least 'w' milliseconds.
 	;;
@@ -328,6 +345,7 @@ delay_ms_loop2
 	return
 
 	
+	;; ----------------------------------------------------
 	;;
 	;; Busy-loop for at least 'w' microseconds.
 	;;
@@ -347,8 +365,7 @@ delay_us_loop
 	;; High level Playstation controller I/O
 	;; ****************************************************
 
-	org	0x100
-
+	;; ----------------------------------------------------
 	;;
 	;; Macros to send a byte (from 'w', a constant, or a file
 	;; register) to the current controller slot, wait for an
@@ -401,6 +418,7 @@ controller_xfer_expect	macro	cmd_literal, reply_literal
 	endm
 
 
+	;; ----------------------------------------------------
 	;; 
 	;; Macro to point INDF at the current slot's state.
 	;; 
@@ -412,6 +430,7 @@ fsr_slot_state	macro
 	endm
 
 
+	;; ----------------------------------------------------
 	;;
 	;; Detect the presence of a controller on the current slot.
 	;; If we detect a controller successfully, probe for additional
@@ -426,22 +445,28 @@ fsr_slot_state	macro
 	;;	slot_state
 	;;
 controller_detect
+
 	;; 1. Detect presence: Send a POLL, verify that the
 	;;    returned padding byte is correct. Do this several
 	;;    times, in order to make sure the contacts aren't
 	;;    still bouncing because the controller was just
 	;;    inserted.
 
+	clrf	next_state_on_error	; Disconnect on error
+
 	movlw	DEBOUNCE_CYCLE_COUNT
 	movwf	debounce_count
 controller_debounce_loop
 
-	clrf	next_state_on_error
+	;; Note: We'd like to be able to controller_xfer_expect here,
+	;;       but some controllers (like the Guitar Hero controller)
+	;;       don't respond using the typical values.
+
 	lcall	psx_begin
-	controller_xfer_expect	PSX_ADDRESS_CONTROLLER_1, 0xFF
+	controller_xfer		PSX_ADDRESS_CONTROLLER_1
 	controller_xfer		PSX_CMD_POLL
-	controller_xfer_expect	0x00, PSX_PADDING
-	lcall	psx_end
+	controller_xfer		0x00
+	lcall	psx_end_wait
 
 	movlw	DEBOUNCE_DELAY_MS
 	lcall	delay_ms
@@ -456,11 +481,12 @@ controller_debounce_loop
 	movf	INDF, w
 	movwf	next_state_on_error
 			
-	;; 2. Try to enter analog mode.
+	;; 3. Try to enter analog mode.
 
-	movlw	0x01
+	movlw	0x01			; Enter escape mode
 	lcall	controller_escape
-	lcall	psx_begin
+
+	lcall	psx_begin		; Set up analog mode
  	controller_xfer_expect	PSX_ADDRESS_CONTROLLER_1, 0xFF
  	controller_xfer_expect	PSX_CMD_SET_MAJOR_MODE, PSX_MODE_ESCAPE | 0x03
  	controller_xfer_expect	0x00, PSX_PADDING
@@ -470,16 +496,64 @@ controller_debounce_loop
  	controller_xfer		0x00
 	controller_xfer		0x00
  	controller_xfer_no_ack	0x00
-	lcall	psx_end
-	movlw	0x00
+	lcall	psx_end_wait
+
+	movlw	0x00			; Exit escape mode
 	lcall	controller_escape
 
+	;; 4. Test analog mode. If we poll now, the reply length and mode should
+	;;    indicate that we're in analog mode. If so, set ANALOG.
+
+ 	lcall	psx_begin
+ 	controller_xfer		PSX_ADDRESS_CONTROLLER_1
+ 	controller_xfer		PSX_CMD_POLL
+ 	lcall	psx_end_wait
+
+ 	movf	reply_byte, w
+ 	andlw	PSX_MODEMASK
+ 	xorlw	PSX_MODE_ANALOG
+ 	btfss	STATUS, Z
+ 	goto	controller_error
+	
 	fsr_slot_state
 	bsf	INDF, STATE_ANALOG_BIT
+	movf	INDF, w
+	movwf	next_state_on_error
+
+	;; 5. Enable force feedback. What this actually does it to specify a
+	;;    mapping from bytes in our polling packet to force feedback actuators
+	;;    on the controller. This code assumes 2 actuators, which is the case
+	;;    with Dual Shock controllers.
 	
+	movlw	0x01			; Enter escape mode
+	lcall	controller_escape
+
+	lcall	psx_begin
+ 	controller_xfer_expect	PSX_ADDRESS_CONTROLLER_1, 0xFF
+ 	controller_xfer_expect	PSX_CMD_SET_POLL_COMMAND_FORMAT, PSX_MODE_ESCAPE | 0x03
+ 	controller_xfer_expect	0x00, PSX_PADDING
+ 	controller_xfer		0x00	; Actuator 0
+ 	controller_xfer		0x01	; Actuator 1
+ 	controller_xfer		0xFF	; Disabled
+ 	controller_xfer		0xFF	; Disabled
+ 	controller_xfer		0xFF	; Disabled
+ 	controller_xfer_no_ack	0xFF	; Disabled
+	lcall	psx_end_wait
+
+	movlw	0x00			; Exit escape mode
+	lcall	controller_escape
+
+
+	;; We've made it all the way! Identify this controller with
+	;; the DUALSHOCK bit, and return.
+	
+	fsr_slot_state
+	bsf	INDF, STATE_DUALSHOCK_BIT
+	movf	INDF, w
 	return
 
 
+	;; ----------------------------------------------------
 	;;
 	;; Enter/leave the controller's escape mode. All commands
 	;; other than POLL and ESCAPE are only valid in escape
@@ -506,10 +580,11 @@ controller_escape
 	controller_xfer		0x00
 	controller_xfer_f	temp2
 	controller_xfer		0x00
-	lcall	psx_end
+	lcall	psx_end_wait
 	return
 	
 	
+	;; ----------------------------------------------------
 	;; 
 	;; Poll the current controller. Sends all actuator
 	;; changes to the controller, while reading current
@@ -555,6 +630,7 @@ controller_poll
 	return
 
 	
+	;; ----------------------------------------------------
 	;;
 	;; Controller error handler. De-selects the
 	;; controller, and reverts it to 'next_state_on_error'.
@@ -567,7 +643,7 @@ controller_poll
 	;;	slot_state
 	;;
 controller_error
-	lcall	psx_end
+	lcall	psx_end_wait
 	fsr_slot_state
 	movf	next_state_on_error, w
 	movwf	INDF
@@ -578,6 +654,7 @@ controller_error
 	;; Low level Playstation port I/O
 	;; ****************************************************
 
+	;; ----------------------------------------------------
 	;; 
 	;; Transfer one bit in/out via one of the Playstation ports.
 	;;
@@ -612,6 +689,7 @@ psx_xfer_bit_m	macro	cmd_p, cmd_b, dat_p, dat_b, clk_p, clk_b
 	endm
 
 
+	;; ----------------------------------------------------
 	;;
 	;; Transfer one byte in/out via one of the Playstation ports.
 	;;
@@ -633,6 +711,7 @@ psx_xfer_byte_m	macro	cmd_p, cmd_b, dat_p, dat_b, clk_p, clk_b
 	endm
 
 	
+	;; ----------------------------------------------------
 	;;
 	;; Wait for an ACK on one of the Playstation ports.
 	;; 
@@ -647,10 +726,10 @@ psx_xfer_byte_m	macro	cmd_p, cmd_b, dat_p, dat_b, clk_p, clk_b
 	;; Side effects:
 	;;	Modifies 'temp'.
 	;; 
-psx_ack_wait_m	macro	ack_p, ack_b
-	local	done
-	local	keep_waiting
-
+psx_ack_wait_m macro   ack_p, ack_b    
+	local   done
+	local   keep_waiting
+ 
 	setc			; Assume success for now
 	movlw	.20		; Timeout, in microseconds
 	movwf	temp
@@ -664,6 +743,7 @@ done
 	endm
 
 
+	;; ----------------------------------------------------
 	;;
 	;; Begin a command on one of the Playstation ports
 	;; 
@@ -677,15 +757,16 @@ psx_begin_m	macro	sel_p, sel_b
 	endm
 
 
+	;; ----------------------------------------------------
 	;;
 	;; End a command on one of the Playstation ports
 	;; 
 psx_end_m	macro	sel_p, sel_b
 	bcf	sel_p, sel_b
-	movlw	.20		; Controller needs 20us after !SEL before another command
-	lcall	delay_us
 	endm
 
+
+	;; ----------------------------------------------------
 	;; 
 	;; Macro instantiations for PSX slots 1 and 2.
 	;;
@@ -696,8 +777,6 @@ psx_end_m	macro	sel_p, sel_b
 	;; 'current_slot' variable.
 	;; 
 
-	org	0x200
-	
 psx_xfer_byte
 	pagesel	pxb_slot2
 	btfsc	current_slot, 0
@@ -726,8 +805,6 @@ psx_ack_wait
 	psx_ack_wait_m	SLOT1_ACK
 	return
 
-	org	0x300
-	
 pxb_slot2
 	psx_xfer_byte_m	SLOT2_CMD, SLOT2_DAT, SLOT2_CLK
 	return
@@ -743,5 +820,19 @@ pe_slot2
 paw_slot2
 	psx_ack_wait_m	SLOT2_ACK
 	return
+
+
+	;; ----------------------------------------------------
+	;; 
+	;; End a Playstation command, and delay enough that the
+	;; controller should be ready to accept the next command.
+	;;
+	;; This is a recommended wrapper to use around psx_end
+	;; in all situations other than normal controller polling.
+	;;
+psx_end_wait
+	lcall	psx_end
+	movlw	.2
+	lgoto	delay_ms
 
 	end
