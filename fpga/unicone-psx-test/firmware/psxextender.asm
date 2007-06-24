@@ -173,7 +173,7 @@
 	#define RX_PACKET_DATA_FLAG	rx_flags, 1
 		
 	#define NUM_SLOTS		.2
-	#define	MAX_ACTUATORS_LEN	.2
+	#define	MAX_ACTUATORS_LEN	.18
 	#define NUM_PRESSURE_BUTTONS	.12
 
 	#define DEBOUNCE_CYCLE_COUNT	.50
@@ -374,12 +374,12 @@ rx_slot0_actuator1
 
 rx_slot1_actuator0
 	movf	rx_byte, w
-	movwf	slot_actuators+2
+	movwf	slot_actuators+MAX_ACTUATORS_LEN+0
 	goto	end_usart_interrupt
 	
 rx_slot1_actuator1
 	movf	rx_byte, w
-	movwf	slot_actuators+3
+	movwf	slot_actuators+MAX_ACTUATORS_LEN+1
 	goto	end_usart_interrupt
 		
 			
@@ -942,20 +942,26 @@ controller_poll
 	controller_xfer		PSX_CMD_POLL
 	controller_xfer		0x00
 
-	clrf	packet_iter
+	bankisel slot_actuators			; Point INDF at the first actuator for this slot 
+	movlw	slot_actuators
+	btfsc	current_slot, 0
+	addlw	MAX_ACTUATORS_LEN
+	movwf	FSR
+	
 cpoll_byte_loop
 
-	clrf	cmd_byte			; XXX, actuator data goes here
-
+	movf	INDF, w				; Next actuator byte
+	movwf	cmd_byte
+	incf	FSR, f
+	
 	bcf	INTCON, GIE
 	lcall	psx_xfer_tx_byte
 
-	incf	packet_iter, f			; Done yet? 
-	movf	byte_count, w
-	xorwf	packet_iter, w
-	btfsc	STATUS, Z
+	decfsz	byte_count, f			; Done yet?
+	goto	cpoll_check_for_ack
 	goto	cpoll_done
 
+cpoll_check_for_ack
 	lcall	psx_ack_wait			; Only check for ACK if this isn't the last byte
 	bsf	INTCON, GIE
 	btfss	STATUS, C
