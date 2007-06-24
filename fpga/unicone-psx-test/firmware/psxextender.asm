@@ -8,7 +8,8 @@
 	;; The uplink consists of two asynchronous serial signals,
 	;; each with a dedicated twisted pair. Electrically they
 	;; are basically RS-485, with an 8-N-1 RS-232-equivalent
-	;; data format.
+	;; data format. Mark (1) is + > -, Space (0) is - > +. As
+	;; with RS-232, the signals should be Mark when idle.
 	;; 
 	;;   - From base unit to remote, an 19200 baud signal
 	;;     encodes force-feedback information and LED display
@@ -70,8 +71,8 @@
 	#define	CMD_MASK	0x01	; Inverted
 	#define	CLK_MASK	0x04	; Inverted
 	#define CLK_BIT		2
-	#define TX_NEG_MASK	0x20
-	#define TX_POS_MASK	0x40
+	#define TX_SPACE_MASK	0x20	; TX- = 1
+	#define TX_MARK_MASK	0x40	; TX+ = 1 
 	#define PSX_OTHER_MASK  0x9A	; All pins not listed here
 	
 	;; 
@@ -175,7 +176,6 @@
 		cmd_byte
 		reply_byte
 		psx_port_latch
-		psx_port_latch_clk
 	
 		current_slot
 		next_state_on_error
@@ -199,6 +199,9 @@ startup
 	clrf	PORTD
 	clrf	PORTE
 
+	movlw	TX_MARK_MASK	; Transmit a mark when idle
+	movwf	PSX_PORT
+	
 	banksel	TRISA
 	movlw	0x06		; RA1/RA2 input
 	movwf	TRISA
@@ -366,7 +369,7 @@ delay_us_loop
 	;;
 controller_xfer_sub
 	movwf	cmd_byte
-	lcall	psx_xfer_byte
+	lcall	psx_xfer_tx_byte
 	lcall	psx_ack_wait
 	return
 
@@ -385,7 +388,7 @@ controller_xfer		macro	literal
 controller_xfer_no_ack	macro	literal
 	movlw	literal
 	movwf	cmd_byte
-	lcall	psx_xfer_byte
+	lcall	psx_xfer_tx_byte
 	endm
 
 controller_xfer_f	macro	file
@@ -657,13 +660,24 @@ controller_poll
 	controller_xfer		PSX_CMD_POLL
 	controller_xfer		0x00
 
-	controller_xfer		0xFF	; Digital 0
-	controller_xfer		0xFF	; Digital 1	
-; 	controller_xfer		0x00	; Axes	0
-; 	controller_xfer		0x00	; Axes	1
-; 	controller_xfer		0x00	; Axes	2
-; 	controller_xfer		0x00	; Axes	3
-;  	controller_xfer		0x00	; Analog Buttons 0
+	controller_xfer		0x00	; Digital 0
+	controller_xfer		0x00	; Digital 1	
+ 	controller_xfer		0x00	; Axes	0
+ 	controller_xfer		0x00	; Axes	1
+ 	controller_xfer		0x00	; Axes	2
+ 	controller_xfer		0x00	; Axes	3
+  	controller_xfer		0x00	; Analog Buttons 0
+  	controller_xfer		0x00	; Analog Buttons 1
+  	controller_xfer		0x00	; Analog Buttons 2
+  	controller_xfer		0x00	; Analog Buttons 3
+  	controller_xfer		0x00	; Analog Buttons 4
+  	controller_xfer		0x00	; Analog Buttons 5
+  	controller_xfer		0x00	; Analog Buttons 6
+  	controller_xfer		0x00	; Analog Buttons 7
+  	controller_xfer		0x00	; Analog Buttons 8
+  	controller_xfer		0x00	; Analog Buttons 9
+  	controller_xfer		0x00	; Analog Buttons 10
+  	controller_xfer_no_ack	0x00	; Analog Buttons 11
 	lcall	psx_end
 
 	return
@@ -706,15 +720,14 @@ controller_error
 	;; 
 	;; Inputs:
 	;;	cmd_byte
-	;;	psx_port_latch (must be PSX_PORT & PSX_OTHER_MASK)
-	;;	psx_port_latch_clk (must be psx_port_latch + CLK_MASK)
+	;;	psx_port_latch (must be (PSX_PORT & PSX_OTHER_MASK) + CLK_MASK)
 	;;
 	;; Outputs:
 	;;	reply_byte
 	;; 
 psx_xfer_bit_m	macro	dat_p, dat_b
 
-	movf	psx_port_latch_clk, w	; H(7)   Prepare new PSX_PORT value
+	movf	psx_port_latch, w	; H(7)   Prepare new PSX_PORT value
 	rrf	cmd_byte, f		; H(8)   Transfer bit from cmd_byte to CMD_MASK 
 	btfss	STATUS, C		; H(9)     (inverted)
 	iorlw	CMD_MASK		; H(10) 
@@ -758,23 +771,120 @@ psx_xfer_byte_m	macro	dat_p, dat_b
 	;; ----------------------------------------------------
 	;; 
 	;; Transfer one bit in/out via one of the Playstation ports,
-	;; and output a copy of it to the differential-drive 
+	;; while simultaneously outputting a copy of it on the differential-drive
+	;; TX port.
 	;;
-	;; To achieve the nominal bit rate of 250 Khz with a
-	;; clock frequency of 20 MHz, this code should be timed such
-	;; that each CLK half-cycle is 10 instruction cycles.
-	;; 
-	;; Nominally we should sample input bits on the rising
-	;; edge and set output bits on the falling edge.
+	;; This macro has all the timing constraints of psx_xfer_bit_m,
+	;; with the additional constraint that the TX signal must be
+	;; a valid asynchronous serial (8-N-1) waveform at 250 kbaud.
+	;; This macro can basically choose an arbitrary point in time
+	;; to output its TX bit, as long as that is consistent with the
+	;; timing of our start and stop bits.
+	;;
+	;; Note that this macro actually transmits the *previous* bit
+	;; via TX. This means that when we're receiving bit 0, we're
+	;; transmitting the start bit. After all bits have been received,
+	;; we still need to transmit both bit 7 and the stop bit.
 	;; 
 	;; Inputs:
-	;;     cmd_byte
+	;;	cmd_byte
+	;;	psx_port_latch (must be (PSX_PORT & PSX_OTHER_MASK) + CLK_MASK)
 	;;
 	;; Outputs:
-	;;     reply_byte
+	;;	reply_byte
 	;; 
-	;; XXX
+psx_xfer_tx_bit_m	macro	dat_p, dat_b
+
+	movf	psx_port_latch, w		; H(7)   Prepare new PSX_PORT value
+	rrf	cmd_byte, f			; H(8)   Transfer bit from cmd_byte to CMD_MASK 
+	btfss	STATUS, C			; H(9)     (inverted)
+	iorlw	CMD_MASK			; H(10) 
+	movwf	PSX_PORT			; L(1)   Falling edge of CLK, output CMD bit
+
+	andlw	~(TX_MARK_MASK | TX_SPACE_MASK)	; L(2)   Convert the previous DAT bit to a TX mark/space 
+	btfss	reply_byte, 7			; L(3) 
+	iorlw	TX_SPACE_MASK			; L(4)
+	btfsc	reply_byte, 7			; L(5) 
+	iorlw	TX_MARK_MASK			; L(6)
+	movwf	PSX_PORT			; L(7)   Transmit the TX bit. Doesn't affect CLK/CMD. 
+
+	andlw	~CMD_MASK			; L(8)   Update psx_port_latch with the new TX bits 
+	movwf	psx_port_latch			; L(9)
+	
+	clrc					; L(10) 
+	bcf	PSX_PORT, CLK_BIT		; H(1)   Rising edge of CLK
+	btfsc	dat_p, dat_b			; H(2)   Sample DAT bit into C
+	setc					; H(3) 
+	rrf	reply_byte, f			; H(4)   Transfer bit from C into reply_byte
+
+	goto	$+1				; H(6) 
+
+	endm
+
+	
+	;; ----------------------------------------------------
+	;;
+	;; Transfer one byte in/out via one of the Playstation ports,
+	;; while simultaneously outputting a copy on the differential-drive
+	;; TX port. This macro generates framing bits which mesh with
+	;; the cycle timing used in psx_xfer_tx_bit_m.
+	;;
+	;; Inputs:
+	;;	cmd_byte
+	;;	reply_byte (Must be 0, for start bit)
+	;;	psx_port_latch (must be (PSX_PORT & PSX_OTHER_MASK) + CLK_MASK)
+	;;
+	;; Outputs:
+	;;	reply_byte
+	;; 
+psx_xfer_tx_byte_m	macro	dat_p, dat_b	
+	psx_xfer_tx_bit_m	dat_p, dat_b	; Read bit 0, TX start bit 
+	psx_xfer_tx_bit_m	dat_p, dat_b	; Read bit 1, TX bit 0
+	psx_xfer_tx_bit_m	dat_p, dat_b	; Read bit 2, TX bit 1
+	psx_xfer_tx_bit_m	dat_p, dat_b	; Read bit 3, TX bit 2
+	psx_xfer_tx_bit_m	dat_p, dat_b	; Read bit 4, TX bit 3
+	psx_xfer_tx_bit_m	dat_p, dat_b	; Read bit 5, TX bit 4
+	psx_xfer_tx_bit_m	dat_p, dat_b	; Read bit 6, TX bit 5
+	psx_xfer_tx_bit_m	dat_p, dat_b	; Read bit 7, TX bit 6
+
+	;; TX bit 7, using a copy of psx_xfer_tx_bit with PSX I/O removed
+
+	movf	psx_port_latch, w		; H(7)   Prepare new PSX_PORT value
+	andlw	~CLK_MASK			; H(8)   Keep CLK high
+	goto	$+1				; H(10)
+	nop					; L(1)
+
+	andlw	~(TX_MARK_MASK | TX_SPACE_MASK)	; L(2)   Convert the previous DAT bit to a TX mark/space 
+	btfss	reply_byte, 7			; L(3) 
+	iorlw	TX_SPACE_MASK			; L(4)
+	btfsc	reply_byte, 7			; L(5) 
+	iorlw	TX_MARK_MASK			; L(6)
+	movwf	PSX_PORT			; L(7)   Transmit the TX bit (Also brings CMD high)
+
+	andlw	~(CMD_MASK | CLK_MASK)		; L(8)   Update psx_port_latch with the new TX bits 
+	movwf	psx_port_latch			; L(9)      (Let it clear CLK this time, we want it high)
+	
+	nop 					; L(10) 
+	goto	$+1				; H(2)
+	goto	$+1				; H(4)
+	goto	$+1				; H(6)
+
+	;; TX stop bit, using a copy of psx_xfer_tx_bit with PSX I/O
+	;; removed and which always outputs a Mark.
+	
+	goto	$+1				; H(8)   Keep CLK high
+	goto	$+1				; H(10)
+	movf	psx_port_latch, w		; L(1)   Prepare new PSX_PORT value
+
+	andlw	~(TX_MARK_MASK | TX_SPACE_MASK)	; L(2)   Always output a Mark
+	iorlw	TX_MARK_MASK			; L(3)
+	goto	$+1				; L(5)
+	nop					; L(6) 
+	movwf	PSX_PORT			; L(7)   Transmit the TX bit
 		
+	endm
+	
+			
 	;; ----------------------------------------------------
 	;;
 	;; Wait for an ACK on one of the Playstation ports.
@@ -840,20 +950,32 @@ psx_end_m	macro	sel_p, sel_b
 	;; and provides a set of subroutines that respect the
 	;; 'current_slot' variable.
 	;;
-	;; The psx_xfer_byte macro also initializes psx_port_latch and psx_port_latch_clk.
+	;; The psx_xfer_byte macro also initializes psx_port_latch.
 	;; 
 
 psx_xfer_byte
 	movf	PSX_PORT, w
 	andlw	PSX_OTHER_MASK
+	iorlw	CLK_MASK | TX_MARK_MASK
 	movwf	psx_port_latch
-	iorlw	CLK_MASK
-	movwf	psx_port_latch_clk
 	
 	pagesel	pxb_slot2
 	btfsc	current_slot, 0
 	goto	pxb_slot2
 	psx_xfer_byte_m	SLOT1_DAT
+	return
+
+psx_xfer_tx_byte
+	movf	PSX_PORT, w
+	andlw	PSX_OTHER_MASK
+	iorlw	CLK_MASK | TX_MARK_MASK
+	movwf	psx_port_latch
+	clrf	reply_byte
+	
+	pagesel	pxtb_slot2
+	btfsc	current_slot, 0
+	goto	pxtb_slot2
+	psx_xfer_tx_byte_m	SLOT1_DAT
 	return
 
 psx_begin
@@ -879,6 +1001,10 @@ psx_ack_wait
 
 pxb_slot2
 	psx_xfer_byte_m	SLOT2_DAT
+	return
+
+pxtb_slot2
+	psx_xfer_tx_byte_m	SLOT2_DAT
 	return
 
 pb_slot2
