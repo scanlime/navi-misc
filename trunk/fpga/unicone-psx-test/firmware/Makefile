@@ -1,4 +1,4 @@
-BIN = serial_bridge.hex
+BIN = psxextender.hex
 
 all: $(BIN)
 
