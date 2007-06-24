@@ -532,16 +532,17 @@ controller_debounce_loop
  	controller_xfer_expect	PSX_ADDRESS_CONTROLLER_1, 0xFF
  	controller_xfer_expect	PSX_CMD_SET_POLL_COMMAND_FORMAT, PSX_MODE_ESCAPE | 0x03
  	controller_xfer_expect	0x00, PSX_PADDING
- 	controller_xfer		0x00	; Actuator 0
- 	controller_xfer		0x01	; Actuator 1
- 	controller_xfer		0xFF	; Disabled
- 	controller_xfer		0xFF	; Disabled
- 	controller_xfer		0xFF	; Disabled
- 	controller_xfer_no_ack	0xFF	; Disabled
+ 	controller_xfer		0x00	; Byte 0 => Actuator 0
+ 	controller_xfer		0x01	; Byte 1 => Actuator 1
+ 	controller_xfer		0xFF	; Byte 2 (Disabled)
+ 	controller_xfer		0xFF	; Byte 3 (Disabled)
+ 	controller_xfer		0xFF	; Byte 4 (Disabled)
+ 	controller_xfer_no_ack	0xFF	; Byte 5 (Disabled)
 	lcall	psx_end_wait
 
 	movlw	0x00			; Exit escape mode
 	lcall	controller_escape
+
 
 
 	;; We've made it all the way! Identify this controller with
