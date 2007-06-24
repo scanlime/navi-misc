@@ -11,13 +11,27 @@
 	;; data format. Mark (1) is + > -, Space (0) is - > +. As
 	;; with RS-232, the signals should be Mark when idle.
 	;; 
-	;;   - From base unit to remote, an 19200 baud signal
+	;;   - From base unit to remote, a 19200 baud signal
 	;;     encodes force-feedback information and LED display
 	;;     updates.
 	;; 
 	;;     The differential signal is received using one of the
 	;;     PIC's built-in comparators and the USART, and it is
 	;;     processed by an interrupt handler.
+	;;
+	;;     Packet format:
+	;;       - Start-of-packet flag (0x5A)
+	;;         (This may be doubled to ensure the receiver
+	;;          isn't in escape mode when the packet starts)
+	;; 
+	;;       - The rest of the packet is byte-stuffed. An extra
+	;;         0xFE byte must be inserted by the transmitter
+	;;         prior to any 0xFE or 0x5A bytes. The receiver
+	;;         always interprets bytes following 0xFE as data.
+	;; 
+	;;          - For each slot:
+	;;		- 1 byte LED status
+	;;		- 2 byte actuator status
 	;; 
 	;;   - From remote to base unit, a 250 kbaud signal
 	;;     provides fast low-latency controller updates.
@@ -32,6 +46,11 @@
 	;;       - State bits
 	;;       - Data from controller (0 to 18 bytes, length depending only on state)
 	;;
+	;;     There is no byte stuffing on this signal, but as
+	;;     the data is expected to be bursty the receiver
+	;;     can use an inter-packet timeout (of about 1ms)
+	;;     to recover from noisy packets.
+	;; 
 	;; The remote unit has a free-running update clock, sending
 	;; back update packets as often as possible.
 	;; 
@@ -59,7 +78,7 @@
 	
 	#define SLOT1_LEDS	PORTB
 	
-	#define SLOT1_DAT	PORTC, 4
+	#define SLOT1_DAT	PORTA, 2
 	#define SLOT1_SEL	PORTC, 1 ; Inverted
 	#define SLOT1_ACK	PORTE, 2
 	
@@ -77,7 +96,7 @@
 	#define	CLK_MASK	0x04	; Inverted
 	#define CLK_BIT		2
 	#define TX_SPACE_MASK	0x20	; TX- = 1
-	#define TX_MARK_MASK	0x40	; TX+ = 1 
+	#define TX_MARK_MASK	0x10	; TX+ = 1 
 	#define PSX_OTHER_MASK  0x9A	; All pins not listed here
 	
 	;; 
@@ -146,8 +165,13 @@
 	;; Variables and Constants
 	;; ****************************************************
 
-	#define START_OF_PACKET		0x50
-	
+	#define TX_START_OF_PACKET	0x50
+	#define RX_START_OF_PACKET	0x5A
+	#define RX_ESCAPE		0xFE
+
+	#define RX_ESCAPE_FLAG		rx_flags, 0
+	#define RX_PACKET_DATA_FLAG	rx_flags, 1
+		
 	#define NUM_SLOTS		.2
 	#define	MAX_ACTUATORS_LEN	.2
 	#define NUM_PRESSURE_BUTTONS	.12
@@ -195,6 +219,9 @@
 
 		;; Interrupt handler registers
 		slot_poll_timers:NUM_SLOTS
+		rx_byte
+		rx_flags
+		rx_byte_count
 	endc
 
 	;; Bank-free RAM
@@ -219,11 +246,11 @@
 	;;      I'm using, and not a memory paging bug elsewhere...
 
 	org 4
+	goto	interrupt
+	goto	interrupt
+	goto	interrupt
+	nop
 interrupt
-	nop
-	nop
-	nop
-	nop
 
 	;; ----------------------------------------------------
 	;;
@@ -240,30 +267,17 @@ interrupt
 
 	;; ----------------------------------------------------
 	;;
-	;; Timer 0 interrupt
+	;; Detect interrupt source
 	;;
 
-	btfss	INTCON, TMR0IF
-	goto	not_tmr0_interrupt
-	bcf	INTCON, TMR0IF
-
-	;; Decrement the two polling timers
-	decf	slot_poll_timers+0, f
-	decf	slot_poll_timers+1, f
-
-not_tmr0_interrupt
-
-	;; ----------------------------------------------------
-	;;
-	;; USART Receive interrupt
-	;;
-
-	btfss	PIR1, RCIF
-	goto	not_usart_interrupt
+	btfsc	INTCON, TMR0IF
+	goto	tmr0_interrupt
+end_tmr0_interrupt
 	
-not_usart_interrupt
-
-
+	btfsc	PIR1, RCIF
+	goto	usart_interrupt
+end_usart_interrupt
+	
 	;; ----------------------------------------------------
 	;;
 	;; Restore registers
@@ -276,6 +290,115 @@ not_usart_interrupt
 	swapf	w_temp, f
 	swapf	w_temp, w
 	retfie
+
+
+	;; ----------------------------------------------------
+	;;
+	;; Timer 0 interrupt handler
+	;;
+tmr0_interrupt
+	bcf	INTCON, TMR0IF
+
+	;; Decrement the two polling timers
+	decf	slot_poll_timers+0, f
+	decf	slot_poll_timers+1, f
+
+	goto end_tmr0_interrupt
+
+	
+	;; ----------------------------------------------------
+	;;
+	;; USART Receive interrupt: Packet framing
+	;;
+usart_interrupt
+	movf	RCREG, w
+	movwf	rx_byte
+
+	btfsc	RX_ESCAPE_FLAG		; Was the previous byte an escape?
+	goto	rx_data_byte		; If so, this byte must be data
+
+	movlw	RX_START_OF_PACKET	; Check for start-of-packet
+	xorwf	rx_byte, w
+	btfsc	STATUS, Z
+	goto	rx_start_of_packet
+
+	movlw	RX_ESCAPE		; Check for escape
+	xorwf	rx_byte, w
+	btfsc	STATUS, Z
+	goto	rx_escape
+
+	;; Fall through...
+
+	;; ----------------------------------------------------
+	;;
+	;; Handler for USART packet data bytes
+	;;
+rx_data_byte
+	bcf	RX_ESCAPE_FLAG
+	btfss	RX_PACKET_DATA_FLAG	; Stop receiving if this isn't valid packet data
+	goto	end_usart_interrupt
+
+	movf	rx_byte_count, w	; Next byte...
+	incf	rx_byte_count, f
+	
+	addwf	PCL, f			; Save some CPU by using a jump table for each packet byte
+	goto	rx_slot0_led
+	goto	rx_slot0_actuator0
+	goto	rx_slot0_actuator1
+	goto	rx_slot1_led
+	goto	rx_slot1_actuator0
+	goto	rx_slot1_actuator1
+
+	bcf	RX_PACKET_DATA_FLAG	; End of packet
+	goto	end_usart_interrupt
+
+rx_slot0_led
+	movf	rx_byte, w
+	movwf	SLOT1_LEDS
+	goto	end_usart_interrupt
+
+rx_slot1_led
+	movf	rx_byte, w
+	movwf	SLOT2_LEDS
+	goto	end_usart_interrupt
+
+rx_slot0_actuator0
+	movf	rx_byte, w
+	movwf	slot_actuators+0
+	goto	end_usart_interrupt
+
+rx_slot0_actuator1
+	movf	rx_byte, w
+	movwf	slot_actuators+1
+	goto	end_usart_interrupt
+
+rx_slot1_actuator0
+	movf	rx_byte, w
+	movwf	slot_actuators+2
+	goto	end_usart_interrupt
+	
+rx_slot1_actuator1
+	movf	rx_byte, w
+	movwf	slot_actuators+3
+	goto	end_usart_interrupt
+		
+			
+	;; ----------------------------------------------------
+	;;
+	;; Handler for USART start-of-packet bytes
+	;;
+rx_start_of_packet
+	clrf	rx_byte_count
+	bsf	RX_PACKET_DATA_FLAG
+	goto	end_usart_interrupt
+
+	;; ----------------------------------------------------
+	;;
+	;; Handler for USART escape bytes
+	;;
+rx_escape
+	bsf	RX_ESCAPE_FLAG
+	goto	end_usart_interrupt
 
 
 	;; ****************************************************
@@ -294,17 +417,17 @@ startup
 	movwf	PSX_PORT
 	
 	banksel	TRISA
-	movlw	0x06		; RA1/RA2 input
+	movlw	0x0D		; RA0, RA2, RA3 inputs
 	movwf	TRISA
 	clrf	TRISB		; PORTB, all outputs
-	movlw	0x90		; RC7/RC4 input
+	movlw	0x80		; RC7 input
 	movwf	TRISC
 	clrf	TRISD		; PORTD, all outputs
 	movlw	0x07		; PORTE, all inputs
 	movwf	TRISE
 
 	banksel	ADCON1
-	movlw	0x02		; PORTA analog, PORTE digital
+	movlw	0x04		; AN0, AN1, and AN3 are analog
 	movwf	ADCON1
 
 	;; Clear the first bank of general purpose RAM
@@ -323,9 +446,20 @@ mem_clear_loop
 	banksel	TMR0		; ... and clear it 
 	clrf	TMR0
 
-	movlw	LED_DIGIT_A
-	movwf	SLOT2_LEDS
-	
+	banksel	CMCON		; Set up a comparator (for USART RX):
+	movlw	0x01		;   (RA3 > RA0) => RA4 
+	movwf	CMCON
+
+	banksel SPBRG		; 19200 Baud (20MHz/BRGH=1)
+	movlw	.64
+	movwf	SPBRG
+	banksel	TXSTA		; USART Transmit disabled
+	movlw	0x04		;   (BRGH=1)
+	movwf	TXSTA
+	banksel	RCSTA		; USART Receive enabled
+	movlw	0x90
+	movwf	TXSTA
+
 	banksel	PIE1		; Enable TMR0 and USART receive interrupts
 	movlw	0x20
 	movwf	PIE1
@@ -780,7 +914,7 @@ controller_poll
 
 	;; Send the TX packet's header
 	movf	current_slot, w	
-	iorlw	START_OF_PACKET
+	iorlw	TX_START_OF_PACKET
 	lcall	tx_byte				; 1. Start of packet + slot number
 	fsr_slot_state
 	movf	INDF, w
@@ -812,6 +946,7 @@ controller_poll
 cpoll_byte_loop
 
 	clrf	cmd_byte			; XXX, actuator data goes here
+
 	bcf	INTCON, GIE
 	lcall	psx_xfer_tx_byte
 
