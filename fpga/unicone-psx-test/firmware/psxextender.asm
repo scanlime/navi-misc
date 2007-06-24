@@ -116,9 +116,9 @@
 
 	#define NUM_SLOTS		.2
 	#define	MAX_ACTUATORS_LEN	.2
+	#define NUM_PRESSURE_BUTTONS	.12
 
-	#define DEBOUNCE_CYCLE_COUNT	.10
-	#define DEBOUNCE_DELAY_MS	.5
+	#define DEBOUNCE_CYCLE_COUNT	.50
 
 	;; Some controllers (Logitech wireless) are particularly
 	;; sensitive to the interval between poll cycles. 13ms is
@@ -142,6 +142,7 @@
 		current_slot
 		next_state_on_error
 		debounce_count
+		packet_iter
 
 		slot_states:NUM_SLOTS
 		slot_numbers:NUM_SLOTS
@@ -203,7 +204,7 @@ main_loop
 	lcall	controller_poll
 	incf	current_slot, f
 	lcall	controller_poll
-	
+
 	movf	slot_states, w	; XXX, display slot states
 	call	led_digit_table	
 	movwf	SLOT1_LEDS
@@ -446,7 +447,7 @@ fsr_slot_state	macro
 	;;
 controller_detect
 
-	;; 1. Detect presence: Send a POLL, verify that the
+	;; 1. Detect presence: Send a POLL, verify that40/f3 the
 	;;    returned padding byte is correct. Do this several
 	;;    times, in order to make sure the contacts aren't
 	;;    still bouncing because the controller was just
@@ -468,8 +469,6 @@ controller_debounce_loop
 	controller_xfer		0x00
 	lcall	psx_end_wait
 
-	movlw	DEBOUNCE_DELAY_MS
-	lcall	delay_ms
 	decfsz	debounce_count, f
 	goto	controller_debounce_loop
 		
@@ -490,12 +489,12 @@ controller_debounce_loop
  	controller_xfer_expect	PSX_ADDRESS_CONTROLLER_1, 0xFF
  	controller_xfer_expect	PSX_CMD_SET_MAJOR_MODE, PSX_MODE_ESCAPE | 0x03
  	controller_xfer_expect	0x00, PSX_PADDING
- 	controller_xfer		0x01
- 	controller_xfer		0x03
- 	controller_xfer		0x00
- 	controller_xfer		0x00
-	controller_xfer		0x00
- 	controller_xfer_no_ack	0x00
+ 	controller_xfer		0x01	; Analog mode
+ 	controller_xfer		0x03	; (unknown)
+ 	controller_xfer		0x00	; (unknown)
+ 	controller_xfer		0x00	; (unknown)
+	controller_xfer		0x00	; (unknown)
+ 	controller_xfer_no_ack	0x00	; (unknown)
 	lcall	psx_end_wait
 
 	movlw	0x00			; Exit escape mode
@@ -540,13 +539,71 @@ controller_debounce_loop
  	controller_xfer_no_ack	0xFF	; Byte 5 (Disabled)
 	lcall	psx_end_wait
 
+	;; 6. Specify the polling result format to include all channels on the
+	;;    Dual Shock controller. We can actually ask the controller to give us
+	;;    a bitmap of supported channels (with CMD_GET_AVAILABLE_POLL_RESULTS)
+	;;    but that's kind of pointless for us since we wouldn't know what to
+	;;    do with any extra channels if the controller reported any.
+	;;
+	;;    This enables the first 18 reply channels, which includes everything
+	;;    the Dual Shock controller has (including all pressure-sensitive buttons)
+
+	lcall	psx_begin
+ 	controller_xfer_expect	PSX_ADDRESS_CONTROLLER_1, 0xFF
+ 	controller_xfer_expect	PSX_CMD_SET_POLL_RESULT_FORMAT, PSX_MODE_ESCAPE | 0x03
+ 	controller_xfer_expect	0x00, PSX_PADDING
+ 	controller_xfer		0xFF	; Bitmap: enable first 18 responses
+ 	controller_xfer		0xFF	;         ...
+ 	controller_xfer		0x03	;         ...
+ 	controller_xfer		0x00	;         ...
+ 	controller_xfer		0x00	;         ...
+ 	controller_xfer_no_ack	0x00	; (Unused)
+	lcall	psx_end_wait
+
+	;; 7. Initialize the pressure-sensitive buttons. This consists of sending one
+	;;    command per button, but the command contents are not yet understood.
+	;;
+	;;    Note that this command sequence is not actually necessary in order to
+	;;    use the pressure-sensitive buttons, but we might as well issue it in
+	;;    order to make sure any internal parameters for the pressure sensitive
+	;;    buttons are at least in a known state.
+
+	clrf	packet_iter
+pressure_sensor_init_loop
+
+	lcall	psx_begin
+ 	controller_xfer_expect	PSX_ADDRESS_CONTROLLER_1, 0xFF
+ 	controller_xfer_expect	PSX_CMD_INIT_PRESSURE, PSX_MODE_ESCAPE | 0x03
+ 	controller_xfer_expect	0x00, PSX_PADDING
+ 	controller_xfer_f	packet_iter	; Button number 
+ 	controller_xfer		0xFF		; (unknown)
+ 	controller_xfer		0x02		; (unknown)
+ 	controller_xfer		0x00		; (unknown)
+ 	controller_xfer		0x00		; (unknown)
+ 	controller_xfer_no_ack	0x00		; (unknown)
+	lcall	psx_end_wait
+
+	incf	packet_iter, f		; Loop over all buttons
+	movlw	NUM_PRESSURE_BUTTONS
+	xorwf	packet_iter, w
+	btfss	STATUS, Z
+	goto	pressure_sensor_init_loop
+
+	;; 8. Test all the setup work so far by issuing another poll and checking
+	;;    the mode and reply length. We should have a reply length of 18 bytes
+	;;    (0x09) and the mode PSX_MODE_ANALOG.
+	
 	movlw	0x00			; Exit escape mode
 	lcall	controller_escape
 
+	lcall	psx_begin
+ 	controller_xfer_expect	PSX_ADDRESS_CONTROLLER_1, 0xFF
+ 	controller_xfer_expect	PSX_CMD_POLL, PSX_MODE_ANALOG | 0x09
+ 	controller_xfer_expect	0x00, PSX_PADDING
+	lcall	psx_end_wait
 
-
-	;; We've made it all the way! Identify this controller with
-	;; the DUALSHOCK bit, and return.
+	;; 9. We've made it all the way! Identify this controller with
+	;;    the DUALSHOCK bit, and return.
 	
 	fsr_slot_state
 	bsf	INDF, STATE_DUALSHOCK_BIT
@@ -611,23 +668,20 @@ controller_poll
 	clrf	next_state_on_error	; Disconnect on error
 	lcall	psx_begin
 
-	controller_xfer		0x01	; [0] Address a controller at port 1
- 	controller_xfer		0x42	; [1] Polling command
-	controller_xfer		0x00	; [2] Header padding byte
+	lcall	psx_begin
+	controller_xfer		PSX_ADDRESS_CONTROLLER_1
+	controller_xfer		PSX_CMD_POLL
+	controller_xfer		0x00
 
- 	movlw	0x00
- 	movwf	cmd_byte
- 	lcall	psx_xfer_byte	; [3] Data byte 0
- 	lcall	psx_ack_wait
-	btfss	STATUS, C
-	goto	controller_error
+	controller_xfer		0xFF	; Digital 0
+	controller_xfer		0xFF	; Digital 1	
+; 	controller_xfer		0x00	; Axes	0
+; 	controller_xfer		0x00	; Axes	1
+; 	controller_xfer		0x00	; Axes	2
+; 	controller_xfer		0x00	; Axes	3
+;  	controller_xfer		0x00	; Analog Buttons 0
+	lcall	psx_end
 
- 	movlw	0x00
- 	movwf	cmd_byte
- 	lcall	psx_xfer_byte	; [4] Data byte 1
- 	lcall	psx_ack_wait
-
- 	lcall	psx_end
 	return
 
 	
