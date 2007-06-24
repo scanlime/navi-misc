@@ -1,6 +1,33 @@
 	;;
-	;; Simple Playstation controller to RS-232 bridge, for use
-	;; with the matching controller emulator FPGA.
+	;; Remote unit for the Playstation controller extender.
+	;;
+	;; This is a Playstation controller to serial bridge. It has
+	;; two controller ports, a 7-segment display (indicating channel
+	;; assignment and status) for each port, and an RJ45 uplink.
+	;;
+	;; The uplink consists of two asynchronous serial signals,
+	;; each with a dedicated twisted pair. Electrically they
+	;; are basically RS-485, with an 8-N-1 RS-232-equivalent
+	;; data format.
+	;; 
+	;;   - From base unit to remote, an 19200 baud signal
+	;;     encodes force-feedback information and LED display
+	;;     updates.
+	;; 
+	;;     The differential signal is received using one of the
+	;;     PIC's built-in comparators and the USART, and it is
+	;;     processed by an interrupt handler.
+	;; 
+	;;   - From remote to base unit, a 250 kbaud signal
+	;;     provides fast low-latency controller updates.
+	;; 
+	;;     This signal is bit-banged synchronously with the
+	;;     clock used on the Playstation bus. It has ~1 bit
+	;;     of latency above the latency imposed by the
+	;;     controller itself and our polling schedule.
+	;;
+	;; The remote unit has a free-running update clock, sending
+	;; back update packets as often as possible.
 	;; 
 	;; Copyright (C) 2007 Micah Dowty <micah@navi.cx>
         ;;
@@ -22,22 +49,31 @@
 
 	__CONFIG _CP_OFF & _WDT_OFF & _BODEN_OFF & _PWRTE_ON & _HS_OSC & _WRT_OFF & _LVP_OFF & _DEBUG_OFF & _CPD_OFF
 
+	;; All PSX outputs (SEL, CLK, CMD) are inverted.
+	
 	#define SLOT1_LEDS	PORTB
-
+	
 	#define SLOT1_DAT	PORTC, 4
-	#define SLOT1_CMD	PORTC, 0 ; Inverted
 	#define SLOT1_SEL	PORTC, 1 ; Inverted
-	#define SLOT1_CLK	PORTC, 2 ; Inverted
 	#define SLOT1_ACK	PORTE, 2
-
+	
 	#define SLOT2_LEDS	PORTD
 
 	#define SLOT2_DAT	PORTE, 1
-	#define SLOT2_CMD	PORTC, 0 ; Inverted
 	#define SLOT2_SEL	PORTC, 3 ; Inverted
-	#define SLOT2_CLK	PORTC, 2 ; Inverted
 	#define SLOT2_ACK	PORTE, 0
 
+	;; CLK and CMD are shared between all ports. They must
+	;; be on the same output port as TX+/TX-.
+	
+	#define PSX_PORT	PORTC
+	#define	CMD_MASK	0x01	; Inverted
+	#define	CLK_MASK	0x04	; Inverted
+	#define CLK_BIT		2
+	#define TX_NEG_MASK	0x20
+	#define TX_POS_MASK	0x40
+	#define PSX_OTHER_MASK  0x9A	; All pins not listed here
+	
 	;; 
 	;; LED display values.
 	;; Bit positions:
@@ -138,14 +174,16 @@
 
 		cmd_byte
 		reply_byte
-
+		psx_port_latch
+		psx_port_latch_clk
+	
 		current_slot
 		next_state_on_error
 		debounce_count
 		packet_iter
 
 		slot_states:NUM_SLOTS
-		slot_numbers:NUM_SLOTS
+		slot_mapping:NUM_SLOTS
 		slot_actuators:(NUM_SLOTS * MAX_ACTUATORS_LEN)
 	endc
 
@@ -161,11 +199,6 @@ startup
 	clrf	PORTD
 	clrf	PORTE
 
-	bcf	SLOT1_SEL	; Idle state for PSX busses
-	bcf	SLOT2_SEL
-	bcf	SLOT1_CMD
-	bcf	SLOT1_CLK
-	
 	banksel	TRISA
 	movlw	0x06		; RA1/RA2 input
 	movwf	TRISA
@@ -180,7 +213,8 @@ startup
 	movlw	0x02		; PORTA analog, PORTE digital
 	movwf	ADCON1
 
-	bankisel temp		; Clear the first bank of general purpose RAM
+	;; Clear the first bank of general purpose RAM
+	bankisel temp
 	movlw	0x20		; 0x20 through 0x7F
 	movwf	FSR
 mem_clear_loop
@@ -216,63 +250,13 @@ main_loop
 
 
 	;; ****************************************************
-	;; Utility Macros
-	;; ****************************************************
-
-
-	;; ----------------------------------------------------
-	;;
-	;; Copy the carry flag to a pin
-	;;
-	;; This sets/clears a pin according to the carry
-	;; flag, without any glitches. Always takes 5
-	;; clock cycles. Optionally negates the carry flag.
-	;;
-mov_c_to_pin	macro	p_port, p_bit, negate
-	local	bit_1
-	local done
-
-	if negate
-	btfss	STATUS, C
-	else
-	btfsc	STATUS, C	; 1 2
-	endif
-
-	goto	bit_1		; 3 -
-	bcf	p_port, p_bit  	; - 3
-	goto	done		; - 5 
-bit_1
-	bsf	p_port, p_bit	; 4 -
-	nop			; 5 -
-done
-	endm
-
-
-	;; ----------------------------------------------------
-	;;
-	;; Copy a pin to the carry flag
-	;;
-	;; This sets/clears the carry flag according to the value
-	;; of a pin. Always takes 3 clock cycles.
-	;;
-mov_pin_to_c	macro	p_port, p_bit, negate
-	clrc
-	if negate
-	btfss	p_port, p_bit
-	else
-	btfsc	p_port, p_bit
-	endif
-	setc
-	endm
-	
-
-	;; ****************************************************
 	;; LED Displays
 	;; ****************************************************
 	
 	;; ----------------------------------------------------
 	;;
 	;; Display a byte, from 'w', in hexadecimal on the LED displays.
+	;; (For debugging)
 	;; 
 	;; Side effects:
 	;;	Modifies 'temp'.
@@ -721,25 +705,30 @@ controller_error
 	;; edge and set output bits on the falling edge.
 	;; 
 	;; Inputs:
-	;;     cmd_byte
+	;;	cmd_byte
+	;;	psx_port_latch (must be PSX_PORT & PSX_OTHER_MASK)
+	;;	psx_port_latch_clk (must be psx_port_latch + CLK_MASK)
 	;;
 	;; Outputs:
-	;;     reply_byte
+	;;	reply_byte
 	;; 
-psx_xfer_bit_m	macro	cmd_p, cmd_b, dat_p, dat_b, clk_p, clk_b
+psx_xfer_bit_m	macro	dat_p, dat_b
 
-	rrf		cmd_byte, f	; H 6
-	mov_c_to_pin	cmd_p, cmd_b, 1	; H 11
-	bsf		clk_p, clk_b	; L 1
-
-	goto		$+1		; L 3 
-	goto		$+1		; L 5
-	goto		$+1		; L 7 
-	goto		$+1		; L 9
-
-	bcf		clk_p, clk_b	; H 1
-	mov_pin_to_c	dat_p, dat_b, 0	; H 4
-	rrf		reply_byte, f	; H 5
+	movf	psx_port_latch_clk, w	; H(7)   Prepare new PSX_PORT value
+	rrf	cmd_byte, f		; H(8)   Transfer bit from cmd_byte to CMD_MASK 
+	btfss	STATUS, C		; H(9)     (inverted)
+	iorlw	CMD_MASK		; H(10) 
+	movwf	PSX_PORT		; L(1)   Falling edge of CLK, output CMD bit
+	goto	$+1			; L(3) 
+	goto	$+1			; L(5)
+	goto	$+1			; L(7) 
+	goto	$+1			; L(9) 
+	clrc				; L(10) 
+	bcf	PSX_PORT, CLK_BIT	; H(1)   Rising edge of CLK
+	btfsc	dat_p, dat_b		; H(2)   Sample DAT bit into C
+	setc				; H(3) 
+	rrf	reply_byte, f		; H(4)   Transfer bit from C into reply_byte
+	goto	$+1			; H(6)
 	
 	endm
 
@@ -754,18 +743,38 @@ psx_xfer_bit_m	macro	cmd_p, cmd_b, dat_p, dat_b, clk_p, clk_b
 	;; Outputs:
 	;;     reply_byte
 	;; 
-psx_xfer_byte_m	macro	cmd_p, cmd_b, dat_p, dat_b, clk_p, clk_b
-	psx_xfer_bit_m	cmd_p, cmd_b, dat_p, dat_b, clk_p, clk_b
-	psx_xfer_bit_m	cmd_p, cmd_b, dat_p, dat_b, clk_p, clk_b
-	psx_xfer_bit_m	cmd_p, cmd_b, dat_p, dat_b, clk_p, clk_b
-	psx_xfer_bit_m	cmd_p, cmd_b, dat_p, dat_b, clk_p, clk_b
-	psx_xfer_bit_m	cmd_p, cmd_b, dat_p, dat_b, clk_p, clk_b
-	psx_xfer_bit_m	cmd_p, cmd_b, dat_p, dat_b, clk_p, clk_b
-	psx_xfer_bit_m	cmd_p, cmd_b, dat_p, dat_b, clk_p, clk_b
-	psx_xfer_bit_m	cmd_p, cmd_b, dat_p, dat_b, clk_p, clk_b
+psx_xfer_byte_m	macro	dat_p, dat_b
+	psx_xfer_bit_m	dat_p, dat_b
+	psx_xfer_bit_m	dat_p, dat_b
+	psx_xfer_bit_m	dat_p, dat_b
+	psx_xfer_bit_m	dat_p, dat_b
+	psx_xfer_bit_m	dat_p, dat_b
+	psx_xfer_bit_m	dat_p, dat_b
+	psx_xfer_bit_m	dat_p, dat_b
+	psx_xfer_bit_m	dat_p, dat_b
 	endm
 
-	
+
+	;; ----------------------------------------------------
+	;; 
+	;; Transfer one bit in/out via one of the Playstation ports,
+	;; and output a copy of it to the differential-drive 
+	;;
+	;; To achieve the nominal bit rate of 250 Khz with a
+	;; clock frequency of 20 MHz, this code should be timed such
+	;; that each CLK half-cycle is 10 instruction cycles.
+	;; 
+	;; Nominally we should sample input bits on the rising
+	;; edge and set output bits on the falling edge.
+	;; 
+	;; Inputs:
+	;;     cmd_byte
+	;;
+	;; Outputs:
+	;;     reply_byte
+	;; 
+	;; XXX
+		
 	;; ----------------------------------------------------
 	;;
 	;; Wait for an ACK on one of the Playstation ports.
@@ -830,13 +839,21 @@ psx_end_m	macro	sel_p, sel_b
 	;; for performance. This layer wraps those low-level macros
 	;; and provides a set of subroutines that respect the
 	;; 'current_slot' variable.
+	;;
+	;; The psx_xfer_byte macro also initializes psx_port_latch and psx_port_latch_clk.
 	;; 
 
 psx_xfer_byte
+	movf	PSX_PORT, w
+	andlw	PSX_OTHER_MASK
+	movwf	psx_port_latch
+	iorlw	CLK_MASK
+	movwf	psx_port_latch_clk
+	
 	pagesel	pxb_slot2
 	btfsc	current_slot, 0
 	goto	pxb_slot2
-	psx_xfer_byte_m	SLOT1_CMD, SLOT1_DAT, SLOT1_CLK
+	psx_xfer_byte_m	SLOT1_DAT
 	return
 
 psx_begin
@@ -861,7 +878,7 @@ psx_ack_wait
 	return
 
 pxb_slot2
-	psx_xfer_byte_m	SLOT2_CMD, SLOT2_DAT, SLOT2_CLK
+	psx_xfer_byte_m	SLOT2_DAT
 	return
 
 pb_slot2
