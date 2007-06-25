@@ -20,8 +20,7 @@ module psx_controller(clk, reset,
     input [4:0] write_addr;
     input [7:0] write_data;
     input 	write_en;
-    
-    
+
     /********************************************************************
      * 
      * Low-level controller port.
@@ -37,8 +36,9 @@ module psx_controller(clk, reset,
 
     psx_device_port #(CLOCK_MHZ) port(clk, reset,
 				      PSX_ack, PSX_clk, PSX_sel, PSX_cmd, PSX_dat,
-				      PPB_packet_reset, PPB_command, PPB_command_strobe,
-				      PPB_reply, PPB_reply_ready, PPB_ack_strobe);
+				      PPB_packet_reset, PPB_ack_strobe,
+				      PPB_command, PPB_command_strobe,
+				      PPB_reply, PPB_reply_ready);
  
     /********************************************************************
      * 
@@ -46,7 +46,7 @@ module psx_controller(clk, reset,
      *
      */
 
-    parameter  S_IDLE 				   = 0;
+    parameter  S_IDLE            = 0;
     parameter  S_HEADER_ADDRESS  = 1;
     parameter  S_HEADER_COMMAND  = 2;
     parameter  S_CMD_POLL        = 3;
@@ -139,7 +139,7 @@ module psx_controller(clk, reset,
 
     /********************************************************************
      * 
-     * Input state modifications
+     * Input state modifications (Implied dual-port SRAM)
      *
      */
 

@@ -106,7 +106,7 @@ module psxtest(FX2_CLK, FX2_FD, FX2_SLRD, FX2_SLWR, FX2_flags,
 	  PROBE_sync   <= 0;
       end
       else begin
-	  PROBE_s1     <= {3'b000, PSX_DAT, PSX_CMD, PSX_SEL, PSX_CLK, PSX_ACK};
+	  PROBE_s1     <= {rx_byte_count[1:0], SERIAL_RX, PSX_DAT, PSX_CMD, PSX_SEL, PSX_CLK, PSX_ACK};
 	  PROBE_sync   <= PROBE_s1;
       end
 
@@ -124,6 +124,7 @@ module psxtest(FX2_CLK, FX2_FD, FX2_SLRD, FX2_SLWR, FX2_flags,
     assign FIFO_DATAIN_OE = 1'b0;
     assign FIFO_DATAOUT_OE = 1'b1;
     assign FIFO_FIFOADR = 2'b10;    /* FIFO4 */
+   
     assign FIFO_DATAOUT = PROBE_sync;
 
     assign error = FIFO4_full;
@@ -141,53 +142,86 @@ module psxtest(FX2_CLK, FX2_FD, FX2_SLRD, FX2_SLWR, FX2_flags,
     inout  PSX_DAT;
 
     input  SERIAL_RX;
-
-    wire   serial_data_ready;
-    wire   serial_end_of_packet;
-    wire   serial_idle;
-    wire [7:0]  serial_data;
+    
     reg [7:0] 	write_addr;
     reg [7:0] 	write_data;
     reg         write_en;
-    reg 	have_addr;
     
     psx_controller #(12) controller_1(FIFO_clk, reset,
 				      PSX_ACK, PSX_CLK, PSX_SEL, PSX_CMD, PSX_DAT,
 				      write_addr[4:0], write_data, write_en);
 
-    async_receiver #(12000000) serial_port(FIFO_clk, SERIAL_RX, serial_data_ready,
-					   serial_data, serial_end_of_packet, serial_idle);
-
-    assign 	activity = serial_data_ready;
+    wire [7:0] 	rx_data;
+    wire 	rx_strobe;
+    wire 	rx_idle;
+    reg [4:0] 	rx_byte_count;
+    reg         rx_error;
+    reg [3:0] 	rx_port_number;
+    reg [4:0] 	rx_expected_size;
     
+    serial_rx rx_port(FIFO_clk, reset, SERIAL_RX, rx_data, rx_strobe, rx_idle);
+    
+    assign 	activity = write_en;
+
     always @(posedge FIFO_clk or posedge reset) begin
 	if (reset) begin
-	    write_addr 	 <= 0;
-	    write_data 	 <= 0;
-	    write_en 	 <= 0;
-	    have_addr 	 <= 0;
-	end
-	else if (serial_end_of_packet) begin
-	    write_en 	<= 0;
-	    have_addr 	<= 0;
-	end
-	else if (serial_data_ready) begin
+	    rx_byte_count      <= 0;
+	    rx_error 	       <= 0;
+	    rx_port_number     <= 0;
+   	    rx_expected_size   <= 2;
 
-	    if (have_addr) begin
-		write_addr   <= write_addr + 1;
-		write_data   <= serial_data;
-		write_en     <= 1;		
+	    write_addr 	       <= 0;
+	    write_data 	       <= 0;
+	    write_en 	       <= 0;
+	end
+	else if (rx_idle) begin
+	    /* If the line goes idle, reset and prepare to receive a minimal (2-byte) packet */
+
+	    rx_byte_count      <= 0;
+	    rx_error 	       <= 0;
+	    rx_port_number     <= 0;
+	    rx_expected_size   <= 2;
+	end
+	else if (rx_byte_count == rx_expected_size) begin
+	    rx_byte_count      <= 0;
+	end
+	else if (rx_strobe && !rx_error) begin
+
+	    if (rx_byte_count == 0) begin
+		/*
+		 * This is the start-of-packet and slot address byte.
+		 * Ignore the packet if this is wrong.
+		 */
+
+		rx_error 	 <= (rx_data[7:4] != 4'h5);
+		rx_port_number 	 <= rx_data[3:0];
+
 	    end
+	    else if (rx_byte_count == 1) begin
+		/*
+		 * This is the state flags byte. It tells us how large
+		 * a packet to expect.
+		 * 
+		 * XXX: Clean up these state flags.
+		 */
+
+		rx_expected_size   <= rx_data[2] ? 20 : (rx_data[1] ? 8 : (rx_data[0] ? 4 : 2));
+
+  	    end
 	    else begin
-		write_addr   <= serial_data - 1;
-		write_data   <= 0;
-		write_en     <= 0;
-		have_addr    <= 1;
+		/*
+		 * This is a data byte.
+		 */
+
+		write_addr   <= rx_byte_count - 2;
+		write_data   <= rx_data;
+		write_en     <= (rx_port_number == 0);
 	    end
 
+	    rx_byte_count    <= rx_byte_count + 1;
 	end
 	else begin
-	    write_en   <= 0;
+	    write_en 	     <= 0;
 	end
     end
     
