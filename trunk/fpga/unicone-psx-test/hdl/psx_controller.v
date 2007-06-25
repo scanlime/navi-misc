@@ -47,11 +47,27 @@ module psx_controller(clk, reset,
      *
      */
 
-    parameter  S_IDLE            = 0;
-    parameter  S_HEADER_ADDRESS  = 1;
-    parameter  S_HEADER_COMMAND  = 2;
-    parameter  S_CMD_POLL        = 3;
-
+    /*
+     * Packet states. Their values are arbitrary.
+     * XXX: Try to pick values that generate the simplest logic
+     */
+    parameter  S_IDLE                           = 0;
+    parameter  S_HEADER_ADDRESS                 = 1;
+    parameter  S_HEADER_COMMAND                 = 2;
+    parameter  S_CMD_INIT_PRESSURE              = 3;
+    parameter  S_CMD_GET_AVAILABLE_POLL_RESULTS = 4;
+    parameter  S_CMD_POLL                       = 5;
+    parameter  S_CMD_ESCAPE                     = 6;
+    parameter  S_CMD_SET_MAJOR_MODE             = 7;
+    parameter  S_CMD_READ_EXT_STATUS_1          = 8;
+    parameter  S_CMD_READ_CONST_1               = 9;
+    parameter  S_CMD_READ_CONST_2               = 10;
+    parameter  S_CMD_READ_CONST_3               = 11;
+    parameter  S_CMD_READ_CONST_OFFSET          = 12;
+    parameter  S_CMD_READ_CONST_DATA            = 13;
+    parameter  S_CMD_SET_POLL_CMD_FORMAT        = 14;
+    parameter  S_CMD_SET_POLL_RESULT_FORMAT     = 15;
+    
     parameter  MODE_DIGITAL = 4'h4;
     parameter  MODE_ANALOG  = 4'h7;
     parameter  MODE_ESCAPE  = 4'hF;
@@ -59,23 +75,24 @@ module psx_controller(clk, reset,
     parameter  PADDING_BYTE = 8'h5A;
     
     /* Packet state */
-    reg [3:0] 	 packet_state;
+    reg [4:0] 	 packet_state;
     reg [4:0] 	 byte_count;
     
     /* Controller state */
-    reg [3:0] 	 current_mode;
+    reg          escape_mode;
+    reg          analog_mode;
     reg [3:0] 	 current_reply_len;
     reg [7:0] 	 input_state [31:0];
 
     assign PPB_ack_strobe = (packet_state != S_IDLE);
-
  
     always @(posedge clk or posedge reset)
       if (reset) begin
 	  /*
 	   * Reset all controller state.
 	   */
-	  current_mode 	      <= MODE_DIGITAL;
+	  escape_mode 	      <= 0;
+	  analog_mode 	      <= 0;
 	  current_reply_len   <= 1;
 
 	  PPB_reply 	      <= 8'hFF;
@@ -105,7 +122,8 @@ module psx_controller(clk, reset,
 		   * The next byte specifies our command, and the next reply is
 		   * a combination of the current mode and current reply length.
 		   */
-		  PPB_reply 	 <= {current_mode, current_reply_len};
+		  PPB_reply 	 <= {escape_mode ? MODE_ESCAPE : (analog_mode : MODE_ANALOG : MODE_DIGITAL),
+				     escape_mode ? 4'h3 : current_reply_len };
 		  PPB_reply_en 	 <= 1;
 		  byte_count 	 <= 0;
 		  packet_state 	 <= (PPB_command == 8'h01) ? S_HEADER_COMMAND : S_IDLE;
@@ -122,7 +140,17 @@ module psx_controller(clk, reset,
 		  byte_count 	 <= 0;
 
 		  case (PPB_command)
+		      8'h40:    packet_state   <= escape_mode ? S_CMD_INIT_PRESSURE : S_IDLE;
+		      8'h41:    packet_state   <= escape_mode ? S_CMD_GET_AVAILABLE_POLL_RESULTS : S_IDLE;
 		      8'h42:    packet_state   <= S_CMD_POLL;
+		      8'h43:    packet_state   <= S_CMD_ESCAPE;
+		      8'h44:    packet_state   <= escape_mode ? S_CMD_SET_MAJOR_MODE : S_IDLE;
+		      8'h45:    packet_state   <= escape_mode ? S_CMD_READ_EXT_STATUS_1 : S_IDLE;
+		      8'h46:    packet_state   <= escape_mode ? S_CMD_READ_CONST_1 : S_IDLE;
+		      8'h47:    packet_state   <= escape_mode ? S_CMD_READ_CONST_2 : S_IDLE;
+		      8'h4c:    packet_state   <= escape_mode ? S_CMD_READ_CONST_3 : S_IDLE;
+		      8'h4d:    packet_state   <= escape_mode ? S_CMD_SET_POLL_CMD_FORMAT : S_IDLE;
+		      8'h4f:    packet_state   <= escape_mode ? S_CMD_SET_POLL_RESULT_FORMAT : S_IDLE;
 		      default:  packet_state   <= S_IDLE;
 		  endcase // case (PPB_command)
 	      end
@@ -134,12 +162,166 @@ module psx_controller(clk, reset,
 		  PPB_reply_en 		       <= 0;
 	      end
 
-	      S_CMD_POLL: begin
-		  packet_state 		       <= S_CMD_POLL;
+	      S_CMD_INIT_PRESSURE: begin
+		  packet_state 		       <= S_CMD_INIT_PRESSURE;
 		  byte_count 		       <= byte_count + 1;
-		  PPB_reply 		       <= input_state[byte_count];
 		  PPB_reply_en 		       <= 1;
+		  case (byte_count)
+		      5'h00:    PPB_reply   <= 8'h00;    // (Unknown)
+		      5'h01:    PPB_reply   <= 8'h00;    // (Unknown)
+		      5'h02:    PPB_reply   <= 8'h02;    // (Unknown)
+		      5'h03:    PPB_reply   <= 8'h00;    // (Unknown)
+		      5'h04:    PPB_reply   <= 8'h00;    // (Unknown)
+		      default:  PPB_reply   <= PADDING_BYTE;
+		  endcase // case (byte_count)
+	      end 
+
+	      S_CMD_GET_AVAILABLE_POLL_RESULTS: begin
+		  packet_state 		       <= S_CMD_GET_AVAILABLE_POLL_RESULTS;
+		  byte_count 		       <= byte_count + 1;
+		  PPB_reply_en 		       <= 1;
+		  case (byte_count)
+		      5'h00:    PPB_reply   <= 8'hFF;    // Bitmask of available polling results
+		      5'h01:    PPB_reply   <= 8'hFF;    //   ...
+		      5'h02:    PPB_reply   <= 8'h03;    //   ...
+		      5'h03:    PPB_reply   <= 8'h00;    //   ...
+		      5'h04:    PPB_reply   <= 8'h00;    //   ...
+		      default:  PPB_reply   <= PADDING_BYTE;
+		  endcase // case (byte_count)
+	      end 
+	      
+	      S_CMD_POLL: begin
+		  packet_state 		    <= S_CMD_POLL;
+		  byte_count 		    <= byte_count + 1;
+		  PPB_reply 		    <= input_state[byte_count];
+		  PPB_reply_en 		    <= 1;
 	      end
+
+     	      S_CMD_ESCAPE: begin
+		  packet_state 		    <= S_CMD_ESCAPE;
+		  byte_count 		    <= byte_count + 1;
+		  PPB_reply 		    <= input_state[byte_count];
+		  PPB_reply_en 		    <= 1;
+
+		  if (byte_count == 1) begin
+		      /*
+		       * This is the first command data byte.
+		       * (byte 0 is the header padding command byte or
+		       * the first response byte). It tells us whether
+		       * to enter or exit escape mode.
+		       */
+		      escape_mode   <= PPB_command[0];
+		  end
+	      end
+
+	      S_CMD_SET_MAJOR_MODE: begin
+		  packet_state 	    <= S_CMD_SET_MAJOR_MODE;
+		  byte_count 	    <= byte_count + 1;
+		  PPB_reply 	    <= 8'h00;
+		  PPB_reply_en 	    <= 1;
+		  
+		  if (byte_count == 1) begin
+		      /*
+		       * First command data byte. This is 1 to enter
+		       * analog mode, 0 for digital mode. This also
+		       * resets all mode-related state, such as the
+		       * command/response mapping and the reply length.
+		       */
+		      analog_mode 	  <= PPB_command[0];
+		      current_reply_len   <= PPB_command[0] ? 4'h3 : 4'h1;
+		  end
+	      end 
+
+	      S_CMD_READ_EXT_STATUS_1: begin
+		  packet_state 		  <= S_CMD_READ_EXT_STATUS_1;
+		  byte_count 		  <= byte_count + 1;
+		  PPB_reply_en 		  <= 1;
+		  case (byte_count)
+		      5'h00:    PPB_reply   <= 8'h03;    // (Unknown)
+		      5'h01:    PPB_reply   <= 8'h02;    // (Unknown)
+		      5'h02:    PPB_reply   <= {7'b0000000, analog_mode};
+		      5'h03:    PPB_reply   <= 8'h02;    // (Unknown)
+		      5'h04:    PPB_reply   <= 8'h01;    // (Unknown)
+		      5'h05:    PPB_reply   <= 8'h00;    // (Unknown)
+		      default:  PPB_reply   <= PADDING_BYTE;
+		  endcase // case (byte_count)
+	      end 
+
+	      S_CMD_READ_CONST_1: begin
+		  /* Begin reading const 1, store the address in byte_count */
+		  packet_state 		    <= S_CMD_READ_CONST_OFFSET;
+		  byte_count 		    <= 5'h00;	  
+		  PPB_reply 		    <= 8'h00;
+		  PPB_reply_en 		    <= 1;
+	      end 
+
+	      S_CMD_READ_CONST_2: begin
+		  /* Begin reading const 2, store the address in byte_count */
+		  packet_state 		    <= S_CMD_READ_CONST_OFFSET;
+		  byte_count 		    <= 5'h08;
+		  PPB_reply 		    <= 8'h00;
+		  PPB_reply_en 		    <= 1;
+	      end 
+
+	      S_CMD_READ_CONST_3: begin
+		  /* Begin reading const 2, store the address in byte_count */
+		  packet_state 		    <= S_CMD_READ_CONST_OFFSET;
+		  byte_count 		    <= 5'h0C;
+		  PPB_reply 		    <= 8'h00;
+		  PPB_reply_en 		    <= 1;
+	      end 
+
+	      S_CMD_READ_CONST_OFFSET: begin
+		  /*
+		   * Read the offset byte for any of the const commands,
+		   * and output the first data byte. We don't store the
+		   * first byte in our ROM, since it's assumed to always
+		   * be zero.
+		   */
+		  packet_state 		    <= S_CMD_READ_CONST_DATA;		  
+		  byte_count 		    <= PPB_command[0] ? (byte_count + 5'h04) : byte_count;
+		  PPB_reply 		    <= 8'h00;
+		  PPB_reply_en 		    <= 1;
+	      end 
+	      
+	      S_CMD_READ_CONST_DATA: begin
+		  /*
+		   * ROM lookup table for all constant reply commands.
+		   * We only store the last 4 bytes of each response.
+		   */
+		  packet_state 		    <= S_CMD_READ_CONST_DATA;
+		  byte_count 		    <= byte_count + 1;
+		  PPB_reply_en 		    <= 1;
+		  case (byte_count)
+		      /* CONST_1, offset 0 */
+		      5'h00:    PPB_reply   <= 8'h01;
+		      5'h01:    PPB_reply   <= 8'h02;
+		      5'h02:    PPB_reply   <= 8'h00;
+		      5'h03:    PPB_reply   <= 8'h0a;
+		      /* CONST_1, offset 1 */
+		      5'h04:    PPB_reply   <= 8'h01;
+		      5'h05:    PPB_reply   <= 8'h01;
+		      5'h06:    PPB_reply   <= 8'h01;
+		      5'h07:    PPB_reply   <= 8'h14;
+		      /* CONST_2, offset 0 */
+		      5'h08:    PPB_reply   <= 8'h02;
+		      5'h09:    PPB_reply   <= 8'h00;
+		      5'h0A:    PPB_reply   <= 8'h01;
+		      5'h0B:    PPB_reply   <= 8'h00;
+		      /* CONST_3, offset 0 */
+		      5'h0C:    PPB_reply   <= 8'h00;
+		      5'h0D:    PPB_reply   <= 8'h04;
+		      5'h0E:    PPB_reply   <= 8'h00;
+		      5'h0F:    PPB_reply   <= 8'h00;
+		      /* CONST_3, offset 1 */
+		      5'h10:    PPB_reply   <= 8'h00;
+		      5'h11:    PPB_reply   <= 8'h07;
+		      5'h12:    PPB_reply   <= 8'h00;
+		      5'h13:    PPB_reply   <= 8'h10;
+
+		      default:  PPB_reply   <= 8'h00;
+		  endcase // case (byte_count)
+	      end 
 	      
 	  endcase // case (packet_state)
       end
@@ -153,7 +335,7 @@ module psx_controller(clk, reset,
 
     always @(posedge clk) begin
 	if (write_en)
-	  input_state[write_addr] 	       <= write_data;
+	  input_state[write_addr] 	    <= write_data;
     end
     
 endmodule
