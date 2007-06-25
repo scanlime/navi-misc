@@ -15,7 +15,7 @@ module psx_device_port(clk, reset,
 		       PSX_ack, PSX_clk, PSX_sel, PSX_cmd, PSX_dat,
 		       PPB_packet_reset, PPB_ack_strobe,
 		       PPB_command, PPB_command_strobe,
-		       PPB_reply, PPB_reply_ready);
+		       PPB_reply, PPB_reply_en, PPB_reply_ready);
 
     parameter CLOCK_MHZ = 25;
 
@@ -37,6 +37,7 @@ module psx_device_port(clk, reset,
     output 	 PPB_command_strobe;     // HIGH for one clock after PPB_command has changed
 
     input [7:0]  PPB_reply;              // Outgoing reply byte
+    input 	 PPB_reply_en;           // Reply enable bit, sampled concurrently with PPB_reply
     output 	 PPB_reply_ready;        // HIGH for one clock cycle after PPB_reply has been read
 
 
@@ -57,13 +58,14 @@ module psx_device_port(clk, reset,
     wire  sync_cmd;
     d_flipflop_pair dffp_cmd(clk, reset, PSX_cmd, sync_cmd);
     
-    // Outputs are registered, and tri-stated when this device isn't selected.
+    // Outputs are registered, and tri-stated when not active.
 
     reg    output_dat;
-    assign PSX_dat = sync_sel ? 1'bz : output_dat;
+    reg    output_dat_en;    
+    assign PSX_dat = output_dat_en ? output_dat : 1'bz;
     
     reg    output_ack;
-    assign PSX_ack = sync_sel ? 1'bz : output_ack;
+    assign PSX_ack = output_ack ? 1'bz : 1'b0;
 
     // Treat SEL as a reset: when the host is not addressing this device,
     // the device's protocol layer should be in a reset state.
@@ -130,25 +132,27 @@ module psx_device_port(clk, reset,
     
     always @(posedge clk or posedge PPB_packet_reset)
       if (PPB_packet_reset) begin
-	  output_dat 	     <= 0;
-	  dat_shiftreg 	     <= 0;
-	  dat_state 	     <= 0;
-	  PPB_reply_ready    <= 0;
+	  output_dat 	    <= 0;
+	  dat_shiftreg 	    <= 0;
+	  dat_state 	    <= 0;
+	  PPB_reply_ready   <= 0;
+	  output_dat_en	    <= 0;
       end
       else if (clk_strobe_neg && dat_state == 0) begin
-	  output_dat 	     <= PPB_reply[0];
-	  dat_shiftreg 	     <= PPB_reply[7:1];
-	  dat_state 	     <= dat_state + 1;
-	  PPB_reply_ready    <= 1;
+	  output_dat 	    <= PPB_reply[0];
+	  output_dat_en     <= PPB_reply_en;
+	  dat_shiftreg 	    <= PPB_reply[7:1];
+	  dat_state 	    <= dat_state + 1;
+	  PPB_reply_ready   <= 1;
       end
       else if (clk_strobe_neg) begin
-	  output_dat 	     <= dat_shiftreg[0];
-	  dat_shiftreg 	     <= {1'b0, dat_shiftreg[6:1]};
-	  dat_state 	     <= dat_state + 1;
-	  PPB_reply_ready    <= 0;
+	  output_dat 	    <= dat_shiftreg[0];
+	  dat_shiftreg 	    <= {1'b0, dat_shiftreg[6:1]};
+	  dat_state 	    <= dat_state + 1;
+	  PPB_reply_ready   <= 0;
       end
       else begin
-	  PPB_reply_ready    <= 0;
+	  PPB_reply_ready   <= 0;
       end
 
     
