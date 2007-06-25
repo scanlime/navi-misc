@@ -36,7 +36,7 @@ set_location_assignment PIN_74 -to PSX_SEL
 set_location_assignment PIN_72 -to PSX_CMD
 set_location_assignment PIN_76 -to PSX_DAT
 
-set_location_assignment PIN_89 -to SERIAL_RX
+set_location_assignment PIN_66 -to SERIAL_RX
 
 set_instance_assignment -name PARTITION_HIERARCHY no_file_for_top_partition -to | -section_id Top
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
@@ -46,6 +46,6 @@ set_global_assignment -name RESERVE_ASDO_AFTER_CONFIGURATION "AS INPUT TRI-STATE
 set_global_assignment -name GENERATE_RBF_FILE ON
 
 set_global_assignment -name VERILOG_FILE psx_controller.v
-set_global_assignment -name VERILOG_FILE async_receiver.v
+set_global_assignment -name VERILOG_FILE serial_rx.v
 set_global_assignment -name VERILOG_FILE util.v
 set_global_assignment -name VERILOG_FILE psx_device_port.v

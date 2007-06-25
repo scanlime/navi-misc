@@ -14,7 +14,7 @@
 module psx_device_port(clk, reset,
 		       PSX_ack, PSX_clk, PSX_sel, PSX_cmd, PSX_dat,
 		       PPB_packet_reset, PPB_ack_strobe,
-		       PPB_command, PPB_command_en, PPB_command_strobe,
+		       PPB_command, PPB_command_strobe,
 		       PPB_reply, PPB_reply_ready);
 
     parameter CLOCK_MHZ = 25;
@@ -34,7 +34,6 @@ module psx_device_port(clk, reset,
                                          //   ACK_DELAY_US microseconds after PPB_command_strobe.
 
     output [7:0] PPB_command;            // Received command byte
-    output       PPB_command_en;         // HIGH during command strobe to enable command output
     output 	 PPB_command_strobe;     // HIGH for one clock after PPB_command has changed
 
     input [7:0]  PPB_reply;              // Outgoing reply byte

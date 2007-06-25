@@ -415,6 +415,10 @@ startup
 
 	movlw	TX_MARK_MASK	; Transmit a mark when idle
 	movwf	PSX_PORT
+
+	movlw	LED_DIGIT_DOT	; Display "." on the LEDs when idle, to indicate power
+	movwf	SLOT1_LEDS
+	movwf	SLOT2_LEDS
 	
 	banksel	TRISA
 	movlw	0x0D		; RA0, RA2, RA3 inputs
