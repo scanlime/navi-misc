@@ -18,10 +18,9 @@
  *    Each line of text corresponds to one SEL pulse. The
  *    line begins when SEL goes low, and ends when it goes
  *    high. A SEL with no data would yield a blank line.
- *    Various space-separated tokens can appear on a line:
  *
- *    - ACK
- *      Indicates a high->low transition on the ACK pin.
+ *    Each line begins with a timestamp indicating when SEL
+ *    went low, and contains:
  *
  *    - TT/RR
  *      Indicates one byte of command/response data. Playstation
@@ -29,6 +28,11 @@
  *      represents a hexadecimal byte of data transmitted from
  *      playstation to device, 'RR' is the simultaneously received
  *      byte.
+ *
+ *    - "_"
+ *      Indicates a high->low transition on the ACK pin. Usually
+ *      occurs after every TT/RR pair other than the last one
+ *      in a packet.
  *
  * -- Micah Dowty <micah@navi.cx>
  */
@@ -41,12 +45,15 @@
 #define CMD_MASK  0x08
 #define DAT_MASK  0x10
 
+#define CLOCK_HZ  12000000
+
 int
 main(int argc, char **argv)
 {
     unsigned char prev_value = 0xFF;
     int bit_count = 0;
     unsigned char cmd_byte = 0, dat_byte = 0;
+    unsigned long long clock_ticks = 0;
 
     while (1) {
 	unsigned char buffer[4096];
@@ -73,16 +80,22 @@ main(int argc, char **argv)
 
 		if (prev_value & SEL_MASK) {
 		    /*
-		     * SEL just went low. Reset our state.
+		     * SEL just went low. Reset our state,
+		     * and print a timestamp.
 		     */
 		    bit_count = 0;
 		    cmd_byte = 0;
 		    dat_byte = 0;
+
+		    printf("[% 4d.%03d %03d]",
+			   (int) (clock_ticks / CLOCK_HZ),
+			   (int) ((clock_ticks / (CLOCK_HZ / 1000)) % 1000),
+			   (int) ((clock_ticks / (CLOCK_HZ / 1000000)) % 1000));
 		}
 
 		/* Did we just get an ACK? */
 		if ((prev_value & ACK_MASK) && !(next_value & ACK_MASK)) {
-		    printf("ACK ");
+		    printf("_");
 		}
 
 		/* Sample data on the rising edge of CLK */
@@ -92,7 +105,7 @@ main(int argc, char **argv)
 		    bit_count++;
 
 		    if (bit_count == 8) {
-			printf("%02x/%02x ", cmd_byte, dat_byte);
+			printf(" %02x/%02x", cmd_byte, dat_byte);
 
 			bit_count = 0;
 			cmd_byte = 0;
@@ -102,6 +115,7 @@ main(int argc, char **argv)
 	    }
 
 	    prev_value = next_value;
+	    clock_ticks++;
 	}
     }
 
