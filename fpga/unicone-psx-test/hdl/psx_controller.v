@@ -166,14 +166,12 @@ module psx_controller(clk, reset,
 	      end
 
 	      S_IDLE: begin
-		  packet_state 		       <= S_IDLE;
 		  byte_count 		       <= 0;
 		  PPB_reply 		       <= 8'hFF;
 		  PPB_reply_en 		       <= 0;
 	      end
 
 	      S_CMD_INIT_PRESSURE: begin
-		  packet_state 		       <= S_CMD_INIT_PRESSURE;
 		  byte_count 		       <= byte_count + 1;
 		  PPB_reply_en 		       <= 1;
 		  case (byte_count)
@@ -187,7 +185,6 @@ module psx_controller(clk, reset,
 	      end 
 
 	      S_CMD_GET_AVAILABLE_POLL_RESULTS: begin
-		  packet_state 		       <= S_CMD_GET_AVAILABLE_POLL_RESULTS;
 		  byte_count 		       <= byte_count + 1;
 		  PPB_reply_en 		       <= 1;
 		  case (byte_count)
@@ -201,14 +198,12 @@ module psx_controller(clk, reset,
 	      end 
 	      
 	      S_CMD_POLL: begin
-		  packet_state 		    <= S_CMD_POLL;
 		  byte_count 		    <= byte_count + 1;
 		  PPB_reply 		    <= input_state[byte_count];
 		  PPB_reply_en 		    <= 1;
 	      end
 
      	      S_CMD_ESCAPE: begin
-		  packet_state 		    <= S_CMD_ESCAPE;
 		  byte_count 		    <= byte_count + 1;
 		  PPB_reply 		    <= input_state[byte_count];
 		  PPB_reply_en 		    <= 1;
@@ -225,7 +220,6 @@ module psx_controller(clk, reset,
 	      end
 
 	      S_CMD_SET_MAJOR_MODE: begin
-		  packet_state 	    <= S_CMD_SET_MAJOR_MODE;
 		  byte_count 	    <= byte_count + 1;
 		  PPB_reply 	    <= 8'h00;
 		  PPB_reply_en 	    <= 1;
@@ -243,7 +237,6 @@ module psx_controller(clk, reset,
 	      end 
 
 	      S_CMD_READ_EXT_STATUS_1: begin
-		  packet_state 		  <= S_CMD_READ_EXT_STATUS_1;
 		  byte_count 		  <= byte_count + 1;
 		  PPB_reply_en 		  <= 1;
 		  case (byte_count)
@@ -299,7 +292,6 @@ module psx_controller(clk, reset,
 		   * ROM lookup table for all constant reply commands.
 		   * We only store the last 4 bytes of each response.
 		   */
-		  packet_state 		    <= S_CMD_READ_CONST_DATA;
 		  byte_count 		    <= byte_count + 1;
 		  PPB_reply_en 		    <= 1;
 		  case (byte_count)
@@ -332,7 +324,31 @@ module psx_controller(clk, reset,
 		      default:  PPB_reply   <= 8'h00;
 		  endcase // case (byte_count)
 	      end 
-	      
+
+	      S_CMD_SET_POLL_CMD_FORMAT: begin
+		  byte_count 		    <= byte_count + 1;
+
+		  /* XXX: Store the new command format */
+		  
+		  /*
+		   * XXX: We're supposed to reply with the previous poll cmd format, but
+		   *      I doubt any games actually care. Reply with FF (disabled) for
+		   *      all channels, since this is the value a real controller gives
+		   *      after reset.
+		   */
+		  PPB_reply_en 		    <= 1;
+		  PPB_reply 		    <= 8'hFF;
+	      end
+
+	      S_CMD_SET_POLL_RESULT_FORMAT: begin
+		  byte_count 		    <= byte_count + 1;
+
+		  /* XXX: Store the new result format */
+
+		  PPB_reply_en 		    <= 1;
+		  PPB_reply 		    <= (byte_count > 5'h04) ? PADDING_BYTE : 8'h00;
+	      end
+	    
 	  endcase // case (packet_state)
       end // if (PPB_command_strobe)
 
