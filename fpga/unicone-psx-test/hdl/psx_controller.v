@@ -11,7 +11,13 @@ module psx_controller(clk, reset,
 		      PSX_ack, PSX_clk, PSX_sel, PSX_cmd, PSX_dat,
 		      write_addr, write_data, write_en);
 
-    parameter CLOCK_MHZ = 25;
+    parameter CLOCK_MHZ = 12;
+
+    /*
+     * This should be set such that (1 << WDT_BITS) cycles
+     * is in the neighbourhood of 2 seconds.
+     */
+    parameter WDT_BITS = 24;
 
     input     clk, reset;
     inout     PSX_ack, PSX_dat;
@@ -72,6 +78,10 @@ module psx_controller(clk, reset,
     parameter  MODE_ANALOG  = 4'h7;
     parameter  MODE_ESCAPE  = 4'hF;
 
+    parameter  REPLY_LEN_ESCAPE = 4'h3;
+    parameter  REPLY_LEN_DIGITAL = 4'h1;
+    parameter  REPLY_LEN_ANALOG = 4'h3;
+    
     parameter  PADDING_BYTE = 8'h5A;
     
     /* Packet state */
@@ -86,8 +96,8 @@ module psx_controller(clk, reset,
 
     assign PPB_ack_strobe = (packet_state != S_IDLE);
  
-    always @(posedge clk or posedge reset)
-      if (reset) begin
+    always @(posedge clk or posedge controller_reset)
+      if (controller_reset) begin
 	  /*
 	   * Reset all controller state.
 	   */
@@ -106,10 +116,10 @@ module psx_controller(clk, reset,
 	   * It's important that we don't send a response (DAT is Hi-Z)
 	   * until we're addressed.
 	   */
-	  PPB_reply 	      <= 8'hFF;
-	  PPB_reply_en 	      <= 0;
-	  byte_count 	      <= 0;
-	  packet_state 	      <= S_HEADER_ADDRESS;
+	  PPB_reply 	 <= 8'hFF;
+	  PPB_reply_en 	 <= 0;
+	  byte_count 	 <= 0;
+	  packet_state 	 <= S_HEADER_ADDRESS;
       end
       else if (PPB_command_strobe) begin
 	  case (packet_state)
@@ -122,8 +132,8 @@ module psx_controller(clk, reset,
 		   * The next byte specifies our command, and the next reply is
 		   * a combination of the current mode and current reply length.
 		   */
-		  PPB_reply 	 <= {escape_mode ? MODE_ESCAPE : (analog_mode : MODE_ANALOG : MODE_DIGITAL),
-				     escape_mode ? 4'h3 : current_reply_len };
+		  PPB_reply <= {escape_mode ? MODE_ESCAPE : (analog_mode ? MODE_ANALOG : MODE_DIGITAL),
+				     escape_mode ? REPLY_LEN_ESCAPE : current_reply_len };
 		  PPB_reply_en 	 <= 1;
 		  byte_count 	 <= 0;
 		  packet_state 	 <= (PPB_command == 8'h01) ? S_HEADER_COMMAND : S_IDLE;
@@ -228,7 +238,7 @@ module psx_controller(clk, reset,
 		       * command/response mapping and the reply length.
 		       */
 		      analog_mode 	  <= PPB_command[0];
-		      current_reply_len   <= PPB_command[0] ? 4'h3 : 4'h1;
+		      current_reply_len   <= PPB_command[0] ? REPLY_LEN_ANALOG : REPLY_LEN_DIGITAL;
 		  end
 	      end 
 
@@ -324,8 +334,43 @@ module psx_controller(clk, reset,
 	      end 
 	      
 	  endcase // case (packet_state)
-      end
+      end // if (PPB_command_strobe)
 
+    
+    /********************************************************************
+     * 
+     * Watchdog timer
+     * 
+     * This resets the controller after a couple seconds of bus activity.
+     * It is necessary because one game (or the BIOS) may leave the
+     * controller in a mode that not all other games understand. The bus
+     * is idle for several seconds while a game is booting, so official
+     * Dual Shock controllers detect this gap and reset themselves. We
+     * do the same.
+     *
+     */
+
+    reg [WDT_BITS:0] watchdog_timer;
+    reg 	     controller_reset;
+    
+    always @(posedge clk or posedge reset) begin
+	if (reset) begin
+	    watchdog_timer     <= 0;
+	    controller_reset   <= 1;
+	end
+	else if (!PPB_packet_reset) begin
+	    watchdog_timer     <= 0;
+	    controller_reset   <= 0;
+	end
+	else if (watchdog_timer[WDT_BITS]) begin
+	    controller_reset   <= 1;
+	end
+	else begin
+	    watchdog_timer     <= watchdog_timer + 1;
+	    controller_reset   <= 0;
+	end	    
+    end
+ 
 
     /********************************************************************
      * 
@@ -335,7 +380,7 @@ module psx_controller(clk, reset,
 
     always @(posedge clk) begin
 	if (write_en)
-	  input_state[write_addr] 	    <= write_data;
+	  input_state[write_addr] <= write_data;
     end
     
 endmodule
