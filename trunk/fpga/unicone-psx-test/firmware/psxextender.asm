@@ -72,7 +72,7 @@
 
 	;; Oscillator:	 20 MHz XTAL
 
-	__CONFIG _CP_OFF & _WDT_OFF & _BODEN_OFF & _PWRTE_ON & _HS_OSC & _WRT_OFF & _LVP_OFF & _DEBUG_OFF & _CPD_OFF
+	__CONFIG _CP_OFF & _WDT_ON & _BODEN_ON & _PWRTE_ON & _HS_OSC & _WRT_OFF & _LVP_OFF & _DEBUG_OFF & _CPD_OFF
 
 	;; All PSX outputs (SEL, CLK, CMD) are inverted.
 	
@@ -504,6 +504,7 @@ done
 	
 
 main_loop
+	clrwdt
 	main_loop_slot_m 0
 	main_loop_slot_m 1
 	goto	main_loop
@@ -582,7 +583,7 @@ delay_ms_loop2
 	goto	$+1		; 12
 	goto	$+1		; 14
 	goto	$+1		; 16
-	nop			; 17
+	clrwdt			; 17
 	decfsz	temp, f		; 18
 	goto	delay_ms_loop2	; 20 cycles/iteration
 	decfsz	temp2, f
@@ -600,7 +601,8 @@ delay_ms_loop2
 delay_us
 	movwf	temp		; 5 MIPS * 1us = 5 cycles per iteration
 delay_us_loop
-	goto	$+1
+	clrwdt
+	nop
 	decfsz	temp, f
 	goto	delay_us_loop
 	return
@@ -1036,7 +1038,9 @@ psx_xfer_bit_m	macro	dat_p, dat_b
 	btfsc	dat_p, dat_b		; H(2)   Sample DAT bit into C
 	setc				; H(3) 
 	rrf	reply_byte, f		; H(4)   Transfer bit from C into reply_byte
-	goto	$+1			; H(6)
+
+	clrwdt					; H(5)
+	nop					; H(6) 
 	
 	endm
 
@@ -1112,7 +1116,8 @@ psx_xfer_tx_bit_m	macro	dat_p, dat_b
 	setc					; H(3) 
 	rrf	reply_byte, f			; H(4)   Transfer bit from C into reply_byte
 
-	goto	$+1				; H(6) 
+	clrwdt					; H(5)
+	nop					; H(6) 
 
 	endm
 
@@ -1159,7 +1164,7 @@ psx_xfer_tx_byte_m	macro	dat_p, dat_b
 	andlw	~(CMD_MASK | CLK_MASK)		; L(8)   Update psx_port_latch with the new TX bits 
 	movwf	psx_port_latch			; L(9)      (Let it clear CLK this time, we want it high)
 	
-	nop 					; L(10) 
+	clrwdt 					; L(10) 
 	goto	$+1				; H(2)
 	goto	$+1				; H(4)
 	goto	$+1				; H(6)
@@ -1218,7 +1223,7 @@ tx_bit_loop				; This loop must be 20 cycles, but that's our only constraint.
 	goto	$+1			; (10)
 	goto	$+1			; (12)
 	goto	$+1			; (14)
-	nop				; (15)
+	clrwdt				; (15)
 
 	setc				; (16) This will become our stop bit
 	rrf	temp2, f		; (17) Next data/stop bit...
