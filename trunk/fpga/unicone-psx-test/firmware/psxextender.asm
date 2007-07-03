@@ -131,6 +131,8 @@
 	#define LED_DIGIT_E	0xE3
 	#define LED_DIGIT_F	0xE1
 
+	#define LED_DOT_BIT	3
+
 
 	;; ****************************************************
 	;; PSX Controller Protocol definitions
@@ -171,6 +173,8 @@
 
 	#define RX_ESCAPE_FLAG		rx_flags, 0
 	#define RX_PACKET_DATA_FLAG	rx_flags, 1
+
+	#define ACTIVITY_FLAG           gen_flags, 0
 		
 	#define NUM_SLOTS		.2
 	#define	MAX_ACTUATORS_LEN	.18
@@ -190,16 +194,44 @@
 	;;
 	;; On average, each slot will poll at TMR0_HZ / POLL_INTERVAL_TICKS Hz.
 	
-	#define POLL_INTERVAL_TICKS	.15
+	#define POLL_INTERVAL_TICKS	.15	; 81.4 Hz
+
+	;; How many TMR0 ticks can elapse between RX packets?
+
+	#define RX_WATCHDOG_TICKS	TMR0_HZ	; 1 sec
 	
+	;; How long to make our activity blink. This is a power of two specified
+	;; in terms of POLL_INTERVAL.
+
+	#define LOG_ACTIVITY_BLINK_LENGTH	.3	; 98ms 
+
+	;; How long controllers are inactive before we put them in low-power mode.
+	;; This is a 16-bit value, specified in terms of POLL_INTERVAL. Note that
+	;; force feedback does not work in low-power mode.
+
+	#define POWERDOWN_INACTIVITY_TIME	(.4884 * .5) ; 5 minutes
+
+	;; Which major mode do we use for powerdown?
+	;; 0x01 uses analog mode (without fancy dual-shock features). This
+	;; is enough to get the wireless controllers to turn themselves off
+	;; eventually. You can set this to 0x00 if you want to use plain
+	;; digital mode. This might save a little extra power.
+
+	#define POWERDOWN_MODE			0x01
+	
+	;; Per-slot state bits. These are transmitted over the wire.
+
 	#define STATE_CONNECTED_BIT	0
 	#define STATE_ANALOG_BIT	1
 	#define STATE_DUALSHOCK_BIT	2
-		
+	#define STATE_POWERDOWN_BIT	3
+			
 	cblock	0x20
 		;; General purpose
 		temp
 		temp2
+		temp3
+		gen_flags
 
 		;; Low-level I/O 
 		cmd_byte
@@ -216,12 +248,17 @@
 		slot_states:NUM_SLOTS
 		slot_mapping:NUM_SLOTS
 		slot_actuators:(NUM_SLOTS * MAX_ACTUATORS_LEN)
-
+		slot_inactivity_low:NUM_SLOTS
+		slot_inactivity_high:NUM_SLOTS
+		slot_activity_blink_timer:NUM_SLOTS
+	
 		;; Interrupt handler registers
 		slot_poll_timers:NUM_SLOTS
 		rx_byte
 		rx_flags
 		rx_byte_count
+		rx_watchdog_low
+		rx_watchdog_high
 	endc
 
 	;; Bank-free RAM
@@ -300,6 +337,33 @@ tmr0_interrupt
 	decf	slot_poll_timers+0, f
 	decf	slot_poll_timers+1, f
 
+	;; Is the RX watchdog already expired?
+	movf	rx_watchdog_low, w
+	iorwf	rx_watchdog_high, w
+	btfsc	STATUS, Z
+	goto	end_tmr0_interrupt
+	
+	;; Decrement the RX watchdog...
+	decf	rx_watchdog_low, f
+	incf	rx_watchdog_low, w	; Did it just roll over?
+	btfsc	STATUS, Z
+	decf	rx_watchdog_high, f
+
+	;; Did it just become zero?
+	movf	rx_watchdog_low, w
+	iorwf	rx_watchdog_high, w
+	btfss	STATUS, Z
+	goto	end_tmr0_interrupt
+
+	;; The RX watchdog has expired. Turn off LEDs and motors.
+	movlw	LED_DIGIT_DOT
+	andwf	SLOT1_LEDS, f
+	andwf	SLOT2_LEDS, f
+	clrf	slot_actuators + 0
+	clrf	slot_actuators + 1
+	clrf	slot_actuators + MAX_ACTUATORS_LEN + 0
+	clrf	slot_actuators + MAX_ACTUATORS_LEN + 1
+
 	goto end_tmr0_interrupt
 
 	
@@ -349,14 +413,24 @@ rx_data_byte
 	bcf	RX_PACKET_DATA_FLAG	; End of packet
 	goto	end_usart_interrupt
 
+	;; Macro to set the value of an LED display.
+	;; Copies all bits except LED_DIGIT_DOT.
+	;; Modifies 'from'.
+copy_led_state_m	macro	from, to
+	movlw	~LED_DIGIT_DOT
+	andwf	from, f
+	movlw	LED_DIGIT_DOT
+	andwf	to, w
+	iorwf	from, w
+	movwf	to
+	endm
+	
 rx_slot0_led
-	movf	rx_byte, w
-	movwf	SLOT1_LEDS
+	copy_led_state_m rx_byte, SLOT1_LEDS
 	goto	end_usart_interrupt
 
 rx_slot1_led
-	movf	rx_byte, w
-	movwf	SLOT2_LEDS
+	copy_led_state_m rx_byte, SLOT2_LEDS
 	goto	end_usart_interrupt
 
 rx_slot0_actuator0
@@ -387,8 +461,15 @@ rx_slot1_actuator1
 rx_start_of_packet
 	clrf	rx_byte_count
 	bsf	RX_PACKET_DATA_FLAG
+
+	movlw	low RX_WATCHDOG_TICKS
+	movwf	rx_watchdog_low
+	movlw	high RX_WATCHDOG_TICKS
+	movwf	rx_watchdog_high
+
 	goto	end_usart_interrupt
 
+	
 	;; ----------------------------------------------------
 	;;
 	;; Handler for USART escape bytes
@@ -413,6 +494,9 @@ startup
 	movlw	TX_MARK_MASK	; Transmit a mark when idle
 	movwf	PSX_PORT
 
+	movlw	.100		; Power-on settling delay. This also makes it really
+	lcall	delay_ms	;   obvious if we get reset by the WDT (LEDs go dark briefly)
+	
 	movlw	LED_DIGIT_DOT	; Display "." on the LEDs when idle, to indicate power
 	movwf	SLOT1_LEDS
 	movwf	SLOT2_LEDS
@@ -484,10 +568,18 @@ mem_clear_loop
 	;; other controller's poll frequency.
 	;;
 	;; This macro divides up the main loop's per-slot work.
+	;; It contains higher-level functionality for timers and
+	;; LEDs, where pretty much everything is parameterized
+	;; by slot.
 	;;
-main_loop_slot_m	macro	slot
+main_loop_slot_m	macro	slot, leds
 	local	done
-
+	local	not_connected
+	local	connected
+	local	active
+	local	inactive
+	local	not_blinking
+	
 	btfss	slot_poll_timers + slot, 7	; Check for timer underflow
 	goto	done
 	movlw	POLL_INTERVAL_TICKS		; Reset the timer
@@ -496,14 +588,77 @@ main_loop_slot_m	macro	slot
 	movlw	slot				; Make this slot current, and poll it 
 	movwf	current_slot 
 	lcall	controller_poll
+
+	;; Is this slot's controller connected?
+	btfss	slot_states + slot, STATE_CONNECTED_BIT
+	goto	not_connected
+connected
+
+	;; Is the controller active?
+	btfsc	ACTIVITY_FLAG
+	goto	active
+
+	;; Connected but not active: Light the LED continuously,
+	;; and update the inactivity counter. If it gets high enough,
+	;; enter powerdown mode.
+inactive
+	bsf	leds, LED_DOT_BIT
+
+	btfsc	slot_states + slot, STATE_POWERDOWN_BIT
+	goto	done				; Already in powerdown mode
+	
+	incf	slot_inactivity_low + slot, f	; Increment the 16-bit inactivity counter
+	btfsc	STATUS, Z
+	incf	slot_inactivity_high + slot, f
+
+	movf	slot_inactivity_high + slot, w	; Have we hit POWERDOWN_INACTIVITY_TIME?
+	xorlw	high POWERDOWN_INACTIVITY_TIME
+	btfss	STATUS, Z
+	goto	done
+	movf	slot_inactivity_low + slot, w
+	xorlw	low POWERDOWN_INACTIVITY_TIME
+	btfss	STATUS, Z
+	goto	done
+
+	lcall	controller_enter_powerdown	; Yes. Enter power-down mode.
+	lgoto	done
+
+	;; Connected and active. We want to produce a blink that lasts
+	;; ACTIVITY_BLINK_LENGTH just after the controller first becomes active.
+active
+	pagesel	controller_exit_powerdown
+	btfsc	slot_states + slot, STATE_POWERDOWN_BIT
+	call	controller_exit_powerdown
+	
+	movf	slot_inactivity_low + slot, w	; Was controller already active? 
+	iorwf	slot_inactivity_high + slot, w	;   (slot_inactivity == 0) 
+	btfss	STATUS, Z
+	clrf	slot_activity_blink_timer + slot ; Just became active. Clear blink timer. 
+
+	clrf	slot_inactivity_low + slot	; Reset inactivity timer
+	clrf	slot_inactivity_high + slot
+
+	pagesel	not_blinking
+	btfsc	slot_activity_blink_timer + slot, LOG_ACTIVITY_BLINK_LENGTH
+	goto	not_blinking
+	incf	slot_activity_blink_timer + slot, f
+	bcf	leds, LED_DOT_BIT
+	goto	done
+not_blinking
+	bsf	leds, LED_DOT_BIT
+	goto	done
+	
+	;; Not connected: Clear this slot's LED dot, and we're done.
+not_connected
+	bcf	leds, LED_DOT_BIT
 done
 	endm
 	
 
 main_loop
 	clrwdt
-	main_loop_slot_m 0
-	main_loop_slot_m 1
+	main_loop_slot_m 0, SLOT1_LEDS
+	main_loop_slot_m 1, SLOT2_LEDS
 	goto	main_loop
 
 
@@ -521,6 +676,11 @@ main_loop
 	;;
 display_hex_byte
 	movwf	temp
+
+	movlw	high led_digit_table
+	movwf	PCLATH
+	
+	movf	temp, w	
 	call	led_digit_table	
 	movwf	SLOT2_LEDS
 
@@ -720,32 +880,22 @@ controller_debounce_loop
 	goto	controller_debounce_loop
 		
 	;; 2. At this point, we know that at the very least
-	;;    we have a functioning digital controller. Set CONNECTED.
+	;;    we have a functioning digital controller. Set CONNECTED,
+	;;    and clear other flags like POWERDOWN.
+	;;
+	;;    This also happens to be a secondary entry point used
+	;;    to take a controller out of power-down mode.
+cdetect_try_analog
 
 	fsr_slot_state
-	bsf	INDF, STATE_CONNECTED_BIT
-	movf	INDF, w
+	movlw	(1 << STATE_CONNECTED_BIT)
+	movwf	INDF
 	movwf	next_state_on_error
 			
 	;; 3. Try to enter analog mode.
 
-	movlw	0x01			; Enter escape mode
-	lcall	controller_escape
-
-	lcall	psx_begin		; Set up analog mode
- 	controller_xfer_expect	PSX_ADDRESS_CONTROLLER_1, 0xFF
- 	controller_xfer_expect	PSX_CMD_SET_MAJOR_MODE, PSX_MODE_ESCAPE | 0x03
- 	controller_xfer_expect	0x00, PSX_PADDING
- 	controller_xfer		0x01	; Analog mode
- 	controller_xfer		0x03	; (unknown)
- 	controller_xfer		0x00	; (unknown)
- 	controller_xfer		0x00	; (unknown)
-	controller_xfer		0x00	; (unknown)
- 	controller_xfer_no_ack	0x00	; (unknown)
-	lcall	psx_end_wait
-
-	movlw	0x00			; Exit escape mode
-	lcall	controller_escape
+	movlw	0x01
+	lcall	controller_set_major_mode
 
 	;; 4. Test analog mode. If we poll now, the reply length and mode should
 	;;    indicate that we're in analog mode. If so, set ANALOG.
@@ -785,7 +935,7 @@ controller_debounce_loop
  	controller_xfer		0xFF	; Byte 4 (Disabled)
  	controller_xfer_no_ack	0xFF	; Byte 5 (Disabled)
 	lcall	psx_end_wait
-
+	
 	;; 6. Specify the polling result format to include all channels on the
 	;;    Dual Shock controller. We can actually ask the controller to give us
 	;;    a bitmap of supported channels (with CMD_GET_AVAILABLE_POLL_RESULTS)
@@ -887,8 +1037,100 @@ controller_escape
 	controller_xfer		0x00
 	lcall	psx_end_wait
 	return
+
+
 	
+	;; ----------------------------------------------------
+	;;
+	;; Set the controller's major mode (analog/digital).
+	;;
+	;; This has the side-effect of resetting most controller
+	;; state, such as the pressure-sensitive buttons and
+	;; force feedback.
+	;; 
+	;; Inputs:
+	;;	w=0x00 for digital, 0x01 for analog.
+	;;
+	;; Side effects:
+	;;	Modifies 'temp', 'temp2', and 'temp3'
+	;;
+controller_set_major_mode
+	movwf	temp3
+
+	movlw	0x01			; Enter escape mode
+	lcall	controller_escape
+
+	lcall	psx_begin		; Set up analog mode
+ 	controller_xfer_expect	PSX_ADDRESS_CONTROLLER_1, 0xFF
+ 	controller_xfer_expect	PSX_CMD_SET_MAJOR_MODE, PSX_MODE_ESCAPE | 0x03
+ 	controller_xfer_expect	0x00, PSX_PADDING
+ 	controller_xfer_f	temp3
+ 	controller_xfer		0x03	; (unknown)
+ 	controller_xfer		0x00	; (unknown)
+ 	controller_xfer		0x00	; (unknown)
+	controller_xfer		0x00	; (unknown)
+ 	controller_xfer_no_ack	0x00	; (unknown)
+	lcall	psx_end_wait
+
+	movlw	0x00			; Exit escape mode
+	lgoto	controller_escape
 	
+
+	;; ----------------------------------------------------
+	;; 
+	;; Enter low-power mode. This switches the controller
+	;; into normal analog mode without force-feedback or
+	;; pressure-sensitive buttons. This is necessary in order
+	;; for Logitech's wireless controllers to power themselves
+	;; off.
+	;;
+	;; If the controller is not dual-shock, powerdown mode has
+	;; no effect other than setting STATE_POWERDOWN_BIT.
+	;;
+	;; Note that controller_exit_powerdown is actually part
+	;; of controller_detect. It performs most of the controller
+	;; detection procedure, aside from the time consuming
+	;; debouncing.
+	;;
+	;; Inputs:
+	;;	current_slot
+	;;
+	;; Outputs:
+	;;	slot_state
+	;; 
+controller_enter_powerdown
+	fsr_slot_state
+	bsf	INDF, STATE_POWERDOWN_BIT
+	btfss	INDF, STATE_DUALSHOCK_BIT
+	return
+
+	clrf	next_state_on_error
+	bcf	INDF, STATE_DUALSHOCK_BIT
+	if	POWERDOWN_MODE == 0x00
+	 bcf	INDF, STATE_ANALOG_BIT
+	endif
+	
+	lcall	psx_end_wait		; Delay after polling
+
+	movlw	POWERDOWN_MODE
+	lgoto	controller_set_major_mode
+
+
+	;; ----------------------------------------------------
+	;; 
+	;; Exit low-power mode.
+	;;
+	;; Inputs:
+	;;	current_slot
+	;;
+	;; Outputs:
+	;;	slot_state
+	;; 
+controller_exit_powerdown
+	lcall	psx_end_wait		; Delay after polling
+	goto	cdetect_try_analog
+
+		
 	;; ----------------------------------------------------
 	;; 
 	;; Poll the current controller.
@@ -908,8 +1150,11 @@ controller_escape
 	;;
 	;; Outputs:
 	;;	slot_state
+	;;      ACTIVITY_FLAG
 	;; 
 controller_poll
+	bcf	ACTIVITY_FLAG
+	
 	;; Not connected? Try to connect.
 	fsr_slot_state
 	btfss	INDF, STATE_CONNECTED_BIT
@@ -935,6 +1180,7 @@ controller_poll
 	btfsc	INDF, STATE_DUALSHOCK_BIT
 	movlw	.18				; Dual shock controller
 	movwf	byte_count
+	clrf	packet_iter			; Data byte counter, for activity detect
 	
 	;; Set up our error handling behaviour, (disconnect on error) and begin the PSX packet
 	clrf	next_state_on_error
@@ -950,6 +1196,7 @@ controller_poll
 	btfsc	current_slot, 0
 	addlw	MAX_ACTUATORS_LEN
 	movwf	FSR
+
 	
 cpoll_byte_loop
 
@@ -959,7 +1206,7 @@ cpoll_byte_loop
 	
 	bcf	INTCON, GIE
 	lcall	psx_xfer_tx_byte
-
+	
 	decfsz	byte_count, f			; Done yet?
 	goto	cpoll_check_for_ack
 	goto	cpoll_done
@@ -969,7 +1216,19 @@ cpoll_check_for_ack
 	bsf	INTCON, GIE
 	btfss	STATUS, C
 	goto	controller_error
-	goto	cpoll_byte_loop
+
+	;; While we're here, detect button activity. If either of the first
+	;; two bytes aren't 0xFF, a button is down. If a button is down, reset
+	;; the controller's inactivity timer.
+cpoll_activity_detect
+	btfsc	packet_iter, 1			; First two bytes?
+	goto	cpoll_byte_loop			;  ... No. 
+	incf	packet_iter, f
+
+	incf	reply_byte, w			; Is a button down?
+	btfss	STATUS, Z
+	bsf	ACTIVITY_FLAG			; Yes. Set ACTIVITY_FLAG.
+	goto	cpoll_byte_loop			; Done with activity check.
 
 cpoll_done	
 	bsf	INTCON, GIE
