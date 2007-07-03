@@ -240,17 +240,14 @@
 	pagesel	startup
 	goto	startup
 
-	;; XXX: The interrupt vector is supposed to be 0x0004,
-	;;      but for some reason I'm seeing execution start at
-	;;      0x0008. Let's hope this is a quirk of the bootloader
-	;;      I'm using, and not a memory paging bug elsewhere...
-
+	;; Warning: If you're using a PIC16F877A bootloader,
+	;;          it might not copy words 0x0004 through 0x0007.
+	;;          You may need to use a traditional PIC programmer
+	;;          to download the firmware once before using a
+	;;          bootloader, otherwise the interrupt handler
+	;;          will not save CPU state correctly and you'll
+	;;          end up with unpredictable failures later on!
 	org 4
-	goto	interrupt
-	goto	interrupt
-	goto	interrupt
-	nop
-interrupt
 
 	;; ----------------------------------------------------
 	;;
