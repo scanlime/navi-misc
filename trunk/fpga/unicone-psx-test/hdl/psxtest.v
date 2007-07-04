@@ -73,21 +73,15 @@ module psxtest(FX2_CLK, FX2_FD, FX2_SLRD, FX2_SLWR, FX2_flags,
     output [1:0] LED;
     input 	 BUTTON;
 
-    reg [17:0] 	 led_counter;
+    wire         reset 	  = ~BUTTON;
     wire         error;
     wire         activity;
-    
-    wire         reset 	  = ~BUTTON;
-    assign       LED[1]   = error;
-    assign 	 LED[0]   = ~led_counter[17];
 
-    always @(posedge FIFO_clk or posedge reset)
-      if (reset)
-	led_counter   <= 0;
-      else if (activity)
-	led_counter   <= 0;
-      else if (~led_counter[17])
-	led_counter   <= led_counter + 1;
+    assign       LED[1]   = error;
+    assign 	 LED[0]   = ~led_timer_expired;
+
+    wire 	 led_timer_expired;
+    watchdog #(17) led_timer(FIFO_clk, reset, activity, led_timer_expired);
 
     
     /********************************************************************
