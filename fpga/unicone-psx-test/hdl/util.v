@@ -33,6 +33,10 @@ module d_flipflop_pair(clk, reset, d_in, d_out);
 endmodule
 
 
+/*
+ * A fully synchronous dual-port SRAM, where one port is read-only
+ * and the other is write-only.
+ */
 module sync_dualport_sram(clk, write_en, write_addr, write_data, read_addr, read_data);
     parameter DATA_BITS;
     parameter ADDR_BITS;
@@ -45,12 +49,14 @@ module sync_dualport_sram(clk, write_en, write_addr, write_data, read_addr, read
     output [DATA_BITS-1:0] read_data;
     
     reg [DATA_BITS-1:0] memory[MEMORY_DEPTH-1:0];
+    reg [DATA_BITS-1:0] read_data;
 
-    always @(posedge clk)
+    always @(posedge clk) begin
 	if (write_en)
 	  memory[write_addr]   <= write_data;
 
-    assign 		read_data = memory[read_addr];
+	read_data 	       <= memory[read_addr];
+    end
 endmodule
 
 
