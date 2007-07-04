@@ -29,6 +29,19 @@ module psx_controller(clk, reset,
 
     /********************************************************************
      * 
+     * Controller state RAM
+     *
+     */
+
+    wire [7:0] 	input_state_data;
+    defparam 	 input_state.DATA_BITS = 8;
+    defparam 	 input_state.ADDR_BITS = 5;
+    sync_dualport_sram input_state(clk, write_en, write_addr, write_data,
+				   byte_count, input_state_data);    
+
+
+    /********************************************************************
+     * 
      * Low-level controller port.
      *
      */
@@ -37,7 +50,7 @@ module psx_controller(clk, reset,
     wire [7:0] PPB_command;
     wire       PPB_command_strobe;
     reg [7:0]  PPB_reply;
-    reg        PPB_reply_en;
+    wire       PPB_reply_en;
     wire       PPB_reply_ready;
     wire       PPB_ack_strobe;
 
@@ -54,8 +67,8 @@ module psx_controller(clk, reset,
      */
 
     /*
-     * Packet states. Their values are arbitrary.
-     * XXX: Try to pick values that generate the simplest logic
+     * Packet states. Their values are arbitrary, since the synthesis
+     * tool should just re-assign these anyway.
      */
     parameter  S_IDLE                           = 0;
     parameter  S_HEADER_ADDRESS                 = 1;
@@ -92,22 +105,21 @@ module psx_controller(clk, reset,
     reg          escape_mode;
     reg          analog_mode;
     reg [3:0] 	 current_reply_len;
-    reg [7:0] 	 input_state [31:0];
 
     assign PPB_ack_strobe = (packet_state != S_IDLE);
+    assign PPB_reply_en = (packet_state != S_IDLE && packet_state != S_HEADER_ADDRESS);
  
     always @(posedge clk or posedge controller_reset)
       if (controller_reset) begin
 	  /*
 	   * Reset all controller state.
 	   */
-	  escape_mode 	      <= 0;
-	  analog_mode 	      <= 0;
-	  current_reply_len   <= 1;
+	  escape_mode 	      <= 1'b0;
+	  analog_mode 	      <= 1'b0;
+	  current_reply_len   <= 4'h1;
 
 	  PPB_reply 	      <= 8'hFF;
-	  PPB_reply_en 	      <= 0;
-	  byte_count 	      <= 0;
+	  byte_count 	      <= 5'h0;
 	  packet_state 	      <= S_IDLE;
       end
       else if (PPB_packet_reset) begin
@@ -117,8 +129,7 @@ module psx_controller(clk, reset,
 	   * until we're addressed.
 	   */
 	  PPB_reply 	 <= 8'hFF;
-	  PPB_reply_en 	 <= 0;
-	  byte_count 	 <= 0;
+	  byte_count 	 <= 5'h0;
 	  packet_state 	 <= S_HEADER_ADDRESS;
       end
       else if (PPB_command_strobe) begin
@@ -134,8 +145,7 @@ module psx_controller(clk, reset,
 		   */
 		  PPB_reply <= {escape_mode ? MODE_ESCAPE : (analog_mode ? MODE_ANALOG : MODE_DIGITAL),
 				     escape_mode ? REPLY_LEN_ESCAPE : current_reply_len };
-		  PPB_reply_en 	 <= 1;
-		  byte_count 	 <= 0;
+		  byte_count 	 <= 5'h0;
 		  packet_state 	 <= (PPB_command == 8'h01) ? S_HEADER_COMMAND : S_IDLE;
 	      end
 
@@ -146,8 +156,7 @@ module psx_controller(clk, reset,
 		   * The next (third) reply byte is padding.
 		   */
 		  PPB_reply 	 <= PADDING_BYTE;
-		  PPB_reply_en 	 <= 1;
-		  byte_count 	 <= 0;
+		  byte_count 	 <= 5'h00;
 
 		  case (PPB_command)
 		      8'h40:    packet_state   <= escape_mode ? S_CMD_INIT_PRESSURE : S_IDLE;
@@ -166,14 +175,12 @@ module psx_controller(clk, reset,
 	      end
 
 	      S_IDLE: begin
-		  byte_count 		       <= 0;
+		  byte_count 		       <= 5'h00;
 		  PPB_reply 		       <= 8'hFF;
-		  PPB_reply_en 		       <= 0;
 	      end
 
 	      S_CMD_INIT_PRESSURE: begin
-		  byte_count 		       <= byte_count + 1;
-		  PPB_reply_en 		       <= 1;
+		  byte_count 		       <= byte_count + 5'h1;
 		  case (byte_count)
 		      5'h00:    PPB_reply   <= 8'h00;    // (Unknown)
 		      5'h01:    PPB_reply   <= 8'h00;    // (Unknown)
@@ -186,7 +193,6 @@ module psx_controller(clk, reset,
 
 	      S_CMD_GET_AVAILABLE_POLL_RESULTS: begin
 		  byte_count 		       <= byte_count + 1;
-		  PPB_reply_en 		       <= 1;
 		  case (byte_count)
 		      5'h00:    PPB_reply   <= 8'hFF;    // Bitmask of available polling results
 		      5'h01:    PPB_reply   <= 8'hFF;    //   ...
@@ -198,15 +204,13 @@ module psx_controller(clk, reset,
 	      end 
 	      
 	      S_CMD_POLL: begin
-		  byte_count 		    <= byte_count + 1;
-		  PPB_reply 		    <= input_state[byte_count];
-		  PPB_reply_en 		    <= 1;
+		  byte_count 		    <= byte_count + 5'h1;
+		  PPB_reply 		    <= input_state_data;
 	      end
 
      	      S_CMD_ESCAPE: begin
-		  byte_count 		    <= byte_count + 1;
-		  PPB_reply 		    <= input_state[byte_count];
-		  PPB_reply_en 		    <= 1;
+		  byte_count 		    <= byte_count + 5'h1;
+		  PPB_reply 		    <= input_state_data;
 
 		  if (byte_count == 1) begin
 		      /*
@@ -220,9 +224,8 @@ module psx_controller(clk, reset,
 	      end
 
 	      S_CMD_SET_MAJOR_MODE: begin
-		  byte_count 	    <= byte_count + 1;
+		  byte_count 	    <= byte_count + 5'h1;
 		  PPB_reply 	    <= 8'h00;
-		  PPB_reply_en 	    <= 1;
 		  
 		  if (byte_count == 1) begin
 		      /*
@@ -237,8 +240,7 @@ module psx_controller(clk, reset,
 	      end 
 
 	      S_CMD_READ_EXT_STATUS_1: begin
-		  byte_count 		  <= byte_count + 1;
-		  PPB_reply_en 		  <= 1;
+		  byte_count 		  <= byte_count + 5'h1;
 		  case (byte_count)
 		      5'h00:    PPB_reply   <= 8'h03;    // (Unknown)
 		      5'h01:    PPB_reply   <= 8'h02;    // (Unknown)
@@ -255,7 +257,6 @@ module psx_controller(clk, reset,
 		  packet_state 		    <= S_CMD_READ_CONST_OFFSET;
 		  byte_count 		    <= 5'h00;	  
 		  PPB_reply 		    <= 8'h00;
-		  PPB_reply_en 		    <= 1;
 	      end 
 
 	      S_CMD_READ_CONST_2: begin
@@ -263,7 +264,6 @@ module psx_controller(clk, reset,
 		  packet_state 		    <= S_CMD_READ_CONST_OFFSET;
 		  byte_count 		    <= 5'h08;
 		  PPB_reply 		    <= 8'h00;
-		  PPB_reply_en 		    <= 1;
 	      end 
 
 	      S_CMD_READ_CONST_3: begin
@@ -271,7 +271,6 @@ module psx_controller(clk, reset,
 		  packet_state 		    <= S_CMD_READ_CONST_OFFSET;
 		  byte_count 		    <= 5'h0C;
 		  PPB_reply 		    <= 8'h00;
-		  PPB_reply_en 		    <= 1;
 	      end 
 
 	      S_CMD_READ_CONST_OFFSET: begin
@@ -284,7 +283,6 @@ module psx_controller(clk, reset,
 		  packet_state 		    <= S_CMD_READ_CONST_DATA;		  
 		  byte_count 		    <= PPB_command[0] ? (byte_count + 5'h04) : byte_count;
 		  PPB_reply 		    <= 8'h00;
-		  PPB_reply_en 		    <= 1;
 	      end 
 	      
 	      S_CMD_READ_CONST_DATA: begin
@@ -292,8 +290,7 @@ module psx_controller(clk, reset,
 		   * ROM lookup table for all constant reply commands.
 		   * We only store the last 4 bytes of each response.
 		   */
-		  byte_count 		    <= byte_count + 1;
-		  PPB_reply_en 		    <= 1;
+		  byte_count 		    <= byte_count + 5'h1;
 		  case (byte_count)
 		      /* CONST_1, offset 0 */
 		      5'h00:    PPB_reply   <= 8'h01;
@@ -326,7 +323,7 @@ module psx_controller(clk, reset,
 	      end 
 
 	      S_CMD_SET_POLL_CMD_FORMAT: begin
-		  byte_count 		    <= byte_count + 1;
+		  byte_count 		    <= byte_count + 5'h1;
 
 		  /* XXX: Store the new command format */
 		  
@@ -336,16 +333,14 @@ module psx_controller(clk, reset,
 		   *      all channels, since this is the value a real controller gives
 		   *      after reset.
 		   */
-		  PPB_reply_en 		    <= 1;
 		  PPB_reply 		    <= 8'hFF;
 	      end
 
 	      S_CMD_SET_POLL_RESULT_FORMAT: begin
-		  byte_count 		    <= byte_count + 1;
+		  byte_count 		    <= byte_count + 5'h1;
 
 		  /* XXX: Store the new result format */
 
-		  PPB_reply_en 		    <= 1;
 		  PPB_reply 		    <= (byte_count > 5'h04) ? PADDING_BYTE : 8'h00;
 	      end
 	    
@@ -363,40 +358,13 @@ module psx_controller(clk, reset,
      * is idle for several seconds while a game is booting, so official
      * Dual Shock controllers detect this gap and reset themselves. We
      * do the same.
-     *
-     */
-
-    reg [WDT_BITS:0] watchdog_timer;
-    reg 	     controller_reset;
-    
-    always @(posedge clk or posedge reset) begin
-	if (reset) begin
-	    watchdog_timer     <= 0;
-	    controller_reset   <= 1;
-	end
-	else if (!PPB_packet_reset) begin
-	    watchdog_timer     <= 0;
-	    controller_reset   <= 0;
-	end
-	else if (watchdog_timer[WDT_BITS]) begin
-	    controller_reset   <= 1;
-	end
-	else begin
-	    watchdog_timer     <= watchdog_timer + 1;
-	    controller_reset   <= 0;
-	end	    
-    end
- 
-
-    /********************************************************************
      * 
-     * Input state modifications (Implied dual-port SRAM)
+     * Note that controller_reset is HIGH on reset, so we don't need
+     * a separate reset signal for the controller FSM.
      *
      */
 
-    always @(posedge clk) begin
-	if (write_en)
-	  input_state[write_addr] <= write_data;
-    end
+    wire controller_reset;    
+    watchdog #(WDT_BITS) wdt(clk, reset, !PPB_packet_reset, controller_reset);
     
 endmodule
