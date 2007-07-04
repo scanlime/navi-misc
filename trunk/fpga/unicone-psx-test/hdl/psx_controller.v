@@ -27,6 +27,7 @@ module psx_controller(clk, reset,
     input [7:0] write_data;
     input 	write_en;
 
+
     /********************************************************************
      * 
      * Controller state RAM
@@ -37,9 +38,9 @@ module psx_controller(clk, reset,
     defparam 	 input_state.DATA_BITS = 8;
     defparam 	 input_state.ADDR_BITS = 5;
     sync_dualport_sram input_state(clk, write_en, write_addr, write_data,
-				   byte_count, input_state_data);    
+				   reply_byte_index - 5'h03, input_state_data);    
 
-
+    
     /********************************************************************
      * 
      * Low-level controller port.
@@ -59,33 +60,98 @@ module psx_controller(clk, reset,
 				      PPB_packet_reset, PPB_ack_strobe,
 				      PPB_command, PPB_command_strobe,
 				      PPB_reply, PPB_reply_en, PPB_reply_ready);
- 
+
+
     /********************************************************************
      * 
-     * Main state machine
+     * Packet state tracking
      *
      */
 
-    /*
-     * Packet states. Their values are arbitrary, since the synthesis
-     * tool should just re-assign these anyway.
+    wire [4:0] command_byte_index;                           /* Index of byte currently in PPB_command */
+    wire [4:0] reply_byte_index    = command_byte_index;     /* Index of byte to put in PPB_reply */
+    
+    counter #(5) byte_counter(clk, PPB_packet_reset, PPB_command_strobe, command_byte_index);
+
+    reg        packet_valid;
+    reg [7:0]  current_command;
+    reg        const_offset;        
+    
+    parameter  CMD_INIT_PRESSURE = 8'h40;
+    parameter  CMD_GET_AVAILABLE_POLL_RESULTS = 8'h41;
+    parameter  CMD_POLL = 8'h42;
+    parameter  CMD_ESCAPE = 8'h43;
+    parameter  CMD_SET_MAJOR_MODE = 8'h44;
+    parameter  CMD_READ_EXT_STATUS_1 = 8'h45;
+    parameter  CMD_READ_CONST_1 = 8'h46;
+    parameter  CMD_READ_CONST_2 = 8'h47;
+    parameter  CMD_READ_CONST_3 = 8'h4c;
+    parameter  CMD_SET_POLL_CMD_FORMAT = 8'h4d;
+    parameter  CMD_SET_POLL_RESULT_FORMAT = 8'h4f;
+   
+    always @(posedge clk or posedge PPB_packet_reset)
+      if (PPB_packet_reset) begin
+	  packet_valid 	    <= 1'b1;
+	  current_command   <= 0;
+	  const_offset 	    <= 0;
+      end
+      else if (PPB_command_strobe && packet_valid) begin
+
+	  /* Byte 0:
+	   *
+	   *   Receive the address byte. This should always be 01,
+	   *   to indicate that a controller on port 1 is being addressed.
+	   */
+	  if (command_byte_index == 5'h00) begin
+	      packet_valid   <= (PPB_command == 8'h01);
+	  end
+
+	  /* Byte 1:
+	   *
+	   *   Validate the command byte, and store it. Note that most of
+	   *   our commands are valid only in escape mode, so this depends on
+	   *   the current controller state.
+	   */
+	  else if (command_byte_index == 5'h01) begin
+	      current_command 	<= PPB_command;
+	      case (PPB_command)
+		  CMD_INIT_PRESSURE:               packet_valid   <= escape_mode;
+		  CMD_GET_AVAILABLE_POLL_RESULTS:  packet_valid   <= escape_mode;
+		  CMD_POLL:                        packet_valid   <= 1'b1;
+		  CMD_ESCAPE:                      packet_valid   <= 1'b1;
+		  CMD_SET_MAJOR_MODE:              packet_valid   <= escape_mode;
+		  CMD_READ_EXT_STATUS_1:           packet_valid   <= escape_mode;
+		  CMD_READ_CONST_1:                packet_valid   <= escape_mode;
+		  CMD_READ_CONST_2:                packet_valid   <= escape_mode;
+		  CMD_READ_CONST_3:                packet_valid   <= escape_mode;
+		  CMD_SET_POLL_CMD_FORMAT:         packet_valid   <= escape_mode;
+		  CMD_SET_POLL_RESULT_FORMAT:      packet_valid   <= escape_mode;
+		  default:                         packet_valid   <= 1'b0;
+	      endcase // case (PPB_command)
+	  end
+
+	  /* Byte 2:
+	   *   Padding.
+	   */
+
+	  /* Byte 3:
+	   *   First command-specific byte. Pick out the const_offset,
+	   *   which we'll need in order to generate replies to the read_const
+	   *   commands.
+	   */
+	  else if (command_byte_index == 5'h03) begin
+	      const_offset   <= PPB_command[0];
+	  end
+      end
+
+    
+    /********************************************************************
+     * 
+     * Reply generation
+     *
      */
-    parameter  S_IDLE                           = 0;
-    parameter  S_HEADER_ADDRESS                 = 1;
-    parameter  S_HEADER_COMMAND                 = 2;
-    parameter  S_CMD_INIT_PRESSURE              = 3;
-    parameter  S_CMD_GET_AVAILABLE_POLL_RESULTS = 4;
-    parameter  S_CMD_POLL                       = 5;
-    parameter  S_CMD_ESCAPE                     = 6;
-    parameter  S_CMD_SET_MAJOR_MODE             = 7;
-    parameter  S_CMD_READ_EXT_STATUS_1          = 8;
-    parameter  S_CMD_READ_CONST_1               = 9;
-    parameter  S_CMD_READ_CONST_2               = 10;
-    parameter  S_CMD_READ_CONST_3               = 11;
-    parameter  S_CMD_READ_CONST_OFFSET          = 12;
-    parameter  S_CMD_READ_CONST_DATA            = 13;
-    parameter  S_CMD_SET_POLL_CMD_FORMAT        = 14;
-    parameter  S_CMD_SET_POLL_RESULT_FORMAT     = 15;
+
+    parameter  PADDING_BYTE   = 8'h5A;
     
     parameter  MODE_DIGITAL = 4'h4;
     parameter  MODE_ANALOG  = 4'h7;
@@ -93,259 +159,196 @@ module psx_controller(clk, reset,
 
     parameter  REPLY_LEN_ESCAPE = 4'h3;
     parameter  REPLY_LEN_DIGITAL = 4'h1;
-    parameter  REPLY_LEN_ANALOG = 4'h3;
-    
-    parameter  PADDING_BYTE = 8'h5A;
-    
-    /* Packet state */
-    reg [4:0] 	 packet_state;
-    reg [4:0] 	 byte_count;
-    
-    /* Controller state */
-    reg          escape_mode;
-    reg          analog_mode;
-    reg [3:0] 	 current_reply_len;
+    parameter  REPLY_LEN_ANALOG = 4'h3;    
 
-    assign PPB_ack_strobe = (packet_state != S_IDLE);
-    assign PPB_reply_en = (packet_state != S_IDLE && packet_state != S_HEADER_ADDRESS);
- 
+    /*
+     * Enable the reply output after we've been addressed successfully.
+     */
+    assign PPB_reply_en = (packet_valid && !PPB_packet_reset &&
+                           command_byte_index != 0);
+
+    /*
+     * ACK starting after the first valid packet byte. Normally we don't 
+     * need to ACK the last byte (we could check this with command_byte_index <
+     * current_reply_bytes) but we don't do this because some escape commands
+     * appear to require that final ACK anyway.
+     */
+    assign PPB_ack_strobe = PPB_reply_en;
+    
+    /*
+     * Look up a reply byte according to the current command and index.
+     */
+    always @(current_command or const_offset or reply_byte_index or input_state_data or
+	     current_reply_words or current_mode or analog_mode)
+
+      casez ({current_command[3:0], const_offset, reply_byte_index})
+
+	  /* Reply byte 0: Output drivers are not active, we don't care. */
+	  {4'h?, 1'b?, 5'h00}: PPB_reply 				   = 8'hXX;
+
+	  /* Reply byte 1: Current controller mode and reply length. */
+	  {4'h?, 1'b?, 5'h01}: PPB_reply 				   = {current_mode, current_reply_words};
+
+	  /* Reply byte 2: Header padding */
+	  {4'h?, 1'b?, 5'h02}: PPB_reply 				   = PADDING_BYTE;
+	  
+	  {CMD_INIT_PRESSURE[3:0], 1'b?, 5'h03}: PPB_reply 		   = 8'h00;   // (Unknown)
+	  {CMD_INIT_PRESSURE[3:0], 1'b?, 5'h04}: PPB_reply 		   = 8'h00;   // (Unknown)
+	  {CMD_INIT_PRESSURE[3:0], 1'b?, 5'h05}: PPB_reply 		   = 8'h02;   // (Unknown)
+	  {CMD_INIT_PRESSURE[3:0], 1'b?, 5'h06}: PPB_reply 		   = 8'h00;   // (Unknown)
+	  {CMD_INIT_PRESSURE[3:0], 1'b?, 5'h07}: PPB_reply 		   = 8'h00;   // (Unknown)
+	  {CMD_INIT_PRESSURE[3:0], 1'b?, 5'h08}: PPB_reply 		   = PADDING_BYTE;
+
+	  {CMD_GET_AVAILABLE_POLL_RESULTS[3:0], 1'b?, 5'h03}: PPB_reply    = 8'hFF;   // Bitmask of available polling results
+	  {CMD_GET_AVAILABLE_POLL_RESULTS[3:0], 1'b?, 5'h04}: PPB_reply    = 8'hFF;   //  ...
+	  {CMD_GET_AVAILABLE_POLL_RESULTS[3:0], 1'b?, 5'h05}: PPB_reply    = 8'h03;   //  ...
+	  {CMD_GET_AVAILABLE_POLL_RESULTS[3:0], 1'b?, 5'h06}: PPB_reply    = 8'h00;   //  ...
+	  {CMD_GET_AVAILABLE_POLL_RESULTS[3:0], 1'b?, 5'h07}: PPB_reply    = 8'h00;   //  ...
+	  {CMD_GET_AVAILABLE_POLL_RESULTS[3:0], 1'b?, 5'h08}: PPB_reply    = PADDING_BYTE;
+
+	  /*
+	   * Support up to 18 bytes of replies, enough for a Dual Shock
+	   * controller with all the bells and whistles. This looks a lot
+	   * uglier than using "5'h??" for the byte count, but Altera's
+	   * synthesizer produces *much* better output for this case statement
+	   * when it contains no overlaps.
+	   * 
+	   * Also, note the '?' for the lower bit in CMD_POLL. This is a shortcut
+	   * to allow either CMD_POLL or CMD_ESCAPE.
+	   */
+	  {CMD_POLL[3:1], 2'b??, 5'h03}: PPB_reply 			   = input_state_data;
+	  {CMD_POLL[3:1], 2'b??, 5'h04}: PPB_reply 			   = input_state_data;
+	  {CMD_POLL[3:1], 2'b??, 5'h05}: PPB_reply 			   = input_state_data;
+	  {CMD_POLL[3:1], 2'b??, 5'h06}: PPB_reply 			   = input_state_data;
+	  {CMD_POLL[3:1], 2'b??, 5'h07}: PPB_reply 			   = input_state_data;
+	  {CMD_POLL[3:1], 2'b??, 5'h08}: PPB_reply 			   = input_state_data;
+	  {CMD_POLL[3:1], 2'b??, 5'h09}: PPB_reply 			   = input_state_data;
+	  {CMD_POLL[3:1], 2'b??, 5'h0A}: PPB_reply 			   = input_state_data;
+	  {CMD_POLL[3:1], 2'b??, 5'h0B}: PPB_reply 			   = input_state_data;
+	  {CMD_POLL[3:1], 2'b??, 5'h0C}: PPB_reply 			   = input_state_data;
+	  {CMD_POLL[3:1], 2'b??, 5'h0D}: PPB_reply 			   = input_state_data;
+	  {CMD_POLL[3:1], 2'b??, 5'h0E}: PPB_reply 			   = input_state_data;
+	  {CMD_POLL[3:1], 2'b??, 5'h0F}: PPB_reply 			   = input_state_data;
+	  {CMD_POLL[3:1], 2'b??, 5'h10}: PPB_reply 			   = input_state_data;
+	  {CMD_POLL[3:1], 2'b??, 5'h11}: PPB_reply 			   = input_state_data;
+	  {CMD_POLL[3:1], 2'b??, 5'h12}: PPB_reply 			   = input_state_data;
+	  {CMD_POLL[3:1], 2'b??, 5'h13}: PPB_reply 			   = input_state_data;
+	  {CMD_POLL[3:1], 2'b??, 5'h14}: PPB_reply 			   = input_state_data;
+
+	  {CMD_SET_MAJOR_MODE[3:0], 1'b?, 5'h03}: PPB_reply 		   = 8'h00;
+	  {CMD_SET_MAJOR_MODE[3:0], 1'b?, 5'h04}: PPB_reply 		   = 8'h00;
+	  {CMD_SET_MAJOR_MODE[3:0], 1'b?, 5'h05}: PPB_reply 		   = 8'h00;
+	  {CMD_SET_MAJOR_MODE[3:0], 1'b?, 5'h06}: PPB_reply 		   = 8'h00;
+	  {CMD_SET_MAJOR_MODE[3:0], 1'b?, 5'h07}: PPB_reply 		   = 8'h00;
+	  {CMD_SET_MAJOR_MODE[3:0], 1'b?, 5'h08}: PPB_reply 		   = 8'h00;
+
+	  {CMD_READ_EXT_STATUS_1[3:0], 1'b?, 5'h03}: PPB_reply 		   = 8'h03;   // (Unknown)
+	  {CMD_READ_EXT_STATUS_1[3:0], 1'b?, 5'h04}: PPB_reply 		   = 8'h02;   // (Unknown)
+	  {CMD_READ_EXT_STATUS_1[3:0], 1'b?, 5'h05}: PPB_reply 		   = {7'h00, analog_mode};
+	  {CMD_READ_EXT_STATUS_1[3:0], 1'b?, 5'h06}: PPB_reply 		   = 8'h02;   // (Unknown)
+	  {CMD_READ_EXT_STATUS_1[3:0], 1'b?, 5'h07}: PPB_reply 		   = 8'h01;   // (Unknown)
+	  {CMD_READ_EXT_STATUS_1[3:0], 1'b?, 5'h08}: PPB_reply 		   = 8'h00;   // (Unknown)
+
+	  {CMD_READ_CONST_1[3:0], 1'b0, 5'h03}: PPB_reply 		   = 8'h00;
+	  {CMD_READ_CONST_1[3:0], 1'b0, 5'h04}: PPB_reply 		   = 8'h00;
+	  {CMD_READ_CONST_1[3:0], 1'b0, 5'h05}: PPB_reply 		   = 8'h01;
+	  {CMD_READ_CONST_1[3:0], 1'b0, 5'h06}: PPB_reply 		   = 8'h02;
+	  {CMD_READ_CONST_1[3:0], 1'b0, 5'h07}: PPB_reply 		   = 8'h00;
+	  {CMD_READ_CONST_1[3:0], 1'b0, 5'h08}: PPB_reply 		   = 8'h0a;
+	  {CMD_READ_CONST_1[3:0], 1'b1, 5'h03}: PPB_reply 		   = 8'h00;
+	  {CMD_READ_CONST_1[3:0], 1'b1, 5'h04}: PPB_reply 		   = 8'h00;
+	  {CMD_READ_CONST_1[3:0], 1'b1, 5'h05}: PPB_reply 		   = 8'h01;
+	  {CMD_READ_CONST_1[3:0], 1'b1, 5'h06}: PPB_reply 		   = 8'h01;
+	  {CMD_READ_CONST_1[3:0], 1'b1, 5'h07}: PPB_reply 		   = 8'h01;
+	  {CMD_READ_CONST_1[3:0], 1'b1, 5'h08}: PPB_reply 		   = 8'h14;
+
+	  {CMD_READ_CONST_2[3:0], 1'b0, 5'h03}: PPB_reply 		   = 8'h00;
+	  {CMD_READ_CONST_2[3:0], 1'b0, 5'h04}: PPB_reply 		   = 8'h00;
+	  {CMD_READ_CONST_2[3:0], 1'b0, 5'h05}: PPB_reply 		   = 8'h02;
+	  {CMD_READ_CONST_2[3:0], 1'b0, 5'h06}: PPB_reply 		   = 8'h00;
+	  {CMD_READ_CONST_2[3:0], 1'b0, 5'h07}: PPB_reply 		   = 8'h01;
+	  {CMD_READ_CONST_2[3:0], 1'b0, 5'h08}: PPB_reply 		   = 8'h00;
+
+	  {CMD_READ_CONST_3[3:0], 1'b0, 5'h03}: PPB_reply 		   = 8'h00;
+	  {CMD_READ_CONST_3[3:0], 1'b0, 5'h04}: PPB_reply 		   = 8'h00;
+	  {CMD_READ_CONST_3[3:0], 1'b0, 5'h05}: PPB_reply 		   = 8'h00;
+	  {CMD_READ_CONST_3[3:0], 1'b0, 5'h06}: PPB_reply 		   = 8'h04;
+	  {CMD_READ_CONST_3[3:0], 1'b0, 5'h07}: PPB_reply 		   = 8'h00;
+	  {CMD_READ_CONST_3[3:0], 1'b0, 5'h08}: PPB_reply 		   = 8'h00;
+	  {CMD_READ_CONST_3[3:0], 1'b1, 5'h03}: PPB_reply 		   = 8'h00;
+	  {CMD_READ_CONST_3[3:0], 1'b1, 5'h04}: PPB_reply 		   = 8'h00;
+	  {CMD_READ_CONST_3[3:0], 1'b1, 5'h05}: PPB_reply 		   = 8'h00;
+	  {CMD_READ_CONST_3[3:0], 1'b1, 5'h06}: PPB_reply 		   = 8'h07;
+	  {CMD_READ_CONST_3[3:0], 1'b1, 5'h07}: PPB_reply 		   = 8'h00;
+	  {CMD_READ_CONST_3[3:0], 1'b1, 5'h08}: PPB_reply 		   = 8'h10;
+
+	  {CMD_SET_POLL_CMD_FORMAT[3:0], 1'b?, 5'h03}: PPB_reply 	   = 8'hFF;   // XXX
+	  {CMD_SET_POLL_CMD_FORMAT[3:0], 1'b?, 5'h04}: PPB_reply 	   = 8'hFF;   // XXX
+	  {CMD_SET_POLL_CMD_FORMAT[3:0], 1'b?, 5'h05}: PPB_reply 	   = 8'hFF;   // XXX
+	  {CMD_SET_POLL_CMD_FORMAT[3:0], 1'b?, 5'h06}: PPB_reply 	   = 8'hFF;   // XXX
+	  {CMD_SET_POLL_CMD_FORMAT[3:0], 1'b?, 5'h07}: PPB_reply 	   = 8'hFF;   // XXX
+	  {CMD_SET_POLL_CMD_FORMAT[3:0], 1'b?, 5'h08}: PPB_reply 	   = 8'hFF;   // XXX
+
+	  {CMD_SET_POLL_RESULT_FORMAT[3:0], 1'b?, 5'h03}: PPB_reply 	   = 8'h00;
+	  {CMD_SET_POLL_RESULT_FORMAT[3:0], 1'b?, 5'h04}: PPB_reply 	   = 8'h00;
+	  {CMD_SET_POLL_RESULT_FORMAT[3:0], 1'b?, 5'h05}: PPB_reply 	   = 8'h00;
+	  {CMD_SET_POLL_RESULT_FORMAT[3:0], 1'b?, 5'h06}: PPB_reply 	   = 8'h00;
+	  {CMD_SET_POLL_RESULT_FORMAT[3:0], 1'b?, 5'h07}: PPB_reply 	   = 8'h00;
+	  {CMD_SET_POLL_RESULT_FORMAT[3:0], 1'b?, 5'h08}: PPB_reply 	   = PADDING_BYTE;
+
+	  default: PPB_reply 						   = 8'hXX;
+      endcase
+
+     
+    /********************************************************************
+     * 
+     * Controller state
+     *
+     */
+
+    reg escape_mode;
+    reg analog_mode;
+
+    reg [3:0] poll_reply_words;
+    
+    wire [3:0] current_reply_words    = escape_mode ? REPLY_LEN_ESCAPE : poll_reply_words;
+    wire [4:0] current_reply_bytes    = 5'h03 + {current_reply_words, 1'b0};
+    wire [3:0] current_mode 	      = escape_mode ? MODE_ESCAPE : (analog_mode ? MODE_ANALOG : MODE_DIGITAL);
+
     always @(posedge clk or posedge controller_reset)
-      if (controller_reset) begin
-	  /*
-	   * Reset all controller state.
-	   */
-	  escape_mode 	      <= 1'b0;
-	  analog_mode 	      <= 1'b0;
-	  current_reply_len   <= 4'h1;
+	if (controller_reset) begin
+	    escape_mode        <= 0;
+	    analog_mode        <= 0;
+	    poll_reply_words   <= REPLY_LEN_DIGITAL;
+	end
+	else if (PPB_command_strobe && packet_valid)
+	  case ({current_command[3:0], command_byte_index})
 
-	  PPB_reply 	      <= 8'hFF;
-	  byte_count 	      <= 5'h0;
-	  packet_state 	      <= S_IDLE;
-      end
-      else if (PPB_packet_reset) begin
-	  /*
-	   * Begin a new packet. Wait for the address byte.
-	   * It's important that we don't send a response (DAT is Hi-Z)
-	   * until we're addressed.
-	   */
-	  PPB_reply 	 <= 8'hFF;
-	  byte_count 	 <= 5'h0;
-	  packet_state 	 <= S_HEADER_ADDRESS;
-      end
-      else if (PPB_command_strobe) begin
-	  case (packet_state)
-
-	      S_HEADER_ADDRESS: begin
+	      {CMD_SET_MAJOR_MODE[3:0], 5'h03}: begin
 		  /*
-		   * Receive the address byte. This should always be 01,
-		   * to indicate that a controller on port 1 is being addressed.
-		   *
-		   * The next byte specifies our command, and the next reply is
-		   * a combination of the current mode and current reply length.
+		   * Setting major mode: The first byte of the command's payload
+		   * is 1 to enter analog mode, 0 to enter digital mode. In either
+		   * case, other controller state is reset.
 		   */
-		  PPB_reply <= {escape_mode ? MODE_ESCAPE : (analog_mode ? MODE_ANALOG : MODE_DIGITAL),
-				     escape_mode ? REPLY_LEN_ESCAPE : current_reply_len };
-		  byte_count 	 <= 5'h0;
-		  packet_state 	 <= (PPB_command == 8'h01) ? S_HEADER_COMMAND : S_IDLE;
+		  analog_mode 	     <= PPB_command[0];
+		  poll_reply_words   <= PPB_command[0] ? REPLY_LEN_ANALOG : REPLY_LEN_DIGITAL;
 	      end
 
-	      S_HEADER_COMMAND: begin
+	      {CMD_ESCAPE[3:0], 5'h03}: begin
 		  /*
-		   * Receive and validate the command byte. If this is a valid
-		   * command in the current mode, proceed to that command's state.
-		   * The next (third) reply byte is padding.
+		   * Entering or leaving escape mode
 		   */
-		  PPB_reply 	 <= PADDING_BYTE;
-		  byte_count 	 <= 5'h00;
-
-		  case (PPB_command)
-		      8'h40:    packet_state   <= escape_mode ? S_CMD_INIT_PRESSURE : S_IDLE;
-		      8'h41:    packet_state   <= escape_mode ? S_CMD_GET_AVAILABLE_POLL_RESULTS : S_IDLE;
-		      8'h42:    packet_state   <= S_CMD_POLL;
-		      8'h43:    packet_state   <= S_CMD_ESCAPE;
-		      8'h44:    packet_state   <= escape_mode ? S_CMD_SET_MAJOR_MODE : S_IDLE;
-		      8'h45:    packet_state   <= escape_mode ? S_CMD_READ_EXT_STATUS_1 : S_IDLE;
-		      8'h46:    packet_state   <= escape_mode ? S_CMD_READ_CONST_1 : S_IDLE;
-		      8'h47:    packet_state   <= escape_mode ? S_CMD_READ_CONST_2 : S_IDLE;
-		      8'h4c:    packet_state   <= escape_mode ? S_CMD_READ_CONST_3 : S_IDLE;
-		      8'h4d:    packet_state   <= escape_mode ? S_CMD_SET_POLL_CMD_FORMAT : S_IDLE;
-		      8'h4f:    packet_state   <= escape_mode ? S_CMD_SET_POLL_RESULT_FORMAT : S_IDLE;
-		      default:  packet_state   <= S_IDLE;
-		  endcase // case (PPB_command)
+		  escape_mode 	     <= PPB_command[0];
 	      end
 
-	      S_IDLE: begin
-		  byte_count 		       <= 5'h00;
-		  PPB_reply 		       <= 8'hFF;
-	      end
-
-	      S_CMD_INIT_PRESSURE: begin
-		  byte_count 		       <= byte_count + 5'h1;
-		  case (byte_count)
-		      5'h00:    PPB_reply   <= 8'h00;    // (Unknown)
-		      5'h01:    PPB_reply   <= 8'h00;    // (Unknown)
-		      5'h02:    PPB_reply   <= 8'h02;    // (Unknown)
-		      5'h03:    PPB_reply   <= 8'h00;    // (Unknown)
-		      5'h04:    PPB_reply   <= 8'h00;    // (Unknown)
-		      default:  PPB_reply   <= PADDING_BYTE;
-		  endcase // case (byte_count)
-	      end 
-
-	      S_CMD_GET_AVAILABLE_POLL_RESULTS: begin
-		  byte_count 		       <= byte_count + 1;
-		  case (byte_count)
-		      5'h00:    PPB_reply   <= 8'hFF;    // Bitmask of available polling results
-		      5'h01:    PPB_reply   <= 8'hFF;    //   ...
-		      5'h02:    PPB_reply   <= 8'h03;    //   ...
-		      5'h03:    PPB_reply   <= 8'h00;    //   ...
-		      5'h04:    PPB_reply   <= 8'h00;    //   ...
-		      default:  PPB_reply   <= PADDING_BYTE;
-		  endcase // case (byte_count)
-	      end 
-	      
-	      S_CMD_POLL: begin
-		  byte_count 		    <= byte_count + 5'h1;
-		  PPB_reply 		    <= input_state_data;
-	      end
-
-     	      S_CMD_ESCAPE: begin
-		  byte_count 		    <= byte_count + 5'h1;
-		  PPB_reply 		    <= input_state_data;
-
-		  if (byte_count == 1) begin
-		      /*
-		       * This is the first command data byte.
-		       * (byte 0 is the header padding command byte or
-		       * the first response byte). It tells us whether
-		       * to enter or exit escape mode.
-		       */
-		      escape_mode   <= PPB_command[0];
-		  end
-	      end
-
-	      S_CMD_SET_MAJOR_MODE: begin
-		  byte_count 	    <= byte_count + 5'h1;
-		  PPB_reply 	    <= 8'h00;
-		  
-		  if (byte_count == 1) begin
-		      /*
-		       * First command data byte. This is 1 to enter
-		       * analog mode, 0 for digital mode. This also
-		       * resets all mode-related state, such as the
-		       * command/response mapping and the reply length.
-		       */
-		      analog_mode 	  <= PPB_command[0];
-		      current_reply_len   <= PPB_command[0] ? REPLY_LEN_ANALOG : REPLY_LEN_DIGITAL;
-		  end
-	      end 
-
-	      S_CMD_READ_EXT_STATUS_1: begin
-		  byte_count 		  <= byte_count + 5'h1;
-		  case (byte_count)
-		      5'h00:    PPB_reply   <= 8'h03;    // (Unknown)
-		      5'h01:    PPB_reply   <= 8'h02;    // (Unknown)
-		      5'h02:    PPB_reply   <= {7'b0000000, analog_mode};
-		      5'h03:    PPB_reply   <= 8'h02;    // (Unknown)
-		      5'h04:    PPB_reply   <= 8'h01;    // (Unknown)
-		      5'h05:    PPB_reply   <= 8'h00;    // (Unknown)
-		      default:  PPB_reply   <= PADDING_BYTE;
-		  endcase // case (byte_count)
-	      end 
-
-	      S_CMD_READ_CONST_1: begin
-		  /* Begin reading const 1, store the address in byte_count */
-		  packet_state 		    <= S_CMD_READ_CONST_OFFSET;
-		  byte_count 		    <= 5'h00;	  
-		  PPB_reply 		    <= 8'h00;
-	      end 
-
-	      S_CMD_READ_CONST_2: begin
-		  /* Begin reading const 2, store the address in byte_count */
-		  packet_state 		    <= S_CMD_READ_CONST_OFFSET;
-		  byte_count 		    <= 5'h08;
-		  PPB_reply 		    <= 8'h00;
-	      end 
-
-	      S_CMD_READ_CONST_3: begin
-		  /* Begin reading const 2, store the address in byte_count */
-		  packet_state 		    <= S_CMD_READ_CONST_OFFSET;
-		  byte_count 		    <= 5'h0C;
-		  PPB_reply 		    <= 8'h00;
-	      end 
-
-	      S_CMD_READ_CONST_OFFSET: begin
+	      {CMD_POLL[3:0], 5'h03}: begin
 		  /*
-		   * Read the offset byte for any of the const commands,
-		   * and output the first data byte. We don't store the
-		   * first byte in our ROM, since it's assumed to always
-		   * be zero.
+		   * Poll command always kicks us out of escape mode.
 		   */
-		  packet_state 		    <= S_CMD_READ_CONST_DATA;		  
-		  byte_count 		    <= PPB_command[0] ? (byte_count + 5'h04) : byte_count;
-		  PPB_reply 		    <= 8'h00;
-	      end 
-	      
-	      S_CMD_READ_CONST_DATA: begin
-		  /*
-		   * ROM lookup table for all constant reply commands.
-		   * We only store the last 4 bytes of each response.
-		   */
-		  byte_count 		    <= byte_count + 5'h1;
-		  case (byte_count)
-		      /* CONST_1, offset 0 */
-		      5'h00:    PPB_reply   <= 8'h01;
-		      5'h01:    PPB_reply   <= 8'h02;
-		      5'h02:    PPB_reply   <= 8'h00;
-		      5'h03:    PPB_reply   <= 8'h0a;
-		      /* CONST_1, offset 1 */
-		      5'h04:    PPB_reply   <= 8'h01;
-		      5'h05:    PPB_reply   <= 8'h01;
-		      5'h06:    PPB_reply   <= 8'h01;
-		      5'h07:    PPB_reply   <= 8'h14;
-		      /* CONST_2, offset 0 */
-		      5'h08:    PPB_reply   <= 8'h02;
-		      5'h09:    PPB_reply   <= 8'h00;
-		      5'h0A:    PPB_reply   <= 8'h01;
-		      5'h0B:    PPB_reply   <= 8'h00;
-		      /* CONST_3, offset 0 */
-		      5'h0C:    PPB_reply   <= 8'h00;
-		      5'h0D:    PPB_reply   <= 8'h04;
-		      5'h0E:    PPB_reply   <= 8'h00;
-		      5'h0F:    PPB_reply   <= 8'h00;
-		      /* CONST_3, offset 1 */
-		      5'h10:    PPB_reply   <= 8'h00;
-		      5'h11:    PPB_reply   <= 8'h07;
-		      5'h12:    PPB_reply   <= 8'h00;
-		      5'h13:    PPB_reply   <= 8'h10;
-
-		      default:  PPB_reply   <= 8'h00;
-		  endcase // case (byte_count)
-	      end 
-
-	      S_CMD_SET_POLL_CMD_FORMAT: begin
-		  byte_count 		    <= byte_count + 5'h1;
-
-		  /* XXX: Store the new command format */
-		  
-		  /*
-		   * XXX: We're supposed to reply with the previous poll cmd format, but
-		   *      I doubt any games actually care. Reply with FF (disabled) for
-		   *      all channels, since this is the value a real controller gives
-		   *      after reset.
-		   */
-		  PPB_reply 		    <= 8'hFF;
+		  escape_mode 	     <= 1'b0;
 	      end
 
-	      S_CMD_SET_POLL_RESULT_FORMAT: begin
-		  byte_count 		    <= byte_count + 5'h1;
-
-		  /* XXX: Store the new result format */
-
-		  PPB_reply 		    <= (byte_count > 5'h04) ? PADDING_BYTE : 8'h00;
-	      end
-	    
-	  endcase // case (packet_state)
-      end // if (PPB_command_strobe)
+	  endcase
 
     
     /********************************************************************
