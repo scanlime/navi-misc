@@ -100,7 +100,7 @@ module psxtest(FX2_CLK, FX2_FD, FX2_SLRD, FX2_SLWR, FX2_flags,
 	  PROBE_sync   <= 0;
       end
       else begin
-	  PROBE_s1     <= {rx_byte_count[1:0], SERIAL_RX, PSX_DAT, PSX_CMD, PSX_SEL, PSX_CLK, PSX_ACK};
+	  PROBE_s1     <= {2'b00, SERIAL_RX, PSX_DAT, PSX_CMD, PSX_SEL, PSX_CLK, PSX_ACK};
 	  PROBE_sync   <= PROBE_s1;
       end
 

@@ -52,14 +52,13 @@ module psx_controller(clk, reset,
     wire       PPB_command_strobe;
     reg [7:0]  PPB_reply;
     wire       PPB_reply_en;
-    wire       PPB_reply_ready;
     wire       PPB_ack_strobe;
 
     psx_device_port #(CLOCK_MHZ) port(clk, reset,
 				      PSX_ack, PSX_clk, PSX_sel, PSX_cmd, PSX_dat,
 				      PPB_packet_reset, PPB_ack_strobe,
 				      PPB_command, PPB_command_strobe,
-				      PPB_reply, PPB_reply_en, PPB_reply_ready);
+				      PPB_reply, PPB_reply_en);
 
 
     /********************************************************************
