@@ -15,13 +15,16 @@ module psx_device_port(clk, reset,
 		       PSX_ack, PSX_clk, PSX_sel, PSX_cmd, PSX_dat,
 		       PPB_packet_reset, PPB_ack_strobe,
 		       PPB_command, PPB_command_strobe,
-		       PPB_reply, PPB_reply_en, PPB_reply_ready);
+		       PPB_reply, PPB_reply_en);
 
     parameter CLOCK_MHZ = 25;
 
     // Typical ACK timing observed on a Dual Shock controller
     parameter ACK_DELAY_US = 8;
     parameter ACK_WIDTH_US = 3;
+
+    parameter ACK_TIMER_BITS = 4;
+    parameter ACK_PRESCALER_BITS = 5;
 
     input     clk, reset;
 
@@ -36,9 +39,8 @@ module psx_device_port(clk, reset,
     output [7:0] PPB_command;            // Received command byte
     output 	 PPB_command_strobe;     // HIGH for one clock after PPB_command has changed
 
-    input [7:0]  PPB_reply;              // Outgoing reply byte
+    input [7:0]  PPB_reply;              // Outgoing reply byte, sampled at first negative clock edge
     input 	 PPB_reply_en;           // Reply enable bit, sampled concurrently with PPB_reply
-    output 	 PPB_reply_ready;        // HIGH for one clock cycle after PPB_reply has been read
 
 
     /********************************************************************
@@ -60,12 +62,12 @@ module psx_device_port(clk, reset,
     
     // Outputs are registered, and tri-stated when not active.
 
-    reg    output_dat;
-    reg    output_dat_en;    
+    wire   output_dat;
+    wire   output_dat_en;
     assign PSX_dat = output_dat_en ? output_dat : 1'bz;
     
-    reg    output_ack;
-    assign PSX_ack = output_ack ? 1'bz : 1'b0;
+    wire   output_ack;
+    assign PSX_ack = output_ack ? 1'b0 : 1'bz;
 
     // Treat SEL as a reset: when the host is not addressing this device,
     // the device's protocol layer should be in a reset state.
@@ -89,71 +91,35 @@ module psx_device_port(clk, reset,
      *
      */
 
-    reg [7:0] cmd_shiftreg;
-    reg [2:0] cmd_state;
-    reg [7:0] PPB_command;
-    reg       PPB_command_strobe;
-        
-    always @(posedge clk or posedge PPB_packet_reset)
-      if (PPB_packet_reset) begin
-	  PPB_command 	      <= 0;
-	  PPB_command_strobe  <= 0;
-	  cmd_shiftreg 	      <= 0;
-	  cmd_state 	      <= 0;	  
-      end
-      else if (clk_strobe_pos && cmd_state == 3'b111) begin
-	  PPB_command 	      <= {sync_cmd, cmd_shiftreg[7:1]};
-	  PPB_command_strobe  <= 1;
-	  cmd_shiftreg 	      <= 0;
-	  cmd_state 	      <= 0;
-      end
-      else if (clk_strobe_pos) begin
-	  PPB_command_strobe  <= 0;
-	  cmd_shiftreg 	      <= {sync_cmd, cmd_shiftreg[7:1]};
-	  cmd_state 	      <= cmd_state + 1;
-      end
-      else begin
-	  PPB_command_strobe  <= 0;
-      end
+    wire [2:0] bit_counter;
+    
+    right_shift_reg input_shiftreg(clk, PPB_packet_reset, clk_strobe_pos,
+				   sync_cmd, PPB_command);
+
+    counter_with_overflow #(3) input_bit_counter(clk, PPB_packet_reset,
+						 clk_strobe_pos,
+						 bit_counter,
+						 PPB_command_strobe);
 
 
     /********************************************************************
      * 
      * Serial output shift register.
      *
-     * Just before sending the first bit, the dat_buffer is latched
-     * and dat_buffer_ready is asserted for one cycle.
+     * Just before sending the first bit, the PPB_reply and PPB_reply_en are latched.
      *
      */
 
-    reg [6:0] dat_shiftreg;
-    reg [2:0] dat_state;
-    reg       PPB_reply_ready;
+    wire [7:0] output_reg;
+    assign     output_dat = output_reg[0];
+
+    wire       reply_latch_enable    = clk_strobe_neg && (bit_counter == 0);
     
-    always @(posedge clk or posedge PPB_packet_reset)
-      if (PPB_packet_reset) begin
-	  output_dat 	    <= 0;
-	  dat_shiftreg 	    <= 0;
-	  dat_state 	    <= 0;
-	  PPB_reply_ready   <= 0;
-	  output_dat_en	    <= 0;
-      end
-      else if (clk_strobe_neg && dat_state == 0) begin
-	  output_dat 	    <= PPB_reply[0];
-	  output_dat_en     <= PPB_reply_en;
-	  dat_shiftreg 	    <= PPB_reply[7:1];
-	  dat_state 	    <= dat_state + 1;
-	  PPB_reply_ready   <= 1;
-      end
-      else if (clk_strobe_neg) begin
-	  output_dat 	    <= dat_shiftreg[0];
-	  dat_shiftreg 	    <= {1'b0, dat_shiftreg[6:1]};
-	  dat_state 	    <= dat_state + 1;
-	  PPB_reply_ready   <= 0;
-      end
-      else begin
-	  PPB_reply_ready   <= 0;
-      end
+    right_shift_reg_loadable output_shiftreg(clk, PPB_packet_reset, clk_strobe_neg,
+					     1'b0, output_reg, PPB_reply, reply_latch_enable);
+
+    bit_latch output_enable_latch(clk, PPB_packet_reset,
+				  PPB_reply_en, reply_latch_enable, output_dat_en);
 
     
     /********************************************************************
@@ -169,9 +135,22 @@ module psx_device_port(clk, reset,
      *
      */
 
-    reg ack_timer_running;
-    reg ack_pulse_armed;
-    reg [8:0] ack_timer;
+    wire [ACK_TIMER_BITS-1:0] ack_timer;
+    wire ack_prescaler;
+    reg  ack_pulse_armed;
+
+    clock_divider #(ACK_PRESCALER_BITS) ack_clock_divider(clk, reset, ack_prescaler);
+    
+    counter_oneshot #(ACK_TIMER_BITS) ack_counter(.clk(clk), .reset(PPB_packet_reset),
+						  .start(PPB_command_strobe),
+						  .enable(ack_prescaler),
+						  .out(ack_timer));
+    
+    d_flipflop ack_dff(clk, PPB_packet_reset,
+		       ack_pulse_armed &&
+		       ack_timer >= ((CLOCK_MHZ * ACK_DELAY_US) >> ACK_PRESCALER_BITS) &&
+		       ack_timer < ((CLOCK_MHZ * (ACK_DELAY_US + ACK_WIDTH_US)) >> ACK_PRESCALER_BITS),
+		       output_ack);
 
     always @(posedge clk or posedge PPB_packet_reset)
       if (PPB_packet_reset) begin
@@ -182,30 +161,5 @@ module psx_device_port(clk, reset,
       end
       else if (PPB_ack_strobe) begin
 	  ack_pulse_armed   <= 1;
-      end
-
-    always @(posedge clk or posedge PPB_packet_reset)
-      if (PPB_packet_reset) begin
-	  ack_timer_running   <= 0;
-	  ack_timer 	      <= 0;
-	  output_ack 	      <= 1;
-      end
-      else if (PPB_command_strobe) begin
-	  ack_timer_running   <= 1;
-	  ack_timer 	      <= 0;
-	  output_ack 	      <= 1;
-      end
-      else if (ack_timer_running && ack_timer == CLOCK_MHZ * ACK_DELAY_US) begin
-	  ack_timer_running   <= 1;
-	  ack_timer 	      <= ack_timer + 1;	  
-	  output_ack 	      <= ~ack_pulse_armed;
-      end
-      else if (ack_timer_running && ack_timer == CLOCK_MHZ * (ACK_DELAY_US + ACK_WIDTH_US)) begin
-	  ack_timer_running   <= 0;
-	  ack_timer 	      <= 0;
-	  output_ack 	      <= 1;
-      end
-      else if (ack_timer_running) begin
-	  ack_timer 	      <= ack_timer + 1;
       end
 endmodule

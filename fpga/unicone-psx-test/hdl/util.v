@@ -34,6 +34,23 @@ endmodule
 
 
 /*
+ * 1-bit latch, with enable.
+ */
+module bit_latch(clk, reset, in, enable, out);
+    input clk, reset, in, enable;
+    output out;
+
+    reg    out;
+
+    always @(posedge clk or posedge reset)
+      if (reset)
+	out   <= 0;
+      else if (enable)
+	out   <= in;
+endmodule
+
+
+/*
  * A fully synchronous dual-port SRAM, where one port is read-only
  * and the other is write-only.
  */
@@ -48,13 +65,13 @@ module sync_dualport_sram(clk, write_en, write_addr, write_data, read_addr, read
     input [ADDR_BITS-1:0] read_addr;
     output [DATA_BITS-1:0] read_data;
     
-    reg [DATA_BITS-1:0] memory[MEMORY_DEPTH-1:0];
-    reg [DATA_BITS-1:0] read_data;
+    reg [DATA_BITS-1:0]    memory[MEMORY_DEPTH-1:0];
+    reg [DATA_BITS-1:0]    read_data;
 
     always @(posedge clk) begin
 	if (write_en)
 	  memory[write_addr]   <= write_data;
-
+	
 	read_data 	       <= memory[read_addr];
     end
 endmodule
@@ -71,12 +88,111 @@ module counter(clk, reset, enable, out);
 
     output [BITS-1:0] out;
     reg [BITS-1:0]    out;
-        
+    
     always @(posedge clk or posedge reset)
       if (reset)
 	out   <= 0;
       else if (enable)
 	out   <= out + 1;
+endmodule
+
+
+/*
+ * Counter with synchronous enable and overflow detect.
+ * The 'overflow' output goes high on the same clock cycle
+ * that the counter wraps to zero.
+ */
+module counter_with_overflow(clk, reset, enable, out, overflow);
+    parameter BITS;
+
+    input     clk, reset, enable;
+
+    output [BITS-1:0] out;
+    reg [BITS-1:0]    out;
+
+    output 	      overflow;
+    reg 	      overflow;
+
+    wire [BITS-1:0]   next_out 	  = out + 1;
+    
+    always @(posedge clk or posedge reset)
+      if (reset) begin
+	  out 	     <= 0;
+	  overflow   <= 0;
+      end
+      else if (enable) begin
+	  out 	     <= next_out;
+	  overflow   <= (next_out == 0);
+      end
+      else begin
+	  overflow   <= 0;
+      end
+endmodule
+
+
+/*
+ * Counter which begins from zero when 'start' pulses,
+ * and automatically stops after overflow.
+ */
+module counter_oneshot(clk, reset, start, enable, out);
+    parameter BITS;
+
+    input     clk, reset, start, enable;
+    
+    output [BITS-1:0] out;
+
+    wire [BITS-1:0]   next_out 	  = out + 1;
+    reg 	      running;
+
+    always @(posedge clk or posedge reset)
+      if (reset)
+	running   <= 1'b0;
+      else if (start)
+	running   <= 1'b1;
+      else if (next_out == 0)
+	running   <= 1'b0;
+
+    counter #(BITS) ctr(clk, reset || start, enable && running, out);
+endmodule
+
+
+/*
+ * Left-to-right shift register, with enable.
+ */
+module right_shift_reg(clk, reset, enable, in_bit, out);
+    parameter BITS = 8;
+
+    input     clk, reset, enable, in_bit;
+    output [BITS-1:0] out;
+    reg [BITS-1:0]    out;
+    
+    always @(posedge clk or posedge reset)
+      if (reset)
+	out   <= 0;
+      else if (enable)
+	out   <= {in_bit, out[BITS-1:1]};
+endmodule
+
+
+/*
+ * Left-to-right shift register, with enable and load.
+ */
+module right_shift_reg_loadable(clk, reset, enable, in_bit, out, load_value, load_enable);
+    parameter BITS = 8;
+
+    input     clk, reset, enable, in_bit, load_enable;
+    output [BITS-1:0] out;
+    input [BITS-1:0]  load_value;
+
+    reg [BITS-1:0]    out;
+
+    always @(posedge clk or posedge reset)
+      if (reset)
+	out   <= 0;
+      else if (load_enable)
+	out   <= load_value;
+      else if (enable)
+	out   <= {in_bit, out[BITS-1:1]};
 endmodule
 
 
@@ -124,7 +240,7 @@ endmodule
  */
 module watchdog(clk, reset, sync_reset, expired);
     parameter BITS;
-    parameter EXPIRED_ON_RESET = 1;
+    parameter EXPIRED_ON_RESET = 1'b1;
 
     parameter LOCAL_BITS = 5;
     parameter SHARED_BITS = BITS - LOCAL_BITS;
