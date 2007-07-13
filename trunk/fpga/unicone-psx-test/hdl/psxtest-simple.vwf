@@ -1,0 +1,1252 @@
+/*
+WARNING: Do NOT edit the input and output ports in this file in a text
+editor if you plan to continue editing the block that represents it in
+the Block Editor! File corruption is VERY likely to occur.
+*/
+
+/*
+Copyright (C) 1991-2007 Altera Corporation
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and its AMPP partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, Altera MegaCore Function License 
+Agreement, or other applicable license agreement, including, 
+without limitation, that your use is for the sole purpose of 
+programming logic devices manufactured by Altera and sold by 
+Altera or its authorized distributors.  Please refer to the 
+applicable agreement for further details.
+*/
+
+HEADER
+{
+	VERSION = 1;
+	TIME_UNIT = ns;
+	DATA_OFFSET = 0.0;
+	DATA_DURATION = 150000.0;
+	SIMULATION_TIME = 0.0;
+	GRID_PHASE = 0.0;
+	GRID_PERIOD = 10.0;
+	GRID_DUTY_CYCLE = 50;
+}
+
+SIGNAL("BUTTON")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = INPUT;
+	PARENT = "";
+}
+
+SIGNAL("FX2_CLK")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = INPUT;
+	PARENT = "";
+}
+
+SIGNAL("PSX_ACK")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BIDIR;
+	PARENT = "";
+}
+
+SIGNAL("PSX_CLK")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = INPUT;
+	PARENT = "";
+}
+
+SIGNAL("PSX_CMD")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = INPUT;
+	PARENT = "";
+}
+
+SIGNAL("PSX_DAT")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BIDIR;
+	PARENT = "";
+}
+
+SIGNAL("PSX_SEL")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = INPUT;
+	PARENT = "";
+}
+
+SIGNAL("SERIAL_RX")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = INPUT;
+	PARENT = "";
+}
+
+SIGNAL("divider 1074")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = INPUT;
+	PARENT = "";
+}
+
+SIGNAL("divider 311")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = INPUT;
+	PARENT = "";
+}
+
+SIGNAL("psx_quad_controller:controllers|PPB_reply_byte")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = BUS;
+	WIDTH = 8;
+	LSB_INDEX = 0;
+	DIRECTION = BURIED;
+	PARENT = "";
+}
+
+SIGNAL("psx_quad_controller:controllers|PPB_reply_byte[7]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|PPB_reply_byte";
+}
+
+SIGNAL("psx_quad_controller:controllers|PPB_reply_byte[6]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|PPB_reply_byte";
+}
+
+SIGNAL("psx_quad_controller:controllers|PPB_reply_byte[5]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|PPB_reply_byte";
+}
+
+SIGNAL("psx_quad_controller:controllers|PPB_reply_byte[4]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|PPB_reply_byte";
+}
+
+SIGNAL("psx_quad_controller:controllers|PPB_reply_byte[3]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|PPB_reply_byte";
+}
+
+SIGNAL("psx_quad_controller:controllers|PPB_reply_byte[2]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|PPB_reply_byte";
+}
+
+SIGNAL("psx_quad_controller:controllers|PPB_reply_byte[1]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|PPB_reply_byte";
+}
+
+SIGNAL("psx_quad_controller:controllers|PPB_reply_byte[0]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|PPB_reply_byte";
+}
+
+SIGNAL("psx_quad_controller:controllers|PPB_reply_strobe")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "";
+}
+
+SIGNAL("psx_quad_controller:controllers|current_port")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = BUS;
+	WIDTH = 2;
+	LSB_INDEX = 0;
+	DIRECTION = BURIED;
+	PARENT = "";
+}
+
+SIGNAL("psx_quad_controller:controllers|current_port[1]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|current_port";
+}
+
+SIGNAL("psx_quad_controller:controllers|current_port[0]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|current_port";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = BUS;
+	WIDTH = 8;
+	LSB_INDEX = 0;
+	DIRECTION = BURIED;
+	PARENT = "";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[7]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[6]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[5]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[4]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[3]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[2]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[1]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[0]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|SSP_port_number")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = BUS;
+	WIDTH = 2;
+	LSB_INDEX = 0;
+	DIRECTION = BURIED;
+	PARENT = "";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|SSP_port_number[1]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|SSP_port_number";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|SSP_port_number[0]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|SSP_port_number";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_RD_INC_BITCOUNT")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_VISIT_PORT")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_WR_INC_BITCOUNT")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_WR_REPLY_BYTE")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_WR_SHIFT_IN")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_WR_SHIFT_OUT")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "";
+}
+
+SIGNAL("psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_WR_ZERO_BITCOUNT")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = BURIED;
+	PARENT = "";
+}
+
+SIGNAL("divider 2942")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = INPUT;
+	PARENT = "";
+}
+
+TRANSITION_LIST("BUTTON")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL 1 FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("FX2_CLK")
+{
+	NODE
+	{
+		REPEAT = 1;
+		NODE
+		{
+			REPEAT = 1800;
+			LEVEL 0 FOR 41.667;
+			LEVEL 1 FOR 41.666;
+		}
+		LEVEL 0 FOR 0.6;
+	}
+}
+
+TRANSITION_LIST("PSX_ACK")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL H FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("PSX_CLK")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL 1 FOR 7680.0;
+		LEVEL 0 FOR 2000.0;
+		LEVEL 1 FOR 2000.0;
+		NODE
+		{
+			REPEAT = 6;
+			LEVEL 0 FOR 2000.0;
+			LEVEL 1 FOR 2000.0;
+		}
+		LEVEL 0 FOR 2000.0;
+		LEVEL 1 FOR 10960.0;
+		LEVEL 0 FOR 2000.0;
+		LEVEL 1 FOR 2000.0;
+		NODE
+		{
+			REPEAT = 6;
+			LEVEL 0 FOR 2000.0;
+			LEVEL 1 FOR 2000.0;
+		}
+		LEVEL 0 FOR 2000.0;
+		LEVEL 1 FOR 16080.0;
+		LEVEL 0 FOR 2000.0;
+		LEVEL 1 FOR 2000.0;
+		NODE
+		{
+			REPEAT = 6;
+			LEVEL 0 FOR 2000.0;
+			LEVEL 1 FOR 2000.0;
+		}
+		LEVEL 0 FOR 2000.0;
+		LEVEL 1 FOR 25280.0;
+	}
+}
+
+TRANSITION_LIST("PSX_CMD")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL 1 FOR 11520.0;
+		LEVEL 0 FOR 40960.0;
+		LEVEL 1 FOR 3840.0;
+		LEVEL 0 FOR 16640.0;
+		LEVEL 1 FOR 3840.0;
+		LEVEL 0 FOR 55040.0;
+		LEVEL 1 FOR 18160.0;
+	}
+}
+
+TRANSITION_LIST("PSX_DAT")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL H FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("PSX_SEL")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL 1 FOR 3040.0;
+		LEVEL 0 FOR 130080.0;
+		LEVEL 1 FOR 16880.0;
+	}
+}
+
+TRANSITION_LIST("SERIAL_RX")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL 1 FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|PPB_reply_byte[7]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|PPB_reply_byte[6]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|PPB_reply_byte[5]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|PPB_reply_byte[4]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|PPB_reply_byte[3]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|PPB_reply_byte[2]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|PPB_reply_byte[1]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|PPB_reply_byte[0]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|PPB_reply_strobe")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|current_port[1]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|current_port[0]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[7]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[6]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[5]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[4]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[3]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[2]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[1]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[0]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|psx_ppb_interface:ppb1|SSP_port_number[1]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|psx_ppb_interface:ppb1|SSP_port_number[0]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_RD_INC_BITCOUNT")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_VISIT_PORT")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_WR_INC_BITCOUNT")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_WR_REPLY_BYTE")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_WR_SHIFT_IN")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_WR_SHIFT_OUT")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+TRANSITION_LIST("psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_WR_ZERO_BITCOUNT")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL U FOR 150000.0;
+	}
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "BUTTON";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = ASCII;
+	TREE_INDEX = 0;
+	TREE_LEVEL = 0;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "SERIAL_RX";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = ASCII;
+	TREE_INDEX = 1;
+	TREE_LEVEL = 0;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "FX2_CLK";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = ASCII;
+	TREE_INDEX = 2;
+	TREE_LEVEL = 0;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "divider 311";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Binary;
+	TREE_INDEX = 3;
+	TREE_LEVEL = 0;
+	IS_DIVIDER = ON;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "PSX_CLK";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = ASCII;
+	TREE_INDEX = 4;
+	TREE_LEVEL = 0;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "PSX_CMD";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = ASCII;
+	TREE_INDEX = 5;
+	TREE_LEVEL = 0;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "PSX_SEL";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = ASCII;
+	TREE_INDEX = 6;
+	TREE_LEVEL = 0;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "PSX_DAT";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = ASCII;
+	TREE_INDEX = 7;
+	TREE_LEVEL = 0;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "PSX_ACK";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = ASCII;
+	TREE_INDEX = 8;
+	TREE_LEVEL = 0;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "divider 1074";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Binary;
+	TREE_INDEX = 9;
+	TREE_LEVEL = 0;
+	IS_DIVIDER = ON;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|PPB_reply_byte";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 10;
+	TREE_LEVEL = 0;
+	CHILDREN = 11, 12, 13, 14, 15, 16, 17, 18;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|PPB_reply_byte[7]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 11;
+	TREE_LEVEL = 1;
+	PARENT = 10;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|PPB_reply_byte[6]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 12;
+	TREE_LEVEL = 1;
+	PARENT = 10;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|PPB_reply_byte[5]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 13;
+	TREE_LEVEL = 1;
+	PARENT = 10;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|PPB_reply_byte[4]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 14;
+	TREE_LEVEL = 1;
+	PARENT = 10;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|PPB_reply_byte[3]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 15;
+	TREE_LEVEL = 1;
+	PARENT = 10;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|PPB_reply_byte[2]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 16;
+	TREE_LEVEL = 1;
+	PARENT = 10;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|PPB_reply_byte[1]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 17;
+	TREE_LEVEL = 1;
+	PARENT = 10;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|PPB_reply_byte[0]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 18;
+	TREE_LEVEL = 1;
+	PARENT = 10;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|PPB_reply_strobe";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 19;
+	TREE_LEVEL = 0;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|current_port";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 20;
+	TREE_LEVEL = 0;
+	CHILDREN = 21, 22;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|current_port[1]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 21;
+	TREE_LEVEL = 1;
+	PARENT = 20;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|current_port[0]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 22;
+	TREE_LEVEL = 1;
+	PARENT = 20;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 23;
+	TREE_LEVEL = 0;
+	CHILDREN = 24, 25, 26, 27, 28, 29, 30, 31;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[7]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 24;
+	TREE_LEVEL = 1;
+	PARENT = 23;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[6]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 25;
+	TREE_LEVEL = 1;
+	PARENT = 23;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[5]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 26;
+	TREE_LEVEL = 1;
+	PARENT = 23;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[4]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 27;
+	TREE_LEVEL = 1;
+	PARENT = 23;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[3]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 28;
+	TREE_LEVEL = 1;
+	PARENT = 23;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[2]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 29;
+	TREE_LEVEL = 1;
+	PARENT = 23;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[1]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 30;
+	TREE_LEVEL = 1;
+	PARENT = 23;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|PPB_cmd_byte[0]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 31;
+	TREE_LEVEL = 1;
+	PARENT = 23;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|SSP_port_number";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 32;
+	TREE_LEVEL = 0;
+	CHILDREN = 33, 34;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|SSP_port_number[1]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 33;
+	TREE_LEVEL = 1;
+	PARENT = 32;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|SSP_port_number[0]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 34;
+	TREE_LEVEL = 1;
+	PARENT = 32;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "divider 2942";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Binary;
+	TREE_INDEX = 35;
+	TREE_LEVEL = 0;
+	IS_DIVIDER = ON;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_RD_INC_BITCOUNT";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 36;
+	TREE_LEVEL = 0;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_VISIT_PORT";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 37;
+	TREE_LEVEL = 0;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_WR_INC_BITCOUNT";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 38;
+	TREE_LEVEL = 0;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_WR_REPLY_BYTE";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 39;
+	TREE_LEVEL = 0;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_WR_SHIFT_IN";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 40;
+	TREE_LEVEL = 0;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_WR_SHIFT_OUT";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 41;
+	TREE_LEVEL = 0;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "psx_quad_controller:controllers|psx_ppb_interface:ppb1|state.S_WR_ZERO_BITCOUNT";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Hexadecimal;
+	TREE_INDEX = 42;
+	TREE_LEVEL = 0;
+}
+
+TIME_BAR
+{
+	TIME = 0;
+	MASTER = TRUE;
+}
+;

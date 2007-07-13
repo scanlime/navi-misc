@@ -34,14 +34,35 @@ endmodule
 
 
 /*
- * 1-bit latch, with enable.
+ * A set/reset flipflop which is set on sync_set and reset by sync_reset.
  */
-module bit_latch(clk, reset, in, enable, out);
-    input clk, reset, in, enable;
+module set_reset_flipflop(clk, reset, sync_set, sync_reset, out);
+    input clk, reset, sync_set, sync_reset;
     output out;
-
     reg    out;
 
+    always @(posedge clk or posedge reset)
+      if (reset)
+	out   <= 0;
+      else if (sync_set)
+	out   <= 1;
+      else if (sync_reset)
+	out   <= 0;
+endmodule
+
+
+/*
+ * Synchronous latch, with enable.
+ */
+module sync_latch(clk, reset, in, enable, out);
+    parameter BITS = 1;
+    
+    input clk, reset, enable;
+    input [BITS-1:0]  in;
+    output [BITS-1:0] out;
+
+    reg [BITS-1:0]    out;
+    
     always @(posedge clk or posedge reset)
       if (reset)
 	out   <= 0;
@@ -88,12 +109,14 @@ module counter(clk, reset, enable, out);
 
     output [BITS-1:0] out;
     reg [BITS-1:0]    out;
+
+    parameter 	      ONE = {{BITS-1{1'b0}}, 1'b1};
     
     always @(posedge clk or posedge reset)
       if (reset)
 	out   <= 0;
       else if (enable)
-	out   <= out + 1;
+	out   <= out + ONE;
 endmodule
 
 
@@ -113,7 +136,8 @@ module counter_with_overflow(clk, reset, enable, out, overflow);
     output 	      overflow;
     reg 	      overflow;
 
-    wire [BITS-1:0]   next_out 	  = out + 1;
+    parameter 	      ONE = {{BITS-1{1'b0}}, 1'b1};
+    wire [BITS-1:0]   next_out 	  = out + ONE;
     
     always @(posedge clk or posedge reset)
       if (reset) begin
@@ -141,7 +165,8 @@ module counter_oneshot(clk, reset, start, enable, out);
     
     output [BITS-1:0] out;
 
-    wire [BITS-1:0]   next_out 	  = out + 1;
+    parameter 	      ONE = {{BITS-1{1'b0}}, 1'b1};
+    wire [BITS-1:0]   next_out 	  = out + ONE;
     reg 	      running;
 
     always @(posedge clk or posedge reset)
@@ -197,8 +222,7 @@ endmodule
 
 
 /*
- * Output goes high for one clock cycle, one cycle after the first
- * '1' input after one or more '0's.
+ * Output goes high for one clock cycle during the first '1' input after one or more '0's.
  */
 module positive_edge_detector(clk, reset, in, out);
     input clk, reset, in;
@@ -206,7 +230,7 @@ module positive_edge_detector(clk, reset, in, out);
     wire   prev;
 
     d_flipflop dff1(clk, reset, in, prev);
-    d_flipflop dff2(clk, reset, in && ~prev, out);
+    assign out = in && ~prev;
 endmodule
 
 

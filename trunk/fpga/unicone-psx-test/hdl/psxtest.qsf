@@ -49,3 +49,16 @@ set_global_assignment -name VERILOG_FILE psx_controller.v
 set_global_assignment -name VERILOG_FILE serial_rx.v
 set_global_assignment -name VERILOG_FILE util.v
 set_global_assignment -name VERILOG_FILE psx_device_port.v
+
+set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id sys_clk
+set_instance_assignment -name CLOCK_SETTINGS sys_clk -to FX2_CLK
+
+set_global_assignment -name FITTER_EFFORT "AUTO FIT"
+set_global_assignment -name VECTOR_WAVEFORM_FILE "psxtest-simple.vwf"
+set_global_assignment -name SIMULATION_MODE FUNCTIONAL
+set_global_assignment -name INCREMENTAL_VECTOR_INPUT_SOURCE "psxtest-simple.vwf"
+set_global_assignment -name ADD_DEFAULT_PINS_TO_SIMULATION_OUTPUT_WAVEFORMS OFF
+set_global_assignment -name SIMULATOR_GENERATE_SIGNAL_ACTIVITY_FILE OFF
+set_global_assignment -name SIMULATOR_GENERATE_POWERPLAY_VCD_FILE OFF
+set_global_assignment -name SETUP_HOLD_DETECTION OFF
+set_global_assignment -name GLITCH_DETECTION OFF
