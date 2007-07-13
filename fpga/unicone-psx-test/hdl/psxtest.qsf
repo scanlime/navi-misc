@@ -30,11 +30,11 @@ set_location_assignment PIN_91 -to LED[0]
 set_location_assignment PIN_97 -to LED[1]
 set_location_assignment PIN_92 -to BUTTON
 
-set_location_assignment PIN_70 -to PSX_ACK
-set_location_assignment PIN_71 -to PSX_CLK
-set_location_assignment PIN_74 -to PSX_SEL
-set_location_assignment PIN_72 -to PSX_CMD
-set_location_assignment PIN_76 -to PSX_DAT
+set_location_assignment PIN_70 -to PSX_ACK[0]
+set_location_assignment PIN_71 -to PSX_CLK[0]
+set_location_assignment PIN_74 -to PSX_SEL[0]
+set_location_assignment PIN_72 -to PSX_CMD[0]
+set_location_assignment PIN_76 -to PSX_DAT[0]
 
 set_location_assignment PIN_66 -to SERIAL_RX
 
