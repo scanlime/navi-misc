@@ -100,10 +100,12 @@ module psxtest(FX2_CLK, FX2_FD, FX2_SLRD, FX2_SLWR, FX2_flags,
 	  PROBE_sync   <= 0;
       end
       else begin
-	  PROBE_s1     <= {2'b00, SERIAL_RX, PSX_DAT, PSX_CMD, PSX_SEL, PSX_CLK, PSX_ACK};
+	  PROBE_s1     <= {debug, PSX_CLK};
 	  PROBE_sync   <= PROBE_s1;
       end
 
+    wire [6:0] debug;
+    assign     debug = 7'b0000000;
 
     /********************************************************************
      * 
@@ -129,21 +131,28 @@ module psxtest(FX2_CLK, FX2_FD, FX2_SLRD, FX2_SLWR, FX2_flags,
      *
      */
 
-    inout  PSX_ACK;
-    input  PSX_CLK;
-    input  PSX_SEL;
-    input  PSX_CMD;
-    inout  PSX_DAT;
+    inout PSX_ACK;
+    input PSX_CLK;
+    input PSX_SEL;
+    input PSX_CMD;
+    inout PSX_DAT;
 
     input  SERIAL_RX;
     
     reg [7:0] 	write_addr;
     reg [7:0] 	write_data;
     reg         write_en;
-    
-    psx_controller #(12) controller_1(FIFO_clk, reset,
-				      PSX_ACK, PSX_CLK, PSX_SEL, PSX_CMD, PSX_DAT,
-				      write_addr[4:0], write_data, write_en);
+
+    wire [3:0]	PSX_ack4;
+    wire [3:0]	PSX_dat4;
+
+    assign 	PSX_ACK = PSX_ack4[0];
+    assign 	PSX_DAT = PSX_dat4[0];
+
+    // Simulate the worst case: 4 controllers that all poll simultaneously.
+    psx_quad_controller #(12) controllers(FIFO_clk, reset,
+					  PSX_ack4, {4{PSX_CLK}}, {4{PSX_SEL}}, {4{PSX_CMD}}, PSX_dat4,
+  					  write_addr[4:0], write_data, write_en);
 
     wire [7:0] 	rx_data;
     wire 	rx_strobe;

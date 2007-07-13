@@ -56,13 +56,13 @@ module serial_rx(clk, reset, serial_in,
 	  if (idle_timer == IDLE_TIMEOUT)
 	    idle_timeout  <= 1;
 	  else
-	    idle_timer    <= idle_timer + 1;
+	    idle_timer    <= idle_timer + {{IDLE_TIMER_BITS-1{1'b0}}, 1'b1};
 	  
 	  /* Wait for a start bit */
 	  if (!serial_in_sync) begin
 	      is_idle 		<= 0;
 	      bit_count 	<= 0;
-	      divisor_timer 	<= 1;
+	      divisor_timer 	<= {{DIVISOR_BITS-1{1'b0}}, 1'b1};
 	      bit_accumulator 	<= 0;   /* We just received a zero */
 	  end
 
@@ -92,11 +92,11 @@ module serial_rx(clk, reset, serial_in,
 		      idle_timer 	<= 0;
 		  end
 
-		  bit_count 		<= bit_count + 1;
+		  bit_count 		<= bit_count + 4'h1;
 		  parallel_out_strobe 	<= 0;
 
 	      end
-	      else if (bit_count 	 == 9) begin
+	      else if (bit_count 	 == 4'h9) begin
 		  /*
 		   * Just received the stop bit. If it was good, latch the
 		   * finished byte and reset the idle timer. In either
@@ -125,17 +125,17 @@ module serial_rx(clk, reset, serial_in,
 		  parallel_out 		<= {received_bit, parallel_out[7:1]};
 		  idle_timeout 		<= 0;
 		  idle_timer 		<= 0;
-		  bit_count 		<= bit_count + 1;
+		  bit_count 		<= bit_count + 4'h1;
 		  parallel_out_strobe 	<= 0;		  
 	      end
 	  end
 	  else begin
 	      /* Add this sample to the accumulator... */
 
-	      divisor_timer 	    <= divisor_timer + 1;
+	      divisor_timer 	    <= divisor_timer + {{DIVISOR_BITS-1{1'b0}}, 1'b1};
 	      parallel_out_strobe   <= 0;
 	      if (serial_in_sync)
-		bit_accumulator <= bit_accumulator + 1;
+		bit_accumulator <= bit_accumulator + {{DIVISOR_BITS-1{1'b0}}, 1'b1};
 	  end
       end
 endmodule
