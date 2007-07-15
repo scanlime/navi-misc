@@ -143,7 +143,6 @@ module psxtest(FX2_CLK, FX2_FD, FX2_SLRD, FX2_SLWR, FX2_flags,
     reg [7:0] 	write_data;
     reg         write_en;
 
-    // Simulate the worst case: 4 controllers that all poll simultaneously.
     psx_quad_controller #(12) controllers(FIFO_clk, reset,
 					  PSX_ACK, PSX_CLK, PSX_SEL, PSX_CMD, PSX_DAT,
   					  write_addr[4:0], write_data, write_en);
