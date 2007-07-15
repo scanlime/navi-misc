@@ -419,27 +419,27 @@ module psx_ppb_interface(clk, reset,
      * all reply state and all command state into one address each.
      */
 
-    wire [2:0] 	 statemem_addr;
-    wire [15:0]  statemem_wdata;
-    wire	 statemem_wr;
-    wire [15:0]  statemem_rdata;
+    wire [2:0] 	 mem_addr;
+    wire [15:0]  mem_wdata;
+    wire	 mem_wr;
+    wire [15:0]  mem_rdata;
 
-    lpm_ram_dp statemem(.wraddress(statemem_addr),
-			.rdaddress(statemem_addr),
-			.wrclock(clk),
-			.rdclock(clk),
-			.wren(statemem_wr),
-			.rdclken(1'b1),
-			.data(statemem_wdata),
-			.q(statemem_rdata));
+    lpm_ram_dp mem(.wraddress(mem_addr),
+		   .rdaddress(mem_addr),
+		   .wrclock(clk),
+		   .rdclock(clk),
+		   .wren(mem_wr),
+		   .rdclken(1'b1),
+		   .data(mem_wdata),
+		   .q(mem_rdata));
 
-    defparam 	 statemem.lpm_rdaddress_control    = "REGISTERED",
-		 statemem.lpm_indata 		   = "REGISTERED",
-		 statemem.lpm_outdata 		   = "UNREGISTERED",
-		 statemem.lpm_hint 		   = "USE_EAB=ON",
-		 statemem.lpm_wraddress_control    = "REGISTERED",
-		 statemem.lpm_width 		   = 16,
-		 statemem.lpm_widthad 		   = 3;
+    defparam 	 mem.lpm_rdaddress_control  = "REGISTERED",
+		 mem.lpm_indata 	    = "REGISTERED",
+		 mem.lpm_outdata 	    = "UNREGISTERED",
+		 mem.lpm_hint 		    = "USE_EAB=ON",
+		 mem.lpm_wraddress_control  = "REGISTERED",
+		 mem.lpm_width 		    = 16,
+		 mem.lpm_widthad 	    = 3;
 
     
     /********************************************************************
@@ -449,7 +449,7 @@ module psx_ppb_interface(clk, reset,
      *
      */
 
-    wire 	 raise_irq = (state == S_WR_SHIFT_COMMAND && statemem_rdata[10:8] == 3'b111);
+    wire 	 raise_irq = (state == S_WR_SHIFT_COMMAND && mem_rdata[10:8] == 3'b111);
     wire 	 lower_irq = PPB_read;
 
     set_reset_flipflop sr_irq0(clk, reset,
@@ -522,29 +522,29 @@ module psx_ppb_interface(clk, reset,
     assign 	 SSP_clear             = (state == S_VISIT_PORT &&
 					  next_visitport_state != S_WR_LOAD_REPLY &&
 					  next_visitport_state != S_LOAD_COMMAND);
-    assign 	 SSP_reply_data        = (state == S_WR_SHIFT_REPLY ? statemem_rdata[0] :
+    assign 	 SSP_reply_data        = (state == S_WR_SHIFT_REPLY ? mem_rdata[0] :
 				          state == S_WR_LOAD_REPLY ? PPB_reply[0] :
 					  1'bX);
-    assign 	 SSP_reply_strobe      = (state == S_WR_SHIFT_REPLY ? statemem_rdata[8] :
+    assign 	 SSP_reply_strobe      = (state == S_WR_SHIFT_REPLY ? mem_rdata[8] :
 				          state == S_WR_LOAD_REPLY ? 1'b1 :
 					  1'b0);
     
-    assign 	 PPB_index             = statemem_rdata[15:11];
-    assign 	 PPB_command           = statemem_wdata[7:0];
+    assign 	 PPB_index             = mem_rdata[15:11];
+    assign 	 PPB_command           = mem_rdata[7:0];
     assign       PPB_done              = (state == S_WR_LOAD_REPLY || state == S_LOAD_COMMAND);
     
-    assign 	 statemem_addr         = {(state                      == S_VISIT_PORT &&
+    assign 	 mem_addr              = {(state                      == S_VISIT_PORT &&
 					   next_visitport_state       == S_LOAD_COMMAND) ? PPB_port : SSP_port_number,
 
 					  /* During S_VISIT_PORT, we pre-load the correct read address for the next command. */
 					  (state 		      == S_VISIT_PORT ?
-					     (next_visitport_state    == S_WR_ZERO_BITCOUNT ? 1'b1 :
-					      next_visitport_state    == S_WR_ZERO_REPLY_BYTE ? 1'b0 :
-					      next_visitport_state    == S_WR_SHIFT_COMMAND ? 1'b1 :
-					      next_visitport_state    == S_WR_SHIFT_REPLY ? 1'b0 :
-					      next_visitport_state    == S_WR_LOAD_REPLY ? 1'b0 :
-					      next_visitport_state    == S_LOAD_COMMAND ? 1'b1 :
-					      1'bX) :
+					   (next_visitport_state    == S_WR_ZERO_BITCOUNT ? 1'b1 :
+					    next_visitport_state    == S_WR_ZERO_REPLY_BYTE ? 1'b0 :
+					    next_visitport_state    == S_WR_SHIFT_COMMAND ? 1'b1 :
+					    next_visitport_state    == S_WR_SHIFT_REPLY ? 1'b0 :
+					    next_visitport_state    == S_WR_LOAD_REPLY ? 1'b0 :
+					    next_visitport_state    == S_LOAD_COMMAND ? 1'b1 :
+					    1'bX) :
 
 					   state 		      == S_WR_ZERO_BITCOUNT ? 1'b1 :
 					   state 		      == S_WR_ZERO_REPLY_BYTE ? 1'b0 :
@@ -553,19 +553,23 @@ module psx_ppb_interface(clk, reset,
 					   state 		      == S_WR_LOAD_REPLY ? 1'b0 :
 					   state 		      == S_LOAD_COMMAND ? 1'b1 :
 					   1'bX)};
-    
-    assign 	 statemem_wdata        = (state == S_WR_ZERO_BITCOUNT ? 16'h0000 :
-					  state == S_WR_ZERO_REPLY_BYTE ? 16'h0000 :
-					  state == S_WR_SHIFT_COMMAND ? {statemem_rdata[15:8] + 8'h01, SSP_cmd_data, statemem_rdata[7:1]} :
-					  state == S_WR_SHIFT_REPLY ? {7'bXXXXXXX, statemem_rdata[8], 1'bX, statemem_rdata[7:1]} :
-					  state == S_WR_LOAD_REPLY ? {9'bXXXXXXX10, PPB_reply[7:1]} :
-					  16'hXXXX);
 
-    assign 	 statemem_wr           = (state == S_WR_ZERO_BITCOUNT ||
-					  state == S_WR_ZERO_REPLY_BYTE ||
-					  state == S_WR_SHIFT_COMMAND||
-					  state == S_WR_SHIFT_REPLY ||
-					  state == S_WR_LOAD_REPLY);
+    /*
+     * Note that the initial byte count (PPB_index) is -1, to account for the fact
+     * that the byte counter is incremented before S_LOAD_COMMAND.
+     */
+    assign 	 mem_wdata              = (state == S_WR_ZERO_BITCOUNT ? 16'b1111100000000000 :
+					   state == S_WR_ZERO_REPLY_BYTE ? 16'h0000 :
+					   state == S_WR_SHIFT_COMMAND ? {mem_rdata[15:8] + 8'h01, SSP_cmd_data, mem_rdata[7:1]} :
+					   state == S_WR_SHIFT_REPLY ? {7'bXXXXXXX, mem_rdata[8], 1'bX, mem_rdata[7:1]} :
+					   state == S_WR_LOAD_REPLY ? {9'bXXXXXXX10, PPB_reply[7:1]} :
+					   16'hXXXX);
+    
+    assign 	 mem_wr                 = (state == S_WR_ZERO_BITCOUNT ||
+					   state == S_WR_ZERO_REPLY_BYTE ||
+					   state == S_WR_SHIFT_COMMAND||
+					   state == S_WR_SHIFT_REPLY ||
+					   state == S_WR_LOAD_REPLY);
 
     always @(posedge clk or posedge reset)
       if (reset) begin
@@ -583,7 +587,7 @@ module psx_ppb_interface(clk, reset,
 		  * are about to change state to S_WR_LOAD_REPLY, so that
 		  * the reply LSB goes to the right SSP port. For
 		  * S_WR_LOAD_COMMAND on the other hand, we need to set
-		  * statemem_addr correctly on *this* clock cycle so that
+		  * mem_addr correctly on *this* clock cycle so that
 		  * the command byte is available during S_LOAD_COMMAND.
 		  */
 
