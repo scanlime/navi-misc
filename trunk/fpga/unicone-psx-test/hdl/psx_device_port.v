@@ -322,45 +322,43 @@ endmodule
  * 
  * We'll call this shared memory bus the PPB (Parallel Playstation Bus).
  *
- * When a new data byte arrives, it is latched into our PPB outputs:
- *
- *    - PPB_cmd_strobe pulses. Each PPB_cmd_strobe pulse will
- *      be at least 4 clock cycles apart.
- *
- *    - PPB_cmd_port will have the current port number
- *
- *    - PPB_cmd_index will have the the 5-bit index
- *      of this byte within the current packet
- *
- *    - PPB_cmd_byte will hold the current command byte value.
- *      Note that PPB_cmd_byte is not latched on the same clock
- *      cycle as PPB_index, and it isn't guaranteed to
- *      be valid when PPB_cmd_strobe is not high.
- *
- * To set the *next* reply byte for the current port:
- *
- *    - Put a byte of data on PPB_reply_byte, corresponding
- *      with port PPB_reply_port.
- *
- *    - Pulse PPB_reply_strobe. This automatically enables
- *      the reply output drivers until the end of the packet.
- *      If you never pulse PPB_reply_strobe, the drivers stay
- *      high-Z.
+ * When a new command byte arrives, the PPB raises the port's corresponding
+ * PPB_irq_flags bit. The flag is automatically lowered when a PPB_read
+ * occurs for that port.
  * 
- *    - PPB_reply_byte and PPB_reply_port must stay valid after
- *      PPB_reply_strobe, until the next PPB_cmd_strobe. *      
+ * At any time, the PPB can be used to read the command and byte index
+ * for a port, or to write the next reply byte for a port. Reads
+ * and writes for a particular port should only be performed between
+ * bytes. (After PPB_irq for that port, but before the PSX begins
+ * requesting the next byte a few microseconds later).
  * 
- * To acknowledge the command byte:
+ * The PPB host can make three types of requests from the PPB interface:
  * 
- *     - Pulse PPB_ack_strobe after PPB_cmd_strobe, within a
- *       few microseconds, to acknowledge port PPB_ack_port.
+ *    - Pulse PPB_ack to request an acknowledgement pulse be sent
+ *      on the port PPB_port.
+ * 
+ *    - Bring PPB_read high to read both the last command byte and the
+ *      byte index on the port PPB_port. Between 1 and 3 clock
+ *      cycles later, PPB_done will pulse. On the same cycle,
+ *      PPB_command and PPB_index will be valid.
+ * 
+ *      PPB_read must stay high until PPB_done pulses, and it must be
+ *      low on the next clock cycle unless another read cycle is desired.
+ * 
+ *    - Bring PPB_write high to write the next reply byte on port PPB_port.
+ *      Between 1 and 3 clock cycles later, PPB_done will pulse to
+ *      indicate that the write has completed. The value at PPB_reply
+ *      must be valid for this entire time span.
+ * 
+ *      PPB_write must stay high until PPB_done pulses, and it must
+ *      be low on the next clock cycle unless another read cycle is desired.
  *
  */
 module psx_ppb_interface(clk, reset,
 			 PSX_ack, PSX_clk, PSX_sel, PSX_cmd, PSX_dat,
-			 PPB_cmd_port, PPB_cmd_index, PPB_cmd_byte, PPB_cmd_strobe,
-			 PPB_reply_port, PPB_reply_byte, PPB_reply_strobe,
-			 PPB_ack_port, PPB_ack_strobe);
+			 PPB_irq_flags,
+			 PPB_port, PPB_ack, PPB_read, PPB_write, PPB_reply,
+			 PPB_done, PPB_command, PPB_index);
 
     parameter CLOCK_MHZ = 25;
     
@@ -372,17 +370,17 @@ module psx_ppb_interface(clk, reset,
     input [3:0] PSX_cmd;
     inout [3:0] PSX_dat;
 
-    output [1:0] PPB_cmd_port;
-    output [4:0] PPB_cmd_index;
-    output [7:0] PPB_cmd_byte;
-    output 	 PPB_cmd_strobe;
+    output [3:0] PPB_irq_flags;
 
-    input [1:0]  PPB_reply_port;
-    input [7:0]  PPB_reply_byte;
-    input 	 PPB_reply_strobe;
-    
-    input [1:0]  PPB_ack_port;
-    input 	 PPB_ack_strobe;
+    input [1:0]  PPB_port;
+    input 	 PPB_ack;
+    input 	 PPB_read;
+    input 	 PPB_write;
+    input [7:0]  PPB_reply;
+
+    output 	 PPB_done;
+    output [7:0] PPB_command;
+    output [4:0] PPB_index;
 
     
     /********************************************************************
@@ -402,27 +400,29 @@ module psx_ppb_interface(clk, reset,
 
     psx_quad_device_ports #(CLOCK_MHZ) ports(clk, reset,
 					     PSX_ack, PSX_clk, PSX_sel, PSX_cmd, PSX_dat,
-					     SSP_port_number, PPB_ack_port,
+					     SSP_port_number, PPB_port,
 					     SSP_begin, SSP_cmd_avail, SSP_cmd_data, SSP_reply_ready,
-					     SSP_clear, PPB_ack_strobe, SSP_reply_data, SSP_reply_strobe);
+					     SSP_clear, PPB_ack, SSP_reply_data, SSP_reply_strobe);
 
 
     /********************************************************************
      * 
      * SRAM to store the internal per-port state of our controller emulation.
-     *
-     * The data bus is 9-bit, since we use an extra bit in REPLY_SHIFTREG to
-     * indicate that the register has been set.
+     * 
+     * We have 4 controllers, and 25 bits of state to store for each:
+     *   - 8-bit command bit count (3-bits, plus 5-bit byte counter)
+     *   - 8-bit command shift register
+     *   - 8-bit reply shift register
+     *   - Reply enable bit
+     * 
+     * To fit this memory in one Altera EAB, we use a 16-bit bus and combine
+     * all reply state and all command state into one address each.
      */
 
-    parameter 	 STATEMEM_BIT_COUNT = 2'b00;
-    parameter    STATEMEM_CMD_SHIFTREG     = 2'b01;
-    parameter    STATEMEM_REPLY_SHIFTREG   = 2'b10;
-
-    wire [3:0] 	 statemem_addr;
-    wire [8:0] 	 statemem_wdata;
+    wire [2:0] 	 statemem_addr;
+    wire [15:0]  statemem_wdata;
     wire	 statemem_wr;
-    wire [9:0] 	 statemem_rdata;
+    wire [15:0]  statemem_rdata;
 
     lpm_ram_dp statemem(.wraddress(statemem_addr),
 			.rdaddress(statemem_addr),
@@ -433,13 +433,44 @@ module psx_ppb_interface(clk, reset,
 			.data(statemem_wdata),
 			.q(statemem_rdata));
 
-    defparam 	 statemem.lpm_rdaddress_control = "REGISTERED",
-		 statemem.lpm_indata = "REGISTERED",
-		 statemem.lpm_outdata = "UNREGISTERED",
-		 statemem.lpm_hint = "USE_EAB=ON",
-		 statemem.lpm_wraddress_control = "REGISTERED",
-		 statemem.lpm_width = 9,
-		 statemem.lpm_widthad = 4;
+    defparam 	 statemem.lpm_rdaddress_control    = "REGISTERED",
+		 statemem.lpm_indata 		   = "REGISTERED",
+		 statemem.lpm_outdata 		   = "UNREGISTERED",
+		 statemem.lpm_hint 		   = "USE_EAB=ON",
+		 statemem.lpm_wraddress_control    = "REGISTERED",
+		 statemem.lpm_width 		   = 16,
+		 statemem.lpm_widthad 		   = 3;
+
+    
+    /********************************************************************
+     * 
+     * IRQ flags. Raise a port's flag when a new command byte is available,
+     * lower it when that command byte is read.
+     *
+     */
+
+    wire 	 raise_irq = (state == S_WR_SHIFT_COMMAND && statemem_rdata[10:8] == 3'b111);
+    wire 	 lower_irq = PPB_read;
+
+    set_reset_flipflop sr_irq0(clk, reset,
+			       raise_irq && SSP_port_number == 2'h0,
+			       lower_irq && PPB_port 	    == 2'h0,
+			       PPB_irq_flags[0]);
+    
+    set_reset_flipflop sr_irq1(clk, reset,
+			       raise_irq && SSP_port_number == 2'h1,
+			       lower_irq && PPB_port 	    == 2'h1,
+			       PPB_irq_flags[1]);
+
+    set_reset_flipflop sr_irq2(clk, reset,
+			       raise_irq && SSP_port_number == 2'h2,
+			       lower_irq && PPB_port 	    == 2'h2,
+			       PPB_irq_flags[2]);
+
+    set_reset_flipflop sr_irq3(clk, reset,
+			       raise_irq && SSP_port_number == 2'h3,
+			       lower_irq && PPB_port 	    == 2'h3,
+			       PPB_irq_flags[3]);
 
     
     /********************************************************************
@@ -449,13 +480,12 @@ module psx_ppb_interface(clk, reset,
      * 
      *   1. A port is beginning a new packet (SSP_begin).
      *       - Send an SSP_clear
-     *       - Reset the port's bit counter
+     *       - Store 0 to the bit counter
      * 
      *   2. A new command bit is available
-     *       - Load the port's command shift register
-     *       - Store the shift register, with the new bit shifted in
-     *       - Load the bit counter
-     *       - Store the incremented bit counter
+     *       - Load the port's command shift register and the bit counter
+     *       - Store the shift register, with the new bit shifted in,
+     *         and an incremented bit counter.
      * 
      *   3. A new reply bit can be stored
      *       - Load the port's reply shift register
@@ -467,97 +497,113 @@ module psx_ppb_interface(clk, reset,
      * the LSB to the device port.
      */
 
-    parameter 	 S_VISIT_PORT = 3'h0;
+    parameter 	 S_VISIT_PORT 			   = 3'h0;
     parameter    S_WR_ZERO_BITCOUNT = 3'h1;
     parameter    S_WR_ZERO_REPLY_BYTE = 3'h2;
-    parameter    S_RD_INC_BITCOUNT = 3'h3;
-    parameter 	 S_WR_INC_BITCOUNT = 3'h4;
-    parameter 	 S_WR_SHIFT_IN = 3'h5;
-    parameter 	 S_WR_SHIFT_OUT = 3'h6;
-    parameter    S_WR_REPLY_BYTE = 3'h7;
+    parameter 	 S_WR_SHIFT_COMMAND = 3'h3;
+    parameter 	 S_WR_SHIFT_REPLY = 3'h4;
+    parameter    S_WR_LOAD_REPLY = 3'h5;
+    parameter    S_LOAD_COMMAND = 3'h6;
 
     reg [2:0] 	 state;
-    reg [7:0] 	 PPB_cmd_byte;
-    
-    assign 	 SSP_clear = (state == S_VISIT_PORT && ~PPB_reply_strobe);
-    assign 	 SSP_reply_data = (state == S_WR_SHIFT_OUT ? statemem_rdata[0] :
-				   state == S_WR_REPLY_BYTE ? PPB_reply_byte[0] : 1'bX);
-    assign 	 SSP_reply_strobe = (state == S_WR_SHIFT_OUT ? statemem_rdata[8] :
-				     state == S_WR_REPLY_BYTE ? 1'b1 : 1'b0);
-
-    wire [8:0]	 shifted_data = {statemem_rdata[8], SSP_cmd_data, statemem_rdata[7:1]};
-    wire [1:0] 	 next_port_number = SSP_port_number + 2'h1;
 
     wire 	 reply_byte_pending;
-    set_reset_flipflop sr_reply(clk, reset, PPB_reply_strobe, SSP_clear, reply_byte_pending);
+    set_reset_flipflop sr_reply(clk, reset, PPB_write, SSP_clear, reply_byte_pending);
 
-    assign 	 PPB_cmd_port = SSP_port_number;
-    assign 	 PPB_cmd_index = statemem_rdata[7:3];
-    assign 	 PPB_cmd_strobe = (state == S_WR_INC_BITCOUNT && statemem_rdata[2:0] == 3'b111);
-    
-    assign 	 statemem_addr = {SSP_port_number,
-				  (state == S_VISIT_PORT ? (SSP_cmd_avail ? STATEMEM_CMD_SHIFTREG :
-							    STATEMEM_REPLY_SHIFTREG) :
-				   state == S_WR_ZERO_BITCOUNT ? STATEMEM_BIT_COUNT :
-				   state == S_RD_INC_BITCOUNT ? STATEMEM_BIT_COUNT :
-				   state == S_WR_INC_BITCOUNT ? STATEMEM_BIT_COUNT :
-				   state == S_WR_ZERO_REPLY_BYTE ? STATEMEM_REPLY_SHIFTREG :
-				   state == S_WR_REPLY_BYTE ? STATEMEM_REPLY_SHIFTREG :
-				   state == S_WR_SHIFT_IN ? STATEMEM_CMD_SHIFTREG :
-				   state == S_WR_SHIFT_OUT ? STATEMEM_REPLY_SHIFTREG : 2'hX)};
-    
-    assign 	 statemem_wdata = (state == S_WR_ZERO_BITCOUNT ? 9'h00 :
-				   state == S_WR_ZERO_REPLY_BYTE ? 9'h00 :
-				   state == S_WR_INC_BITCOUNT ? {1'b0, statemem_rdata[7:0] + 8'h01} :
-				   state == S_WR_SHIFT_IN ? shifted_data :
-				   state == S_WR_SHIFT_OUT ? shifted_data :
-				   state == S_WR_REPLY_BYTE ? {2'b10, PPB_reply_byte[7:1]} : 9'hXX);
+    wire [2:0]   next_visitport_state  = (PPB_write ? S_WR_LOAD_REPLY :
+					  PPB_read ? S_LOAD_COMMAND :
+					  SSP_begin ? S_WR_ZERO_BITCOUNT :
+					  SSP_cmd_avail ? S_WR_SHIFT_COMMAND :
+					  SSP_reply_ready ? S_WR_SHIFT_REPLY :
+					  S_VISIT_PORT);
 
-    assign 	 statemem_wr = (state == S_WR_ZERO_BITCOUNT ||
-				state == S_WR_ZERO_REPLY_BYTE ||
-				state == S_WR_INC_BITCOUNT ||
-				state == S_WR_SHIFT_IN ||
-				state == S_WR_SHIFT_OUT ||
-				state == S_WR_REPLY_BYTE);
+    wire [1:0] 	 next_port_number      = SSP_port_number + 2'h1;
+
+    assign 	 SSP_clear             = (state == S_VISIT_PORT &&
+					  next_visitport_state != S_WR_LOAD_REPLY &&
+					  next_visitport_state != S_LOAD_COMMAND);
+    assign 	 SSP_reply_data        = (state == S_WR_SHIFT_REPLY ? statemem_rdata[0] :
+				          state == S_WR_LOAD_REPLY ? PPB_reply[0] :
+					  1'bX);
+    assign 	 SSP_reply_strobe      = (state == S_WR_SHIFT_REPLY ? statemem_rdata[8] :
+				          state == S_WR_LOAD_REPLY ? 1'b1 :
+					  1'b0);
+    
+    assign 	 PPB_index             = statemem_rdata[15:11];
+    assign 	 PPB_command           = statemem_wdata[7:0];
+    assign       PPB_done              = (state == S_WR_LOAD_REPLY || state == S_LOAD_COMMAND);
+    
+    assign 	 statemem_addr         = {(state                      == S_VISIT_PORT &&
+					   next_visitport_state       == S_LOAD_COMMAND) ? PPB_port : SSP_port_number,
+
+					  /* During S_VISIT_PORT, we pre-load the correct read address for the next command. */
+					  (state 		      == S_VISIT_PORT ?
+					     (next_visitport_state    == S_WR_ZERO_BITCOUNT ? 1'b1 :
+					      next_visitport_state    == S_WR_ZERO_REPLY_BYTE ? 1'b0 :
+					      next_visitport_state    == S_WR_SHIFT_COMMAND ? 1'b1 :
+					      next_visitport_state    == S_WR_SHIFT_REPLY ? 1'b0 :
+					      next_visitport_state    == S_WR_LOAD_REPLY ? 1'b0 :
+					      next_visitport_state    == S_LOAD_COMMAND ? 1'b1 :
+					      1'bX) :
+
+					   state 		      == S_WR_ZERO_BITCOUNT ? 1'b1 :
+					   state 		      == S_WR_ZERO_REPLY_BYTE ? 1'b0 :
+					   state 		      == S_WR_SHIFT_COMMAND ? 1'b1 :
+					   state 		      == S_WR_SHIFT_REPLY ? 1'b0 :
+					   state 		      == S_WR_LOAD_REPLY ? 1'b0 :
+					   state 		      == S_LOAD_COMMAND ? 1'b1 :
+					   1'bX)};
+    
+    assign 	 statemem_wdata        = (state == S_WR_ZERO_BITCOUNT ? 16'h0000 :
+					  state == S_WR_ZERO_REPLY_BYTE ? 16'h0000 :
+					  state == S_WR_SHIFT_COMMAND ? {statemem_rdata[15:8] + 8'h01, SSP_cmd_data, statemem_rdata[7:1]} :
+					  state == S_WR_SHIFT_REPLY ? {7'bXXXXXXX, statemem_rdata[8], 1'bX, statemem_rdata[7:1]} :
+					  state == S_WR_LOAD_REPLY ? {9'bXXXXXXX10, PPB_reply[7:1]} :
+					  16'hXXXX);
+
+    assign 	 statemem_wr           = (state == S_WR_ZERO_BITCOUNT ||
+					  state == S_WR_ZERO_REPLY_BYTE ||
+					  state == S_WR_SHIFT_COMMAND||
+					  state == S_WR_SHIFT_REPLY ||
+					  state == S_WR_LOAD_REPLY);
 
     always @(posedge clk or posedge reset)
       if (reset) begin
 	  SSP_port_number   <= 0;
-	  PPB_cmd_byte 	    <= 0;
 	  state 	    <= S_VISIT_PORT;
       end
       else case (state)
 
 	     S_VISIT_PORT: begin
-		 /* We just switched to a new port. Decide what to do... */
+		 state 	 <= next_visitport_state;
 
-		 if (PPB_reply_strobe) begin
-		   /*
-		    * Take a break to store a reply byte, which may be for a different port.
-		    * PPB_reply_byte must be higher priority than SSP_cmd_avail.
-		    */
-		     state 	       <= S_WR_REPLY_BYTE;
-		     SSP_port_number   <= PPB_reply_port;
-		 end
+		 /*
+		  * Note that PPB_port is a little strange:
+		  * We need to warp SSP_port_number to PPB_port when we
+		  * are about to change state to S_WR_LOAD_REPLY, so that
+		  * the reply LSB goes to the right SSP port. For
+		  * S_WR_LOAD_COMMAND on the other hand, we need to set
+		  * statemem_addr correctly on *this* clock cycle so that
+		  * the command byte is available during S_LOAD_COMMAND.
+		  */
+
+		 if (next_visitport_state == S_WR_LOAD_REPLY)
+		   SSP_port_number   <= PPB_port;
 		 
-		 else if (SSP_begin)
-		   state 	       <= S_WR_ZERO_BITCOUNT;
-		 
-		 else if (SSP_cmd_avail)
-		   state   <= S_WR_SHIFT_IN;
-		 
-		 else if (SSP_reply_ready)
-		   state   <= S_WR_SHIFT_OUT;
-		 
-		 else
+		 else if (next_visitport_state == S_VISIT_PORT)
 		   SSP_port_number   <= next_port_number;
 	     end
 
-	     S_WR_REPLY_BYTE: begin
+	     S_WR_LOAD_REPLY: begin
 		 SSP_port_number     <= next_port_number;
 		 state 		     <= S_VISIT_PORT;
 	     end
-	     
+
+	     S_LOAD_COMMAND: begin
+		 SSP_port_number     <= next_port_number;
+		 state 		     <= S_VISIT_PORT;
+	     end
+
 	     S_WR_ZERO_BITCOUNT: begin
 		 state 		     <= S_WR_ZERO_REPLY_BYTE;
 	     end
@@ -567,21 +613,12 @@ module psx_ppb_interface(clk, reset,
 		 state 		     <= S_VISIT_PORT;
 	     end
 
-	     S_WR_SHIFT_IN: begin
-		 state 		     <= S_RD_INC_BITCOUNT;
-		 PPB_cmd_byte 	     <= shifted_data[7:0];
-	     end
-
-	     S_WR_SHIFT_OUT: begin
+	     S_WR_SHIFT_COMMAND: begin
 		 SSP_port_number     <= next_port_number;
 		 state 		     <= S_VISIT_PORT;
 	     end
 
-	     S_RD_INC_BITCOUNT: begin
-		 state 		     <= S_WR_INC_BITCOUNT;
-	     end
-
-	     S_WR_INC_BITCOUNT: begin
+	     S_WR_SHIFT_REPLY: begin
 		 SSP_port_number     <= next_port_number;
 		 state 		     <= S_VISIT_PORT;
 	     end
