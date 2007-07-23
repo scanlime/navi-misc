@@ -83,12 +83,12 @@ PUB Main | dx, dy, i, controller, buttons
     ' Right analog stick
     gr.colorwidth(3, 3)
     gr.plot(0, 0)
-    gr.line((BYTE[controller + 2] - $80) / 2, -(BYTE[controller + 3] - $80) / 2)
+    gr.line((BYTE[controller][remote#AXIS_RX] - $80) / 2, -(BYTE[controller][remote#AXIS_RY] - $80) / 2)
 
     ' Left analog stick
     gr.colorwidth(1, 3)
     gr.plot(0, 0)
-    gr.line((BYTE[controller + 4] - $80) / 2, -(BYTE[controller + 5] - $80) / 2)
+    gr.line((BYTE[controller][remote#AXIS_LX] - $80) / 2, -(BYTE[controller][remote#AXIS_LY] - $80) / 2)
 
     ' Analog buttons
     gr.colorwidth(1, 2)

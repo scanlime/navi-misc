@@ -43,6 +43,44 @@ CON
   CSTATE_ANALOG = $02
   CSTATE_DUALSHOCK = $04
   CSTATE_POWERDOWN = $08
+
+  ' Controller buttons at WORD[get_controller_data]
+  BTN_SELECT = $0001
+  BTN_L3 = $0002
+  BTN_R3 = $0004
+  BTN_START = $0008
+  BTN_UP = $0010
+  BTN_RIGHT = $0020
+  BTN_DOWN = $0040
+  BTN_LEFT = $0080
+  BTN_L2 = $0100
+  BTN_R2 = $0200
+  BTN_L1 = $0400
+  BTN_R1 = $0800
+  BTN_TRIANGLE = $1000
+  BTN_CIRCLE = $2000
+  BTN_X = $4000
+  BTN_SQUARE = $8000
+
+  ' Controller axes in BYTE[get_controller_data + axis]
+  AXIS_RX = 2
+  AXIS_RY = 3
+  AXIS_LX = 4
+  AXIS_LY = 5
+
+  ' Pressure-sensitive buttons in BYTE[get_controller_data + button]
+  PBTN_R2 = 6
+  PBTN_L2 = 7
+  PBTN_R1 = 8
+  PBTN_L1 = 9
+  PBTN_SQUARE = 10
+  PBTN_X = 11
+  PBTN_CIRCLE = 12
+  PBTN_TRIANGLE = 13
+  PBTN_DOWN = 14
+  PBTN_UP = 15
+  PBTN_LEFT = 16
+  PBTN_RIGHT = 17
   
   
 OBJ
