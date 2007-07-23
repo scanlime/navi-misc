@@ -47,18 +47,18 @@ CON
   
 OBJ
   tx : "Simple_Serial"
-
+  f : "FloatMath"   
 
 VAR
 
   long  rx_cog
 
-  'Communication area for RX driver startup
+  ' Communication area for RX driver startup
   long  rx_pin
   long  rx_bit_ticks
   long  rx_buffer_ptr
   long  wdt_timeout_ticks
-  long  default_rx_data_ptr
+  long  new_packet_flag
 
   byte  tx_buffer[TX_PACKET_LEN]
   byte  rx_buffers[RX_MAX_PACKET_LEN * NUM_SLOTS]
@@ -66,11 +66,12 @@ VAR
 
 PUB start(rxpin, txpin) : okay
 
-  bytefill(@tx_buffer, 0, TX_PACKET_LEN)
+  '' Initializes the remote port. Starts a cog.
 
-  ' The RX driver will reset unused parts of the rx_buffer
-  ' to default values upon receiving each packet, but we
-  ' still need to initialize the buffer.
+  bytefill(@tx_buffer, 0, TX_PACKET_LEN)
+    
+  ' trim_rx_packets will keep the unused portions of the buffer under control,
+  ' but we need to initialize these bytes once at startup anyway.
   bytemove(@rx_buffers, @default_rx_data, RX_MAX_PACKET_LEN)
   bytemove(@rx_buffers[RX_MAX_PACKET_LEN], @default_rx_data, RX_MAX_PACKET_LEN)
 
@@ -81,11 +82,13 @@ PUB start(rxpin, txpin) : okay
   rx_bit_ticks := clkfreq / RX_BAUD
   wdt_timeout_ticks := (clkfreq / 1000) * WDT_TIMEOUT_MS
   rx_buffer_ptr := @rx_buffers
-  default_rx_data_ptr := @default_rx_data
+  new_packet_flag := 0
   okay := rx_cog := cognew(@entry, @rx_pin) + 1
 
 
 PUB stop
+
+  '' Frees a cog.
 
   tx.stop
 
@@ -93,21 +96,16 @@ PUB stop
     cogstop(rx_cog~ - 1)
 
 
-PUB tx_packet | i, value
+PUB poll
 
-  '' Send an outgoing packet to the remote. This function must be called
-  '' for any changes to LED or force feedback state to take effect. If it
-  '' is not called at least once a second or so, the remote unit's watchdog
-  '' timer will cause all LEDs and force feedback actuators to be turned off.
+  '' Perform slow polling tasks which aren't handled by our dedicated cog.
+  '' This includes transmitting updated LED and force-feedback state, as well
+  '' as trimming incoming packets. (Resetting unused portions of the receive
+  '' buffer to their default values).
 
-  tx.tx(TX_START_OF_PACKET)
-
-  repeat i from 0 to TX_PACKET_LEN - 1
-    value := tx_buffer[i]
-    if value == TX_START_OF_PACKET or value == TX_ESCAPE
-      tx.tx(TX_ESCAPE)
-    tx.tx(value)  
-
+  tx_packet
+  trim_rx_packets
+  
 
 PUB set_led_state(slot, leds)
 
@@ -159,6 +157,59 @@ PUB get_controller_flags(slot) : state_flags
 
   state_flags := rx_buffers[RX_MAX_PACKET_LEN * slot + 1]
 
+
+PUB is_new_packet : new
+
+  '' Return 1 if a new packet has arrived since the last call
+    
+  new := new_packet_flag
+  new_packet_flag := 0
+
+
+PRI get_rx_packet_len(flags) : length
+
+  '' Given a controller's state flags, return the expected number of
+  '' bytes (after the 2-byte header) to be stored for that controller.
+
+  if flags & CSTATE_CONNECTED
+    length += 2
+
+  if flags & CSTATE_ANALOG
+    length += 4
+
+  if flags & CSTATE_DUALSHOCK
+    length += 12
+
+    
+PRI trim_rx_packets | slot, addr, packet_len
+
+  ' Reset unused portions of the receive buffers to our default values.
+  ' This lets other objects use values in the receive buffer without
+  ' first checking whether they're applicable to the attached controller
+  ' type.
+                                                                   
+  addr := @rx_buffers
+  repeat slot from 0 to NUM_SLOTS-1
+    packet_len := get_rx_packet_len(BYTE[addr + 1]) + 2    
+    bytemove(addr + packet_len, @default_rx_data + packet_len, RX_MAX_PACKET_LEN - packet_len)
+    addr += RX_MAX_PACKET_LEN
+    
+
+PRI tx_packet | i, value
+
+  ' Send an outgoing packet to the remote. This function must be called
+  ' for any changes to LED or force feedback state to take effect. If it
+  ' is not called at least once a second or so, the remote unit's watchdog
+  ' timer will cause all LEDs and force feedback actuators to be turned off.
+
+  tx.tx(TX_START_OF_PACKET)
+
+  repeat i from 0 to TX_PACKET_LEN - 1
+    value := tx_buffer[i]
+    if value == TX_START_OF_PACKET or value == TX_ESCAPE
+      tx.tx(TX_ESCAPE)
+    tx.tx(value)
+  
   
 DAT
 
@@ -181,9 +232,6 @@ entry                   mov     t1, par                 ' Make local copies of a
 
                         add     t1, #4
                         rdlong  wdt_timeout_ticks_, t1
-
-                        add     t1, #4
-                        rdlong  default_rx_data_ptr_, t1
 
                         mov     wdt_timestamp, cnt      ' Init the watchdog timestamp
 
@@ -283,22 +331,12 @@ data_byte                                               ' Normal data byte
                         sub     bytes_remaining, #1 wz
               if_nz     jmp     #receive_byte           ' Still not done with this packet...
 
-        ' We just finished a packet. Reset any unused bytes to their default
-        ' values, and prepare to receive another packet.
+                        mov     t1, par                 ' Done with this packet!
+                        add     t1, #4*4                '   Set new_packet_flag
+                        mov     t2, #1
+                        wrlong  t2, t1
 
-finish_packet
-                        xor     byte_index, #RX_MAX_PACKET_LEN wz,nr
-              if_z      jmp     #receive_packet
-
-                        mov     t1, default_rx_data_ptr_
-                        add     t1, byte_index
-                        rdbyte  t2, t1
-                        wrbyte  t2, rx_pointer
-
-                        add     rx_pointer, #1          ' Next byte
-                        add     byte_index, #1
-                        jmp     #finish_packet
-
+                        jmp     #receive_packet
 
         ' The first header byte. Top nybble must be 5. Bottom nybble
         ' specifies the slot number. Since we only support two slots,
@@ -357,7 +395,6 @@ default_rx_data         byte    $00, $00                ' Invalid header, no fla
                         byte    $00, $00, $00, $00
                         byte    $00, $00, $00, $00
 
-answer_byte             byte    $42, $99, $98, $87, $43                        
 t1                      res     1
 t2                      res     1
 
