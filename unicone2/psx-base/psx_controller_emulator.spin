@@ -366,85 +366,134 @@ cmd_get_available_poll_results
 
 
         '------------------------------------------------------
-        ' Command: POLL
+        ' Command: POLL/ESCAPE
+        '
+        ' The POLL and ESCAPE commands are substantially the same.
+        ' This routine implements them both, by swapping in different
+        ' rx_data handlers.
         '
         ' Arguments:
-        '    - Each command byte may be mapped to an actuator by SET_POLL_CMD_FORMAT
+        '    - For ESCAPE, the first command-specific argument selects
+        '      whether we're entering or exiting escape mode.
+        '
+        '    - For POLL, each argument may be mapped to an
+        '      actuator by SET_POLL_CMD_FORMAT
         '
         ' Results:
         '    - For each bit set in result_format, returns one byte of data
         '      aggregated from all state buffers present in state_ptr_list.
 
-cmd_poll                call    #begin_cmd
+cmd_escape              movs    poll_rx_callback, #pollcb_escape
+                        jmp     #cmd_poll_or_escape                        
+cmd_poll                movs    poll_rx_callback, #pollcb_poll
+cmd_poll_or_escape      call    #begin_cmd
 
                         mov     byte_index, #0          ' Iterate over result bytes
                         mov     result_iter, result_format
-:byte_loop              test    result_iter, #1 wc      ' C = 1, output this byte
-              if_nc     jmp     #:skip_byte
+poll_byte_loop          test    result_iter, #1 wc      ' C = 1, output this byte
+              if_nc     jmp     #poll_skip_byte
 
                         ' Perform poll result mixing in various ways, depending on
                         ' what type of byte this is. The first two are buttons, the
                         ' next four are analog axes, and the rest are pressure sensors.
 
                         sub     byte_index, #2 nr,wc
-              if_c      jmp     #:mix_button_byte
+              if_c      jmp     #mix_button_byte
                         sub     byte_index, #6 nr,wc
-              if_c      jmp     #:mix_axis_byte
-                        jmp     #:mix_pressure_byte
-:mix_ret
+              if_c      jmp     #mix_axis_byte
+                        jmp     #mix_pressure_byte
+mix_ret
 
-                        call    #txrx_byte              ' Send poll results, receive actuator data
+                        call    #txrx_byte
 
-                        ' XXX: Do something with actuator data
+                        ' Act on the received data via a callback that changes
+                        ' depending on whether this is POLL or ESCAPE.
+
+poll_rx_callback        jmp     #0
+poll_rx_callback_ret
 
                         xor     result_iter, #1 nr,wz   ' Z = 1, this is the last byte
               if_nz     call    #send_ack               ' Ack all bytes except the last
 
-:skip_byte              add     byte_index, #1          ' Next byte...
+poll_skip_byte          add     byte_index, #1          ' Next byte...
                         shr     result_iter, #1 wz      ' Z = 1, this was the last byte
-              if_nz     jmp     #:byte_loop
+              if_nz     jmp     #poll_byte_loop
 
                         jmp     #receive_packet
 
 
                         '--------------------------------------
+                        ' Poll RX callback: POLL command
+                        '
+                        ' This callback is responsible for storing rx_byte
+                        ' in any applicable actuator buffers.
+                        '
+                        ' This also unconditionally kicks us out of
+                        ' escape mode, if we were in it.
+
+pollcb_poll
+                        mov     mode_byte, preescape_mode_byte
+
+                        ' XXX: Implement actuators
+
+                        jmp     #poll_rx_callback_ret
+
+
+                        '--------------------------------------
+                        ' Poll RX callback: ESCAPE command
+                        '
+                        ' This callback switches into or out of escape mode,
+                        ' depending on the value of the byte at byte_index 0.
+
+pollcb_escape
+                        xor     byte_index, #0 nr,wz
+              if_nz     jmp     #poll_rx_callback_ret   ' Not byte_index 0, ignore it
+
+                        xor     rx_data, #0 nr,wz
+              if_z      mov     mode_byte, preescape_mode_byte
+              if_nz     mov     mode_byte, #(ESCAPE_MODE | REPLY_LEN_ESCAPE)
+                        
+                        jmp     #poll_rx_callback_ret              
+              
+
+                        '--------------------------------------
                         ' Poll result mixer: Buttons.
                         '
-:mix_button_byte
+mix_button_byte
                         mov     tx_data, #$FF           ' Default value, all buttons released
-                        movs    :mixer_callback, #:button_mix_callback
-                        jmp     #:mixer
+                        movs    mixer_callback, #button_mix_callback
+                        jmp     #mixer
 
-:button_mix_callback    and     tx_data, t1             ' Logically OR the inverted buttons
-                        jmp     #:mixer_callback_ret
+button_mix_callback     and     tx_data, t1             ' Logically OR the inverted buttons
+                        jmp     #mixer_callback_ret
 
 
                         '--------------------------------------
                         ' Poll result mixer: Axes.
                         '
-:mix_axis_byte
+mix_axis_byte
                         mov     tx_data, #$80           ' Default value, centered
-                        movs    :mixer_callback, #:axis_mix_callback
-                        jmp     #:mixer
+                        movs    mixer_callback, #axis_mix_callback
+                        jmp     #mixer
 
-:axis_mix_callback      add     tx_data, t1             ' Add axes
+axis_mix_callback       add     tx_data, t1             ' Add axes
                         sub     tx_data, #$80           ' Subtract the duplicate offset
                         maxs    tx_data, #$FF           ' Clamp
                         mins    tx_data, #$00
-                        jmp     #:mixer_callback_ret
+                        jmp     #mixer_callback_ret
 
 
                         '--------------------------------------
                         ' Poll result mixer: Pressure sensors.
                         '
-:mix_pressure_byte
+mix_pressure_byte
                         mov     tx_data, #$00           ' Default value, no pressure
-                        movs    :mixer_callback, #:pressure_mix_callback
-                        jmp     #:mixer
+                        movs    mixer_callback, #pressure_mix_callback
+                        jmp     #mixer
 
-:pressure_mix_callback  add     tx_data, t1             ' Combine pressure
+pressure_mix_callback   add     tx_data, t1             ' Combine pressure
                         maxs    tx_data, #$FF           ' Clamp
-                        jmp     #:mixer_callback_ret
+                        jmp     #mixer_callback_ret
 
 
                         '--------------------------------------
@@ -452,44 +501,59 @@ cmd_poll                call    #begin_cmd
                         ' default value to be set already. This
                         ' iterates t1 over each value to be mixed,
                         ' using a mixer callback routine pointed to
-                        ' by the jmp instruction at :mixer_callback.
+                        ' by the jmp instruction at mixer_callback.
                         '
 
-:mixer
+mixer
                         mov     t2, par                 ' Point at the first state buffer
                         add     t2, #_state_ptr_list
                         mov     t3, #NUM_STATE_BUFFERS  ' Count the remaining state buffers
 
-:mixer_buffer_loop
+mixer_buffer_loop
                         rdlong  t4, t2 wz               ' Read the state buffer pointer
                         
                         add     t4, byte_index          ' Offset by the current byte index
               if_nz     rdbyte  t1, t4                  ' Get the current byte at this buffer
 
-:mixer_callback
+mixer_callback
               if_nz     jmp #0                          ' Allow the callback to operate on this byte
-:mixer_callback_ret
+mixer_callback_ret
 
                         add     t2, #4                  ' Next state buffer...
-                        djnz    t3, #:mixer_buffer_loop
-                        jmp     #:mix_ret
-
-
-        '------------------------------------------------------
-        ' Command: ESCAPE
-        '
-
-cmd_escape              call    #begin_cmd
-                        'XXX: Implement me!
-                        jmp     #receive_packet
+                        djnz    t3, #mixer_buffer_loop
+                        jmp     #mix_ret
 
 
         '------------------------------------------------------
         ' Command: SET_MAJOR_MODE
         '
+        ' Sets analog mode if the first byte is nonzero, digital mode
+        ' otherwise. All reply bytes are zero. This command also resets
+        ' various controller state, such as the actuator and reply byte
+        ' mappings.
 
 cmd_set_major_mode      call    #begin_escape_cmd
-                        'XXX: Implement me!
+
+                        mov     tx_data, #0
+                        call    #txrx_byte
+                        call    #send_ack
+
+                        xor     rx_data, #0 nr,wz
+
+                        ' Digital mode
+              if_z      mov     mode_byte, #(DIGITAL_MODE | REPLY_LEN_DIGITAL)
+              if_z      mov     result_format, #$03
+
+                        ' Analog mode
+              if_nz     mov     mode_byte, #(ANALOG_MODE | REPLY_LEN_ANALOG)
+              if_nz     mov     result_format, #$3F
+
+                        mov     preescape_mode_byte, mode_byte
+
+                        call    #txrx_byte      ' Send 5 more zeroes
+                        call    #send_ack
+                        call    #txrx_32
+
                         jmp     #receive_packet
 
 
@@ -555,7 +619,8 @@ zero                    long    0
 mask_16bit              long    $FFFF
 
 mode_byte               long    DIGITAL_MODE | REPLY_LEN_DIGITAL
-result_format           long    $0003FFFF       ' XXX: Hack. Should be 0x03 to default to digital mode.
+preescape_mode_byte     long    DIGITAL_MODE | REPLY_LEN_DIGITAL
+result_format           long    $00000003
 available_results       long    $0003FFFF
 
 t1                      res     1
