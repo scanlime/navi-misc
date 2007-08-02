@@ -854,7 +854,7 @@ fsr_slot_state	macro
 	;;
 controller_detect
 
-	;; 1. Detect presence: Send a POLL, verify that40/f3 the
+	;; 1. Detect presence: Send a POLL, verify that the
 	;;    returned padding byte is correct. Do this several
 	;;    times, in order to make sure the contacts aren't
 	;;    still bouncing because the controller was just
@@ -1034,6 +1034,10 @@ controller_escape
 	controller_xfer		PSX_CMD_ESCAPE
 	controller_xfer		0x00
 	controller_xfer_f	temp2
+	controller_xfer		0x00
+	controller_xfer		0x00    ; NB: Guitar Hero controller breaks if we end
+	controller_xfer		0x00    ;     the packet here instead of transferring 
+	controller_xfer		0x00    ;     the full 6 bytes.
 	controller_xfer		0x00
 	lcall	psx_end_wait
 	return

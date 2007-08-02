@@ -11,7 +11,7 @@ all: $(BIN)
 #
 install: $(BIN)
 	grep -v :02000004 $(BIN) > $(BIN).2
-	picdl -P/dev/ttyUSB1 $(BIN).2
+	picdl -P/dev/ttyUSB0 $(BIN).2
 	rm -f $(BIN).2
 
 clean:
