@@ -48,6 +48,10 @@ CON
   REPLY_LEN_ESCAPE = $3
   REPLY_LEN_DIGITAL = $1
   REPLY_LEN_ANALOG = $3
+
+  RESULT_FORMAT_ESCAPE = $0000003F
+  RESULT_FORMAT_DIGITAL = $00000003
+  RESULT_FORMAT_ANALOG = $0000003F
   
   ' Offsets within the cog communication area
   _base_pin = 0
@@ -165,6 +169,9 @@ entry                   mov     t1, par                 ' Make local copies of a
                         mov     ack_mask, dat_mask
                         shl     ack_mask, #4
 
+                        mov     clk_sel_mask, clk_mask
+                        or      clk_sel_mask, sel_mask
+
 
         '------------------------------------------------------
         ' Packet receive loop
@@ -233,25 +240,25 @@ receive_packet
         '
         ' The last rising edge is timestamped, for send_ack.
 
-txrx                    test    sel_mask, ina wc        ' Abort if SEL goes high
+txrx                    test    sel_mask, ina wc        ' Abort if SEL went high
               if_c      jmp     #receive_packet
 
                         mov     t1, #8
 :bit
                         test    tx_data, #1 wc
-                        waitpeq zero, clk_mask          ' Falling edge on CLK
+                        waitpne clk_mask, clk_sel_mask  ' Wait for CLK- or SEL+
                         muxc    outa, dat_mask          ' Write tx_data[0]
                         ror     tx_data, #1             ' Shift out tx_data[0]
 
                         test    sel_mask, ina wc        ' Abort if SEL goes high
               if_c      jmp     #receive_packet
                         
-                        waitpne zero, clk_mask          ' Rising edge on CLK
+                        waitpne zero, clk_sel_mask      ' Wait for CLK+ or SEL+
                         test    cmd_mask, ina wc        ' Read CMD bit
                         mov     clk_posedge_cnt, cnt    ' Timestamp this rising edge                        
                         rcr     rx_data, #1             ' Shift into rx_data[31]
 
-                        test    ina, sel_mask wc        ' Abort if SEL goes high
+                        test    sel_mask, ina wc        ' Abort if SEL went high
               if_c      jmp     #receive_packet
 
                         djnz    t1, #:bit               ' Next bit...
@@ -388,11 +395,15 @@ cmd_escape              movs    poll_rx_callback, #pollcb_escape
 cmd_poll                movs    poll_rx_callback, #pollcb_poll
 cmd_poll_or_escape      call    #begin_cmd
 
+                        call    #send_ack
+                        mov     tx_data, #PADDING_BYTE
+                        call    #txrx_byte
+
                         mov     byte_index, #0          ' Iterate over result bytes
                         mov     result_iter, result_format
 poll_byte_loop          test    result_iter, #1 wc      ' C = 1, output this byte
               if_nc     jmp     #poll_skip_byte
-
+              
                         ' Perform poll result mixing in various ways, depending on
                         ' what type of byte this is. The first two are buttons, the
                         ' next four are analog axes, and the rest are pressure sensors.
@@ -403,7 +414,7 @@ poll_byte_loop          test    result_iter, #1 wc      ' C = 1, output this byt
               if_c      jmp     #mix_axis_byte
                         jmp     #mix_pressure_byte
 mix_ret
-
+                        
                         call    #txrx_byte
 
                         ' Act on the received data via a callback that changes
@@ -418,7 +429,7 @@ poll_rx_callback_ret
 poll_skip_byte          add     byte_index, #1          ' Next byte...
                         shr     result_iter, #1 wz      ' Z = 1, this was the last byte
               if_nz     jmp     #poll_byte_loop
-
+              
                         jmp     #receive_packet
 
 
@@ -433,6 +444,7 @@ poll_skip_byte          add     byte_index, #1          ' Next byte...
 
 pollcb_poll
                         mov     mode_byte, preescape_mode_byte
+                        mov     result_format, preescape_result_format
 
                         ' XXX: Implement actuators
 
@@ -450,9 +462,15 @@ pollcb_escape
               if_nz     jmp     #poll_rx_callback_ret   ' Not byte_index 0, ignore it
 
                         xor     rx_data, #0 nr,wz
+
+                        ' Exiting escape mode
               if_z      mov     mode_byte, preescape_mode_byte
-              if_nz     mov     mode_byte, #(ESCAPE_MODE | REPLY_LEN_ESCAPE)
-                        
+              if_z      mov     result_format, preescape_result_format
+              
+                        ' Entering escape mode
+              if_nz     mov     mode_byte, #(ESCAPE_MODE | REPLY_LEN_ESCAPE)                  
+              if_nz     mov     result_format, #RESULT_FORMAT_ESCAPE
+              
                         jmp     #poll_rx_callback_ret              
               
 
@@ -504,13 +522,11 @@ pressure_mix_callback   add     tx_data, t1             ' Combine pressure
                         ' by the jmp instruction at mixer_callback.
                         '
 
-mixer
-                        mov     t2, par                 ' Point at the first state buffer
+mixer                   mov     t2, par                 ' Point at the first state buffer
                         add     t2, #_state_ptr_list
                         mov     t3, #NUM_STATE_BUFFERS  ' Count the remaining state buffers
 
-mixer_buffer_loop
-                        rdlong  t4, t2 wz               ' Read the state buffer pointer
+mixer_buffer_loop       rdlong  t4, t2 wz               ' Read the state buffer pointer
                         
                         add     t4, byte_index          ' Offset by the current byte index
               if_nz     rdbyte  t1, t4                  ' Get the current byte at this buffer
@@ -541,14 +557,13 @@ cmd_set_major_mode      call    #begin_escape_cmd
                         xor     rx_data, #0 nr,wz
 
                         ' Digital mode
-              if_z      mov     mode_byte, #(DIGITAL_MODE | REPLY_LEN_DIGITAL)
-              if_z      mov     result_format, #$03
+              if_z      mov     preescape_mode_byte, #(DIGITAL_MODE | REPLY_LEN_DIGITAL)
+              if_z      mov     preescape_result_format, #RESULT_FORMAT_DIGITAL
 
                         ' Analog mode
-              if_nz     mov     mode_byte, #(ANALOG_MODE | REPLY_LEN_ANALOG)
-              if_nz     mov     result_format, #$3F
-
-                        mov     preescape_mode_byte, mode_byte
+              if_nz     mov     preescape_mode_byte, #(ANALOG_MODE | REPLY_LEN_ANALOG)
+              if_nz     mov     preescape_result_format, #RESULT_FORMAT_ANALOG
+                        muxnz   ext_status, extstatus_analog
 
                         call    #txrx_byte      ' Send 5 more zeroes
                         call    #send_ack
@@ -560,68 +575,132 @@ cmd_set_major_mode      call    #begin_escape_cmd
         '------------------------------------------------------
         ' Command: READ_EXT_STATUS_1
         '
+        ' Response data:
+        '   - 0x03 (?) on Dual Shock controller, 0x01 (?) for Guitar Hero controller
+        '   - 0x02 (?)
+        '   - 0x01 if the "Analog" light is on, 0x00 if it's off.
+        '   - 0x02 (?)
+        '   - 0x01 (?)
+        '   - 0x00 (?)
 
 cmd_read_ext_status_1   call    #begin_escape_cmd
-                        'XXX: Implement me!
+
+                        mov     tx_data, ext_status
+                        call    #txrx_32
+                        call    #send_ack
+
+                        mov     tx_data, #$0001
+                        call    #txrx_16         
+
                         jmp     #receive_packet
 
 
         '------------------------------------------------------
-        ' Command: READ_CONST_1
+        ' Command: READ_CONST_1/2/3
         '
+        ' These commands returns unknown constant data. The
+        ' first command byte is always an address offset. The
+        ' first two response bytes are always zero.
 
-cmd_read_const_1        call    #begin_escape_cmd
-                        'XXX: Implement me!
-                        jmp     #receive_packet
+cmd_read_const_1        movs    const_ptr, #constdata_1
+                        jmp     #cmd_read_const
+cmd_read_const_2        movs    const_ptr, #constdata_2
+                        jmp     #cmd_read_const
+cmd_read_const_3        movs    const_ptr, #constdata_3
+cmd_read_const          call    #begin_escape_cmd
 
+                        mov     tx_data, #0             ' First byte is const address
+                        call    #txrx_byte
+const_ptr               add     rx_data, #0             ' This is filled in with a constdata_* address
+                        movs    :indirect, rx_data
 
-        '------------------------------------------------------
-        ' Command: READ_CONST_2
-        '
+                        call    #send_ack               ' Unused (zero) byte
+                        call    #txrx_byte
+                        call    #send_ack
+ 
+:indirect               mov     tx_data, 0              ' Load tx_data from the computed pointer
+                        call    #txrx_32                ' .. and send the constant word.
 
-
-cmd_read_const_2        call    #begin_escape_cmd
-                        'XXX: Implement me!
-                        jmp     #receive_packet
-
-        '------------------------------------------------------
-        ' Command: READ_CONST_3
-        '
-
-cmd_read_const_3        call    #begin_escape_cmd
-                        'XXX: Implement me!
                         jmp     #receive_packet
 
                         
         '------------------------------------------------------
         ' Command: SET_POLL_CMD_FORMAT
         '
+        ' Sets cmd_format, the mapping from poll bytes to actuator indices.
+        ' Our return value is the previous cmd_format.
+        '
+        ' We only use the first 32 bits. The last two actuator bytes are ignored.
 
 cmd_set_poll_cmd_format call    #begin_escape_cmd
-                        'XXX: Implement me!
+
+                        mov     tx_data, cmd_format
+                        call    #txrx_32
+                        call    #send_ack
+                        mov     cmd_format, rx_data
+
+                        mov     tx_data, mask_16bit
+                        call    #txrx_16
+
                         jmp     #receive_packet
 
                         
         '------------------------------------------------------
         ' Command: SET_POLL_RESULT_FORMAT
         '
+        ' Sets result_format, the bitmask of poll result bytes that the
+        ' console wishes to receive. This command is typically used to
+        ' enable and disable pressure-sensitive buttons.
+        '
+        ' Note that the new result length doesn't take effect until we leave
+        ' escape mode. (Escape mode has a fixed result format, in order to
+        ' match the fixed reply length.)
 
 cmd_set_poll_result_format
                         call    #begin_escape_cmd
-                        'XXX: Implement me!
+
+                        mov     tx_data, #0             ' Always 00 00 00 00
+                        call    #txrx_32
+                        call    #send_ack
+                        mov     preescape_result_format, rx_data
+
+                        mov     tx_data, #0             ' Always 00
+                        call    #txrx_byte
+                        call    #send_ack
+
+                        mov     tx_data, #PADDING_BYTE
+                        call    #txrx_byte              
+
                         jmp     #receive_packet
 
 
         '------------------------------------------------------
-        ' Local data.
+        ' Constant data.
 
 zero                    long    0
 mask_16bit              long    $FFFF
 
+available_results       long    $0003FFFF
+extstatus_analog        long    $00010000
+
+constdata_1             long    $0a000201
+                        long    $14010101
+constdata_2             long    $00010002
+constdata_3             long    $00000400
+                        long    $00000700
+
+        '------------------------------------------------------
+        ' Initialized controller state.
+
 mode_byte               long    DIGITAL_MODE | REPLY_LEN_DIGITAL
 preescape_mode_byte     long    DIGITAL_MODE | REPLY_LEN_DIGITAL
-result_format           long    $00000003
-available_results       long    $0003FFFF
+result_format           long    RESULT_FORMAT_DIGITAL
+preescape_result_format long    RESULT_FORMAT_DIGITAL
+ext_status              long    $02000203
+cmd_format              long    $00000000
+
+        '------------------------------------------------------
+        ' Uninitialized data.
 
 t1                      res     1
 t2                      res     1
@@ -639,6 +718,7 @@ cmd_mask                res     1               ' Input
 clk_mask                res     1               ' Input
 sel_mask                res     1               ' Input
 ack_mask                res     1               ' Output, open-collector
+clk_sel_mask            res     1
 
                         fit
                         
