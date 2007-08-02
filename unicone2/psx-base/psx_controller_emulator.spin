@@ -40,6 +40,9 @@ CON
   ACK_DELAY_US = 8
   ACK_WIDTH_US = 3
 
+  ' Startup/reset delay, in milliseconds
+  STARTUP_DELAY_MS = 200
+
   PADDING_BYTE = $5A
 
   DIGITAL_MODE = $40
@@ -54,12 +57,19 @@ CON
   RESULT_FORMAT_ESCAPE = $0000003F
   RESULT_FORMAT_DIGITAL = $00000003
   RESULT_FORMAT_ANALOG = $0000003F
+
+  ' ext_status fields which seem to identify controller type or capabilities.
+  ' Use these as arguments to start().
+  CONTROLLER_GUITAR_HERO = $02000201
+  CONTROLLER_DUAL_SHOCK = $02000203
   
   ' Offsets within the cog communication area
   _base_pin = 0
   _ack_delay_ticks = _base_pin + 4
   _ack_width_ticks = _ack_delay_ticks + 4
-  _actuator_ptr_list = _ack_width_ticks + 4
+  _controller = _ack_width_ticks + 4
+  _startup_cnt = _controller + 4
+  _actuator_ptr_list = _startup_cnt + 4
   _state_ptr_list = _actuator_ptr_list + (4 * NUM_ACTUATOR_BUFFERS)
 
 
@@ -71,21 +81,27 @@ VAR
   long  base_pin
   long  ack_delay_ticks
   long  ack_width_ticks
+  long  controller
+  long  startup_cnt
   long  actuator_ptr_list[NUM_ACTUATOR_BUFFERS]
   long  state_ptr_list[NUM_STATE_BUFFERS]
         
 
-PUB start(basepin) : okay
+PUB start(basepin, controller_type) : okay
 
   '' Start a cog running a new controller emulator.
   '' The emulator initially has no attached buffers.
   ''
   '' The controller must be connected via 5 pins starting at basepin.
+  '' 'controller_type' tells us what kind of controller to emulate.
+  '' It must be one of our CONTROLLER_* constants.
 
   base_pin := basepin
+  controller := controller_type
   ack_delay_ticks := ACK_DELAY_US * (clkfreq / 1000000)
   ack_width_ticks := ACK_WIDTH_US * (clkfreq / 1000000)
-
+  startup_cnt := cnt + STARTUP_DELAY_MS * (clkfreq / 1000)
+  
   longfill(@state_ptr_list, 0, NUM_STATE_BUFFERS)
   longfill(@actuator_ptr_list, 0, NUM_ACTUATOR_BUFFERS)
 
@@ -100,6 +116,20 @@ PUB stop
     cogstop(cog~ - 1)
 
 
+PUB set_controller_type(controller_type)
+
+  '' Change the emulator's controller type. This requires
+  '' resetting the emulator completely. The emulator will be
+  '' nonresponsive until its startup delay expires and the PS2
+  '' completes its initialization sequence.
+
+  startup_cnt := cnt + STARTUP_DELAY_MS * (clkfreq / 1000)
+  controller := controller_type
+
+  cogstop(cog~ - 1)
+  cog := cognew(@entry, @base_pin) + 1
+
+    
 PUB add_actuator_buffer(buffer) : okay | i
 
   '' Add an additional actuator buffer for this controller to write.
@@ -171,9 +201,9 @@ DAT
         '------------------------------------------------------
         ' Entry point.
 
-entry                   mov     t1, par                 ' Make local copies of all parameters
-
-                        rdlong  t2, t1                  ' Make a set of pin masks
+entry                   mov     t1, par                 ' Initialize all pin masks
+                        add     t1, #_base_pin
+                        rdlong  t2, t1
                         mov     dat_mask, #1
                         shl     dat_mask, t2
 
@@ -191,6 +221,15 @@ entry                   mov     t1, par                 ' Make local copies of a
 
                         mov     clk_sel_mask, clk_mask
                         or      clk_sel_mask, sel_mask
+
+                        mov     t1, par                 ' Initialize ext_status according to controller type
+                        add     t1, #_controller
+                        rdlong  ext_status, t1
+
+                        mov     t1, par                 ' Wait for startup_cnt
+                        add     t1, #_startup_cnt
+                        rdlong  t2, t1
+                        waitcnt t2, #0
 
 
         '------------------------------------------------------
@@ -785,17 +824,18 @@ constdata_3             long    $00000400
                         long    $00000700
 
         '------------------------------------------------------
-        ' Initialized controller state.
+        ' Initialized data.
 
 mode_byte               long    DIGITAL_MODE | REPLY_LEN_DIGITAL
 preescape_mode_byte     long    DIGITAL_MODE | REPLY_LEN_DIGITAL
 result_format           long    RESULT_FORMAT_DIGITAL
 preescape_result_format long    RESULT_FORMAT_DIGITAL
-ext_status              long    $02000203
 cmd_format              long    $00000000
 
         '------------------------------------------------------
         ' Uninitialized data.
+
+ext_status              res     1               ' "Extended status" bits. Mostly controller capabilities?
 
 t1                      res     1
 t2                      res     1
