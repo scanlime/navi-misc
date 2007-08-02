@@ -168,7 +168,7 @@ PUB set_led_digit(slot, digit)
 
   '' Display a hexadecimal digit on a particular slot's LED display.
 
-  set_led_state(slot, lookupz(digit: $77, $14, $B3, $B6, $D4, $E6, $E7, $34, $F7, $F4, $F5, $C7, $63, $97, $E3, $E1))  
+  set_led_state(slot, lookupz((digit & $F): $77, $14, $B3, $B6, $D4, $E6, $E7, $34, $F7, $F4, $F5, $C7, $63, $97, $E3, $E1))
 
 
 PUB set_actuator(slot, actuator, value)
@@ -180,7 +180,14 @@ PUB set_actuator(slot, actuator, value)
   tx_buffer[slot * TX_SLOT_LEN + TX_FF_1 + actuator] := value
   
 
-PUB get_controller_data(slot) : address
+PUB get_actuator_buffer(slot) : address
+
+  '' Retrieve the address of a controller slot's raw actuator buffer.
+
+  address := @tx_buffer[slot * TX_SLOT_LEN + TX_FF_1]
+
+  
+PUB get_state_buffer(slot) : address
 
   '' Retrieve the address of a controller slot's raw polling results
 
