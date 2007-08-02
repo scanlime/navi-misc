@@ -31,8 +31,10 @@ CON
   PIN_ACK = 4
 
   STATE_BUFFER_LEN = 18
-  ACTUATOR_BUFFER_LEN = 2
   NUM_STATE_BUFFERS = 4
+
+  ACTUATOR_BUFFER_LEN = 2
+  NUM_ACTUATOR_BUFFERS = 4
 
   ' ACK timings, based on values observed on a real Dual Shock controller
   ACK_DELAY_US = 8
@@ -55,10 +57,10 @@ CON
   
   ' Offsets within the cog communication area
   _base_pin = 0
-  _actuators_ptr = 4
-  _ack_delay_ticks = 8
-  _ack_width_ticks = 12
-  _state_ptr_list = 16
+  _ack_delay_ticks = _base_pin + 4
+  _ack_width_ticks = _ack_delay_ticks + 4
+  _actuator_ptr_list = _ack_width_ticks + 4
+  _state_ptr_list = _actuator_ptr_list + (4 * NUM_ACTUATOR_BUFFERS)
 
 
 VAR
@@ -67,9 +69,9 @@ VAR
 
   ' Communication area between cog and object
   long  base_pin
-  long  actuators_ptr
   long  ack_delay_ticks
   long  ack_width_ticks
+  long  actuator_ptr_list[NUM_ACTUATOR_BUFFERS]
   long  state_ptr_list[NUM_STATE_BUFFERS]
         
 
@@ -81,11 +83,11 @@ PUB start(basepin) : okay
   '' The controller must be connected via 5 pins starting at basepin.
 
   base_pin := basepin
-  actuators_ptr := 0
   ack_delay_ticks := ACK_DELAY_US * (clkfreq / 1000000)
   ack_width_ticks := ACK_WIDTH_US * (clkfreq / 1000000)
 
   longfill(@state_ptr_list, 0, NUM_STATE_BUFFERS)
+  longfill(@actuator_ptr_list, 0, NUM_ACTUATOR_BUFFERS)
 
   okay := cog := cognew(@entry, @base_pin) + 1
 
@@ -98,15 +100,20 @@ PUB stop
     cogstop(cog~ - 1)
 
 
-PUB set_actuator_buffer(buffer)
+PUB add_actuator_buffer(buffer) : okay | i
 
-  '' Change this controller emulator's attached actuator buffer.
-  '' If 'buffer' is zero, the controller does not write actuator data.
-  '' If 'buffer' is nonzero, it must point to an area of at least
-  '' ACTUATOR_BUFFER_LEN bytes where we'll write any actuator data as
-  '' it arrives from the PSX.
+  '' Add an additional actuator buffer for this controller to write.
+  '' 'buffer' must point to an area of at least ACTUATOR_BUFFER_LEN bytes.
+  ''
+  '' Returns TRUE on success, or FALSE if NUM_STATE_BUFFERS buffers
+  '' are already attached.
 
-  actuators_ptr := buffer
+  repeat i from 0 to NUM_ACTUATOR_BUFFERS - 1    
+    if actuator_ptr_list[i] == 0
+      actuator_ptr_list[i] := buffer
+      okay := TRUE
+      quit
+
 
 PUB add_state_buffer(buffer) : okay | i
 
@@ -123,8 +130,21 @@ PUB add_state_buffer(buffer) : okay | i
       quit
   
 
-PUB get_debug_buffer
-  return @base_pin
+PUB remove_actuator_buffer(buffer) : okay | i
+
+  '' Remove an actuator buffer which was previously attached with
+  '' add_actuator_buffer. Note that, since the controller emulator
+  '' runs asynchronously, there is no guarantee that 'buffer'
+  '' will not be accessed after this method returns.
+  ''
+  '' Returns TRUE on success, or FALSE if 'buffer' is not
+  '' attached to the emulator.
+
+  repeat i from 0 to NUM_ACTUATOR_BUFFERS - 1
+    if actuator_ptr_list[i] == buffer
+      actuator_ptr_list[i] := 0
+      okay := TRUE
+      quit
 
 
 PUB remove_state_buffer(buffer) : okay | i
@@ -318,15 +338,16 @@ send_ack_ret            ret
 
         ' This is the prologue to normal non-escape commands.
         ' It acknowledges the command byte and sends a padding byte.
+        ' The padding byte is NOT acknowledged.
 begin_cmd
                         call    #send_ack
                         mov     tx_data, #PADDING_BYTE
                         call    #txrx_byte
-                        call    #send_ack
 begin_cmd_ret           ret
 
         ' Prologue for escape commands. If we're not in escape mode,
-        ' reject this command.
+        ' reject this command. In this version, the padding byte is
+        ' acknowledged.
 begin_escape_cmd
                         mov     t1, mode_byte
                         and     t1, #MODE_MASK
@@ -334,21 +355,56 @@ begin_escape_cmd
               if_nz     jmp     #receive_packet
 
                         call    #begin_cmd
+                        call    #send_ack
 begin_escape_cmd_ret    ret
 
 
         '------------------------------------------------------
         ' Command: INIT_PRESSURE
         '
-
+        ' This command performs unknown initialization for an individual
+        ' pressure sensitive button.
+        '
+        ' Command data:
+        '   0. Button number (0x00 - 0x0b, in the same order that
+        '      the buttons are listed in the response packet)
+        '   1. 0x02 (?)         
+        '   2. 0x00 (?)
+        '   3. 0x00 (?)
+        '   4. 0x00 (?)
+        '   5. 0x00 (?)
+        '
+        ' Response data
+        '   0. 0x00 (?)
+        '   1. 0x00 (?)
+        '   2. 0x02 (?)
+        '   3. 0x00 (?)
+        '   4. 0x00 (?)
+        '   5. 0x5a (Padding?)
+          
 cmd_init_pressure       call    #begin_escape_cmd
-                        'XXX: Implement me!
+
+                        mov     tx_data, #0
+                        call    #txrx_16
+                        call    #send_ack
+
+                        mov     tx_data, #2
+                        call    #txrx_byte
+                        call    #send_ack
+
+                        mov     tx_data, #0
+                        call    #txrx_16
+                        call    #send_ack
+
+                        mov     tx_data, #PADDING_BYTE
+                        call    #txrx_byte
+
                         jmp     #receive_packet
-
-
+          
+          
         '------------------------------------------------------
         ' Command: GET_AVAILABLE_POLL_RESULTS
-        '
+        ' 
         ' Returns:
         '    - 32-bit available_results flags (1 bit for each available byte of POLL data)
         '    - One more byte of flags, unused (0)
@@ -395,10 +451,6 @@ cmd_escape              movs    poll_rx_callback, #pollcb_escape
 cmd_poll                movs    poll_rx_callback, #pollcb_poll
 cmd_poll_or_escape      call    #begin_cmd
 
-                        call    #send_ack
-                        mov     tx_data, #PADDING_BYTE
-                        call    #txrx_byte
-
                         mov     byte_index, #0          ' Iterate over result bytes
                         mov     result_iter, result_format
 poll_byte_loop          test    result_iter, #1 wc      ' C = 1, output this byte
@@ -414,7 +466,13 @@ poll_byte_loop          test    result_iter, #1 wc      ' C = 1, output this byt
               if_c      jmp     #mix_axis_byte
                         jmp     #mix_pressure_byte
 mix_ret
-                        
+
+                        ' Note that we are acking the previous byte here. This lets us
+                        ' perform result mixing and store actuator data while we wait for
+                        ' the ACK delay. The extra time we save this way is critical to
+                        ' support the 500 kbps mode used by some PS2 games.
+
+                        call    #send_ack
                         call    #txrx_byte
 
                         ' Act on the received data via a callback that changes
@@ -422,9 +480,6 @@ mix_ret
 
 poll_rx_callback        jmp     #0
 poll_rx_callback_ret
-
-                        xor     result_iter, #1 nr,wz   ' Z = 1, this is the last byte
-              if_nz     call    #send_ack               ' Ack all bytes except the last
 
 poll_skip_byte          add     byte_index, #1          ' Next byte...
                         shr     result_iter, #1 wz      ' Z = 1, this was the last byte
@@ -446,8 +501,34 @@ pollcb_poll
                         mov     mode_byte, preescape_mode_byte
                         mov     result_format, preescape_result_format
 
-                        ' XXX: Implement actuators
+                        ' Determine which actuator this byte represents
 
+                        sub     byte_index, #4 nr,wc    ' We only support the first 4 cmd bytes
+              if_nc     jmp     #poll_rx_callback_ret
+
+                        mov     t1, byte_index          ' Convert byte_index to a bit offset...
+                        shl     t1, #3                  ' ... within cmd_format
+                        mov     actuator_num, cmd_format 
+                        shr     actuator_num, t1
+                        and     actuator_num, #$FF      ' And extract the actuator_num for this byte_index.
+                        
+                        sub     actuator_num, #ACTUATOR_BUFFER_LEN nr,wc
+              if_nc     jmp     #poll_rx_callback_ret   ' Ignore disabled or out-of-range actuators                        
+
+                        ' Write this actuator value to all attached actuator buffers
+              
+                        mov     t2, par                 ' Point at the first actuator buffer
+                        add     t2, #_actuator_ptr_list
+                        mov     t3, #NUM_ACTUATOR_BUFFERS ' Count the remaining actuator buffers
+
+:buffer                 rdlong  t4, t2 wz               ' Read the current buffer pointer
+                        
+                        add     t4, actuator_num        ' Offset by the actuator number
+                        add     t2, #4                  ' Next buffer...
+                        
+              if_nz     wrbyte  rx_data, t4             ' Write the actuator data
+
+                        djnz    t3, #:buffer
                         jmp     #poll_rx_callback_ret
 
 
@@ -669,7 +750,21 @@ cmd_set_poll_result_format
                         call    #send_ack
 
                         mov     tx_data, #PADDING_BYTE
-                        call    #txrx_byte              
+                        call    #txrx_byte
+
+                        ' Count the number of one bits in preescape_result_format,
+                        ' and use it to set the length portion of preescape_result_format.
+
+                        mov     t1, #0
+                        mov     t2, preescape_result_format
+:bit                    test    t2, #1 wc
+              if_c      add     t1, #1
+                        shr     t2, #1 wz
+              if_nz     jmp     #:bit
+
+                        and     preescape_mode_byte, #$F0
+                        shr     t1, #1
+                        add     preescape_mode_byte, t1
 
                         jmp     #receive_packet
 
@@ -712,6 +807,7 @@ rx_data                 res     1
 clk_posedge_cnt         res     1
 byte_index              res     1
 result_iter             res     1
+actuator_num            res     1
 
 dat_mask                res     1               ' Output, high-z when not addressed
 cmd_mask                res     1               ' Input

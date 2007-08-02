@@ -12,32 +12,23 @@ CON
 
 OBJ
 
-  text : "TV_Text"
   remote : "psx_remote_port"
   emulator : "psx_controller_emulator"
 
 
-PUB Main | addr, buffer_ptr
+PUB Main | slot
                                       
-  text.start(12)  
   remote.start(2, 1)
   emulator.start(4)
 
+  remote.set_led_digit(0, 0)
+  remote.set_led_digit(1, 0)
+
   ' For testing, mix both remote controller ports onto a single emulated controller
-  emulator.add_state_buffer(remote.get_controller_data(0))
-  emulator.add_state_buffer(remote.get_controller_data(1))
-  
-  buffer_ptr := emulator.get_debug_buffer
-             
+  repeat slot from 0 to 1
+    emulator.add_state_buffer(remote.get_state_buffer(slot))
+    emulator.add_actuator_buffer(remote.get_actuator_buffer(slot))
+    
   repeat
     remote.poll
-  
-    text.out(1)  ' Home
-
-    addr := buffer_ptr
-    repeat 10
-      repeat 8
-        text.hex(BYTE[addr++], 2)
-        text.out(" ")
-      
-      text.out(13)  ' Newline                       
+                       
