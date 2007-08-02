@@ -59,9 +59,10 @@ CON
   RESULT_FORMAT_ANALOG = $0000003F
 
   ' ext_status fields which seem to identify controller type or capabilities.
-  ' Use these as arguments to start().
-  CONTROLLER_GUITAR_HERO = $02000201
-  CONTROLLER_DUAL_SHOCK = $02000203
+  ' Use these as arguments to start() or set_controller_type().
+
+  CONTROLLER_ANALOG = $02000201            ' Required for Guitar Hero to detect a guitar controller
+  CONTROLLER_DUAL_SHOCK = $02000203        ' Required for the PS2 to initialize pressure-sensitive buttons
   
   ' Offsets within the cog communication area
   _base_pin = 0
@@ -122,12 +123,15 @@ PUB set_controller_type(controller_type)
   '' resetting the emulator completely. The emulator will be
   '' nonresponsive until its startup delay expires and the PS2
   '' completes its initialization sequence.
+  ''
+  '' This has no effect if controller_type is already current.
 
-  startup_cnt := cnt + STARTUP_DELAY_MS * (clkfreq / 1000)
-  controller := controller_type
+  if controller_type <> controller
+    startup_cnt := cnt + STARTUP_DELAY_MS * (clkfreq / 1000)
+    controller := controller_type
 
-  cogstop(cog~ - 1)
-  cog := cognew(@entry, @base_pin) + 1
+    cogstop(cog~ - 1)
+    cog := cognew(@entry, @base_pin) + 1
 
     
 PUB add_actuator_buffer(buffer) : okay | i

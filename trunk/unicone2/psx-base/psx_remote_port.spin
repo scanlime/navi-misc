@@ -81,11 +81,19 @@ CON
   PBTN_UP = 15
   PBTN_LEFT = 16
   PBTN_RIGHT = 17
+
+  ' LED special effect flags (From 0x20 to 0x80)
+  LED_EFFECT_BLINK = $20
+  LED_EFFECT_SPIN = $40
+  
+  ' Special LED characters (From 0x10 to 0x1F)
+  LED_CHAR_BLANK = $10
+  LED_CHAR_DASH = $11
   
   
 OBJ
   tx : "Simple_Serial"
-  f : "FloatMath"   
+
 
 VAR
 
@@ -100,6 +108,7 @@ VAR
 
   byte  tx_buffer[TX_PACKET_LEN]
   byte  rx_buffers[RX_MAX_PACKET_LEN * NUM_SLOTS]
+  byte  led_chars[NUM_SLOTS]
 
 
 PUB start(rxpin, txpin) : okay
@@ -141,34 +150,26 @@ PUB poll
   '' as trimming incoming packets. (Resetting unused portions of the receive
   '' buffer to their default values).
 
+  update_leds
   tx_packet
   trim_rx_packets
+
+
+PUB get_buttons(slot) : buttons
+
+  '' Returns a 16-bit mask of pressed buttons on the specified slot.
+
+  buttons := !WORD[get_state_buffer(slot)]
+
   
+PUB set_led_char(slot, char)
 
-PUB set_led_state(slot, leds)
+  '' Set the character to display on a slot's LED display.
+  '' The character can be a hexadecimal digit, or it can be
+  '' one of the LED_CHAR_* constants. Additionally, it may
+  '' have LED_EFFECT_* flags set.
 
-  '' Set a slot's raw 8-bit LED state.
-  '' Bit positions:
-  ''       
-  ''      5
-  ''     ---
-  ''   6| 7 |4
-  ''     ---
-  ''   0|   |2
-  ''     ---  
-  ''      1
-  ''
-  '' (The dot cannot be controlled remotely. Bit 3 is ignored.)
-
-
-  tx_buffer[slot * TX_SLOT_LEN + TX_LEDS] := leds
-
-
-PUB set_led_digit(slot, digit)
-
-  '' Display a hexadecimal digit on a particular slot's LED display.
-
-  set_led_state(slot, lookupz((digit & $F): $77, $14, $B3, $B6, $D4, $E6, $E7, $34, $F7, $F4, $F5, $C7, $63, $97, $E3, $E1))
+  led_chars[slot] := char
 
 
 PUB set_actuator(slot, actuator, value)
@@ -209,6 +210,37 @@ PUB is_new_packet : new
     
   new := new_packet_flag
   new_packet_flag := 0
+
+
+PRI update_leds | slot, leds, char
+
+  ' Recalculate values for TX_LEDS based on led_chars.
+
+  ' "leds" is the raw LED state passed on to the remote unit.
+  ' Bit positions:
+  '        
+  '       5
+  '      ---
+  '    6| 7 |4
+  '      ---
+  '    0|   |2
+  '      ---  
+  '       1
+  '
+  ' (The dot cannot be controlled remotely. Bit 3 is ignored.)
+
+  repeat slot from 0 to NUM_SLOTS-1
+    char := led_chars[slot]
+
+    if char & LED_EFFECT_SPIN
+      leds := BYTE[@led_spin_table + (cnt >> 22) // 6]
+    else
+      leds := BYTE[@led_char_table + (char & $1F)]
+
+    if (char & LED_EFFECT_BLINK) and ((cnt >> 24) & 1)
+      leds := 0
+
+    tx_buffer[slot * TX_SLOT_LEN + TX_LEDS] := leds
 
 
 PRI get_rx_packet_len(flags) : length
@@ -258,6 +290,49 @@ PRI tx_packet | i, value
   
 DAT
 
+        '------------------------------------------------------
+        ' LED Character Table
+        
+led_char_table          byte    $77             ' 0
+                        byte    $14             ' 1
+                        byte    $B3             ' 2
+                        byte    $B6             ' 3
+                        byte    $D4             ' 4
+                        byte    $E6             ' 5
+                        byte    $E7             ' 6
+                        byte    $34             ' 7
+                        byte    $F7             ' 8
+                        byte    $F4             ' 9
+                        byte    $F5             ' A
+                        byte    $C7             ' B
+                        byte    $63             ' C
+                        byte    $97             ' D
+                        byte    $E3             ' E
+                        byte    $E1             ' F
+                        byte    $00             ' 10: Blank
+                        byte    $80             ' 11: Dash
+                        byte    $00             ' 12: (unused)
+                        byte    $00             ' 13: (unused)
+                        byte    $00             ' 14: (unused)
+                        byte    $00             ' 15: (unused)
+                        byte    $00             ' 16: (unused)
+                        byte    $00             ' 17: (unused)
+                        byte    $00             ' 18: (unused)
+                        byte    $00             ' 19: (unused)
+                        byte    $00             ' 1A: (unused)
+                        byte    $00             ' 1B: (unused)
+                        byte    $00             ' 1C: (unused)
+                        byte    $00             ' 1D: (unused)
+                        byte    $00             ' 1E: (unused)
+                        byte    $00             ' 1F: (unused)
+
+led_spin_table          byte    $40
+                        byte    $20
+                        byte    $10
+                        byte    $04
+                        byte    $02
+                        byte    $01
+        
                         org
 
         '------------------------------------------------------
