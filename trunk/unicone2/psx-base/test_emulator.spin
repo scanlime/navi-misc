@@ -19,7 +19,7 @@ OBJ
 PUB Main | slot, button_ptr
                                       
   remote.start(2, 1)
-  emulator.start(4, emulator#CONTROLLER_GUITAR_HERO)
+  emulator.start(4, -1, emulator#CONTROLLER_GUITAR_HERO)
 
   remote.set_led_char(0, 0)
   remote.set_led_char(1, 0)

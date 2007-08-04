@@ -19,8 +19,8 @@ CON
   _CLKMODE = XTAL1 + PLL16X
   _XINFREQ = 5_000_000
 
-  NUM_REMOTES = 1
-  NUM_EMULATORS = 2
+  NUM_REMOTES = 2
+  NUM_EMULATORS = 4
   NUM_TOTAL_SLOTS = NUM_REMOTES * Rem#NUM_SLOTS
   
   HOTKEY = Rem#BTN_R3 | Rem#BTN_L3 | Rem#BTN_R1 | Rem#BTN_L1
@@ -47,9 +47,13 @@ PUB Main | remote, slot, emulator
 
   ' Start all remote connections and emulator cores
 
-  Rem[0].start(2, 1)
-  Emu[0].start(4, Emu#CONTROLLER_DUAL_SHOCK)
-  Emu[1].start(9, Emu#CONTROLLER_DUAL_SHOCK)
+  Rem[0].start(0, 1)
+  Rem[1].start(2, 3)
+
+  Emu[0].start(8, 4, Emu#CONTROLLER_DUAL_SHOCK)
+  Emu[1].start(13, 5, Emu#CONTROLLER_DUAL_SHOCK)
+  Emu[2].start(18, 6, Emu#CONTROLLER_DUAL_SHOCK)
+  Emu[3].start(23, 7, Emu#CONTROLLER_DUAL_SHOCK)
 
   ' Reset all slot mappings. The default is to
   ' have an identity mapping where slot N on each
