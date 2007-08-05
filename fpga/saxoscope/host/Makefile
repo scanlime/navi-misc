@@ -1,1 +1,1 @@
-all: fifocapture vcdwriter psxdecode serialdecode
+all: fifocapture vcdwriter psxdecode serialdecode ppmdecode
