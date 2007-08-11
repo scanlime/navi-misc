@@ -159,7 +159,7 @@ PUB get_buttons(slot) : buttons
 
   '' Returns a 16-bit mask of pressed buttons on the specified slot.
 
-  buttons := !WORD[get_state_buffer(slot)]
+  buttons := $FFFF ^ WORD[get_state_buffer(slot)]
 
   
 PUB set_led_char(slot, char)
