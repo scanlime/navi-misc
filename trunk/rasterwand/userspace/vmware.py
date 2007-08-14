@@ -25,13 +25,13 @@ def getStockQuotes(symbols, format="sl1"):
         'http': 'http://proxy.vmware.com:3128'
         }))
     u = o.open("http://finance.yahoo.com/d/quotes.csv?s=%s&f=%s&e=.csv" %
-               (' '.join(symbols), format))
+               ('+'.join(symbols), format))
     return csv.reader(u)
 
 
 class VMwareMenu(rwand.AutoMenuList):
     branches = ('vmcore-main', 'bfg-main', 'hosted07', 'hosted07-rel')
-    stockSymbols = ('EMC',)
+    stockSymbols = ('EMC', 'VMW')
 
     def __init__(self):
         self.brokenBuilds = {}
