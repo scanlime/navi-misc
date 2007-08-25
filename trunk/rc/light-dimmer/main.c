@@ -33,11 +33,14 @@
 #include <avr/io.h>
 
 #define F_CPU         8000000UL                      // 8 MHz
+
 #define SERVO_MS      (F_CPU / 6000UL)               // Ticks per millisecond
 #define SERVO_MIN     ((uint16_t)(1.1 * SERVO_MS))
 #define SERVO_CENTER  ((uint16_t)(1.5 * SERVO_MS))
 #define SERVO_MAX     ((uint16_t)(1.9 * SERVO_MS))
+
 #define SERVO_PIN     PINB0
+#define PULLUP_PINS   (_BV(PINB1) | _BV(PINB2))
 
 #define LIGHTMODE_OFF      0       // All lights off
 #define LIGHTMODE_FADE_1   1       // Light 1 fading, Light 2 off
@@ -117,7 +120,7 @@ set_light_state(uint8_t mode, uint8_t fade_step)
 	/*
 	 * Float the light output pins
 	 */
-	PORTB = 0;
+	PORTB = PULLUP_PINS;
 	DDRB = 0;
 	GTCCR = 0;
 	break;
@@ -129,9 +132,9 @@ set_light_state(uint8_t mode, uint8_t fade_step)
 	DDRB = _BV(PINB3) | _BV(PINB4);
 	GTCCR = 0;
 	if (pulse_counter & STROBE_DIVISOR)
-	    PORTB = _BV(PINB3) | _BV(PINB4);
+	    PORTB = PULLUP_PINS | _BV(PINB3) | _BV(PINB4);
 	else
-	    PORTB = _BV(PINB3);
+	    PORTB = PULLUP_PINS | _BV(PINB3);
 	break;
 
     case LIGHTMODE_FADE_1:
@@ -154,7 +157,7 @@ set_light_state(uint8_t mode, uint8_t fade_step)
 	 * using PORTB.
 	 */
 	DDRB = _BV(PINB3) | _BV(PINB4);
-	PORTB = _BV(PINB3);
+	PORTB = PULLUP_PINS | _BV(PINB3);
 	GTCCR = _BV(PWM1B) | _BV(COM1B1);
 	OCR1C = 0xFF;
 	OCR1B = fade_step;
