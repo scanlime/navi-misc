@@ -174,7 +174,13 @@ set_light_state(uint8_t mode, uint8_t fade_step)
 static void
 init_lights(void)
 {
-    TCCR1 = _BV(CTC1) | _BV(CS10);      // Use system clock with no divider. (31 kHz PWM)
+    /*
+     * Use system clock with a 1/128 divider.  This gives us a 244 Hz
+     * PWM waveform. This value might need to be tweaked to minimize
+     * electrical interference on your particular model.
+     */
+    TCCR1 = _BV(CTC1) | _BV(CS13);
+
     set_light_state(LIGHTMODE_OFF, 0);
 }
 
@@ -182,6 +188,10 @@ init_lights(void)
 int main(void)
 {
     init_lights();
+
+    /* Ignore the first several pulses, to give the radio time to stabilize. */
+    for (uint8_t i = 0; i < 50; i++)
+	read_pulse();
 
     while (1) {
 	uint16_t pulse = read_pulse();
