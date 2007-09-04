@@ -593,7 +593,7 @@ main_loop_slot_m	macro	slot, leds
 	btfss	slot_states + slot, STATE_CONNECTED_BIT
 	goto	not_connected
 connected
-
+	
 	;; Is the controller active?
 	btfsc	ACTIVITY_FLAG
 	goto	active
@@ -648,9 +648,11 @@ not_blinking
 	bsf	leds, LED_DOT_BIT
 	goto	done
 	
-	;; Not connected: Clear this slot's LED dot, and we're done.
+	;; Not connected: Clear this slot's LED dot and inactivity timer.
 not_connected
 	bcf	leds, LED_DOT_BIT
+	clrf	slot_inactivity_low + slot
+	clrf	slot_inactivity_high + slot
 done
 	endm
 	
@@ -1020,6 +1022,22 @@ pressure_sensor_init_loop
 	;; in the Playstation's protocol)
 	;;
 	;; See http://docs.google.com/View?docid=ddbmmwds_5cw4pk3
+	;;
+	;; Note that we have to be extra careful here to work around
+	;; observed bugs in non-Sony controllers:
+	;; 
+	;;   1. The Guitar Hero controller breaks if we end the packet
+	;;      after sending the header and argument bytes. We have
+	;;      to send the entire 6 bytes.
+	;;
+	;;   2. The Logitech wireless controller doesn't seem to
+	;;      ACK this entire packet if we just switched major
+	;;      modes.
+	;;
+	;; This means that we need to make the extra bytes in this
+	;; packet optional. We'll try to clock them out, but if the
+	;; controller stops ACK'ing we'll give up without signalling
+	;; a controller_error!
 	;; 
 	;; Inputs:
 	;;	w=0, exit escape mode. w=1, enter escape mode.
@@ -1034,14 +1052,17 @@ controller_escape
 	controller_xfer		PSX_CMD_ESCAPE
 	controller_xfer		0x00
 	controller_xfer_f	temp2
-	controller_xfer		0x00
-	controller_xfer		0x00    ; NB: Guitar Hero controller breaks if we end
-	controller_xfer		0x00    ;     the packet here instead of transferring 
-	controller_xfer		0x00    ;     the full 6 bytes.
-	controller_xfer		0x00
-	lcall	psx_end_wait
-	return
 
+	movlw	5			; 5 optional payload bytes
+	movwf	temp2
+controller_escape_loop
+	clrw
+	lcall	controller_xfer_sub	; TX/RX + ACK
+	btfss	STATUS, C
+	goto	psx_end_wait		; On error, end the packet and return 
+	decfsz	temp2, f
+	goto	controller_escape_loop	; Keep going...
+	goto	psx_end_wait		; When we're done, end the packet and return 
 
 	
 	;; ----------------------------------------------------
@@ -1108,7 +1129,8 @@ controller_enter_powerdown
 	btfss	INDF, STATE_DUALSHOCK_BIT
 	return
 
-	clrf	next_state_on_error
+	clrf	next_state_on_error	; Disconnect if we have an error during power-down 
+
 	bcf	INDF, STATE_DUALSHOCK_BIT
 	if	POWERDOWN_MODE == 0x00
 	 bcf	INDF, STATE_ANALOG_BIT
@@ -1117,9 +1139,10 @@ controller_enter_powerdown
 	lcall	psx_end_wait		; Delay after polling
 
 	movlw	POWERDOWN_MODE
-	lgoto	controller_set_major_mode
+	lcall	controller_set_major_mode
+	return
 
-
+	
 	;; ----------------------------------------------------
 	;; 
 	;; Exit low-power mode.
@@ -1185,7 +1208,7 @@ controller_poll
 	movlw	.18				; Dual shock controller
 	movwf	byte_count
 	clrf	packet_iter			; Data byte counter, for activity detect
-	
+
 	;; Set up our error handling behaviour, (disconnect on error) and begin the PSX packet
 	clrf	next_state_on_error
 	lcall	psx_begin
@@ -1201,43 +1224,39 @@ controller_poll
 	addlw	MAX_ACTUATORS_LEN
 	movwf	FSR
 
-	
 cpoll_byte_loop
 
 	movf	INDF, w				; Next actuator byte
 	movwf	cmd_byte
 	incf	FSR, f
 	
-	bcf	INTCON, GIE
+	bcf	INTCON, GIE			; TX/RX and ACK form a critical section
 	lcall	psx_xfer_tx_byte
-	
-	decfsz	byte_count, f			; Done yet?
-	goto	cpoll_check_for_ack
-	goto	cpoll_done
 
-cpoll_check_for_ack
-	lcall	psx_ack_wait			; Only check for ACK if this isn't the last byte
-	bsf	INTCON, GIE
-	btfss	STATUS, C
+	setc					; Reset error flag, in case we don't check for ACK
+	pagesel	psx_ack_wait
+	decfsz	byte_count, f			; Done yet?
+	call	psx_ack_wait			; Only check for ACK if this isn't the last byte
+	bsf	INTCON, GIE			; Exit critical section
+	btfss	STATUS, C			; Check for ACK error 
 	goto	controller_error
 
 	;; While we're here, detect button activity. If either of the first
 	;; two bytes aren't 0xFF, a button is down. If a button is down, reset
 	;; the controller's inactivity timer.
-cpoll_activity_detect
 	btfsc	packet_iter, 1			; First two bytes?
-	goto	cpoll_byte_loop			;  ... No. 
+	goto	cpoll_skip_activity_test
 	incf	packet_iter, f
 
 	incf	reply_byte, w			; Is a button down?
 	btfss	STATUS, Z
 	bsf	ACTIVITY_FLAG			; Yes. Set ACTIVITY_FLAG.
-	goto	cpoll_byte_loop			; Done with activity check.
-
-cpoll_done	
-	bsf	INTCON, GIE
-	lcall	psx_end
-	return
+	
+cpoll_skip_activity_test
+	movf	byte_count, w			; Done yet?
+	btfss	STATUS, Z
+	goto	cpoll_byte_loop
+	lgoto	psx_end
 
 	
 	;; ----------------------------------------------------
@@ -1256,7 +1275,7 @@ controller_error
 	lcall	psx_end_wait
 	fsr_slot_state
 	movf	next_state_on_error, w
-	movwf	INDF
+	movwf	INDF		
 	return
 
 
