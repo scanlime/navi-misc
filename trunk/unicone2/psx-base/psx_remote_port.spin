@@ -21,8 +21,17 @@ CON
   TX_BAUD = 19200
   RX_BAUD = 250000
 
-  ' Watchdog timeout, in milliseconds
+  ' Short watchdog timeout, in milliseconds.
+  ' If we don't receive a byte in this amount of time,
+  ' we restart at the beginning of the packet.
   WDT_TIMEOUT_MS = 5
+
+  ' Long watchdog timeout, in milliseconds.
+  ' If we don't receive a valid packet in this amount of
+  ' time, reset the entire receive buffer. This lets us
+  ' recover from transient glitches, and it lets us detect
+  ' when the remote unit disconnects.
+  LONG_WDT_TIMEOUT_MS = 100 
 
   RX_MAX_PACKET_LEN = 20
 
@@ -106,6 +115,8 @@ VAR
   long  wdt_timeout_ticks
   long  new_packet_flag
 
+  long  last_packet_timestamp
+  long  long_wdt_timeout_ticks
   byte  tx_buffer[TX_PACKET_LEN]
   byte  rx_buffers[RX_MAX_PACKET_LEN * NUM_SLOTS]
   byte  led_chars[NUM_SLOTS]
@@ -116,18 +127,14 @@ PUB start(rxpin, txpin) : okay
   '' Initializes the remote port. Starts a cog.
 
   bytefill(@tx_buffer, 0, TX_PACKET_LEN)
-    
-  ' trim_rx_packets will keep the unused portions of the buffer under control,
-  ' but we need to initialize these bytes once at startup anyway.
-  bytemove(@rx_buffers, @default_rx_data, RX_MAX_PACKET_LEN)
-  bytemove(@rx_buffers[RX_MAX_PACKET_LEN], @default_rx_data, RX_MAX_PACKET_LEN)
-
+  reset_rx_packets
   tx.start(-1, txpin, TX_BAUD)
+
+  wdt_timeout_ticks := (clkfreq / 1000) * WDT_TIMEOUT_MS
+  long_wdt_timeout_ticks := (clkfreq / 1000) * LONG_WDT_TIMEOUT_MS
   
-  ' Start RX driver
   rx_pin := rxpin
   rx_bit_ticks := clkfreq / RX_BAUD
-  wdt_timeout_ticks := (clkfreq / 1000) * WDT_TIMEOUT_MS
   rx_buffer_ptr := @rx_buffers
   new_packet_flag := 0
   okay := rx_cog := cognew(@entry, @rx_pin) + 1
@@ -204,7 +211,7 @@ PUB get_controller_flags(slot) : state_flags
   state_flags := rx_buffers[RX_MAX_PACKET_LEN * slot + 1]
 
 
-PUB is_new_packet : new
+PRI is_new_packet : new
 
   '' Return 1 if a new packet has arrived since the last call
     
@@ -264,14 +271,32 @@ PRI trim_rx_packets | slot, addr, packet_len
   ' This lets other objects use values in the receive buffer without
   ' first checking whether they're applicable to the attached controller
   ' type.
+  '
+  ' This function also implements the long watchdog timer. If we haven't
+  ' seen a new packet in LONG_WDT_TIMEOUT_MS, reset the entire receive buffer.
+
+  if is_new_packet
+    last_packet_timestamp := cnt
+
+  if (cnt - last_packet_timestamp) > long_wdt_timeout_ticks
+    reset_rx_packets
                                                                    
   addr := @rx_buffers
   repeat slot from 0 to NUM_SLOTS-1
     packet_len := get_rx_packet_len(BYTE[addr + 1]) + 2    
     bytemove(addr + packet_len, @default_rx_data + packet_len, RX_MAX_PACKET_LEN - packet_len)
     addr += RX_MAX_PACKET_LEN
-    
 
+
+PRI reset_rx_packets
+
+  ' Initialize rx_buffers with our default_rx_data. This is called once during
+  ' init, and it's called again by trim_rx_packets any time the long WDT expires.
+
+  bytemove(@rx_buffers, @default_rx_data, RX_MAX_PACKET_LEN)
+  bytemove(@rx_buffers[RX_MAX_PACKET_LEN], @default_rx_data, RX_MAX_PACKET_LEN)
+
+    
 PRI tx_packet | i, value
 
   ' Send an outgoing packet to the remote. This function must be called
