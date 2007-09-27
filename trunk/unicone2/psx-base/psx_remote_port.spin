@@ -34,6 +34,7 @@ CON
   LONG_WDT_TIMEOUT_MS = 100 
 
   RX_MAX_PACKET_LEN = 20
+  RX_HEADER_LEN = 2
 
   ' Special bytes in the TX protocol
   TX_START_OF_PACKET = $5A
@@ -199,7 +200,7 @@ PUB get_state_buffer(slot) : address
 
   '' Retrieve the address of a controller slot's raw polling results
 
-  address := @rx_buffers[RX_MAX_PACKET_LEN * slot + 2]
+  address := @rx_buffers[RX_MAX_PACKET_LEN * slot + RX_HEADER_LEN]
 
 
 PUB get_controller_flags(slot) : state_flags
