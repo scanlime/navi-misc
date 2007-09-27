@@ -37,15 +37,22 @@ OBJ
 
   Rem[NUM_REMOTES] : "psx_remote_port"
   Emu[NUM_EMULATORS] : "psx_controller_emulator"
+  Debug : "Simple_Serial"
+  Num : "Numbers"
 
 
 VAR
 
   byte  slot_mappings[NUM_TOTAL_SLOTS]
   byte  emu_cflags[NUM_EMULATORS]
+  long  debug_stack[64]
 
 
 PUB Main | remote, slot, emulator, buttons
+
+  ' Use the programming serial port for debug at runtime
+  Debug.start(31, 30, 19200)
+  cognew(debug_cog, @debug_stack)
 
   ' Start all remote connections and emulator cores
 
@@ -112,10 +119,42 @@ PUB Main | remote, slot, emulator, buttons
           Emu[emulator].set_controller_type(Emu#CONTROLLER_ANALOG)
 
 
+PRI debug_cog | remote, slot
+
+  ' This function runs continuously in a dedicated cog, and outputs debug information
+  ' including the current state of all buffers.
+
+  Num.Init
+
+  repeat
+    waitcnt(cnt + clkfreq)
+    Debug.str(string(10, 13, 10, 13))
+  
+    repeat remote from 0 to NUM_REMOTES-1
+      Debug.str(string(10, 13, "Remote "))
+      Debug.str(Num.ToStr(remote, Num#DEC))
+      Debug.str(string(":"))
+      repeat slot from 0 to Rem#NUM_SLOTS-1
+        Debug.str(string(10, 13, "  Slot "))
+        Debug.str(Num.ToStr(slot, Num#DEC))
+        Debug.str(string(":", 10, 13, "    St:"))
+        debug_hexdump_buffer(Rem[remote].get_state_buffer(slot) - Rem#RX_HEADER_LEN, Rem#RX_MAX_PACKET_LEN)
+        Debug.str(string(10, 13, "    Ac:"))
+        debug_hexdump_buffer(Rem[remote].get_actuator_buffer(slot) - Rem#TX_FF_1, Rem#TX_SLOT_LEN)
+
+
+PRI debug_hexdump_buffer(address, len) | i
+
+  ' Internal routine for debug_cog: hex dump a buffer of bytes.
+
+  repeat i from 0 to len-1
+    Debug.str(Num.ToStr(BYTE[address+i], Num#HEX3))
+      
+
 PRI poll_all_remotes | remote
 
-    repeat remote from 0 to NUM_REMOTES-1
-      Rem[remote].poll
+  repeat remote from 0 to NUM_REMOTES-1
+    Rem[remote].poll
           
 
 PRI handle_hotkey(remote, slot, btn1, btn2, btn3, btn4) | buttons, deadline, emulator, i
