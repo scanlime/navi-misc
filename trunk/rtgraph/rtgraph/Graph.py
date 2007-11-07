@@ -1,4 +1,4 @@
-import gtk, time
+import gtk, time, gobject
 
 class Graph(gtk.DrawingArea):
     """An abstract animated graph widget. Provides double-buffering,
@@ -117,7 +117,7 @@ class PolledGraph(Graph):
         if interval is None:
             self.gtkTimeout = None
         else:
-            self.gtkTimeout = gtk.timeout_add(interval, self.timerHandler)
+            self.gtkTimeout = gobject.timeout_add(interval, self.timerHandler)
 
     def timerHandler(self):
         """Called frequently to update the graph. This calculates the delta-t
