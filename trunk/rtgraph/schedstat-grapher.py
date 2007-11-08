@@ -76,7 +76,9 @@ class SchedstatParser:
                 else:
                     currentCPU = self._cpuMemo[tokens[0]] = SchedCPU(tokens[0])
 
-                currentCPU.stats = dict(zip(format['cpu'], map(int, tokens[1:])))
+                values = map(int, tokens[1:])
+                assert len(format['cpu']) == len(values)
+                currentCPU.stats = dict(zip(format['cpu'], values))
                 currentCPU.statsGeneration += 1
                 cpus.append(currentCPU)
 
@@ -89,7 +91,9 @@ class SchedstatParser:
                         tokens[0], int(tokens[1]))
                     currentCPU.domains.append(currentDomain)
 
-                currentDomain.stats = dict(zip(format['domain'], map(int, tokens[2:])))
+                values = map(int, tokens[2:])
+                assert len(format['domain']) == len(values)
+                currentDomain.stats = dict(zip(format['domain'], values))
                 currentDomain.statsGeneration += 1
 
         return cpus
@@ -124,7 +128,7 @@ class CounterChannel(rtgraph.Channel):
 
         # Logarithmic scale
         if diff > 0:
-            return math.log(diff)
+            return math.log10(diff * 10)
         else:
             return 0
 
@@ -174,7 +178,7 @@ class SchedstatViewer:
         box.pack_start(label, False)
 
         ui = rtgraph.GraphUI(obj.channels,
-                             rtgraph.HScrollLineGraph(range = (0, 20),
+                             rtgraph.HScrollLineGraph(range = (0, 10),
                                                       size = (400, 300),
                                                       pollInterval = 100,
                                                       scrollRate = 10),
