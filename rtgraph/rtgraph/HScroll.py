@@ -92,6 +92,11 @@ class HScrollGraph(PolledGraph):
 
     def integrate(self, dt):
         """Update the graph, given a time delta from the last call to this function"""
+
+        # Can't update if we aren't mapped
+        if not (self.width and self.height):
+            return
+
         # Calculate the new gridPhase and the number of freshly exposed pixels,
         # correctly accounting for subpixel gridPhase changes.
         oldGridPhase = self.gridPhase
@@ -181,6 +186,7 @@ class HScrollLineGraph(HScrollGraph):
 
         # Scale the channel value to match a range of (0,1)
         scaled = (value - self.range[0]) / (self.range[1] - self.range[0])
+        scaled = min(1.5, max(-0.5, scaled))
 
         # Calculate a current pen position, always at the right side of the graph
         penVector = (self.width-1, int((self.height-1) * (1-scaled)))

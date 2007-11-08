@@ -152,18 +152,18 @@ class AttributeControl(Control):
                     # iteration, rather than the final value after the loop exits.
                     return lambda value: self.setValueIndex(value, index)
                 w = self.addWidget(self.initialValue[index],  createUpdater(index))
-                box.pack_start(w, True, gtk.TRUE)
+                box.pack_start(w, True, True)
                 w.show()
                 self.widgets.append(w)
         else:
             # Nope, now assume it's a scalar
             w = self.addWidget(self.initialValue, self.setValue)
-            box.pack_start(w, True, gtk.TRUE)
+            box.pack_start(w, True, True)
             w.show()
             self.widgets.append(w)
 
         reset = gtk.Button("Reset")
-        box.pack_end(reset, False, gtk.FALSE)
+        box.pack_end(reset, False, False)
         reset.connect("clicked", self.reset)
         reset.show()
 
@@ -233,7 +233,7 @@ class Color(AttributeControl):
        specifying RGBA colors in the range [0,1]
        """
     def addWidget(self, initialValue, setFunction):
-        box = gtk.VBox(False, gtk.FALSE)
+        box = gtk.VBox(False, False)
         label = gtk.Label()
         label.show()
         box.pack_start(label)
