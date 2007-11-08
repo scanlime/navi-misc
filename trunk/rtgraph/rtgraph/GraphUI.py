@@ -1,4 +1,5 @@
 import gtk, gobject
+from rtgraph import HScroll
 
 class ChannelList(gtk.TreeView):
     """A list of available channels, inserted into the given graph
@@ -153,12 +154,14 @@ class GraphUI(gtk.VPaned):
                  autoColor           = True,
                  valueUpdateInterval = None,
                  visibilityDefault   = False,
+                 showTweakControls   = True
                  ):
         self.autoColor = autoColor
         self.valueUpdateInterval = valueUpdateInterval
         self.visibilityDefault = visibilityDefault
+        self.showTweakControls = showTweakControls
         if not graph:
-            graph = HScrollLineGraph()
+            graph = HScroll.HScrollLineGraph()
         self.graph = graph
         self.channels = channels
         gtk.VPaned.__init__(self)
@@ -177,7 +180,8 @@ class GraphUI(gtk.VPaned):
            of the channel list.
            """
         box = gtk.VBox(False, 5)
-        box.pack_start(self.createTweakList(), False)
+        if self.showTweakControls:
+            box.pack_start(self.createTweakList(), False)
         box.pack_start(self.createChannelList())
         box.show()
         return box

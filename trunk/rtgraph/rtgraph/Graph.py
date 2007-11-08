@@ -6,7 +6,7 @@ class Graph(gtk.DrawingArea):
        """
     def __init__(self,
                  size         = None,
-                 channels     = [],
+                 channels     = None,
                  bgColor      = None,
                  gridColor    = None,
                  ):
@@ -15,7 +15,7 @@ class Graph(gtk.DrawingArea):
             self.set_size_request(*size)
         self.bgColor = bgColor
         self.gridColor = gridColor
-        self.channels = channels
+        self.channels = channels or []
 
         # Handle configure (resize) and expose events
         self.connect("expose_event", self.gtkExposeEvent)
@@ -94,7 +94,7 @@ class PolledGraph(Graph):
     """An abstract animated graph that polls its channels for information."""
     def __init__(self,
                  size           = None,
-                 channels       = [],
+                 channels       = None,
                  pollInterval   = 10,
                  bgColor        = None,
                  gridColor      = None,
@@ -135,7 +135,7 @@ class NotifiedGraph(Graph):
     """An abstract animated graph that is notified by its channels when there is new information."""
     def __init__(self,
                  size           = None,
-                 channels       = [],
+                 channels       = None,
                  bgColor        = None,
                  gridColor      = None,
                  ):
