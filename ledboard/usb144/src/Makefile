@@ -1,4 +1,4 @@
 CFLAGS := -I../include
-LDFLAGS := -lusb -lm
+LDFLAGS := -lm
 
-all:	test
+all:	lb144driver
