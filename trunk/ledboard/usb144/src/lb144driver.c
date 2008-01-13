@@ -83,7 +83,7 @@ int hexdigit_to_int(char digit)
 int main(int argc, char **argv) {
   int fd;
   int x, y;
-  char framebuffer[DISPLAY_WIDTH * DISPLAY_HEIGHT] = { 0 };
+  char framebuffer[DISPLAY_WIDTH * DISPLAY_HEIGHT + 4] = { 0 };
 
   if (argc != 2) {
     printf("usage: %s /proc/bus/usb/<bus>/<dev>\n", argv[0]);
