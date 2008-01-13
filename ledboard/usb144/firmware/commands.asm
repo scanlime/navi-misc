@@ -23,7 +23,7 @@
 
 	errorlevel -226		; suppress gpasm's silly include file warning
 
-#include <p16C765.inc>
+#include <p16c765.inc>
 #include "usb_defs.inc"
 #include "macros.inc"
 #include "../include/ledboard_protocol.h"
@@ -40,6 +40,7 @@
 	extern	Send_0Len_pkt
 
 	extern	display_request_flip
+	extern	display_poll_flip
 	extern	display_seek
 	extern	display_seq_write_byte
 
@@ -67,7 +68,7 @@ defineRequest	macro	id,	handler
 
 CheckVendor
 	defineRequest	LEDBOARD_CTRL_RANDOM_WRITE3,	request_randomWrite3
-	defineRequest	LEDBOARD_CTRL_FLIP,		request_flip
+	defineRequest	LEDBOARD_CTRL_REQUEST_FLIP,	request_requestFlip
 	defineRequest	LEDBOARD_CTRL_SEQ_WRITE12,	request_seqWrite12
 	defineRequest	LEDBOARD_CTRL_SEQ_WRITE4,	request_seqWrite4
 	defineRequest	LEDBOARD_CTRL_RANDOM_WRITE8,	request_randomWrite8
@@ -75,6 +76,7 @@ CheckVendor
 	defineRequest	LEDBOARD_CTRL_SET_PWM_CYCLES,	request_setPwmCycles
 	defineRequest	LEDBOARD_CTRL_SET_PWM_ENTRY,	request_setPwmEntry
 	defineRequest	LEDBOARD_CTRL_GET_LED_VOLTAGE,	request_getLedVoltage
+	defineRequest	LEDBOARD_CTRL_POLL_FLIP,	request_pollFlip
 	defineRequest	LEDBOARD_CTRL_STATUS_INTENSITY,	request_statusIntensity
 
 	psgoto	wrongstate		; Not a recognized request
@@ -160,36 +162,37 @@ returnByte    macro
 ;********************************************** Request handlers
 
 	; Request a page flip at the display's next opportunity.
-	; This doesn't acknowledge right away, we wait until the flip
-	; has actually completed.
-request_flip
-	pagesel	display_request_flip
-	call	display_request_flip
-	return
+	; This acknowledges right away, even though the flip itself is asynchronous.
+request_requestFlip
+	pscall	display_request_flip
+	returnEmpty
 
+	
+	;; Get the number of asynchronous page flips that have completed
+	;; since the last time this request was issued. Returns a 1-byte packet.
+request_pollFlip
+	pscall	display_poll_flip
+	returnByte
 
+	
 	; Perform a random 3-byte write to the display, using
 	; the low byte of wValue as a column address.
 request_randomWrite3
 	banksel	BufferData
 	movf	BufferData+wValue, w
-	pagesel	display_seek
-	call	display_seek
+	pscall	display_seek
 
 	banksel	BufferData
 	movf	BufferData+(wValue+1), w
-	pagesel	display_seq_write_byte
-	call	display_seq_write_byte
+	pscall 	display_seq_write_byte
 
 	banksel	BufferData
 	movf	BufferData+wIndex, w
-	pagesel	display_seq_write_byte
-	call	display_seq_write_byte
+	pscall 	display_seq_write_byte
 
 	banksel	BufferData
 	movf	BufferData+(wIndex+1), w
-	pagesel	display_seq_write_byte
-	call	display_seq_write_byte
+	pscall 	display_seq_write_byte
 	returnEmpty
 
 
@@ -197,23 +200,19 @@ request_randomWrite3
 request_seqWrite4
 	banksel	BufferData
 	movf	BufferData+wValue, w
-	pagesel	display_seq_write_byte
-	call	display_seq_write_byte
+	pscall 	display_seq_write_byte
 
 	banksel	BufferData
 	movf	BufferData+(wValue+1), w
-	pagesel	display_seq_write_byte
-	call	display_seq_write_byte
+	pscall 	display_seq_write_byte
 
 	banksel	BufferData
 	movf	BufferData+wIndex, w
-	pagesel	display_seq_write_byte
-	call	display_seq_write_byte
+	pscall 	display_seq_write_byte
 
 	banksel	BufferData
 	movf	BufferData+(wIndex+1), w
-	pagesel	display_seq_write_byte
-	call	display_seq_write_byte
+	pscall 	display_seq_write_byte
 	returnEmpty
 
 
@@ -221,8 +220,7 @@ request_seqWrite4
 request_randomWrite8
 	banksel	BufferData
 	movf	BufferData+wValue, w
-	pagesel	display_seek
-	call	display_seek
+	pscall 	display_seek
 
 	; Don't acknowledge yet, wait for some data on EP0 OUT
 	movlw	EP0_WRITE_BACKBUFFER
@@ -236,23 +234,19 @@ request_randomWrite8
 request_seqWrite12
 	banksel	BufferData
 	movf	BufferData+wValue, w
-	pagesel	display_seq_write_byte
-	call	display_seq_write_byte
+	pscall 	display_seq_write_byte
 
 	banksel	BufferData
 	movf	BufferData+(wValue+1), w
-	pagesel	display_seq_write_byte
-	call	display_seq_write_byte
+	pscall 	display_seq_write_byte
 
 	banksel	BufferData
 	movf	BufferData+wIndex, w
-	pagesel	display_seq_write_byte
-	call	display_seq_write_byte
+	pscall 	display_seq_write_byte
 
 	banksel	BufferData
 	movf	BufferData+(wIndex+1), w
-	pagesel	display_seq_write_byte
-	call	display_seq_write_byte
+	pscall 	display_seq_write_byte
 
 	; Don't acknowledge yet, wait for some data on EP0 OUT
 	movlw	EP0_WRITE_BACKBUFFER

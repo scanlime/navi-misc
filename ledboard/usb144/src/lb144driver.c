@@ -19,18 +19,28 @@
 #include <ledboard_protocol.h>
 
 #define MAX_ASYNC_TRANSFERS  32
-#define PAGE_FLIP_DELAY_US   10000
 #define DISPLAY_WIDTH        16
 #define DISPLAY_HEIGHT       9
 
 #define FALSE  0
 #define TRUE   1
 
-void control_write(int fd, int request, int value, int index, int sync)
+void control_write(int fd, int request, int value, int index)
 {
   static int pending_urb_count = 0;
   struct usbdevfs_urb *urb;
   struct usbdevfs_ctrltransfer *setup;
+
+  while (pending_urb_count > MAX_ASYNC_TRANSFERS) {
+      if (ioctl(fd, USBDEVFS_REAPURB, &urb) < 0) {
+	perror("reap_urb");
+	exit(1);
+      }
+
+      free(urb->buffer);
+      free(urb);
+      pending_urb_count--;
+  }
 
   urb = calloc(sizeof *urb, 1);
   setup = calloc(sizeof *setup, 1);
@@ -51,19 +61,27 @@ void control_write(int fd, int request, int value, int index, int sync)
     perror("submit_urb");
     exit(1);
   }
+}
 
-  while ((sync && pending_urb_count > 0) ||
-	 pending_urb_count > MAX_ASYNC_TRANSFERS) {
+unsigned char control_read_byte(int fd, int request, int value, int index)
+{
+  struct usbdevfs_ctrltransfer xfer;
+  unsigned char result;
 
-      if (ioctl(fd, USBDEVFS_REAPURB, &urb) < 0) {
-	perror("reap_urb");
-	exit(1);
-      }
+  xfer.bRequestType = 0x40 + 0x80;
+  xfer.bRequest = request;
+  xfer.wValue = value;
+  xfer.wIndex = index;
+  xfer.wLength = sizeof result;
+  xfer.timeout = 500;
+  xfer.data = &result;
 
-      free(urb->buffer);
-      free(urb);
-      pending_urb_count--;
+  if (ioctl(fd, USBDEVFS_CONTROL, &xfer) < 0) {
+    perror("control_read_byte");
+    exit(1);
   }
+
+  return result;
 }
 
 int hexdigit_to_int(char digit)
@@ -96,14 +114,14 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  control_write(fd, LEDBOARD_CTRL_STATUS_INTENSITY, 0x1000, 0, FALSE);
-  control_write(fd, LEDBOARD_CTRL_SET_PWM_CYCLES, 20, 0, FALSE);
+  control_write(fd, LEDBOARD_CTRL_STATUS_INTENSITY, 0x1000, 0);
+  control_write(fd, LEDBOARD_CTRL_SET_PWM_CYCLES, 20, 0);
 
   /*
    * This number is extremely sensitive and magical. Setting it
    * too low will crash the microcontroller!
    */
-  control_write(fd, LEDBOARD_CTRL_SET_SCAN_RATE, 0xFE00, 0, FALSE);
+  control_write(fd, LEDBOARD_CTRL_SET_SCAN_RATE, 0xFE00, 0);
 
   /*
    * Set up some really basic gamma correction using the
@@ -112,8 +130,7 @@ int main(int argc, char **argv) {
    */
   for (x=0; x<16; x++) {
     int pwmValue = pow(x/15.0, 1.1) * 20;
-    control_write(fd, LEDBOARD_CTRL_SET_PWM_ENTRY,
-		  pwmValue, x, FALSE);
+    control_write(fd, LEDBOARD_CTRL_SET_PWM_ENTRY, pwmValue, x);
   }
 
   while (1) {
@@ -136,22 +153,17 @@ int main(int argc, char **argv) {
 		      (hexdigit_to_int(line[x + 4]) << 4) |
 		      (hexdigit_to_int(line[x + 5]) << 0) |
 		      (hexdigit_to_int(line[x + 6]) << 12) |
-		      (hexdigit_to_int(line[x + 7]) << 8),
-		      FALSE);
+		      (hexdigit_to_int(line[x + 7]) << 8));
       }
 
-    /*
-     * Work around another microcontroller bug: Any USB traffic
-     * during the page flip itself will cause flickering on the
-     * display. We have to request the flip synchronously,
-     * then sleep a bit to ensure the microcontroller has time
-     * to complete the flip.
-     */
-    control_write(fd, LEDBOARD_CTRL_FLIP, 0, 0, TRUE);
-    usleep(PAGE_FLIP_DELAY_US);
+    /* Request an asynchronous page flip */
+    control_write(fd, LEDBOARD_CTRL_REQUEST_FLIP, 0, 0);
 
     /* Read the next frame */
     fgets(framebuffer, sizeof framebuffer, stdin);
+
+    /* Make sure the previous frame's page flip has completed. */
+    while (!control_read_byte(fd, LEDBOARD_CTRL_POLL_FLIP, 0, 0));
   }
 
   return 0;

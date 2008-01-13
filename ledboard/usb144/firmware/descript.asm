@@ -39,7 +39,7 @@
 
 	errorlevel -226		; suppress gpasm's silly include file warning
 
-#include <p16C765.inc>
+#include <p16c765.inc>
 #include "usb_defs.inc"
 #include "../include/ledboard_protocol.h"
 
