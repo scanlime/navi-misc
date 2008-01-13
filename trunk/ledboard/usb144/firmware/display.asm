@@ -23,7 +23,7 @@
 
 	errorlevel -226		; suppress gpasm's silly include file warning
 
-#include <p16C765.inc>
+#include <p16c765.inc>
 #include "macros.inc"
 #include "../include/ledboard_protocol.h"
 
@@ -33,6 +33,7 @@
 	global	display_poll
 	global	display_init
 	global	display_request_flip
+	global	display_poll_flip
 	global	display_seq_write_byte
 	global	display_seek
 
@@ -44,7 +45,6 @@
 
 	extern	temp
 	extern	temp2
-	extern	Send_0Len_pkt
 
 	;; Hardware definitions
 	#define ROW_DRIVE_0	TRISA, 1
@@ -85,6 +85,8 @@ front_status	 res	1	; STATUS pointing to the current front buffer
 back_fsr	 res	1	; FSR pointing to the current back buffer
 back_status	 res	1	; STATUS pointing to the current back buffer
 
+flip_counter	res	1	; Count number of page flips for display_poll_flip
+	
 #define FLAG_FLIP_REQUEST	display_flags, 0
 
 bank1	udata
@@ -103,6 +105,8 @@ prog3	code
 display_init
 	fpset	scan_state, scanner_thread
 
+	clrf	flip_counter
+	
 	;; Clear all video buffers
 	bzero	vram_buffer_1, LEDBOARD_VRAM_SIZE
 	bzero	vram_buffer_2, LEDBOARD_VRAM_SIZE
@@ -152,15 +156,24 @@ display_poll
 	fpgoto	scan_state	; Jump to our scanner thread
 
 
-	; Request a page flip at our next opportunity
+	;; Request an asynchronous page flip. Has the side effect of resetting
+	;; the write pointer.
 display_request_flip
 	bsf	FLAG_FLIP_REQUEST
 	banksel	write_pointer			; Reset the write_pointer
 	clrf	write_pointer
 	return
 
+	
+	;; Return in 'w' the number of page flips that have completed successfully
+	;; since the last call to this function.
+display_poll_flip
+	movf	flip_counter, w
+	clrf	flip_counter
+	return
 
-	; Set our write pointer to the given column number, form 'w'.
+
+	;; Set our write pointer to the given column number, form 'w'.
 display_seek
 	banksel	write_pointer
 	movwf	write_pointer
@@ -314,12 +327,13 @@ pwm_row_done
 
 
 	;; Page flip handler. This swaps the front and back
-	;; pointers, and acknowledges the host's page flip request.
+	;; pointers, and increments the flip counter.
 page_flip
 	bcf	FLAG_FLIP_REQUEST
 	swapff	front_fsr, back_fsr
 	swapff	front_status, back_status
-	psgoto	Send_0Len_pkt
+	incf	flip_counter, f
+	return
 
 
 	;; This is a cooperatively-multitasked thread that scans through the LED matrix.

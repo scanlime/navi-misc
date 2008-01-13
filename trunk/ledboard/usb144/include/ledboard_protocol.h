@@ -35,7 +35,10 @@
 #define LEDBOARD_CTRL_RANDOM_WRITE3	0x01
 
 ;// Request a back->front page flip immediately preceeding the next display scan.
-#define LEDBOARD_CTRL_FLIP              0x02
+;// This command returns immediately, even though the flip is asynchronous. The caller
+;// Should not send any further display writes until LEDBOARD_CTRL_POLL_FLIP returns
+;// a nonzero byte.
+#define LEDBOARD_CTRL_REQUEST_FLIP      0x02
 
 ;// Starting at the current write pointer (reset on page flip) write the given
 ;// 12 bytes of data to the backbuffer, incrementing the write pointer as necessary.
@@ -73,6 +76,10 @@
 
 ;// Return a 1-byte packet with the LED supply voltage. 0=0V, 255=10V
 #define LEDBOARD_CTRL_GET_LED_VOLTAGE   0x0A
+
+;// Return a 1-byte packet with the number of display flips that have completed
+;// since the last time this request was issued.
+#define LEDBOARD_CTRL_POLL_FLIP         0x0B
 
 ;// Set the intensity of our status LED. wValue=0 is off, wValue=0xFFFF is
 ;// full brightness. The low 6 bits are ignored.
