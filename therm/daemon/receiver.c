@@ -273,15 +273,6 @@ struct rx_packet* receiver_read(int fd, int timeout)
   if (packet->signal_strength.numerator < 0)
     packet->signal_strength.numerator = 0;
 
-
-  printf("Got packet!\n");
-  {
-    int i;
-    for (i=0; i<packet->buffer_bytes; i++)
-      printf(" %02x", packet->buffer[i]);
-    printf("\n");
-  }
-
   return packet;
 }
 
