@@ -1,7 +1,7 @@
 BINS = therm-daemon therm-rx.bin
 
 CFLAGS := -Iinclude -I/usr/include/mysql -g
-LDFLAGS := -lusb -lmysqlclient
+LDFLAGS := -lmysqlclient
 
 DAEMON_OBJS = \
 	daemon/main.o \

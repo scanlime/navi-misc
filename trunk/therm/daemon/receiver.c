@@ -23,7 +23,12 @@
 #include <stdio.h>
 #include <therm-rx-protocol.h>
 #include <string.h>
+#include <malloc.h>
 #include <assert.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <linux/usbdevice_fs.h>
 #include "therm-daemon.h"
 
 #define FIRMWARE_FILENAME     "therm-rx.bin"
@@ -32,7 +37,7 @@
 #define FIRMWARE_HEADER_SIZE  3
 
 
-static void receiver_download_firmware(usb_dev_handle* self);
+static void receiver_download_firmware(int fd);
 
 
 void  packet_free(struct rx_packet* self)
@@ -159,49 +164,83 @@ int packet_read_signed_int(struct rx_packet* self, int width)
   return i;
 }
 
-usb_dev_handle* receiver_open(usb_dev_handle* self)
+int usb_device_open(int bus, int dev)
 {
-  struct usb_bus *busses;
-  struct usb_bus *bus;
-  struct usb_device *dev;
-  static int usb_has_initialized = 0;
+  char filename[256];
+  int fd;
 
-  /* Find the device */
-  if (!usb_has_initialized) {
-    usb_init();
-    usb_has_initialized = 1;
+  sprintf(filename, "/proc/bus/usb/%03d/%03d", bus, dev);
+  fd = open(filename, O_RDWR);
+  if (fd < 0) {
+    perror("open");
+    return -1;
   }
-  usb_find_busses();
-  usb_find_devices();
-  busses = usb_get_busses();
 
-  for (bus=busses; bus; bus=bus->next) {
-    for (dev=bus->devices; dev; dev=dev->next) {
-
-      if (dev->descriptor.idVendor == THERMRX_VENDOR_ID &&
-	  dev->descriptor.idProduct == THERMRX_PRODUCT_ID) {
-	return usb_open(dev);
-      }
-
-      if (dev->descriptor.idVendor == THERMRX_VENDOR_ID &&
-	  dev->descriptor.idProduct == THERMRX_BOOT_PRODUCT_ID) {
-	usb_dev_handle* devh = usb_open(dev);
-	receiver_download_firmware(devh);
-	usb_close(devh);
-      }
-    }
-  }
-  return NULL;
+  return fd;
 }
 
-struct rx_packet* receiver_read(usb_dev_handle* self, int timeout)
+int receiver_open()
 {
+  const char *deviceFileName = "/proc/bus/usb/devices";
+  char line[1024];
+  FILE *devices;
+  int devId = 0, busId = 0, vid = 0, pid = 0;
+  
+  /*
+   * Open the usbfs device list, and scan
+   * for either the programmed or unprogrammed
+   * version of our hardware.
+   */
+
+  devices = fopen(deviceFileName, "r");
+  if (!devices) {
+    perror(deviceFileName);
+    return -1;
+  }
+
+  while (fgets(line, sizeof line - 1, devices)) {
+    line[sizeof line - 1] = '\0';
+
+    switch (line[0]) {
+
+    case 'T':
+      sscanf(line, "T: Bus=%d Lev=%*d Prnt=%*d Port=%*d Cnt=%*d Dev#= %d Spd=%*d MxCh= %*d", &busId, &devId);
+      break;
+
+    case 'P':
+      sscanf(line, "P: Vendor=%04x ProdID=%04x Rev= %*d.%*d", &vid, &pid);
+
+      if (vid == THERMRX_VENDOR_ID && pid == THERMRX_PRODUCT_ID) {
+	return usb_device_open(busId, devId);
+      }
+
+      if (vid == THERMRX_VENDOR_ID && pid == THERMRX_BOOT_PRODUCT_ID) {
+	int fd = usb_device_open(busId, devId);
+	receiver_download_firmware(fd);
+	close(fd);
+      }
+
+      break;
+
+    }
+  }
+
+  return -1;
+}
+
+struct rx_packet* receiver_read(int fd, int timeout)
+{
+  struct usbdevfs_bulktransfer xfer;
   unsigned char buffer[THERMRX_BUFFER_SIZE];
   int noise, total, retval;
   struct rx_packet *packet;
 
-  retval = usb_bulk_read(self, THERMRX_PACKET_ENDPOINT, (void*) buffer,
-			 sizeof(buffer), timeout);
+  xfer.ep = THERMRX_PACKET_ENDPOINT;
+  xfer.len = sizeof buffer;
+  xfer.timeout = timeout;
+  xfer.data = buffer;
+
+  retval = ioctl(fd, USBDEVFS_BULK, &xfer);
   if (retval <= 6)
     return NULL;
 
@@ -234,16 +273,33 @@ struct rx_packet* receiver_read(usb_dev_handle* self, int timeout)
   if (packet->signal_strength.numerator < 0)
     packet->signal_strength.numerator = 0;
 
+
+  printf("Got packet!\n");
+  {
+    int i;
+    for (i=0; i<packet->buffer_bytes; i++)
+      printf(" %02x", packet->buffer[i]);
+    printf("\n");
+  }
+
   return packet;
 }
 
-int receiver_get_local_temp(usb_dev_handle* self, int *temperature)
+int receiver_get_local_temp(int fd, int *temperature)
 {
   unsigned char b;
+  struct usbdevfs_ctrltransfer xfer;
   int temp;
 
-  if (usb_control_msg(self, USB_TYPE_VENDOR | 0x80, THERMRX_REQ_LOCAL_TEMP,
-		      0, 0, (void*) &b, 1, 100) < 0) {
+  xfer.bRequestType = 0xC0;
+  xfer.bRequest = THERMRX_REQ_LOCAL_TEMP;
+  xfer.wValue = 0;
+  xfer.wIndex = 0;
+  xfer.wLength = sizeof b;
+  xfer.timeout = 100;
+  xfer.data = &b;
+
+  if (ioctl(fd, USBDEVFS_CONTROL, &xfer) < 0) {
     perror("usb_control_msg");
     return -1;
   }
@@ -267,7 +323,7 @@ static int arith_checksum_8bit(const unsigned char* buffer, int length)
   return sum;
 }
 
-static int send_bulk_ep_buffer(usb_dev_handle* self, int endpoint,
+static int send_bulk_ep_buffer(int fd, int endpoint,
 			       unsigned char* buffer, int length)
 {
   /* Send a large block of data to the given USB bulk endpoint, in small blocks.
@@ -282,11 +338,17 @@ static int send_bulk_ep_buffer(usb_dev_handle* self, int endpoint,
   while (remaining > 0) {
     int packet_size = remaining;
     int retval;
+    struct usbdevfs_bulktransfer xfer;
 
     if (packet_size > block_size)
       packet_size = block_size;
 
-    retval = usb_bulk_write(self, endpoint, (void*) current, packet_size, 200);
+    xfer.ep = endpoint;
+    xfer.len = packet_size;
+    xfer.timeout = 200;
+    xfer.data = current;
+
+    retval = ioctl(fd, USBDEVFS_BULK, &xfer);
     if (retval <= 0)
       return retval;
 
@@ -297,7 +359,7 @@ static int send_bulk_ep_buffer(usb_dev_handle* self, int endpoint,
   return bytes_uploaded;
 }
 
-static void receiver_download_firmware(usb_dev_handle* self)
+static void receiver_download_firmware(int fd)
 {
   int bytes_uploaded;
   int firmware_size;
@@ -336,7 +398,7 @@ static void receiver_download_firmware(usb_dev_handle* self)
   fw_buffer[1] = firmware_size >> 8;
   fw_buffer[2] = arith_checksum_8bit(fw_buffer + FIRMWARE_HEADER_SIZE, firmware_size);
 
-  bytes_uploaded = send_bulk_ep_buffer(self, THERMRX_BOOT_ENDPOINT,
+  bytes_uploaded = send_bulk_ep_buffer(fd, THERMRX_BOOT_ENDPOINT,
 				       fw_buffer, FIRMWARE_HEADER_SIZE + firmware_size);
   if (bytes_uploaded < 0) {
     printf("Error writing firmware\n");

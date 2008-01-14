@@ -22,7 +22,6 @@
  *
  */
 
-#include <usb.h>
 #include <mysql.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -39,7 +38,7 @@ void   average_local_temperature (MYSQL* mysql, int temperature);
 
 
 int main(int argc, char **argv) {
-  usb_dev_handle *rx;
+  int fd;
   struct rx_packet* packet;
   MYSQL mysql;
   int t;
@@ -60,15 +59,15 @@ int main(int argc, char **argv) {
   /* Loop between connecting and reading... */
   while (1) {
 
-    rx = receiver_open();
-    if (rx)
+    fd = receiver_open();
+    if (fd >= 0)
       printf("Connected to base station.\n");
     else
       printf("Can't open device. Trying again...\n");
 
     /* Do something useful as long as we have a connection */
-    while (rx) {
-      packet = receiver_read(rx, LOCAL_MS_PER_SAMPLE);
+    while (fd >= 0) {
+      packet = receiver_read(fd, LOCAL_MS_PER_SAMPLE);
       if (packet) {
 	/* We have a packet from the radio. Decode it and
 	 * store it somewhere if we can
@@ -82,15 +81,15 @@ int main(int argc, char **argv) {
 	/* Timed out waiting for a packet. Take this opportunity
 	 * to sample the local temperature
 	 */
-	if (receiver_get_local_temp(rx, &t) >= 0) {
+	if (receiver_get_local_temp(fd, &t) >= 0) {
 	  db_begin_transaction(&mysql);
 	  average_local_temperature(&mysql, t);
 	  db_commit_transaction(&mysql);
 	}
 	else {
 	  /* This shouldn't fail- reconnect, there could be something up with our device. */
-	  usb_close(rx);
-	  rx = NULL;
+	  close(fd);
+	  fd = -1;
 	}
       }
     }
