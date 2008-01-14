@@ -28,7 +28,7 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
-#include <linux/usbdevice_fs.h>
+#include "usbdevice_fs.h"
 #include "therm-daemon.h"
 
 #define FIRMWARE_FILENAME     "therm-rx.bin"
