@@ -1,12 +1,10 @@
 BINS = therm-daemon therm-rx.bin
 
-CFLAGS := -Iinclude -I/usr/include/mysql -g
-LDFLAGS := -lmysqlclient
+CFLAGS := -Iinclude
 
 DAEMON_OBJS = \
 	daemon/main.o \
-	daemon/receiver.o \
-	daemon/database.o
+	daemon/receiver.o
 
 TUSB_DIR = receiver/tusb
 

@@ -241,7 +241,7 @@ struct rx_packet* receiver_read(int fd, int timeout)
   xfer.data = buffer;
 
   retval = ioctl(fd, USBDEVFS_BULK, &xfer);
-  if (retval <= 6)
+  if (retval <= 0)
     return NULL;
 
   /* Allocate the new packet */
@@ -266,12 +266,9 @@ struct rx_packet* receiver_read(int fd, int timeout)
    * is scaled so an average of 4 sub-bit errors per bit brings the
    * signal to 0.
    */
-  packet->signal_strength.numerator = noise;
-  packet->signal_strength.denominator = total * 4;
-  packet->signal_strength.numerator =
-    packet->signal_strength.denominator - packet->signal_strength.numerator;
-  if (packet->signal_strength.numerator < 0)
-    packet->signal_strength.numerator = 0;
+  packet->signal_strength = (total * 4 - noise) / (total * 4.0f);
+  if (packet->signal_strength < 0)
+    packet->signal_strength = 0;
 
   return packet;
 }
@@ -361,7 +358,7 @@ static void receiver_download_firmware(int fd)
 
   fw_file = fopen(FIRMWARE_FILENAME, "rb");
   if (!fw_file) {
-    printf("Error opening firmware file, can't program device!\n");
+    fprintf(stderr, "Error opening firmware file, can't program device!\n");
     return;
   }
 
@@ -370,12 +367,12 @@ static void receiver_download_firmware(int fd)
    */
   firmware_size = fread(fw_buffer + FIRMWARE_HEADER_SIZE, 1, CODESPACE_SIZE+1, fw_file);
   if (firmware_size <= 0) {
-    printf("Error reading firmware file, can't program device!\n");
+    fprintf(stderr, "Error reading firmware file, can't program device!\n");
     fclose(fw_file);
     return;
   }
   if (firmware_size > CODESPACE_SIZE) {
-    printf("Firmware too large!\n");
+    fprintf(stderr, "Firmware too large!\n");
     fclose(fw_file);
     return;
   }
@@ -392,11 +389,11 @@ static void receiver_download_firmware(int fd)
   bytes_uploaded = send_bulk_ep_buffer(fd, THERMRX_BOOT_ENDPOINT,
 				       fw_buffer, FIRMWARE_HEADER_SIZE + firmware_size);
   if (bytes_uploaded < 0) {
-    printf("Error writing firmware\n");
+    fprintf(stderr, "Error writing firmware\n");
     return;
   }
 
-  printf("Firmware uploaded, device should reattach\n");
+  fprintf(stderr, "Firmware uploaded, device should reattach\n");
 }
 
 /* The End */

@@ -24,17 +24,11 @@
 #define __THERM_DAEMON_H
 
 #include <stdarg.h>
-#include <mysql.h>
-
-struct fraction {
-  int numerator;
-  int denominator;
-};
 
 struct rx_packet {
   int                buffer_bytes;
   int                buffer_bits;
-  struct fraction    signal_strength;
+  float              signal_strength;
   unsigned char*     buffer;
   int                current_bit;
 };
@@ -53,6 +47,7 @@ int               packet_read_int (struct rx_packet* self,
 int               packet_read_signed_int (struct rx_packet* self,
 					  int               width);
 
+
 /* If the receiver device can be successfully opened, returns its file descriptor.
  * Otherwise this returns -1. If it finds any devices without firmware,
  * it will download it to them and return -1.
@@ -69,35 +64,6 @@ int               receiver_get_local_temp (int fd, int *temperature);
 
 char*  strdup_vprintf            (const char* format, va_list ap);
 char*  strdup_printf             (const char* format, ...);
-
-char*  db_strdup_escape          (MYSQL*                mysql,
-				  const char*           string);
-int    db_query_printf           (MYSQL*                mysql,
-				  const char*           format,
-				  ...);
-
-void   db_begin_transaction      (MYSQL*                mysql);
-void   db_commit_transaction     (MYSQL*                mysql);
-
-int    db_find_source            (MYSQL*                mysql,
-				  const char*           medium,
-				  int                   protocol,
-				  int                   station_id);
-int    db_packet_new             (MYSQL*                mysql,
-				  int                   source_id);
-int    db_packet_new_full        (MYSQL*                mysql,
-				  int                   source_id,
-				  int                   sequence,
-                                  struct fraction*      strength);
-void   db_packet_mark_duplicate  (MYSQL*                mysql,
-				  int                   packet_id);
-void   db_packet_add_batt_volts  (MYSQL*                mysql,
-				  int                   packet_id,
-				  struct fraction*      volts);
-void   db_packet_add_temperature (MYSQL*                mysql,
-				  int                   packet_id,
-				  struct fraction*      average,
-				  int                   num_samples);
 
 #endif /* __THERM_DAEMON_H */
 
