@@ -23,7 +23,6 @@
 #ifndef __THERM_DAEMON_H
 #define __THERM_DAEMON_H
 
-#include <usb.h>
 #include <stdarg.h>
 #include <mysql.h>
 
@@ -54,19 +53,19 @@ int               packet_read_int (struct rx_packet* self,
 int               packet_read_signed_int (struct rx_packet* self,
 					  int               width);
 
-/* If the receiver device can be successfully opened, returns it.
- * Otherwise this returns NULL. If it finds any devices without firmware,
- * it will download it to them and return NULL.
+/* If the receiver device can be successfully opened, returns its file descriptor.
+ * Otherwise this returns -1. If it finds any devices without firmware,
+ * it will download it to them and return -1.
  */
-usb_dev_handle*   receiver_open           ();
+int    receiver_open             ();
 
 /* Start receiving a packet, giving up after the specified timeout
  * in milliseconds. Returns NULL if no packet was received.
  */
-struct rx_packet* receiver_read           (usb_dev_handle* self, int timeout);
+struct rx_packet* receiver_read           (int fd, int timeout);
 
 /* Get the local temperature at the receiver. Returns 0 on success, -1 on failure */
-int               receiver_get_local_temp (usb_dev_handle* self, int *temperature);
+int               receiver_get_local_temp (int fd, int *temperature);
 
 char*  strdup_vprintf            (const char* format, va_list ap);
 char*  strdup_printf             (const char* format, ...);
