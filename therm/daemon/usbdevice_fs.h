@@ -32,7 +32,6 @@
 #define _LINUX_USBDEVICE_FS_H
 
 #include <linux/types.h>
-#include <linux/magic.h>
 
 /* --------------------------------------------------------------------- */
 
