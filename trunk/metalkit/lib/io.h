@@ -1,6 +1,10 @@
 /* -*- Mode: C; c-basic-offset: 3 -*-
  *
- * vgatext.h - Simple VGA text mode driver
+ * io.h - Simple IA32 I/O macros
+ *
+ * This file is part of Metalkit, a simple collection of modules for
+ * writing software that runs on the bare metal. Get the latest code
+ * at http://svn.navi.cx/misc/trunk/metalkit/
  *
  * Copyright (c) 2008 Micah Dowty
  * 
@@ -26,38 +30,51 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __VGA_TEXT_H__
-#define __VGA_TEXT_H__
+#ifndef __IO_H__
+#define __IO_H__
 
 #include "types.h"
 
-#define VGA_COLOR_BLACK          0
-#define VGA_COLOR_BLUE           1
-#define VGA_COLOR_GREEN          2
-#define VGA_COLOR_CYAN           3
-#define VGA_COLOR_RED            4
-#define VGA_COLOR_MAGENTA        5
-#define VGA_COLOR_BROWN          6
-#define VGA_COLOR_LIGHT_GRAY     7
-#define VGA_COLOR_DARK_GRAY      8
-#define VGA_COLOR_LIGHT_BLUE     9
-#define VGA_COLOR_LIGHT_GREEN    10
-#define VGA_COLOR_LIGHT_CYAN     11
-#define VGA_COLOR_LIGHT_RED      12
-#define VGA_COLOR_LIGHT_MAGENTA  13
-#define VGA_COLOR_YELLOW         14
-#define VGA_COLOR_WHITE          15
+static __inline__ void
+IO_Out8(uint16 port, uint8 value)
+{
+   __asm__ __volatile__ ("outb %0, %1" : :"a" (value), "d" (port));
+}
 
-#define VGA_TEXT_WIDTH           80
-#define VGA_TEXT_HEIGHT          25
+static __inline__ void
+IO_Out16(uint16 port, uint16 value)
+{
+   __asm__ __volatile__ ("outw %0, %1" : :"a" (value), "d" (port));
+}
 
-void VGAText_Init(void);
-void VGAText_Clear(int8 fgColor, int8 bgColor);
-void VGAText_SetColor(int8 fgColor);
-void VGAText_SetBgColor(int8 bgColor);
-void VGAText_MoveTo(int x, int y);
-void VGAText_WriteChar(char c);
-void VGAText_WriteString(char *str);
-void VGAText_WriteHex(int num, int digits);
+static __inline__ void
+IO_Out32(uint16 port, uint32 value)
+{
+   __asm__ __volatile__ ("outl %0, %1" : :"a" (value), "d" (port));
+}
 
-#endif /* __VGA_TEXT_H__ */
+static __inline__ uint8
+IO_In8(uint16 port)
+{
+   uint8 value;
+   __asm__ __volatile__ ("inb %1, %0" :"=a" (value) :"d" (port));
+   return value;
+}
+
+static __inline__ uint16
+IO_In16(uint16 port)
+{
+   uint16 value;
+   __asm__ __volatile__ ("inw %1, %0" :"=a" (value) :"d" (port));
+   return value;
+}
+
+static __inline__ uint32
+IO_In32(uint16 port)
+{
+   uint32 value;
+   __asm__ __volatile__ ("inl %1, %0" :"=a" (value) :"d" (port));
+   return value;
+}
+
+#endif /* __IO_H__ */

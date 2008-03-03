@@ -1,6 +1,11 @@
 /* -*- Mode: C; c-basic-offset: 3 -*-
  *
- * io.h - Simple IA32 I/O macros
+ * keyboard.c - Simple PC keyboard driver. Translates scancodes
+ *              to a superset of ASCII.
+ *
+ * This file is part of Metalkit, a simple collection of modules for
+ * writing software that runs on the bare metal. Get the latest code
+ * at http://svn.navi.cx/misc/trunk/metalkit/
  *
  * Copyright (c) 2008 Micah Dowty
  * 
@@ -26,51 +31,31 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __IO_H__
-#define __IO_H__
+#include "keyboard.h"
+#include "io.h"
 
-#include "types.h"
+/*
+ * Keyboard_Init --
+ *
+ *    Set up the keyboard driver. This installs our default
+ *    IRQ handler, and initializes the key table. The IRQ
+ *    module must be initialized before this is called.
+ */
 
-static __inline__ void
-IO_Out8(uint16 port, uint8 value)
+void
+Keyboard_Init(void)
 {
-   __asm__ __volatile__ ("outb %0, %1" : :"a" (value), "d" (port));
 }
 
-static __inline__ void
-IO_Out16(uint16 port, uint16 value)
+
+Bool
+Keyboard_IsKeyPressed(Keycode k)
 {
-   __asm__ __volatile__ ("outw %0, %1" : :"a" (value), "d" (port));
 }
 
-static __inline__ void
-IO_Out32(uint16 port, uint32 value)
+void
+Keyboard_SetHandler(KeyboardIRQHandler handler)
 {
-   __asm__ __volatile__ ("outl %0, %1" : :"a" (value), "d" (port));
 }
 
-static __inline__ uint8
-IO_In8(uint16 port)
-{
-   uint8 value;
-   __asm__ __volatile__ ("inb %1, %0" :"=a" (value) :"d" (port));
-   return value;
-}
-
-static __inline__ uint16
-IO_In16(uint16 port)
-{
-   uint16 value;
-   __asm__ __volatile__ ("inw %1, %0" :"=a" (value) :"d" (port));
-   return value;
-}
-
-static __inline__ uint32
-IO_In32(uint16 port)
-{
-   uint32 value;
-   __asm__ __volatile__ ("inl %1, %0" :"=a" (value) :"d" (port));
-   return value;
-}
-
-#endif /* __IO_H__ */
+#endif /* __VGA_TEXT_H__ */
