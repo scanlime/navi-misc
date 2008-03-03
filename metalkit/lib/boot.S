@@ -1,36 +1,40 @@
-	/*
-	 * boot.S -- Simple IA32 floppy/multiboot protected mode loader.
-	 *           This is a tiny bootloader that can be used as either a
-	 *           BIOS MBR (use the resulting binary as a raw floppy
-	 *           disk image) or a GNU Multiboot image (for GRUB).
-	 *
-	 *           The image is loaded contiguously into memory, we
-	 *           switch to protected mode with identity-mapped code
-	 *           and data segments, then we call main().
-	 *
-	 * Copyright (c) 2008 Micah Dowty
-	 * 
-	 * Permission is hereby granted, free of charge, to any person
-	 * obtaining a copy of this software and associated documentation
-	 * files (the "Software"), to deal in the Software without
-	 * restriction, including without limitation the rights to use,
-	 * copy, modify, merge, publish, distribute, sublicense, and/or sell
-	 * copies of the Software, and to permit persons to whom the
-	 * Software is furnished to do so, subject to the following
-	 * conditions:
-	 * 
-	 * The above copyright notice and this permission notice shall be
-	 * included in all copies or substantial portions of the Software.
-	 * 
-	 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-	 * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-	 * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-	 * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-	 * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-	 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-	 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-	 * OTHER DEALINGS IN THE SOFTWARE.
-	 */
+/*
+ * boot.S -- Simple IA32 floppy/multiboot protected mode loader.
+ *           This is a tiny bootloader that can be used as either a
+ *           BIOS MBR (use the resulting binary as a raw floppy
+ *           disk image) or a GNU Multiboot image (for GRUB).
+ *
+ *           The image is loaded contiguously into memory, we
+ *           switch to protected mode with identity-mapped code
+ *           and data segments, then we call main().
+ *
+ * This file is part of Metalkit, a simple collection of modules for
+ * writing software that runs on the bare metal. Get the latest code
+ * at http://svn.navi.cx/misc/trunk/metalkit/
+ *
+ * Copyright (c) 2008 Micah Dowty
+ * 
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ * 
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ */
 	
 	/*
 	 * This begins our 16-bit DOS MBR boot sector segment. This sits in
@@ -104,7 +108,6 @@ end_segment:
 hello_str:		.string "\n\rHello, Computer. (>\")>\n\n\rLoading disk image..."
 done_loading_str:	.string "\n\rDone.\n\r"
 disk_error_str:		.string "\n\n\rDisk error!"
-pci_error_str:		.string "\n\n\rNo PCI BIOS!"
 halting_str:		.string "\n\rHalting.\n\r"
 	
 	/*
@@ -191,15 +194,10 @@ done_loading:
 
 	/*
 	 * disk_error --
-	 * pci_error --
 	 * error_halt --
 	 *
 	 *    Handlers for fatal errors. Display a message and halt.
 	 */
-pci_error:
-	mov	$pci_error_str, %si
-	call	print_str
-	jmp	error_halt	
 disk_error:	
 	mov	$disk_error_str, %si
 	call	print_str

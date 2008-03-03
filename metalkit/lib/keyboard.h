@@ -3,6 +3,10 @@
  * keyboard.h - Simple PC keyboard driver. Translates scancodes
  *              to a superset of ASCII.
  *
+ * This file is part of Metalkit, a simple collection of modules for
+ * writing software that runs on the bare metal. Get the latest code
+ * at http://svn.navi.cx/misc/trunk/metalkit/
+ *
  * Copyright (c) 2008 Micah Dowty
  * 
  * Permission is hereby granted, free of charge, to any person

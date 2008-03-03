@@ -1,0 +1,38 @@
+#
+# Common GNU Make rules for compiling Metalkit apps.
+#
+# To build your own apps, you just need a makefile which
+# defines a few variables and includes this one. For example:
+#
+#    METALKIT_LIB = path/to/metalkit/lib
+#    TARGET = myapp.img
+#    LIB_MODULES = boot vgatext
+#    APP_MODULES = main
+#    include $(METALKIT_LIB)/Makefile.rules
+#
+
+CFLAGS := -fno-builtin -nostdinc -Os -I$(METALKIT_LIB)
+LDFLAGS := -nostdlib -Wl,-N,-Ttext,7C00
+
+OBJS := \
+  $(addprefix $(METALKIT_LIB)/, $(addsuffix .o, $(LIB_MODULES))) \
+  $(addsuffix .o, $(APP_MODULES))
+
+ELF_TARGET := $(subst .img,.elf,$(TARGET))
+
+target: $(TARGET)
+
+%.img: %.elf
+	objcopy -O binary $< $@
+
+$(ELF_TARGET): $(OBJS)
+	$(CC) $(LDFLAGS) -o $@ $(OBJS)
+
+%.o: %.S
+	$(CC) -c -o $@ $<
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+clean:
+	rm -f $(OBJS) $(TARGET) $(ELF_TARGET)

@@ -1,4 +1,8 @@
-/* -*- Mode: C; c-basic-offset: 3 -*- */
+/* -*- Mode: C; c-basic-offset: 3 -*-
+ *
+ * Metalkit example: Scan the PCI bus, and display a list of devices
+ * on the screen in VGA text mode.
+ */
 
 #include "types.h"
 #include "vgatext.h"
@@ -7,15 +11,11 @@
 int
 main(void)
 {
-   int i = 0;
    PCIScanState busScan = {};
-   PCIAddress svgaDevice;
 
    VGAText_Init();
-
-   VGAText_WriteString("Hello 32-bit World!\n\n");
-
    VGAText_WriteString("Scanning PCI bus:\n\n");   
+
    while (PCI_ScanBus(&busScan)) {
       VGAText_WriteChar(' ');
       VGAText_WriteHex(busScan.addr.bus, 2);
@@ -31,10 +31,6 @@ main(void)
    }
    
    VGAText_WriteString("\nDone.\n");
-
-   if (PCI_FindDevice(0x15AD, 0x0405, &svgaDevice)) {
-      VGAText_WriteString("\nYou have a VMware SVGA device.\n");
-   }
 
    return 0;
 }
