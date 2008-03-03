@@ -36,6 +36,11 @@
 	 * This begins our 16-bit DOS MBR boot sector segment. This sits in
 	 * the first 512 bytes of our floppy image, and it gets loaded
 	 * by the BIOS at START_ADDRESS.
+	 *
+	 * Our image is designed to load at START_ADDRESS, below 1MB.
+	 * This is quite convenient for the MBR bootloader, but GRUB
+	 * can't load images that low. For GRUB, we load at 1MB and
+	 * relocate to START_ADDRESS immediately after we get control.
 	 */
 
 #define START_ADDRESS    0x7C00
@@ -140,10 +145,8 @@ stage1_main:
 	 * Cylinder/Head/Sector addressing.  A 1.44MB floppy disk has
 	 * 80 cylinders, 2 heads, and 18 sectors. Note that sector
 	 * indices begin at 1, and that the very first (boot) sector is
-	 * already loaded.
-	 *
-	 * We can't address enough RAM in real-mode to load the whole
-	 * disk, so we'll just load the first IMAGE_SIZE_CYL cylinders.
+	 * already loaded. We start at sector 2, and end when we've
+	 * passed our image's _edata address.
 	 */
 
 	mov	$((START_ADDRESS + 512) >> 4), %bx
@@ -166,7 +169,7 @@ head_sector_loop:
 	mov	%es, %bx		// Advance the destination address
 	add	$(512 >> 4), %bx
 	mov	%bx, %es
-	cmp	end_segment, %bx	// We're finished when we've copied the _end address
+	cmp	end_segment, %bx	// We're finished when we've copied the _edata address
 	jg	done_loading	
 	
 	inc	%cl			// Next sector (Loop over 1..18)
