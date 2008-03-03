@@ -11,8 +11,8 @@
 #    include $(METALKIT_LIB)/Makefile.rules
 #
 
-CFLAGS := -fno-builtin -nostdinc -Os -I$(METALKIT_LIB)
-LDFLAGS := -nostdlib -Wl,-N,-Ttext,7C00
+CFLAGS := -m32 -fno-builtin -nostdinc -Os -I$(METALKIT_LIB)
+LDFLAGS := -m32 -nostdlib -Wl,-N,-Ttext,7C00
 
 OBJS := \
   $(addprefix $(METALKIT_LIB)/, $(addsuffix .o, $(LIB_MODULES))) \
@@ -29,7 +29,7 @@ $(ELF_TARGET): $(OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS)
 
 %.o: %.S
-	$(CC) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
