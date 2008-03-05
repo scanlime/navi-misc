@@ -11,28 +11,34 @@
 #    include $(METALKIT_LIB)/Makefile.rules
 #
 
-CFLAGS := -m32 -fno-builtin -nostdinc -Os -I$(METALKIT_LIB)
-LDFLAGS := -m32 -nostdlib -Wl,-N,-Ttext,7C00
+# Basic options necessary to produce our standalone binary
+CFLAGS := -m32 -ffreestanding -nostdinc -I$(METALKIT_LIB)
+LDFLAGS := -nostdlib -Wl,-N,-Ttext,7C00
 
-OBJS := \
+# Size Optimizations.
+CFLAGS += -Os -Wl,--gc-sections
+
+SOURCES := \
   $(addprefix $(METALKIT_LIB)/, $(addsuffix .o, $(LIB_MODULES))) \
-  $(addsuffix .o, $(APP_MODULES))
+  $(APP_SOURCES)
 
 ELF_TARGET := $(subst .img,.elf,$(TARGET))
+LST_TARGET := $(subst .img,.lst,$(TARGET))
 
 target: $(TARGET)
+
+%.lst: %.elf
+	objdump -d $< > $@
 
 %.img: %.elf
 	objcopy -O binary $< $@
 
-$(ELF_TARGET): $(OBJS)
-	$(CC) $(LDFLAGS) -o $@ $(OBJS)
+# To optimize size, we compile all input files in one step. This
+# lets GCC use information available from all files during its
+# optimization phase.
 
-%.o: %.S
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-%.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+$(ELF_TARGET): $(SOURCES)
+	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(SOURCES)
 
 clean:
-	rm -f $(OBJS) $(TARGET) $(ELF_TARGET)
+	rm -f $(TARGET) $(ELF_TARGET) $(LST_TARGET)

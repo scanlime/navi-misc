@@ -335,6 +335,32 @@ code32_main:
 	mov	$STACK_ADDRESS, %esp
 
 	/*
+	 * This is as good a place as any to enable the A20 line,
+	 * so we can access more than 1MB of RAM. It might already
+	 * be enabled by the BIOS or by GRUB, but it doesn't hurt
+	 * to run this code anyway.
+	 *
+	 * The A20 line is part of the keyboard controller, for
+	 * amusing legacy reasons. Modern chipsets support a "Fast
+	 * A20" line which requires only a single I/O cycle, but we
+	 * can't rely on its presence.
+	 *
+	 * There are a few different descriptions of the keyboard
+	 * controller and the A20 line floating around on the 'net.
+	 * This uses the first sequence described by:
+	 *
+	 * http://www.win.tue.nl/~aeb/linux/kbd/A20.html
+	 */
+	
+	call	wait_for_8042
+	mov	$0xd1, %al	// Command: Write to output port
+	outb	%al, $0x64
+	call	wait_for_8042
+	mov	$0xdf, %al	// Output port value. Bit 1 is A20.
+	outb	%al, $0x60
+	call	wait_for_8042
+
+	/*
 	 * Zero out the BSS segment.
 	 */
 
@@ -353,6 +379,21 @@ code32_main:
 	cli
 	hlt
 
+	/*
+	 * wait_for_8042 --
+	 *
+	 *    Utility function used by the A20 gate code. Waits for
+	 *    the keyboard microcontroller's I/O queues to empty. (On
+	 *    modern hardware this is probably not necessary, but we
+	 *    do it anyway for good luck.)
+	 */
+
+wait_for_8042:
+	inb	$0x64, %al
+	test	$0x02, %al
+	jnz	wait_for_8042
+	ret
+	
 	/*
 	 * Partition table and boot signature go at the end of the
 	 * boot sector.  These aren't needed by VMware's BIOS
