@@ -50,5 +50,11 @@ typedef uint8 Bool;
 
 #define offsetof(type, member)  ((uint32)(&((type*)NULL)->member))
 
+#define MIN(a, b)   ((a) < (b) ? (a) : (b))
+#define MAX(a, b)   ((a) > (b) ? (a) : (b))
+
+void memcpy(void *dest, const void *src, uint32 size);
+void memset(void *dest, uint8 value, uint32 size);
+
 #endif /* __TYPES_H__ */
 
