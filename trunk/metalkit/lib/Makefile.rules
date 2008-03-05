@@ -19,7 +19,8 @@ LDFLAGS := -nostdlib -Wl,-N,-Ttext,7C00
 CFLAGS += -Os -Wl,--gc-sections
 
 SOURCES := \
-  $(addprefix $(METALKIT_LIB)/, $(addsuffix .o, $(LIB_MODULES))) \
+  $(METALKIT_LIB)/boot.S \
+  $(addprefix $(METALKIT_LIB)/, $(addsuffix .c, $(LIB_MODULES))) \
   $(APP_SOURCES)
 
 ELF_TARGET := $(subst .img,.elf,$(TARGET))
