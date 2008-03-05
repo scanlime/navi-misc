@@ -144,21 +144,22 @@ PCI_ScanBus(PCIScanState *state)
    for (;;) {
       config.words[0] = PCI_ConfigRead32(&state->nextAddr, 0);
 
+      state->addr = state->nextAddr;
+
       if (++state->nextAddr.function == 0x8) {
-	 state->nextAddr.function = 0;
-	 if (++state->nextAddr.device == 0x20) {
-	    state->nextAddr.device = 0;
-	    if (++state->nextAddr.bus == PCI_MAX_BUSSES) {
-	       return FALSE;
-	    }
-	 }
+         state->nextAddr.function = 0;
+         if (++state->nextAddr.device == 0x20) {
+            state->nextAddr.device = 0;
+            if (++state->nextAddr.bus == PCI_MAX_BUSSES) {
+               return FALSE;
+            }
+         }
       }
 
       if (config.words[0] != 0xFFFFFFFFUL) {
-	 state->addr = state->nextAddr;
-	 state->vendorId = config.vendorId;
-	 state->deviceId = config.deviceId;
-	 return TRUE;
+         state->vendorId = config.vendorId;
+         state->deviceId = config.deviceId;
+         return TRUE;
       }
    }
 }
@@ -186,4 +187,43 @@ PCI_FindDevice(uint16 vendorId, uint16 deviceId, PCIAddress *addrOut)
    }
 
    return FALSE;
+}
+
+
+/*
+ * PCI_SetBAR --
+ *
+ *    Set one of a device's Base Address Registers to the provided value.
+ */
+
+void
+PCI_SetBAR(const PCIAddress *addr, int index, uint32 value)
+{
+   PCI_ConfigWrite32(addr, offsetof(PCIConfigSpace, BAR[index]), value);
+}
+
+
+/*
+ * PCI_SetMemEnable --
+ *
+ *    Enable or disable a device's memory and IO space. This must be
+ *    called to enable a device's resources after setting all
+ *    applicable BARs. Also enables/disables bus mastering.
+ */
+
+void
+PCI_SetMemEnable(const PCIAddress *addr, Bool enable)
+{
+   uint16 command = PCI_ConfigRead16(addr, offsetof(PCIConfigSpace, command));
+
+   /* Mem space enable, IO space enable, bus mastering. */
+   const uint16 flags = 0x0007;
+
+   if (enable) {
+      command |= flags;
+   } else {
+      command &= ~flags;
+   }
+
+   PCI_ConfigWrite16(addr, offsetof(PCIConfigSpace, command), command);
 }
