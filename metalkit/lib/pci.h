@@ -86,4 +86,4 @@ void PCI_ConfigWrite8(const PCIAddress *addr, uint16 offset, uint8 data);
 Bool PCI_ScanBus(PCIScanState *state);
 Bool PCI_FindDevice(uint16 vendorId, uint16 deviceId, PCIAddress *addrOut);
 
-#endif /* __VGA_TEXT_H__ */
+#endif /* __PCI_H__ */

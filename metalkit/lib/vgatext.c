@@ -287,3 +287,21 @@ VGAText_WriteHex(int num, int digits)
    }
    VGATextMoveHardwareCursor();
 }
+
+
+/*
+ * VGAText_DefaultFaultHandler --
+ *
+ *    Default fault handler for use in text mode. Prints a
+ *    message and halts the machine.
+ */
+
+void
+VGAText_DefaultFaultHandler(int number)
+{
+   VGAText_Init();
+   VGAText_WriteString("Fatal error:\nUnhandled fault 0x");
+   VGAText_WriteHex(number, 8);
+   __asm__ __volatile__ ("cli; hlt");
+}
+

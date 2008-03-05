@@ -1,6 +1,6 @@
 /* -*- Mode: C; c-basic-offset: 3 -*-
  *
- * vgatext.h - Simple VGA text mode driver
+ * intr.h - Interrupt vector management and interrupt routing.
  *
  * This file is part of Metalkit, a simple collection of modules for
  * writing software that runs on the bare metal. Get the latest code
@@ -30,41 +30,31 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __VGA_TEXT_H__
-#define __VGA_TEXT_H__
+#ifndef __INTR_H__
+#define __INTR_H__
 
 #include "types.h"
 
-#define VGA_COLOR_BLACK          0
-#define VGA_COLOR_BLUE           1
-#define VGA_COLOR_GREEN          2
-#define VGA_COLOR_CYAN           3
-#define VGA_COLOR_RED            4
-#define VGA_COLOR_MAGENTA        5
-#define VGA_COLOR_BROWN          6
-#define VGA_COLOR_LIGHT_GRAY     7
-#define VGA_COLOR_DARK_GRAY      8
-#define VGA_COLOR_LIGHT_BLUE     9
-#define VGA_COLOR_LIGHT_GREEN    10
-#define VGA_COLOR_LIGHT_CYAN     11
-#define VGA_COLOR_LIGHT_RED      12
-#define VGA_COLOR_LIGHT_MAGENTA  13
-#define VGA_COLOR_YELLOW         14
-#define VGA_COLOR_WHITE          15
+#define NUM_INTR_VECTORS    256
+#define NUM_FAULT_VECTORS   0x20
+#define IRQ_VECTOR_BASE     NUM_FAULT_VECTORS
+#define IRQ_TO_VECTOR(irq)  ((irq) + IRQ_VECTOR_BASE)
 
-#define VGA_TEXT_WIDTH           80
-#define VGA_TEXT_HEIGHT          25
+typedef void (*IntrHandler)(int vector);
 
-void VGAText_Init(void);
+void Intr_Init(void);
+void Intr_SetFaultHandlers(IntrHandler handler);
+void Intr_SetHandler(int vector, IntrHandler handler);
+void Intr_SetMask(int irq, Bool enable);
 
-void VGAText_Clear(int8 fgColor, int8 bgColor);
-void VGAText_SetColor(int8 fgColor);
-void VGAText_SetBgColor(int8 bgColor);
-void VGAText_MoveTo(int x, int y);
-void VGAText_WriteChar(char c);
-void VGAText_WriteString(char *str);
-void VGAText_WriteHex(int num, int digits);
+static inline void
+Intr_Enable(void) {
+   __asm__ __volatile__ ("sti");
+}
 
-void VGAText_DefaultFaultHandler(int number);
+static inline void
+Intr_Disable(void) {
+   __asm__ __volatile__ ("cli");
+}
 
-#endif /* __VGA_TEXT_H__ */
+#endif /* __INTR_H__ */
