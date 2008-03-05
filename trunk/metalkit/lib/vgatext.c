@@ -257,7 +257,7 @@ VGAText_WriteChar(char c)
  */
 
 void
-VGAText_WriteString(char *str)
+VGAText_WriteString(const char *str)
 {
    while (*str) {
       VGAText_WriteChar(*str);
@@ -305,3 +305,19 @@ VGAText_DefaultFaultHandler(int number)
    __asm__ __volatile__ ("cli; hlt");
 }
 
+
+/*
+ * VGAText_Panic --
+ *
+ *    Default panic handler for use in text mode. Prints
+ *    a caller-defined message, and halts the machine.
+ */
+
+void
+VGAText_Panic(const char *str)
+{
+   VGAText_Init();
+   VGAText_WriteString("Panic:\n");
+   VGAText_WriteString(str);
+   __asm__ __volatile__ ("cli; hlt");
+}

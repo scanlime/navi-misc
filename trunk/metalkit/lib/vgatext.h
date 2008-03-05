@@ -62,9 +62,10 @@ void VGAText_SetColor(int8 fgColor);
 void VGAText_SetBgColor(int8 bgColor);
 void VGAText_MoveTo(int x, int y);
 void VGAText_WriteChar(char c);
-void VGAText_WriteString(char *str);
+void VGAText_WriteString(const char *str);
 void VGAText_WriteHex(int num, int digits);
 
+void VGAText_Panic(const char *str);
 void VGAText_DefaultFaultHandler(int number);
 
 #endif /* __VGA_TEXT_H__ */
