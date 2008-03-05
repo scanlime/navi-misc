@@ -8,6 +8,11 @@
  *           switch to protected mode with identity-mapped code
  *           and data segments, then we call main().
  *
+ *           Since we have a little bit of extra space in this
+ *           area of memory, the bootloader also does a few other
+ *           utility tasks that are easier in pure assembly, like
+ *           enabling the A20 gate and getting the CPUID.
+ *
  * This file is part of Metalkit, a simple collection of modules for
  * writing software that runs on the bare metal. Get the latest code
  * at http://svn.navi.cx/misc/trunk/metalkit/
@@ -105,9 +110,9 @@ end_segment:
 	 * String table, located in the boot sector.
 	 */
 	
-hello_str:		.string "\n\rHello, Computer. (>\")>\n\n\rLoading disk image..."
-done_loading_str:	.string "\n\rDone.\n\r"
-disk_error_str:		.string "\n\n\rDisk error!"
+loading_str:		.string "\n\rLoading..."
+done_loading_str:	.string "\n\rDone\n\r"
+disk_error_str:		.string "\n\n\rDisk err!"
 halting_str:		.string "\n\rHalting.\n\r"
 	
 	/*
@@ -127,7 +132,7 @@ stage1_main:
 	movw	%ax, %ds
 	movw	$STACK_ADDRESS, %sp
 
-	mov	$hello_str, %si
+	mov	$loading_str, %si
 	call	print_str
 
 	/*
@@ -281,7 +286,7 @@ gdt:
 
 	.word	0xFFFF, 0x0000			// 32-bit Data segment
 	.byte	0x00, 0x92, 0xCF, 0x00
-	
+
 gdt_desc:
 	.word	(gdt_desc - gdt - 1)
 	.long	gdt
@@ -361,6 +366,19 @@ code32_main:
 	call	wait_for_8042
 
 	/*
+	 * Collect CPUID information, for use by the main program.
+	 */
+
+	mov	$0, %eax	// Get vendor string
+	cpuid
+	mov	%ebx, CPUID_VendorString
+	mov	%edx, CPUID_VendorString + 4
+	mov	%ecx, CPUID_VendorString + 8
+	mov	$0, %eax	// Get features
+	cpuid
+	mov	%edx, CPUID_Features	
+	
+	/*
 	 * Zero out the BSS segment.
 	 */
 
@@ -408,9 +426,24 @@ wait_for_8042:
 	 *
 	 * (Run 'objdump -D boot.o', and examine the resulting
 	 * memory layout.)
+	 *
+	 * The partition table starts out blank, but after boot
+	 * we re-use this memory for storing data that's collected
+	 * by the bootloader and made available to our main program
+	 * via the interface in boot.h.
 	 */
 
-	.org	0x1BE		// Blank partition table	
+	.org	0x1BE		// Blank partition table (all zeroes on disk)
+
+	.global	CPUID_VendorString
+CPUID_VendorString:
+	.long	0, 0, 0
+	.byte	0		// NUL termination
+
+	.global	CPUID_Features
+CPUID_Features:
+	.long	0
+	
 	.org	0x1FE		// Boot signature
 	.byte	0x55, 0xAA
 	
