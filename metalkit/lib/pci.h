@@ -86,6 +86,7 @@ void PCI_ConfigWrite8(const PCIAddress *addr, uint16 offset, uint8 data);
 Bool PCI_ScanBus(PCIScanState *state);
 Bool PCI_FindDevice(uint16 vendorId, uint16 deviceId, PCIAddress *addrOut);
 void PCI_SetBAR(const PCIAddress *addr, int index, uint32 value);
+uint32 PCI_GetBARAddr(const PCIAddress *addr, int index);
 void PCI_SetMemEnable(const PCIAddress *addr, Bool enable);
 
 #endif /* __PCI_H__ */
