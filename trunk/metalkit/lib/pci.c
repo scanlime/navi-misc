@@ -204,6 +204,20 @@ PCI_SetBAR(const PCIAddress *addr, int index, uint32 value)
 
 
 /*
+ * PCI_GetBARAddr --
+ *
+ *    Get the current address set in one of the device's Base Address Registers.
+ *    (We mask off the lower 2 bits, which hold memory type flags.)
+ */
+
+uint32
+PCI_GetBARAddr(const PCIAddress *addr, int index)
+{
+   return PCI_ConfigRead32(addr, offsetof(PCIConfigSpace, BAR[index])) & ~3;
+}
+
+
+/*
  * PCI_SetMemEnable --
  *
  *    Enable or disable a device's memory and IO space. This must be
