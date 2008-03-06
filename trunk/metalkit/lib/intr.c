@@ -162,8 +162,10 @@ Intr_Init(void)
    IO_Out8(PIC1_DATA_PORT, 0x03);          // 8086 mode, auto-end-of-interrupt.
    IO_Out8(PIC2_DATA_PORT, 0x03);
 
-   /* All IRQs start out masked. */
-   IO_Out8(PIC1_DATA_PORT, 0xFF);
+   /*
+    * All IRQs start out masked, except for the cascade IRQs 2 and 4.
+    */
+   IO_Out8(PIC1_DATA_PORT, 0xEB);
    IO_Out8(PIC2_DATA_PORT, 0xFF);
 
    Intr_Enable();
