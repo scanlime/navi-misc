@@ -33,6 +33,7 @@
 #include "types.h"
 #include "vgatext.h"
 #include "io.h"
+#include "intr.h"
 
 #define VGA_TEXT_FRAMEBUFFER     ((uint8*)0xB8000)
 
@@ -216,16 +217,12 @@ VGATextWriteChar(char c)
    if (vgatext.cursor.y >= VGA_TEXT_HEIGHT) {
       int i, j;
       uint8 *fb = VGA_TEXT_FRAMEBUFFER;
+      const uint32 scrollSize = VGA_TEXT_WIDTH * 2 * (VGA_TEXT_HEIGHT - 1);
 
       vgatext.cursor.y = VGA_TEXT_HEIGHT - 1;
 
-      for (j = 0; j < VGA_TEXT_HEIGHT - 1; j++) {
-	 for (i = 0; i < VGA_TEXT_WIDTH; i++) {
-	    fb[0] = fb[VGA_TEXT_WIDTH * 2];
-	    fb[1] = fb[VGA_TEXT_WIDTH * 2 + 1];
-	    fb += 2;
-	 }
-      }
+      memcpy(fb, fb + VGA_TEXT_WIDTH * 2, scrollSize);
+      fb += scrollSize;
       for (i = 0; i < VGA_TEXT_WIDTH; i++) {
 	 fb[0] = ' ';
 	 fb[1] = vgatext.attr;
@@ -259,9 +256,9 @@ VGAText_WriteChar(char c)
 void
 VGAText_WriteString(const char *str)
 {
-   while (*str) {
-      VGAText_WriteChar(*str);
-      str++;
+   char c;
+   while ((c = *(str++))) {
+      VGAText_WriteChar(c);
    }
    VGATextMoveHardwareCursor();
 }
@@ -290,6 +287,70 @@ VGAText_WriteHex(int num, int digits)
 
 
 /*
+ * VGAText_Format --
+ *
+ *    Write a formatted string. This is a very tiny subset of printf().
+ */
+
+void
+VGAText_Format(const char *fmt, ...)
+{
+   int *arg = (int*)&fmt;
+   char c;
+   int width = 0;
+
+   while ((c = *(fmt++))) {
+      if (c != '%') {
+	 VGATextWriteChar(c);
+	 continue;
+      }
+      while ((c = *(fmt++))) {
+	 if (c >= '0' && c <= '9') {
+	    width = c - '0';
+	    continue;
+	 }
+	 if (c == 's') {
+	    VGAText_WriteString((char*) *(++arg));
+	    break;
+	 }
+	 if (c == 'x') {
+	    VGAText_WriteHex(*(++arg), width);
+	    break;
+	 }
+      }
+   }
+   VGATextMoveHardwareCursor();
+}
+
+
+/*
+ * VGAText_HexDump --
+ *
+ *    Write a 32-bit hex dump to the console, labelling each
+ *    line with addresses starting at 'startAddr'.
+ */
+
+void
+VGAText_HexDump(uint32 *data, uint32 startAddr, uint32 numWords)
+{
+   while (numWords) {
+      int32 lineWords = 4;
+      VGAText_WriteHex(startAddr, 8);
+      VGAText_WriteChar(':');
+      while (numWords && lineWords) {
+	 VGAText_WriteChar(' ');
+	 VGAText_WriteHex(*data, 8);
+	 data++;
+	 startAddr += 4;
+	 numWords--;
+	 lineWords--;
+      }
+      VGAText_WriteChar('\n');
+   }
+}
+
+
+/*
  * VGAText_DefaultFaultHandler --
  *
  *    Default fault handler for use in text mode. Prints a
@@ -297,12 +358,36 @@ VGAText_WriteHex(int num, int digits)
  */
 
 void
-VGAText_DefaultFaultHandler(int number)
+VGAText_DefaultFaultHandler(int vector)
 {
+   IntrContext *ctx = Intr_GetContext(vector);
+
    VGAText_Init();
-   VGAText_WriteString("Fatal error:\nUnhandled fault 0x");
-   VGAText_WriteHex(number, 8);
-   __asm__ __volatile__ ("cli; hlt");
+
+   /*
+    * IntrContext's stack pointer includes the three values that were
+    * pushed by the hardware interrupt. Advance past these, so the
+    * stack trace shows the state of execution at the time of the
+    * fault rather than at the time our interrupt trampoline was
+    * invoked.
+    */
+   ctx->esp += 3 * sizeof(int);
+
+   VGAText_Format("Fatal error:\n"
+		  "Unhandled fault %2x at %4x:%8x\n"
+		  "\n"
+		  "eax=%8x ebx=%8x ecx=%8x edx=%8x\n"
+		  "esi=%8x edi=%8x esp=%8x ebp=%8x eflags=%8x\n"
+		  "\n",
+		  vector, ctx->cs, ctx->eip,
+		  ctx->eax, ctx->ebx, ctx->ecx, ctx->edx,
+		  ctx->esi, ctx->edi, ctx->esp, ctx->ebp,
+		  ctx->eflags);
+
+   VGAText_HexDump((void*)ctx->esp, ctx->esp, 64);
+
+   Intr_Disable();
+   Intr_Halt();
 }
 
 
@@ -317,7 +402,7 @@ void
 VGAText_Panic(const char *str)
 {
    VGAText_Init();
-   VGAText_WriteString("Panic:\n");
-   VGAText_WriteString(str);
-   __asm__ __volatile__ ("cli; hlt");
+   VGAText_Format("Panic:\n%s", str);
+   Intr_Disable();
+   Intr_Halt();
 }
