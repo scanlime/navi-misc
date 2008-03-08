@@ -37,10 +37,35 @@
 
 #define NUM_INTR_VECTORS    256
 #define NUM_FAULT_VECTORS   0x20
+#define NUM_IRQ_VECTORS     0x10
 #define IRQ_VECTOR_BASE     NUM_FAULT_VECTORS
-#define IRQ_TO_VECTOR(irq)  ((irq) + IRQ_VECTOR_BASE)
+#define IRQ_VECTOR(irq)     ((irq) + IRQ_VECTOR_BASE)
+#define USER_VECTOR_BASE    (IRQ_VECTOR_BASE + NUM_IRQ_VECTORS)
+#define USER_VECTOR(n)      ((n) + USER_VECTOR_BASE)
+
+#define IRQ_TIMER           0
+#define IRQ_KEYBOARD        1
+
+#define FAULT_DE            0x00    // Divide error
+#define FAULT_NMI           0x02    // Non-maskable interrupt
+#define FAULT_BP            0x03    // Breakpoint
+#define FAULT_OF            0x04    // Overflow
+#define FAULT_BR            0x05    // Bound range
+#define FAULT_UD            0x06    // Undefined opcode
+#define FAULT_NM            0x07    // No FPU
+#define FAULT_DF            0x08    // Double Fault
+#define FAULT_TS            0x0A    // Invalid TSS
+#define FAULT_NP            0x0B    // Segment not present
+#define FAULT_SS            0x0C    // Stack-segment fault
+#define FAULT_GP            0x0D    // General Protection Fault
+#define FAULT_PF            0x0E    // Page fault
+#define FAULT_MF            0x10    // Math fault
+#define FAULT_AC            0x11    // Alignment check
+#define FAULT_MC            0x12    // Machine check
+#define FAULT_XM            0x13    // SIMD floating point exception
 
 typedef void (*IntrHandler)(int vector);
+typedef void (*IntrContextFn)(void);
 
 void Intr_Init(void);
 void Intr_SetFaultHandlers(IntrHandler handler);
@@ -49,12 +74,82 @@ void Intr_SetMask(int irq, Bool enable);
 
 static inline void
 Intr_Enable(void) {
-   __asm__ __volatile__ ("sti");
+   asm volatile ("sti");
 }
 
 static inline void
 Intr_Disable(void) {
-   __asm__ __volatile__ ("cli");
+   asm volatile ("cli");
 }
+
+static inline void
+Intr_Halt(void) {
+   asm volatile ("hlt");
+}
+
+/*
+ * This structure describes all execution state that's saved when an
+ * interrupt or a setjmp occurs. In the case of an interrupt, this
+ * structure actually describes the stack frame of the interrupt
+ * trampoline.
+ *
+ * An interrupt handler can get a pointer to its IntrContext by
+ * passing its first argument to the Intr_GetContext macro. This
+ * allows an interrupt handler to examine the execution context in
+ * which the interrupt occurred, to modify the interrupt's return
+ * address, or even to implement input and output for OS traps.
+ *
+ * This module also provides functions for directly saving and
+ * restoring IntrContext structures. This can be used much like
+ * setjmp/longjmp, or it can even be used for simple cooperative or
+ * preemptive multithreading. An interrupt handler can perform a
+ * context switch by overwriting its IntrContext with a saved context.
+ *
+ * The definition of this structure must be kept in sync with the
+ * machine code in our interrupt trampolines, and with the
+ * assembly-language implementation of SaveContext and RestoreContext.
+ */
+
+typedef struct IntrContext {
+   /*
+    * General purpose registers. These are all saved after the value
+    * of %esp is captured.
+    */
+
+   uint32  edi;
+   uint32  esi;
+   uint32  ebp;
+   uint32  esp;
+   uint32  ebx;
+   uint32  edx;
+   uint32  ecx;
+   uint32  eax;
+
+   /*
+    * These values are save by the CPU during an interrupt.  By
+    * convention, these values are at the top of the stack when %esp
+    * was saved.
+    *
+    * The values of cs and eflags are ignored by Intr_SaveContext
+    * and Intr_RestoreContext.
+    */
+
+   uint32  eip;
+   uint32  cs;
+   uint32  eflags;
+} IntrContext;
+
+/*
+ * Always use the 'volatile' keyword when storing the result
+ * of Intr_GetContext. GCC can erroneously decide to optimize
+ * out any copies to this pointer, because it doesn't know the
+ * values will be used by our trampoline.
+ */
+
+#define Intr_GetContext(arg)  ((IntrContext*) &(&arg)[1])
+
+uint32 Intr_SaveContext(IntrContext *ctx);
+void Intr_RestoreContext(IntrContext *ctx);
+void Intr_InitContext(IntrContext *ctx, uint32 *stack, IntrContextFn main);
 
 #endif /* __INTR_H__ */

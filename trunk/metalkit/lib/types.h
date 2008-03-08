@@ -1,6 +1,6 @@
 /* -*- Mode: C; c-basic-offset: 3 -*-
  *
- * types.h - Basic type definitions
+ * types.h - Basic type and macro definitions.
  *
  * This file is part of Metalkit, a simple collection of modules for
  * writing software that runs on the bare metal. Get the latest code
@@ -58,6 +58,12 @@ typedef uint8 Bool;
 
 void memcpy(void *dest, const void *src, uint32 size);
 void memset(void *dest, uint8 value, uint32 size);
+
+#define Atomic_Exchange(mem, reg) \
+   asm volatile ("xchgl %0, %1" : "+r" (reg), "+m" (mem) :)
+
+#define Atomic_Or(mem, reg) \
+   asm volatile ("lock orl %1, %0" :"+m" (mem) :"r" (reg))
 
 #endif /* __TYPES_H__ */
 

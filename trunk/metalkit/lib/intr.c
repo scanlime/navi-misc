@@ -1,6 +1,7 @@
 /* -*- Mode: C; c-basic-offset: 3 -*-
  *
- * intr.c - Interrupt vector management and interrupt routing.
+ * intr.c - Interrupt vector management, interrupt routing,
+ *          and low-level building blocks for multithreading.
  *
  * This file is part of Metalkit, a simple collection of modules for
  * writing software that runs on the bare metal. Get the latest code
@@ -73,12 +74,17 @@ const struct {
  */
 
 static struct {
-   uint32 code1;
-   uint32 arg;
-   uint8 code2;
+   uint16      code1;
+   uint32      arg;
+   uint8       code2;
    IntrHandler handler;
-   uint32 code3;
+   uint32      code3;
+   uint32      code4;
+   uint32      code5;
+   uint32      code6;
+   uint32      code7;
 } __attribute__ ((__packed__, aligned (4))) IntrTrampoline[NUM_INTR_VECTORS];
+
 
 /*
  * IntrDefaultHandler --
@@ -124,24 +130,40 @@ Intr_Init(void)
 
       /*
        * Set up the trampoline, pointing it at the default handler.
-       * The trampoline function wraps our C interrupt handler,
-       * and handles placing a vector number onto the stack.
+       * The trampoline function wraps our C interrupt handler, and
+       * handles placing a vector number onto the stack. It also allows
+       * interrupt handlers to switch stacks upon return by writing
+       * to the saved 'esp' register.
+       *
+       * Keep the trampoline function consistent with the definition
+       * of IntrContext in intr.h.
        *
        * Our trampolines each look like:
        *
-       *   0:   60                 pusha  
-       *   1:   c7 04 24 <arg>     mov    <arg>, (%esp)
-       *   8:   b8 <32-bit addr>   mov    <addr>, %eax
-       *   d:   ff d0              call   *%eax
-       *   f:   61                 popa   
-       *  10:   cf                 iret 
+       *    60                 pusha                   // Save general-purpose regs
+       *    68 <32-bit arg>    push   <arg>            // Call handler(arg)
+       *    b8 <32-bit addr>   mov    <addr>, %eax
+       *    ff d0              call   *%eax            
+       *    58                 pop    %eax             // Remove arg from stack
+       *    8b 7c 24 0c        mov    12(%esp), %edi   // Load new stack address
+       *    8d 74 24 20        lea    32(%esp), %esi   // Address of eip/cs/eflags on old stack
+       *    a5                 movsl                   // Copy eip
+       *    a5                 movsl                   // Copy cs
+       *    a5                 movsl                   // Copy eflags
+       *    61                 popa                    // Restore general-purpose regs
+       *    8b 64 24 ec        mov    -20(%esp), %esp  // Switch stacks
+       *    cf                 iret                    // Restore eip, cs, eflags
        *
        */  
 
-      IntrTrampoline[i].code1 = 0x2404c760;
+      IntrTrampoline[i].code1 = 0x6860;
       IntrTrampoline[i].code2 = 0xb8;
-      IntrTrampoline[i].code3 = 0xcf61d0ff;
-      
+      IntrTrampoline[i].code3 = 0x8b58d0ff;
+      IntrTrampoline[i].code4 = 0x8d0c247c;
+      IntrTrampoline[i].code5 = 0xa5202474;
+      IntrTrampoline[i].code6 = 0x8b61a5a5;
+      IntrTrampoline[i].code7 = 0xcfec2464;
+
       IntrTrampoline[i].handler = IntrDefaultHandler;
       IntrTrampoline[i].arg = i;
    }
@@ -234,4 +256,25 @@ Intr_SetFaultHandlers(IntrHandler handler)
    for (vector = 0; vector < NUM_FAULT_VECTORS; vector++) {
       Intr_SetHandler(vector, handler);
    }
+}
+
+
+/*
+ * Intr_InitContext --
+ *
+ *    Create an IntrContext representing a brand new thread of
+ *    execution. This can be used as a primitive to implement
+ *    light-weight cooperative or pre-emptive multithreading.
+ *
+ *    'Stack' points to the initial value of the stack pointer.
+ *    Stacks grow downward, so this should point to the top word of
+ *    the allocated stack memory.
+ */
+
+void
+Intr_InitContext(IntrContext *ctx, uint32 *stack, IntrContextFn main)
+{
+   Intr_SaveContext(ctx);
+   ctx->esp = (uint32) stack;
+   ctx->eip = (uint32) main;
 }
