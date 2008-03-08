@@ -1,13 +1,14 @@
 /* -*- Mode: C; c-basic-offset: 3 -*-
  *
- * types.h - Basic type definitions
+ * math.h - A random subset of math definitions, which work without
+ *          a C standard library or math library.
  *
  * This file is part of Metalkit, a simple collection of modules for
  * writing software that runs on the bare metal. Get the latest code
  * at http://svn.navi.cx/misc/trunk/metalkit/
  *
  * Copyright (c) 2008 Micah Dowty
- * 
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without
@@ -16,10 +17,10 @@
  * copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following
  * conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -30,34 +31,16 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __TYPES_H__
-#define __TYPES_H__
+#ifndef __MATH_H__
+#define __MATH_H__
 
-typedef long long int64;
-typedef unsigned long long uint64;
+#include "types.h"
 
-typedef int int32;
-typedef unsigned int uint32;
+#define sinf(t)   __builtin_sinf(t)
+#define cosf(t)   __builtin_cosf(t)
+#define tanf(t)   __builtin_tanf(t)
 
-typedef short int16;
-typedef unsigned short uint16;
+#define M_PI         3.14159265359
+#define PI_OVER_180  0.017453292519943295
 
-typedef char int8;
-typedef unsigned char uint8;
-
-typedef uint8 Bool;
-
-#define NULL   ((void*)0)
-#define TRUE   1
-#define FALSE  0
-
-#define offsetof(type, member)  ((uint32)(&((type*)NULL)->member))
-
-#define MIN(a, b)   ((a) < (b) ? (a) : (b))
-#define MAX(a, b)   ((a) > (b) ? (a) : (b))
-
-void memcpy(void *dest, const void *src, uint32 size);
-void memset(void *dest, uint8 value, uint32 size);
-
-#endif /* __TYPES_H__ */
-
+#endif /* __MATH_H_ */
