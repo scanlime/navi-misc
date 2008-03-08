@@ -18,6 +18,9 @@ LDFLAGS := -nostdlib -Wl,-N,-Ttext,7C00
 # Size Optimizations.
 CFLAGS += -Os -Wl,--gc-sections
 
+# This enables extra gcc builtins for floating point math.
+CFLAGS += -march=i686 -ffast-math
+
 SOURCES := \
   $(METALKIT_LIB)/boot.S \
   $(METALKIT_LIB)/basic_asm.S \
