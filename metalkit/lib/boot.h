@@ -1,6 +1,8 @@
 /* -*- Mode: C; c-basic-offset: 3 -*-
  *
- * boot.h - Interface to information provided by our bootloader.
+ * boot.h - Definitions used by both the bootloader and
+ *          the rest of the library. This file must be valid
+ *          C and assembly.
  *
  * This file is part of Metalkit, a simple collection of modules for
  * writing software that runs on the bare metal. Get the latest code
@@ -33,13 +35,9 @@
 #ifndef __BOOT_H__
 #define __BOOT_H__
 
-#include "types.h"
-
 #define BOOT_CODE_SEGMENT       0x08
 #define BOOT_DATA_SEGMENT       0x10
-#define BOOT_INTR_GATE_SEGMENT  0x18
-
-extern char CPUID_VendorString[13];
-extern uint32 CPUID_Features;
+#define BOOT_CODE16_SEGMENT     0x18
+#define BOOT_DATA16_SEGMENT     0x20
 
 #endif /* __BOOT_H__ */
