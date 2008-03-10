@@ -34,6 +34,8 @@ SOURCES := \
 ELF_TARGET := $(subst .img,.elf,$(TARGET))
 LST_TARGET := $(subst .img,.lst,$(TARGET))
 
+.PHONY: target clean
+
 target: $(TARGET)
 
 %.lst: %.elf
@@ -41,6 +43,14 @@ target: $(TARGET)
 
 %.img: %.elf
 	objcopy -O binary $< $@
+
+# Stackable rules for processing data files
+
+%.data.o: %
+	objcopy -I binary -O elf32-i386 -B i386 $< $@
+
+%.z: %
+	python $(METALKIT_LIB)/deflate.py < $< > $@
 
 # To optimize size, we compile all input files in one step. This
 # lets GCC use information available from all files during its
@@ -50,4 +60,4 @@ $(ELF_TARGET): $(SOURCES)
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(SOURCES)
 
 clean:
-	rm -f $(TARGET) $(ELF_TARGET) $(LST_TARGET)
+	rm -f $(TARGET) $(ELF_TARGET) $(LST_TARGET) *.o *.z
