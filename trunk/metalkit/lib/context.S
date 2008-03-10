@@ -70,10 +70,7 @@ Intr_SaveContext:
 	stosl
 	
 	// Return 0 when this function is called directly.
-	// When a context is restored, _saveContext is not executed
-	// (but all of Intr_SaveContext itself is.)
-
-	add	$32, %esp
+	popa
 	xor	%eax, %eax
 	ret
 
