@@ -7,14 +7,18 @@
 #include "types.h"
 #include "vgatext.h"
 #include "pci.h"
+#include "intr.h"
 
 int
 main(void)
 {
    PCIScanState busScan = {};
 
+   Intr_Init();
+   Intr_SetFaultHandlers(VGAText_DefaultFaultHandler);
+
    VGAText_Init();
-   VGAText_WriteString("Scanning PCI bus:\n\n");   
+   VGAText_WriteString("PCI...\n");
 
    while (PCI_ScanBus(&busScan)) {
       VGAText_WriteChar(' ');
@@ -29,7 +33,7 @@ main(void)
       VGAText_WriteHex(busScan.deviceId, 4);
       VGAText_WriteChar('\n');
    }
-   
+ 
    VGAText_WriteString("\nDone.\n");
 
    return 0;
