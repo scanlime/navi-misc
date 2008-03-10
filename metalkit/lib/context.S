@@ -62,7 +62,7 @@ Intr_SaveContext:
 	mov	36(%esp), %edi
 	mov	$9, %ecx
 	rep movsl
-	xor	%ah, %ah
+	xor	%eax, %eax
 	mov	%cs, %ax
 	stosl
 	pushf

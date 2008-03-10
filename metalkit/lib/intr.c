@@ -83,6 +83,7 @@ static struct {
    uint32      code5;
    uint32      code6;
    uint32      code7;
+   uint32      code8;
 } __attribute__ ((__packed__, aligned (4))) IntrTrampoline[NUM_INTR_VECTORS];
 
 
@@ -135,40 +136,63 @@ Intr_Init(void)
        * interrupt handlers to switch stacks upon return by writing
        * to the saved 'esp' register.
        *
+       * Note that the old stack and new stack may actually be different
+       * stack frames on the same stack. We require that the new stack
+       * is in a higher or equal stack frame, but the two stacks may
+       * overlap. This is why the trampoline does its copy in reverse.
+       *
        * Keep the trampoline function consistent with the definition
        * of IntrContext in intr.h.
+       *
+       * Stack layout:
+       *
+       *     8   eflags
+       *     4   cs
+       *     0   eip        <- esp on entry to IRQ handler
+       *    -4   eax
+       *    -8   ecx
+       *   -12   edx
+       *   -16   ebx
+       *   -20   esp
+       *   -24   ebp
+       *   -28   esi
+       *   -32   edi
+       *   -36   <arg>      <- esp on entry to handler function
        *
        * Our trampolines each look like:
        *
        *    60                 pusha                   // Save general-purpose regs
        *    68 <32-bit arg>    push   <arg>            // Call handler(arg)
        *    b8 <32-bit addr>   mov    <addr>, %eax
-       *    ff d0              call   *%eax            
+       *    ff d0              call   *%eax
        *    58                 pop    %eax             // Remove arg from stack
        *    8b 7c 24 0c        mov    12(%esp), %edi   // Load new stack address
-       *    8d 74 24 20        lea    32(%esp), %esi   // Address of eip/cs/eflags on old stack
-       *    a5                 movsl                   // Copy eip
-       *    a5                 movsl                   // Copy cs
+       *    8d 74 24 28        lea    40(%esp), %esi   // Addr of eflags on old stack
+       *    83 c7 08           add    $8, %edi         // Addr of eflags on new stack
+       *    fd                 std                     // Copy backwards
        *    a5                 movsl                   // Copy eflags
+       *    a5                 movsl                   // Copy cs
+       *    a5                 movsl                   // Copy eip
        *    61                 popa                    // Restore general-purpose regs
        *    8b 64 24 ec        mov    -20(%esp), %esp  // Switch stacks
        *    cf                 iret                    // Restore eip, cs, eflags
        *
-       */  
+       */
 
       IntrTrampoline[i].code1 = 0x6860;
       IntrTrampoline[i].code2 = 0xb8;
       IntrTrampoline[i].code3 = 0x8b58d0ff;
       IntrTrampoline[i].code4 = 0x8d0c247c;
-      IntrTrampoline[i].code5 = 0xa5202474;
-      IntrTrampoline[i].code6 = 0x8b61a5a5;
-      IntrTrampoline[i].code7 = 0xcfec2464;
+      IntrTrampoline[i].code5 = 0x83282474;
+      IntrTrampoline[i].code6 = 0xa5fd08c7;
+      IntrTrampoline[i].code7 = 0x8b61a5a5;
+      IntrTrampoline[i].code8 = 0xcfec2464;
 
       IntrTrampoline[i].handler = IntrDefaultHandler;
       IntrTrampoline[i].arg = i;
    }
 
-   __asm__ __volatile__ ("lidt IDTDesc");
+   asm volatile ("lidt IDTDesc");
 
    /*
     * Program the PIT to map all IRQs linearly starting at
