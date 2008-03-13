@@ -18,20 +18,13 @@ main(void)
    Intr_SetFaultHandlers(VGAText_DefaultFaultHandler);
 
    VGAText_Init();
-   VGAText_WriteString("PCI...\n");
+   VGAText_WriteString("Scanning for PCI devices:\n\n");
 
    while (PCI_ScanBus(&busScan)) {
-      VGAText_WriteChar(' ');
-      VGAText_WriteHex(busScan.addr.bus, 2);
-      VGAText_WriteChar(':');
-      VGAText_WriteHex(busScan.addr.device, 2);
-      VGAText_WriteChar('.');
-      VGAText_WriteHex(busScan.addr.function, 1);
-      VGAText_WriteChar(' ');
-      VGAText_WriteHex(busScan.vendorId, 4);
-      VGAText_WriteChar(':');
-      VGAText_WriteHex(busScan.deviceId, 4);
-      VGAText_WriteChar('\n');
+      VGAText_Format(" %2x:%2x.%1x  %4x:%4x\n",
+                     busScan.addr.bus, busScan.addr.device,
+                     busScan.addr.function, busScan.vendorId,
+                     busScan.deviceId);
    }
  
    VGAText_WriteString("\nDone.\n");
