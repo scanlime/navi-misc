@@ -9,7 +9,7 @@
  * at http://svn.navi.cx/misc/trunk/metalkit/
  *
  * Copyright (c) 2008 Micah Dowty
- * 
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without
@@ -18,10 +18,10 @@
  * copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following
  * conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -58,9 +58,9 @@ PCIConfigPackAddress(const PCIAddress *addr, uint16 offset)
    const uint32 enableBit = 0x80000000UL;
 
    return (((uint32)addr->bus << 16) |
-	   ((uint32)addr->device << 11) |
-	   ((uint32)addr->function << 8) |
-	   offset | enableBit);
+           ((uint32)addr->device << 11) |
+           ((uint32)addr->function << 8) |
+           offset | enableBit);
 }
 
 
@@ -181,8 +181,8 @@ PCI_FindDevice(uint16 vendorId, uint16 deviceId, PCIAddress *addrOut)
 
    while (PCI_ScanBus(&busScan)) {
       if (busScan.vendorId == vendorId && busScan.deviceId == deviceId) {
-	 *addrOut = busScan.addr;
-	 return TRUE;
+         *addrOut = busScan.addr;
+         return TRUE;
       }
    }
 
