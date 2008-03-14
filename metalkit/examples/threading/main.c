@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 3 -*- 
+/* -*- Mode: C; c-basic-offset: 3 -*-
  *
  * Pre-emptive multithreading example for Metalkit.
  *

@@ -26,7 +26,7 @@ main(void)
                      busScan.addr.function, busScan.vendorId,
                      busScan.deviceId);
    }
- 
+
    VGAText_WriteString("\nDone.\n");
 
    return 0;

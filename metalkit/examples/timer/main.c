@@ -22,7 +22,7 @@ main(void)
 
    Timer_InitPIT(PIT_HZ / 30);
    Intr_SetMask(0, TRUE);
-   Intr_SetHandler(IRQ_TO_VECTOR(0), timerHandler);
+   Intr_SetHandler(IRQ_VECTOR(0), timerHandler);
 
    while (1) {
       VGAText_WriteHex(count, 8);

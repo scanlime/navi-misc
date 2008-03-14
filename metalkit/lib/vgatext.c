@@ -7,7 +7,7 @@
  * at http://svn.navi.cx/misc/trunk/metalkit/
  *
  * Copyright (c) 2008 Micah Dowty
- * 
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without
@@ -16,10 +16,10 @@
  * copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following
  * conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -122,9 +122,9 @@ VGAText_Clear(int8 fgColor, int8 bgColor)
 
    for (j = 0; j < VGA_TEXT_HEIGHT; j++) {
       for (i = 0; i < VGA_TEXT_WIDTH; i++) {
-	 fb[0] = ' ';
-	 fb[1] = vgatext.attr;
-	 fb += 2;
+         fb[0] = ' ';
+         fb[1] = vgatext.attr;
+         fb += 2;
       }
    }
 }
@@ -224,9 +224,9 @@ VGATextWriteChar(char c)
       memcpy(fb, fb + VGA_TEXT_WIDTH * 2, scrollSize);
       fb += scrollSize;
       for (i = 0; i < VGA_TEXT_WIDTH; i++) {
-	 fb[0] = ' ';
-	 fb[1] = vgatext.attr;
-	 fb += 2;
+         fb[0] = ' ';
+         fb[1] = vgatext.attr;
+         fb += 2;
       }
    }
 }
@@ -301,22 +301,22 @@ VGAText_Format(const char *fmt, ...)
 
    while ((c = *(fmt++))) {
       if (c != '%') {
-	 VGATextWriteChar(c);
-	 continue;
+         VGATextWriteChar(c);
+         continue;
       }
       while ((c = *(fmt++))) {
-	 if (c >= '0' && c <= '9') {
-	    width = c - '0';
-	    continue;
-	 }
-	 if (c == 's') {
-	    VGAText_WriteString((char*) *(++arg));
-	    break;
-	 }
-	 if (c == 'x') {
-	    VGAText_WriteHex(*(++arg), width);
-	    break;
-	 }
+         if (c >= '0' && c <= '9') {
+            width = c - '0';
+            continue;
+         }
+         if (c == 's') {
+            VGAText_WriteString((char*) *(++arg));
+            break;
+         }
+         if (c == 'x') {
+            VGAText_WriteHex(*(++arg), width);
+            break;
+         }
       }
    }
    VGATextMoveHardwareCursor();
@@ -338,12 +338,12 @@ VGAText_HexDump(uint32 *data, uint32 startAddr, uint32 numWords)
       VGAText_WriteHex(startAddr, 8);
       VGAText_WriteChar(':');
       while (numWords && lineWords) {
-	 VGAText_WriteChar(' ');
-	 VGAText_WriteHex(*data, 8);
-	 data++;
-	 startAddr += 4;
-	 numWords--;
-	 lineWords--;
+         VGAText_WriteChar(' ');
+         VGAText_WriteHex(*data, 8);
+         data++;
+         startAddr += 4;
+         numWords--;
+         lineWords--;
       }
       VGAText_WriteChar('\n');
    }
@@ -374,15 +374,15 @@ VGAText_DefaultFaultHandler(int vector)
    ctx->esp += 3 * sizeof(int);
 
    VGAText_Format("Fatal error:\n"
-		  "Unhandled fault %2x at %4x:%8x\n"
-		  "\n"
-		  "eax=%8x ebx=%8x ecx=%8x edx=%8x\n"
-		  "esi=%8x edi=%8x esp=%8x ebp=%8x eflags=%8x\n"
-		  "\n",
-		  vector, ctx->cs, ctx->eip,
-		  ctx->eax, ctx->ebx, ctx->ecx, ctx->edx,
-		  ctx->esi, ctx->edi, ctx->esp, ctx->ebp,
-		  ctx->eflags);
+                  "Unhandled fault %2x at %4x:%8x\n"
+                  "\n"
+                  "eax=%8x ebx=%8x ecx=%8x edx=%8x\n"
+                  "esi=%8x edi=%8x esp=%8x ebp=%8x eflags=%8x\n"
+                  "\n",
+                  vector, ctx->cs, ctx->eip,
+                  ctx->eax, ctx->ebx, ctx->ecx, ctx->edx,
+                  ctx->esi, ctx->edi, ctx->esp, ctx->ebp,
+                  ctx->eflags);
 
    VGAText_HexDump((void*)ctx->esp, ctx->esp, 64);
 
