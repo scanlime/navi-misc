@@ -52,6 +52,10 @@ typedef uint8 Bool;
 #define FALSE  0
 
 #define offsetof(type, member)  ((uint32)(&((type*)NULL)->member))
+#define arraysize(var)          (sizeof(var) / sizeof((var)[0]))
+
+#define PACKED       __attribute__ ((__packed__))
+#define ALIGNED(n)   __attribute__ ((aligned(n)))
 
 #define MIN(a, b)   ((a) < (b) ? (a) : (b))
 #define MAX(a, b)   ((a) > (b) ? (a) : (b))

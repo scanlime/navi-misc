@@ -40,13 +40,15 @@
 #define VGA_CRTCREG_CURSOR_LOC_HIGH  0x0E
 #define VGA_CRTCREG_CURSOR_LOC_LOW   0x0F
 
-struct {
+typedef struct {
    uint16 crtc_iobase;
    struct {
       int8 x, y;
    } cursor;
    int8 attr;
-} vgatext;
+} VGATextObject;
+
+VGATextObject *gVGAText;
 
 
 /*
@@ -58,8 +60,9 @@ struct {
 static void
 VGATextWriteCRTC(uint8 addr, uint8 value)
 {
-   IO_Out8(vgatext.crtc_iobase, addr);
-   IO_Out8(vgatext.crtc_iobase + 1, value);
+   VGATextObject *self = gVGAText;
+   IO_Out8(self->crtc_iobase, addr);
+   IO_Out8(self->crtc_iobase + 1, value);
 }
 
 
@@ -72,7 +75,8 @@ VGATextWriteCRTC(uint8 addr, uint8 value)
 static void
 VGATextMoveHardwareCursor(void)
 {
-   uint16 loc = vgatext.cursor.x + vgatext.cursor.y * VGA_TEXT_WIDTH;
+   VGATextObject *self = gVGAText;
+   uint16 loc = self->cursor.x + self->cursor.y * VGA_TEXT_WIDTH;
 
    VGATextWriteCRTC(VGA_CRTCREG_CURSOR_LOC_LOW, loc & 0xFF);
    VGATextWriteCRTC(VGA_CRTCREG_CURSOR_LOC_HIGH, loc >> 8);
@@ -89,14 +93,16 @@ VGATextMoveHardwareCursor(void)
 void
 VGAText_Init(void)
 {
+   VGATextObject *self = gVGAText;
+
    /*
     * Read the I/O address select bit, to determine where the CRTC
     * registers are.
     */
    if (IO_In8(0x3CC) & 1) {
-      vgatext.crtc_iobase = 0x3D4;
+      self->crtc_iobase = 0x3D4;
    } else {
-      vgatext.crtc_iobase = 0x3B4;
+      self->crtc_iobase = 0x3B4;
    }
 
    VGAText_Clear(VGA_COLOR_WHITE, VGA_COLOR_BLUE);
@@ -113,6 +119,7 @@ VGAText_Init(void)
 void
 VGAText_Clear(int8 fgColor, int8 bgColor)
 {
+   VGATextObject *self = gVGAText;
    int i, j;
    uint8 *fb = VGA_TEXT_FRAMEBUFFER;
 
@@ -123,7 +130,7 @@ VGAText_Clear(int8 fgColor, int8 bgColor)
    for (j = 0; j < VGA_TEXT_HEIGHT; j++) {
       for (i = 0; i < VGA_TEXT_WIDTH; i++) {
          fb[0] = ' ';
-         fb[1] = vgatext.attr;
+         fb[1] = self->attr;
          fb += 2;
       }
    }
@@ -139,8 +146,10 @@ VGAText_Clear(int8 fgColor, int8 bgColor)
 void
 VGAText_SetColor(int8 fgColor)
 {
-   vgatext.attr &= 0xF0;
-   vgatext.attr |= fgColor;
+   VGATextObject *self = gVGAText;
+
+   self->attr &= 0xF0;
+   self->attr |= fgColor;
 }
 
 
@@ -153,8 +162,10 @@ VGAText_SetColor(int8 fgColor)
 void
 VGAText_SetBgColor(int8 bgColor)
 {
-   vgatext.attr &= 0x0F;
-   vgatext.attr |= bgColor << 4;
+   VGATextObject *self = gVGAText;
+
+   self->attr &= 0x0F;
+   self->attr |= bgColor << 4;
 }
 
 
@@ -167,8 +178,10 @@ VGAText_SetBgColor(int8 bgColor)
 void
 VGAText_MoveTo(int x, int y)
 {
-   vgatext.cursor.x = x;
-   vgatext.cursor.y = y;
+   VGATextObject *self = gVGAText;
+
+   self->cursor.x = x;
+   self->cursor.y = y;
    VGATextMoveHardwareCursor();
 }
 
@@ -185,47 +198,48 @@ VGAText_MoveTo(int x, int y)
 static void
 VGATextWriteChar(char c)
 {
+   VGATextObject *self = gVGAText;
    uint8 *fb = VGA_TEXT_FRAMEBUFFER;
 
    switch (c) {
 
    case '\n':
-      vgatext.cursor.y++;
-      vgatext.cursor.x = 0;
+      self->cursor.y++;
+      self->cursor.x = 0;
       break;
 
    case '\r':
       break;
 
    case '\t':
-      vgatext.cursor.x = (vgatext.cursor.x & ~7) + 8;
+      self->cursor.x = (self->cursor.x & ~7) + 8;
       break;
 
    default:
-      fb += vgatext.cursor.x * 2 + vgatext.cursor.y * VGA_TEXT_WIDTH * 2;
+      fb += self->cursor.x * 2 + self->cursor.y * VGA_TEXT_WIDTH * 2;
       fb[0] = c;
-      fb[1] = vgatext.attr;
-      vgatext.cursor.x++;
+      fb[1] = self->attr;
+      self->cursor.x++;
       break;
    }
 
-   if (vgatext.cursor.x >= VGA_TEXT_WIDTH) {
-      vgatext.cursor.x = 0;
-      vgatext.cursor.y++;
+   if (self->cursor.x >= VGA_TEXT_WIDTH) {
+      self->cursor.x = 0;
+      self->cursor.y++;
    }
 
-   if (vgatext.cursor.y >= VGA_TEXT_HEIGHT) {
+   if (self->cursor.y >= VGA_TEXT_HEIGHT) {
       int i, j;
       uint8 *fb = VGA_TEXT_FRAMEBUFFER;
       const uint32 scrollSize = VGA_TEXT_WIDTH * 2 * (VGA_TEXT_HEIGHT - 1);
 
-      vgatext.cursor.y = VGA_TEXT_HEIGHT - 1;
+      self->cursor.y = VGA_TEXT_HEIGHT - 1;
 
       memcpy(fb, fb + VGA_TEXT_WIDTH * 2, scrollSize);
       fb += scrollSize;
       for (i = 0; i < VGA_TEXT_WIDTH; i++) {
          fb[0] = ' ';
-         fb[1] = vgatext.attr;
+         fb[1] = self->attr;
          fb += 2;
       }
    }
