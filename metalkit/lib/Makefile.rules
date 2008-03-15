@@ -24,6 +24,12 @@ CFLAGS += -Os -Wl,--gc-sections
 # This enables extra gcc builtins for floating point math.
 CFLAGS += -march=i686 -ffast-math
 
+# Generate debug symbols. These only show up in the .elf file,
+# not the final image. If you're using QEMU (or some versions
+# of VMware) you can point gdb at these symbols and get source
+# level debugging on the simulated bare metal. Neat.
+CFLAGS += -g
+
 SOURCES := \
   $(METALKIT_LIB)/boot.S \
   $(METALKIT_LIB)/basic_asm.S \
@@ -43,6 +49,14 @@ target: $(TARGET)
 
 %.img: %.elf
 	objcopy -O binary $< $@
+
+
+# Create a padded disk image, necessary when using QEMU
+# (which will read an entire disk sector as all zeros if
+# any part of that sector isn't present in the disk image)
+
+%.imgp: %.img
+	dd if=$< of=$@ bs=512 conv=sync
 
 # Stackable rules for processing data files
 
