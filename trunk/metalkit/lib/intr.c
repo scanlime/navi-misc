@@ -50,17 +50,25 @@
  * BSS segment, the descriptor lives in the data segment.
  */
 
-static struct {
-   uint16 offsetLow;
-   uint16 segment;
-   uint16 flags;
-   uint16 offsetHigh;
-} __attribute__ ((__packed__, aligned (8))) IDT[NUM_INTR_VECTORS];
+typedef union {
+   struct {
+      uint16 offsetLow;
+      uint16 segment;
+      uint16 flags;
+      uint16 offsetHigh;
+   };
+   struct {
+      uint32 offsetLowSeg;
+      uint32 flagsOffsetHigh;
+   };
+} PACKED IDTType;
+
+static IDTType ALIGNED(8) IDT[NUM_INTR_VECTORS];
 
 const struct {
    uint16 limit;
    void *address;
-} __attribute__ ((__packed__)) IDTDesc = {
+} PACKED IDTDesc = {
    .limit = NUM_INTR_VECTORS * 8 - 1,
    .address = IDT,
 };
@@ -73,7 +81,7 @@ const struct {
  * code.
  */
 
-static struct {
+typedef struct {
    uint16      code1;
    uint32      arg;
    uint8       code2;
@@ -84,7 +92,9 @@ static struct {
    uint32      code6;
    uint32      code7;
    uint32      code8;
-} __attribute__ ((__packed__, aligned (4))) IntrTrampoline[NUM_INTR_VECTORS];
+} PACKED IntrTrampolineType;
+
+static IntrTrampolineType ALIGNED(4) IntrTrampoline[NUM_INTR_VECTORS];
 
 
 /*
@@ -115,19 +125,21 @@ Intr_Init(void)
 
    Intr_Disable();
 
-   for (i = 0; i < NUM_INTR_VECTORS; i++) {
+   IDTType *idt = IDT;
+   IntrTrampolineType *tramp = IntrTrampoline;
 
-      uint32 trampolineAddr = (uint32) &IntrTrampoline[i];
+   for (i = 0; i < NUM_INTR_VECTORS; i++) {
+      uint32 trampolineAddr = (uint32) tramp;
 
       /*
        * Set up the IDT entry as a 32-bit interrupt gate, pointing at
-       * our trampoline for this vector.
+       * our trampoline for this vector. Fill in the IDT with two 32-bit
+       * writes, since GCC generates significantly smaller code for this
+       * than when writing four 16-bit fields separately.
        */
 
-      IDT[i].offsetLow = (uint16)trampolineAddr;
-      IDT[i].segment = BOOT_CODE_SEGMENT;
-      IDT[i].flags = 0x8E00;
-      IDT[i].offsetHigh = trampolineAddr >> 16;
+      idt->offsetLowSeg = (trampolineAddr & 0x0000FFFF) | (BOOT_CODE_SEGMENT << 16);
+      idt->flagsOffsetHigh = (trampolineAddr & 0xFFFF0000) | 0x00008E00;
 
       /*
        * Set up the trampoline, pointing it at the default handler.
@@ -177,42 +189,60 @@ Intr_Init(void)
        *    8b 64 24 ec        mov    -20(%esp), %esp  // Switch stacks
        *    cf                 iret                    // Restore eip, cs, eflags
        *
+       * Note: Surprisingly enough, it's actually more size-efficient to initialize
+       * the structure in code like this than it is to memcpy() the trampoline from
+       * a template in the data segment.
        */
 
-      IntrTrampoline[i].code1 = 0x6860;
-      IntrTrampoline[i].code2 = 0xb8;
-      IntrTrampoline[i].code3 = 0x8b58d0ff;
-      IntrTrampoline[i].code4 = 0x8d0c247c;
-      IntrTrampoline[i].code5 = 0x83282474;
-      IntrTrampoline[i].code6 = 0xa5fd08c7;
-      IntrTrampoline[i].code7 = 0x8b61a5a5;
-      IntrTrampoline[i].code8 = 0xcfec2464;
+      tramp->code1 = 0x6860;
+      tramp->code2 = 0xb8;
+      tramp->code3 = 0x8b58d0ff;
+      tramp->code4 = 0x8d0c247c;
+      tramp->code5 = 0x83282474;
+      tramp->code6 = 0xa5fd08c7;
+      tramp->code7 = 0x8b61a5a5;
+      tramp->code8 = 0xcfec2464;
 
-      IntrTrampoline[i].handler = IntrDefaultHandler;
-      IntrTrampoline[i].arg = i;
+      tramp->handler = IntrDefaultHandler;
+      tramp->arg = i;
+
+      idt++;
+      tramp++;
    }
 
    asm volatile ("lidt IDTDesc");
 
-   /*
-    * Program the PIT to map all IRQs linearly starting at
-    * IRQ_VECTOR_BASE.
-    */
+   typedef struct {
+      uint8 port, data;
+   } PortData8;
 
-   IO_Out8(PIC1_COMMAND_PORT, 0x11);       // Begin init, use 4 command words
-   IO_Out8(PIC2_COMMAND_PORT, 0x11);
-   IO_Out8(PIC1_DATA_PORT, IRQ_VECTOR_BASE);
-   IO_Out8(PIC2_DATA_PORT, IRQ_VECTOR_BASE + 8);
-   IO_Out8(PIC1_DATA_PORT, 0x04);
-   IO_Out8(PIC2_DATA_PORT, 0x02);
-   IO_Out8(PIC1_DATA_PORT, 0x03);          // 8086 mode, auto-end-of-interrupt.
-   IO_Out8(PIC2_DATA_PORT, 0x03);
+   static const PortData8 pitInit[] = {
+      /*
+       * Program the PIT to map all IRQs linearly starting at
+       * IRQ_VECTOR_BASE.
+       */
 
-   /*
-    * All IRQs start out masked, except for the cascade IRQs 2 and 4.
-    */
-   IO_Out8(PIC1_DATA_PORT, 0xEB);
-   IO_Out8(PIC2_DATA_PORT, 0xFF);
+      { PIC1_COMMAND_PORT, 0x11 },       // Begin init, use 4 command words
+      { PIC2_COMMAND_PORT, 0x11 },
+      { PIC1_DATA_PORT, IRQ_VECTOR_BASE },
+      { PIC2_DATA_PORT, IRQ_VECTOR_BASE + 8 },
+      { PIC1_DATA_PORT, 0x04 },
+      { PIC2_DATA_PORT, 0x02 },
+      { PIC1_DATA_PORT, 0x03 },          // 8086 mode, auto-end-of-interrupt.
+      { PIC2_DATA_PORT, 0x03 },
+
+      /*
+       * All IRQs start out masked, except for the cascade IRQs 2 and 4.
+       */
+      { PIC1_DATA_PORT, 0xEB },
+      { PIC2_DATA_PORT, 0xFF },
+   };
+
+   const PortData8 *p = pitInit;
+
+   for (i = arraysize(pitInit); i; i--, p++) {
+      IO_Out8(p->port, p->data);
+   }
 
    Intr_Enable();
 }
