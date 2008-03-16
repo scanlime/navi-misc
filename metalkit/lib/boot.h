@@ -40,4 +40,7 @@
 #define BOOT_CODE16_SEGMENT     0x18
 #define BOOT_DATA16_SEGMENT     0x20
 
+/* Unused real-mode-accessable scratch memory. */
+#define BOOT_REALMODE_SCRATCH   0x7C00
+
 #endif /* __BOOT_H__ */

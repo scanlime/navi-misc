@@ -82,6 +82,22 @@ Intr_Disable(void) {
    asm volatile ("cli");
 }
 
+static inline Bool
+Intr_Save(void) {
+   uint32 eflags;
+   asm volatile ("pushf; pop %0" : "=r" (eflags));
+   return (eflags & 0x200) != 0;
+}
+
+static inline void
+Intr_Restore(Bool flag) {
+   if (flag) {
+      Intr_Enable();
+   } else {
+      Intr_Disable();
+   }
+}
+
 static inline void
 Intr_Halt(void) {
    asm volatile ("hlt");
