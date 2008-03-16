@@ -13,10 +13,10 @@
 
 # Basic options necessary to produce our standalone binary.
 # Produce 32-bit code, even on 64-bit machines. Don't use
-# the standard library at all. Begin the text segment at 1MB.
+# the standard library at all. Use a custom linker script.
 
 CFLAGS := -m32 -ffreestanding -nostdinc -I$(METALKIT_LIB)
-LDFLAGS := -nostdlib -Wl,-N,-Ttext,100000
+LDFLAGS := -nostdlib -Wl,-T,$(METALKIT_LIB)/image.ld
 
 # Size Optimizations.
 CFLAGS += -Os -Wl,--gc-sections
@@ -49,14 +49,6 @@ target: $(TARGET)
 
 %.img: %.elf
 	objcopy -O binary $< $@
-
-
-# Create a padded disk image, necessary when using QEMU
-# (which will read an entire disk sector as all zeros if
-# any part of that sector isn't present in the disk image)
-
-%.imgp: %.img
-	dd if=$< of=$@ bs=512 conv=sync
 
 # Stackable rules for processing data files
 
