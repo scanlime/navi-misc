@@ -33,7 +33,6 @@ CFLAGS += -g
 SOURCES := \
   $(METALKIT_LIB)/boot.S \
   $(METALKIT_LIB)/basic_asm.S \
-  $(METALKIT_LIB)/context.S \
   $(addprefix $(METALKIT_LIB)/, $(addsuffix .c, $(LIB_MODULES))) \
   $(APP_SOURCES)
 
