@@ -332,3 +332,85 @@ Intr_InitContext(IntrContext *ctx, uint32 *stack, IntrContextFn main)
    ctx->esp = (uint32) stack;
    ctx->eip = (uint32) main;
 }
+
+
+/*
+ * Intr_SaveContext --
+ *
+ *    This is a C-callable function which constructs an
+ *    IntrContext representing the current execution
+ *    context. This is nearly equivalent to invoking
+ *    software interrupt and saving the interrupt's
+ *    IntrContext, but this implementation doesn't have the
+ *    overhead of an actual interrupt invocation.
+ */
+
+asm (".global Intr_SaveContext \n Intr_SaveContext:"
+
+     "pusha \n"
+
+     /*
+      * Adjust the saved stack pointer. IntrContexts always
+      * store an %esp which has three words on the stack
+      * prior to the general-purpose regs, but since we don't
+      * use cs or eflags we only have 1.
+      */
+
+     "sub     $8, 12(%esp) \n"
+
+     /*
+      * The stack now matches the layout of the first 9 words
+      * of IntrContext. Copy these, then manually save CS and
+      * eflags.
+      */
+
+     "mov     %esp, %esi \n"
+     "mov     36(%esp), %edi \n"
+     "mov     $9, %ecx \n"
+     "rep movsl \n"
+     "xor     %eax, %eax \n"
+     "mov     %cs, %ax \n"
+     "stosl \n"
+     "pushf \n"
+     "pop     %eax \n"
+     "stosl \n"
+
+     /* Return 0 when this function is called directly. */
+
+     "popa \n"
+     "xor     %eax, %eax \n"
+     "ret" );
+
+
+/*
+ * Intr_RestoreContext --
+ *
+ *    This is the inverse of Intr_SaveContext: copy the
+ *    IntrContext onto the target context's stack frame,
+ *    switch stacks, then restore the rest of the context's
+ *    saved state.
+ */
+
+asm(".global Intr_RestoreContext \n Intr_RestoreContext:"
+
+    "mov     4(%esp), %esi \n"   // Load pointer to IntrContext
+    "mov     12(%esi), %esp \n"  // Switch stacks
+
+    /*
+     * esp was saved with 3 words on the stack (eip, cs, cflags).
+     * Position esp so we have 9 words instead. (General purpose
+     * regs plus eip, but no cs/eflags.)
+     */
+
+    "sub     $24, %esp \n"
+
+    // Copy the first 9 words of Intrcontext back onto the stack.
+
+    "mov     %esp, %edi \n"
+    "mov     $9, %ecx \n"
+    "rep movsl \n"
+
+    // Restore the general purpose regs and eip
+
+    "popa \n"
+    "ret" );
