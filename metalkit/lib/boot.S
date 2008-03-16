@@ -66,8 +66,10 @@
 #define BIOS_PTR(x)            (x - _start + BIOS_START_ADDRESS)
 #define FILE_OFFSET(x)         (x - _start)
 
-        .global _start
+	.section .boot
 
+        .global _start
+	
         .extern _end
         .extern _edata
         .extern main
