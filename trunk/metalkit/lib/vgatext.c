@@ -201,26 +201,14 @@ VGATextWriteChar(char c)
    VGATextObject *self = gVGAText;
    uint8 *fb = VGA_TEXT_FRAMEBUFFER;
 
-   switch (c) {
-
-   case '\n':
+   if (c == '\n') {
       self->cursor.y++;
       self->cursor.x = 0;
-      break;
-
-   case '\r':
-      break;
-
-   case '\t':
-      self->cursor.x = (self->cursor.x & ~7) + 8;
-      break;
-
-   default:
+   } else {
       fb += self->cursor.x * 2 + self->cursor.y * VGA_TEXT_WIDTH * 2;
       fb[0] = c;
       fb[1] = self->attr;
       self->cursor.x++;
-      break;
    }
 
    if (self->cursor.x >= VGA_TEXT_WIDTH) {
@@ -279,6 +267,22 @@ VGAText_WriteString(const char *str)
 
 
 /*
+ * VGAText_WriteChars --
+ *
+ *    Write a fixed number of characters.
+ */
+
+void
+VGAText_WriteChars(const char *chars, int count)
+{
+   while (count--) {
+      VGAText_WriteChar(*(chars++));
+   }
+   VGATextMoveHardwareCursor();
+}
+
+
+/*
  * VGAText_WriteHex --
  *
  *    Write a variable-length hexadecimal integer.
@@ -311,25 +315,35 @@ VGAText_Format(const char *fmt, ...)
 {
    int *arg = (int*)&fmt;
    char c;
-   int width = 0;
 
    while ((c = *(fmt++))) {
+      int width = 0;
+
       if (c != '%') {
          VGATextWriteChar(c);
          continue;
       }
+
       while ((c = *(fmt++))) {
          if (c >= '0' && c <= '9') {
             width = c - '0';
             continue;
          }
          if (c == 's') {
-            VGAText_WriteString((char*) *(++arg));
-            break;
+	    VGAText_WriteString((char*) *(++arg));
+	    break;
          }
          if (c == 'x') {
             VGAText_WriteHex(*(++arg), width);
             break;
+         }
+         if (c == 'c') {
+            VGAText_WriteChar(*(++arg));
+	    break;
+	 }
+         if (c == 'C') {
+	    VGAText_WriteChars((char*) *(++arg), width);
+	    break;
          }
       }
    }
@@ -376,6 +390,18 @@ VGAText_DefaultFaultHandler(int vector)
 {
    IntrContext *ctx = Intr_GetContext(vector);
 
+   /*
+    * Using a regular inline string constant, the linker can't
+    * optimize out this string when the function isn't used.
+    */
+   static const char faultFmt[] =
+      "Fatal error:\n"
+      "Unhandled fault %2x at %4x:%8x\n"
+      "\n"
+      "eax=%8x ebx=%8x ecx=%8x edx=%8x\n"
+      "esi=%8x edi=%8x esp=%8x ebp=%8x eflags=%8x\n"
+      "\n";
+
    VGAText_Init();
 
    /*
@@ -387,12 +413,7 @@ VGAText_DefaultFaultHandler(int vector)
     */
    ctx->esp += 3 * sizeof(int);
 
-   VGAText_Format("Fatal error:\n"
-                  "Unhandled fault %2x at %4x:%8x\n"
-                  "\n"
-                  "eax=%8x ebx=%8x ecx=%8x edx=%8x\n"
-                  "esi=%8x edi=%8x esp=%8x ebp=%8x eflags=%8x\n"
-                  "\n",
+   VGAText_Format(faultFmt,
                   vector, ctx->cs, ctx->eip,
                   ctx->eax, ctx->ebx, ctx->ecx, ctx->edx,
                   ctx->esi, ctx->edi, ctx->esp, ctx->ebp,
@@ -415,8 +436,13 @@ VGAText_DefaultFaultHandler(int vector)
 void
 VGAText_Panic(const char *str)
 {
+   /*
+    * To keep minimum size down, this function shouldn't depend on
+    * VGAText_Format.
+    */
    VGAText_Init();
-   VGAText_Format("Panic:\n%s", str);
+   VGAText_WriteString("Panic:\n");
+   VGAText_WriteString(str);
    Intr_Disable();
    Intr_Halt();
 }

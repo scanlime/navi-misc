@@ -19,7 +19,7 @@ CFLAGS := -m32 -ffreestanding -nostdinc -I$(METALKIT_LIB)
 LDFLAGS := -nostdlib -Wl,-T,$(METALKIT_LIB)/image.ld
 
 # Size Optimizations.
-CFLAGS += -Os -Wl,--gc-sections
+CFLAGS += -Os -Wl,--gc-sections -ffunction-sections -fdata-sections
 
 # This enables extra gcc builtins for floating point math.
 CFLAGS += -march=i686 -ffast-math
