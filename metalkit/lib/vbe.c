@@ -34,7 +34,6 @@
 
 VBEState gVBE;
 
-
 /*
  * VBE_Init --
  *
@@ -48,6 +47,7 @@ VBEState gVBE;
 Bool
 VBE_Init()
 {
+   VBEState *self = &gVBE;
    Regs16 reg = {};
    VBEControllerInfo *cInfo = (void*) BIOS_SHARED->userdata;
    uint16 *modes;
@@ -70,13 +70,13 @@ VBE_Init()
     * to copy it before making the next VBE call.
     */
 
-   memcpy(&gVBE.cInfo, cInfo, sizeof *cInfo);
-   modes = PTR_FAR_TO_32(gVBE.cInfo.videoModes);
-   gVBE.numModes = 0;
+   memcpy(&self->cInfo, cInfo, sizeof *cInfo);
+   modes = PTR_FAR_TO_32(self->cInfo.videoModes);
+   self->numModes = 0;
    while (*modes != 0xFFFF) {
-      gVBE.modes[gVBE.numModes] = *modes;
+      self->modes[self->numModes] = *modes;
       modes++;
-      gVBE.numModes++;
+      self->numModes++;
    }
 
    return TRUE;
@@ -93,6 +93,7 @@ VBE_Init()
 void
 VBE_GetModeInfo(uint16 mode, VBEModeInfo *info)
 {
+   VBEState *self = &gVBE;
    Regs16 reg = {};
    VBEModeInfo *tempInfo = (void*) BIOS_SHARED->userdata;
 
@@ -118,9 +119,11 @@ VBE_GetModeInfo(uint16 mode, VBEModeInfo *info)
 void
 VBE_SetMode(uint16 mode, uint16 modeFlags)
 {
-   gVBE.current.mode = mode;
-   gVBE.current.flags = modeFlags;
-   VBE_GetModeInfo(mode, &gVBE.current.info);
+   VBEState *self = &gVBE;
+
+   self->current.mode = mode;
+   self->current.flags = modeFlags;
+   VBE_GetModeInfo(mode, &self->current.info);
 
    Regs16 reg = {};
    reg.ax = 0x4f02;
@@ -147,14 +150,15 @@ VBE_SetMode(uint16 mode, uint16 modeFlags)
 void
 VBE_InitSimple(int width, int height, int bpp)
 {
+   VBEState *self = &gVBE;
    int i;
 
    if (!VBE_Init()) {
       VGAText_Panic("VESA BIOS Extensions not available.");
    }
 
-   for (i = 0; i < gVBE.numModes; i++) {
-      uint16 mode = gVBE.modes[i];
+   for (i = 0; i < self->numModes; i++) {
+      uint16 mode = self->modes[i];
       VBEModeInfo info;
       const uint32 requiredAttrs = VBE_MODEATTR_SUPPORTED |
                                    VBE_MODEATTR_GRAPHICS |
