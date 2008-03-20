@@ -103,6 +103,11 @@ Intr_Halt(void) {
    asm volatile ("hlt");
 }
 
+static inline void
+Intr_Break(void) {
+   asm volatile ("int3");
+}
+
 /*
  * This structure describes all execution state that's saved when an
  * interrupt or a setjmp occurs. In the case of an interrupt, this
