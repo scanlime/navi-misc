@@ -4,11 +4,14 @@
  */
 
 #include "vbe.h"
+#include "console_vga.h"
 
 int
 main(void)
 {
+   ConsoleVGA_Init();
    VBE_InitSimple(800, 600, 16);
+
    uint16 *fb = gVBE.current.info.linearAddress;
    int i;
 

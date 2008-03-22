@@ -5,7 +5,7 @@
  */
 
 #include "types.h"
-#include "vgatext.h"
+#include "console_vga.h"
 #include "intr.h"
 #include "vbe.h"
 
@@ -14,24 +14,24 @@ main(void)
 {
    int i;
 
+   ConsoleVGA_Init();
    Intr_Init();
-   Intr_SetFaultHandlers(VGAText_DefaultFaultHandler);
-   VGAText_Init();
+   Intr_SetFaultHandlers(Console_UnhandledFault);
 
-   VGAText_WriteString("Initializing VBE..\n\n");
+   Console_WriteString("Initializing VBE..\n\n");
 
    if (!VBE_Init()) {
-      VGAText_Panic("VESA BIOS Extensions not available.");
+      Console_Panic("VESA BIOS Extensions not available.");
    }
 
-   VGAText_Format("Found VBE %2x.%2x\n"
+   Console_Format("Found VBE %x.%02x\n"
 		  "\n"
 		  " OEM: '%s'\n"
 		  " Vendor: '%s'\n"
 		  " Product: '%s'\n"
 		  " Revision: '%s' \n"
 		  "\n"
-		  "Found %4x video modes:\n",
+		  "Found %d video modes:\n",
 		  gVBE.cInfo.verMajor,
 		  gVBE.cInfo.verMinor,
 		  PTR_FAR_TO_32(gVBE.cInfo.oemString),
@@ -46,9 +46,11 @@ main(void)
 
       VBE_GetModeInfo(mode, &info);
 
-      VGAText_Format("Mode %4x: %4xx%4x bpp=%2x attr=%4x\n",
+      Console_Format("Mode 0x%x: %dx%d \tbpp=%d \tattr=%016b\n",
 		     mode, info.width, info.height, info.bitsPerPixel, info.attributes);
    }
+
+   Console_Flush();
 
    return 0;
 }

@@ -1,6 +1,6 @@
 /* -*- Mode: C; c-basic-offset: 3 -*-
  *
- * types.h - Basic type and macro definitions.
+ * console_vga.h - Console driver for VGA text mode.
  *
  * This file is part of Metalkit, a simple collection of modules for
  * writing software that runs on the bare metal. Get the latest code
@@ -30,48 +30,34 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __TYPES_H__
-#define __TYPES_H__
+#ifndef __CONSOLE_VGA_H__
+#define __CONSOLE_VGA_H__
 
-typedef long long int64;
-typedef unsigned long long uint64;
+#include "types.h"
+#include "console.h"
 
-typedef int int32;
-typedef unsigned int uint32;
+#define VGA_COLOR_BLACK          0
+#define VGA_COLOR_BLUE           1
+#define VGA_COLOR_GREEN          2
+#define VGA_COLOR_CYAN           3
+#define VGA_COLOR_RED            4
+#define VGA_COLOR_MAGENTA        5
+#define VGA_COLOR_BROWN          6
+#define VGA_COLOR_LIGHT_GRAY     7
+#define VGA_COLOR_DARK_GRAY      8
+#define VGA_COLOR_LIGHT_BLUE     9
+#define VGA_COLOR_LIGHT_GREEN    10
+#define VGA_COLOR_LIGHT_CYAN     11
+#define VGA_COLOR_LIGHT_RED      12
+#define VGA_COLOR_LIGHT_MAGENTA  13
+#define VGA_COLOR_YELLOW         14
+#define VGA_COLOR_WHITE          15
 
-typedef short int16;
-typedef unsigned short uint16;
+#define VGA_TEXT_WIDTH           80
+#define VGA_TEXT_HEIGHT          25
 
-typedef char int8;
-typedef unsigned char uint8;
+void ConsoleVGA_Init(void);
+void ConsoleVGA_SetColor(int8 fgColor);
+void ConsoleVGA_SetBgColor(int8 bgColor);
 
-typedef uint8 Bool;
-
-typedef struct {
-   int x, y;
-} IVec2;
-
-#define NULL   ((void*)0)
-#define TRUE   1
-#define FALSE  0
-
-#define offsetof(type, member)  ((uint32)(&((type*)NULL)->member))
-#define arraysize(var)          (sizeof(var) / sizeof((var)[0]))
-
-#define PACKED       __attribute__ ((__packed__))
-#define ALIGNED(n)   __attribute__ ((aligned(n)))
-
-#define MIN(a, b)   ((a) < (b) ? (a) : (b))
-#define MAX(a, b)   ((a) > (b) ? (a) : (b))
-
-void memcpy(void *dest, const void *src, uint32 size);
-void memset(void *dest, uint8 value, uint32 size);
-
-#define Atomic_Exchange(mem, reg) \
-   asm volatile ("xchgl %0, %1" : "+r" (reg), "+m" (mem) :)
-
-#define Atomic_Or(mem, reg) \
-   asm volatile ("lock orl %1, %0" :"+m" (mem) :"r" (reg))
-
-#endif /* __TYPES_H__ */
-
+#endif /* __CONSOLE_VGA_H__ */

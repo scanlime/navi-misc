@@ -44,13 +44,13 @@ typedef struct DataFile {
 #define DECLARE_DATAFILE(symbol, filename)          \
    extern uint8 _binary_ ## filename ## _start[];   \
    extern uint8 _binary_ ## filename ## _size[];    \
-   static const DataFile symbol[1] = {              \
+   static const DataFile symbol[1] = {{             \
       (uint8*) _binary_ ## filename ## _start,      \
       (uint32) _binary_ ## filename ## _size,       \
-   }
+   }}
 
 static inline uint32
-DataFile_Decompress(const DataFile *f, uint8* buffer, uint32 bufferSize)
+DataFile_Decompress(const DataFile *f, void *buffer, uint32 bufferSize)
 {
    unsigned long sourcelen = f->size;
    unsigned long destlen = bufferSize;

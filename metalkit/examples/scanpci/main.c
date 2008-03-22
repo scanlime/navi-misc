@@ -5,7 +5,7 @@
  */
 
 #include "types.h"
-#include "vgatext.h"
+#include "console_vga.h"
 #include "pci.h"
 #include "intr.h"
 
@@ -14,20 +14,21 @@ main(void)
 {
    PCIScanState busScan = {};
 
+   ConsoleVGA_Init();
    Intr_Init();
-   Intr_SetFaultHandlers(VGAText_DefaultFaultHandler);
+   Intr_SetFaultHandlers(Console_UnhandledFault);
 
-   VGAText_Init();
-   VGAText_WriteString("Scanning for PCI devices:\n\n");
+   Console_WriteString("Scanning for PCI devices:\n\n");
 
    while (PCI_ScanBus(&busScan)) {
-      VGAText_Format(" %2x:%2x.%1x  %4x:%4x\n",
+      Console_Format(" %02x:%02x.%01x  %04x:%04x\n",
                      busScan.addr.bus, busScan.addr.device,
                      busScan.addr.function, busScan.vendorId,
                      busScan.deviceId);
    }
 
-   VGAText_WriteString("\nDone.\n");
-
+   Console_WriteString("\nDone.\n");
+   Console_Flush();
+   
    return 0;
 }

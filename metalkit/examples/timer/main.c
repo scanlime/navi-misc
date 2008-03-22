@@ -1,7 +1,7 @@
 /* -*- Mode: C; c-basic-offset: 3 -*- */
 
 #include "types.h"
-#include "vgatext.h"
+#include "console_vga.h"
 #include "timer.h"
 #include "intr.h"
 
@@ -16,17 +16,18 @@ timerHandler(int vector)
 int
 main(void)
 {
-   VGAText_Init();
+   ConsoleVGA_Init();
    Intr_Init();
-   Intr_SetFaultHandlers(VGAText_DefaultFaultHandler);
+   Intr_SetFaultHandlers(Console_UnhandledFault);
 
-   Timer_InitPIT(PIT_HZ / 30);
+   Timer_InitPIT(PIT_HZ / 100);
    Intr_SetMask(0, TRUE);
    Intr_SetHandler(IRQ_VECTOR(0), timerHandler);
 
    while (1) {
-      VGAText_WriteHex(count, 8);
-      VGAText_WriteChar('\n');
+      Console_MoveTo(0, 0);
+      Console_Format("1/100 seconds: %d", count);
+      Console_Flush();
    }
 
    return 0;
