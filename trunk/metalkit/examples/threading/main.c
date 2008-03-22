@@ -15,7 +15,7 @@
  */
 
 #include "types.h"
-#include "vgatext.h"
+#include "console_vga.h"
 #include "timer.h"
 #include "intr.h"
 
@@ -97,11 +97,12 @@ task2_main(void)
       counter++;
 
       /*
-       * Disable interrupts while using VGAText, since it isn't re-entrant.
+       * Disable interrupts while using the console, since it isn't re-entrant.
        */
 
       Intr_Disable();
-      VGAText_Format("Task 2 (counter: %8x)\n", counter);
+      Console_Format("Task 2 (counter: %d)\n", counter);
+      Console_Flush();
       Intr_Enable();
    }
 }
@@ -127,7 +128,8 @@ task1_main(void)
 
    while (1) {
       Intr_Disable();
-      VGAText_WriteString("Task 1\n");
+      Console_WriteString("Task 1\n");
+      Console_Flush();
       Intr_Enable();
    }
 }
@@ -135,9 +137,9 @@ task1_main(void)
 int
 main(void)
 {
-   VGAText_Init();
+   ConsoleVGA_Init();
    Intr_Init();
-   Intr_SetFaultHandlers(VGAText_DefaultFaultHandler);
+   Intr_SetFaultHandlers(Console_UnhandledFault);
 
    /*
     * Create task 1, and switch to it. We never come

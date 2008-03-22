@@ -1,6 +1,6 @@
 /* -*- Mode: C; c-basic-offset: 3 -*-
  *
- * vgatext.h - Simple VGA text mode driver
+ * console.h - Abstract text console
  *
  * This file is part of Metalkit, a simple collection of modules for
  * writing software that runs on the bare metal. Get the latest code
@@ -30,46 +30,33 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __VGA_TEXT_H__
-#define __VGA_TEXT_H__
+#ifndef __CONSOLE_H__
+#define __CONSOLE_H__
 
 #include "types.h"
 
-#define VGA_COLOR_BLACK          0
-#define VGA_COLOR_BLUE           1
-#define VGA_COLOR_GREEN          2
-#define VGA_COLOR_CYAN           3
-#define VGA_COLOR_RED            4
-#define VGA_COLOR_MAGENTA        5
-#define VGA_COLOR_BROWN          6
-#define VGA_COLOR_LIGHT_GRAY     7
-#define VGA_COLOR_DARK_GRAY      8
-#define VGA_COLOR_LIGHT_BLUE     9
-#define VGA_COLOR_LIGHT_GREEN    10
-#define VGA_COLOR_LIGHT_CYAN     11
-#define VGA_COLOR_LIGHT_RED      12
-#define VGA_COLOR_LIGHT_MAGENTA  13
-#define VGA_COLOR_YELLOW         14
-#define VGA_COLOR_WHITE          15
+typedef struct {
+   void (*beginPanic)(void);       // Initialize the console for a Panic message
+   void (*clear)(void);            // Clear the screen, home the cursor
+   void (*moveTo)(int x, int y);   // Move the cursor
+   void (*writeChar)(char c);      // Write one character, with support for control codes
+   void (*flush)(void);            // Finish writing a string of characters
+} ConsoleInterface;
 
-#define VGA_TEXT_WIDTH           80
-#define VGA_TEXT_HEIGHT          25
+extern ConsoleInterface gConsole;
 
-void VGAText_Init(void);
+#define Console_BeginPanic()   gConsole.beginPanic()
+#define Console_Clear()        gConsole.clear()
+#define Console_MoveTo(x, y)   gConsole.moveTo(x, y)
+#define Console_WriteChar(c)   gConsole.writeChar(c)
+#define Console_Flush()        gConsole.flush()
 
-void VGAText_Clear(int8 fgColor, int8 bgColor);
-void VGAText_SetColor(int8 fgColor);
-void VGAText_SetBgColor(int8 bgColor);
-void VGAText_MoveTo(int x, int y);
+void Console_WriteString(const char *str);
+void Console_WriteUInt32(uint32 num, int digits, char padding, int base, Bool suppressZero);
+void Console_Format(const char *fmt, ...);
+void Console_FormatV(const char **args);
+void Console_HexDump(uint32 *data, uint32 startAddr, uint32 numWords);
+void Console_Panic(const char *str, ...);
+void Console_UnhandledFault(int number);
 
-void VGAText_WriteChar(char c);
-void VGAText_WriteChars(const char *chars, int count);
-void VGAText_WriteString(const char *str);
-void VGAText_WriteHex(int num, int digits);
-void VGAText_Format(const char *fmt, ...);
-void VGAText_HexDump(uint32 *data, uint32 startAddr, uint32 numWords);
-
-void VGAText_Panic(const char *str);
-void VGAText_DefaultFaultHandler(int number);
-
-#endif /* __VGA_TEXT_H__ */
+#endif /* __CONSOLE_H__ */

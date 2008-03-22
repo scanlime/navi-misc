@@ -31,6 +31,7 @@
  */
 
 #include "vbe.h"
+#include "console.h"
 
 VBEState gVBE;
 
@@ -93,7 +94,6 @@ VBE_Init()
 void
 VBE_GetModeInfo(uint16 mode, VBEModeInfo *info)
 {
-   VBEState *self = &gVBE;
    Regs16 reg = {};
    VBEModeInfo *tempInfo = (void*) BIOS_SHARED->userdata;
 
@@ -154,7 +154,7 @@ VBE_InitSimple(int width, int height, int bpp)
    int i;
 
    if (!VBE_Init()) {
-      VGAText_Panic("VESA BIOS Extensions not available.");
+      Console_Panic("VESA BIOS Extensions not available.");
    }
 
    for (i = 0; i < self->numModes; i++) {
@@ -176,5 +176,5 @@ VBE_InitSimple(int width, int height, int bpp)
       }
    }
 
-   VGAText_Panic("Can't find the requested video mode.");
+   Console_Panic("Can't find the requested video mode.");
 }

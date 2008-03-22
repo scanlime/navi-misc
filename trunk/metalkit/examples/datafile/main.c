@@ -5,28 +5,28 @@
  */
 
 #include "types.h"
-#include "vgatext.h"
+#include "console_vga.h"
 #include "datafile.h"
 #include "intr.h"
 
 DECLARE_DATAFILE(myFile, sample_txt_z);
 
-static uint8 output_buffer[64*1024];
+static char output_buffer[64*1024];
 
 int
 main(void)
 {
    uint32 len;
 
+   ConsoleVGA_Init();
    Intr_Init();
-   Intr_SetFaultHandlers(VGAText_DefaultFaultHandler);
-
-   VGAText_Init();
+   Intr_SetFaultHandlers(Console_UnhandledFault);
 
    len = DataFile_Decompress(myFile, output_buffer, sizeof output_buffer);
    output_buffer[len] = '\0';
 
-   VGAText_WriteString(output_buffer);
+   Console_WriteString(output_buffer);
+   Console_Flush();
 
    return 0;
 }
