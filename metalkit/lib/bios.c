@@ -202,7 +202,7 @@ BIOSCallInternal(void)
  *    into the trampoline.
  */
 
-void
+fastcall void
 BIOS_Call(uint8 vector, Regs16 *regs)
 {
    extern uint8 BIOSTrampoline[];

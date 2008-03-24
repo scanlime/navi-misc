@@ -40,7 +40,7 @@
  *    divisor. It will trigger IRQ 0 at (PIT_HZ / divisor) Hz.
  */
 
-void
+fastcall void
 Timer_InitPIT(uint16 divisor)
 {
    IO_Out8(0x43, 0x34);

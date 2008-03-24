@@ -34,7 +34,7 @@ struct {
    struct task *last;
 } runQueue;
 
-void
+fastcall void
 runQueue_append(struct task *t)
 {
    if (runQueue.last) {
@@ -45,7 +45,7 @@ runQueue_append(struct task *t)
    runQueue.last = t;
 }
 
-struct task *
+fastcall struct task *
 runQueue_pop(void)
 {
    struct task *next = runQueue.next;
@@ -56,7 +56,7 @@ runQueue_pop(void)
    return next;
 }
 
-void
+fastcall void
 task_init(struct task *t, IntrContextFn m)
 {
    Intr_InitContext(&t->context, &t->stack[STACK_SIZE-1], m);

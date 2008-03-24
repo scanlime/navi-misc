@@ -60,6 +60,7 @@ typedef struct {
 
 #define PACKED       __attribute__ ((__packed__))
 #define ALIGNED(n)   __attribute__ ((aligned(n)))
+#define fastcall     __attribute__ ((fastcall))
 
 #define MIN(a, b)   ((a) < (b) ? (a) : (b))
 #define MAX(a, b)   ((a) > (b) ? (a) : (b))

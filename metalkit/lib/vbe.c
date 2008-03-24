@@ -45,7 +45,7 @@ VBEState gVBE;
  *    Returns FALSE if VBE is unsupported.
  */
 
-Bool
+fastcall Bool
 VBE_Init()
 {
    VBEState *self = &gVBE;
@@ -91,7 +91,7 @@ VBE_Init()
  *    Fills in the provided VBEModeInfo structure.
  */
 
-void
+fastcall void
 VBE_GetModeInfo(uint16 mode, VBEModeInfo *info)
 {
    Regs16 reg = {};
@@ -116,7 +116,7 @@ VBE_GetModeInfo(uint16 mode, VBEModeInfo *info)
  *    This function fills in
  */
 
-void
+fastcall void
 VBE_SetMode(uint16 mode, uint16 modeFlags)
 {
    VBEState *self = &gVBE;
@@ -147,7 +147,7 @@ VBE_SetMode(uint16 mode, uint16 modeFlags)
  *    will point to the beginning of framebuffer memory.
  */
 
-void
+fastcall void
 VBE_InitSimple(int width, int height, int bpp)
 {
    VBEState *self = &gVBE;

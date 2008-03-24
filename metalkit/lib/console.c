@@ -43,7 +43,7 @@ ConsoleInterface gConsole;
  *    Write a NUL-terminated string.
  */
 
-void
+fastcall void
 Console_WriteString(const char *str)
 {
    char c;
@@ -62,7 +62,7 @@ Console_WriteString(const char *str)
  *    If padding is NUL, leading digits are suppressed entierly.
  */
 
-void
+fastcall void
 Console_WriteUInt32(uint32 num, int digits, char padding, int base, Bool suppressZero)
 {
    if (digits == 0) {
@@ -104,7 +104,7 @@ Console_Format(const char *fmt, ...)
    Console_FormatV(&fmt);
 }
 
-void
+fastcall void
 Console_FormatV(const char **args)
 {
    char c;
@@ -186,7 +186,7 @@ Console_FormatV(const char **args)
  *    line with addresses starting at 'startAddr'.
  */
 
-void
+fastcall void
 Console_HexDump(uint32 *data, uint32 startAddr, uint32 numWords)
 {
    while (numWords) {

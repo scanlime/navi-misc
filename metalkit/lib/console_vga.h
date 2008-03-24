@@ -56,8 +56,8 @@
 #define VGA_TEXT_WIDTH           80
 #define VGA_TEXT_HEIGHT          25
 
-void ConsoleVGA_Init(void);
-void ConsoleVGA_SetColor(int8 fgColor);
-void ConsoleVGA_SetBgColor(int8 bgColor);
+fastcall void ConsoleVGA_Init(void);
+fastcall void ConsoleVGA_SetColor(int8 fgColor);
+fastcall void ConsoleVGA_SetBgColor(int8 bgColor);
 
 #endif /* __CONSOLE_VGA_H__ */
