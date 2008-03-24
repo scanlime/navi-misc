@@ -120,6 +120,6 @@ typedef uint32 far_ptr_t;
  * Public entry point.
  */
 
-void BIOS_Call(uint8 vector, Regs16 *regs);
+fastcall void BIOS_Call(uint8 vector, Regs16 *regs);
 
 #endif /* __BIOS_H__ */

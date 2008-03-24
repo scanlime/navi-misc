@@ -57,7 +57,7 @@ ConsoleVGAObject gConsoleVGA[1];
  *    Write to a VGA CRT Control register.
  */
 
-static void
+static fastcall void
 ConsoleVGAWriteCRTC(uint8 addr, uint8 value)
 {
    ConsoleVGAObject *self = gConsoleVGA;
@@ -72,7 +72,7 @@ ConsoleVGAWriteCRTC(uint8 addr, uint8 value)
  *    Set the hardware cursor to the current cursor position.
  */
 
-static void
+static fastcall void
 ConsoleVGAMoveHardwareCursor(void)
 {
    ConsoleVGAObject *self = gConsoleVGA;
@@ -90,7 +90,7 @@ ConsoleVGAMoveHardwareCursor(void)
  *    at the next Console_Flush(). 
  */
 
-void
+static fastcall void
 ConsoleVGAMoveTo(int x, int y)
 {
    ConsoleVGAObject *self = gConsoleVGA;
@@ -106,7 +106,7 @@ ConsoleVGAMoveTo(int x, int y)
  *    Clear the screen and move the cursor to the home position.
  */
 
-static void
+static fastcall void
 ConsoleVGAClear(void)
 {
    ConsoleVGAObject *self = gConsoleVGA;
@@ -131,7 +131,7 @@ ConsoleVGAClear(void)
  *    Set the text foreground color.
  */
 
-void
+fastcall void
 ConsoleVGA_SetColor(int8 fgColor)
 {
    ConsoleVGAObject *self = gConsoleVGA;
@@ -147,7 +147,7 @@ ConsoleVGA_SetColor(int8 fgColor)
  *    Set the text background color.
  */
 
-void
+fastcall void
 ConsoleVGA_SetBgColor(int8 bgColor)
 {
    ConsoleVGAObject *self = gConsoleVGA;
@@ -163,7 +163,7 @@ ConsoleVGA_SetBgColor(int8 bgColor)
  *    Write one character, TTY-style. Interprets \n characters.
  */
 
-static void
+static fastcall void
 ConsoleVGAWriteChar(char c)
 {
    ConsoleVGAObject *self = gConsoleVGA;
@@ -213,7 +213,7 @@ ConsoleVGAWriteChar(char c)
  *    and clear the screen.
  */
 
-static void
+static fastcall void
 ConsoleVGABeginPanic(void)
 {
    ConsoleVGA_SetColor(VGA_COLOR_WHITE);
@@ -231,7 +231,7 @@ ConsoleVGABeginPanic(void)
  *    screen with a default color.
  */
 
-void
+fastcall void
 ConsoleVGA_Init(void)
 {
    ConsoleVGAObject *self = gConsoleVGA;

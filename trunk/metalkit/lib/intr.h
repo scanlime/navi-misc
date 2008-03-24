@@ -67,10 +67,10 @@
 typedef void (*IntrHandler)(int vector);
 typedef void (*IntrContextFn)(void);
 
-void Intr_Init(void);
-void Intr_SetFaultHandlers(IntrHandler handler);
-void Intr_SetHandler(int vector, IntrHandler handler);
-void Intr_SetMask(int irq, Bool enable);
+fastcall void Intr_Init(void);
+fastcall void Intr_SetFaultHandlers(IntrHandler handler);
+fastcall void Intr_SetHandler(int vector, IntrHandler handler);
+fastcall void Intr_SetMask(int irq, Bool enable);
 
 static inline void
 Intr_Enable(void) {
@@ -171,6 +171,6 @@ typedef struct IntrContext {
 
 uint32 Intr_SaveContext(IntrContext *ctx);
 void Intr_RestoreContext(IntrContext *ctx);
-void Intr_InitContext(IntrContext *ctx, uint32 *stack, IntrContextFn main);
+fastcall void Intr_InitContext(IntrContext *ctx, uint32 *stack, IntrContextFn main);
 
 #endif /* __INTR_H__ */

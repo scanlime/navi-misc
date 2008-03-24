@@ -118,7 +118,7 @@ IntrDefaultHandler(int vector)
  *    but all handlers are no-ops.
  */
 
-void
+fastcall void
 Intr_Init(void)
 {
    int i;
@@ -255,7 +255,7 @@ Intr_Init(void)
  *    Note that the argument is a vector number, not an IRQ.
  */
 
-void
+fastcall void
 Intr_SetHandler(int vector, IntrHandler handler)
 {
    Intr_Disable();
@@ -270,7 +270,7 @@ Intr_SetHandler(int vector, IntrHandler handler)
  *    (Un)mask a particular IRQ.
  */
 
-void
+fastcall void
 Intr_SetMask(int irq, Bool enable)
 {
    uint8 port, bit, mask;
@@ -302,7 +302,7 @@ Intr_SetMask(int irq, Bool enable)
  *    Set all processor fault handlers to the provided function.
  */
 
-void
+fastcall void
 Intr_SetFaultHandlers(IntrHandler handler)
 {
    int vector;
@@ -325,7 +325,7 @@ Intr_SetFaultHandlers(IntrHandler handler)
  *    the allocated stack memory.
  */
 
-void
+fastcall void
 Intr_InitContext(IntrContext *ctx, uint32 *stack, IntrContextFn main)
 {
    Intr_SaveContext(ctx);

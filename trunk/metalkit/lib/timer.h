@@ -37,6 +37,6 @@
 
 #define PIT_HZ  1193182
 
-void Timer_InitPIT(uint16 divisor);
+fastcall void Timer_InitPIT(uint16 divisor);
 
 #endif /* __TIMER_H__ */

@@ -131,10 +131,10 @@ typedef struct {
 
 extern VBEState gVBE;
 
-Bool VBE_Init();
-void VBE_GetModeInfo(uint16 mode, VBEModeInfo *info);
-void VBE_SetMode(uint16 mode, uint16 modeFlags);
+fastcall Bool VBE_Init();
+fastcall void VBE_GetModeInfo(uint16 mode, VBEModeInfo *info);
+fastcall void VBE_SetMode(uint16 mode, uint16 modeFlags);
 
-void VBE_InitSimple(int width, int height, int bpp);
+fastcall void VBE_InitSimple(int width, int height, int bpp);
 
 #endif /* __VBE_H_ */

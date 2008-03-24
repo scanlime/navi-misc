@@ -36,11 +36,11 @@
 #include "types.h"
 
 typedef struct {
-   void (*beginPanic)(void);       // Initialize the console for a Panic message
-   void (*clear)(void);            // Clear the screen, home the cursor
-   void (*moveTo)(int x, int y);   // Move the cursor
-   void (*writeChar)(char c);      // Write one character, with support for control codes
-   void (*flush)(void);            // Finish writing a string of characters
+   fastcall void (*beginPanic)(void);       // Initialize the console for a Panic message
+   fastcall void (*clear)(void);            // Clear the screen, home the cursor
+   fastcall void (*moveTo)(int x, int y);   // Move the cursor
+   fastcall void (*writeChar)(char c);      // Write one character, with support for control codes
+   fastcall void (*flush)(void);            // Finish writing a string of characters
 } ConsoleInterface;
 
 extern ConsoleInterface gConsole;
@@ -51,11 +51,12 @@ extern ConsoleInterface gConsole;
 #define Console_WriteChar(c)   gConsole.writeChar(c)
 #define Console_Flush()        gConsole.flush()
 
-void Console_WriteString(const char *str);
-void Console_WriteUInt32(uint32 num, int digits, char padding, int base, Bool suppressZero);
+fastcall void Console_WriteString(const char *str);
+fastcall void Console_WriteUInt32(uint32 num, int digits, char padding, int base, Bool suppressZero);
+fastcall void Console_FormatV(const char **args);
+fastcall void Console_HexDump(uint32 *data, uint32 startAddr, uint32 numWords);
+
 void Console_Format(const char *fmt, ...);
-void Console_FormatV(const char **args);
-void Console_HexDump(uint32 *data, uint32 startAddr, uint32 numWords);
 void Console_Panic(const char *str, ...);
 void Console_UnhandledFault(int number);
 

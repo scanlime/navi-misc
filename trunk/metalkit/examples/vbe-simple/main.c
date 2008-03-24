@@ -19,5 +19,11 @@ main(void)
       fb[i] = i;
    }
 
+   while (1) {
+      for (i = 0; i < (800 * 600); i++) {
+	 fb[i] = ~fb[i];
+      }
+   }
+
    return 0;
 }

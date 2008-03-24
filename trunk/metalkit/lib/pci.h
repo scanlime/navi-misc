@@ -76,17 +76,17 @@ typedef struct PCIScanState {
    PCIAddress addr;
 } PCIScanState;
 
-uint32 PCI_ConfigRead32(const PCIAddress *addr, uint16 offset);
-uint16 PCI_ConfigRead16(const PCIAddress *addr, uint16 offset);
-uint8 PCI_ConfigRead8(const PCIAddress *addr, uint16 offset);
-void PCI_ConfigWrite32(const PCIAddress *addr, uint16 offset, uint32 data);
-void PCI_ConfigWrite16(const PCIAddress *addr, uint16 offset, uint16 data);
-void PCI_ConfigWrite8(const PCIAddress *addr, uint16 offset, uint8 data);
+fastcall uint32 PCI_ConfigRead32(const PCIAddress *addr, uint16 offset);
+fastcall uint16 PCI_ConfigRead16(const PCIAddress *addr, uint16 offset);
+fastcall uint8 PCI_ConfigRead8(const PCIAddress *addr, uint16 offset);
+fastcall void PCI_ConfigWrite32(const PCIAddress *addr, uint16 offset, uint32 data);
+fastcall void PCI_ConfigWrite16(const PCIAddress *addr, uint16 offset, uint16 data);
+fastcall void PCI_ConfigWrite8(const PCIAddress *addr, uint16 offset, uint8 data);
 
-Bool PCI_ScanBus(PCIScanState *state);
-Bool PCI_FindDevice(uint16 vendorId, uint16 deviceId, PCIAddress *addrOut);
-void PCI_SetBAR(const PCIAddress *addr, int index, uint32 value);
-uint32 PCI_GetBARAddr(const PCIAddress *addr, int index);
-void PCI_SetMemEnable(const PCIAddress *addr, Bool enable);
+fastcall Bool PCI_ScanBus(PCIScanState *state);
+fastcall Bool PCI_FindDevice(uint16 vendorId, uint16 deviceId, PCIAddress *addrOut);
+fastcall void PCI_SetBAR(const PCIAddress *addr, int index, uint32 value);
+fastcall uint32 PCI_GetBARAddr(const PCIAddress *addr, int index);
+fastcall void PCI_SetMemEnable(const PCIAddress *addr, Bool enable);
 
 #endif /* __PCI_H__ */

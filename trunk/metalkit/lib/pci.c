@@ -52,7 +52,7 @@
  *    Pack a 32-bit CONFIG_ADDRESS value.
  */
 
-static uint32
+static fastcall uint32
 PCIConfigPackAddress(const PCIAddress *addr, uint16 offset)
 {
    const uint32 enableBit = 0x80000000UL;
@@ -79,42 +79,42 @@ PCIConfigPackAddress(const PCIAddress *addr, uint16 offset)
  *    See http://www.osdev.org/wiki/PCI
  */
 
-uint32
+fastcall uint32
 PCI_ConfigRead32(const PCIAddress *addr, uint16 offset)
 {
    IO_Out32(PCI_REG_CONFIG_ADDRESS, PCIConfigPackAddress(addr, offset));
    return IO_In32(PCI_REG_CONFIG_DATA);
 }
 
-uint16
+fastcall uint16
 PCI_ConfigRead16(const PCIAddress *addr, uint16 offset)
 {
    IO_Out32(PCI_REG_CONFIG_ADDRESS, PCIConfigPackAddress(addr, offset));
    return IO_In16(PCI_REG_CONFIG_DATA);
 }
 
-uint8
+fastcall uint8
 PCI_ConfigRead8(const PCIAddress *addr, uint16 offset)
 {
    IO_Out32(PCI_REG_CONFIG_ADDRESS, PCIConfigPackAddress(addr, offset));
    return IO_In8(PCI_REG_CONFIG_DATA);
 }
 
-void
+fastcall void
 PCI_ConfigWrite32(const PCIAddress *addr, uint16 offset, uint32 data)
 {
    IO_Out32(PCI_REG_CONFIG_ADDRESS, PCIConfigPackAddress(addr, offset));
    IO_Out32(PCI_REG_CONFIG_DATA, data);
 }
 
-void
+fastcall void
 PCI_ConfigWrite16(const PCIAddress *addr, uint16 offset, uint16 data)
 {
    IO_Out32(PCI_REG_CONFIG_ADDRESS, PCIConfigPackAddress(addr, offset));
    IO_Out16(PCI_REG_CONFIG_DATA, data);
 }
 
-void
+fastcall void
 PCI_ConfigWrite8(const PCIAddress *addr, uint16 offset, uint8 data)
 {
    IO_Out32(PCI_REG_CONFIG_ADDRESS, PCIConfigPackAddress(addr, offset));
@@ -136,7 +136,7 @@ PCI_ConfigWrite8(const PCIAddress *addr, uint16 offset, uint8 data)
  *    Returns FALSE if there are no more devices.
  */
 
-Bool
+fastcall Bool
 PCI_ScanBus(PCIScanState *state)
 {
    PCIConfigSpace config;
@@ -174,7 +174,7 @@ PCI_ScanBus(PCIScanState *state)
  *    If the device was not found, returns FALSE.
  */
 
-Bool
+fastcall Bool
 PCI_FindDevice(uint16 vendorId, uint16 deviceId, PCIAddress *addrOut)
 {
    PCIScanState busScan = {};
@@ -196,7 +196,7 @@ PCI_FindDevice(uint16 vendorId, uint16 deviceId, PCIAddress *addrOut)
  *    Set one of a device's Base Address Registers to the provided value.
  */
 
-void
+fastcall void
 PCI_SetBAR(const PCIAddress *addr, int index, uint32 value)
 {
    PCI_ConfigWrite32(addr, offsetof(PCIConfigSpace, BAR[index]), value);
@@ -210,7 +210,7 @@ PCI_SetBAR(const PCIAddress *addr, int index, uint32 value)
  *    (We mask off the lower 2 bits, which hold memory type flags.)
  */
 
-uint32
+fastcall uint32
 PCI_GetBARAddr(const PCIAddress *addr, int index)
 {
    return PCI_ConfigRead32(addr, offsetof(PCIConfigSpace, BAR[index])) & ~3;
@@ -225,7 +225,7 @@ PCI_GetBARAddr(const PCIAddress *addr, int index)
  *    applicable BARs. Also enables/disables bus mastering.
  */
 
-void
+fastcall void
 PCI_SetMemEnable(const PCIAddress *addr, Bool enable)
 {
    uint16 command = PCI_ConfigRead16(addr, offsetof(PCIConfigSpace, command));
