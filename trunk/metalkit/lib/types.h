@@ -1,6 +1,6 @@
 /* -*- Mode: C; c-basic-offset: 3 -*-
  *
- * types.h - Basic type and macro definitions.
+ * types.h - Low-level type, macro, and inline definitions.
  *
  * This file is part of Metalkit, a simple collection of modules for
  * writing software that runs on the bare metal. Get the latest code
@@ -65,8 +65,41 @@ typedef struct {
 #define MIN(a, b)   ((a) < (b) ? (a) : (b))
 #define MAX(a, b)   ((a) > (b) ? (a) : (b))
 
-void memcpy(void *dest, const void *src, uint32 size);
-void memset(void *dest, uint8 value, uint32 size);
+static inline void
+memcpy(void *dest, const void *src, uint32 size)
+{
+   asm volatile ("rep movsb" : "+c" (size), "+S" (src), "+D" (dest) :: "memory");
+}
+
+static inline void
+memset(void *dest, uint8 value, uint32 size)
+{
+   asm volatile ("rep stosb" : "+c" (size), "+D" (dest) : "a" (value) : "memory");
+}
+
+static inline void
+memcpy16(void *dest, const void *src, uint32 size)
+{
+   asm volatile ("rep movsw" : "+c" (size), "+S" (src), "+D" (dest) :: "memory");
+}
+
+static inline void
+memset16(void *dest, uint16 value, uint32 size)
+{
+   asm volatile ("rep stosw" : "+c" (size), "+D" (dest) : "a" (value) : "memory");
+}
+
+static inline void
+memcpy32(void *dest, const void *src, uint32 size)
+{
+   asm volatile ("rep movsl" : "+c" (size), "+S" (src), "+D" (dest) :: "memory");
+}
+
+static inline void
+memset32(void *dest, uint32 value, uint32 size)
+{
+   asm volatile ("rep stosl" : "+c" (size), "+D" (dest) : "a" (value) : "memory");
+}
 
 #define Atomic_Exchange(mem, reg) \
    asm volatile ("xchgl %0, %1" : "+r" (reg), "+m" (mem) :)

@@ -77,8 +77,8 @@ draw_and_update_particles(float dt)
 static inline void
 flip(void)
 {
-   memcpy(gVBE.current.info.linearAddress, backBuffer, sizeof backBuffer);
-   memset(backBuffer, 0, sizeof backBuffer);
+   memcpy32(gVBE.current.info.linearAddress, backBuffer, sizeof backBuffer / 4);
+   memset32(backBuffer, 0, sizeof backBuffer / 4);
 }
 
 int
