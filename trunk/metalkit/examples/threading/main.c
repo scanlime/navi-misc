@@ -68,7 +68,7 @@ task_init(struct task *t, IntrContextFn m)
 void
 schedulerIRQ(int vector)
 {
-   volatile IntrContext *context = Intr_GetContext(vector);
+   IntrContext *context = Intr_GetContext(vector);
    struct task *prevTask, *nextTask;
 
    /*
@@ -84,8 +84,8 @@ schedulerIRQ(int vector)
     * Switch tasks
     */
 
-   prevTask->context = *context;
-   *context = nextTask->context;
+   memcpy(&prevTask->context, context, sizeof *context);
+   memcpy(context, &nextTask->context, sizeof *context);
 }
 
 void
