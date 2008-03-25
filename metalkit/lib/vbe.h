@@ -135,6 +135,8 @@ fastcall Bool VBE_Init();
 fastcall void VBE_GetModeInfo(uint16 mode, VBEModeInfo *info);
 fastcall void VBE_SetMode(uint16 mode, uint16 modeFlags);
 
+fastcall void VBE_SetStartAddress(int x, int y);
+
 fastcall void VBE_InitSimple(int width, int height, int bpp);
 
 #endif /* __VBE_H_ */

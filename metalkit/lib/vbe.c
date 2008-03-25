@@ -112,8 +112,8 @@ VBE_GetModeInfo(uint16 mode, VBEModeInfo *info)
  * VBE_SetMode --
  *
  *    Switch to a VESA BIOS SuperVGA mode.
- *
- *    This function fills in
+ *    On return, the gVBE structure will have
+ *    information about the new current mode.
  */
 
 fastcall void
@@ -133,11 +133,29 @@ VBE_SetMode(uint16 mode, uint16 modeFlags)
 
 
 /*
+ * VBE_SetStartAddress --
+ *
+ *    Synchronously change the start address at which the video
+ *    adapter will scan out to the monitor.
+ */
+
+fastcall void
+VBE_SetStartAddress(int x, int y)
+{
+   Regs16 reg = {};
+   reg.ax = 0x4f07;
+   reg.bx = 0x0000;
+   reg.cx = x;
+   reg.dx = y;
+   BIOS_Call(0x10, &reg);
+}
+
+
+/*
  * VBE_InitSimple --
  *
  *    Look for a linear video mode matching the requested
- *    size and depth, switch to it, and return a pointer to
- *    on-screen video memory.
+ *    size and depth and switch to it.
  *
  *    If VBE is not supported or the requested mode can't
  *    be found, we panic.
