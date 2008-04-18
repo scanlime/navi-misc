@@ -23,7 +23,8 @@ class BluetoothConduit:
         self.sock.connect((bdaddr, 1))
         self.sock.setblocking(False)
 
-        # Clear out any garbage from the buffers
+        # Finish any unfinished command, and clear out any
+        # garbage from the receive buffers.
         self._send("\x00" * 255 * 4 * 2)
         self._recv(255 * 4 * 2)
 
@@ -64,10 +65,23 @@ class BluetoothConduit:
         self.sock.close()
 
     def _send(self, buf):
-        self.sock.send(buf)
+        """Blocking send.
+           We use a stupid retry loop instead of using PyBlueZ's
+           blocking sockets, since its blocking is non-interruptible.
+           """
+        while buf:
+            count = self.sock.send(buf)
+            assert count >= 0
+            if count > 0:
+                buf = buf[count:]
+            else:
+                time.sleep(0.01)
     
     def _recv(self, size, t=0.5):
-        """Receive with a timeout"""
+        """Receive with a timeout.
+           We use a stupid retry loop instead of using PyBlueZ's
+           blocking sockets, since its blocking is non-interruptible.
+           """
         deadline = time.clock() + t
         buf = self.sock.recv(size)
         while len(buf) < size and time.clock() < deadline:
@@ -118,14 +132,20 @@ def textToTiles(s):
 bt.setRegionByName("Screen")
 bt.write(textToTiles("Hello World."))
 
+print bt.getRegions()
+
 i = 0
+t0 = time.clock()
 while True:
-    i += 1
+    i = (i+1) & 0xFFFF
 #    bt.setRegionByName("Screen")
     bt.seek(10)
-#    d = textToTiles("%6d" % i) * 50
-    d = ''.join([chr(random.uniform(0, 18)) for x in range(40*1*2)])
+    d = textToTiles("%04x" % i) * 10 * 13
+#    d = textToTiles(''.join([random.choice("/\\-*|") for x in range(40*1)]))
     print i, len(d)
     bt.write(d)
-    bt._send("\x00\xFF" * 1024)
 
+    print "%.02f bytes/sec" % (len(d) * i / (time.clock() - t0))
+
+    #bt.setRegionByName("Foo")
+    #print struct.unpack("<I", bt.read(1))[0]
