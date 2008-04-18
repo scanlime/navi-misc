@@ -48,9 +48,12 @@ PUB main | okay, w, c, cl
     repeat
 
   bt.defineRegion(@screen_desc, @screen)
-  'bt.defineRegion(@foo_desc, @foo)
+  bt.defineRegion(@foo_desc, @foo)
 
   wordfill(@screen, $220, screensize)                   ' Blue
+
+  repeat
+    foo[0]++
   
 
 PUB tvStart(basepin) : okay
