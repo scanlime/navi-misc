@@ -1,5 +1,27 @@
+"""
+BluetoothConduit.py
+
+A Python client for the BluetoothConduit.spin object.
+Copyright (c) 2008 Micah Dowty
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
+   files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
+   modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software
+   is furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE 
+   WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+   COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+"""
+
+
 from bluetooth import *
-import sys, time, random
+import time
+
 
 class Region:
     def __init__(self, index, size, name):
@@ -16,35 +38,57 @@ class BluetoothConduit:
     MAX_DESCRIPTOR_LEN = 64
     MAX_PENDING_READS = 127
 
+    sock = None
     offset = None
+    region = None
+    isConnected = False
     _regionCache = None
     _regionsByName = {}
-    
-    def __init__(self, bdaddr='03:1F:08:07:15:2E'):
-        self.sock = BluetoothSocket(RFCOMM)
-        self.sock.connect((bdaddr, 1))
-        self.sock.setblocking(False)
 
-        self._writeBuf = []
-        self._readBuf = []
-        self._readLen = 0
-        self._readCb = []
+    def __init__(self):
+        self.onConnect = []
+        self.onDisconnect = []
 
-        # Finish any unfinished command, and clear out any
-        # garbage from the receive buffers. Zero is a no-op
-        # bytecode, and this is the maximum length of any
-        # command that may be in progress.
+    def connect(self, bdaddr='03:1F:08:07:15:2E'):
+        try:
+            self.sock = BluetoothSocket(RFCOMM)
+            self.sock.connect((bdaddr, 1))
+            self.sock.setblocking(False)
 
-        self._writeBuf.append("\x00" * 255 * 4 * 2);
-        self.flush(True, True)
+            self._writeBuf = []
+            self._readBuf = []
+            self._readLen = 0
+            self._readCb = []
+            self.offset = None
+            self.region = None
 
-        # XXX: Sometimes we fail to read from the RFCOMM socket,
-        #      even though the device has definitely sent us a
-        #      reply. I don't know why, but this seems to work
-        #      around the problem.
+            # Finish any unfinished command, and clear out any
+            # garbage from the receive buffers. Zero is a no-op
+            # bytecode, and this is the maximum length of any
+            # command that may be in progress.
 
-        time.sleep(1.0)
-        self.flush(True, True)
+            self._writeBuf.append("\x00" * 255 * 4 * 2);
+            self.flush(True, True)
+
+            # XXX: Sometimes we fail to read from the RFCOMM socket,
+            #      even though the device has definitely sent us a
+            #      reply. I don't know why, but this seems to work
+            #      around the problem.
+
+            time.sleep(1.0)
+            self.flush(True, True)
+
+            # Populate the region cache once
+            self.getRegions()
+
+        except:
+            self.sock.close()
+            self.sock = None
+            raise
+
+        self.isConnected = True
+        for f in self.onConnect:
+            f()
 
     def getRegions(self, clearCache=False):
         """Enumerate the regions that are available on the device.
@@ -55,7 +99,7 @@ class BluetoothConduit:
         if self._regionCache is not None:
             return self._regionCache
 
-        self._regionCache = regions = []
+        regions = []
         self._regionsByName = {}
 
         # Iterate over all descriptors (even numbered regions)
@@ -72,7 +116,8 @@ class BluetoothConduit:
 
             self.read(self.MAX_DESCRIPTOR_LEN, storeDescriptor)
 
-        self.flush(readBlock=True)            
+        self.flush(readBlock=True)
+        self._regionCache = regions
         return regions    
 
     def findRegion(self, name):
@@ -81,12 +126,31 @@ class BluetoothConduit:
         self.getRegions()
         return self._regionsByName[name]
 
-    def close(self):
+    def disconnect(self):
         self.sock.close()
+        self.sock = None
+        self.isConnected = False
+        for f in self.onDisconnect:
+            f()
+
+    def addCallbacks(self, onConnect=None, onDisconnect=None):
+        if onConnect:
+            self.onConnect.append(onConnect)
+        if onDisconnect:
+            self.onDisconnect.append(onDisconnect)
+        if self.isConnected:
+            if onConnect:
+                onConnect()
+        else:
+            if onDisconnect:
+                onDisconnect()
 
     def setRegion(self, index):
-        self._writeBuf.append("\xF0" + chr(index))
-        self.offset = 0
+        if self.region == index:
+            self.seek(0)
+        else:
+            self._writeBuf.append("\xF0" + chr(index))
+            self.offset = 0
 
     def setRegionByName(self, name):
         self.setRegion(self.findRegion(name).index)
@@ -95,6 +159,8 @@ class BluetoothConduit:
         self.seekRelative(offset - self.offset)
 
     def seekRelative(self, offset):
+        if not offset:
+            return
         self.offset += offset
         if offset < 128 and offset > -128:
             self._writeBuf.append("\xC3" + struct.pack("b", offset))
@@ -186,8 +252,13 @@ class BluetoothConduit:
                 self._readLen += len(readStr)
                 self._readBuf.append(readStr)
 
+                if not self._readCb:
+                    # We're reading junk. This could happen
+                    # at the first flush() during initialization.
+                    self._readBuf = []
+                    self._readLen = 0
+
                 # Can we dispatch the next callback?
-                assert self._readCb
                 while self._readCb:
                     nextCbSize, nextCb = self._readCb[0]
                     nextCbSize *= 4
@@ -210,37 +281,3 @@ class BluetoothConduit:
 
         if readBlock:
             assert not self._readCb
-
-
-print "Connecting..."
-bt = BluetoothConduit()
-print "Enumerating..."
-print bt.getRegions()
-
-def textToTiles(s):
-    t = [struct.pack("<H", 0x200 + (ord(c)&0xFE) + ((ord(c)&1) << 10)) for c in s]
-    return ''.join(t)
-
-bt.setRegionByName("Screen")
-bt.write(textToTiles("Hello World."))
-bt.flush(True, True)
-
-i = 0
-t0 = time.clock()
-while True:
-    i = (i+1) & 0xFFFF
-    bt.setRegionByName("Screen")
-    d = textToTiles("%04x" % i) * 10 * 4
-#    d = textToTiles(''.join([random.choice("/\\-*|") for x in range(40*13)]))
-#    print i, len(d)
-    bt.write(d)
-
-    print "%.02f bytes/sec" % (len(d) * i / (time.clock() - t0))
-
-    bt.setRegionByName("Foo")
-    def cb(s):
-        print "Reading: 0x%08x" % struct.unpack("<I", s)[0]
-    bt.read(1, cb)
-
-    # Flow control
-    bt.flush(writeBlock=True)
