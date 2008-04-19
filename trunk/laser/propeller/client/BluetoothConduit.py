@@ -281,3 +281,11 @@ class BluetoothConduit:
 
         if readBlock:
             assert not self._readCb
+
+
+if __name__ == "__main__":
+    # Connect and list the available regions
+    bt = BluetoothConduit()
+    print "Connecting..."
+    bt.connect()
+    print bt.getRegions()
