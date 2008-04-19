@@ -190,10 +190,11 @@ class MonitorLabel(wx.StaticText):
 
 
 class MouseTracker(wx.Panel):
-    def __init__(self, parent, bt, regionName, offset=0, size=(512,512)):
+    def __init__(self, parent, bt, regionName, size=(512,512)):
         self.bt = bt
         self.regionName = regionName
-        self.offset = offset
+        self.buffer = []
+        self.center = (size[0]/2, size[1]/2)
 
         wx.Panel.__init__(self, parent, size=size)
         self.SetCursor(wx.StockCursor(wx.CURSOR_CROSS))
@@ -201,16 +202,32 @@ class MouseTracker(wx.Panel):
         self.Bind(wx.EVT_LEFT_UP, self.onMouseEvent)
         self.Bind(wx.EVT_LEFT_DOWN, self.onMouseEvent)
         self.Bind(wx.EVT_MOTION, self.onMouseEvent)
+        self.Bind(wx.EVT_PAINT, self.onPaint)
 
     def onMouseEvent(self, event):
+        if event.LeftDown():
+            self.buffer = []
+
         if event.LeftIsDown():
             pos = event.GetPosition()
-            packed = (pos.x << 16) | pos.y
+            self.buffer.append(pos)
 
             if self.bt.isConnected:
                 self.bt.setRegionByName(self.regionName)
-                self.bt.seek(self.offset)
-                self.bt.write(struct.pack("<I", packed))
+                self.bt.seek(len(self.buffer))
+                self.bt.write(struct.pack("<hh", pos.x - self.center[0], pos.y - self.center[1]))
+                self.bt.seek(0)
+                self.bt.write(struct.pack("<I", len(self.buffer)))
+
+            self.Refresh()
+
+    def onPaint(self, event):
+        dc = wx.PaintDC(self)
+        dc.Clear()
+        dc.CrossHair(*self.center)
+        if self.buffer:
+            dc.DrawLines(self.buffer)
+        event.Skip()
 
 
 class MainWindow(wx.Frame):
@@ -225,14 +242,26 @@ class MainWindow(wx.Frame):
         vbox.Add(ConnectButton(self, self.bt))
 
         vbox.Add(TweakGrid(self, self.bt, [
-            ("Screen", 0, "Screen[0]", 0, 0x1000),
-            ("Screen", 1, "Screen[1]", 0, 0x1000),
-            ("Screen", 2, "Screen[2]", 0, 0x1000),
+            ("params", 0, "P[x]", 0, 100000000),
+            ("params", 1, "P[y]", 0, 100000000),
+            ("params", 12, "D[x]", 0, 100000000),
+            ("params", 13, "D[y]", 0, 100000000),
+            ("params", 2, "DP[x]", 0, 100000000),
+            ("params", 3, "DP[y]", 0, 100000000),
+            ("params", 4, "center[x]", 0, 500000),
+            ("params", 5, "center[y]", 0, 500000),
+            ("params", 6, "minPos[x]", 0, 100000),
+            ("params", 7, "minPos[y]", 0, 100000),
+            ("params", 8, "unstickGain", 0, 100000000),
+            ("params", 9, "scale[x]", 0, 1000),
+            ("params", 10, "scale[y]", 0, 1000),
+            ("params", 11, "reps", 0, 50),
             ]))
 
-        vbox.Add(MonitorLabel(self, self.bt, "Foo", 0))
+        vbox.Add(MonitorLabel(self, self.bt, "pos_x", 0, lambda v: "pos_x: %d" % v))
+        vbox.Add(MonitorLabel(self, self.bt, "pos_y", 0, lambda v: "pos_y: %d" % v))
 
-        vbox.Add(MouseTracker(self, self.bt, "Screen", 10))
+        vbox.Add(MouseTracker(self, self.bt, "pattern"))
 
         self.SetSizer(vbox)
         self.SetAutoLayout(1)
@@ -245,11 +274,8 @@ class MainWindow(wx.Frame):
             self.bt.disconnect()
         self.Destroy()
 
-    def onFooClicked(self, event):
-        print args
-
 
 if __name__ == "__main__":
-    app = wx.App(0)
+    app = wx.App()
     frame = MainWindow()
     app.MainLoop()
