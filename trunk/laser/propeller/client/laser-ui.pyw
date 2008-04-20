@@ -189,10 +189,59 @@ class MonitorLabel(wx.StaticText):
         self.SetLabel("---")
 
 
-class MouseTracker(wx.Panel):
-    def __init__(self, parent, bt, regionName, size=(512,512)):
+class VectorMachine:
+    REG_SP = 0
+    REG_S = 1
+    REG_DS = 2
+    REG_DDS = 3
+
+    SP_NOP = 0
+    SP_JUMP = 1
+    SP_CLEAR = 2
+    SP_INC = 3
+    SP_RESET = 4
+
+    FIXED_POINT_BITS = 16
+
+    def __init__(self, bt, cmdRegion="vm_cmd", memRegion="vector_mem"):
         self.bt = bt
-        self.regionName = regionName
+        self.cmdRegion = cmdRegion
+        self.memRegion = memRegion
+        self.offset = None
+
+    def cmd(self, instr):
+        self.bt.setRegionByName(self.cmdRegion)
+        self.bt.write(instr)
+
+    def pack(self, reg=REG_S, le=0, scnt=0, exp=0, y=0, x=0):
+        x &= 0x1FF
+        y &= 0x1FF
+        return struct.pack("<I", (reg << 30) | (le << 29) |
+                           (scnt << 22) | (exp << 18) | (y << 9) | x)
+
+    def write(self, addr, data):
+        self.bt.setRegionByName(self.memRegion)
+        self.bt.seek(addr)
+        self.bt.write(data)
+
+    def reset(self):
+        self.cmd(self.pack(reg=self.REG_SP, exp=self.SP_RESET))
+        self.offset = 0
+
+    def append(self, x, y):
+        # Prepare a new jump instruction after the one we're about to write,
+        # so the VM can't escape our loop.
+        self.write(self.offset + 1, self.pack(reg=self.REG_SP, exp=self.SP_JUMP))
+
+        self.write(self.offset, self.pack(le=1, scnt=1, exp=15, x=-x, y=-y))
+        self.offset += 1
+                 
+
+class MouseTracker(wx.Panel):
+    def __init__(self, parent, bt, size=(512,512)):
+        self.bt = bt
+        self.vm = VectorMachine(self.bt)
+
         self.buffer = []
         self.center = (size[0]/2, size[1]/2)
 
@@ -207,18 +256,14 @@ class MouseTracker(wx.Panel):
     def onMouseEvent(self, event):
         if event.LeftDown():
             self.buffer = []
+            if self.bt.isConnected:
+                self.vm.reset()
 
         if event.LeftIsDown():
             pos = event.GetPosition()
             self.buffer.append(pos)
-
             if self.bt.isConnected:
-                self.bt.setRegionByName(self.regionName)
-                self.bt.seek(len(self.buffer))
-                self.bt.write(struct.pack("<hh", pos.x - self.center[0], pos.y - self.center[1]))
-                self.bt.seek(0)
-                self.bt.write(struct.pack("<I", len(self.buffer)))
-
+                self.vm.append(pos.x - self.center[0], pos.y - self.center[1])
             self.Refresh()
 
     def onPaint(self, event):
@@ -241,27 +286,24 @@ class MainWindow(wx.Frame):
         self.timer = FlushTimer(self.bt)
         vbox.Add(ConnectButton(self, self.bt))
 
-        vbox.Add(TweakGrid(self, self.bt, [
-            ("params", 0, "P[x]", 0, 100000000),
-            ("params", 1, "P[y]", 0, 100000000),
-            ("params", 12, "D[x]", 0, 100000000),
-            ("params", 13, "D[y]", 0, 100000000),
-            ("params", 2, "DP[x]", 0, 100000000),
-            ("params", 3, "DP[y]", 0, 100000000),
-            ("params", 4, "center[x]", 0, 500000),
-            ("params", 5, "center[y]", 0, 500000),
-            ("params", 6, "minPos[x]", 0, 100000),
-            ("params", 7, "minPos[y]", 0, 100000),
-            ("params", 8, "unstickGain", 0, 100000000),
-            ("params", 9, "scale[x]", 0, 1000),
-            ("params", 10, "scale[y]", 0, 1000),
-            ("params", 11, "reps", 0, 50),
-            ]))
+        tweakables = []
+        for axis in 'xy':
+            region = 'params_' + axis
+            tweakables.extend([
+                (region, 0, axis + ") P", 0, 100000000),
+                (region, 1, axis + ") D", 0, 0x7FFFFFFF),
+                (region, 2, axis + ") SD", 0, 0x7FFFFFFF),
+                (region, 3, axis + ") Center", 0, 500000),
+                (region, 4, axis + ") Scale", 0, 1000),
+                ])
+        vbox.Add(TweakGrid(self, self.bt, tweakables))
 
         vbox.Add(MonitorLabel(self, self.bt, "pos_x", 0, lambda v: "pos_x: %d" % v))
         vbox.Add(MonitorLabel(self, self.bt, "pos_y", 0, lambda v: "pos_y: %d" % v))
+        vbox.Add(MonitorLabel(self, self.bt, "vm_output", 0, lambda v: "vm_out_x: %d" % v))
+        vbox.Add(MonitorLabel(self, self.bt, "vm_output", 1, lambda v: "vm_out_y: %d" % v))
 
-        vbox.Add(MouseTracker(self, self.bt, "pattern"))
+        vbox.Add(MouseTracker(self, self.bt))
 
         self.SetSizer(vbox)
         self.SetAutoLayout(1)
