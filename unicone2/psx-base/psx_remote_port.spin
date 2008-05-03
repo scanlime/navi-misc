@@ -129,7 +129,7 @@ PUB start(rxpin, txpin) : okay
 
   bytefill(@tx_buffer, 0, TX_PACKET_LEN)
   reset_rx_packets
-  tx.start(-1, txpin, TX_BAUD)
+  tx.init(-1, txpin, TX_BAUD)
 
   wdt_timeout_ticks := (clkfreq / 1000) * WDT_TIMEOUT_MS
   long_wdt_timeout_ticks := (clkfreq / 1000) * LONG_WDT_TIMEOUT_MS
@@ -145,7 +145,7 @@ PUB stop
 
   '' Frees a cog.
 
-  tx.stop
+  tx.finalize
 
   if rx_cog
     cogstop(rx_cog~ - 1)
