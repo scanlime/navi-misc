@@ -51,7 +51,7 @@ VAR
 PUB Main | remote, slot, emulator, buttons
 
   ' Use the programming serial port for debug at runtime
-  Debug.start(31, 30, 19200)
+  Debug.init(31, 30, 19200)
   cognew(debug_cog, @debug_stack)
 
   ' Start all remote connections and emulator cores
