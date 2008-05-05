@@ -19,7 +19,7 @@ Copyright (c) 2008 Micah Dowty
 """
 
 from BluetoothConduit import BluetoothConduit
-import wx, struct
+import wx, struct, math
 
 
 class ConnectButton(wx.Button):
@@ -207,71 +207,197 @@ class VectorMachine:
         self.bt = bt
         self.cmdRegion = cmdRegion
         self.memRegion = memRegion
-        self.offset = None
 
     def cmd(self, instr):
         self.bt.setRegionByName(self.cmdRegion)
         self.bt.write(instr)
 
-    def pack(self, reg=REG_S, le=0, scnt=0, exp=0, y=0, x=0):
+    def pack(self, reg=REG_S, le=0, scnt=0, exp=0, y=0, x=0, offset=0):
         x &= 0x1FF
         y &= 0x1FF
         return struct.pack("<I", (reg << 30) | (le << 29) |
-                           (scnt << 22) | (exp << 18) | (y << 9) | x)
+                           (scnt << 22) | (exp << 18) | (y << 9) | x | offset)
 
     def write(self, addr, data):
         self.bt.setRegionByName(self.memRegion)
         self.bt.seek(addr)
         self.bt.write(data)
 
-    def reset(self):
+    def jump(self, offset):
+        """Issue a jump instruction to the provided address."""
+        self.cmd(self.pack(reg=self.REG_SP, exp=self.SP_JUMP,
+                           offset=offset))
+
+    def stop(self):
+        """Turn the laser off, and lock the instruction pointer
+           at offset zero in an infinite loop.
+           """
         self.cmd(self.pack(reg=self.REG_SP, exp=self.SP_RESET))
-        self.offset = 0
 
-    def append(self, x, y):
-        # Prepare a new jump instruction after the one we're about to write,
-        # so the VM can't escape our loop.
-        self.write(self.offset + 1, self.pack(reg=self.REG_SP, exp=self.SP_JUMP))
+    def start(self):
+        """Write a no-op instruction into offset zero, and continue
+           execution there.
+           """
+        self.stop()
+        self.write(0, self.pack(reg=self.REG_SP, exp=self.SP_NOP))
 
-        self.write(self.offset, self.pack(le=1, scnt=1, exp=15, x=-x, y=-y))
-        self.offset += 1
-                 
+    def uploadVectors(self, vectors, scnt):
+        """Upload a whole vector program, sending only the parts
+           that the remote VectorMachine doesn't already have.
+           """
+        self.stop()
+        buf = []
 
-class MouseTracker(wx.Panel):
+        for x, y in vectors:
+            # Break up large sample counts into multiple instructions
+            s = scnt
+            while s > 0:
+                iscnt = min(127, s)
+                s -= iscnt            
+        
+                buf.append(self.pack(le=1, scnt=iscnt, exp=15,
+                                     x=int(x), y=int(y)))
+
+        # Loop
+        buf.append(self.pack(reg=self.REG_SP, exp=self.SP_JUMP, offset=1))
+
+        self.write(1, ''.join(buf))
+        self.start()
+
+def vecSub(a, b):
+    return (a[0] - b[0], a[1] - b[1])
+
+def vecAdd(a, b):
+    return (a[0] + b[0], a[1] + b[1])
+
+def vecMag(a):
+    return math.sqrt(a[0] ** 2 + a[1] ** 2)
+
+def vecMul(a, b):
+    return (a[0] * b, a[1] * b)
+
+def vecNorm(a):
+    return vecMul(a, 1.0 / vecMag(a))
+
+def vecDot(a, b):
+    return a[0] * b[0] + a[1] * b[1]
+
+def iterPathSampler(points, dist):
+    """Given one line segment path, resample that path and yield
+       new points every 'dist' units.
+       """
+    prev = None
+
+    # X is an accumulator that increments every time we pass a
+    # pixel on the input line. When it crosses 'dist', we generate
+    # an output sample and reset it to zero.
+    x = 0
+
+    for cur in points:
+        if prev is None:
+            prev = cur
+            yield prev
+            continue
+
+        v = vecSub(cur, prev)
+        vmag = vecMag(v)
+
+        # Walk from the previous input sample to the current one,
+        # emitting output samples as we go.
+
+        remaining = vmag
+
+        while True:
+            travel = dist - x
+            if remaining < travel:
+                break
+
+            prev = vecAdd(prev, vecMul(v, travel / vmag))
+            x = 0
+            remaining -= travel
+            yield prev
+
+        prev = cur
+        x += remaining
+
+
+class DrawingWidget(wx.Panel):
     def __init__(self, parent, bt, size=(512,512)):
         self.bt = bt
         self.vm = VectorMachine(self.bt)
 
-        self.buffer = []
-        self.center = (size[0]/2, size[1]/2)
+        self.path = []
+        self.resampled = []
 
-        wx.Panel.__init__(self, parent, size=size)
-        self.SetCursor(wx.StockCursor(wx.CURSOR_CROSS))
-        
-        self.Bind(wx.EVT_LEFT_UP, self.onMouseEvent)
-        self.Bind(wx.EVT_LEFT_DOWN, self.onMouseEvent)
-        self.Bind(wx.EVT_MOTION, self.onMouseEvent)
-        self.Bind(wx.EVT_PAINT, self.onPaint)
+        wx.Panel.__init__(self, parent)
+        hbox = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.dist = wx.Slider(self, minValue=1, maxValue=100, value=10,
+                              style=wx.SL_VERTICAL)
+        self.dist.Bind(wx.EVT_SLIDER, self.tesselate)
+        hbox.Add(self.dist, 0, wx.EXPAND)
+
+        self.scnt = wx.Slider(self, minValue=1, maxValue=512, value=256,
+                              style=wx.SL_VERTICAL)
+        self.scnt.Bind(wx.EVT_SLIDER, self.tesselate)
+        hbox.Add(self.scnt, 0, wx.EXPAND)
+
+        self.canvas = wx.Panel(self, size=size)
+        self.canvas.SetCursor(wx.StockCursor(wx.CURSOR_CROSS))
+        self.canvas.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
+        self.canvas.Bind(wx.EVT_LEFT_UP, self.onMouseEvent)
+        self.canvas.Bind(wx.EVT_RIGHT_UP, self.onMouseEvent)
+        self.canvas.Bind(wx.EVT_LEFT_DOWN, self.onMouseEvent)
+        self.canvas.Bind(wx.EVT_MOTION, self.onMouseEvent)
+        self.canvas.Bind(wx.EVT_PAINT, self.onPaint)
+        self.canvas.Bind(wx.EVT_SIZE, self.onSize)
+        hbox.Add(self.canvas, 1, wx.EXPAND)
+        self.onSize()
+
+        self.SetSizer(hbox)
+        self.SetAutoLayout(1)
+
+    def onSize(self, event=None):
+        self.canvas.Refresh()
 
     def onMouseEvent(self, event):
+        pos = event.GetPosition()
+        center = (self.Size.x / 2, self.Size.y / 2)
+        pos = vecSub(pos, center)
+
         if event.LeftDown():
-            self.buffer = []
+            self.path = []
+            self.lastPos = pos
+            self.tesselate()
+
+        if event.LeftUp() or event.RightUp():
             if self.bt.isConnected:
-                self.vm.reset()
+                self.vm.uploadVectors(self.resampled, self.scnt.GetValue())
 
         if event.LeftIsDown():
-            pos = event.GetPosition()
-            self.buffer.append(pos)
-            if self.bt.isConnected:
-                self.vm.append(pos.x - self.center[0], pos.y - self.center[1])
-            self.Refresh()
+            self.path.append(pos)
+            self.tesselate()
+
+    def tesselate(self, event=None):
+        self.resampled = list(iterPathSampler(self.path + self.path[:1],
+                                              self.dist.GetValue()))
+        self.Refresh()
 
     def onPaint(self, event):
-        dc = wx.PaintDC(self)
+        dc = wx.AutoBufferedPaintDC(self.canvas)
         dc.Clear()
-        dc.CrossHair(*self.center)
-        if self.buffer:
-            dc.DrawLines(self.buffer)
+        center = (self.Size.x / 2, self.Size.y / 2)
+
+        dc.Pen = wx.Pen('#aaaaaa')
+        dc.CrossHair(*center)
+
+        dc.Pen = wx.Pen('#444444')
+        dc.DrawLines(self.path, *center)
+
+        dc.Pen = wx.Pen('#800000')
+        for point in self.resampled:
+            dc.DrawCircle(point[0] + center[0], point[1] + center[1], 2)
+
         event.Skip()
 
 
@@ -284,26 +410,28 @@ class MainWindow(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.onClose)
 
         self.timer = FlushTimer(self.bt)
-        vbox.Add(ConnectButton(self, self.bt))
+        vbox.Add(ConnectButton(self, self.bt), 0, wx.ALL, 4)
 
         tweakables = []
         for axis in 'xy':
             region = 'params_' + axis
             tweakables.extend([
                 (region, 0, axis + ") P", 0, 100000000),
-                (region, 1, axis + ") D", 0, 0x7FFFFFFF),
+                (region, 1, axis + ") D", 0, 10000000),
                 (region, 2, axis + ") SD", 0, 0x7FFFFFFF),
-                (region, 3, axis + ") Center", 0, 500000),
-                (region, 4, axis + ") Scale", 0, 1000),
+                (region, 3, axis + ") Center", 0, 1000000),
+                (region, 4, axis + ") Scale", 0, 2000),
                 ])
-        vbox.Add(TweakGrid(self, self.bt, tweakables))
 
-        vbox.Add(MonitorLabel(self, self.bt, "pos_x", 0, lambda v: "pos_x: %d" % v))
-        vbox.Add(MonitorLabel(self, self.bt, "pos_y", 0, lambda v: "pos_y: %d" % v))
-        vbox.Add(MonitorLabel(self, self.bt, "vm_output", 0, lambda v: "vm_out_x: %d" % v))
-        vbox.Add(MonitorLabel(self, self.bt, "vm_output", 1, lambda v: "vm_out_y: %d" % v))
+        vbox.Add(TweakGrid(self, self.bt, tweakables), 0, wx.ALL, 4)
 
-        vbox.Add(MouseTracker(self, self.bt))
+        for label in (
+            MonitorLabel(self, self.bt, "pos_x", 0, lambda v: "pos_x: %d" % v),
+            MonitorLabel(self, self.bt, "pos_y", 0, lambda v: "pos_y: %d" % v),
+            ):
+            vbox.Add(label, 0, wx.ALL, 4)
+
+        vbox.Add(DrawingWidget(self, self.bt), 1, wx.ALL | wx.EXPAND)
 
         self.SetSizer(vbox)
         self.SetAutoLayout(1)
