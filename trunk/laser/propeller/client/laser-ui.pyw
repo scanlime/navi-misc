@@ -123,7 +123,7 @@ class TweakConduit:
     def onRead(self, data):
         self.value = struct.unpack("<I", data)[0]
         for w in self.widgets:
-            w.SetValue(self.value)
+            w.SetValue(min(0x7FFFFFFF, self.value))
             w.Enable()
 
     def onWidgetEvent(self, event):
@@ -183,7 +183,7 @@ class MonitorLabel(wx.StaticText):
 
     def onRead(self, value):
         self.onConnect()
-        self.SetLabel(self.formatter(struct.unpack("<I", value)[0]))
+        self.SetLabel(self.formatter(struct.unpack("<i", value)[0]))
 
     def onDisconnect(self):
         self.SetLabel("---")
@@ -416,9 +416,9 @@ class MainWindow(wx.Frame):
         for axis in 'xy':
             region = 'params_' + axis
             tweakables.extend([
-                (region, 0, axis + ") P", 0, 100000000),
-                (region, 1, axis + ") D", 0, 10000000),
-                (region, 2, axis + ") SD", 0, 0x7FFFFFFF),
+                (region, 0, axis + ") P", 0, 0x7FFFFFFF),
+                (region, 1, axis + ") I", 0, 1000000),
+                (region, 2, axis + ") D", 0, 50000000),
                 (region, 3, axis + ") Center", 0, 1000000),
                 (region, 4, axis + ") Scale", 0, 2000),
                 ])
@@ -428,6 +428,7 @@ class MainWindow(wx.Frame):
         for label in (
             MonitorLabel(self, self.bt, "pos_x", 0, lambda v: "pos_x: %d" % v),
             MonitorLabel(self, self.bt, "pos_y", 0, lambda v: "pos_y: %d" % v),
+            MonitorLabel(self, self.bt, "params_x", 1, lambda v: "x.i: %d" % v),
             ):
             vbox.Add(label, 0, wx.ALL, 4)
 
