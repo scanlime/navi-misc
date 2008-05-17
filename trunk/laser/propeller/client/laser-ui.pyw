@@ -401,6 +401,13 @@ class DrawingWidget(wx.Panel):
         event.Skip()
 
 
+def thermToFahrenheit(x):
+    """Convert a fixed-point celcius temperature reading to floating
+       point fahrenheit.
+       """
+    return (x / 16.0) * 1.8 + 32.0
+
+
 class MainWindow(wx.Frame):
     def __init__(self, parent=None, id=wx.ID_ANY, title="LaserProp Test"):
         wx.Frame.__init__(self, parent, id, title)
@@ -428,7 +435,10 @@ class MainWindow(wx.Frame):
         for label in (
             MonitorLabel(self, self.bt, "pos_x", 0, lambda v: "pos_x: %d" % v),
             MonitorLabel(self, self.bt, "pos_y", 0, lambda v: "pos_y: %d" % v),
-            MonitorLabel(self, self.bt, "params_x", 1, lambda v: "x.i: %d" % v),
+            MonitorLabel(self, self.bt, "therm", 0,
+                         lambda v: "therm_x: %.01f degF" % thermToFahrenheit(v)),
+            MonitorLabel(self, self.bt, "therm", 1,
+                         lambda v: "therm_y: %.01f degF" % thermToFahrenheit(v)),
             ):
             vbox.Add(label, 0, wx.ALL, 4)
 
