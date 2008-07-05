@@ -203,7 +203,7 @@ class VectorMachine:
 
     FIXED_POINT_BITS = 16
 
-    def __init__(self, bt, cmdRegion="vm_cmd", memRegion="vector_mem"):
+    def __init__(self, bt, cmdRegion="vm_param", memRegion="vector_mem"):
         self.bt = bt
         self.cmdRegion = cmdRegion
         self.memRegion = memRegion
@@ -462,7 +462,10 @@ class MainWindow(wx.Frame):
         self.timer = FlushTimer(self.bt)
         vbox.Add(ConnectButton(self, self.bt), 0, wx.ALL, 4)
 
-        tweakables = []
+        tweakables = [
+            ('vm_param', 1, "Laser PWM", 0, 0x7FFFFFFF),
+            ]
+
         for axis in 'xy':
             region = 'params_' + axis
             tweakables.extend([
