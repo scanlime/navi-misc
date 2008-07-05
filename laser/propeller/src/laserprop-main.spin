@@ -78,12 +78,16 @@ PUB main | okay, syncTime
   bt.defineRegion(@params_x_desc, vcm[0].getParams)
   bt.defineRegion(@params_y_desc, vcm[1].getParams)
   bt.defineRegion(@therm_desc, @therm)
-  
+
+  ' Start the proximity sensors. Do this first, since
+  ' they will wait to receive their first reading.
+  prox[0].start(X_FREQ_PIN, X_LED_PIN)
+  prox[1].start(Y_FREQ_PIN, Y_LED_PIN)
+
+  ' Synchronize the startup of both servo axes and the VectorMachine.
   syncTime := cnt + clkfreq / 100
 
   vm.start(syncTime, vcm#LOOP_HZ, 9, @vector_mem, VECTOR_MEM_SIZE)
-  prox[0].start(X_FREQ_PIN, X_LED_PIN)
-  prox[1].start(Y_FREQ_PIN, Y_LED_PIN)
   vcm[0].start(X_DIR_PIN, X_PWM_PIN, syncTime, prox[0].getOutputAddress, vm.getOutputAddress(0))
   vcm[1].start(Y_DIR_PIN, Y_PWM_PIN, syncTime, prox[1].getOutputAddress, vm.getOutputAddress(1))
 

@@ -241,28 +241,38 @@ class VectorMachine:
         self.stop()
         self.write(0, self.pack(reg=self.REG_SP, exp=self.SP_NOP))
 
-    def uploadVectors(self, vectors, scnt):
-        """Upload a whole vector program, sending only the parts
-           that the remote VectorMachine doesn't already have.
-           """
+    def uploadVectors(self, vectors, scnt, cb, limit=256):
         self.stop()
         buf = []
 
-        for x, y in vectors:
+        for x, y, le in vectors:
             # Break up large sample counts into multiple instructions
             s = scnt
-            while s > 0:
+            while s > 0 and len(buf) < limit:
                 iscnt = min(127, s)
                 s -= iscnt            
         
-                buf.append(self.pack(le=1, scnt=iscnt, exp=15,
+                buf.append(self.pack(le=le, scnt=iscnt, exp=15,
                                      x=int(x), y=int(y)))
+            
+            if len(buf) >= limit:
+                break
 
         # Loop
-        buf.append(self.pack(reg=self.REG_SP, exp=self.SP_JUMP, offset=1))
+        # Note the nonzero scnt: we need this loop to generate samples,
+        # otherwise the VM's timer will overflow if we send it an empty image.
 
+        buf.append(self.pack(reg=self.REG_SP, scnt=1, exp=self.SP_JUMP, offset=1))
+
+        print "Pattern length: %d" % len(buf)
         self.write(1, ''.join(buf))
         self.start()
+
+        def finish(_):
+            print "Finished writing pattern"
+            cb()
+        self.bt.read(1, finish)
+
 
 def vecSub(a, b):
     return (a[0] - b[0], a[1] - b[1])
@@ -284,7 +294,10 @@ def vecDot(a, b):
 
 def iterPathSampler(points, dist):
     """Given one line segment path, resample that path and yield
-       new points every 'dist' units.
+       new points every 'dist' units. Each point is an (x, y, payload)
+       tuple, where 'payload' is an arbitrary Python object which is
+       preserved in the resampled output. Each output sample carries
+       the payload of the preceeding input sample.
        """
     prev = None
 
@@ -299,7 +312,7 @@ def iterPathSampler(points, dist):
             yield prev
             continue
 
-        v = vecSub(cur, prev)
+        v = vecSub(cur[:2], prev[:2])
         vmag = vecMag(v)
 
         # Walk from the previous input sample to the current one,
@@ -312,7 +325,7 @@ def iterPathSampler(points, dist):
             if remaining < travel:
                 break
 
-            prev = vecAdd(prev, vecMul(v, travel / vmag))
+            prev = vecAdd(prev[:2], vecMul(v, travel / vmag)) + prev[2:]
             x = 0
             remaining -= travel
             yield prev
@@ -326,6 +339,8 @@ class DrawingWidget(wx.Panel):
         self.bt = bt
         self.vm = VectorMachine(self.bt)
 
+        self._needUpload = False
+        self._uploadPending = False
         self.path = []
         self.resampled = []
 
@@ -337,7 +352,7 @@ class DrawingWidget(wx.Panel):
         self.dist.Bind(wx.EVT_SLIDER, self.tesselate)
         hbox.Add(self.dist, 0, wx.EXPAND)
 
-        self.scnt = wx.Slider(self, minValue=1, maxValue=512, value=256,
+        self.scnt = wx.Slider(self, minValue=1, maxValue=128, value=64,
                               style=wx.SL_VERTICAL)
         self.scnt.Bind(wx.EVT_SLIDER, self.tesselate)
         hbox.Add(self.scnt, 0, wx.EXPAND)
@@ -348,6 +363,7 @@ class DrawingWidget(wx.Panel):
         self.canvas.Bind(wx.EVT_LEFT_UP, self.onMouseEvent)
         self.canvas.Bind(wx.EVT_RIGHT_UP, self.onMouseEvent)
         self.canvas.Bind(wx.EVT_LEFT_DOWN, self.onMouseEvent)
+        self.canvas.Bind(wx.EVT_RIGHT_DOWN, self.onMouseEvent)
         self.canvas.Bind(wx.EVT_MOTION, self.onMouseEvent)
         self.canvas.Bind(wx.EVT_PAINT, self.onPaint)
         self.canvas.Bind(wx.EVT_SIZE, self.onSize)
@@ -364,24 +380,38 @@ class DrawingWidget(wx.Panel):
         pos = event.GetPosition()
         center = (self.Size.x / 2, self.Size.y / 2)
         pos = vecSub(pos, center)
-
-        if event.LeftDown():
+        pos = (min(255, max(-255, pos[0])),
+               min(255, max(-255, pos[1])))
+   
+        if event.RightDown():
             self.path = []
             self.lastPos = pos
             self.tesselate()
 
-        if event.LeftUp() or event.RightUp():
-            if self.bt.isConnected:
-                self.vm.uploadVectors(self.resampled, self.scnt.GetValue())
-
-        if event.LeftIsDown():
-            self.path.append(pos)
+        if event.RightIsDown():
+            self.path.append((pos[0], pos[1], event.LeftIsDown()))
             self.tesselate()
 
     def tesselate(self, event=None):
         self.resampled = list(iterPathSampler(self.path + self.path[:1],
                                               self.dist.GetValue()))
         self.Refresh()
+        self._needUpload = True
+        self._upload()
+
+    def _upload(self):
+        if not self.bt.isConnected:
+            self._uploadPending = False
+            return
+
+        if self._needUpload and not self._uploadPending:
+            def done():
+                self._uploadPending = False
+                self._upload()
+
+            self._needUpload = False
+            self._uploadPending = True
+            self.vm.uploadVectors(self.resampled, self.scnt.GetValue(), done)
 
     def onPaint(self, event):
         dc = wx.AutoBufferedPaintDC(self.canvas)
@@ -392,11 +422,24 @@ class DrawingWidget(wx.Panel):
         dc.CrossHair(*center)
 
         dc.Pen = wx.Pen('#444444')
-        dc.DrawLines(self.path, *center)
+        prevX = None
+        prevY = None
+        prevLE = None
+        for x, y, le in self.path:
+            if prevLE:
+                dc.DrawLine(prevX + center[0], prevY + center[1],
+                            x + center[0], y + center[1])
+            prevX = x
+            prevY = y
+            prevLE = le
 
-        dc.Pen = wx.Pen('#800000')
-        for point in self.resampled:
-            dc.DrawCircle(point[0] + center[0], point[1] + center[1], 2)
+        for x, y, le in self.resampled:
+            if le:
+                dc.Pen = wx.Pen('#800000')
+            else:
+                dc.Pen = wx.Pen('#aaaaaa')
+
+            dc.DrawCircle(x + center[0], y + center[1], 2)
 
         event.Skip()
 
@@ -425,7 +468,7 @@ class MainWindow(wx.Frame):
             tweakables.extend([
                 (region, 0, axis + ") P", 0, 0x7FFFFFFF),
                 (region, 1, axis + ") I", 0, 1000000),
-                (region, 2, axis + ") D", 0, 50000000),
+                (region, 2, axis + ") D", 0, 200000000),
                 (region, 3, axis + ") Center", 0, 1000000),
                 (region, 4, axis + ") Scale", 0, 2000),
                 ])
