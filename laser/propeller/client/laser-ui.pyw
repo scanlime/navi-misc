@@ -482,6 +482,10 @@ class MainWindow(wx.Frame):
                          lambda v: "therm_x: %.01f degF" % thermToFahrenheit(v)),
             MonitorLabel(self, self.bt, "therm", 1,
                          lambda v: "therm_y: %.01f degF" % thermToFahrenheit(v)),
+            MonitorLabel(self, self.bt, "cal", 0, lambda v: "cal_x_min: %d" % v),
+            MonitorLabel(self, self.bt, "cal", 1, lambda v: "cal_y_min: %d" % v),
+            MonitorLabel(self, self.bt, "cal", 2, lambda v: "cal_x_max: %d" % v),
+            MonitorLabel(self, self.bt, "cal", 3, lambda v: "cal_y_max: %d" % v),
             ):
             vbox.Add(label, 0, wx.ALL, 4)
 
