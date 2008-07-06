@@ -18,7 +18,10 @@ Copyright (c) 2008 Micah Dowty
 
 """
 
-from BluetoothConduit import BluetoothConduit
+from BluetoothConduit import *
+from LaserObjects import *
+from LaserWidgets import *
+
 import wx, struct, math
 
 
@@ -203,7 +206,7 @@ class VectorMachine:
 
     FIXED_POINT_BITS = 16
 
-    def __init__(self, bt, cmdRegion="vm_param", memRegion="vector_mem"):
+    def __init__(self, bt, cmdRegion="vm", memRegion="vector_mem"):
         self.bt = bt
         self.cmdRegion = cmdRegion
         self.memRegion = memRegion
@@ -451,40 +454,74 @@ def thermToFahrenheit(x):
     return (x / 16.0) * 1.8 + 32.0
 
 
-class MainWindow(wx.Frame):
+class MainWindow(wx.Dialog):                 
     def __init__(self, parent=None, id=wx.ID_ANY, title="LaserProp Test"):
-        wx.Frame.__init__(self, parent, id, title)
+        wx.Dialog.__init__(self, parent, id, title)
         vbox = wx.BoxSizer(wx.VERTICAL)
 
         self.bt = BluetoothConduit()
         self.Bind(wx.EVT_CLOSE, self.onClose)
 
+        laserBrightness = AdjustableValue(min=0.0, max=1.0)
+        BTConnector(ScaledValue(laserBrightness, 0xFFFFFFFF),
+                                 self.bt, "vm", 1)
+
+        vbox.Add(ValueLabel(self, laserBrightness, name="Laser power"))
+        vbox.Add(ValueSlider(self, laserBrightness, size=(500,-1)))
+        vbox.Add(ValueSpinner(self, ScaledValue(laserBrightness, 10000)))
+
+        xCenter = AdjustableValue(min=100000, max=700000)
+        yCenter = AdjustableValue(min=100000, max=700000)
+
+        vbox.Add(ValueSlider2D(self, xCenter, yCenter, topDown=True))
+        vbox.Add(ValueSlider(self, xCenter))
+        vbox.Add(ValueSlider(self, yCenter))
+        
+        BTConnector(xCenter, self.bt, "vcm_x", 3)
+        BTConnector(yCenter, self.bt, "vcm_y", 3)
+
+        xTherm = AdjustableValue()
+        PollingBTConnector(xTherm, self.bt, "therm", 0, pollInterval=2.0)
+        yTherm = AdjustableValue()
+        PollingBTConnector(yTherm, self.bt, "therm", 1, pollInterval=2.0)
+
+        vbox.Add(ValueLabel(self, ThermValue(xTherm), "X temperature", u"%.1f \u00B0F"))
+        vbox.Add(ValueLabel(self, ThermValue(yTherm), "Y temperature", u"%.1f \u00B0F"))
+
+        posX = AdjustableValue(min=100000, max=700000)
+        posY = AdjustableValue(min=100000, max=700000)
+        PollingBTConnector(posX, self.bt, "prox_x", 0)
+        PollingBTConnector(posY, self.bt, "prox_y", 0)
+        vbox.Add(ValueLabel(self, posX, "posX"))
+        vbox.Add(ValueLabel(self, posY, "posY"))
+        vbox.Add(ScatterPlot2D(self, posX, posY, topDown=True))
+
+        filterX = AdjustableValue(min=0, max=8)
+        filterY = AdjustableValue(min=0, max=8)
+        BTConnector(filterX, self.bt, "prox_x", 1)
+        BTConnector(filterY, self.bt, "prox_y", 1)
+        vbox.Add(ValueSpinner(self, filterX))
+        vbox.Add(ValueSpinner(self, filterY))
+
         self.timer = FlushTimer(self.bt)
         vbox.Add(ConnectButton(self, self.bt), 0, wx.ALL, 4)
 
         tweakables = [
-            ('vm_param', 1, "Laser PWM", 0, 0x7FFFFFFF),
+            ('vm', 1, "Laser PWM", 0, 0x7FFFFFFF),
             ]
 
         for axis in 'xy':
-            region = 'params_' + axis
+            region = 'vcm_' + axis
             tweakables.extend([
                 (region, 0, axis + ") P", 0, 0x7FFFFFFF),
                 (region, 1, axis + ") I", 0, 1000000),
                 (region, 2, axis + ") D", 0, 200000000),
-                (region, 3, axis + ") Center", 0, 1000000),
                 (region, 4, axis + ") Scale", 0, 2000),
                 ])
 
         vbox.Add(TweakGrid(self, self.bt, tweakables), 0, wx.ALL, 4)
 
         for label in (
-            MonitorLabel(self, self.bt, "pos_x", 0, lambda v: "pos_x: %d" % v),
-            MonitorLabel(self, self.bt, "pos_y", 0, lambda v: "pos_y: %d" % v),
-            MonitorLabel(self, self.bt, "therm", 0,
-                         lambda v: "therm_x: %.01f degF" % thermToFahrenheit(v)),
-            MonitorLabel(self, self.bt, "therm", 1,
-                         lambda v: "therm_y: %.01f degF" % thermToFahrenheit(v)),
             MonitorLabel(self, self.bt, "cal", 0, lambda v: "cal_x_min: %d" % v),
             MonitorLabel(self, self.bt, "cal", 1, lambda v: "cal_y_min: %d" % v),
             MonitorLabel(self, self.bt, "cal", 2, lambda v: "cal_x_max: %d" % v),
@@ -507,6 +544,6 @@ class MainWindow(wx.Frame):
 
 
 if __name__ == "__main__":
-    app = wx.App()
+    app = wx.App(0)
     frame = MainWindow()
     app.MainLoop()
