@@ -108,10 +108,11 @@ class AdjustableValue(ObservableValue):
 
     def set(self, value, omitFn=None):
         # Add max/min limit enforcement
-        if self.min is not None:
-            value = max(self.min, value)
-        if self.max is not None:
-            value = min(self.max, value)
+        if value is not None:
+            if self.min is not None:
+                value = max(self.min, value)
+            if self.max is not None:
+                value = min(self.max, value)
         ObservableValue.set(self, value, omitFn)
 
     def getUnitValue(self):
@@ -393,7 +394,7 @@ class BTAdjustableValuesAxis:
         # Now set up calibrated (non-raw) values.
 
         self.vcmPGain = CalibratedGainValue(self.vcmPGainRaw, cal, axisName, min=0.0, max=1.0)
-        self.vcmIGain = CalibratedGainValue(self.vcmIGainRaw, cal, axisName, min=0.0, max=1.0)
+        self.vcmIGain = CalibratedGainValue(self.vcmIGainRaw, cal, axisName, min=0.0, max=0.005)
         self.vcmDGain = CalibratedGainValue(self.vcmDGainRaw, cal, axisName, min=0.0, max=1.0)
 
         self.vcmCenter = CalibratedPositionValue(self.vcmCenterRaw, cal, axisName)

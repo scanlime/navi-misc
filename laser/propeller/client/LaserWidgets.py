@@ -150,7 +150,7 @@ class ValueSlider2D(wx.PyControl):
             self.Disable()
         else:
             self.Enable()
-            self.Refresh()
+        self.Refresh()
 
     def onSize(self, event):
         self.Refresh()
