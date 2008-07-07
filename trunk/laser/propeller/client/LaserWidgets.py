@@ -32,7 +32,8 @@ import wx
 from LaserObjects import *
 
 __all__ = ['ValueLabel', 'ValueSlider', 'ValueSpinner', 'ValueSlider2D',
-           'ScatterPlot2D', 'PollingBTConnector']
+           'ScatterPlot2D', 'PollingBTConnector', 'CalibrationLabel',
+           'BTConnectButton', 'BTFlushTimer', 'BTPolledValues']
 
 
 class ValueLabel(wx.StaticText):
@@ -108,8 +109,10 @@ class ValueSlider2D(wx.PyControl):
        This is a custom widget which draws a box containing a thumb
        that's draggable in both dimensions.
        """
-    def __init__(self, parent, xValue, yValue, size=(200,200), thumbRadius=5,
-                 topDown=False, readOnly=False):
+    snapDistance = 10
+
+    def __init__(self, parent, xValue, yValue, size=(128, 128), thumbRadius=5,
+                 topDown=False, readOnly=False, snapToDiagonal=False):
         wx.PyControl.__init__(self, parent, size=size)
 
         self.thumbX = None
@@ -118,6 +121,7 @@ class ValueSlider2D(wx.PyControl):
         self.topDown = topDown
         self.readOnly = readOnly
         self.size = size
+        self.snapToDiagonal = snapToDiagonal
 
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.Bind(wx.EVT_PAINT, self.onPaint)
@@ -127,6 +131,7 @@ class ValueSlider2D(wx.PyControl):
             self.Bind(wx.EVT_MOTION, self.onMouseEvent)
             self.Bind(wx.EVT_LEFT_DOWN, self.onMouseEvent)
             self.Bind(wx.EVT_LEFT_DCLICK, self.onMouseEvent)
+            self.Bind(wx.EVT_LEFT_UP, self.onMouseEvent)
 
         self.xValue = xValue
         self.yValue = yValue
@@ -156,6 +161,15 @@ class ValueSlider2D(wx.PyControl):
 
         dc.Background = self.bgBrush
         dc.Clear()
+        dc.Brush = self.thumbBrush
+        dc.Pen = self.thumbPen
+
+        if self.snapToDiagonal:
+            # Draw the diagonal line
+            if self.topDown:
+                dc.DrawLine(0, 0, width, height)
+            else:
+                dc.DrawLine(0, height, width, 0)
 
         try:
             self.thumbX = int(self.xValue.getUnitValue() * width + 0.5)
@@ -166,21 +180,28 @@ class ValueSlider2D(wx.PyControl):
         except TypeError:
             pass
         else:
-            dc.Brush = self.thumbBrush
-            dc.Pen = self.thumbPen
-
             dc.CrossHair(self.thumbX, self.thumbY)
             dc.DrawCircle(self.thumbX, self.thumbY, self.thumbRadius)
 
         event.Skip()
 
     def onMouseEvent(self, event):
+        if event.LeftDown():
+            self.CaptureMouse()
+
+        if event.LeftUp() and self.HasCapture():
+            self.ReleaseMouse()
+
         if event.LeftIsDown():
             x, y = event.GetPosition()
             width, height = self.GetClientSize()
 
             if not self.topDown:
                 y = height - y
+
+            if self.snapToDiagonal:
+                if abs(x - y) < self.snapDistance:
+                    x = y = (x + y) / 2
 
             self.xValue.setUnitValue(x / width)
             self.yValue.setUnitValue(y / height)
@@ -189,7 +210,7 @@ class ValueSlider2D(wx.PyControl):
 class ScatterPlot2D(wx.PyControl):
     """A two-dimensional scatter plot, showing a fixed number of recent values.
        """
-    def __init__(self, parent, xValue, yValue, size=(128,128), historyLen=128, topDown=False):
+    def __init__(self, parent, xValue, yValue, size=(128,128), historyLen=64, topDown=False):
         wx.PyControl.__init__(self, parent, size=size)
 
         self.topDown = topDown
@@ -203,7 +224,10 @@ class ScatterPlot2D(wx.PyControl):
 
         self.xValue = xValue
         self.yValue = yValue
-        xValue.observe(self._valueChanged)
+
+        # Only actually observe one of our values, so we
+        # get called once per point rather than once per
+        # component.
         yValue.observe(self._valueChanged)
 
         self.bgBrush = wx.Brush(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BTNFACE))
@@ -245,11 +269,11 @@ class ScatterPlot2D(wx.PyControl):
         dc.Background = self.bgBrush
         dc.Clear()
 
-        dc.Pen = self.historyPen
-        dc.DrawPointList(self.history)
-
         dc.Pen = self.crosshairPen
         dc.CrossHair(*self.history[self.head])
+
+        dc.Pen = self.historyPen
+        dc.DrawPointList(self.history)
 
         event.Skip()
 
@@ -275,3 +299,126 @@ class PollingBTConnector(BTConnector):
             wx.CallLater(int(self.pollInterval * 1000 + 0.5), self.onConnect)
         else:
             self.onConnect()
+
+
+class CalibrationLabel(wx.StaticText):
+    """A StaticText widget that displays raw calibration values."""
+    def __init__(self, parent, calibration):
+        wx.StaticText.__init__(self, parent)
+        calibration.observe(self._valueChanged)
+
+    def _valueChanged(self, v):
+        if v is None:
+            self.SetLabel("(No calibration data)")
+        else:
+            keys = v.keys()
+            keys.sort()
+            self.SetLabel("Calibration: " + ' '.join(["%s=%s" % (key, v[key]) for key in keys]))
+
+
+class BTConnectButton(wx.Button):
+    """A UI button which allows connecting/disconnecting a BluetoothConduit,
+       and which displays the current connection status.
+       """
+    connectLabel = "Connect"
+    connectingLabel = "Connecting..."
+    disconnectLabel = "Disconnect"
+    disconnectingLabel = "Connecting..."
+
+    def __init__(self, parent, bt):
+        self.bt = bt
+        wx.Button.__init__(self, parent, label=self.connectLabel)
+        self.Bind(wx.EVT_BUTTON, self.onClicked)
+        self.bt.onConnect.append(self.onConnect)
+        self.bt.onDisconnect.append(self.onDisconnect)
+
+    def onClicked(self, event):
+        # XXX: Connection currently blocks the UI event loop
+
+        if self.bt.isConnected:
+            self.SetLabel(self.disconnectingLabel)
+            self.Disable()
+            try:
+                self.bt.disconnect()
+            except:
+                self.onConnect()
+                raise
+        else:
+            self.SetLabel(self.connectingLabel)
+            self.Disable()
+            try:
+                self.bt.connect()
+            except:
+                self.onDisconnect()
+                raise
+
+    def onConnect(self):
+        self.SetLabel(self.disconnectLabel)
+        self.Enable()
+
+    def onDisconnect(self):
+        self.SetLabel(self.connectLabel)
+        self.Enable()
+
+
+class BTFlushTimer(wx.Timer):
+    """A Timer which flushes events in the BluetoothConduit at regular intervals."""
+    def __init__(self, bt, msInterval=10):
+        self.bt = bt
+        self.msInterval = msInterval
+        wx.Timer.__init__(self)
+
+        self.Bind(wx.EVT_TIMER, self.onTimerEvent)
+
+        bt.onConnect.append(self.onConnect)
+        bt.onDisconnect.append(self.onDisconnect)
+        if bt.isConnected:
+            self.onConnect()
+
+    def onConnect(self):
+        self.Start(self.msInterval)
+
+    def onDisconnect(self):
+        self.Stop()
+
+    def onTimerEvent(self, event):
+        self.bt.flush()
+
+
+class BTPolledValues:
+    """A collection of standard AdjustableValues for data that
+       we want to poll from the laser projector. The act of creating
+       this object will cause us to poll several values any time the
+       projector is connected, consuming additional bandwidth.
+       """
+    def __init__(self, bt, calibration):
+        self.bt = bt
+        self.calibration = calibration
+        
+        # Per-axis values.
+
+        self.x = BTPolledValuesAxis(self, 'x', 0)
+        self.y = BTPolledValuesAxis(self, 'y', 1)
+        
+
+class BTPolledValuesAxis:
+    """The internal per-axis object that makes up half of a BTPolledValues.
+       """
+    def __init__(self, parent, axisName, axisNumber):
+        bt = parent.bt
+        cal = parent.calibration
+
+        # Temperature sensor
+
+        self.thermRaw = AdjustableValue()
+        PollingBTConnector(self.thermRaw, bt, "therm", axisNumber, pollInterval=2.0)
+
+        self.thermDegF = ThermValue(self.thermRaw)
+        self.thermDegC = ThermValue(self.thermRaw, toFahrenheit=False)
+
+        # Current position
+
+        self.posRaw = AdjustableValue()
+        PollingBTConnector(self.posRaw, bt, "prox_" + axisName, 0)
+
+        self.pos = CalibratedPositionValue(self.posRaw, cal, axisName)

@@ -30,8 +30,11 @@ from __future__ import division
 
 import struct
 
-__all__ = ['ObservableValue', 'AdjustableValue', 'DependentValue', 'ScaledValue',
-           'ThermValue', 'BTConnector']
+__all__ = ['ObservableValue', 'Calibration', 'AdjustableValue',
+           'DependentValue', 'ScaledValue', 'ThermValue', 'BTConnector',
+           'CalibrationDependentValue', 'CalibratedPositionValue',
+           'CalibratedScaleValue', 'CalibratedGainValue',
+           'BTAdjustableValues']
 
 
 class ObservableValue(object):
@@ -62,6 +65,35 @@ class ObservableValue(object):
         self.observers.append(fn)
 
 
+class Calibration(ObservableValue):
+    """An observable dictionary of power-on calibration values,
+       collected from the hardware at connect time.
+
+       For convenience, calibration values are available in two forms:
+       the 'values' dictionary, and as attributes of this object.
+       """
+    _calParams = ('x_min', 'y_min', 'x_max', 'y_max')
+
+    def __init__(self, bt, regionName="cal"):
+        ObservableValue.__init__(self)
+        self.bt = bt
+        self.regionName = regionName
+        self.bt.addCallbacks(self.onConnect, self.onDisconnect)
+
+    def onConnect(self):
+        self.bt.setRegionByName(self.regionName)
+        self.bt.read(len(self._calParams), self.onRead)
+
+    def onDisconnect(self):
+        self.set(None)
+
+    def onRead(self, data):
+        fmt = '<' + 'I' * len(self._calParams)
+        v = dict(zip(self._calParams, struct.unpack(fmt, data)))
+        self.set(v)
+        self.__dict__.update(v)
+
+
 class AdjustableValue(ObservableValue):
     """Abstraction for a numeric value which can be modified and
        observed.  AdjustableValues have a static minimum/maximum value
@@ -73,6 +105,14 @@ class AdjustableValue(ObservableValue):
         self.min = min
         self.max = max
         ObservableValue.__init__(self, value)
+
+    def set(self, value, omitFn=None):
+        # Add max/min limit enforcement
+        if self.min is not None:
+            value = max(self.min, value)
+        if self.max is not None:
+            value = min(self.max, value)
+        ObservableValue.set(self, value, omitFn)
 
     def getUnitValue(self):
         """Scale 'value' into the range [0,1], where 0 is 'min' and 1 is 'max'."""
@@ -125,6 +165,116 @@ class DependentValue(AdjustableValue):
 
     def _updateDep(self, v):
         self.set(self.origToDep(v), self._updateOrig)
+
+
+class CalibrationDependentValue(DependentValue):
+    """A DependentValue with transform functions that depend on the
+       current calibration values. Every time the calibration changes,
+       the dependent value is updated from the original.
+
+       The transform functions take two arguments now: the value
+       to transform, and the current Calibration object.
+       """
+    def __init__(self, original, cal,
+                 origToDep=None, depToOrig=None,
+                 min=None, max=None):
+        self.calibration = cal
+        DependentValue.__init__(self, original, origToDep, depToOrig, min, max)
+
+        # Set up calibration observer without generating an initial callback
+        cal.observers.append(self._updateCal)
+
+    def _updateCal(self, cal):
+        self.set(self.origToDep(self.original.value), self._updateOrig)
+
+    def origToDep(self, v):
+        if v is not None and self.calibration.value:
+            return self._origToDep(v, self.calibration)
+
+    def depToOrig(self, v):
+        if v is not None and self.calibration.value:
+            return self._depToOrig(v, self.calibration)
+
+
+class CalibratedPositionValue(CalibrationDependentValue):
+    """A CalibrationDependentValue that is scaled such that the minimum
+       value for the axis is 0.0 and the maximum is 1.0. This class is used
+       for position parameters, such as the vcmCenter.
+       """
+    def __init__(self, original, cal, axis):
+        self.axis = axis
+        CalibrationDependentValue.__init__(self, original, cal, min=0.0, max=1.0)
+
+    def origToDep(self, v):
+        if v is not None and self.calibration.value:
+            min = self.calibration.value[self.axis + '_min']
+            max = self.calibration.value[self.axis + '_max']
+            return (v - min) / (max - min)
+
+    def depToOrig(self, v):
+        if v is not None and self.calibration.value:
+            min = self.calibration.value[self.axis + '_min']
+            max = self.calibration.value[self.axis + '_max']
+            return v * (max - min) + min
+
+
+class CalibratedScaleValue(CalibrationDependentValue):
+    """A CalibrationDependentValue that is scaled such that, if the
+       dependent value remains constant, the calibrated range and the
+       original value will be linearly proportional.
+
+       This is used for position difference parameters, such as vcmScale.
+       """
+    # Constant scale, to make the units more manageable
+    const = 1e2
+
+    def __init__(self, original, cal, axis, min=None, max=None):
+        self.axis = axis
+        CalibrationDependentValue.__init__(self, original, cal, min=min, max=max)
+
+    def origToDep(self, v):
+        if v is not None and self.calibration.value:
+            min = self.calibration.value[self.axis + '_min']
+            max = self.calibration.value[self.axis + '_max']
+            range = max - min
+            return v / range * self.const
+
+    def depToOrig(self, v):
+        if v is not None and self.calibration.value:
+            min = self.calibration.value[self.axis + '_min']
+            max = self.calibration.value[self.axis + '_max']
+            range = max - min
+            return v * range / self.const
+
+
+class CalibratedGainValue(CalibrationDependentValue):
+    """A CalibrationDependentValue that is scaled such that, if the
+       dependent value remains constant, the calibrated range and the
+       original value will be inverse linear proportional.
+
+       This is used for parameters that are scale factors based
+       on position differences, such as all servo gains.
+       """
+    # Constant scale, to make the units more manageable
+    const = 4e-14
+
+    def __init__(self, original, cal, axis, min=None, max=None):
+        self.axis = axis
+        CalibrationDependentValue.__init__(self, original, cal, min=min, max=max)
+
+    def origToDep(self, v):
+        if v is not None and self.calibration.value:
+            min = self.calibration.value[self.axis + '_min']
+            max = self.calibration.value[self.axis + '_max']
+            range = max - min
+            return v * range * self.const
+
+    def depToOrig(self, v):
+        if v is not None and self.calibration.value:
+            min = self.calibration.value[self.axis + '_min']
+            max = self.calibration.value[self.axis + '_max']
+            range = max - min
+            return v / range / self.const
 
 
 class ScaledValue(DependentValue):
@@ -190,3 +340,62 @@ class BTConnector(object):
         self.bt.seek(self.offset)
         self.bt.write(struct.pack(self.format, int(v + 0.5)))
 
+
+class BTAdjustableValues:
+    """A collection of standard AdjustableValues for all relevant
+       bluetooth-accessable parameters on the laser projector.
+
+       Does not include polled values. Those are in LaserWidgets.py.
+       """
+    def __init__(self, bt):
+        self.bt = bt
+        self.calibration = Calibration(self.bt)
+
+        # Laser brightness: Raw uses the whole 32-bit range, cooked
+        # value is from 0.0 to 1.0.
+
+        self.laserPower = AdjustableValue(min=0.0, max=1.0)
+        self.laserPowerRaw = ScaledValue(self.laserPower, 0xFFFFFFFF)
+        BTConnector(self.laserPowerRaw, bt, "vm", 1)
+        
+        # Per-axis values.
+
+        self.x = BTAdjustableValuesAxis(self, 'x')
+        self.y = BTAdjustableValuesAxis(self, 'y')
+        
+
+class BTAdjustableValuesAxis:
+    """The internal per-axis object that makes up half of a BTAdjustableValues.
+       """
+    def __init__(self, parent, axisName):
+        bt = parent.bt
+        cal = parent.calibration
+
+        # Log base 2 of prox filter size. Upper limit is set by the
+        # fixed-point shift used in the OpticalProximity firmware
+        # module.
+
+        self.proxFilter = AdjustableValue(min=0, max=10)
+        BTConnector(self.proxFilter, bt, "prox_" + axisName, 1)
+
+        # VCM servo parameters.
+        # First, wire up all raw parameters via their BTConduits.
+
+        for offset, attrName in enumerate(('vcmPGainRaw',
+                                           'vcmIGainRaw',
+                                           'vcmDGainRaw',
+                                           'vcmCenterRaw',
+                                           'vcmScaleRaw')):
+            v = AdjustableValue()
+            self.__dict__[attrName] = v
+            BTConnector(v, bt, "vcm_" + axisName, offset)
+        
+        # Now set up calibrated (non-raw) values.
+
+        self.vcmPGain = CalibratedGainValue(self.vcmPGainRaw, cal, axisName, min=0.0, max=1.0)
+        self.vcmIGain = CalibratedGainValue(self.vcmIGainRaw, cal, axisName, min=0.0, max=1.0)
+        self.vcmDGain = CalibratedGainValue(self.vcmDGainRaw, cal, axisName, min=0.0, max=1.0)
+
+        self.vcmCenter = CalibratedPositionValue(self.vcmCenterRaw, cal, axisName)
+ 
+        self.vcmScale = CalibratedScaleValue(self.vcmScaleRaw, cal, axisName, min=0.0, max=1.0)
