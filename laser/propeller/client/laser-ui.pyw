@@ -18,178 +18,13 @@ Copyright (c) 2008 Micah Dowty
 
 """
 
+from __future__ import division
+
 from BluetoothConduit import *
 from LaserObjects import *
 from LaserWidgets import *
 
 import wx, struct, math
-
-
-class ConnectButton(wx.Button):
-    """A UI button which allows connecting/disconnecting a BluetoothConduit,
-       and which displays the current connection status.
-       """
-    connectLabel = "Connect"
-    connectingLabel = "Connecting..."
-    disconnectLabel = "Disconnect"
-    disconnectingLabel = "Connecting..."
-
-    def __init__(self, parent, bt):
-        self.bt = bt
-        wx.Button.__init__(self, parent, label=self.connectLabel)
-        self.Bind(wx.EVT_BUTTON, self.onClicked)
-        self.bt.onConnect.append(self.onConnect)
-        self.bt.onDisconnect.append(self.onDisconnect)
-
-    def onClicked(self, event):
-        # XXX: Connection currently blocks the UI event loop
-
-        if self.bt.isConnected:
-            self.SetLabel(self.disconnectingLabel)
-            self.Disable()
-            try:
-                self.bt.disconnect()
-            except:
-                self.onConnect()
-                raise
-        else:
-            self.SetLabel(self.connectingLabel)
-            self.Disable()
-            try:
-                self.bt.connect()
-            except:
-                self.onDisconnect()
-                raise
-
-    def onConnect(self):
-        self.SetLabel(self.disconnectLabel)
-        self.Enable()
-
-    def onDisconnect(self):
-        self.SetLabel(self.connectLabel)
-        self.Enable()
-
-
-class FlushTimer(wx.Timer):
-    """A Timer which flushes events in the BluetoothConduit at regular intervals."""
-    def __init__(self, bt, msInterval=10):
-        self.bt = bt
-        self.msInterval = msInterval
-        wx.Timer.__init__(self)
-
-        self.Bind(wx.EVT_TIMER, self.onTimerEvent)
-
-        bt.onConnect.append(self.onConnect)
-        bt.onDisconnect.append(self.onDisconnect)
-        if bt.isConnected:
-            self.onConnect()
-
-    def onConnect(self):
-        self.Start(self.msInterval)
-
-    def onDisconnect(self):
-        self.Stop()
-
-    def onTimerEvent(self, event):
-        self.bt.flush()
-
-
-class TweakConduit:
-    """The TweakConduit object links one or more wxPython widgets to
-       a 32-bit value within a BluetoothConduit memory region.
-       Supports sliders and spin button widgets.
-       """
-    def __init__(self, bt, regionName, offset=0, widgets=None):
-        self.bt = bt
-        self.regionName = regionName
-        self.offset = offset
-        self.widgets = widgets or []
-        self.value = None
-
-        self.bt.addCallbacks(self.onConnect, self.onDisconnect)
-
-        for w in self.widgets:
-            for e in wx.EVT_SPIN, wx.EVT_SLIDER, wx.EVT_TEXT_ENTER:
-                w.Bind(e, self.onWidgetEvent)
-
-    def onConnect(self):
-        # Read the current value
-        self.bt.setRegionByName(self.regionName)
-        self.bt.seek(self.offset)
-        self.bt.read(1, self.onRead)
-
-    def onDisconnect(self):
-        for w in self.widgets:
-            w.Disable()
-        self.value = None
-
-    def onRead(self, data):
-        self.value = struct.unpack("<I", data)[0]
-        for w in self.widgets:
-            w.SetValue(min(0x7FFFFFFF, self.value))
-            w.Enable()
-
-    def onWidgetEvent(self, event):
-        w = event.GetEventObject()
-        value = w.GetValue()
-        if value == self.value:
-            return
-        else:
-            self.value = value    
-
-        # Update all other widgets
-        for other in self.widgets:
-            if other is not w:
-                other.SetValue(value)
-        
-        # Update the hardware
-        self.bt.setRegionByName(self.regionName)
-        self.bt.seek(self.offset)
-        self.bt.write(struct.pack("<I", self.value))
-
-
-class TweakGrid(wx.FlexGridSizer):
-    """A tabular grid of tweakable values, each with both a slider
-       and a spin button. The rows in the grid are specified using
-       a list of (regionName, offset, label, min, max) tuples.
-       """
-    def __init__(self, parent, bt, specification):
-        wx.FlexGridSizer.__init__(self, len(specification), 3, 2, 2)
-        
-        for regionName, offset, label, minValue, maxValue in specification:
-            textWidget = wx.StaticText(parent, label = label + ": ")
-            slider = wx.Slider(parent, minValue=minValue, maxValue=maxValue, size=(600,-1))
-            spinner = wx.SpinCtrl(parent)
-            spinner.SetRange(0, 0x7FFFFFFF)
-            TweakConduit(bt, regionName, offset, [slider, spinner])
-            self.Add(textWidget)
-            self.Add(slider)
-            self.Add(spinner)
-
-
-class MonitorLabel(wx.StaticText):
-    """A StaticText widget which monitors a 32-bit value within
-       a BluetoothConduit memory region.
-       """
-    def __init__(self, parent, bt, regionName, offset=0, formatter=str):
-        wx.StaticText.__init__(self, parent)
-        self.formatter = formatter
-        self.bt = bt
-        self.regionName = regionName
-        self.offset = offset
-        self.bt.addCallbacks(self.onConnect, self.onDisconnect)
-
-    def onConnect(self):
-        self.bt.setRegionByName(self.regionName)
-        self.bt.seek(self.offset)
-        self.bt.read(1, self.onRead)
-
-    def onRead(self, value):
-        self.onConnect()
-        self.SetLabel(self.formatter(struct.unpack("<i", value)[0]))
-
-    def onDisconnect(self):
-        self.SetLabel("---")
 
 
 class VectorMachine:
@@ -447,87 +282,46 @@ class DrawingWidget(wx.Panel):
         event.Skip()
 
 
-def thermToFahrenheit(x):
-    """Convert a fixed-point celcius temperature reading to floating
-       point fahrenheit.
-       """
-    return (x / 16.0) * 1.8 + 32.0
-
-
 class MainWindow(wx.Dialog):                 
     def __init__(self, parent=None, id=wx.ID_ANY, title="LaserProp Test"):
         wx.Dialog.__init__(self, parent, id, title)
         vbox = wx.BoxSizer(wx.VERTICAL)
 
         self.bt = BluetoothConduit()
+        self.adj = BTAdjustableValues(self.bt)
+        self.polled = BTPolledValues(self.bt, self.adj.calibration)
         self.Bind(wx.EVT_CLOSE, self.onClose)
 
-        laserBrightness = AdjustableValue(min=0.0, max=1.0)
-        BTConnector(ScaledValue(laserBrightness, 0xFFFFFFFF),
-                                 self.bt, "vm", 1)
+        self.timer = BTFlushTimer(self.bt)
+        vbox.Add(BTConnectButton(self, self.bt), 0, wx.ALL, 4)
 
-        vbox.Add(ValueLabel(self, laserBrightness, name="Laser power"))
-        vbox.Add(ValueSlider(self, laserBrightness, size=(500,-1)))
-        vbox.Add(ValueSpinner(self, ScaledValue(laserBrightness, 10000)))
+        vbox.Add(CalibrationLabel(self, self.adj.calibration))
 
-        xCenter = AdjustableValue(min=100000, max=700000)
-        yCenter = AdjustableValue(min=100000, max=700000)
+        vbox.Add(ValueLabel(self, self.adj.laserPower, name="Laser power"))
+        vbox.Add(ValueSlider(self, self.adj.laserPower, size=(500,-1)))
+        vbox.Add(ValueSpinner(self, ScaledValue(self.adj.laserPower, 10000)))
 
-        vbox.Add(ValueSlider2D(self, xCenter, yCenter, topDown=True))
-        vbox.Add(ValueSlider(self, xCenter))
-        vbox.Add(ValueSlider(self, yCenter))
-        
-        BTConnector(xCenter, self.bt, "vcm_x", 3)
-        BTConnector(yCenter, self.bt, "vcm_y", 3)
+        vbox.Add(ValueSlider2D(self, self.adj.x.vcmCenter, self.adj.y.vcmCenter, topDown=True))
 
-        xTherm = AdjustableValue()
-        PollingBTConnector(xTherm, self.bt, "therm", 0, pollInterval=2.0)
-        yTherm = AdjustableValue()
-        PollingBTConnector(yTherm, self.bt, "therm", 1, pollInterval=2.0)
+        vbox.Add(ValueLabel(self, self.adj.x.vcmPGainRaw, name="x axis, P gain (raw)"))
+        vbox.Add(ValueLabel(self, self.adj.x.vcmPGain, name="x axis, P gain (cal)"))
+        vbox.Add(ValueSlider2D(self, self.adj.x.vcmPGain, self.adj.y.vcmPGain, snapToDiagonal=True))
 
-        vbox.Add(ValueLabel(self, ThermValue(xTherm), "X temperature", u"%.1f \u00B0F"))
-        vbox.Add(ValueLabel(self, ThermValue(yTherm), "Y temperature", u"%.1f \u00B0F"))
+        vbox.Add(ValueLabel(self, self.adj.x.vcmDGainRaw, name="x axis, D gain (raw)"))
+        vbox.Add(ValueLabel(self, self.adj.x.vcmDGain, name="x axis, D gain (cal)"))
+        vbox.Add(ValueSlider2D(self, self.adj.x.vcmDGain, self.adj.y.vcmDGain, snapToDiagonal=True))
 
-        posX = AdjustableValue(min=100000, max=700000)
-        posY = AdjustableValue(min=100000, max=700000)
-        PollingBTConnector(posX, self.bt, "prox_x", 0)
-        PollingBTConnector(posY, self.bt, "prox_y", 0)
-        vbox.Add(ValueLabel(self, posX, "posX"))
-        vbox.Add(ValueLabel(self, posY, "posY"))
-        vbox.Add(ScatterPlot2D(self, posX, posY, topDown=True))
+        vbox.Add(ValueLabel(self, self.adj.x.vcmScaleRaw, name="x axis, scale (raw)"))
+        vbox.Add(ValueLabel(self, self.adj.x.vcmScale, name="x axis, scale (cal)"))
+        vbox.Add(ValueSlider2D(self, self.adj.x.vcmScale, self.adj.y.vcmScale, snapToDiagonal=True))
 
-        filterX = AdjustableValue(min=0, max=8)
-        filterY = AdjustableValue(min=0, max=8)
-        BTConnector(filterX, self.bt, "prox_x", 1)
-        BTConnector(filterY, self.bt, "prox_y", 1)
-        vbox.Add(ValueSpinner(self, filterX))
-        vbox.Add(ValueSpinner(self, filterY))
+        vbox.Add(ValueLabel(self, self.polled.x.thermDegF, "X temperature", u"%.1f \u00B0F"))
+        vbox.Add(ValueLabel(self, self.polled.y.thermDegF, "Y temperature", u"%.1f \u00B0F"))
 
-        self.timer = FlushTimer(self.bt)
-        vbox.Add(ConnectButton(self, self.bt), 0, wx.ALL, 4)
+        vbox.Add(ScatterPlot2D(self, self.polled.x.pos, self.polled.y.pos, topDown=True))
 
-        tweakables = [
-            ('vm', 1, "Laser PWM", 0, 0x7FFFFFFF),
-            ]
-
-        for axis in 'xy':
-            region = 'vcm_' + axis
-            tweakables.extend([
-                (region, 0, axis + ") P", 0, 0x7FFFFFFF),
-                (region, 1, axis + ") I", 0, 1000000),
-                (region, 2, axis + ") D", 0, 200000000),
-                (region, 4, axis + ") Scale", 0, 2000),
-                ])
-
-        vbox.Add(TweakGrid(self, self.bt, tweakables), 0, wx.ALL, 4)
-
-        for label in (
-            MonitorLabel(self, self.bt, "cal", 0, lambda v: "cal_x_min: %d" % v),
-            MonitorLabel(self, self.bt, "cal", 1, lambda v: "cal_y_min: %d" % v),
-            MonitorLabel(self, self.bt, "cal", 2, lambda v: "cal_x_max: %d" % v),
-            MonitorLabel(self, self.bt, "cal", 3, lambda v: "cal_y_max: %d" % v),
-            ):
-            vbox.Add(label, 0, wx.ALL, 4)
+        vbox.Add(ValueSpinner(self, self.adj.x.proxFilter))
+        vbox.Add(ValueSpinner(self, self.adj.y.proxFilter))
 
         vbox.Add(DrawingWidget(self, self.bt), 1, wx.ALL | wx.EXPAND)
 
