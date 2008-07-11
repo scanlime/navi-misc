@@ -1,7 +1,11 @@
 """
 VectorMachine.py
 
-Python client for the LaserProp's vector graphics virtual machine.
+Python modules for for the LaserProp's vector graphics virtual
+machine.  This includes code for encoding data in the VectorMachine
+format, interpreting VectorMachine programs, and uploading
+VectorMachine data over a BluetoothConduit.
+
 Copyright (c) 2008 Micah Dowty
 
    Permission is hereby granted, free of charge, to any person
@@ -30,24 +34,116 @@ from __future__ import division
 
 import struct, math
 
-# XXX
-__all__ = ['VectorMachine', 'iterPathSampler', 'vecSub']
 
+# The VectorMachine's position registers are encoded in 16.16
+# fixed-point format.
+FIXED_POINT_BITS = 16
+
+# Fields in our instruction format
+X_SHIFT = 0
+X_MASK = (1 << 9) - 1
+OFFSET_SHIFT = 0
+OFFSET_MASK = (1 << 16) - 1
+Y_SHIFT = 9
+Y_MASK = (1 << 9) - 1
+EXP_SHIFT = 18
+EXP_MASK = (1 << 4) - 1
+SCNT_SHIFT = 22
+SCNT_MASK = (1 << 7) - 1
+LE_SHIFT = 29
+LE_MASK = 1
+REG_SHIFT = 30
+REG_MASK = (1 << 2) - 1
+
+# Values for the REG (destination register) field
+REG_SP = 0
+REG_S = 1
+REG_DS = 2
+REG_DDS = 3
+
+# Values for the SP (special) field
+SP_NOP = 0
+SP_JUMP = 1
+SP_CLEAR = 2
+SP_INC = 3
+SP_RESET = 4
+
+def pack(reg=REG_S, le=0, scnt=0, exp=0, y=0, x=0, offset=0):
+    """Encode a tuple into an integer VectorMachine instruction word.
+       """
+    return (((reg    & REG_MASK)    << REG_SHIFT) |
+            ((le     & LE_MASK)     << LE_SHIFT) |
+            ((scnt   & SCNT_MASK)   << SCNT_SHIFT) |
+            ((exp    & EXP_MASK)    << EXP_SHIFT) |
+            ((y      & Y_MASK)      << Y_SHIFT) |
+            ((x      & X_MASK)      << X_SHIFT) |
+            ((offset & OFFSET_MASK) << OFFSET_SHIFT))
+
+def unpack(v):
+    """Unpack an integer VectorMachine instruction word into a
+       (reg, le, scnt, exp, y, x, offset) tuple.
+       """
+    # Sign extend X and Y
+    x = (v >> X_SHIFT) & X_MASK
+    if x & 0x100:
+        x -= 0x200
+    y = (v >> Y_SHIFT) & Y_MASK
+    if y & 0x100:
+        y -= 0x200
+    
+    return ((v >> REG_SHIFT)    & REG_MASK,
+            (v >> LE_SHIFT)     & LE_MASK,
+            (v >> SCNT_SHIFT)   & SCNT_MASK,
+            (v >> EXP_SHIFT)    & EXP_MASK,
+            y, x,
+            (v >> OFFSET_SHIFT) & OFFSET_MASK)
+
+
+class Point:
+    """Container for interpolated point data."""
+    def __init__(self, x, y, laserEnable=False, isControlPoint=False):
+        self.__dict__.update(locals())
+
+    def __repr__(self):
+        return "Point(%d,%d,%d)" % (self.x, self.y, self.laserEnable)
+
+
+def interpret(words):
+    """Interpret a subset of the VectorMachine language.  Special
+       instructions (REG_SP) will raise a NotImplementedError.
+       Non-special instructions will update internal state and/or
+       yield Point() instances.
+
+       Points which immediately follow one or more VectorMachine words
+       will have their isControlPoint flag set.
+       """
+    s = (0, 0)
+    ds = (0, 0)
+    dds = (0, 0)
+
+    for word in words:
+        reg, le, scnt, exp, y, x, offset = unpack(word)
+        p = (x << exp, y << exp)
+
+        if reg == REG_S:
+            s = p
+        elif reg == REG_DS:
+            ds = p
+        elif reg == REG_DDS:
+            dds = p
+        else:
+            assert reg == REG_SP
+            raise NotImplementedError("VectorMachine interpreter encountered special instruction 0x%08x" % word)
+
+        for i in xrange(scnt):
+            ds = (ds[0] + dds[0], ds[1] + dds[1])
+            s = (s[0] + ds[0], s[1] + ds[1])
+            yield Point(s[0] >> FIXED_POINT_BITS,
+                        s[1] >> FIXED_POINT_BITS,
+                        le, i==0)
+    
 
 class VectorMachine:
-    REG_SP = 0
-    REG_S = 1
-    REG_DS = 2
-    REG_DDS = 3
-
-    SP_NOP = 0
-    SP_JUMP = 1
-    SP_CLEAR = 2
-    SP_INC = 3
-    SP_RESET = 4
-
-    FIXED_POINT_BITS = 16
-
     def __init__(self, bt, cmdRegion="vm", memRegion="vector_mem"):
         self.bt = bt
         self.cmdRegion = cmdRegion
@@ -56,12 +152,6 @@ class VectorMachine:
     def cmd(self, instr):
         self.bt.setRegionByName(self.cmdRegion)
         self.bt.write(instr)
-
-    def pack(self, reg=REG_S, le=0, scnt=0, exp=0, y=0, x=0, offset=0):
-        x &= 0x1FF
-        y &= 0x1FF
-        return struct.pack("<I", (reg << 30) | (le << 29) |
-                           (scnt << 22) | (exp << 18) | (y << 9) | x | offset)
 
     def write(self, addr, data):
         self.bt.setRegionByName(self.memRegion)
@@ -107,7 +197,13 @@ class VectorMachine:
         buf.append(self.pack(reg=self.REG_SP, scnt=1, exp=self.SP_JUMP, offset=1))
 
         print "Pattern length: %d" % len(buf)
+
+        # XXX
+        #for i, b in enumerate(buf):
+        #    self.write(i, b)
+
         self.write(1, ''.join(buf))
+        
         self.start()
 
         def finish(_):
@@ -174,3 +270,9 @@ def iterPathSampler(points, dist):
 
         prev = cur
         x += remaining
+
+if __name__== "__main__":
+    print list(interpret([
+                pack(reg=REG_DDS, x=10, y=10, exp=10),
+                pack(x=5, y=5, exp=15, scnt=50),
+                ]))

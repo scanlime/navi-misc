@@ -29,11 +29,14 @@ Copyright (c) 2008 Micah Dowty
 from __future__ import division
 
 import wx
+
 from LaserObjects import *
+import VectorMachine
 
 __all__ = ['ValueLabel', 'ValueSlider', 'ValueSpinner', 'ValueSlider2D',
            'ScatterPlot2D', 'PollingBTConnector', 'CalibrationLabel',
-           'BTConnectButton', 'BTFlushTimer', 'BTPolledValues']
+           'BTConnectButton', 'BTFlushTimer', 'BTPolledValues',
+           'VMPlot2D']
 
 
 class ValueLabel(wx.StaticText):
@@ -422,3 +425,94 @@ class BTPolledValuesAxis:
         PollingBTConnector(self.posRaw, bt, "prox_" + axisName, 0)
 
         self.pos = CalibratedPositionValue(self.posRaw, cal, axisName)
+
+
+class VMPlot2D(wx.PyControl):
+    """Interpret and visualize the results of a VectorMachine instruction stream."""
+    def __init__(self, parent, instructions, size=(512, 512), scale=1.0):
+        wx.PyControl.__init__(self, parent, size=size)
+
+        self.instructions = instructions
+        self.size = size
+        self.scale = scale
+        
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
+        self.Bind(wx.EVT_PAINT, self.onPaint)
+        self.Bind(wx.EVT_SIZE, self.onSize)
+
+        self.bgBrush = wx.Brush((255, 255, 255))
+        self.crosshairPen = wx.Pen((128, 128, 128))
+        self.controlPen = wx.Pen((128, 0, 0))
+        self.controlBrush = wx.Brush((128, 0, 0))
+        self.normalPen = wx.Pen((0, 0, 0))
+        self.laserPen = wx.Pen((64, 150, 64))
+        
+    def DoGetBestSize(self):
+        return self.size
+
+    def onSize(self, event):
+        self.Refresh()
+
+    def onPaint(self, event):
+        dc = wx.AutoBufferedPaintDC(self)
+        width, height = self.GetClientSize()
+        cx = width / 2
+        cy = height / 2
+        s = self.scale
+
+        # Background
+        dc.Background = self.bgBrush
+        dc.Clear()
+
+        # Crosshair
+        dc.Pen = self.crosshairPen
+        dc.CrossHair(width/2, height/2)
+
+        # Pass 1: visible beams
+        prev = None
+        dc.Pen = self.laserPen
+        for point in VectorMachine.interpret(self.instructions):
+            if prev and prev.laserEnable:
+                dc.DrawLine(cx + prev.x * s,
+                            cy - prev.y * s,
+                            cx + point.x * s,
+                            cy - point.y * s)
+            prev = point
+
+        # Pass 2: interpolated points
+        dc.Pen = self.normalPen
+        dc.Brush = wx.TRANSPARENT_BRUSH
+        for point in VectorMachine.interpret(self.instructions):
+            if not point.isControlPoint:
+                dc.DrawCircle(cx + point.x * s,
+                              cy - point.y * s,
+                              1)
+
+        # Pass 3: interpolated points
+        dc.Pen = self.normalPen
+        dc.Brush = wx.TRANSPARENT_BRUSH
+        pCount = 0
+        for point in VectorMachine.interpret(self.instructions):
+            pCount += 1
+            if not point.isControlPoint:
+                dc.DrawCircle(cx + point.x * s,
+                              cy - point.y * s,
+                              1)
+
+        # Pass 4: control points
+        dc.Pen = self.controlPen
+        dc.Brush = self.controlBrush
+        for point in VectorMachine.interpret(self.instructions):
+            if point.isControlPoint:
+                dc.DrawCircle(cx + point.x * s,
+                              cy - point.y * s,
+                              2)
+
+        # Pass 3: Text overlay
+        dc.DrawText(
+            "%d instructions, %d points" % (
+                len(self.instructions),
+                pCount),
+            5, 5)
+
+        event.Skip()

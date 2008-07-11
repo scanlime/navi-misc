@@ -227,7 +227,7 @@ class CalibratedScaleValue(CalibrationDependentValue):
        This is used for position difference parameters, such as vcmScale.
        """
     # Constant scale, to make the units more manageable
-    const = 1e2
+    const = 3e2
 
     def __init__(self, original, cal, axis, min=None, max=None):
         self.axis = axis
