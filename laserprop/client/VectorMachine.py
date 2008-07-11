@@ -35,9 +35,9 @@ from __future__ import division
 import struct, math
 
 
-# The VectorMachine's position registers are encoded in 16.16
-# fixed-point format.
+# The VectorMachine's position registers are encoded in 16.16 fixed point.
 FIXED_POINT_BITS = 16
+FIXED_POINT_SCALE = 1 << FIXED_POINT_BITS
 
 # Fields in our instruction format
 X_SHIFT = 0
@@ -79,6 +79,25 @@ def pack(reg=REG_S, le=0, scnt=0, exp=0, y=0, x=0, offset=0):
             ((x      & X_MASK)      << X_SHIFT) |
             ((offset & OFFSET_MASK) << OFFSET_SHIFT))
 
+def packFloat(reg=REG_S, le=0, scnt=0, y=0, x=0):
+    """Encode floating point x and y values by converting to fixed-point,
+       and automatically splitting them into a 9-bit mantissa and 4-bit EXP.
+       """
+    xi = int(FIXED_POINT_SCALE * x + 0.5)
+    yi = int(FIXED_POINT_SCALE * y + 0.5)
+    absMax = 0xFF
+    exp = 0
+    
+    while abs(xi >> exp) > absMax or abs(yi >> exp) > absMax:
+        exp += 1
+
+    if exp > EXP_MASK:
+        raise ValueError("Overflow in packFloat(x=%s, y=%s)" % (x,y))
+
+    print (xi>>exp, yi>>exp, exp)
+    return pack(reg, le, scnt, exp, yi >> exp, xi >> exp)
+    
+
 def unpack(v):
     """Unpack an integer VectorMachine instruction word into a
        (reg, le, scnt, exp, y, x, offset) tuple.
@@ -97,6 +116,16 @@ def unpack(v):
             (v >> EXP_SHIFT)    & EXP_MASK,
             y, x,
             (v >> OFFSET_SHIFT) & OFFSET_MASK)
+
+
+def unpackFloat(v):
+    """Unpack the coordinate in an instruction
+       to a floating point (x, y) tuple.
+       """
+    reg, le, scnt, exp, y, x, offset = unpack(v)
+    
+    return ((x << exp) / float(FIXED_POINT_SCALE),
+            (y << exp) / float(FIXED_POINT_SCALE))
 
 
 class Point:
@@ -133,7 +162,8 @@ def interpret(words):
             dds = p
         else:
             assert reg == REG_SP
-            raise NotImplementedError("VectorMachine interpreter encountered special instruction 0x%08x" % word)
+            if exp != SP_NOP:
+                raise NotImplementedError("VectorMachine interpreter encountered unhandled instruction 0x%08x" % word)
 
         for i in xrange(scnt):
             ds = (ds[0] + dds[0], ds[1] + dds[1])
@@ -141,7 +171,199 @@ def interpret(words):
             yield Point(s[0] >> FIXED_POINT_BITS,
                         s[1] >> FIXED_POINT_BITS,
                         le, i==0)
-    
+
+
+class Encoder:
+    """Convert normal vector graphics commands like 'move to',
+       'line to', etc. into VectorMachine instructions.
+
+       Instructions are appended to the 'inst' list. You may
+       optionally specify the initial state of the machine. If not
+       specified, we will assume the state is unknown.
+       """
+    def __init__(self, inst=None, s=None, ds=None, dds=None, le=False):
+        self.inst = inst or []
+        self.s = s
+        self.ds = ds
+        self.dds = dds
+        self.le = le
+
+    def setLaser(self, le):
+        """Set the laser enable flag. The next instruction we emit
+           will carry this new enable flag value.
+           """
+        self.le = le
+
+    def setS(self, x, y):
+        """Set the S (position) register, if necessary."""
+        self._setReg('s', REG_S, x, y)
+
+    def setDS(self, x, y):
+        """Set the S (derivative) register, if necessary."""
+        self._setReg('ds', REG_DS, x, y)
+
+    def setDDS(self, x, y):
+        """Set the DDS (second derivative) register, if necessary."""
+        self._setReg('dds', REG_DDS, x, y)
+
+    def _setReg(self, attr, reg, x, y):
+        """Generic private function for setting a register.
+           This has some important properties:
+
+             - The local copy of that register is set according
+               to the packed and then unpacked machine representation
+               of the new vector. This means we preserve any rounding
+               errors we incurred, so that they can be accounted
+               for by our register simulation.
+
+             - This function has no effect if the register already
+               equals the requested value. We can't do an exact
+               equality comparison, but we can encode both the
+               old and the proposed new value, and test whether
+               their machine encoding matches.
+           """
+              
+        old = getattr(self, attr)
+        if old is None or (packFloat(x=x, y=y) != packFloat(x=old[0], y=old[1])):
+            i = packFloat(reg = reg,
+                          le = self.le,
+                          x = x,
+                          y = y)
+            setattr(self, attr, unpackFloat(i))
+            self.inst.append(i)
+
+    def emit(self, nSamples=1):
+        """Emit the specified number of samples.  Normally this does
+           not create a new instruction, it just adds to the SCNT of
+           the last instruction in the list.
+           """
+
+        # Update the DS and S registers to account for the passage of time...
+        for i in xrange(nSamples):
+            self.ds = (self.ds[0] + self.dds[0], self.ds[1] + self.dds[1])
+            self.s = (self.s[0] + self.ds[0], self.s[1] + self.ds[1])
+
+        while nSamples > 0:
+            reg, le, scnt, exp, y, x, offset = unpack(self.inst[-1])
+
+            scnt += nSamples
+            nSamples = max(0, scnt - SCNT_MASK)
+            scnt = min(SCNT_MASK, scnt)
+
+            self.inst[-1] = pack(reg, le, scnt, exp, y, x)
+
+            if nSamples > 0:
+                # Emit a no-op
+                self.inst.append(pack(reg=REG_SP, exp=SP_NOP))
+
+    def moveTo(self, x, y, nSamples=1):
+        """Move to the specified point, and emit 'nSamples' samples
+           at that point. There are two main ways to implement this
+           in the VectorMachine:
+
+            a) Zero all derivative registers, then set the S register
+               to (x, y) and emit a sample.
+
+            b) Leave the derivative registers alone, calculate how much
+               they will modify S by on the next sample, then use that
+               value to compensate when writing to S.
+
+           Currently we use approach (a), but it may be worth optimizing
+           using approach (b) when nSamples==1 later.              
+           """
+        self.setDDS(0, 0)
+        self.setDS(0, 0)
+        self.setS(x, y)
+        self.emit(nSamples)
+
+    def lineTo(self, x, y, nSamples=1):
+        """Create a line from the current point to the specified point,
+           and emit a total of 'nSamples' over the length of the line.
+
+           Due to rounding errors, we might not end up exactly at the
+           specified point. The actual point we end up at will be in
+           the S register on return.
+
+           Since the actual S register is used in calculating line
+           source positions, error in consecutive lineTo commands
+           will not accumulate.
+           """
+        a = 1.0 / nSamples
+        self.setDDS(0, 0)
+        self.setDS(a * (x - self.s[0]),
+                   a * (y - self.s[1]))
+        self.emit(nSamples)
+
+    def qCurveTo(self, x1, y1, x2, y2, nSamples=10):
+        """Generate a quadratic Bezier curve from
+           the current position to (x2, y2), using
+           (x1, y1) as the control point. Emit a total
+           of nSamples.
+
+           Like lineTo(), this function may not end
+           up exactly at the specified destination,
+           due to rounding errors. Since we use the
+           simulated hardware registers as our starting
+           point, rounding errors do not compound.
+
+           Quadratic Bezier curves can be interpolated
+           entirely in hardware by the VectorMachine.
+           This is our most efficient primitive.
+           """
+
+        # First, some math...
+        #
+        # References:
+        #   http://mathworld.wolfram.com/BezierCurve.html
+        #   http://mathworld.wolfram.com/BernsteinPolynomial.html
+        #
+        # Quadratic Bezier curves use the 2nd degree Bernstein
+        # polynomials as their basis functions:
+        #
+        #   B(0,2) = (1 - t)^2
+        #   B(1,2) = 2 (1 - t) t
+        #   B(2,2) = t^2
+        #
+        # We can compute the first and second derivatives, and
+        # note that the second derivative is constant across
+        # the entire curve:
+        #
+        #   B(0,2)' = -2 + 2t
+        #   B(1,2)' = 2 - 4t
+        #   B(2,2)' = 2t
+        #
+        #   B(0,2)'' = 2
+        #   B(1,2)'' = -4
+        #   B(2,2)'' = 2
+        #
+        # This constant second derivative means that the hardware
+        # accumulators can interpolate the entire curve without any
+        # approximation other than the usual fixed point and
+        # instruction encoding errors.
+        #
+        # To program the VectorMachine, we just need to know the
+        # initial value of the first derivative (at t=0), and the
+        # constant value of the second derivative for this curve.
+
+        # Use the current S register as the initial position.
+        x0, y0 = self.s
+
+        # Compute derivatives for this curve at t=0
+        dx = -2 * x0 + 2 * x1
+        dy = -2 * y0 + 2 * y1
+
+        # Compute second derivatives
+        ddx = 2 * x0 - 4 * x1 + 2 * x2
+        ddy = 2 * y0 - 4 * y1 + 2 * y2
+        
+        # Step factors for each derivative
+        ds = 1.0 / nSamples
+        dds = ds / nSamples
+
+        self.setDDS(ddx * dds, ddy * dds)
+        self.setDS(dx * ds, dy * ds)
+        self.emit(nSamples)
+
 
 class VectorMachine:
     def __init__(self, bt, cmdRegion="vm", memRegion="vector_mem"):
