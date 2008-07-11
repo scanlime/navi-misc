@@ -23,162 +23,50 @@ from __future__ import division
 from BluetoothConduit import *
 from LaserObjects import *
 from LaserWidgets import *
+import VectorMachine
 
-import wx, struct, math
+import ILDA
 
+import wx, struct, math, time
 
-class VectorMachine:
-    REG_SP = 0
-    REG_S = 1
-    REG_DS = 2
-    REG_DDS = 3
+def loadKirby():
+    # SVG path data extracted from Inkscape after joining all paths,
+    # adding points (spacing of 10), and converting to lines.
 
-    SP_NOP = 0
-    SP_JUMP = 1
-    SP_CLEAR = 2
-    SP_INC = 3
-    SP_RESET = 4
+    d="M 83.96875,172.15625 L 76.062532,177.13085 L 69.074451,183.32287 L 63.583636,190.85742 L 61.159828,199.78005 L 65.926164,207.24706 L 75.09375,208.375 L 84.912905,206.69043 L 94.595426,204.32697 L 104.13627,201.44677 L 113.4646,197.94184 L 122.34375,193.4375 L 113.85832,190.84347 L 105.6922,187.37198 L 97.934196,183.06489 L 90.667264,177.97347 L 83.96875,172.15625 L 83.96875,172.15625 M 59.75,93.6875 L 51.924459,99.327103 L 44.410595,105.37405 L 37.34826,111.94061 L 31.036953,119.2279 L 26.269295,127.58022 L 25.46875,137.03125 L 30.737017,143.84605 L 39.046627,146.6806 L 47.845599,147.33458 L 56.667173,146.91417 L 65.4375,145.875 L 62.185168,137.50527 L 59.843248,128.83563 L 58.436037,119.96819 L 57.96875,111 L 58.415132,102.29761 L 59.75,93.6875 L 59.75,93.6875 M 142.90625,26.0625 L 133.39535,26.589891 L 124.00269,28.176802 L 114.84847,30.812287 L 106.05033,34.463551 L 97.718972,39.080324 L 89.955674,44.600237 L 82.855787,50.950102 L 76.505895,58.050165 L 70.985863,65.813851 L 66.369239,74.145245 L 62.718238,82.943075 L 60.083101,92.096221 L 58.496173,101.48882 L 57.96875,111 L 58.496141,120.5109 L 60.083052,129.90356 L 62.718537,139.05778 L 66.369802,147.85592 L 70.986575,156.18728 L 76.506489,163.95058 L 82.856354,171.05047 L 89.956418,177.40036 L 97.720104,182.92039 L 106.0515,187.53701 L 114.84933,191.18801 L 124.00247,193.82315 L 133.39507,195.41008 L 142.90625,195.9375 L 145.59375,195.90625 L 151.04171,188.10115 L 158.11282,181.70449 L 166.16259,176.58394 L 174.85555,172.6458 L 183.96875,169.8125 L 193.46315,168.8188 L 202.625,171.34375 L 209.04807,164.2279 L 214.63345,156.43721 L 219.30669,148.06772 L 223.00269,139.22507 L 225.67136,130.01872 L 227.27832,120.57035 L 227.8125,111 L 227.28576,101.49118 L 225.70068,92.100165 L 223.06798,82.947139 L 219.42022,74.149739 L 214.80665,65.81747 L 209.29089,58.054306 L 202.94437,50.953388 L 195.8475,44.60255 L 188.0867,39.081678 L 179.75648,34.463717 L 170.96082,30.812404 L 161.80753,28.176655 L 152.41657,26.589873 L 142.90625,26.0625 L 142.90625,26.0625 M 147.48738,87.448395 L 146.23696,95.82089 L 143.14113,103.68054 L 136.62091,108.44676 L 130.69709,102.95798 L 128.53229,94.791561 L 128.26031,86.33088 L 129.51073,77.958391 L 132.60656,70.09875 L 139.12679,65.332523 L 145.05059,70.8213 L 147.21539,78.98772 L 147.48738,87.448395 L 147.48738,87.448395 M 133.52653,83.76262 L 128.27653,87.73137 L 128.57955,94.759348 L 130.15153,101.60637 L 132.43278,102.45012 L 137.34365,99.283709 L 139.05778,93.45012 L 138.03363,87.465032 L 133.52653,83.76262 L 133.52653,83.76262 M 101.78113,87.448395 L 100.53071,95.82089 L 97.43488,103.68054 L 90.914656,108.44676 L 84.990845,102.95798 L 82.826042,94.791561 L 82.554058,86.33088 L 83.804475,77.958391 L 86.90031,70.09875 L 93.420539,65.332523 L 99.344342,70.8213 L 101.50914,78.98772 L 101.78113,87.448395 L 101.78113,87.448395 M 87.82028,83.76262 L 82.57028,87.73137 L 82.873297,94.759348 L 84.44528,101.60637 L 86.72653,102.45012 L 91.637405,99.283709 L 93.35153,93.45012 L 92.32738,87.465032 L 87.82028,83.76262 L 87.82028,83.76262 M 140.84248,124.91929 L 132.39933,127.53426 L 123.95683,130.14903 L 115.51484,132.76364 L 107.07208,135.37849 L 98.62932,137.99335 L 104.68888,143.41348 L 111.49069,147.86646 L 119.02852,150.8761 L 127.08412,151.06742 L 134.19012,147.36292 L 138.84,140.75891 L 141.1275,132.99238 L 140.84248,124.91929 L 140.84248,124.91929 M 201.33356,148.83604 L 194.57518,143.04169 L 187.83893,137.2231 L 181.18737,131.30728 L 174.69774,125.21409 L 168.4869,118.83885 L 162.76675,112.02197 L 158.02168,104.50502 L 155.63126,96.000501 L 158.4184,87.74952 L 166.183,82.955826 L 175.3559,81.81202 L 184.2287,82.254347 L 193.00855,83.626256 L 201.62907,85.784449 L 210.07895,88.537978 L 218.37992,91.71516 M 201.33356,148.83604 L 194.57518,143.04169 L 187.83893,137.2231 L 181.18737,131.30728 L 174.69774,125.21409 L 168.4869,118.83885 L 162.76675,112.02197 L 158.02168,104.50502 L 155.63126,96.000501 L 158.4184,87.74952 L 166.183,82.955826 L 175.3559,81.81202 L 184.2287,82.254347 L 193.00855,83.626256 L 201.62907,85.784449 L 210.07895,88.537978 L 218.37992,91.71516 M 183.97064,169.81836 L 175.01393,172.59192 L 166.45982,176.42854 L 158.51633,181.40205 L 151.49361,187.6011 L 145.97067,195.15205 L 143.51696,204.09808 L 148.26637,211.60994 L 157.46034,212.75216 L 166.04043,211.32859 L 174.51466,209.35331 L 182.88642,206.98599 L 191.12626,204.19349 L 199.14907,200.82798 L 206.68385,196.49741 L 212.14526,189.93173 L 211.52614,181.76899 L 207.18537,174.77037 L 200.30488,170.24301 L 192.18168,168.77278 L 183.97064,169.81836 L 183.97064,169.81836"
 
-    FIXED_POINT_BITS = 16
+    path = []
+    cmd = None
+    pos = None
+    
+    for token in d.split():
+        if token in ('M', 'L'):
+            cmd = token
+        else:
+            coord = map(float, token.split(','))
+            if cmd == 'M':
+                if pos:
+                    path.append((pos[0], pos[1], False))       # Turn off laser
+                for i in range(12):
+                    path.append((coord[0], coord[1], False))   # Move laser
 
-    def __init__(self, bt, cmdRegion="vm", memRegion="vector_mem"):
-        self.bt = bt
-        self.cmdRegion = cmdRegion
-        self.memRegion = memRegion
+            path.append((coord[0], coord[1], True))    # Turn back on
+            pos = coord
 
-    def cmd(self, instr):
-        self.bt.setRegionByName(self.cmdRegion)
-        self.bt.write(instr)
-
-    def pack(self, reg=REG_S, le=0, scnt=0, exp=0, y=0, x=0, offset=0):
-        x &= 0x1FF
-        y &= 0x1FF
-        return struct.pack("<I", (reg << 30) | (le << 29) |
-                           (scnt << 22) | (exp << 18) | (y << 9) | x | offset)
-
-    def write(self, addr, data):
-        self.bt.setRegionByName(self.memRegion)
-        self.bt.seek(addr)
-        self.bt.write(data)
-
-    def jump(self, offset):
-        """Issue a jump instruction to the provided address."""
-        self.cmd(self.pack(reg=self.REG_SP, exp=self.SP_JUMP,
-                           offset=offset))
-
-    def stop(self):
-        """Turn the laser off, and lock the instruction pointer
-           at offset zero in an infinite loop.
-           """
-        self.cmd(self.pack(reg=self.REG_SP, exp=self.SP_RESET))
-
-    def start(self):
-        """Write a no-op instruction into offset zero, and continue
-           execution there.
-           """
-        self.stop()
-        self.write(0, self.pack(reg=self.REG_SP, exp=self.SP_NOP))
-
-    def uploadVectors(self, vectors, scnt, cb, limit=256):
-        self.stop()
-        buf = []
-
-        for x, y, le in vectors:
-            # Break up large sample counts into multiple instructions
-            s = scnt
-            while s > 0 and len(buf) < limit:
-                iscnt = min(127, s)
-                s -= iscnt            
-        
-                buf.append(self.pack(le=le, scnt=iscnt, exp=15,
-                                     x=int(x), y=int(y)))
-            
-            if len(buf) >= limit:
-                break
-
-        # Loop
-        # Note the nonzero scnt: we need this loop to generate samples,
-        # otherwise the VM's timer will overflow if we send it an empty image.
-
-        buf.append(self.pack(reg=self.REG_SP, scnt=1, exp=self.SP_JUMP, offset=1))
-
-        print "Pattern length: %d" % len(buf)
-        self.write(1, ''.join(buf))
-        self.start()
-
-        def finish(_):
-            print "Finished writing pattern"
-            cb()
-        self.bt.read(1, finish)
+    return path
 
 
-def vecSub(a, b):
-    return (a[0] - b[0], a[1] - b[1])
-
-def vecAdd(a, b):
-    return (a[0] + b[0], a[1] + b[1])
-
-def vecMag(a):
-    return math.sqrt(a[0] ** 2 + a[1] ** 2)
-
-def vecMul(a, b):
-    return (a[0] * b, a[1] * b)
-
-def vecNorm(a):
-    return vecMul(a, 1.0 / vecMag(a))
-
-def vecDot(a, b):
-    return a[0] * b[0] + a[1] * b[1]
-
-def iterPathSampler(points, dist):
-    """Given one line segment path, resample that path and yield
-       new points every 'dist' units. Each point is an (x, y, payload)
-       tuple, where 'payload' is an arbitrary Python object which is
-       preserved in the resampled output. Each output sample carries
-       the payload of the preceeding input sample.
-       """
-    prev = None
-
-    # X is an accumulator that increments every time we pass a
-    # pixel on the input line. When it crosses 'dist', we generate
-    # an output sample and reset it to zero.
-    x = 0
-
-    for cur in points:
-        if prev is None:
-            prev = cur
-            yield prev
-            continue
-
-        v = vecSub(cur[:2], prev[:2])
-        vmag = vecMag(v)
-
-        # Walk from the previous input sample to the current one,
-        # emitting output samples as we go.
-
-        remaining = vmag
-
-        while True:
-            travel = dist - x
-            if remaining < travel:
-                break
-
-            prev = vecAdd(prev[:2], vecMul(v, travel / vmag)) + prev[2:]
-            x = 0
-            remaining -= travel
-            yield prev
-
-        prev = cur
-        x += remaining
+def vecSub((a, b), (c, d)):
+    return (a-c, b-d)
 
 
 class DrawingWidget(wx.Panel):
-    def __init__(self, parent, bt, size=(512,512)):
+    def __init__(self, parent, vm, bt, size=(512,512)):
         self.bt = bt
-        self.vm = VectorMachine(self.bt)
+        self.vm = vm
 
         self._needUpload = False
-        self._uploadPending = False
+        self._uploadDeadline = None
         self.path = []
         self.resampled = []
 
@@ -224,32 +112,49 @@ class DrawingWidget(wx.Panel):
         if event.RightDown():
             self.path = []
             self.lastPos = pos
+
+            # XXX: ILDA test
+	    #file = "../data/hello-world.ild"
+            #for p in ILDA.readFirstFrame(open(file, 'rb')).iterPoints():
+	    #	self.path.append((p.x * 255, -p.y * 255, not p.blanking))
+
+	    # XXX: Kirby from Inkscape
+            self.path = loadKirby()
+
             self.tesselate()
 
-        if event.RightIsDown():
-            self.path.append((pos[0], pos[1], event.LeftIsDown()))
-            self.tesselate()
+        #if event.RightIsDown():
+        #    self.path.append((pos[0], pos[1], event.LeftIsDown()))
+        #    self.tesselate()
 
     def tesselate(self, event=None):
-        self.resampled = list(iterPathSampler(self.path + self.path[:1],
-                                              self.dist.GetValue()))
+        #self.resampled = list(iterPathSampler(self.path + self.path[:1],
+        #                                      self.dist.GetValue()))
+        self.resampled = self.path
+
         self.Refresh()
         self._needUpload = True
         self._upload()
 
     def _upload(self):
         if not self.bt.isConnected:
-            self._uploadPending = False
+            self._uploadDeadline = False
             return
 
-        if self._needUpload and not self._uploadPending:
+        if self._needUpload and (not self._uploadDeadline or time.time() > self._uploadDeadline):
             def done():
-                self._uploadPending = False
+                print "Upload done"
+                self._uploadDeadline = None
                 self._upload()
 
             self._needUpload = False
-            self._uploadPending = True
-            self.vm.uploadVectors(self.resampled, self.scnt.GetValue(), done)
+            self._uploadDeadline = time.time() + 2
+
+            scnt = self.scnt.GetValue()
+            loop_hz = 40000.0
+            print "Uploading %d resampled vectors. scnt=%d (%.1f PPS)" % (
+                len(self.resampled), scnt, loop_hz / scnt)
+            self.vm.uploadVectors(self.resampled, scnt, done)
 
     def onPaint(self, event):
         dc = wx.AutoBufferedPaintDC(self.canvas)
@@ -280,6 +185,13 @@ class DrawingWidget(wx.Panel):
             dc.DrawCircle(x + center[0], y + center[1], 2)
 
         event.Skip()
+
+def vmTest():
+    """Test rig for interpolating paths into VectorMachine instructions."""
+    inst = []
+#                    VectorMachine.pack(reg=VectorMachine.REG_DS, x=0, y=-8, exp=15, le=1, scnt=15),
+
+    return inst
 
 
 class MainWindow(wx.Dialog):                 
@@ -334,7 +246,12 @@ class MainWindow(wx.Dialog):
         filterRow.Add(ValueSpinner(self, self.adj.y.proxFilter))
         vbox.Add(filterRow, 0, wx.EXPAND | wx.ALL, 2)
 
-        vbox.Add(DrawingWidget(self, self.bt), 1, wx.ALL | wx.EXPAND, 4)
+        self.vm = VectorMachine.VectorMachine(self.bt)
+
+        plotRow = wx.BoxSizer(wx.HORIZONTAL)
+        plotRow.Add(VMPlot2D(self, vmTest()))
+        plotRow.Add(DrawingWidget(self, self.vm, self.bt), 1, wx.ALL | wx.EXPAND, 4)
+        vbox.Add(plotRow)
 
         self.SetSizer(vbox)
         self.SetAutoLayout(1)
