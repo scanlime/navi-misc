@@ -340,29 +340,26 @@ def bezier3dd(t, ((x0, y0), (x1, y1), (x2, y2), (x3, y3))):
 def vmTest():
     """Test rig for interpolating paths into VectorMachine instructions."""
 
-    bez3 = ( (-50,0), (80,100), (0,-100), (50,0) )
+    bez3 = ( (0,0), (-100,100), (0,-100), (50,0) )
     bez2 = ( (-50,0), (80, 100), (50,0) )
     en = VectorMachine.Encoder()
 
-    #en.setLaser(True)
-
-    # Square..
-#    en.moveTo(-120, 100)
-#    en.lineTo(-70, 100, 10)
-#    en.lineTo(-70, 50, 20)
-#    en.lineTo(-120, 50, 5)
-#    en.lineTo(-120, 100, 20)
 
     # Reference (0th order) curve
-#    steps = 10
-#    for i in xrange(steps):
-#        x, y = bezier2(i / float(steps-1), bez2)
-#        en.moveTo(x, y-20)
+    steps = 40
+    en.setLaser(True)
+    for i in xrange(steps):
+        x, y = bezier3(i / float(steps-1), bez3)
+        en.moveTo(x, y-80)
 
+    en.setLaser(False)
+    en.hold(1)
+    en.lineTo(*(bez3[0] + (10,)))
+    en.setLaser(True)
+    en.hold(1)
+    
     # Draw the curve in hardware
-    en.moveTo(-50, 0)
-    en.qCurveTo(80, 100, 50, 0, 100)
-    en.qCurveTo(80, -100, -50, 0, 100)
+    en.cCurveTo(*(bez3[1] + bez3[2] + bez3[3] + (40,)))
 
     print "Disassembly:"
     for i in en.inst:
