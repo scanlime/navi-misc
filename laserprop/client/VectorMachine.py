@@ -137,6 +137,11 @@ class Point:
         return "Point(%d,%d,%d)" % (self.x, self.y, self.laserEnable)
 
 
+def lerp(x, y, a):
+    """Generic linear interpolation."""
+    return x + (y - x) * a
+
+
 def interpret(words):
     """Interpret a subset of the VectorMachine language.  Special
        instructions (REG_SP) will raise a NotImplementedError.
@@ -254,7 +259,24 @@ class Encoder:
 
             if nSamples > 0:
                 # Emit a no-op
-                self.inst.append(pack(reg=REG_SP, exp=SP_NOP))
+                self.nop()
+
+    def nop(self, nSamples=0):
+        """Emit a no-op command. If you just need to emit samples,
+           or to flush the current laser state, this command does
+           not modify any registers.
+           """
+        self.inst.append(pack(reg=REG_SP, exp=SP_NOP, le=self.le))
+        self.emit(nSamples)
+
+    def hold(self, nSamples=0):
+        """Like no-op, but explicitly zero the derivative registers.
+           This guarantees that the beam will hold its current position
+           for 'nSamples' samples.
+           """
+        self.setDDS(0, 0)
+        self.setDS(0, 0)
+        self.nop(nSamples)
 
     def moveTo(self, x, y, nSamples=1):
         """Move to the specified point, and emit 'nSamples' samples
@@ -295,20 +317,18 @@ class Encoder:
         self.emit(nSamples)
 
     def qCurveTo(self, x1, y1, x2, y2, nSamples=10):
-        """Generate a quadratic Bezier curve from
-           the current position to (x2, y2), using
-           (x1, y1) as the control point. Emit a total
-           of nSamples.
+        """Generate a quadratic Bezier curve from the current position
+           to (x2, y2), using (x1, y1) as the control point. Emit a
+           total of nSamples.
 
-           Like lineTo(), this function may not end
-           up exactly at the specified destination,
-           due to rounding errors. Since we use the
-           simulated hardware registers as our starting
-           point, rounding errors do not compound.
+           Like lineTo(), this function may not end up exactly at the
+           specified destination, due to rounding errors. Since we use
+           the simulated hardware registers as our starting point,
+           rounding errors do not compound.
 
-           Quadratic Bezier curves can be interpolated
-           entirely in hardware by the VectorMachine.
-           This is our most efficient primitive.
+           Quadratic Bezier curves can be interpolated entirely in
+           hardware by the VectorMachine.  This is our most efficient
+           primitive.
            """
 
         # First, some math...
@@ -364,6 +384,83 @@ class Encoder:
         self.setDS(dx * ds, dy * ds)
         self.emit(nSamples)
 
+    def cCurveTo(self, x1, y1, x2, y2, x3, y3, nSamples=40):
+        """Generate a cubic Bezier curve from the current position to
+           (x3, y3), using (x1, y1) and (x2, y2) as the control
+           points. Emit at least nSamples. (We may emit more due
+           to rounding.)
+
+           Like lineTo(), this function may not end up exactly at the
+           specified destination, due to rounding errors. Since we use
+           the simulated hardware registers as our starting point,
+           rounding errors do not compound.
+           """
+        
+        # Cubic Bezier curves cannot be interpolated entirely in
+        # hardware- to recognizably reproduce the curve, we must
+        # subdivide it in software first.
+        #
+        # For simplicity, we subdivide cubic curves into quadratic
+        # curves, rather than working directly with VM registers.
+        # This implementation uses the "Fixed MidPoint" approach by
+        # Helen Triolo and Timothee Groleau, as described at:
+        #
+        # http://www.timotheegroleau.com/Flash/articles/cubic_bezier_in_flash.htm
+        #
+        # This awesome algorithm always generates four quadratic
+        # curves for every cubic bezier, but the results are nearly
+        # indistinguishable from a true Bezier curve. Nifty.
+
+        # Use the current S register as the initial position.
+        x0, y0 = self.s
+
+        # Compute samples-per-curve, rounding up
+        qSamples = int((nSamples + 3) / 4)
+
+        # Base points
+        ax = lerp(x0, x1, 0.75)
+        ay = lerp(y0, y1, 0.75)
+        bx = lerp(x3, x2, 0.75)
+        by = lerp(y3, y2, 0.75)
+
+        # 1/16th of the segment from control point 3 to 0
+        dx = (x3 - x0) / 16.0
+        dy = (y3 - y0) / 16.0
+
+        # Control point 1
+        c1x = lerp(x0, x1, 0.375)
+        c1y = lerp(y0, y1, 0.375)
+
+        # Control point 2
+        c2x = lerp(ax, bx, 0.375) - dx
+        c2y = lerp(ay, by, 0.375) - dy
+                 
+        # Control point 3
+        c3x = lerp(bx, ax, 0.375) + dx
+        c3y = lerp(by, ay, 0.375) + dy
+
+        # Control point 1
+        c4x = lerp(x3, x2, 0.375)
+        c4y = lerp(y3, y2, 0.375)
+
+        # Anchor point 1
+        a1x = lerp(c1x, c2x, 0.5)
+        a1y = lerp(c1y, c2y, 0.5)
+
+        # Anchor point 2
+        a2x = lerp(ax, bx, 0.5)
+        a2y = lerp(ay, by, 0.5)
+
+        # Anchor point 3
+        a3x = lerp(c3x, c4x, 0.5)
+        a3y = lerp(c3y, c4y, 0.5)
+        
+        # Output four curves
+        self.qCurveTo(c1x, c1y, a1x, a1y, qSamples)
+        self.qCurveTo(c2x, c2y, a2x, a2y, qSamples)
+        self.qCurveTo(c3x, c3y, a3x, a3y, qSamples)
+        self.qCurveTo(c4x, c4y, x3,  y3,  qSamples)
+        
 
 class VectorMachine:
     def __init__(self, bt, cmdRegion="vm", memRegion="vector_mem"):
