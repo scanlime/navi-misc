@@ -186,12 +186,188 @@ class DrawingWidget(wx.Panel):
 
         event.Skip()
 
+def bezier2(t, ((x0, y0), (x1, y1), (x2, y2))):
+    # References:
+    #   http://mathworld.wolfram.com/BezierCurve.html
+    #   http://mathworld.wolfram.com/BernsteinPolynomial.html
+    #
+    # Quadratic Bezier curves use the 2nd degree Bernstein polynomials as
+    # their basis functions:
+    #
+    #   B(0,2) = (1 - t)^2
+    #   B(1,2) = 2 (1 - t) t
+    #   B(2,2) = t^2
+
+    # Intermediate values
+    it = 1.0 - t
+    it2 = it * it
+    t2 = t * t
+
+    # Basis functions
+    b0 = it2
+    b1 = 2 * it * t
+    b2 = t2
+
+    return (x0*b0 + x1*b1 + x2*b2,
+            y0*b0 + y1*b1 + y2*b2)
+
+def bezier2d(t, ((x0, y0), (x1, y1), (x2, y2))):
+    # First derivative of bezier2(). Taking the derivatives of the
+    # bernstein polynomials, we find:
+    #
+    #   B(0,2)  = (1 - t)^2
+    #   B(0,2)  = 1 - 2t + t^2
+    #   B(0,2)' = -2 + 2t
+    #
+    #   B(1,2)  = 2 (1 - t) t
+    #   B(1,2)  = 2t - 2t^2
+    #   B(1,2)' = 2 - 4t
+    #
+    #   B(2,2)  = t^2
+    #   B(2,2)' = 2t
+
+    # Basis functions
+    b0 = -2 + 2*t
+    b1 = 2 - 4*t
+    b2 = 2*t
+
+    return (x0*b0 + x1*b1 + x2*b2,
+            y0*b0 + y1*b1 + y2*b2)
+
+
+def bezier2dd(t, ((x0, y0), (x1, y1), (x2, y2))):
+    # Second derivative of bezier2():
+    #
+    #   B(0,2)'  = -2 + 2t
+    #   B(0,2)'' = 2
+    #
+    #   B(1,2)'  = 2 - 4t
+    #   B(1,2)'' = -4
+    #
+    #   B(2,2)'  = 2t
+    #   B(2,2)'' = 2
+
+    return (x0*2 - x1*4 + x2*2,
+            y0*2 - y1*4 + y2*2)
+
+
+def bezier3(t, ((x0, y0), (x1, y1), (x2, y2), (x3, y3))):
+    # References:
+    #   http://mathworld.wolfram.com/BezierCurve.html
+    #   http://mathworld.wolfram.com/BernsteinPolynomial.html
+    #
+    # Cubic Bezier curves use the 3rd degree Bernstein polynomials as
+    # their basis functions:
+    #
+    #   B(0,3) = (1 - t)^3
+    #   B(1,3) = 3 (1 - t)^2 t
+    #   B(2,3) = 3 (1 - t) t^2
+    #   B(3,3) = t^3
+
+    # Intermediate values
+    it = 1.0 - t
+    it2 = it * it
+    it3 = it2 * it
+    t2 = t * t
+    t3 = t2 * t
+
+    # Basis functions
+    b0 = it3
+    b1 = 3 * it2 * t
+    b2 = 3 * it * t2
+    b3 = t3
+
+    return (x0*b0 + x1*b1 + x2*b2 + x3*b3,
+            y0*b0 + y1*b1 + y2*b2 + y3*b3)
+
+def bezier3d(t, ((x0, y0), (x1, y1), (x2, y2), (x3, y3))):
+    # First derivative of bezier3(). Taking the derivatives of the
+    # bernstein polynomials, we find:
+    #
+    #   B(0,3)  = (1 - t)^3
+    #   B(0,3)  = 1 - 3t + 3t^2 - t^3
+    #   B'(0,3) = -3 + 6t - 3t^2
+    #
+    #   B(1,3)  = 3 (1 - t)^2 t
+    #   B(1,3)  = 3t - 6t^2 + 3t^3
+    #   B'(1,3) = 3 - 12t + 9t^2
+    #
+    #   B(2,3)  = 3 (1 - t) t^2
+    #   B(2,3)  = 3t^2 - 3t^3
+    #   B'(2,3) = 6t - 9t^2
+    #
+    #   B(3,3)  = t^3
+    #   B'(3,3) = 3t^2
+
+    # Intermediate values
+    t2 = t * t
+    t3 = t2 * t
+
+    # Basis functions
+    b0 = -3 + 6*t - 3*t2
+    b1 = 3 - 12*t + 9*t2
+    b2 = 6*t - 9*t2
+    b3 = 3*t2
+
+    return (x0*b0 + x1*b1 + x2*b2 + x3*b3,
+            y0*b0 + y1*b1 + y2*b2 + y3*b3)
+
+def bezier3dd(t, ((x0, y0), (x1, y1), (x2, y2), (x3, y3))):
+    # Second derivative of bezier3():
+    #
+    #   B'(0,3)  = -3 + 6t - 3t^2
+    #   B''(0,3) = 6 - 6t
+    #
+    #   B'(1,3)  = 3 - 12t + 9t^2
+    #   B''(1,3) = -12 + 18t
+    #
+    #   B'(2,3)  = 6t - 9t^2
+    #   B''(2,3) = 6 - 18t
+    #
+    #   B'(3,3)  = 3t^2
+    #   B''(3,3) = 6t
+
+    # Basis functions
+    b0 = 6 - 6*t
+    b1 = -12 + 18*t
+    b2 = 6 - 18*t
+    b3 = 6*t
+
+    return (x0*b0 + x1*b1 + x2*b2 + x3*b3,
+            y0*b0 + y1*b1 + y2*b2 + y3*b3)
+
+
 def vmTest():
     """Test rig for interpolating paths into VectorMachine instructions."""
-    inst = []
-#                    VectorMachine.pack(reg=VectorMachine.REG_DS, x=0, y=-8, exp=15, le=1, scnt=15),
 
-    return inst
+    bez3 = ( (-50,0), (80,100), (0,-100), (50,0) )
+    bez2 = ( (-50,0), (80, 100), (50,0) )
+    en = VectorMachine.Encoder()
+
+    #en.setLaser(True)
+
+    # Square..
+#    en.moveTo(-120, 100)
+#    en.lineTo(-70, 100, 10)
+#    en.lineTo(-70, 50, 20)
+#    en.lineTo(-120, 50, 5)
+#    en.lineTo(-120, 100, 20)
+
+    # Reference (0th order) curve
+#    steps = 10
+#    for i in xrange(steps):
+#        x, y = bezier2(i / float(steps-1), bez2)
+#        en.moveTo(x, y-20)
+
+    # Draw the curve in hardware
+    en.moveTo(-50, 0)
+    en.qCurveTo(80, 100, 50, 0, 100)
+    en.qCurveTo(80, -100, -50, 0, 100)
+
+    print "Disassembly:"
+    for i in en.inst:
+        print VectorMachine.unpack(i)
+    return en.inst
 
 
 class MainWindow(wx.Dialog):                 
@@ -249,7 +425,7 @@ class MainWindow(wx.Dialog):
         self.vm = VectorMachine.VectorMachine(self.bt)
 
         plotRow = wx.BoxSizer(wx.HORIZONTAL)
-        plotRow.Add(VMPlot2D(self, vmTest()))
+        plotRow.Add(VMPlot2D(self, vmTest(), scale=2.0))
         plotRow.Add(DrawingWidget(self, self.vm, self.bt), 1, wx.ALL | wx.EXPAND, 4)
         vbox.Add(plotRow)
 
