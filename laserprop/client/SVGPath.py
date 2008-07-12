@@ -112,8 +112,8 @@ class TransformStack(object):
            are 2-tuples.
            """
         t = self.top
-        return (t[0]*p[0] + t[2]*p[4] + t[4],
-                t[1]*p[0] + t[3]*p[4] + t[5])
+        return (t[0]*p[0] + t[2]*p[1] + t[4],
+                t[1]*p[0] + t[3]*p[1] + t[5])
 
     def matrix(self, m):
         """Multiply a new matrix by the current top-of-stack matrix."""

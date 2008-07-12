@@ -57,6 +57,7 @@ class BluetoothConduit:
     def __init__(self):
         self.onConnect = []
         self.onDisconnect = []
+        self.onPoll = []
 
     def connect(self, bdaddr='03:1F:08:07:15:2E'):
         try:
@@ -142,11 +143,14 @@ class BluetoothConduit:
         for f in self.onDisconnect:
             f()
 
-    def addCallbacks(self, onConnect=None, onDisconnect=None):
+    def addCallbacks(self, onConnect=None, onDisconnect=None, onPoll=None):
         if onConnect:
             self.onConnect.append(onConnect)
         if onDisconnect:
             self.onDisconnect.append(onDisconnect)
+        if onPoll:
+            self.onPoll.append(onPoll)
+
         if self.isConnected:
             if onConnect:
                 onConnect()
@@ -210,6 +214,14 @@ class BluetoothConduit:
         self._writeBuf.append("\xE1" + chr(count))
         self.offset += count
 
+    def poll(self):
+        """Flush unsent data, and allow clients the opportunity
+           to poll the hardware when necessary.
+           """
+        for cb in self.onPoll:
+            cb()
+        self.flush()
+
     def flush(self, writeBlock=False, readBlock=False, timeout=2.0):
         """Send and receive data, with or without blocking.
            By default, this will send and receive all data
@@ -218,11 +230,10 @@ class BluetoothConduit:
            To block reads (and guarantee that async reads
            have completed), set readBlock.
            """
-
         self._writeBuf = [''.join(self._writeBuf)]
         running = True
         deadline = time.clock() + timeout
-        
+
         while running:
             running = False
             delay = True
