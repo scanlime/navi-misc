@@ -28,8 +28,52 @@ Copyright (c) 2008 Micah Dowty
 
 from bluetooth import *
 import time
+import threading
+import Queue
 
 __all__ = ['BluetoothConduit']
+
+# Hardware constants
+MAX_REGIONS = 32
+MAX_DESCRIPTOR_LEN = 64
+MAX_PENDING_READS = 127
+MAX_COMMAND_LENGTH = 255 * 4 * 2
+
+# Opcodes
+OP_NOP         = '\x00'
+OP_SET_REGION  = '\xF0'
+OP_READ_LONGS  = '\xE1'
+OP_WRITE_LONGS = '\xD2'
+OP_SEEK8       = '\xC3'
+OP_SEEK16      = '\xB4'
+
+# Command assembly functions
+
+def opSetRegion(region):
+    return OP_SET_REGION + chr(region)
+
+def opReadLongs(count):
+    if count > 255:
+        return opReadLongs(255) + opReadLongs(count - 255)
+    else:
+        return OP_READ_LONGS + chr(count)
+
+def opWriteLongs(data):
+    assert (len(data) % 4) == 0
+    words = len(data) / 4
+
+    if words > 255:
+        return opWriteLongs(data[:4*255]) + opWriteLongs(data[4*255:])
+    else:
+        return OP_WRITE_LONGS + chr(words) + data
+
+def opSeek(offset):
+    if offset == 0:
+        return ''
+    elif offset < 128 and offset > -128:
+        return OP_SEEK8 + struct.pack("b", offset)
+    else:
+        return OP_SEEK16 + struct.pack("<h", offset)
 
 
 class Region:
@@ -42,14 +86,132 @@ class Region:
         return "<Region #%d %r, %d words>" % (self.index, self.name, self.size)
 
 
+def drainQueue(q):
+    """Drain items from a queue. If any items are
+       available, returns a list of items. If no items
+       are avilable, blocks until some are.
+
+       If we encounter a None in the queue, it is special:
+       it is not added to the list, instead we immediately
+       return with all items read so far.
+       """
+    buf = []
+    while True:
+        # Get as much as possible without blocking
+        try:
+            while True:
+                item = q.get_nowait()
+                if item is None:
+                    return buf
+                else:
+                    buf.append(item)
+        except Queue.Empty:
+            pass
+
+        if buf:
+            return buf
+
+        # Nothing in the queue. Block for
+        # one item, then go back and get any
+        # that we can without blocking.
+        item = q.get()
+        if item is None:
+            return buf
+        else:
+            buf.append(item)
+
+
+class SendThread(threading.Thread):
+    """Send thread: Just write strings to the device.
+       """
+    def __init__(self, sock):
+        self.running = True
+        self.queue = Queue.Queue()
+        self.sock = sock
+        threading.Thread.__init__(self)
+
+    def run(self):
+        while self.running:
+            self.sendall(''.join(drainQueue(self.queue)))
+
+    def stop(self):
+        self.running = False
+        self.queue.put(None)
+        self.join()
+
+    def sendall(self, data):
+        """Our owm implementation of sendall(), since PyBlueZ
+           doesn't have it on Windows hosts.
+           """
+        while data and self.running:
+            ret = self.sock.send(data)
+            assert ret > 0
+            data = data[ret:]
+
+
+class RecvThread(threading.Thread):
+    """Recv thread: Read data from the device, and process
+       queued callbacks.
+       """
+    def __init__(self, socket):
+        self.running = True
+        self.discardData = True
+        self.queue = Queue.Queue(MAX_PENDING_READS - 1)
+        self.sock = socket
+        threading.Thread.__init__(self)
+
+    def run(self):
+        buf = ''
+
+        while self.running:
+            if self.discardData:
+                # Receive and discard (all but the last iteration,
+                # since that will be the first byte received after
+                # discardData was cleared)
+                buf = self.sock.recv(1)
+                continue
+
+            item = self.queue.get()
+            if item is None:
+                continue
+
+            # Receive data for this callback
+            size, cb = item
+            size *= 4
+
+            # Keep receiving until we get enough data
+            while len(buf) < size:
+                if not self.running:
+                    return
+                buf += self.sock.recv(size - len(buf))
+
+            assert len(buf) == size
+            cb(buf)
+            buf = ''
+
+            self.queue.task_done()
+
+    def stop(self):
+        self.running = False
+        self.queue.put(None)
+        self.join()
+
+
 class BluetoothConduit:
-    MAX_REGIONS = 32
-    MAX_DESCRIPTOR_LEN = 64
-    MAX_PENDING_READS = 127
+    """Low-level full duplex communication with shared memory objects
+       in our hardware, over a Bluetooth link.
+
+       This object provides a file-like interface for reading and
+       writing memory regions. Regions are named. We can seek within
+       regions, and asynchronously read or write words. Each 32-bit
+       word we read or write is atomic.
+
+       Writes happen asynchronously, with no completion notification.
+       Reads happen asynchronously, and data is provided to a callback
+       on a separate thread.
+       """
 
     sock = None
-    offset = None
-    region = None
     isConnected = False
     _regionCache = None
     _regionsByName = {}
@@ -57,36 +219,25 @@ class BluetoothConduit:
     def __init__(self):
         self.onConnect = []
         self.onDisconnect = []
-        self.onPoll = []
+        self.lock = threading.Lock()
 
     def connect(self, bdaddr='03:1F:08:07:15:2E'):
         try:
             self.sock = BluetoothSocket(RFCOMM)
             self.sock.connect((bdaddr, 1))
-            self.sock.setblocking(False)
+            self.sock.setblocking(True)
 
-            self._writeBuf = []
-            self._readBuf = []
-            self._readLen = 0
-            self._readCb = []
-            self.offset = None
-            self.region = None
+            self.send = SendThread(self.sock)
+            self.send.start()
+            self.recv = RecvThread(self.sock)
+            self.recv.start()
 
-            # Finish any unfinished command, and clear out any
-            # garbage from the receive buffers. Zero is a no-op
-            # bytecode, and this is the maximum length of any
-            # command that may be in progress.
+            # Finish any unfinished command.
+            self.send.queue.put(OP_NOP * MAX_COMMAND_LENGTH)
 
-            self._writeBuf.append("\x00" * 255 * 4 * 2);
-            self.flush(True, True)
-
-            # XXX: Sometimes we fail to read from the RFCOMM socket,
-            #      even though the device has definitely sent us a
-            #      reply. I don't know why, but this seems to work
-            #      around the problem.
-
-            time.sleep(1.0)
-            self.flush(True, True)
+            # Let any garbage flush out of the receive pipe, then enable it.
+            time.sleep(0.5)
+            self.recv.discardData = False
 
             # Populate the region cache once
             self.getRegions()
@@ -109,13 +260,13 @@ class BluetoothConduit:
         if self._regionCache is not None:
             return self._regionCache
 
+        self.lock.acquire()
+
         regions = []
         self._regionsByName = {}
 
         # Iterate over all descriptors (even numbered regions)
-        for index in range(0, self.MAX_REGIONS, 2):
-            self.setRegion(index)
-
+        for index in range(0, MAX_REGIONS, 2):
             def storeDescriptor(descriptor, index=index):
                 size = struct.unpack("<I", descriptor[:4])[0]
                 name = descriptor[4:].split('\x00')[0]
@@ -124,32 +275,46 @@ class BluetoothConduit:
                     regions.append(region)
                     self._regionsByName[name] = region
 
-            self.read(self.MAX_DESCRIPTOR_LEN, storeDescriptor)
+            # Send the command the low-level way, since we already have the lock.
+            self.recv.queue.put((MAX_DESCRIPTOR_LEN, storeDescriptor))
+            self.send.queue.put(opSetRegion(index) + opReadLongs(MAX_DESCRIPTOR_LEN))
 
-        self.flush(readBlock=True)
+        self.recv.queue.join()
         self._regionCache = regions
+
+        self.lock.release()
         return regions    
 
-    def findRegion(self, name):
-        """Look for a region by name. Returns its Region structure."""
-
+    def findRegion(self, nameOrIndex):
+        """Look for a region by name or index. Returns its Region structure."""
         self.getRegions()
-        return self._regionsByName[name]
+        if isinstance(nameOrIndex, int):
+            return self._regionCache[nameOrIndex]
+        else:
+            return self._regionsByName[nameOrIndex]
 
     def disconnect(self):
+        self.isConnected = False
+
+        self.send.stop()
+        self.send.join()
+        self.send = None
+
+        self.recv.stop()
+        self.recv.join()
+        self.recv = None
+
         self.sock.close()
         self.sock = None
-        self.isConnected = False
+
         for f in self.onDisconnect:
             f()
 
-    def addCallbacks(self, onConnect=None, onDisconnect=None, onPoll=None):
+    def addCallbacks(self, onConnect=None, onDisconnect=None):
         if onConnect:
             self.onConnect.append(onConnect)
         if onDisconnect:
             self.onDisconnect.append(onDisconnect)
-        if onPoll:
-            self.onPoll.append(onPoll)
 
         if self.isConnected:
             if onConnect:
@@ -158,149 +323,45 @@ class BluetoothConduit:
             if onDisconnect:
                 onDisconnect()
 
-    def setRegion(self, index):
-        if self.region == index:
-            self.seek(0)
-        else:
-            self._writeBuf.append("\xF0" + chr(index))
-            self.offset = 0
+    def command(self, cmd, recvSize=0, callback=None):
+        """This is a primitive for an atomic read/write command.
+           All commands in the provided string buffer 'cmd' are
+           guaranteed to happen in an unbroken sequence.
 
-    def setRegionByName(self, name):
-        self.setRegion(self.findRegion(name).index)
-
-    def seek(self, offset):
-        self.seekRelative(offset - self.offset)
-
-    def seekRelative(self, offset):
-        if not offset:
+           The BluetoothConduit intentionally contains a fairly
+           limited set of operations, because there are few high-level
+           operations which are re-entrant. If you want to perform a
+           sequence of otherwise non-atomic operations, you can submit
+           them as a single command() and they will always be atomic.
+           """
+        if not self.isConnected:
+            # If we're shutting down, break the chain of polling callbacks...
             return
-        self.offset += offset
-        if offset < 128 and offset > -128:
-            self._writeBuf.append("\xC3" + struct.pack("b", offset))
-        else:
-            self._writeBuf.append("\xB4" + struct.pack("<h", offset))
 
-    def write(self, data):
-        """Asynchronously write 'data' at the current position.
-           Data must be a multiple of 4 bytes in length. Each 32-bit
-           word will be written atomcially.
+        if callback and recvSize:
+            self.lock.acquire()
+            self.recv.queue.put((recvSize, callback))
+            self.send.queue.put(cmd)
+            self.lock.release()
+        elif cmd:
+            self.send.queue.put(cmd)
 
-           Writes are buffered until the flush() method is called.
+    def write(self, region, offset, data):
+        """Seek to 'offset' within 'region', and write 'data'.
            """
-        assert (len(data) % 4) == 0
-        words = len(data) / 4
+        self.command(opSetRegion(self.findRegion(region).index) +
+                     opSeek(offset) +
+                     opWriteLongs(data))
 
-        if words > 255:
-            self.write(data[:4*255])
-            self.write(data[4*255:])
-        else:
-            self._writeBuf.append("\xD2" + chr(words) + data)
-            self.offset += words
-
-    def read(self, count, callback):
-        """Read 'count' words of data from the current position.
-           When the data is available, the provided callback is
-           invoked with a single string argument.
-
-           The provided callback will be called during a
-           future flush().
+    def read(self, region, offset, words, cb):
+        """Seek to 'offset' within 'region', and read the specified
+           number of words. When the data is ready, cb(data) will be
+           invoked on the receive thread.
            """
-        assert len(self._readCb) <= self.MAX_PENDING_READS
-        if len(self._readCb) == self.MAX_PENDING_READS:
-            self.flush(readBlock=True)
-            assert not self._readCb
-            
-        self._readCb.append((count, callback))
-        self._writeBuf.append("\xE1" + chr(count))
-        self.offset += count
-
-    def poll(self):
-        """Flush unsent data, and allow clients the opportunity
-           to poll the hardware when necessary.
-           """
-        for cb in self.onPoll:
-            cb()
-        self.flush()
-
-    def flush(self, writeBlock=False, readBlock=False, timeout=2.0):
-        """Send and receive data, with or without blocking.
-           By default, this will send and receive all data
-           that can be processed without blocking. To block
-           writes (and provide flow control), set writeBlock.
-           To block reads (and guarantee that async reads
-           have completed), set readBlock.
-           """
-        self._writeBuf = [''.join(self._writeBuf)]
-        running = True
-        deadline = time.clock() + timeout
-
-        while running:
-            running = False
-            delay = True
-
-            if time.clock() > deadline:
-                raise IOError("Timeout waiting for firmware response.")
-            
-            if self._writeBuf[0]:
-                # Try to write some data
-
-                writeCount = self.sock.send(self._writeBuf[0])
-                assert writeCount >= 0
-
-                if writeCount > 0:
-                    # Write successful. Keep going.
-                    self._writeBuf[0] = self._writeBuf[0][writeCount:]
-                    running = True
-                    delay = False
-                    deadline = time.clock() + timeout
-                    
-                elif writeBlock and self._writeBuf[0]:
-                    # Write was unsuccessful, but we'll block until we finish.
-                    running = True
-
-            else:
-                writeCount = 0
-
-            # Try to read some data
-            readStr = self.sock.recv(4096)
-            if readStr:
-                # Read successful. Keep going.
-                running = True
-                delay = False
-                deadline = time.clock() + timeout
-
-                self._readLen += len(readStr)
-                self._readBuf.append(readStr)
-
-                if not self._readCb:
-                    # We're reading junk. This could happen
-                    # at the first flush() during initialization.
-                    self._readBuf = []
-                    self._readLen = 0
-
-                # Can we dispatch the next callback?
-                while self._readCb:
-                    nextCbSize, nextCb = self._readCb[0]
-                    nextCbSize *= 4
-                    if self._readLen >= nextCbSize:
-                        del self._readCb[0]
-                        block = ''.join(self._readBuf)
-                        self._readBuf = [block[nextCbSize:]]
-                        self._readLen -= nextCbSize
-                        nextCb(block[:nextCbSize])
-                    else:
-                        break
-
-            elif readBlock and self._readCb:
-                # No data to read, but we'll block until we finish.
-                running = True
-
-            if delay:
-                # If no actual reads/writes occurred, yield the CPU.
-                time.sleep(0.01)
-
-        if readBlock:
-            assert not self._readCb
+        self.command(opSetRegion(self.findRegion(region).index) +
+                     opSeek(offset) +
+                     opReadLongs(words),
+                     words, cb)
 
 
 if __name__ == "__main__":
@@ -309,3 +370,4 @@ if __name__ == "__main__":
     print "Connecting..."
     bt.connect()
     print bt.getRegions()
+    bt.disconnect()

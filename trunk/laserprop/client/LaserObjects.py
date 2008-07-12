@@ -81,8 +81,7 @@ class Calibration(ObservableValue):
         self.bt.addCallbacks(self.onConnect, self.onDisconnect)
 
     def onConnect(self):
-        self.bt.setRegionByName(self.regionName)
-        self.bt.read(len(self._calParams), self.onRead)
+        self.bt.read(self.regionName, 0, len(self._calParams), self.onRead)
 
     def onDisconnect(self):
         self.set(None)
@@ -325,9 +324,7 @@ class BTConnector(object):
 
     def onConnect(self):
         # Read the current value
-        self.bt.setRegionByName(self.regionName)
-        self.bt.seek(self.offset)
-        self.bt.read(1, self.onRead)
+        self.bt.read(self.regionName, self.offset, 1, self.onRead)
 
     def onDisconnect(self):
         self.value.set(None, self._valueChanged)
@@ -337,9 +334,8 @@ class BTConnector(object):
         self.value.set(v, self._valueChanged)
 
     def _valueChanged(self, v):
-        self.bt.setRegionByName(self.regionName)
-        self.bt.seek(self.offset)
-        self.bt.write(struct.pack(self.format, int(v + 0.5)))
+        self.bt.write(self.regionName, self.offset,
+                      struct.pack(self.format, int(v + 0.5)))
 
 
 class BTAdjustableValues:

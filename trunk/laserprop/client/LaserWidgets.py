@@ -35,8 +35,7 @@ import VectorMachine
 
 __all__ = ['ValueLabel', 'ValueSlider', 'ValueSpinner', 'ValueSlider2D',
            'ScatterPlot2D', 'PollingBTConnector', 'CalibrationLabel',
-           'BTConnectButton', 'BTPollTimer', 'BTPolledValues',
-           'VMPlot2D']
+           'BTConnectButton', 'BTPolledValues', 'VMPlot2D']
 
 
 class ValueLabel(wx.StaticText):
@@ -299,7 +298,7 @@ class PollingBTConnector(BTConnector):
     def onRead(self, data):
         BTConnector.onRead(self, data)
         if self.pollInterval > 0:
-            wx.CallLater(int(self.pollInterval * 1000 + 0.5), self.onConnect)
+            wx.CallAfter(wx.CallLater, int(self.pollInterval * 1000 + 0.5), self.onConnect)
         else:
             self.onConnect()
 
@@ -362,31 +361,6 @@ class BTConnectButton(wx.Button):
     def onDisconnect(self):
         self.SetLabel(self.connectLabel)
         self.Enable()
-
-
-class BTPollTimer(wx.Timer):
-    """A Timer which flushes buffers and performs hardware polling in
-       the BluetoothConduit at regular intervals."""
-    def __init__(self, bt, msInterval=10):
-        self.bt = bt
-        self.msInterval = msInterval
-        wx.Timer.__init__(self)
-
-        self.Bind(wx.EVT_TIMER, self.onTimerEvent)
-
-        bt.onConnect.append(self.onConnect)
-        bt.onDisconnect.append(self.onDisconnect)
-        if bt.isConnected:
-            self.onConnect()
-
-    def onConnect(self):
-        self.Start(self.msInterval)
-
-    def onDisconnect(self):
-        self.Stop()
-
-    def onTimerEvent(self, event):
-        self.bt.poll()
 
 
 class BTPolledValues:
