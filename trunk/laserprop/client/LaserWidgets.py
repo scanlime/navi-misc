@@ -430,7 +430,7 @@ class VMPlot2D(wx.PyControl):
 
     def setInstructions(self, instructions):
         self.instructions = instructions
-        self.Refresh()
+        wx.CallAfter(self.Refresh)
 
     def onPaint(self, event):
         dc = wx.AutoBufferedPaintDC(self)
