@@ -35,7 +35,7 @@ import VectorMachine
 
 __all__ = ['ValueLabel', 'ValueSlider', 'ValueSpinner', 'ValueSlider2D',
            'ScatterPlot2D', 'PollingBTConnector', 'CalibrationLabel',
-           'BTConnectButton', 'BTFlushTimer', 'BTPolledValues',
+           'BTConnectButton', 'BTPollTimer', 'BTPolledValues',
            'VMPlot2D']
 
 
@@ -364,8 +364,9 @@ class BTConnectButton(wx.Button):
         self.Enable()
 
 
-class BTFlushTimer(wx.Timer):
-    """A Timer which flushes events in the BluetoothConduit at regular intervals."""
+class BTPollTimer(wx.Timer):
+    """A Timer which flushes buffers and performs hardware polling in
+       the BluetoothConduit at regular intervals."""
     def __init__(self, bt, msInterval=10):
         self.bt = bt
         self.msInterval = msInterval
@@ -385,7 +386,7 @@ class BTFlushTimer(wx.Timer):
         self.Stop()
 
     def onTimerEvent(self, event):
-        self.bt.flush()
+        self.bt.poll()
 
 
 class BTPolledValues:
@@ -429,10 +430,10 @@ class BTPolledValuesAxis:
 
 class VMPlot2D(wx.PyControl):
     """Interpret and visualize the results of a VectorMachine instruction stream."""
-    def __init__(self, parent, instructions, size=(512, 512), scale=1.0):
+    def __init__(self, parent, instructions=None, size=(512, 512), scale=1.0):
         wx.PyControl.__init__(self, parent, size=size)
 
-        self.instructions = instructions
+        self.instructions = instructions or []
         self.size = size
         self.scale = scale
         
@@ -451,6 +452,10 @@ class VMPlot2D(wx.PyControl):
         return self.size
 
     def onSize(self, event):
+        self.Refresh()
+
+    def setInstructions(self, instructions):
+        self.instructions = instructions
         self.Refresh()
 
     def onPaint(self, event):
@@ -474,45 +479,36 @@ class VMPlot2D(wx.PyControl):
         for point in VectorMachine.interpret(self.instructions):
             if prev and prev.laserEnable:
                 dc.DrawLine(cx + prev.x * s,
-                            cy - prev.y * s,
+                            cy + prev.y * s,
                             cx + point.x * s,
-                            cy - point.y * s)
+                            cy + point.y * s)
             prev = point
 
         # Pass 2: interpolated points
-        dc.Pen = self.normalPen
-        dc.Brush = wx.TRANSPARENT_BRUSH
-        for point in VectorMachine.interpret(self.instructions):
-            if not point.isControlPoint:
-                dc.DrawCircle(cx + point.x * s,
-                              cy - point.y * s,
-                              1)
-
-        # Pass 3: interpolated points
         dc.Pen = self.normalPen
         dc.Brush = wx.TRANSPARENT_BRUSH
         pCount = 0
         for point in VectorMachine.interpret(self.instructions):
             pCount += 1
             if not point.isControlPoint:
-                dc.DrawCircle(cx + point.x * s,
-                              cy - point.y * s,
-                              1)
+                dc.DrawPoint(cx + point.x * s,
+                             cy + point.y * s)
 
-        # Pass 4: control points
+        # Pass 3: control points
         dc.Pen = self.controlPen
         dc.Brush = self.controlBrush
         for point in VectorMachine.interpret(self.instructions):
             if point.isControlPoint:
                 dc.DrawCircle(cx + point.x * s,
-                              cy - point.y * s,
+                              cy + point.y * s,
                               2)
 
-        # Pass 3: Text overlay
+        # Pass 4: Text overlay
         dc.DrawText(
-            "%d instructions, %d points" % (
+            "%d instructions, %d points. %.1f FPS" % (
                 len(self.instructions),
-                pCount),
+                pCount,
+                VectorMachine.LOOP_HZ / pCount),
             5, 5)
 
         event.Skip()

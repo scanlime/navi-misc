@@ -35,8 +35,10 @@ from __future__ import division
 import struct, math
 
 
-# The VectorMachine's position registers are encoded in 16.16 fixed point.
-FIXED_POINT_BITS = 16
+# The VectorMachine's position registers are encoded in 18.14 fixed
+# point.  This is basically a tradeoff between addressable output
+# resolution and curve interpolation resolution.
+FIXED_POINT_BITS = 14
 FIXED_POINT_SCALE = 1 << FIXED_POINT_BITS
 
 # Fields in our instruction format
@@ -68,6 +70,9 @@ SP_CLEAR = 2
 SP_INC = 3
 SP_RESET = 4
 
+# Base hardware sampling rate
+LOOP_HZ = 40000
+
 def pack(reg=REG_S, le=0, scnt=0, exp=0, y=0, x=0, offset=0):
     """Encode a tuple into an integer VectorMachine instruction word.
        """
@@ -91,13 +96,15 @@ def packFloat(reg=REG_S, le=0, scnt=0, y=0, x=0):
     while abs(xi >> exp) > absMax or abs(yi >> exp) > absMax:
         exp += 1
 
-    if exp > EXP_MASK:
-        raise ValueError("Overflow in packFloat(x=%s, y=%s)" % (x,y))
+    # On overflow, clamp the the highest values.
+    exp = min(EXP_MASK, exp)
+    xi >>= exp
+    yi >>= exp
+    xi = min(X_MASK/2, max(-X_MASK/2, xi))
+    yi = min(Y_MASK/2, max(-Y_MASK/2, yi))
 
-    print (xi>>exp, yi>>exp, exp)
-    return pack(reg, le, scnt, exp, yi >> exp, xi >> exp)
+    return pack(reg, le, scnt, exp, yi, xi)
     
-
 def unpack(v):
     """Unpack an integer VectorMachine instruction word into a
        (reg, le, scnt, exp, y, x, offset) tuple.
@@ -117,7 +124,6 @@ def unpack(v):
             y, x,
             (v >> OFFSET_SHIFT) & OFFSET_MASK)
 
-
 def unpackFloat(v):
     """Unpack the coordinate in an instruction
        to a floating point (x, y) tuple.
@@ -126,6 +132,26 @@ def unpackFloat(v):
     
     return ((x << exp) / float(FIXED_POINT_SCALE),
             (y << exp) / float(FIXED_POINT_SCALE))
+
+def toString(words):
+    return struct.pack("<%dI" % len(words), *words)
+
+def fromString(s):
+    return struct.unpack("<%dI" % (len(s) / 4), s)
+
+def blankFrame():
+    """Create a new blank frame. An empty list won't do, because it
+       would create a zero-sample loop in the VectorMachine
+       interpreter. We could use a a 1-sample NOP, so that we use up
+       time but do nothing else. However, the safest thing to do is to
+       return to the home position and explicitly zero the
+       accumulators.  This is what we do.
+       """
+
+    en = Encoder()
+    en.moveTo(0,0)
+    en.emit(1)
+    return en.inst
 
 
 class Point:
@@ -462,136 +488,207 @@ class Encoder:
         self.qCurveTo(c4x, c4y, x3,  y3,  qSamples)
         
 
-class VectorMachine:
+class VMConduit:
+    """This is a low-level interface to the VectorMachine hardware,
+       via a BluetoothConduit. We can write to vector memory, inject
+       commands, and perform other relatively low-level VM operations.
+       """
     def __init__(self, bt, cmdRegion="vm", memRegion="vector_mem"):
         self.bt = bt
         self.cmdRegion = cmdRegion
         self.memRegion = memRegion
 
-    def cmd(self, instr):
+    def cmd(self, word):
         self.bt.setRegionByName(self.cmdRegion)
-        self.bt.write(instr)
+        self.bt.write(toString((word,)))
 
-    def write(self, addr, data):
+    def write(self, addr, words):
         self.bt.setRegionByName(self.memRegion)
         self.bt.seek(addr)
-        self.bt.write(data)
+        self.bt.write(toString(words))
+
+    def read(self, addr, count, cb):
+        self.bt.setRegionByName(self.memRegion)
+        self.bt.seek(addr)
+        self.bt.read(count, lambda s: cb(fromString(s)))
 
     def jump(self, offset):
         """Issue a jump instruction to the provided address."""
-        self.cmd(self.pack(reg=self.REG_SP, exp=self.SP_JUMP,
-                           offset=offset))
+        self.cmd(pack(reg=REG_SP, exp=SP_JUMP, offset=offset))
 
     def stop(self):
         """Turn the laser off, and lock the instruction pointer
            at offset zero in an infinite loop.
            """
-        self.cmd(self.pack(reg=self.REG_SP, exp=self.SP_RESET))
+        self.cmd(pack(reg=REG_SP, exp=SP_RESET))
 
     def start(self):
         """Write a no-op instruction into offset zero, and continue
            execution there.
            """
         self.stop()
-        self.write(0, self.pack(reg=self.REG_SP, exp=self.SP_NOP))
-
-    def uploadVectors(self, vectors, scnt, cb):
-        self.stop()
-        buf = []
-
-        for x, y, le in vectors:
-            # Break up large sample counts into multiple instructions
-            s = scnt
-            while s > 0:
-                iscnt = min(127, s)
-                s -= iscnt            
-        
-                buf.append(self.pack(le=le, scnt=iscnt, exp=15,
-                                     x=int(x), y=int(y)))
-
-        # Loop
-        # Note the nonzero scnt: we need this loop to generate samples,
-        # otherwise the VM's timer will overflow if we send it an empty image.
-
-        buf.append(self.pack(reg=self.REG_SP, scnt=1, exp=self.SP_JUMP, offset=1))
-
-        print "Pattern length: %d" % len(buf)
-
-        # XXX
-        #for i, b in enumerate(buf):
-        #    self.write(i, b)
-
-        self.write(1, ''.join(buf))
-        
-        self.start()
-
-        def finish(_):
-            print "Finished writing pattern"
-            cb()
-        self.bt.read(1, finish)
+        self.write(0, (pack(reg=REG_SP, exp=SP_NOP), ))
 
 
-def vecSub(a, b):
-    return (a[0] - b[0], a[1] - b[1])
+class FrameBuffer:
+    """Literally, a buffer for frames, in which each frame is a
+       sequence of VectorMachine instruction words.
 
-def vecAdd(a, b):
-    return (a[0] + b[0], a[1] + b[1])
+       The buffer is divided into three different places where we
+       store frames:
 
-def vecMag(a):
-    return math.sqrt(a[0] ** 2 + a[1] ** 2)
+         - The front buffer. This is the frame that is being scanned
+           out by the hardware right now. If it is not scheduled for
+           replacement, it will loop.
 
-def vecMul(a, b):
-    return (a[0] * b, a[1] * b)
+         - The back buffer. This is where frames wait when they want
+           to enter the front buffer. We upload to the back buffer,
+           then atomically swap the buffers at the end of the next
+           complete scan of the front buffer. There is hardware support
+           for this operation.
 
-def vecNorm(a):
-    return vecMul(a, 1.0 / vecMag(a))
-
-def vecDot(a, b):
-    return a[0] * b[0] + a[1] * b[1]
-
-def iterPathSampler(points, dist):
-    """Given one line segment path, resample that path and yield
-       new points every 'dist' units. Each point is an (x, y, payload)
-       tuple, where 'payload' is an arbitrary Python object which is
-       preserved in the resampled output. Each output sample carries
-       the payload of the preceeding input sample.
+         - The queue. These are frames which are waiting behind the
+           backbuffer. New frames always end up here first. When
+           adding new frames, you may replace the queue or append to
+           it. Replacing is good for interactive manipulation, where
+           you need to display the newest state immediately, appending
+           is good for animations where you want to display many
+           frames at a constant rate.
+       
+       The current contents of the front buffer, back buffer, and queue
+       are all accessable via attributes. As soon as we know that the
+       front buffer has been updated, we will send out callbacks to
+       any registered observers.
        """
-    prev = None
 
-    # X is an accumulator that increments every time we pass a
-    # pixel on the input line. When it crosses 'dist', we generate
-    # an output sample and reset it to zero.
-    x = 0
+    # Max size of a single frame of data, in words. The hardware
+    # buffer must be large enough to hold two of these, plus our
+    # swap counter.
+    BUFFER_SIZE = 2047
 
-    for cur in points:
-        if prev is None:
-            prev = cur
-            yield prev
-            continue
+    def __init__(self, bt):
+        self.vm = VMConduit(bt)
+        self._frontObservers = []
 
-        v = vecSub(cur[:2], prev[:2])
-        vmag = vecMag(v)
+        self.front = blankFrame()
+        self.back = blankFrame()
+        self.queue = []
 
-        # Walk from the previous input sample to the current one,
-        # emitting output samples as we go.
+        self._swapCount = 0
+        self._backBufferBusy = False
+        self._connected = False
 
-        remaining = vmag
+        self._frontEntry = 0
+        self._backEntry = self._frontEntry + self.BUFFER_SIZE
+        self._swapCountAddr = self._backEntry + self.BUFFER_SIZE
+        self._frontExit = 0
 
-        while True:
-            travel = dist - x
-            if remaining < travel:
-                break
+        bt.addCallbacks(self._btConnect, self._btDisconnect, self._btPoll)
 
-            prev = vecAdd(prev[:2], vecMul(v, travel / vmag)) + prev[2:]
-            x = 0
-            remaining -= travel
-            yield prev
+    def observeFront(self, cb):
+        """Observe changes to the front buffer."""
+        self._frontObservers.append(cb)
+        cb(self.front)
 
-        prev = cur
-        x += remaining
+    def _btConnect(self):
+        """Reset the VectorMachine, and re-upload the current frame."""
 
-if __name__== "__main__":
-    print list(interpret([
-                pack(reg=REG_DDS, x=10, y=10, exp=10),
-                pack(x=5, y=5, exp=15, scnt=50),
-                ]))
+        self._backBufferBusy = False
+        self._connected = True
+
+        # This resets the VM, and writes an infinite loop into the
+        # first word of memory.  This is our initial exit point.
+        self._frontExit = 0
+        self.vm.stop()
+
+        # Reset the swap counter
+        self._swapCount = 0
+        self.vm.write(self._swapCountAddr, (self._swapCount,))
+
+        # Get all the buffers primed..
+        self.replace(blankFrame())
+
+    def _btDisconnect(self):
+        self._connected = False
+
+    def append(self, frame):
+        """Append a new frame to the end of the queue."""
+        self.queue.append(frame)
+        self._writeBackBuffer()
+
+    def replace(self, frame):
+        """Replace the entire queue of pending frames with this one frame."""
+        self.queue[:] = [frame]
+        self._writeBackBuffer()
+
+    def _writeBackBuffer(self):
+        """Move the next frame from the queue to the backbuffer, and
+           schedule an asynchronous back-to-front swap.
+           """
+
+        if self._backBufferBusy:
+            # We'll try again once the buffer is idle
+            return
+
+        if not self.queue:
+            # Nothing to do
+            return
+
+        self._backBufferBusy = True
+
+        # Extract a frame from the head of the queue
+        self.back = self.queue[0]
+        del self.queue[0]
+
+        if self._connected:
+            # Write our backbuffer instructions:
+            #
+            #   1. Increment the swap counter.
+            #   2. A no-op, for our exit point
+            #   3. Variable-length frame data.
+            #   4. Jump back to (2)
+            
+            self.vm.write(self._backEntry,
+                          [ pack(reg=REG_SP, exp=SP_INC, offset=self._swapCountAddr),
+                            pack(reg=REG_SP, exp=SP_NOP) ] +
+                          self.back +
+                          [ pack(reg=REG_SP, exp=SP_JUMP, offset=self._backEntry + 1) ])
+        
+            # Ask the frontbuffer to jump to the backbuffer when it's done
+            # with this cycle.
+            self.vm.write(self._frontExit,
+                          (pack(reg=REG_SP, exp=SP_JUMP, offset=self._backEntry),))
+
+            # Immediately push this data out of our Bluetooth connection
+            self._btPoll()
+            self.vm.bt.flush()
+
+        else:
+            # Not connected. Fake a completed swap.
+            self._swapComplete()
+        
+    def _btPoll(self):
+        self.vm.read(self._swapCountAddr, 1, self._pollSwap)
+
+    def _pollSwap(self, (swapCount,)):
+        if swapCount != self._swapCount:
+            self._swapCount = swapCount
+            self._swapComplete()
+
+    def _swapComplete(self):
+        # The swap finished
+        if not self._backBufferBusy:
+            return
+        self._backBufferBusy = False
+
+        # Take note of the buffer swap 
+        self.front, self.back = self.back, self.front
+        self._frontEntry, self._backEntry = self._backEntry, self._frontEntry
+        self._frontExit = self._frontEntry + 1
+
+        # If we have more frames, enqueue the next one.
+        self._writeBackBuffer()
+
+        # Notify observers
+        for cb in self._frontObservers:
+            cb(self.front)

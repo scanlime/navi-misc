@@ -24,6 +24,7 @@ from BluetoothConduit import *
 from LaserObjects import *
 from LaserWidgets import *
 import VectorMachine
+import SVGPath
 
 import ILDA
 
@@ -61,9 +62,10 @@ def vecSub((a, b), (c, d)):
 
 
 class DrawingWidget(wx.Panel):
-    def __init__(self, parent, vm, bt, size=(512,512)):
+    def __init__(self, parent, vm, bt, prog, size=(512,512)):
         self.bt = bt
         self.vm = vm
+        self.prog = prog
 
         self._needUpload = False
         self._uploadDeadline = None
@@ -154,7 +156,7 @@ class DrawingWidget(wx.Panel):
             loop_hz = 40000.0
             print "Uploading %d resampled vectors. scnt=%d (%.1f PPS)" % (
                 len(self.resampled), scnt, loop_hz / scnt)
-            self.vm.uploadVectors(self.resampled, scnt, done)
+            self.vm.runFrame(self.prog, done)
 
     def onPaint(self, event):
         dc = wx.AutoBufferedPaintDC(self.canvas)
@@ -340,31 +342,6 @@ def bezier3dd(t, ((x0, y0), (x1, y1), (x2, y2), (x3, y3))):
 def vmTest():
     """Test rig for interpolating paths into VectorMachine instructions."""
 
-    bez3 = ( (0,0), (-100,100), (0,-100), (50,0) )
-    bez2 = ( (-50,0), (80, 100), (50,0) )
-    en = VectorMachine.Encoder()
-
-
-    # Reference (0th order) curve
-    steps = 40
-    en.setLaser(True)
-    for i in xrange(steps):
-        x, y = bezier3(i / float(steps-1), bez3)
-        en.moveTo(x, y-80)
-
-    en.setLaser(False)
-    en.hold(1)
-    en.lineTo(*(bez3[0] + (10,)))
-    en.setLaser(True)
-    en.hold(1)
-    
-    # Draw the curve in hardware
-    en.cCurveTo(*(bez3[1] + bez3[2] + bez3[3] + (40,)))
-
-    print "Disassembly:"
-    for i in en.inst:
-        print VectorMachine.unpack(i)
-    return en.inst
 
 
 class MainWindow(wx.Dialog):                 
@@ -375,7 +352,8 @@ class MainWindow(wx.Dialog):
         self.bt = BluetoothConduit()
         self.adj = BTAdjustableValues(self.bt)
         self.polled = BTPolledValues(self.bt, self.adj.calibration)
-        self.timer = BTFlushTimer(self.bt)
+        self.timer = BTPollTimer(self.bt)
+        self.fb = VectorMachine.FrameBuffer(self.bt)
         self.Bind(wx.EVT_CLOSE, self.onClose)
 
         vbox.Add(BTConnectButton(self, self.bt), 0, wx.ALL, 2)
@@ -419,18 +397,57 @@ class MainWindow(wx.Dialog):
         filterRow.Add(ValueSpinner(self, self.adj.y.proxFilter))
         vbox.Add(filterRow, 0, wx.EXPAND | wx.ALL, 2)
 
-        self.vm = VectorMachine.VectorMachine(self.bt)
+        self.speed = AdjustableValue(100, 1, 2000)
+        self.curvy = AdjustableValue(100, -400, 400)
+        self.angle = AdjustableValue(0, -180, 180)
+        self.speed.observe(self.redraw)
+        self.curvy.observe(self.redraw)
+        self.angle.observe(self.redraw)
+	vbox.Add(ValueSlider(self, self.speed), 1, wx.EXPAND | wx.ALL, 2)
+	vbox.Add(ValueSlider(self, self.curvy), 1, wx.EXPAND | wx.ALL, 2)
+	vbox.Add(ValueSlider(self, self.angle), 1, wx.EXPAND | wx.ALL, 2)
 
-        plotRow = wx.BoxSizer(wx.HORIZONTAL)
-        plotRow.Add(VMPlot2D(self, vmTest(), scale=2.0))
-        plotRow.Add(DrawingWidget(self, self.vm, self.bt), 1, wx.ALL | wx.EXPAND, 4)
-        vbox.Add(plotRow)
+        plotter = VMPlot2D(self)
+        self.fb.observeFront(plotter.setInstructions)
+        vbox.Add(plotter)
 
         self.SetSizer(vbox)
         self.SetAutoLayout(1)
         vbox.Fit(self)
 
         self.Show()
+
+    def redraw(self, value):
+        en = VectorMachine.Encoder()
+        ts = SVGPath.TransformStack()
+
+        ts.rotate((self.angle.value,))
+        s = int(self.speed.value)
+        c = int(self.curvy.value)
+
+        bez3 = ( ts.transform((-100,0)), 
+                 ts.transform((-100,c)),
+                 ts.transform((100,100)),
+                 ts.transform((100,0)) )
+
+        # Draw the curve in hardware
+        en.setLaser(True)
+        en.moveTo(*(bez3[0] + (10,)))
+        en.cCurveTo(*(bez3[1] + bez3[2] + bez3[3] + (s*2,)))
+        for x, y, speed in (
+            (120, 0, s//2),
+            (120, 100, s),
+            (-120, 100, s*2),
+            (-120, 0, s),
+            (-100, 0, s//2),
+            ):
+            p = ts.transform((x, y))
+            en.lineTo(p[0], p[1], speed)
+
+        en.setLaser(False)
+        en.hold(1)
+
+        self.fb.replace(en.inst)
 
     def onClose(self, event):
         if self.bt.isConnected:
