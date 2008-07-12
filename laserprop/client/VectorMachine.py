@@ -32,7 +32,10 @@ Copyright (c) 2008 Micah Dowty
 
 from __future__ import division
 
-import struct, math, time
+import struct
+import math
+import time
+import threading
 
 
 # The VectorMachine's position registers are encoded in 18.14 fixed
@@ -150,7 +153,6 @@ def blankFrame():
 
     en = Encoder()
     en.moveTo(0,0)
-    en.emit(1)
     return en.inst
 
 def lerp(x, y, a):
@@ -524,8 +526,9 @@ class VMConduit:
 
     def stop(self):
         """Turn the laser off, and lock the instruction pointer
-           at offset zero in an infinite loop.
+           at offset zero in a one-cycle infinite loop.
            """
+        self.write(0, (pack(reg=REG_SP, exp=SP_JUMP, scnt=1),))
         self.cmd(pack(reg=REG_SP, exp=SP_RESET))
 
     def start(self):
@@ -535,60 +538,235 @@ class VMConduit:
         self.stop()
         self.write(0, (pack(reg=REG_SP, exp=SP_NOP), ))
 
+    def getMemSize(self):
+        """Return the size of the vector memory region, in longs"""
+        return self.bt.findRegion(self.memRegion).size
+
+
+class RemoteFrameQueue:
+    """Interface to a remote queue of frames, implemented as a
+       ring buffer of linked loops within the VM's memory space.
+
+       This object should only live as long as the device connection.
+       If we reconnect, this object should be recreated.
+       
+       Frames can be added at any time, provided there is available
+       space. Each time we asynchronously notice that a frame has
+       completed, we free its space and call the provided completion
+       callback. The completion callback's ragument is the new front
+       frame.
+
+       The queue has a bounded maximum latency. If the
+       not-yet-acknowledged frames will take more than maxLatency
+       seconds to execute, we don't allow new frames to be enqueued.
+       """
+    def __init__(self, vm, completionCb, maxLatency=0.25):
+        self.vm = vm
+        self.completionCb = completionCb
+        self.maxLatency = maxLatency
+
+        self._lock = threading.Lock()
+        self._lock.acquire()
+
+        try:
+            # Partition the available VM memory: leave
+            # space at the top for our swap counter,
+            # use the rest as ring buffer space.
+
+            memSize = self.vm.getMemSize()
+            self.ringSize = memSize - 1
+            self.swapCountAddr = self.ringSize
+
+            # Stick the VM in an infinite loop at address zero
+            self.vm.stop()
+
+            # Reset the swap counter, and start polling it
+            self.swapCount = 0
+            self.vm.write(self.swapCountAddr, (self.swapCount,))
+            self.vm.read(self.swapCountAddr, 1, self._pollSwap)
+
+            # The ring buffere itself is modelled as a list of RemoteFrame
+            # objects.  The first one in the list is the oldest buffer, or
+            # our "front" buffer.  The last one is the newest. The frames
+            # may wrap, so addresses will not be strictly increasing.
+            #
+            # To initialize the ring, we'll add a blank frame just after
+            # the infinite loop, then we'll jump to it. We don't want this
+            # to count as a buffer swap, so jump directly to its frame data.
+
+            nullFrame = RemoteFrame(blankFrame(), 1, self.swapCountAddr)
+            self.queue = [ nullFrame ]
+            self.queueDuration = nullFrame.duration
+            nullFrame.write(self.vm)
+            self.vm.jump(nullFrame.frameDataAddr)
+
+        finally:
+            self._lock.release()
+
+    def _pollSwap(self, (swapCount,)):
+        ackFrames = []
+
+        try:
+            self._lock.acquire()
+
+            while swapCount != self.swapCount:
+                # For every swap that the hardware logged, increment
+                # our own simulated swapCount and retire the oldest
+                # frame in the queue. Remember that frame so we can
+                # pass it to completionCb, after we release our lock.
+
+                self.swapCount = (self.swapCount + 1) & 0xFFFFFFFF
+
+                assert len(self.queue) > 1
+                self.queueDuration -= self.queue[0].duration
+                del self.queue[0]
+
+                # Ack the new front buffer
+                ackFrames.append(self.queue[0])
+
+
+            # Keep polling...
+            self.vm.read(self.swapCountAddr, 1, self._pollSwap)
+
+        finally:
+            self._lock.release()
+
+        for frame in ackFrames:
+            self.completionCb(frame)
+
+    def append(self, instructions):
+        """Try to append the provided frame. If we are successful,
+           returns True and asynchronously complete this frame
+           via completionCb. If there is no room in the hardware
+           buffer, returns False.
+           """
+        try:
+            self._lock.acquire()
+
+            # We can reject a frame because it exceeds our latency bounds
+            if self.queueDuration >= self.maxLatency:
+                return False
+
+            # Start out by placing it right after the last frame in the
+            # queue. Does that work? If it overlaps the front buffer,
+            # the buffer is full and we have to fail. If it overlaps the
+            # swap counter (at the end of memory), we may be able to
+            # wrap.
+
+            assert len(self.queue) > 0
+            rf = RemoteFrame(instructions,
+                             self.queue[-1].nextFreeAddr,
+                             self.swapCountAddr)
+            head = self.queue[0]
+
+            if (rf.firstAddress < head.firstAddress and 
+                rf.nextFreeAddr > head.firstAddress):
+
+                # Memory is full, this overlaps the front buffer.
+                return False
+
+            if rf.nextFreeAddr > self.swapCountAddr:
+                # Overlaps the swap counter. Can we wrap?
+
+                rf = RemoteFrame(instructions, 0, self.swapCountAddr)
+
+                if rf.nextFreeAddr > self.queue[0].firstAddress:
+                    # No room to wrap.
+                    return False
+
+            # This is a good address. Add it to our queue, send the frame
+            # data, and link the previous frame to this one.
+
+            prev = self.queue[-1]
+            self.queue.append(rf)
+            self.queueDuration += rf.duration
+
+            rf.write(self.vm)
+            prev.linkTo(self.vm, rf)
+
+            return True
+        finally:
+            self._lock.release()
+
+
+class RemoteFrame:
+    """One frame in a RemoteFrameQueue. This holds the original frame
+       data, as a list of instructions, plus it's responsible for
+       remembering ring buffer addresses and managing the linkage
+       between frames.
+
+       To know when a swap has completely finished, we need to
+       increment the swap counter at the beginning of the next frame,
+       rather than at the end (before jumping) of the original frame.
+       
+       Thus, them emory layout of one frame:
+          1. Increment the swap counter.
+          2. Variable-length frame data.
+          3. Jump back to (3)
+       
+       To execute a swap, we write over the instruction in (3),
+       and point it at (1) in the next frame.
+       """
+    def __init__(self, instructions, firstAddress, swapCountAddr):
+        self.instructions = instructions
+        self.swapCountAddr = swapCountAddr
+        self.duration = timeInstructions(instructions)
+
+        # Calculate addresses
+        self.firstAddress = firstAddress
+        self.entryPoint = firstAddress
+        self.frameDataAddr = self.entryPoint + 1
+        self.exitPoint = self.frameDataAddr + len(instructions)
+        self.nextFreeAddr = self.exitPoint + 1
+
+    def write(self, vm):
+        """Write this frame at the chosen address,"""
+        vm.write(self.entryPoint,
+                 [ pack(reg=REG_SP, exp=SP_INC, offset=self.swapCountAddr) ] +
+                 self.instructions +
+                 [ pack(reg=REG_SP, exp=SP_JUMP, offset=self.frameDataAddr) ])
+        
+    def linkTo(self, vm, next):
+        """When this frame finishes executing, have it jump to the next one instead of looping."""
+        vm.write(self.exitPoint,
+                 (pack(reg=REG_SP, exp=SP_JUMP, offset=next.entryPoint),))
+
 
 class FrameBuffer:
     """Literally, a buffer for frames, in which each frame is a
        sequence of VectorMachine instruction words.
 
-       The buffer is divided into three different places where we
-       store frames:
+       The FrameBuffer is divided into two queues:
 
-         - The front buffer. This is the frame that is being scanned
-           out by the hardware right now. If it is not scheduled for
-           replacement, it will loop.
+         - The remote queue. This holds frames that we've already
+           uploaded to the device. This queue is advanced in hardware.
+           If this queue ever has only a single frame in it, that
+           frame will be looped. The oldest frame in the remote
+           queue is our 'front buffer'.
 
-         - The back buffer. This is where frames wait when they want
-           to enter the front buffer. We upload to the back buffer,
-           then atomically swap the buffers at the end of the next
-           complete scan of the front buffer. There is hardware support
-           for this operation.
-
-         - The queue. These are frames which are waiting behind the
-           backbuffer. New frames always end up here first. When
-           adding new frames, you may replace the queue or append to
-           it. Replacing is good for interactive manipulation, where
-           you need to display the newest state immediately, appending
-           is good for animations where you want to display many
-           frames at a constant rate.
+         - The local queue. These are frames which are waiting behind
+           the hardware queue. New frames always end up here
+           first. When adding new frames, you may replace the queue or
+           append to it. Replacing is good for interactive
+           manipulation, where you need to display the newest state
+           immediately, appending is good for animations where you
+           want to display many frames at a constant rate.
        
-       The current contents of the front buffer, back buffer, and queue
-       are all accessable via attributes. As soon as we know that the
-       front buffer has been updated, we will send out callbacks to
-       any registered observers.
+       The front buffer, representing our (delayed) notion of what's
+       currently on-screen, is accessable via the 'front' member, and
+       it is observable.
        """
-
-    # Max size of a single frame of data, in words. The hardware
-    # buffer must be large enough to hold two of these, plus our
-    # swap counter.
-    BUFFER_SIZE = 2047
 
     def __init__(self, bt):
         self.vm = VMConduit(bt)
         self._frontObservers = []
+        self._lock = threading.Lock()
 
+        # Front buffer starts out blank.
         self.front = blankFrame()
-        self.back = blankFrame()
+
+        # Local queue
         self.queue = []
-
-        self._swapCount = 0
-        self._backBufferBusy = False
-        self._connected = False
-        self._swapDeadline = None
-
-        self._frontEntry = 0
-        self._backEntry = self._frontEntry + self.BUFFER_SIZE
-        self._swapCountAddr = self._backEntry + self.BUFFER_SIZE
-        self._frontExit = 0
 
         bt.addCallbacks(self._btConnect, self._btDisconnect)
 
@@ -599,116 +777,42 @@ class FrameBuffer:
 
     def _btConnect(self):
         """Reset the VectorMachine, and re-upload the current frame."""
-
-        self._backBufferBusy = False
         self._connected = True
-
-        # This resets the VM, and writes an infinite loop into the
-        # first word of memory.  This is our initial exit point.
-        self._frontExit = 0
-        self.vm.stop()
-
-        # Reset the swap counter
-        self._swapCount = 0
-        self.vm.write(self._swapCountAddr, (self._swapCount,))
-
-        # Get all the buffers primed..
-        self.replace(blankFrame())
+        self._remoteQueue = RemoteFrameQueue(self.vm, self._frameCompleted)
 
     def _btDisconnect(self):
+        self._remoteQueue = None
         self._connected = False
+            
+    def _frameCompleted(self, frame):
+        # The RemoteFrameQueue has completed a swap. It's giving
+        # us the new front buffer.
+        self._pumpQueue()
+        self.front = frame.instructions
+        for cb in self._frontObservers:
+            cb(self.front)
+
+    def _pumpQueue(self):
+        # Move as many items as possible from the local queue to the remote queue.
+        try:
+            self._lock.acquire()
+
+            while self.queue:
+                next = self.queue[0]
+                if self._remoteQueue and self._remoteQueue.append(next):
+                    del self.queue[0]
+                else:
+                    break
+
+        finally:
+            self._lock.release()
 
     def append(self, frame):
         """Append a new frame to the end of the queue."""
         self.queue.append(frame)
-        self._writeBackBuffer()
+        self._pumpQueue()
 
     def replace(self, frame):
         """Replace the entire queue of pending frames with this one frame."""
         self.queue[:] = [frame]
-        self._writeBackBuffer()
-
-    def _writeBackBuffer(self):
-        """Move the next frame from the queue to the backbuffer, and
-           schedule an asynchronous back-to-front swap.
-           """
-
-        if self._backBufferBusy:
-            # We'll try again once the buffer is idle
-            return
-
-        if not self.queue:
-            # Nothing to do
-            return
-
-        self._backBufferBusy = True
-
-        # Extract a frame from the head of the queue
-        self.back = self.queue[0]
-        del self.queue[0]
-
-        # Using the wallclock time estimate for the frontbuffer frame,
-        # set up a deadline for the next buffer swap.
-        self._swapDeadline = time.time() + timeInstructions(self.front) * 5
-
-        if self._connected:
-            # Write our backbuffer instructions:
-            #
-            #   1. Increment the swap counter.
-            #   2. A no-op, for our exit point
-            #   3. Variable-length frame data.
-            #   4. Jump back to (2)
-            
-            self.vm.write(self._backEntry,
-                          [ pack(reg=REG_SP, exp=SP_INC, offset=self._swapCountAddr),
-                            pack(reg=REG_SP, exp=SP_NOP) ] +
-                          self.back +
-                          [ pack(reg=REG_SP, exp=SP_JUMP, offset=self._backEntry + 1) ])
-        
-            # Ask the frontbuffer to jump to the backbuffer when it's done
-            # with this cycle.
-            self.vm.write(self._frontExit,
-                          (pack(reg=REG_SP, exp=SP_JUMP, offset=self._backEntry),))
-
-            self._pollSwap()
-
-        else:
-            # Not connected. Fake a completed swap.
-            self._swapComplete()
-        
-    def _pollSwap(self):
-        # Has this swap timed out?
-        if time.time() > self._swapDeadline:
-            self._swapComplete()
-        else:
-            # Ask the hardware about its swap counter again.
-            self.vm.read(self._swapCountAddr, 1, self._pollSwapCb)
-
-    def _pollSwapCb(self, (swapCount,)):
-        print "PollSwapCb %d %d" % (self._swapCount, swapCount)
-        if swapCount == self._swapCount:
-            # Keep polling
-            self._pollSwap()
-        else:
-            print "SWAP"
-            # Swap detected
-            self._swapCount = swapCount
-            self._swapComplete()
-
-    def _swapComplete(self):
-        # The swap finished
-        if not self._backBufferBusy:
-            return
-        self._backBufferBusy = False
-
-        # Take note of the buffer swap 
-        self.front, self.back = self.back, self.front
-        self._frontEntry, self._backEntry = self._backEntry, self._frontEntry
-        self._frontExit = self._frontEntry + 1
-
-        # If we have more frames, enqueue the next one.
-        self._writeBackBuffer()
-
-        # Notify observers
-        for cb in self._frontObservers:
-            cb(self.front)
+        self._pumpQueue()

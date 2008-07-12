@@ -396,7 +396,7 @@ class MainWindow(wx.Dialog):
         filterRow.Add(ValueSpinner(self, self.adj.y.proxFilter))
         vbox.Add(filterRow, 0, wx.EXPAND | wx.ALL, 2)
 
-        self.speed = AdjustableValue(100, 1, 2000)
+        self.speed = AdjustableValue(100, 1, 500)
         self.curvy = AdjustableValue(100, -400, 400)
         self.angle = AdjustableValue(0, -180, 180)
         self.speed.observe(self.redraw)
@@ -406,9 +406,9 @@ class MainWindow(wx.Dialog):
 	vbox.Add(ValueSlider(self, self.curvy), 1, wx.EXPAND | wx.ALL, 2)
 	vbox.Add(ValueSlider(self, self.angle), 1, wx.EXPAND | wx.ALL, 2)
 
-        plotter = VMPlot2D(self)
-        self.fb.observeFront(plotter.setInstructions)
-        vbox.Add(plotter)
+        #plotter = VMPlot2D(self)
+        #self.fb.observeFront(plotter.setInstructions)
+        #vbox.Add(plotter)
 
         self.SetSizer(vbox)
         self.SetAutoLayout(1)
