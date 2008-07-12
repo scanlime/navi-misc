@@ -352,7 +352,6 @@ class MainWindow(wx.Dialog):
         self.bt = BluetoothConduit()
         self.adj = BTAdjustableValues(self.bt)
         self.polled = BTPolledValues(self.bt, self.adj.calibration)
-        self.timer = BTPollTimer(self.bt)
         self.fb = VectorMachine.FrameBuffer(self.bt)
         self.Bind(wx.EVT_CLOSE, self.onClose)
 

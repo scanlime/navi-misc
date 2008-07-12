@@ -32,7 +32,7 @@ Copyright (c) 2008 Micah Dowty
 
 from __future__ import division
 
-import struct, math
+import struct, math, time
 
 
 # The VectorMachine's position registers are encoded in 18.14 fixed
@@ -153,20 +153,9 @@ def blankFrame():
     en.emit(1)
     return en.inst
 
-
-class Point:
-    """Container for interpolated point data."""
-    def __init__(self, x, y, laserEnable=False, isControlPoint=False):
-        self.__dict__.update(locals())
-
-    def __repr__(self):
-        return "Point(%d,%d,%d)" % (self.x, self.y, self.laserEnable)
-
-
 def lerp(x, y, a):
     """Generic linear interpolation."""
     return x + (y - x) * a
-
 
 def interpret(words):
     """Interpret a subset of the VectorMachine language.  Special
@@ -202,6 +191,28 @@ def interpret(words):
             yield Point(s[0] >> FIXED_POINT_BITS,
                         s[1] >> FIXED_POINT_BITS,
                         le, i==0)
+
+def countSamples(words):
+    """Calculate a total sample count for all VM instructions in the supplied list"""
+    scnt = 0
+    for word in words:
+        scnt += unpack(word)[2]
+    return scnt
+
+def timeInstructions(words):
+    """Measure the amount of wallclock time, in seconds, that it will
+       take to execute the specified instruction words.
+       """
+    return countSamples(words) / LOOP_HZ
+
+
+class Point:
+    """Container for interpolated point data."""
+    def __init__(self, x, y, laserEnable=False, isControlPoint=False):
+        self.__dict__.update(locals())
+
+    def __repr__(self):
+        return "Point(%d,%d,%d)" % (self.x, self.y, self.laserEnable)
 
 
 class Encoder:
@@ -499,18 +510,13 @@ class VMConduit:
         self.memRegion = memRegion
 
     def cmd(self, word):
-        self.bt.setRegionByName(self.cmdRegion)
-        self.bt.write(toString((word,)))
+        self.bt.write(self.cmdRegion, 0, toString((word,)))
 
     def write(self, addr, words):
-        self.bt.setRegionByName(self.memRegion)
-        self.bt.seek(addr)
-        self.bt.write(toString(words))
+        self.bt.write(self.memRegion, addr, toString(words))
 
     def read(self, addr, count, cb):
-        self.bt.setRegionByName(self.memRegion)
-        self.bt.seek(addr)
-        self.bt.read(count, lambda s: cb(fromString(s)))
+        self.bt.read(self.memRegion, addr, count, lambda s: cb(fromString(s)))
 
     def jump(self, offset):
         """Issue a jump instruction to the provided address."""
@@ -577,13 +583,14 @@ class FrameBuffer:
         self._swapCount = 0
         self._backBufferBusy = False
         self._connected = False
+        self._swapDeadline = None
 
         self._frontEntry = 0
         self._backEntry = self._frontEntry + self.BUFFER_SIZE
         self._swapCountAddr = self._backEntry + self.BUFFER_SIZE
         self._frontExit = 0
 
-        bt.addCallbacks(self._btConnect, self._btDisconnect, self._btPoll)
+        bt.addCallbacks(self._btConnect, self._btDisconnect)
 
     def observeFront(self, cb):
         """Observe changes to the front buffer."""
@@ -640,6 +647,10 @@ class FrameBuffer:
         self.back = self.queue[0]
         del self.queue[0]
 
+        # Using the wallclock time estimate for the frontbuffer frame,
+        # set up a deadline for the next buffer swap.
+        self._swapDeadline = time.time() + timeInstructions(self.front) * 5
+
         if self._connected:
             # Write our backbuffer instructions:
             #
@@ -659,19 +670,28 @@ class FrameBuffer:
             self.vm.write(self._frontExit,
                           (pack(reg=REG_SP, exp=SP_JUMP, offset=self._backEntry),))
 
-            # Immediately push this data out of our Bluetooth connection
-            self._btPoll()
-            self.vm.bt.flush()
+            self._pollSwap()
 
         else:
             # Not connected. Fake a completed swap.
             self._swapComplete()
         
-    def _btPoll(self):
-        self.vm.read(self._swapCountAddr, 1, self._pollSwap)
+    def _pollSwap(self):
+        # Has this swap timed out?
+        if time.time() > self._swapDeadline:
+            self._swapComplete()
+        else:
+            # Ask the hardware about its swap counter again.
+            self.vm.read(self._swapCountAddr, 1, self._pollSwapCb)
 
-    def _pollSwap(self, (swapCount,)):
-        if swapCount != self._swapCount:
+    def _pollSwapCb(self, (swapCount,)):
+        print "PollSwapCb %d %d" % (self._swapCount, swapCount)
+        if swapCount == self._swapCount:
+            # Keep polling
+            self._pollSwap()
+        else:
+            print "SWAP"
+            # Swap detected
             self._swapCount = swapCount
             self._swapComplete()
 
