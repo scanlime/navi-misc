@@ -35,7 +35,7 @@ import VectorMachine
 
 __all__ = ['ValueLabel', 'ValueSlider', 'ValueSpinner', 'ValueSlider2D',
            'ScatterPlot2D', 'PollingBTConnector', 'CalibrationLabel',
-           'BTConnectButton', 'BTPolledValues', 'VMPlot2D']
+           'BTConnectButton', 'BTPolledValues', 'VMPlot2D', 'ValueGrid']
 
 
 class ValueLabel(wx.StaticText):
@@ -405,7 +405,7 @@ class BTPolledValuesAxis:
 class VMPlot2D(wx.PyControl):
     """Interpret and visualize the results of a VectorMachine instruction stream."""
     def __init__(self, parent, instructions=None,
-                 size=(512, 512), pointSkip=10):
+                 size=(384, 384), pointSkip=10):
 
         wx.PyControl.__init__(self, parent, size=size)
 
@@ -425,7 +425,6 @@ class VMPlot2D(wx.PyControl):
         self.bgBrush = wx.Brush((0, 0, 0))
         self.crosshairPen = wx.Pen((64, 64, 64))
         self.controlPen = wx.Pen((255, 255, 255))
-        self.controlBrush = wx.Brush((0, 0, 0))
         self.laserPen = wx.Pen((255, 0, 0))
         self.hiddenPen = wx.Pen((100, 100, 100))
         self.textColor = (200, 200, 200)
@@ -442,8 +441,8 @@ class VMPlot2D(wx.PyControl):
 
     def onPaint(self, event):
         inst = self.instructions
-        points = VectorMachine.interpret(inst)
-        skip = self.pointSkip
+        points = VectorMachine.interpret(inst, self.pointSkip)
+        nPoints = VectorMachine.countSamples(inst)
 
         dc = wx.AutoBufferedPaintDC(self)
         width, height = self.GetClientSize()
@@ -460,28 +459,36 @@ class VMPlot2D(wx.PyControl):
             x += cx
             y += cy
 
-            if i % skip == 0:
-                # Skip every N points, to make it easier to visualize
-                # where they are. Otherwise this looks like a solid
-                # line...
+            if le:
+                dc.Pen = self.laserPen
+            else:
+                dc.Pen = self.hiddenPen
 
-                if le:
-                    dc.Pen = self.laserPen
-                else:
-                    dc.Pen = self.hiddenPen
-
-                dc.DrawPoint(x,y)
+            dc.DrawPoint(x,y)
 
             if i == 0:
                 # Control point
                 dc.Pen = self.controlPen
-                dc.Brush = self.controlBrush
-                dc.DrawCircle(x, y, 2)
+                dc.DrawCircle(x, y, 1)
 
         dc.TextForeground = self.textColor
         dc.DrawText(
             "%d instructions, %d points. %.1f FPS" % (
-                len(inst), len(points), VectorMachine.SAMPLE_HZ / len(points)),
+                len(inst), nPoints, VectorMachine.SAMPLE_HZ / nPoints),
             5, 5)
 
         event.Skip()
+
+
+class ValueGrid(wx.FlexGridSizer):
+    """A grid widget which displays a table of named adjustable values.
+       The grid is created from a list of (name, obj) tuples.
+       """
+    def __init__(self, parent, items):
+        wx.FlexGridSizer.__init__(self, rows=len(items), cols=3)
+        self.AddGrowableCol(1, 1)
+
+        for name, obj in items:
+            self.Add(wx.StaticText(parent, label=name+":"), 0, wx.ALIGN_CENTER_VERTICAL)
+            self.Add(ValueSlider(parent, obj), 1, wx.EXPAND | wx.ALL, 2)
+            self.Add(ValueSpinner(parent, obj))

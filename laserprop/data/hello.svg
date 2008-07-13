@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg1"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   width="256"
+   height="256"
+   sodipodi:docbase="/home/micah/art"
+   sodipodi:docname="hello.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   version="1.0">
+  <defs
+     id="defs3">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 116.18125 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="266.60001 : 116.18125 : 1"
+       inkscape:persp3d-origin="133.3 : 77.454168 : 1"
+       id="perspective31" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="1.0000000"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.2279853"
+     inkscape:cx="27.065946"
+     inkscape:cy="147.84591"
+     inkscape:window-width="787"
+     inkscape:window-height="888"
+     inkscape:window-x="105"
+     inkscape:window-y="51"
+     showgrid="true"
+     inkscape:current-layer="svg1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2416"
+       visible="true"
+       enabled="true" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata4">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <path
+     style="font-size:113.74746704000000000px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Magneto;-inkscape-font-specification:Magneto Bold"
+     d="M 113.34375 83.0625 L 96.1875 131.90625 L 88.09375 131.90625 C 67.580674 131.90629 53.477116 137.69179 45.8125 149.28125 C 42.776274 153.87264 41.250002 158.4202 41.25 162.9375 C 41.250003 168.71374 43.635524 173.04937 48.375 175.9375 C 52.299872 178.34425 57.328002 179.56249 63.4375 179.5625 C 86.061059 179.52546 102.60922 166.58919 113.125 140.78125 L 131.90625 140.78125 L 121.5625 169.65625 L 141.5625 169.65625 L 151.78125 140.78125 L 176 140.78125 L 169.5 158.9375 C 168.98162 160.38157 168.71874 161.74108 168.71875 163 C 168.71875 167.44326 171.36136 169.65625 176.65625 169.65625 L 198.625 169.65625 C 201.17984 169.65625 203.53411 169.11082 205.71875 168 C 208.75494 166.44486 210.756 164.03965 211.71875 160.78125 L 189.0625 160.78125 L 199.34375 131.90625 L 196.9375 131.90625 L 179.15625 131.90625 L 154.90625 131.90625 L 169.21875 91.53125 L 149.1875 91.53125 L 134.96875 131.90625 L 115.84375 131.90625 L 133.28125 83.0625 L 113.34375 83.0625 z M 193.0625 95.84375 C 188.95247 95.843824 185.46335 97.158171 182.59375 99.75 C 179.72414 102.34197 178.28123 105.45937 178.28125 109.125 C 178.28124 112.82777 179.72415 115.97065 182.59375 118.5625 C 185.46334 121.15445 188.95247 122.4688 193.0625 122.46875 C 197.09844 122.4688 200.53662 121.15445 203.40625 118.5625 C 206.27581 115.97065 207.71871 112.82777 207.71875 109.125 C 207.71872 105.45937 206.27582 102.34197 203.40625 99.75 C 200.53661 97.15817 197.09844 95.843827 193.0625 95.84375 z M 91.40625 140.78125 L 93.03125 140.78125 C 90.846601 147.40913 87.794059 153.5339 83.90625 159.125 C 78.685385 166.60449 73.425634 170.34375 68.09375 170.34375 C 63.835606 170.34375 61.687485 167.93276 61.6875 163.15625 C 61.687483 156.26921 65.048064 150.70142 71.75 146.40625 C 77.563232 142.66653 84.111858 140.78128 91.40625 140.78125 z "
+     id="text2483" />
+</svg>

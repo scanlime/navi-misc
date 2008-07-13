@@ -158,7 +158,7 @@ def blankFrame():
     en.moveTo(0,0)
     return en.inst
 
-def interpret(words):
+def interpret(words, pointSkip=1):
     """Interpret a subset of the VectorMachine language.  Special
        instructions (REG_SP) other than NOP will raise a
        NotImplementedError. Non-special instructions will update
@@ -168,6 +168,12 @@ def interpret(words):
        sNum) where 'x' and 'y' are integers, le is a boolean (laser
        enable), and sNum is the sample number within the instruction
        this sample was output on.
+
+       We can optionally downsample the VM output as we interpret it.
+       If 'pointSkip' is 1, we output every VM point exactly. If it's
+       larger than 1, we output only every N points.
+
+       sNum in the output points will always be a multiple of pointSkip.
        """
     s = (0, 0)
     ds = (0, 0)
@@ -192,9 +198,16 @@ def interpret(words):
         for i in xrange(scnt):
             ds = (ds[0] + dds[0], ds[1] + dds[1])
             s = (s[0] + ds[0], s[1] + ds[1])
-            points.append((s[0] >> FIXED_POINT_BITS,
-                           s[1] >> FIXED_POINT_BITS,
-                           le, i))
+
+            # XXX: We could optimize this for pointSkip > 1
+            #      by analytically solving for only the non-skipped
+            #      points rather than calculating all points and
+            #      discarding the skipped ones.
+
+            if (i % pointSkip) == 0:
+                points.append((s[0] >> FIXED_POINT_BITS,
+                               s[1] >> FIXED_POINT_BITS,
+                               le, i))
     return points
 
 def countSamples(words):
@@ -310,9 +323,11 @@ class Encoder:
            This guarantees that the beam will hold its current position
            for 'nSamples' samples.
            """
-        self.setDDS(0, 0)
-        self.setDS(0, 0)
-        self.nop(nSamples)
+        nSamples = int(nSamples)
+        if nSamples:
+            self.setDDS(0, 0)
+            self.setDS(0, 0)
+            self.nop(nSamples)
 
     def moveTo(self, x, y, nSamples=1):
         """Move to the specified point, and emit 'nSamples' samples
@@ -433,14 +448,27 @@ class BeamParams:
     """Container for adjustable BeamAwareEncoder parameters."""
     def __init__(self):
 
-        # Overall speed, in VM distance units per second.
-        self.speed = LaserObjects.AdjustableValue(10000.0, min=1000.0, max=100000.0)
+        self.speed = LaserObjects.AdjustableValue(34000.0, min=1000.0, max=100000.0)
+        self.hiddenSpeedMult = LaserObjects.AdjustableValue(1.0, min=1.0, max=10.0)
+        self.preStartEmphasis = LaserObjects.AdjustableValue(70, min=0, max=100.0)
+        self.postStartEmphasis = LaserObjects.AdjustableValue(40, min=0, max=100.0)
+        self.preBlankEmphasis = LaserObjects.AdjustableValue(80, min=0, max=100.0)
+        self.cornerEmphasis = LaserObjects.AdjustableValue(40, min=0, max=1000.0)
+
+        # A name/value list, for convenient use wiht a LaserWidgets.ValueGrid.
+        self.items = [
+            ("Linear speed",  self.speed),
+            ("Hidden beam speed multipler", self.hiddenSpeedMult),
+            ("Pre-startup emphasis", self.preStartEmphasis),
+            ("Post-startup emphasis", self.postStartEmphasis),
+            ("Pre-blank emphasis", self.preBlankEmphasis),
+            ("Corner emphasis", self.cornerEmphasis),
+            ]
 
     def observeAll(self, cb):
         """Call the provided callback when any of our parameters change."""
-        for v in self.__dict__.values():
-            if isinstance(v, LaserObjects.AdjustableValue):
-                v.observe(lambda _: cb())
+        for name, obj in self.items:
+            obj.observe(lambda _: cb())
 
 
 class BeamAwareEncoder:
@@ -451,14 +479,63 @@ class BeamAwareEncoder:
         self.en = Encoder()
         self.inst = self.en.inst
         self.params = params
-        self.origin = None
+
+        self._origin = None
+        self._history = []
+
+    def _rememberPoint(self, x, y, max=3):
+        # Keep track of the last few control points,
+        # for calculating tangent angles at corners.
+        self._history.append((x, y))
+        self._history = self._history[-max:]
+
+    def _calculateAngle(self):
+        # If the last three points we remembered were A, B, and C,
+        # this calculates the angle ABC between those control points.
+        # If we haven't remembered three points yet, returns zero.
+
+        if len(self._history) < 3:
+            return 0
+
+        a = self._history[-3]
+        b = self._history[-2]
+        c = self._history[-1]
+
+        abx = b[0] - a[0]
+        aby = b[1] - a[1]
+        ab = math.sqrt(abx*abx + aby*aby)
+
+        bcx = c[0] - b[0]
+        bcy = c[1] - b[1]
+        bc = math.sqrt(bcx*bcx + bcy*bcy)
         
+        dot = abx*bcx + aby*bcy
+
+        try:
+            return math.acos(min(1.0, max(-1.0, dot / (ab * bc))))
+        except ZeroDivisionError:
+            # One of the vectors is zero-length. Treat it like a straight line.
+            return 0
+
+    def _emphasizeCorner(self):
+        angle = self._calculateAngle()
+        factor = self.params.cornerEmphasis.value
+
+        self.en.hold(angle * factor)
+
     def moveTo(self, x, y):
-        if not self.origin:
+        if not self._origin:
             # If this is the first point, we can do a regular moveTo.
-            self.origin = x, y
-            self.en.setLaser(True)
+            self._origin = x, y
+
             self.en.moveTo(x, y)
+            self.en.hold(self.params.preStartEmphasis.value)
+            self.en.setLaser(True)
+            self.en.hold(min(1, self.params.postStartEmphasis.value))
+
+            # Prime the history buffer
+            self._rememberPoint(x, y)
+            self._rememberPoint(x, y)
             return
 
         # The beam can't move anywhere instantly, so we'll actually
@@ -471,27 +548,45 @@ class BeamAwareEncoder:
         #      at the spline's endpoints to the tangent of the
         #      adjacent paths.)
 
+        self.en.hold(self.params.preBlankEmphasis.value)
         self.en.setLaser(False)
         self.lineTo(x, y)
+        self.en.hold(self.params.preStartEmphasis.value)
         self.en.setLaser(True)
+        self.en.hold(self.params.postStartEmphasis.value)
+        self._rememberPoint(x, y)
 
     def close(self):
         """Complete our path, by moving back to the origin."""
-        if self.origin:
-            self.moveTo(*self.origin)
-            self.origin = None
+        if self._origin:
+            self.moveTo(*self._origin)
+            self._origin = None
+
+    def _getSampleCount(self, distance=0):
+        s = self.params.speed.value
+
+        # Speed modifiers
+        if not self.en.le:
+            s *= self.params.hiddenSpeedMult.value
+
+        return int(distance / s * SAMPLE_HZ + 0.5)
 
     def lineTo(self, x1, y1):
+        self._rememberPoint(x1, y1)
+        self._emphasizeCorner()
+
         x0, y0 = self.en.s
         distance = math.sqrt((x1-x0)**2 + (y1-y0)**2)
-        s = int(distance / self.params.speed.value * SAMPLE_HZ + 0.5)
-        self.en.lineTo(x1, y1, s)
+        self.en.lineTo(x1, y1, self._getSampleCount(distance))
 
     def curveTo(self, x1, y1, x2, y2):
+        self._rememberPoint(x1, y1)
+        self._emphasizeCorner()
+        self._rememberPoint(x2, y2)
+
         x0, y0 = self.en.s
         distance = SVGPath.bezier2len(x0, y0, x1, y1, x2, y2)
-        s = int(distance / self.params.speed.value * SAMPLE_HZ + 0.5)
-        self.en.curveTo(x1, y1, x2, y2, s)
+        self.en.curveTo(x1, y1, x2, y2, self._getSampleCount(distance))
 
 
 class VMConduit:
