@@ -404,23 +404,31 @@ class BTPolledValuesAxis:
 
 class VMPlot2D(wx.PyControl):
     """Interpret and visualize the results of a VectorMachine instruction stream."""
-    def __init__(self, parent, instructions=None, size=(512, 512), scale=1.0):
+    def __init__(self, parent, instructions=None,
+                 size=(512, 512), pointSkip=10):
+
         wx.PyControl.__init__(self, parent, size=size)
 
         self.instructions = instructions or []
         self.size = size
-        self.scale = scale
+        self.pointSkip = pointSkip
         
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.Bind(wx.EVT_PAINT, self.onPaint)
         self.Bind(wx.EVT_SIZE, self.onSize)
 
-        self.bgBrush = wx.Brush((255, 255, 255))
-        self.crosshairPen = wx.Pen((128, 128, 128))
-        self.controlPen = wx.Pen((128, 0, 0))
-        self.controlBrush = wx.Brush((128, 0, 0))
-        self.normalPen = wx.Pen((0, 0, 0))
-        self.laserPen = wx.Pen((64, 150, 64))
+        # Black color scheme. I'd prefer something a little modern,
+        # but it's important to get good contrast between the
+        # interpolated points and the background, and to be able to
+        # discern laser points from hidden points.
+
+        self.bgBrush = wx.Brush((0, 0, 0))
+        self.crosshairPen = wx.Pen((64, 64, 64))
+        self.controlPen = wx.Pen((255, 255, 255))
+        self.controlBrush = wx.Brush((0, 0, 0))
+        self.laserPen = wx.Pen((255, 0, 0))
+        self.hiddenPen = wx.Pen((100, 100, 100))
+        self.textColor = (200, 200, 200)
         
     def DoGetBestSize(self):
         return self.size
@@ -433,56 +441,47 @@ class VMPlot2D(wx.PyControl):
         wx.CallAfter(self.Refresh)
 
     def onPaint(self, event):
+        inst = self.instructions
+        points = VectorMachine.interpret(inst)
+        skip = self.pointSkip
+
         dc = wx.AutoBufferedPaintDC(self)
         width, height = self.GetClientSize()
         cx = width / 2
         cy = height / 2
-        s = self.scale
 
-        # Background
         dc.Background = self.bgBrush
         dc.Clear()
 
-        # Crosshair
         dc.Pen = self.crosshairPen
         dc.CrossHair(width/2, height/2)
 
-        # Pass 1: visible beams
-        prev = None
-        dc.Pen = self.laserPen
-        for point in VectorMachine.interpret(self.instructions):
-            if prev and prev.laserEnable:
-                dc.DrawLine(cx + prev.x * s,
-                            cy + prev.y * s,
-                            cx + point.x * s,
-                            cy + point.y * s)
-            prev = point
+        for x, y, le, i in points:
+            x += cx
+            y += cy
 
-        # Pass 2: interpolated points
-        dc.Pen = self.normalPen
-        dc.Brush = wx.TRANSPARENT_BRUSH
-        pCount = 0
-        for point in VectorMachine.interpret(self.instructions):
-            pCount += 1
-            if not point.isControlPoint:
-                dc.DrawPoint(cx + point.x * s,
-                             cy + point.y * s)
+            if i % skip == 0:
+                # Skip every N points, to make it easier to visualize
+                # where they are. Otherwise this looks like a solid
+                # line...
 
-        # Pass 3: control points
-        dc.Pen = self.controlPen
-        dc.Brush = self.controlBrush
-        for point in VectorMachine.interpret(self.instructions):
-            if point.isControlPoint:
-                dc.DrawCircle(cx + point.x * s,
-                              cy + point.y * s,
-                              2)
+                if le:
+                    dc.Pen = self.laserPen
+                else:
+                    dc.Pen = self.hiddenPen
 
-        # Pass 4: Text overlay
+                dc.DrawPoint(x,y)
+
+            if i == 0:
+                # Control point
+                dc.Pen = self.controlPen
+                dc.Brush = self.controlBrush
+                dc.DrawCircle(x, y, 2)
+
+        dc.TextForeground = self.textColor
         dc.DrawText(
             "%d instructions, %d points. %.1f FPS" % (
-                len(self.instructions),
-                pCount,
-                VectorMachine.LOOP_HZ / pCount),
+                len(inst), len(points), VectorMachine.SAMPLE_HZ / len(points)),
             5, 5)
 
         event.Skip()
