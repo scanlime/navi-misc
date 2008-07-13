@@ -37,6 +37,9 @@ import math
 import time
 import threading
 
+import LaserObjects
+import SVGPath
+
 
 # The VectorMachine's position registers are encoded in 18.14 fixed
 # point.  This is basically a tradeoff between addressable output
@@ -155,10 +158,6 @@ def blankFrame():
     en.moveTo(0,0)
     return en.inst
 
-def lerp(x, y, a):
-    """Generic linear interpolation."""
-    return x + (y - x) * a
-
 def interpret(words):
     """Interpret a subset of the VectorMachine language.  Special
        instructions (REG_SP) other than NOP will raise a
@@ -213,8 +212,10 @@ def timeInstructions(words):
 
 
 class Encoder:
-    """Convert normal vector graphics commands like 'move to',
-       'line to', etc. into VectorMachine instructions.
+    """Convert normal vector graphics commands like 'move to', 'line
+       to', etc. into VectorMachine instructions. This object, and the
+       hardware itself, can natively handle two kinds of primitives:
+       lines, and quadratic Bezier curves.
 
        Instructions are appended to the 'inst' list. You may
        optionally specify the initial state of the machine. If not
@@ -276,7 +277,8 @@ class Encoder:
            not create a new instruction, it just adds to the SCNT of
            the last instruction in the list.
            """
-
+        nSamples = int(nSamples)
+  
         # Update the DS and S registers to account for the passage of time...
         for i in xrange(nSamples):
             self.ds = (self.ds[0] + self.dds[0], self.ds[1] + self.dds[1])
@@ -344,13 +346,17 @@ class Encoder:
            source positions, error in consecutive lineTo commands
            will not accumulate.
            """
+        nSamples = int(nSamples)
+        if not nSamples:
+            return self.moveTo(x, y, nSamples)
+
         a = 1.0 / nSamples
         self.setDDS(0, 0)
         self.setDS(a * (x - self.s[0]),
                    a * (y - self.s[1]))
         self.emit(nSamples)
 
-    def qCurveTo(self, x1, y1, x2, y2, nSamples=10):
+    def curveTo(self, x1, y1, x2, y2, nSamples=10):
         """Generate a quadratic Bezier curve from the current position
            to (x2, y2), using (x1, y1) as the control point. Emit a
            total of nSamples.
@@ -364,6 +370,10 @@ class Encoder:
            hardware by the VectorMachine.  This is our most efficient
            primitive.
            """
+
+        nSamples = int(nSamples)
+        if not nSamples:
+            return self.moveTo(x2, y2, nSamples)
 
         # First, some math...
         #
@@ -418,83 +428,71 @@ class Encoder:
         self.setDS(dx * ds, dy * ds)
         self.emit(nSamples)
 
-    def cCurveTo(self, x1, y1, x2, y2, x3, y3, nSamples=40):
-        """Generate a cubic Bezier curve from the current position to
-           (x3, y3), using (x1, y1) and (x2, y2) as the control
-           points. Emit at least nSamples. (We may emit more due
-           to rounding.)
 
-           Like lineTo(), this function may not end up exactly at the
-           specified destination, due to rounding errors. Since we use
-           the simulated hardware registers as our starting point,
-           rounding errors do not compound.
-           """
+class BeamParams:
+    """Container for adjustable BeamAwareEncoder parameters."""
+    def __init__(self):
+
+        # Overall speed, in VM distance units per second.
+        self.speed = LaserObjects.AdjustableValue(10000.0, min=1000.0, max=100000.0)
+
+    def observeAll(self, cb):
+        """Call the provided callback when any of our parameters change."""
+        for v in self.__dict__.values():
+            if isinstance(v, LaserObjects.AdjustableValue):
+                v.observe(lambda _: cb())
+
+
+class BeamAwareEncoder:
+    """An Encoder wrapper that automatically handles blanking the
+       beam, hidden beam paths, and controlling beam speed.
+       """
+    def __init__(self, params):
+        self.en = Encoder()
+        self.inst = self.en.inst
+        self.params = params
+        self.origin = None
         
-        # Cubic Bezier curves cannot be interpolated entirely in
-        # hardware- to recognizably reproduce the curve, we must
-        # subdivide it in software first.
+    def moveTo(self, x, y):
+        if not self.origin:
+            # If this is the first point, we can do a regular moveTo.
+            self.origin = x, y
+            self.en.setLaser(True)
+            self.en.moveTo(x, y)
+            return
+
+        # The beam can't move anywhere instantly, so we'll actually
+        # implement this by turning the beam off, drawing a line to
+        # the new position, and turning it back on.
         #
-        # For simplicity, we subdivide cubic curves into quadratic
-        # curves, rather than working directly with VM registers.
-        # This implementation uses the "Fixed MidPoint" approach by
-        # Helen Triolo and Timothee Groleau, as described at:
-        #
-        # http://www.timotheegroleau.com/Flash/articles/cubic_bezier_in_flash.htm
-        #
-        # This awesome algorithm always generates four quadratic
-        # curves for every cubic bezier, but the results are nearly
-        # indistinguishable from a true Bezier curve. Nifty.
+        # XXX: Might be able to get better performance by using
+        #      a spline, so that the laser enters and exits from
+        #      blanking at the correct angle. (Match the tangent
+        #      at the spline's endpoints to the tangent of the
+        #      adjacent paths.)
 
-        # Use the current S register as the initial position.
-        x0, y0 = self.s
+        self.en.setLaser(False)
+        self.lineTo(x, y)
+        self.en.setLaser(True)
 
-        # Compute samples-per-curve, rounding up
-        qSamples = int((nSamples + 3) / 4)
+    def close(self):
+        """Complete our path, by moving back to the origin."""
+        if self.origin:
+            self.moveTo(*self.origin)
+            self.origin = None
 
-        # Base points
-        ax = lerp(x0, x1, 0.75)
-        ay = lerp(y0, y1, 0.75)
-        bx = lerp(x3, x2, 0.75)
-        by = lerp(y3, y2, 0.75)
+    def lineTo(self, x1, y1):
+        x0, y0 = self.en.s
+        distance = math.sqrt((x1-x0)**2 + (y1-y0)**2)
+        s = int(distance / self.params.speed.value * SAMPLE_HZ + 0.5)
+        self.en.lineTo(x1, y1, s)
 
-        # 1/16th of the segment from control point 3 to 0
-        dx = (x3 - x0) / 16.0
-        dy = (y3 - y0) / 16.0
+    def curveTo(self, x1, y1, x2, y2):
+        x0, y0 = self.en.s
+        distance = SVGPath.bezier2len(x0, y0, x1, y1, x2, y2)
+        s = int(distance / self.params.speed.value * SAMPLE_HZ + 0.5)
+        self.en.curveTo(x1, y1, x2, y2, s)
 
-        # Control point 1
-        c1x = lerp(x0, x1, 0.375)
-        c1y = lerp(y0, y1, 0.375)
-
-        # Control point 2
-        c2x = lerp(ax, bx, 0.375) - dx
-        c2y = lerp(ay, by, 0.375) - dy
-                 
-        # Control point 3
-        c3x = lerp(bx, ax, 0.375) + dx
-        c3y = lerp(by, ay, 0.375) + dy
-
-        # Control point 1
-        c4x = lerp(x3, x2, 0.375)
-        c4y = lerp(y3, y2, 0.375)
-
-        # Anchor point 1
-        a1x = lerp(c1x, c2x, 0.5)
-        a1y = lerp(c1y, c2y, 0.5)
-
-        # Anchor point 2
-        a2x = lerp(ax, bx, 0.5)
-        a2y = lerp(ay, by, 0.5)
-
-        # Anchor point 3
-        a3x = lerp(c3x, c4x, 0.5)
-        a3y = lerp(c3y, c4y, 0.5)
-        
-        # Output four curves
-        self.qCurveTo(c1x, c1y, a1x, a1y, qSamples)
-        self.qCurveTo(c2x, c2y, a2x, a2y, qSamples)
-        self.qCurveTo(c3x, c3y, a3x, a3y, qSamples)
-        self.qCurveTo(c4x, c4y, x3,  y3,  qSamples)
-        
 
 class VMConduit:
     """This is a low-level interface to the VectorMachine hardware,
@@ -613,12 +611,13 @@ class RemoteFrameQueue:
                 self.swapCount = (self.swapCount + 1) & 0xFFFFFFFF
 
                 assert len(self.queue) > 1
-                self.queueDuration -= self.queue[0].duration
                 del self.queue[0]
 
-                # Ack the new front buffer
-                ackFrames.append(self.queue[0])
+                # Ack the new front buffer, and remove the front
+                # buffer from our latency accounting total.
 
+                ackFrames.append(self.queue[0])
+                self.queueDuration -= self.queue[0].duration
 
             # Keep polling...
             self.vm.read(self.swapCountAddr, 1, self._pollSwap)
@@ -791,17 +790,21 @@ class FrameBuffer:
     def _btConnect(self):
         """Reset the VectorMachine, and re-upload the current frame."""
         self._connected = True
-        self._remoteQueue = RemoteFrameQueue(self.vm, self._frameCompleted)
+        self._remoteQueue = RemoteFrameQueue(self.vm, self._queueCompletionCb)
 
     def _btDisconnect(self):
         self._remoteQueue = None
         self._connected = False
             
-    def _frameCompleted(self, frame):
+    def _queueCompletionCb(self, frame):
         # The RemoteFrameQueue has completed a swap. It's giving
         # us the new front buffer.
+
         self._pumpQueue()
-        self.front = frame.instructions
+        self._setFront(frame.instructions)
+
+    def _setFront(self, front):
+        self.front = front
         for cb in self._frontObservers:
             cb(self.front)
 
@@ -816,13 +819,22 @@ class FrameBuffer:
 
             while self.queue:
                 next = self.queue[0]
-                if self._remoteQueue and self._remoteQueue.append(next):
-                    del self.queue[0]
-                    if not self.queue:
-                        becameEmpty = True
+                del self.queue[0]
+
+                if self._remoteQueue:
+                    # Pass this frame to the remote queue
+                    if self._remoteQueue.append(next):
+                        if not self.queue:
+                            becameEmpty = True                
+                    else:
+                        break
                 else:
-                    break
-            isEmpty = len(self.queue) != 0
+                    # There is no remote queue, because we're
+                    # disconnected. Complete the frame immediately.
+                    # Don't call any empty queue callbacks, since
+                    # normal animation could put us into an infinite
+                    # loop.
+                    self._setFront(next)
 
         finally:
             self._lock.release()

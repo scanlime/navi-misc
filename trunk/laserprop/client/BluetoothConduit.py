@@ -39,6 +39,9 @@ MAX_DESCRIPTOR_LEN = 64
 MAX_PENDING_READS = 127
 MAX_COMMAND_LENGTH = 255 * 4 * 2
 
+# Max read/write size.
+MAX_RW_SIZE = 255
+
 # Opcodes
 OP_NOP         = '\x00'
 OP_SET_REGION  = '\xF0'
@@ -47,14 +50,20 @@ OP_WRITE_LONGS = '\xD2'
 OP_SEEK8       = '\xC3'
 OP_SEEK16      = '\xB4'
 
+# XXX: I don't know where the problem is yet, but someone is losing
+#      data if we send too much at once. Limit the max data size for
+#      one send().
+MAX_SEND_SIZE  = 64
+
 # Command assembly functions
 
 def opSetRegion(region):
     return OP_SET_REGION + chr(region)
 
 def opReadLongs(count):
-    if count > 255:
-        return opReadLongs(255) + opReadLongs(count - 255)
+    if count > MAX_RW_SIZE:
+        return (opReadLongs(MAX_RW_SIZE) +
+                opReadLongs(count - MAX_RW_SIZE))
     else:
         return OP_READ_LONGS + chr(count)
 
@@ -62,8 +71,9 @@ def opWriteLongs(data):
     assert (len(data) % 4) == 0
     words = len(data) / 4
 
-    if words > 255:
-        return opWriteLongs(data[:4*255]) + opWriteLongs(data[4*255:])
+    if words > MAX_RW_SIZE:
+        return (opWriteLongs(data[:4*MAX_RW_SIZE]) +
+                opWriteLongs(data[4*MAX_RW_SIZE:]))
     else:
         return OP_WRITE_LONGS + chr(words) + data
 
@@ -144,7 +154,7 @@ class SendThread(threading.Thread):
            doesn't have it on Windows hosts.
            """
         while data and self.running:
-            ret = self.sock.send(data)
+            ret = self.sock.send(data[:MAX_SEND_SIZE])
             assert ret > 0
             data = data[ret:]
 
