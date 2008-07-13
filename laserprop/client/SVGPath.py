@@ -1,7 +1,8 @@
 """
 SVGPath.py
 
-Objects for manipulating path data from SVG files.
+Utilities for manipulating SVG files, SVG paths, and Bezier curves.
+
 Copyright (c) 2008 Micah Dowty
 
    Permission is hereby granted, free of charge, to any person
@@ -26,12 +27,265 @@ Copyright (c) 2008 Micah Dowty
 
 """
 
+from __future__ import division
+
 import xml.sax
 import xml.sax.handler
 import math
 import re
 
 
+def bezier2(t, ((x0, y0), (x1, y1), (x2, y2))):
+    """Evaluate a quadratic Bezier curve.
+
+       References:
+         http://mathworld.wolfram.com/BezierCurve.html
+         http://mathworld.wolfram.com/BernsteinPolynomial.html
+
+       Quadratic Bezier curves use the 2nd degree Bernstein polynomials as
+       their basis functions:
+       
+         B(0,2) = (1 - t)^2
+         B(1,2) = 2 (1 - t) t
+         B(2,2) = t^2
+       """
+
+    # Intermediate values
+    it = 1.0 - t
+    it2 = it * it
+    t2 = t * t
+
+    # Basis functions
+    b0 = it2
+    b1 = 2 * it * t
+    b2 = t2
+
+    return (x0*b0 + x1*b1 + x2*b2,
+            y0*b0 + y1*b1 + y2*b2)
+
+def bezier2d(t, ((x0, y0), (x1, y1), (x2, y2))):
+    """First derivative of bezier2(). Taking the derivatives of the
+       bernstein polynomials, we find:
+
+         B(0,2)  = (1 - t)^2
+         B(0,2)  = 1 - 2t + t^2
+         B(0,2)' = -2 + 2t
+
+         B(1,2)  = 2 (1 - t) t
+         B(1,2)  = 2t - 2t^2
+         B(1,2)' = 2 - 4t
+
+         B(2,2)  = t^2
+         B(2,2)' = 2t
+       """
+
+    # Basis functions
+    b0 = -2 + 2*t
+    b1 = 2 - 4*t
+    b2 = 2*t
+
+    return (x0*b0 + x1*b1 + x2*b2,
+            y0*b0 + y1*b1 + y2*b2)
+
+def bezier2dd(t, ((x0, y0), (x1, y1), (x2, y2))):
+    """Second derivative of bezier2():
+
+         B(0,2)'  = -2 + 2t
+         B(0,2)'' = 2
+
+         B(1,2)'  = 2 - 4t
+         B(1,2)'' = -4
+
+         B(2,2)'  = 2t
+         B(2,2)'' = 2
+       """
+
+    return (x0*2 - x1*4 + x2*2,
+            y0*2 - y1*4 + y2*2)
+
+def bezier2len(x0, y0, x1, y1, x2, y2):
+    """Length of a cubic Bezier curve.
+
+       This is an analytic solution from:
+         http://segfaultlabs.com/graphics/qbezierlen/
+       """
+
+    ax = x0 - 2*x1 + x2
+    ay = y0 - 2*y1 + y2
+
+    bx = 2*x1 - 2*x0
+    by = 2*y1 - 2*y0
+
+    A = 4 * (ax*ax + ay*ay)
+    B = 4 * (ax*bx + ay*by)
+    C = bx*bx + by*by
+
+    Sabc = 2 * math.sqrt(A+B+C)
+    A_2 = math.sqrt(A)
+    A_32 = 2 * A * A_2;
+    C_2 = 2 * math.sqrt(C)
+    BA = B / A_2
+
+    return ( A_32*Sabc + A_2*B*(Sabc-C_2) +
+             (4*C*A-B*B)*math.log( (2*A_2+BA+Sabc)/(BA+C_2) ) ) / (4*A_32)
+
+def bezier3(t, ((x0, y0), (x1, y1), (x2, y2), (x3, y3))):
+    """Evaluate a cubic Bezier curve.
+
+       References:
+         http://mathworld.wolfram.com/BezierCurve.html
+         http://mathworld.wolfram.com/BernsteinPolynomial.html
+
+       Cubic Bezier curves use the 3rd degree Bernstein polynomials as
+       their basis functions:
+
+         B(0,3) = (1 - t)^3
+         B(1,3) = 3 (1 - t)^2 t
+         B(2,3) = 3 (1 - t) t^2
+         B(3,3) = t^3
+       """
+
+    # Intermediate values
+    it = 1.0 - t
+    it2 = it * it
+    it3 = it2 * it
+    t2 = t * t
+    t3 = t2 * t
+
+    # Basis functions
+    b0 = it3
+    b1 = 3 * it2 * t
+    b2 = 3 * it * t2
+    b3 = t3
+
+    return (x0*b0 + x1*b1 + x2*b2 + x3*b3,
+            y0*b0 + y1*b1 + y2*b2 + y3*b3)
+
+def bezier3d(t, ((x0, y0), (x1, y1), (x2, y2), (x3, y3))):
+    """First derivative of bezier3(). Taking the derivatives of the
+       bernstein polynomials, we find:
+
+         B(0,3)  = (1 - t)^3
+         B(0,3)  = 1 - 3t + 3t^2 - t^3
+         B'(0,3) = -3 + 6t - 3t^2
+
+         B(1,3)  = 3 (1 - t)^2 t
+         B(1,3)  = 3t - 6t^2 + 3t^3
+         B'(1,3) = 3 - 12t + 9t^2
+
+         B(2,3)  = 3 (1 - t) t^2
+         B(2,3)  = 3t^2 - 3t^3
+         B'(2,3) = 6t - 9t^2
+
+         B(3,3)  = t^3
+         B'(3,3) = 3t^2
+       """
+
+    # Intermediate values
+    t2 = t * t
+    t3 = t2 * t
+
+    # Basis functions
+    b0 = -3 + 6*t - 3*t2
+    b1 = 3 - 12*t + 9*t2
+    b2 = 6*t - 9*t2
+    b3 = 3*t2
+
+    return (x0*b0 + x1*b1 + x2*b2 + x3*b3,
+            y0*b0 + y1*b1 + y2*b2 + y3*b3)
+
+def bezier3dd(t, ((x0, y0), (x1, y1), (x2, y2), (x3, y3))):
+    """Second derivative of bezier3():
+    
+         B'(0,3)  = -3 + 6t - 3t^2
+         B''(0,3) = 6 - 6t
+    
+         B'(1,3)  = 3 - 12t + 9t^2
+         B''(1,3) = -12 + 18t
+    
+         B'(2,3)  = 6t - 9t^2
+         B''(2,3) = 6 - 18t
+    
+         B'(3,3)  = 3t^2
+         B''(3,3) = 6t
+       """
+
+    # Basis functions
+    b0 = 6 - 6*t
+    b1 = -12 + 18*t
+    b2 = 6 - 18*t
+    b3 = 6*t
+
+    return (x0*b0 + x1*b1 + x2*b2 + x3*b3,
+            y0*b0 + y1*b1 + y2*b2 + y3*b3)
+
+def lerp(x, y, a):
+    """Generic linear interpolation."""
+    return x + (y - x) * a
+
+def cubicToQuadratic(x0, y0, x1, y1, x2, y2, x3, y3):
+    """Convert a cubic Bezier curve from (x0, y0) to (x3, y3), using
+       (x1, y1) and (x2, y2) as the control points, to a set of four
+       quadratic Bezier curves. Returns a tuple of 4 curves, each of
+       the form (x1, y1, x2, y2) where '1' is the control point, and
+       '2' is the destination point.
+
+       For simplicity, we subdivide cubic curves into quadratic
+       curves, rather than working directly with VM registers.
+       This implementation uses the "Fixed MidPoint" approach by
+       Helen Triolo and Timothee Groleau, as described at:
+       
+       http://www.timotheegroleau.com/Flash/articles/cubic_bezier_in_flash.htm
+       
+       This awesome algorithm always generates four quadratic
+       curves for every cubic bezier, but the results are nearly
+       indistinguishable from a true Bezier curve. Nifty.
+       """
+
+    # Base points
+    ax = lerp(x0, x1, 0.75)
+    ay = lerp(y0, y1, 0.75)
+    bx = lerp(x3, x2, 0.75)
+    by = lerp(y3, y2, 0.75)
+
+    # 1/16th of the segment from control point 3 to 0
+    dx = (x3 - x0) / 16.0
+    dy = (y3 - y0) / 16.0
+
+    # Control point 1
+    c1x = lerp(x0, x1, 0.375)
+    c1y = lerp(y0, y1, 0.375)
+
+    # Control point 2
+    c2x = lerp(ax, bx, 0.375) - dx
+    c2y = lerp(ay, by, 0.375) - dy
+                 
+    # Control point 3
+    c3x = lerp(bx, ax, 0.375) + dx
+    c3y = lerp(by, ay, 0.375) + dy
+
+    # Control point 1
+    c4x = lerp(x3, x2, 0.375)
+    c4y = lerp(y3, y2, 0.375)
+
+    # Anchor point 1
+    a1x = lerp(c1x, c2x, 0.5)
+    a1y = lerp(c1y, c2y, 0.5)
+
+    # Anchor point 2
+    a2x = lerp(ax, bx, 0.5)
+    a2y = lerp(ay, by, 0.5)
+
+    # Anchor point 3
+    a3x = lerp(c3x, c4x, 0.5)
+    a3y = lerp(c3y, c4y, 0.5)
+        
+    # Output four curves
+    return ((c1x, c1y, a1x, a1y),
+            (c2x, c2y, a2x, a2y),
+            (c3x, c3y, a3x, a3y),
+            (c4x, c4y, x3,  y3))
+        
 def parseUnits(value):
     """Given a numeric value with SVG units, return a plain floating
        point value in 'user coordinates', as defined by the SVG spec.
@@ -381,7 +635,7 @@ def _test():
     doctest.testmod()
 
 if __name__ == '__main__':
-    #_test()
+    _test()
 
     import sys
     
