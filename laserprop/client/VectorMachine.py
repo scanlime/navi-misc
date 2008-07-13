@@ -74,7 +74,7 @@ SP_INC = 3
 SP_RESET = 4
 
 # Base hardware sampling rate
-LOOP_HZ = 40000
+SAMPLE_HZ = 40000
 
 def pack(reg=REG_S, le=0, scnt=0, exp=0, y=0, x=0, offset=0):
     """Encode a tuple into an integer VectorMachine instruction word.
@@ -161,16 +161,19 @@ def lerp(x, y, a):
 
 def interpret(words):
     """Interpret a subset of the VectorMachine language.  Special
-       instructions (REG_SP) will raise a NotImplementedError.
-       Non-special instructions will update internal state and/or
-       yield Point() instances.
+       instructions (REG_SP) other than NOP will raise a
+       NotImplementedError. Non-special instructions will update
+       internal state and/or emit points.
 
-       Points which immediately follow one or more VectorMachine words
-       will have their isControlPoint flag set.
+       Returns a list of points, each of which is a tuple: (x, y, le,
+       sNum) where 'x' and 'y' are integers, le is a boolean (laser
+       enable), and sNum is the sample number within the instruction
+       this sample was output on.
        """
     s = (0, 0)
     ds = (0, 0)
     dds = (0, 0)
+    points = []
 
     for word in words:
         reg, le, scnt, exp, y, x, offset = unpack(word)
@@ -190,9 +193,10 @@ def interpret(words):
         for i in xrange(scnt):
             ds = (ds[0] + dds[0], ds[1] + dds[1])
             s = (s[0] + ds[0], s[1] + ds[1])
-            yield Point(s[0] >> FIXED_POINT_BITS,
-                        s[1] >> FIXED_POINT_BITS,
-                        le, i==0)
+            points.append((s[0] >> FIXED_POINT_BITS,
+                           s[1] >> FIXED_POINT_BITS,
+                           le, i))
+    return points
 
 def countSamples(words):
     """Calculate a total sample count for all VM instructions in the supplied list"""
@@ -205,16 +209,7 @@ def timeInstructions(words):
     """Measure the amount of wallclock time, in seconds, that it will
        take to execute the specified instruction words.
        """
-    return countSamples(words) / LOOP_HZ
-
-
-class Point:
-    """Container for interpolated point data."""
-    def __init__(self, x, y, laserEnable=False, isControlPoint=False):
-        self.__dict__.update(locals())
-
-    def __repr__(self):
-        return "Point(%d,%d,%d)" % (self.x, self.y, self.laserEnable)
+    return countSamples(words) / SAMPLE_HZ
 
 
 class Encoder:
@@ -755,11 +750,17 @@ class FrameBuffer:
        The front buffer, representing our (delayed) notion of what's
        currently on-screen, is accessable via the 'front' member, and
        it is observable.
+
+       Animation can be supported in multiple ways: the easiest is by
+       registering a callback which fires as soon as the local queue
+       becomes empty. In this way, it's possible to do low-latency
+       animation streaming.
        """
 
     def __init__(self, bt):
         self.vm = VMConduit(bt)
         self._frontObservers = []
+        self._emptyQueueCallbacks = []
         self._lock = threading.Lock()
 
         # Front buffer starts out blank.
@@ -774,6 +775,18 @@ class FrameBuffer:
         """Observe changes to the front buffer."""
         self._frontObservers.append(cb)
         cb(self.front)
+
+    def addEmptyQueueCallback(self, cb):
+        """Add a callback which fires when the local queue becomes empty.
+           If the queue is already empty, the callback is fired now.
+           """
+        self._lock.acquire()
+        isEmpty = len(self.queue) != 0
+        self._emptyQueueCallbacks.append(cb)
+        self._lock.release()
+
+        if isEmpty:
+            cb()
 
     def _btConnect(self):
         """Reset the VectorMachine, and re-upload the current frame."""
@@ -793,6 +806,10 @@ class FrameBuffer:
             cb(self.front)
 
     def _pumpQueue(self):
+        if not self.queue:
+            return
+        becameEmpty = False
+
         # Move as many items as possible from the local queue to the remote queue.
         try:
             self._lock.acquire()
@@ -801,11 +818,18 @@ class FrameBuffer:
                 next = self.queue[0]
                 if self._remoteQueue and self._remoteQueue.append(next):
                     del self.queue[0]
+                    if not self.queue:
+                        becameEmpty = True
                 else:
                     break
+            isEmpty = len(self.queue) != 0
 
         finally:
             self._lock.release()
+        
+        if becameEmpty:
+            for cb in self._emptyQueueCallbacks:
+                cb()
 
     def append(self, frame):
         """Append a new frame to the end of the queue."""

@@ -406,15 +406,62 @@ class MainWindow(wx.Dialog):
 	vbox.Add(ValueSlider(self, self.curvy), 1, wx.EXPAND | wx.ALL, 2)
 	vbox.Add(ValueSlider(self, self.angle), 1, wx.EXPAND | wx.ALL, 2)
 
-        #plotter = VMPlot2D(self)
-        #self.fb.observeFront(plotter.setInstructions)
-        #vbox.Add(plotter)
+        self.frame = 0
+        #self.fb.addEmptyQueueCallback(self.animate)
+
+        plotter = VMPlot2D(self)
+        self.fb.observeFront(plotter.setInstructions)
+        vbox.Add(plotter)
 
         self.SetSizer(vbox)
         self.SetAutoLayout(1)
         vbox.Fit(self)
 
         self.Show()
+
+    def animate(self):
+        self.frame += 1
+
+        en = VectorMachine.Encoder()
+        ts = SVGPath.TransformStack()
+        ts.rotate((self.frame * 2.0,))
+        s = int(self.speed.value)
+
+        path = [
+                ((100, 100), True),
+                ((-100, 100), True),
+                ((-100, -100), True),
+                ((100, -100), True),
+                ((100, 100), True),
+
+                ((100, 100), False),
+                ((80, 80), False),
+
+                ((80, 80), True),
+                ((-80, 80), True),
+                ((-80, -80), True),
+                ((80, -80), True),
+                ((80, 80), True),
+
+                ((80, 80), False),
+                ((100, 100), False),
+            ]
+
+        en.setLaser(path[0][1])
+        en.moveTo(*ts.transform(path[0][0]))
+
+        for p in path[1:]:
+            en.setLaser(p[1])
+            en.hold(1)
+            q = ts.transform(p[0])
+            en.lineTo(q[0], q[1], s)
+
+        en.hold(1)
+        en.setLaser(False)
+        en.hold(1)
+
+        self.fb.replace(en.inst)
+        
 
     def redraw(self, value):
         en = VectorMachine.Encoder()
@@ -433,6 +480,8 @@ class MainWindow(wx.Dialog):
         en.setLaser(True)
         en.moveTo(*(bez3[0] + (10,)))
         en.cCurveTo(*(bez3[1] + bez3[2] + bez3[3] + (s*2,)))
+
+	en.setLaser(False)
         for x, y, speed in (
             (120, 0, s//2),
             (120, 100, s),
