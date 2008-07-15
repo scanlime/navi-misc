@@ -34,7 +34,59 @@ __all__ = ['ObservableValue', 'Calibration', 'AdjustableValue',
            'DependentValue', 'ScaledValue', 'ThermValue', 'BTConnector',
            'CalibrationDependentValue', 'CalibratedPositionValue',
            'CalibratedScaleValue', 'CalibratedGainValue',
-           'BTAdjustableValues']
+           'BTAdjustableValues', 'ValueSerializer']
+
+
+class ValueSerializer(object):
+    """This object provides a way to automatically load and save a
+       collection of named ObservableValue instances.
+       """
+    def __init__(self):
+        self.dict = {}
+        self.names = []
+        self.prefix = ''
+
+    def add(self, name, value):
+        name = self.prefix + name
+        self.dict[name] = value
+        self.names.append(name)
+
+    def namespace(self, ns):
+        """Return a new ValueSerializer which acts as a proxy for this
+           one, prepending "<ns>." to all names.
+           """
+        vs = ValueSerializer()
+        vs.dict = self.dict
+        vs.names = self.names
+        vs.prefix = "%s.%s" % (ns, self.prefix)
+        return vs
+
+    def load(self, fileObj):
+        for line in fileObj:
+            line = line.strip()
+            if line[0] == '#':
+                continue
+            if not line:
+                continue
+
+            key, value = line.split('=', 1)
+            key = key.strip()
+            value = value.strip()
+            
+            try:
+                value = float(value)
+            except ValueError:
+                pass
+
+            if key in self.dict:
+                self.dict[key].set(value)
+
+    def save(self, fileObj):
+        for name in self.names:
+            v = self.dict[name].value
+            if v is None:
+                v = ''
+            fileObj.write("%s = %s\n" % (name, v))
 
 
 class ObservableValue(object):
@@ -344,27 +396,28 @@ class BTAdjustableValues:
 
        Does not include polled values. Those are in LaserWidgets.py.
        """
-    def __init__(self, bt):
+    def __init__(self, bt, valueSerializer=None):
         self.bt = bt
+        self.vs = valueSerializer or ValueSerializer()
         self.calibration = Calibration(self.bt)
 
         # Laser brightness: Raw uses the whole 32-bit range, cooked
         # value is from 0.0 to 1.0.
 
         self.laserPower = AdjustableValue(min=0.0, max=1.0)
+        self.vs.add('laser.power', self.laserPower)
         self.laserPowerRaw = ScaledValue(self.laserPower, 0xFFFFFFFF)
         BTConnector(self.laserPowerRaw, bt, "vm", 1)
         
         # Per-axis values.
-
-        self.x = BTAdjustableValuesAxis(self, 'x')
-        self.y = BTAdjustableValuesAxis(self, 'y')
+        self.x = BTAdjustableValuesAxis(self, 'x', self.vs.namespace('x'))
+        self.y = BTAdjustableValuesAxis(self, 'y', self.vs.namespace('y'))
         
 
 class BTAdjustableValuesAxis:
     """The internal per-axis object that makes up half of a BTAdjustableValues.
        """
-    def __init__(self, parent, axisName):
+    def __init__(self, parent, axisName, vs):
         bt = parent.bt
         cal = parent.calibration
 
@@ -390,9 +443,14 @@ class BTAdjustableValuesAxis:
         # Now set up calibrated (non-raw) values.
 
         self.vcmPGain = CalibratedGainValue(self.vcmPGainRaw, cal, axisName, min=0.0, max=1.0)
+        vs.add('vcm.gain.p', self.vcmPGain)
         self.vcmIGain = CalibratedGainValue(self.vcmIGainRaw, cal, axisName, min=0.0, max=0.005)
+        vs.add('vcm.gain.i', self.vcmIGain)
         self.vcmDGain = CalibratedGainValue(self.vcmDGainRaw, cal, axisName, min=0.0, max=1.0)
+        vs.add('vcm.gain.d', self.vcmDGain)
 
         self.vcmCenter = CalibratedPositionValue(self.vcmCenterRaw, cal, axisName)
+        vs.add('vcm.center', self.vcmCenter)
  
         self.vcmScale = CalibratedScaleValue(self.vcmScaleRaw, cal, axisName, min=0.0, max=1.0)
+        vs.add('vcm.scale', self.vcmScale)

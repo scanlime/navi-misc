@@ -446,14 +446,19 @@ class Encoder:
 
 class BeamParams:
     """Container for adjustable BeamAwareEncoder parameters."""
-    def __init__(self):
+    def __init__(self, valueSerializer):
+        self.vs = valueSerializer.namespace('beam') or LaserObjects.ValueSerializer()
 
-        self.speed = LaserObjects.AdjustableValue(34000.0, min=1000.0, max=100000.0)
+        self.speed = LaserObjects.AdjustableValue(34000.0, min=1000.0, max=200000.0)
         self.hiddenSpeedMult = LaserObjects.AdjustableValue(1.0, min=1.0, max=10.0)
         self.preStartEmphasis = LaserObjects.AdjustableValue(70, min=0, max=100.0)
         self.postStartEmphasis = LaserObjects.AdjustableValue(40, min=0, max=100.0)
         self.preBlankEmphasis = LaserObjects.AdjustableValue(80, min=0, max=100.0)
         self.cornerEmphasis = LaserObjects.AdjustableValue(40, min=0, max=1000.0)
+
+        for name, value in self.__dict__.items():
+            if isinstance(value, LaserObjects.AdjustableValue):
+                self.vs.add(name, value)
 
         # A name/value list, for convenient use wiht a LaserWidgets.ValueGrid.
         self.items = [
