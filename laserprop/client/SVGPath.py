@@ -126,8 +126,11 @@ def bezier2len(x0, y0, x1, y1, x2, y2):
     C_2 = 2 * math.sqrt(C)
     BA = B / A_2
 
-    return ( A_32*Sabc + A_2*B*(Sabc-C_2) +
-             (4*C*A-B*B)*math.log( (2*A_2+BA+Sabc)/(BA+C_2) ) ) / (4*A_32)
+    try:
+        return ( A_32*Sabc + A_2*B*(Sabc-C_2) +
+                 (4*C*A-B*B)*math.log( (2*A_2+BA+Sabc)/(BA+C_2) ) ) / (4*A_32)
+    except ZeroDivisionError:
+        return 0
 
 def bezier3(t, ((x0, y0), (x1, y1), (x2, y2), (x3, y3))):
     """Evaluate a cubic Bezier curve.

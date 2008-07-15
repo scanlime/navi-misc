@@ -34,19 +34,38 @@ class MainWindow(wx.Dialog):
         wx.Dialog.__init__(self, parent, id, title)
         vbox = wx.BoxSizer(wx.VERTICAL)
 
+        self.vs = ValueSerializer()
         self.bt = BluetoothConduit()
-        self.adj = BTAdjustableValues(self.bt)
+        self.adj = BTAdjustableValues(self.bt, self.vs)
         self.polled = BTPolledValues(self.bt, self.adj.calibration)
         self.fb = VectorMachine.FrameBuffer(self.bt)
         self.Bind(wx.EVT_CLOSE, self.onClose)
         self.svgPaths = None
 
+        self.svgFilename = ObservableValue(None)
+        self.vs.add("svg.filename", self.svgFilename)
+        self.svgFilename.observe(self._svgFilenameSet)
+
 	buttonRow = wx.BoxSizer(wx.HORIZONTAL)
         buttonRow.Add(BTConnectButton(self, self.bt), 0, wx.ALL, 2)
+	vbox.Add(buttonRow, 0, wx.ALL, 2)
+
         loadBtn = wx.Button(self, label="Load SVG...")
         loadBtn.Bind(wx.EVT_BUTTON, self.onLoadSVG)
         buttonRow.Add(loadBtn, 0, wx.ALL, 2)
-	vbox.Add(buttonRow, 0, wx.ALL, 2)
+
+        self.reloadBtn = wx.Button(self, label="Reload")
+        self.reloadBtn.Bind(wx.EVT_BUTTON, self.onReload)
+        self.reloadBtn.Disable()
+        buttonRow.Add(self.reloadBtn, 0, wx.ALL, 2)
+
+	loadSettingsBtn = wx.Button(self, label="Load settings...")
+	loadSettingsBtn.Bind(wx.EVT_BUTTON, self.onLoadSettings)
+	buttonRow.Add(loadSettingsBtn, 0, wx.ALL, 2)
+
+	saveSettingsBtn = wx.Button(self, label="Save settings...")
+	saveSettingsBtn.Bind(wx.EVT_BUTTON, self.onSaveSettings)
+	buttonRow.Add(saveSettingsBtn, 0, wx.ALL, 2)
 
         vbox.Add(CalibrationLabel(self, self.adj.calibration), 0, wx.ALL, 2)
 
@@ -71,7 +90,7 @@ class MainWindow(wx.Dialog):
 	grid.Add(ValueSlider2D(self, self.adj.x.vcmIGain, self.adj.y.vcmIGain, snapToDiagonal=True), 1, wx.EXPAND)
 	grid.Add(ValueSlider2D(self, self.adj.x.vcmDGain, self.adj.y.vcmDGain, snapToDiagonal=True), 1, wx.EXPAND)
         grid.Add(ValueSlider2D(self, self.adj.x.vcmCenter, self.adj.y.vcmCenter, topDown=True), 1, wx.EXPAND)
-        grid.Add(ValueSlider2D(self, self.adj.x.vcmScale, self.adj.y.vcmScale, snapToDiagonal=True), 1, wx.EXPAND)
+        grid.Add(ValueSlider2D(self, self.adj.x.vcmScale, self.adj.y.vcmScale), 1, wx.EXPAND)
         grid.Add(ScatterPlot2D(self, self.polled.x.pos, self.polled.y.pos, topDown=True), 1, wx.EXPAND)
         vbox.Add(grid, 0, wx.EXPAND | wx.ALL, 2)
 
@@ -91,7 +110,7 @@ class MainWindow(wx.Dialog):
         self.fb.observeFront(plotter.setInstructions)
         vmRow.Add(plotter)
 
-        self.beamParams = VectorMachine.BeamParams()
+        self.beamParams = VectorMachine.BeamParams(self.vs)
         self.beamParams.observeAll(self.redraw)
 	vmRow.Add(ValueGrid(self, self.beamParams.items), 0, wx.EXPAND | wx.ALL, 2)
         
@@ -105,6 +124,7 @@ class MainWindow(wx.Dialog):
 
     def redraw(self):
         if not self.svgPaths:
+            self.fb.replace(VectorMachine.blankFrame())
             return
 
         en = VectorMachine.BeamAwareEncoder(self.beamParams)
@@ -132,15 +152,40 @@ class MainWindow(wx.Dialog):
         self.fb.replace(en.inst)
     
     def onLoadSVG(self, event):
-        dialog = wx.FileDialog(None, "Load an SVG file", defaultDir="../data", wildcard="*.svg")
+        dialog = wx.FileDialog(None, "Load an SVG file", defaultDir="../data",
+                               wildcard="*.svg", style=wx.FD_OPEN)
         if dialog.ShowModal() == wx.ID_OK:
-            self.svgPaths = SVGPath.parseSVG(dialog.GetPath()).paths
-            self.redraw()
+            self.svgFilename.set(dialog.GetPath())
+
+    def _svgFilenameSet(self, value):
+        if value:
+            self.reloadBtn.Enable()
+            self.onReload()
+
+    def onReload(self, event=None):
+        filename = self.svgFilename.value
+    	if filename:
+            self.svgPaths = SVGPath.parseSVG(filename).paths
+        else:
+            self.svgPaths = None
+        self.redraw()
 
     def onClose(self, event):
         if self.bt.isConnected:
             self.bt.disconnect()
         self.Destroy()
+
+    def onLoadSettings(self, event):
+        dialog = wx.FileDialog(None, "Load settings", defaultDir="../data",
+                               wildcard="*.laserSet", style=wx.FD_OPEN)
+        if dialog.ShowModal() == wx.ID_OK:
+            self.vs.load(open(dialog.GetPath()))
+
+    def onSaveSettings(self, event):
+        dialog = wx.FileDialog(None, "Save settings", defaultDir="../data",
+                               wildcard="*.laserSet", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+        if dialog.ShowModal() == wx.ID_OK:
+            self.vs.save(open(dialog.GetPath(), 'w'))
 
 
 if __name__ == "__main__":
