@@ -85,6 +85,9 @@ def opSeek(offset):
     else:
         return OP_SEEK16 + struct.pack("<h", offset)
 
+def debug(s):
+    print "[BT] %s" % s
+
 
 class Region:
     def __init__(self, index, size, name):
@@ -233,10 +236,12 @@ class BluetoothConduit:
 
     def connect(self, bdaddr='03:1F:08:07:15:2E'):
         try:
+            debug("Connecting to %s" % bdaddr)
             self.sock = BluetoothSocket(RFCOMM)
             self.sock.connect((bdaddr, 1))
             self.sock.setblocking(True)
 
+            debug("Socket connected.")
             self.send = SendThread(self.sock)
             self.send.start()
             self.recv = RecvThread(self.sock)
@@ -250,7 +255,9 @@ class BluetoothConduit:
             self.recv.discardData = False
 
             # Populate the region cache once
+            debug("Retrieving region list...")
             self.getRegions()
+            debug("Region list retrieved.")
 
         except:
             self.sock.close()
@@ -377,7 +384,6 @@ class BluetoothConduit:
 if __name__ == "__main__":
     # Connect and list the available regions
     bt = BluetoothConduit()
-    print "Connecting..."
     bt.connect()
     print bt.getRegions()
     bt.disconnect()

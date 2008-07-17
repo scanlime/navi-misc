@@ -116,7 +116,7 @@ class ValueSlider2D(wx.PyControl):
 
     def __init__(self, parent, xValue, yValue, size=(128, 128), thumbRadius=5,
                  topDown=False, readOnly=False, snapToDiagonal=False):
-        wx.PyControl.__init__(self, parent, size=size)
+        wx.PyControl.__init__(self, parent, size=size, style=wx.BORDER_SUNKEN)
 
         self.thumbX = None
         self.thumbY = None
@@ -214,7 +214,7 @@ class ScatterPlot2D(wx.PyControl):
     """A two-dimensional scatter plot, showing a fixed number of recent values.
        """
     def __init__(self, parent, xValue, yValue, size=(128,128), historyLen=64, topDown=False):
-        wx.PyControl.__init__(self, parent, size=size)
+        wx.PyControl.__init__(self, parent, size=size, style=wx.BORDER_SUNKEN)
 
         self.topDown = topDown
         self.size = size
@@ -539,12 +539,12 @@ class LaserController(wx.BoxSizer):
 	grid.Add(wx.StaticText(parent, label="Center"))
 	grid.Add(wx.StaticText(parent, label="Scale"))
 	grid.Add(wx.StaticText(parent, label="Monitor"))
-	grid.Add(ValueSlider2D(parent, self.adj.x.vcmPGain,self.adj.y.vcmPGain, snapToDiagonal=True), 1, wx.EXPAND)
-	grid.Add(ValueSlider2D(parent, self.adj.x.vcmIGain, self.adj.y.vcmIGain, snapToDiagonal=True), 1, wx.EXPAND)
-	grid.Add(ValueSlider2D(parent, self.adj.x.vcmDGain, self.adj.y.vcmDGain, snapToDiagonal=True), 1, wx.EXPAND)
-        grid.Add(ValueSlider2D(parent, self.adj.x.vcmCenter, self.adj.y.vcmCenter, topDown=True), 1, wx.EXPAND)
-        grid.Add(ValueSlider2D(parent, self.adj.x.vcmScale, self.adj.y.vcmScale), 1, wx.EXPAND)
-        grid.Add(ScatterPlot2D(parent, self.polled.x.pos, self.polled.y.pos, topDown=True), 1, wx.EXPAND)
+	grid.Add(ValueSlider2D(parent, self.adj.x.vcmPGain,self.adj.y.vcmPGain, snapToDiagonal=True), 1, wx.EXPAND | wx.ALL, 1)
+	grid.Add(ValueSlider2D(parent, self.adj.x.vcmIGain, self.adj.y.vcmIGain, snapToDiagonal=True), 1, wx.EXPAND | wx.ALL, 1)
+	grid.Add(ValueSlider2D(parent, self.adj.x.vcmDGain, self.adj.y.vcmDGain, snapToDiagonal=True), 1, wx.EXPAND | wx.ALL, 1)
+        grid.Add(ValueSlider2D(parent, self.adj.x.vcmCenter, self.adj.y.vcmCenter, topDown=True), 1, wx.EXPAND | wx.ALL, 1)
+        grid.Add(ValueSlider2D(parent, self.adj.x.vcmScale, self.adj.y.vcmScale), 1, wx.EXPAND | wx.ALL, 1)
+        grid.Add(ScatterPlot2D(parent, self.polled.x.pos, self.polled.y.pos, topDown=True), 1, wx.EXPAND | wx.ALL, 1)
         self.Add(grid, 0, wx.EXPAND | wx.ALL, 2)
 
         filterRow = wx.BoxSizer(wx.HORIZONTAL)
