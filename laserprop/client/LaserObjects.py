@@ -386,8 +386,9 @@ class BTConnector(object):
         self.value.set(v, self._valueChanged)
 
     def _valueChanged(self, v):
-        self.bt.write(self.regionName, self.offset,
-                      struct.pack(self.format, int(v + 0.5)))
+        if self.bt.isConnected:
+            self.bt.write(self.regionName, self.offset,
+                          struct.pack(self.format, int(v + 0.5)))
 
 
 class BTAdjustableValues:

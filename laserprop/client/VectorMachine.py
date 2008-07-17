@@ -241,6 +241,15 @@ class Encoder:
         self.dds = dds
         self.le = le
 
+    def getFrame(self):
+        """Return the completed frame and reset the instruction
+           buffer, but preserve all other machine state.
+           """
+        i = self.inst
+        self.inst = []
+        self.anchor()
+        return i
+
     def setLaser(self, le):
         """Set the laser enable flag. The next instruction we emit
            will carry this new enable flag value.
@@ -258,6 +267,16 @@ class Encoder:
     def setDDS(self, x, y):
         """Set the DDS (second derivative) register, if necessary."""
         self._setReg('dds', REG_DDS, x, y)
+
+    def anchor(self):
+        """Anchor the vector position: Emit an instruction that explicitly
+           specifies the current value of the S register. This normally
+           will have no effect, but if we drop a frame and the hardware
+           loops the previous frame, this will ensure that we don't 'drift'.
+           """
+        s = self.s
+        self.s = None
+        self.setS(*s)
 
     def _setReg(self, attr, reg, x, y):
         """Generic private function for setting a register.
@@ -449,11 +468,11 @@ class BeamParams:
     def __init__(self, valueSerializer):
         self.vs = valueSerializer.namespace('beam') or LaserObjects.ValueSerializer()
 
-        self.speed = LaserObjects.AdjustableValue(34000.0, min=1000.0, max=200000.0)
+        self.speed = LaserObjects.AdjustableValue(34000.0, min=1000.0, max=300000.0)
         self.hiddenSpeedMult = LaserObjects.AdjustableValue(1.0, min=1.0, max=10.0)
-        self.preStartEmphasis = LaserObjects.AdjustableValue(70, min=0, max=100.0)
-        self.postStartEmphasis = LaserObjects.AdjustableValue(40, min=0, max=100.0)
-        self.preBlankEmphasis = LaserObjects.AdjustableValue(80, min=0, max=100.0)
+        self.preStartEmphasis = LaserObjects.AdjustableValue(70, min=0, max=200.0)
+        self.postStartEmphasis = LaserObjects.AdjustableValue(40, min=0, max=200.0)
+        self.preBlankEmphasis = LaserObjects.AdjustableValue(80, min=0, max=200.0)
         self.cornerEmphasis = LaserObjects.AdjustableValue(40, min=0, max=1000.0)
 
         for name, value in self.__dict__.items():
@@ -487,6 +506,14 @@ class BeamAwareEncoder:
 
         self._origin = None
         self._history = []
+
+    def getFrame(self):
+        """Return the completed frame and reset the instruction
+           buffer, but preserve all other machine state.
+           """
+        i = self.en.getFrame()
+        self.inst = self.en.inst
+        return i
 
     def _rememberPoint(self, x, y, max=3):
         # Keep track of the last few control points,
@@ -543,6 +570,10 @@ class BeamAwareEncoder:
             self._rememberPoint(x, y)
             return
 
+        if self._history and self._history[-1] == (x, y):
+            # Redundant move, optimize it out.
+            return
+
         # The beam can't move anywhere instantly, so we'll actually
         # implement this by turning the beam off, drawing a line to
         # the new position, and turning it back on.
@@ -577,6 +608,10 @@ class BeamAwareEncoder:
         return int(distance / s * SAMPLE_HZ + 0.5)
 
     def lineTo(self, x1, y1):
+        if not self.en.s:
+            # No source point. Convert this into a moveTo.
+            return self.moveTo(x1, y1)
+
         self._rememberPoint(x1, y1)
         self._emphasizeCorner()
 
@@ -585,6 +620,10 @@ class BeamAwareEncoder:
         self.en.lineTo(x1, y1, self._getSampleCount(distance))
 
     def curveTo(self, x1, y1, x2, y2):
+        if not self.en.s:
+            # No source point. Convert this into a moveTo.
+            return self.moveTo(x2, y2)
+
         self._rememberPoint(x1, y1)
         self._emphasizeCorner()
         self._rememberPoint(x2, y2)
@@ -592,6 +631,37 @@ class BeamAwareEncoder:
         x0, y0 = self.en.s
         distance = SVGPath.bezier2len(x0, y0, x1, y1, x2, y2)
         self.en.curveTo(x1, y1, x2, y2, self._getSampleCount(distance))
+
+    def svgPath(self, path, transform=lambda p: p):
+        """Render an SVGPath path object, a sequence of SVG-style commands.
+           Only understands Move, Line, and quadratic/cubic curve commands.
+           """
+        pos = (0, 0)
+
+        for cmd in path:            
+            if cmd[0] == 'M':
+                pos = cmd[1], cmd[2]
+                self.moveTo(*transform(pos))
+
+            elif cmd[0] == 'L':
+                pos = cmd[1], cmd[2]
+                self.lineTo(*transform(pos))
+
+            elif cmd[0] == 'C':
+                q = SVGPath.cubicToQuadratic(pos[0], pos[1],
+                                             cmd[1], cmd[2],
+                                             cmd[3], cmd[4],
+                                             cmd[5], cmd[6])
+                for x1, y1, x2, y2 in q:
+                    pos = x2, y2
+                    self.curveTo(*(transform((x1, y1)) + transform((x2, y2))))
+
+            elif cmd[0] == 'Q':
+                pos = cmd[3], cmd[4]
+                self.curveTo(*(transform((cmd[1], cmd[2])) + transform(pos)))
+
+            else:
+                raise NotImplementedError("Unsupported SVG path command %r" % cmd[0])
 
 
 class VMConduit:
@@ -859,7 +929,7 @@ class FrameBuffer:
     def __init__(self, bt):
         self.vm = VMConduit(bt)
         self._frontObservers = []
-        self._emptyQueueCallbacks = []
+        self._emptyQueueCallback = None
         self._lock = threading.Lock()
 
         # Front buffer starts out blank.
@@ -875,22 +945,24 @@ class FrameBuffer:
         self._frontObservers.append(cb)
         cb(self.front)
 
-    def addEmptyQueueCallback(self, cb):
+    def setEmptyQueueCallback(self, cb):
         """Add a callback which fires when the local queue becomes empty.
            If the queue is already empty, the callback is fired now.
+           
+           If the callback returns a non-None value, that value is
+           interpreted as a frame to append to our queue.
            """
         self._lock.acquire()
         isEmpty = len(self.queue) != 0
-        self._emptyQueueCallbacks.append(cb)
+        self._emptyQueueCallback = cb
         self._lock.release()
-
-        if isEmpty:
-            cb()
+        self._pumpQueue()
 
     def _btConnect(self):
         """Reset the VectorMachine, and re-upload the current frame."""
         self._connected = True
         self._remoteQueue = RemoteFrameQueue(self.vm, self._queueCompletionCb)
+        self._pumpQueue()
 
     def _btDisconnect(self):
         self._remoteQueue = None
@@ -909,39 +981,42 @@ class FrameBuffer:
             cb(self.front)
 
     def _pumpQueue(self):
-        if not self.queue:
-            return
-        becameEmpty = False
+        while True:
+            # If we have no frames, try to generate more outside of the lock.
+            if not self.queue and self._remoteQueue and self._emptyQueueCallback:
+                result = self._emptyQueueCallback()
+                if result is not None:
+                    self.queue.append(result)
+            if not self.queue:
+                break
 
-        # Move as many items as possible from the local queue to the remote queue.
-        try:
-            self._lock.acquire()
+            # Move as many items as possible from the local queue to the remote queue.
+            try:
+                self._lock.acquire()
 
-            while self.queue:
-                next = self.queue[0]
-                del self.queue[0]
+                while self.queue:
+                    next = self.queue[0]
 
-                if self._remoteQueue:
-                    # Pass this frame to the remote queue
-                    if self._remoteQueue.append(next):
-                        if not self.queue:
-                            becameEmpty = True                
+                    if self._remoteQueue:
+                        # Pass this frame to the remote queue
+                        if self._remoteQueue.append(next):
+                            # Success
+                            del self.queue[0]
+                        else:
+                            # No room in the remote queue. We're done.
+                            return
                     else:
-                        break
-                else:
-                    # There is no remote queue, because we're
-                    # disconnected. Complete the frame immediately.
-                    # Don't call any empty queue callbacks, since
-                    # normal animation could put us into an infinite
-                    # loop.
-                    self._setFront(next)
+                        # There is no remote queue, because we're
+                        # disconnected. Complete the frame immediately.
+                        # Don't call any empty queue callbacks, since
+                        # normal animation could put us into an infinite
+                        # loop.
 
-        finally:
-            self._lock.release()
-        
-        if becameEmpty:
-            for cb in self._emptyQueueCallbacks:
-                cb()
+                        del self.queue[0]
+                        self._setFront(next)
+
+            finally:
+                self._lock.release()
 
     def append(self, frame):
         """Append a new frame to the end of the queue."""

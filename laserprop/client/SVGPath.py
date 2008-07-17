@@ -1,7 +1,8 @@
 """
 SVGPath.py
 
-Utilities for manipulating SVG files, SVG paths, and Bezier curves.
+Utilities for manipulating SVG files, SVG paths, Bezier curves,
+and transformation matrices.
 
 Copyright (c) 2008 Micah Dowty
 
@@ -461,6 +462,93 @@ class TransformStack(object):
                 args.append(float(token))
         if fn:
             fn(args)
+
+
+class Transform3D:
+    """Similar to TransformStack, but this operates on 3D objects using
+       4-dimensional homogeneous coordinates.
+       """
+    def __init__(self):
+        self.stack = []
+        self.top = (1, 0, 0, 0,
+                    0, 1, 0, 0,
+                    0, 0, 1, 0,
+                    0, 0, 0, 1)
+
+    def push(self):
+        self.stack.append(self.top)
+
+    def pop(self):
+        self.top = self.stack.pop()
+
+    def __repr__(self):
+        return ("<Transform3D [ " + "%.04f " * 6 + "]>") % self.top
+
+    def transform(self, x, y, z, w=1):
+        t = self.top
+        ww =     t[12]*x + t[13]*y + t[14]*z + t[15]*w
+        return ((t[ 0]*x + t[ 1]*y + t[ 2]*z + t[ 3]*w) / ww,
+                (t[ 4]*x + t[ 5]*y + t[ 6]*z + t[ 7]*w) / ww,
+                (t[ 8]*x + t[ 9]*y + t[10]*z + t[11]*w) / ww)
+
+    def matrix(self, m):
+        """Multiply a new matrix by the current top-of-stack matrix."""
+        t = self.top
+        self.top = (t[ 0]*m[0] + t[ 1]*m[4] + t[ 2]*m[ 8] + t[ 3]*m[12],
+                    t[ 0]*m[1] + t[ 1]*m[5] + t[ 2]*m[ 9] + t[ 3]*m[13],
+                    t[ 0]*m[2] + t[ 1]*m[6] + t[ 2]*m[10] + t[ 3]*m[14],
+                    t[ 0]*m[3] + t[ 1]*m[7] + t[ 2]*m[11] + t[ 3]*m[15],
+                    t[ 4]*m[0] + t[ 5]*m[4] + t[ 6]*m[ 8] + t[ 7]*m[12],
+                    t[ 4]*m[1] + t[ 5]*m[5] + t[ 6]*m[ 9] + t[ 7]*m[13],
+                    t[ 4]*m[2] + t[ 5]*m[6] + t[ 6]*m[10] + t[ 7]*m[14],
+                    t[ 4]*m[3] + t[ 5]*m[7] + t[ 6]*m[11] + t[ 7]*m[15],
+                    t[ 8]*m[0] + t[ 9]*m[4] + t[10]*m[ 8] + t[11]*m[12],
+                    t[ 8]*m[1] + t[ 9]*m[5] + t[10]*m[ 9] + t[11]*m[13],
+                    t[ 8]*m[2] + t[ 9]*m[6] + t[10]*m[10] + t[11]*m[14],
+                    t[ 8]*m[3] + t[ 9]*m[7] + t[10]*m[11] + t[11]*m[15],
+                    t[12]*m[0] + t[13]*m[4] + t[14]*m[ 8] + t[15]*m[12],
+                    t[12]*m[1] + t[13]*m[5] + t[14]*m[ 9] + t[15]*m[13],
+                    t[12]*m[2] + t[13]*m[6] + t[14]*m[10] + t[15]*m[14],
+                    t[12]*m[3] + t[13]*m[7] + t[14]*m[11] + t[15]*m[15])
+
+    def scale(self, a):
+        self.matrix((a, 0, 0, 0,
+                     0, a, 0, 0,
+                     0, 0, a, 0,
+                     0, 0, 0, 1))
+
+    def translate(self, x, y, z):
+        self.matrix((1, 0, 0, x,
+                     0, 1, 0, y,
+                     0, 0, 1, z,
+                     0, 0, 0, 1))
+
+    def rotateX(self, p):
+        a = math.radians(p)
+        s = math.sin(a)
+        c = math.cos(a)
+        self.matrix((1,  0,  0, 0,
+                     0,  c,  s, 0,
+                     0, -s, c, 0,
+                     0,  0,  0, 1))
+
+    def rotateY(self, p):
+        a = math.radians(p)
+        s = math.sin(a)
+        c = math.cos(a)
+        self.matrix((c, 0, -s, 0,
+                     0, 1,  0, 0,
+                     s, 0,  c, 0,
+                     0, 0,  0, 1))
+
+    def rotateZ(self, p):
+        a = math.radians(p)
+        s = math.sin(a)
+        c = math.cos(a)
+        self.matrix(( c, s, 0, 0,
+                     -s, c, 0, 0,
+                      0, 0, 1, 0,
+                      0, 0, 0, 1))
 
 
 class Path(object):
