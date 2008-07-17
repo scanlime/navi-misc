@@ -31,6 +31,7 @@ from __future__ import division
 import wx
 
 from LaserObjects import *
+import BluetoothConduit
 import VectorMachine
 
 __all__ = ['ValueLabel', 'ValueSlider', 'ValueSpinner', 'ValueSlider2D',
@@ -492,3 +493,83 @@ class ValueGrid(wx.FlexGridSizer):
             self.Add(wx.StaticText(parent, label=name+":"), 0, wx.ALIGN_CENTER_VERTICAL)
             self.Add(ValueSlider(parent, obj), 1, wx.EXPAND | wx.ALL, 2)
             self.Add(ValueSpinner(parent, obj))
+
+
+class LaserController(wx.BoxSizer):
+    """A widget that holds common laser adjustment controls, and
+       manages the connection with the laser hardware.
+       """
+    def __init__(self, parent):
+        wx.BoxSizer.__init__(self, wx.VERTICAL)
+
+        self.serializer = ValueSerializer()
+        self.bt = BluetoothConduit.BluetoothConduit()
+
+        self.adj = BTAdjustableValues(self.bt, self.serializer)
+        self.polled = BTPolledValues(self.bt, self.adj.calibration)
+
+	self.buttonRow = wx.BoxSizer(wx.HORIZONTAL)
+        self.buttonRow.Add(BTConnectButton(parent, self.bt), 0, wx.ALL, 2)
+	self.Add(self.buttonRow, 0, wx.ALL, 2)
+
+	loadSettingsBtn = wx.Button(parent, label="Load settings...")
+	loadSettingsBtn.Bind(wx.EVT_BUTTON, self.onLoadSettings)
+	self.buttonRow.Add(loadSettingsBtn, 0, wx.ALL, 2)
+
+	saveSettingsBtn = wx.Button(parent, label="Save settings...")
+	saveSettingsBtn.Bind(wx.EVT_BUTTON, self.onSaveSettings)
+	self.buttonRow.Add(saveSettingsBtn, 0, wx.ALL, 2)
+
+        self.Add(CalibrationLabel(parent, self.adj.calibration), 0, wx.ALL, 2)
+
+	thermRow = wx.BoxSizer(wx.HORIZONTAL)
+	thermRow.Add(ValueLabel(parent, self.polled.x.thermDegF, "X Axis Temperature", u"%.1f \u00B0F"))
+	thermRow.Add((35, -1))
+	thermRow.Add(ValueLabel(parent, self.polled.y.thermDegF, "Y Axis Temperature", u"%.1f \u00B0F"))
+	self.Add(thermRow, 0, wx.ALL, 2)
+
+	self.Add(ValueGrid(parent, (
+                    ("Laser power", ScaledValue(self.adj.laserPower, 1000)),
+                    )), 0, wx.EXPAND | wx.ALL, 2)
+
+	grid = wx.FlexGridSizer(rows=2, cols=6)
+	grid.Add(wx.StaticText(parent, label="Proportional gain"))
+	grid.Add(wx.StaticText(parent, label="Integral gain"))
+	grid.Add(wx.StaticText(parent, label="Derivative gain"))
+	grid.Add(wx.StaticText(parent, label="Center"))
+	grid.Add(wx.StaticText(parent, label="Scale"))
+	grid.Add(wx.StaticText(parent, label="Monitor"))
+	grid.Add(ValueSlider2D(parent, self.adj.x.vcmPGain,self.adj.y.vcmPGain, snapToDiagonal=True), 1, wx.EXPAND)
+	grid.Add(ValueSlider2D(parent, self.adj.x.vcmIGain, self.adj.y.vcmIGain, snapToDiagonal=True), 1, wx.EXPAND)
+	grid.Add(ValueSlider2D(parent, self.adj.x.vcmDGain, self.adj.y.vcmDGain, snapToDiagonal=True), 1, wx.EXPAND)
+        grid.Add(ValueSlider2D(parent, self.adj.x.vcmCenter, self.adj.y.vcmCenter, topDown=True), 1, wx.EXPAND)
+        grid.Add(ValueSlider2D(parent, self.adj.x.vcmScale, self.adj.y.vcmScale), 1, wx.EXPAND)
+        grid.Add(ScatterPlot2D(parent, self.polled.x.pos, self.polled.y.pos, topDown=True), 1, wx.EXPAND)
+        self.Add(grid, 0, wx.EXPAND | wx.ALL, 2)
+
+        filterRow = wx.BoxSizer(wx.HORIZONTAL)
+        filterRow.Add(wx.StaticText(parent, label="Filter exponent: "), 0, wx.ALIGN_CENTER_VERTICAL)
+	filterRow.Add((10, -1))
+        filterRow.Add(wx.StaticText(parent, label="X="), 0, wx.ALIGN_CENTER_VERTICAL)
+        filterRow.Add(ValueSpinner(parent, self.adj.x.proxFilter))
+	filterRow.Add((10, -1))
+        filterRow.Add(wx.StaticText(parent, label="Y="), 0, wx.ALIGN_CENTER_VERTICAL)
+        filterRow.Add(ValueSpinner(parent, self.adj.y.proxFilter))
+        self.Add(filterRow, 0, wx.EXPAND | wx.ALL, 2)
+
+    def close(self):
+        if self.bt.isConnected:
+            self.bt.disconnect()
+
+    def onLoadSettings(self, event):
+        dialog = wx.FileDialog(None, "Load settings", defaultDir="../data",
+                               wildcard="*.laserSet", style=wx.FD_OPEN)
+        if dialog.ShowModal() == wx.ID_OK:
+            self.serializer.load(open(dialog.GetPath()))
+
+    def onSaveSettings(self, event):
+        dialog = wx.FileDialog(None, "Save settings", defaultDir="../data",
+                               wildcard="*.laserSet", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+        if dialog.ShowModal() == wx.ID_OK:
+            self.serializer.save(open(dialog.GetPath(), 'w'))
+
