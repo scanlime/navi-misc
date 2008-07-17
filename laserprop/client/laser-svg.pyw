@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 laser-svg.pyw
 
@@ -60,7 +61,7 @@ class MainWindow(wx.Dialog):
 
         self.beamParams = VectorMachine.BeamParams(self.ctrl.serializer)
         self.beamParams.observeAll(self.redraw)
-	vmRow.Add(LaserWidgets.ValueGrid(self, self.beamParams.items), 0, wx.EXPAND | wx.ALL, 2)
+	vmRow.Add(LaserWidgets.ValueGrid(self, self.beamParams.items), 1, wx.EXPAND | wx.ALL, 2)
         
         self.SetSizer(vbox)
         self.SetAutoLayout(1)
