@@ -22,7 +22,7 @@ class MainWindow(wx.Dialog):
         self.beamParams.observeAll(self.redraw)
 
         light_thresh = LaserObjects.AdjustableValue(1000, 10, 1000000)
-        LaserObjects.BTConnector(light_thresh, self.ctrl.bt, "nes", 5)
+        LaserObjects.BTConnector(light_thresh, self.ctrl.bt, "zapper", 4)
 
         vbox.Add(LaserWidgets.ValueGrid(self, self.beamParams.items + [
                     ("Light threshold", light_thresh),
@@ -33,29 +33,29 @@ class MainWindow(wx.Dialog):
         vbox.Add(LaserWidgets.ValueLabel(self, buttons, "buttons", "%02x"))
 
         trigger = LaserObjects.AdjustableValue()
-        LaserWidgets.PollingBTConnector(trigger, self.ctrl.bt, "nes", 1)
+        LaserWidgets.PollingBTConnector(trigger, self.ctrl.bt, "zapper", 0)
         vbox.Add(LaserWidgets.ValueLabel(self, trigger, "trigger_cnt", "%02x"))
 
         light = LaserObjects.AdjustableValue()
-        LaserWidgets.PollingBTConnector(light, self.ctrl.bt, "nes", 2)
+        LaserWidgets.PollingBTConnector(light, self.ctrl.bt, "zapper", 1)
         vbox.Add(LaserWidgets.ValueLabel(self, light, "light", "%08x"))
 
         light_min = LaserObjects.AdjustableValue()
-        LaserWidgets.PollingBTConnector(light_min, self.ctrl.bt, "nes", 3)
+        LaserWidgets.PollingBTConnector(light_min, self.ctrl.bt, "zapper", 2)
         vbox.Add(LaserWidgets.ValueLabel(self, light_min, "light_min", "%08x"))
 
         light_max = LaserObjects.AdjustableValue()
-        LaserWidgets.PollingBTConnector(light_max, self.ctrl.bt, "nes", 4)
+        LaserWidgets.PollingBTConnector(light_max, self.ctrl.bt, "zapper", 3)
         vbox.Add(LaserWidgets.ValueLabel(self, light_max, "light_max", "%08x"))
 
         light_cnt = LaserObjects.AdjustableValue()
-        LaserWidgets.PollingBTConnector(light_cnt, self.ctrl.bt, "nes", 6)
+        LaserWidgets.PollingBTConnector(light_cnt, self.ctrl.bt, "zapper", 5)
         vbox.Add(LaserWidgets.ValueLabel(self, light_cnt, "light_cnt", "%08x"))
 
         lightX = LaserObjects.AdjustableValue()
         lightY = LaserObjects.AdjustableValue()
-        LaserWidgets.PollingBTConnector(lightX, self.ctrl.bt, "nes", 7)
-        LaserWidgets.PollingBTConnector(lightY, self.ctrl.bt, "nes", 8)
+        LaserWidgets.PollingBTConnector(lightX, self.ctrl.bt, "zapper", 6)
+        LaserWidgets.PollingBTConnector(lightY, self.ctrl.bt, "zapper", 7)
         vbox.Add(LaserWidgets.ValueLabel(self, lightX, "light_x", "%08x"))
         vbox.Add(LaserWidgets.ValueLabel(self, lightY, "light_y", "%08x"))
 
