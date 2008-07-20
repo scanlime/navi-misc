@@ -29,15 +29,15 @@ Optional NES port:
 
  +--
  |4 \
- |5 1|
- |6 2|
- |7 3|
+ |3 7|
+ |2 6|
+ |1 5|
  +---+
 
-1. +5V      wHT
-2. Light    GRN   P14   (10k pull-up to 5V)
-3. Trigger  YEL   P13   (10k pull-up to 5V)
+1. Data     RED   P10   (10k pull-up to 5V)
+2. Latch    ORG   P11   (10k pull-up to 5V)
+3. Clock    BLK   P12   (10k pull-up to 5V)
 4. GND      BLU
-5. Data     RED   P12   (10k pull-up to 5V)
-6. Latch    ORG   P11   (10k pull-up to 5V)
-7. Clock    BLK   P10   (10k pull-up to 5V)
+5. Trigger  YEL   P13   (10k pull-up to 5V)
+6. Light    GRN   P14   (10k pull-up to 5V)
+7. +5V      wHT
