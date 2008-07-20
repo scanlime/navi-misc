@@ -632,6 +632,30 @@ class BeamAwareEncoder:
         distance = SVGPath.bezier2len(x0, y0, x1, y1, x2, y2)
         self.en.curveTo(x1, y1, x2, y2, self._getSampleCount(distance))
 
+    def circle(self, x, y, r):
+        """Approximate a circle, centered at (x,y) with radius r."""
+        self.moveTo(x-r, y)
+        self.curveTo(x-r, y-r, x, y-r)
+        self.curveTo(x+r, y-r, x+r, y)
+        self.curveTo(x+r, y+r, x, y+r)
+        self.curveTo(x-r, y+r, x-r, y)
+
+    def spiral(self, x, y, r1, r2, n):
+        """Approximate a spiral with inner radius r1, outer radius r2, and 'n' cycles."""
+        a = (r2 - r1) / (n * 4)
+        r = r1
+        self.moveTo(x-r, y)
+
+        for i in xrange(n):
+            self.curveTo(x-r, y-r, x, y-r)
+            r += a
+            self.curveTo(x+r, y-r, x+r, y)
+            r += a
+            self.curveTo(x+r, y+r, x, y+r)
+            r += a
+            self.curveTo(x-r, y+r, x-r, y)
+            r += a
+
     def svgPath(self, path, transform=lambda p: p):
         """Render an SVGPath path object, a sequence of SVG-style commands.
            Only understands Move, Line, and quadratic/cubic curve commands.
