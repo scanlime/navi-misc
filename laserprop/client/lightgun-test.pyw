@@ -20,9 +20,14 @@ class MainWindow(wx.Dialog):
 
         self.beamParams = VectorMachine.BeamParams(self.ctrl.serializer)
         self.beamParams.observeAll(self.redraw)
+
+        light_thresh = LaserObjects.AdjustableValue(1000, 10, 1000000)
+        LaserObjects.BTConnector(light_thresh, self.ctrl.bt, "nes", 5)
+
         vbox.Add(LaserWidgets.ValueGrid(self, self.beamParams.items + [
-                    ]), 1, wx.EXPAND | wx.ALL, 2)
-        
+                    ("Light threshold", light_thresh),
+                    ]), 0, wx.EXPAND | wx.ALL, 2)
+
         buttons = LaserObjects.AdjustableValue()
         LaserWidgets.PollingBTConnector(buttons, self.ctrl.bt, "nes", 0)
         vbox.Add(LaserWidgets.ValueLabel(self, buttons, "buttons", "%02x"))
@@ -33,18 +38,32 @@ class MainWindow(wx.Dialog):
 
         light = LaserObjects.AdjustableValue()
         LaserWidgets.PollingBTConnector(light, self.ctrl.bt, "nes", 2)
-        vbox.Add(LaserWidgets.ValueLabel(self, light, "light_cnt", "%02x"))
+        vbox.Add(LaserWidgets.ValueLabel(self, light, "light", "%08x"))
+
+        light_min = LaserObjects.AdjustableValue()
+        LaserWidgets.PollingBTConnector(light_min, self.ctrl.bt, "nes", 3)
+        vbox.Add(LaserWidgets.ValueLabel(self, light_min, "light_min", "%08x"))
+
+        light_max = LaserObjects.AdjustableValue()
+        LaserWidgets.PollingBTConnector(light_max, self.ctrl.bt, "nes", 4)
+        vbox.Add(LaserWidgets.ValueLabel(self, light_max, "light_max", "%08x"))
+
+        light_cnt = LaserObjects.AdjustableValue()
+        LaserWidgets.PollingBTConnector(light_cnt, self.ctrl.bt, "nes", 6)
+        vbox.Add(LaserWidgets.ValueLabel(self, light_cnt, "light_cnt", "%08x"))
 
         lightX = LaserObjects.AdjustableValue()
         lightY = LaserObjects.AdjustableValue()
-        LaserWidgets.PollingBTConnector(lightX, self.ctrl.bt, "nes", 3)
-        LaserWidgets.PollingBTConnector(lightY, self.ctrl.bt, "nes", 4)
+        LaserWidgets.PollingBTConnector(lightX, self.ctrl.bt, "nes", 7)
+        LaserWidgets.PollingBTConnector(lightY, self.ctrl.bt, "nes", 8)
         vbox.Add(LaserWidgets.ValueLabel(self, lightX, "light_x", "%08x"))
         vbox.Add(LaserWidgets.ValueLabel(self, lightY, "light_y", "%08x"))
 
         self.lightX = LaserWidgets.CalibratedPositionValue(lightX, self.ctrl.adj.calibration, 'x')
         self.lightY = LaserWidgets.CalibratedPositionValue(lightY, self.ctrl.adj.calibration, 'y')        
-        self.lightX.observe(self.followLightGun)
+        #self.lightX.observe(self.followLightGun)
+
+        vbox.Add(LaserWidgets.ScatterPlot2D(self, self.lightX, self.lightY, size=(384,384), topDown=True), 1, wx.EXPAND | wx.ALL)
 
         self.SetSizer(vbox)
         self.SetAutoLayout(1)
@@ -57,23 +76,16 @@ class MainWindow(wx.Dialog):
 
     def redraw(self, _=None):
         en = VectorMachine.BeamAwareEncoder(self.beamParams)
-        en.spiral(0, 0, 20, 30, 5)
+        en.spiral(0, 0, 20, 30, 3)
         en.close()
         self.fb.replace(en.inst)
 
     def followLightGun(self, _=None):
         lgx = self.lightX.value
         lgy = self.lightY.value
-        cx = self.ctrl.adj.x.vcmCenter.value
-        cy = self.ctrl.adj.y.vcmCenter.value
-        print (lgx, lgy), (cx, cy)
         if lgx and lgy:
-
-            cx += (lgx - cx) * 0.5
-            cy += (lgy - cy) * 0.5
-
-            self.ctrl.adj.x.vcmCenter.set(cx)
-            self.ctrl.adj.y.vcmCenter.set(cy)
+            self.ctrl.adj.x.vcmCenter.set(lgx)
+            self.ctrl.adj.y.vcmCenter.set(lgy)
 
 
 if __name__ == "__main__":
