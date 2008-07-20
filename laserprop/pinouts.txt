@@ -25,6 +25,19 @@ Bluetooth: (Spark Fun BlueSMiRF Silver)
 5. RX-I		P21
 6. RTS-O		P20
 
-Composite video: (For debugging)
+Optional NES port:
 
- P12 through P14
+ +--
+ |4 \
+ |5 1|
+ |6 2|
+ |7 3|
+ +---+
+
+1. +5V      wHT
+2. Light    GRN   P14   (10k pull-up to 5V)
+3. Trigger  YEL   P13   (10k pull-up to 5V)
+4. GND      BLU
+5. Data     RED   P12   (10k pull-up to 5V)
+6. Latch    ORG   P11   (10k pull-up to 5V)
+7. Clock    BLK   P10   (10k pull-up to 5V)
