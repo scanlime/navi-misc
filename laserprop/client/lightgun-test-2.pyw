@@ -6,31 +6,10 @@ import LaserObjects
 import SVGPath
 import VectorMachine
 import wx
-import math, time, struct, random
-
-class Duck:
-    #duck = SVGPath.parseSVG("../data/duck.svg").paths[0]
-
-    def __init__(self):
-        self.x = random.uniform(-128, 128)
-        self.y = random.uniform(-128, 128)
-        self.radius = 40
-        
-    def draw(self, en):
-        en.spiral(self.x, self.y, 5, self.radius, 4)
-        #en.svgPath(self.duck.data, lambda (x,y): (x-128-200, y-128))
-        #en.svgPath(self.duck.data, lambda (x,y): (x-128+200, y-128))
-
-    def shoot(self, x, y):
-        return (x-self.x)**2 + (y-self.y)**2 < self.radius**2
+import math, time, struct
 
 
 class MainWindow(wx.Dialog):           
-    size = 40
-    lastTime = None
-    lgx = None
-    lgy = None
-      
     def __init__(self, parent=None, id=wx.ID_ANY, title="Laser Modulator"):
         wx.Dialog.__init__(self, parent, id, title)
         vbox = wx.BoxSizer(wx.VERTICAL)
@@ -74,15 +53,6 @@ class MainWindow(wx.Dialog):
                     ("Hysteresis threshold", tHyst),
                     ]), 0, wx.EXPAND | wx.ALL, 2)
 
-        buttons = LaserObjects.AdjustableValue()
-        LaserWidgets.PollingBTConnector(buttons, self.ctrl.bt, "nes", 0)
-        vbox.Add(LaserWidgets.ValueLabel(self, buttons, "buttons", "%04x"))
-
-        trigger = LaserObjects.AdjustableValue()
-        LaserWidgets.PollingBTConnector(trigger, self.ctrl.bt, "zapper", 0)
-        vbox.Add(LaserWidgets.ValueLabel(self, trigger, "trigger_cnt", "%d"))
-        trigger.observe(self.triggerPull)
-
         light_cnt = LaserObjects.AdjustableValue()
         LaserWidgets.PollingBTConnector(light_cnt, self.ctrl.bt, "zapper", 1)
         vbox.Add(LaserWidgets.ValueLabel(self, light_cnt, "light_cnt", "%d"))
@@ -122,55 +92,16 @@ class MainWindow(wx.Dialog):
 
     def redraw(self, _=None):
         en = VectorMachine.BeamAwareEncoder(self.beamParams)
-
-        if not self.ducks:
-            self.ducks = [Duck() for i in range(6)]
-
-        for duck in self.ducks:
-            duck.draw(en)
-
-        if self.lgx and self.lgy:
-            en.circle(self.lgx, self.lgy, 5)
-
-        #en.circle(0, 0, 100)
-
-        print "%.2f Hz" % (1.0/VectorMachine.timeInstructions(en.inst))
-        en.close()
+        en.circle(0, 0, 20)
         self.fb.replace(en.inst)
-
-    def triggerPull(self, _=None):
-        if not (self.lgx and self.lgy):
-            return
-
-        for duck in self.ducks:
-            if duck.shoot(self.lgx, self.lgy):
-                self.ducks.remove(duck)
-                return
 
     def followLightGun(self, _=None):
         lgx = self.lightXRaw.value
         lgy = self.lightYRaw.value
         
-        if not (lgx and lgy):
-            self.lgx = None
-            self.lgy = None
-        else:
-            # Convert light gun from raw OpticalProximity coordinates to VectorMachine coordinates.
-            self.lgx = (lgx - self.ctrl.adj.x.vcmCenterRaw.value) / self.ctrl.adj.x.vcmScaleRaw.value
-            self.lgy = (lgy - self.ctrl.adj.y.vcmCenterRaw.value) / self.ctrl.adj.y.vcmScaleRaw.value
-        
-        self.redraw()
-
-
-class ResetPoller(LaserWidgets.PollingBTConnector):
-    def __init__(self, value, bt, regionName, offset=0,
-                 format="<I", pollInterval=0, resetValue=0):
-        LaserWidgets.PollingBTConnector.__init__(self, value, bt, regionName, offset, format, pollInterval)
-        self.resetValue = struct.pack(format, resetValue)
-
-    def onConnect(self):
-        LaserWidgets.PollingBTConnector.onConnect(self)
-        self.bt.write(self.regionName, self.offset, self.resetValue)
+        if lgx and lgy:
+            self.ctrl.adj.x.vcmCenterRaw.set(lgx)
+            self.ctrl.adj.y.vcmCenterRaw.set(lgy)
 
 
 if __name__ == "__main__":
