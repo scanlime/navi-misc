@@ -5,7 +5,7 @@
 ''
 
 CON
-  _clkmode = xtal1 + pll16x
+  _clkmode = xtal1' + pll16x
   _xinfreq = 5_000_000
 
 OBJ
@@ -13,15 +13,26 @@ OBJ
   debug : "TV_Text"
 
 VAR
-  long  foo
+  long  cmd, r
   
-PUB main
+PUB main | i
 
   debug.start(12)
-  debug.str(string("etherCog - Fast network driver", 13))
 
-  net.start(3, 2, 1, 0, 5, @foo)
+  net.start(3, 2, 1, 0, 5, @cmd)
 
   repeat
-    debug.hex(foo, 8)
-    debug.out(13)
+    'debug.out(0)
+    
+    repeat i from 1 to $20
+      cmd := i
+      repeat while cmd
+      'debug.hex(r, 2)
+      debug.out("-")
+
+      'cmd := net#MACLCON1
+      'repeat while cmd
+      'debug.hex(r, 2)
+      'debug.out(" ")
+
+    'waitcnt(cnt + clkfreq/100)
