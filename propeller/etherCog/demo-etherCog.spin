@@ -5,7 +5,7 @@
 ''
 
 CON
-  _clkmode = xtal1 + pll16x
+  _clkmode = xtal1' + pll16x
   _xinfreq = 5_000_000
 
 OBJ
@@ -19,7 +19,7 @@ PUB main | i
 
   debug.start(12)
 
-  net.start(3, 2, 1, 0, 5, @cmd)
+  net.start(3, 2, 1, 0, @cmd)
 
   repeat
     'debug.out(0)
