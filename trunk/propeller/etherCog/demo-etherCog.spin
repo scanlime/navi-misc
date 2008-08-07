@@ -18,21 +18,9 @@ VAR
 PUB main | i
 
   debug.start(12)
+  debug.out(0)
 
-  net.start(3, 2, 1, 0, @cmd)
+  net.start(3, 2, 1, 0)
 
-  repeat
-    'debug.out(0)
-    
-    repeat i from 1 to $20
-      cmd := i
-      repeat while cmd
-      'debug.hex(r, 2)
-      debug.out("-")
+  debug.hex($beef, 8)
 
-      'cmd := net#MACLCON1
-      'repeat while cmd
-      'debug.hex(r, 2)
-      'debug.out(" ")
-
-    'waitcnt(cnt + clkfreq/100)
