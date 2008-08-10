@@ -15,22 +15,70 @@ OBJ
   debug   : "TV_Text"
 
 VAR
-  long  x
+  long  bd1[2]
+  long  bd2[2]
+  byte  buf1[32]
+  byte  buf2[32]
   
-PUB main | i
+PUB main | i, j
 
   debug.start(12)
-  debug.out(0)
 
   netDrv.start(3, 2, 1, 0)
 
-  sock1.init(0)
-  sock2.init(0)
+  netDrv.link(sock1.init(128))
+  netDrv.link(sock2.init(256))
 
-  sock2.link(sock1.ptr)  
-  netDrv.link(sock2.ptr)
+  sock1.recv($14b5, 1472, @bd1)     ' XXX: Receive into the text framebuffer
+  sock2.recv(@buf2 | 1, 32, @bd2)
 
-  debug.hex(LONG[sock1.ptr], 8)
-  debug.out(13)
-  debug.hex(LONG[sock2.ptr], 8)
-  repeat 
+  repeat 'XXX
+
+  repeat
+    debug.out(1)
+
+    debug.str(string("Socket 1: "))
+  
+    i := sock1.ptr
+    repeat 5
+      debug.hex(LONG[i], 8)
+      i += 4
+      debug.out(" ")
+
+    debug.str(string(13, "BD 1: "))
+
+    i := @bd1
+    repeat 2
+      debug.hex(LONG[i], 8)
+      i += 4
+      debug.out(" ")
+
+    debug.str(string(13, "Buf 1: "))
+
+    i := @buf1
+    repeat 32
+      debug.out(BYTE[i++] #> " ")
+
+    debug.str(string(13, "Socket 2: "))
+  
+    i := sock2.ptr
+    repeat 5
+      debug.hex(LONG[i], 8)
+      i += 4
+      debug.out(" ")
+
+    debug.str(string(13, "BD 2:" ))
+
+    i := @bd2
+    repeat 2
+      debug.hex(LONG[i], 8)
+      i += 4
+      debug.out(" ")
+
+    debug.str(string(13, "Buf 2: "))
+
+    i := @buf2
+    repeat 32
+      debug.out(BYTE[i++] #> " ")
+
+    waitcnt(cnt + clkfreq/4) 
