@@ -29,10 +29,8 @@ PUB main | i, j
   netDrv.link(sock1.init(128))
   netDrv.link(sock2.init(256))
 
-  sock1.recv($14b5, 1472, @bd1)     ' XXX: Receive into the text framebuffer
+  sock1.recv(@buf1, 32, @bd1)     ' XXX: Receive into the text framebuffer
   sock2.recv(@buf2 | 1, 32, @bd2)
-
-  repeat 'XXX
 
   repeat
     debug.out(1)
