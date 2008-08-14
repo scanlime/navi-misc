@@ -21,7 +21,7 @@ OBJ
 
 VAR
   long  bufData[NUM_BUFFERS * BUFFER_SIZE / 4]
-  long  bufBD[NUM_BUFFERS * bufq#BD_SIZE]  
+  long  bufBD[NUM_BUFFERS * bufq#BD_SIZE]
   
 PUB main | i, j
 
