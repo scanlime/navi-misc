@@ -8,10 +8,8 @@ CON
   _clkmode = xtal1 + pll16x
   _xinfreq = 5_000_000
 
-  BUFFER_SIZE  = 16
-
-VAR
-  long  gen
+  BUFFER_SIZE = 1472
+  NUM_BUFFERS = 8
   
 OBJ
   netDrv  : "etherCog-enc28j60"
@@ -21,74 +19,68 @@ OBJ
   
   debug   : "TV_Text"
 
-PUB main | i
+VAR
+  long  bufMem[BUFFER_SIZE * NUM_BUFFERS / 4]
+  long  bufBD[bufq#BD_SIZE * NUM_BUFFERS]
+  
+PUB main | i, c
 
   debug.start(12)
 
   netDrv.start(3, 2, 1, 0)                   
-  bufq.initFromList(netDrv.getRecycledBuffers(BUFFER_SIZE))
 
   netDrv.link(sock1.init(128))
   netDrv.link(sock2.init(256))
 
-  sock1.rxQueueInit(bufq.getN(5))
-  sock2.rxQueueInit(bufq.getN(5))
+' bufq.initFromList(netDrv.getRecycledBuffers(16))  
+  bufq.initFromMem(NUM_BUFFERS, BUFFER_SIZE, @bufMem, @bufBD)
+
+  c := $100
+
+  i := bufq.get
+  WORD[i+2] := BUFFER_SIZE
+  LONG[LONG[i+4]] := c++
+  sock1.txQueuePut(i)
+
+  i := bufq.get
+  WORD[i+2] := BUFFER_SIZE
+  LONG[LONG[i+4]] := c++
+  sock1.txQueuePut(i)
+
+  sock2.rxRingInit(bufq.getN(1))
+  sock1.rxQueueInit(bufq.getAll)
 
   repeat
     if i := sock1.rxQueueGet
       sock1.rxQueuePut(i)
 
-    if i := sock2.rxQueueGet
-      sock2.rxQueuePut(i)
+    if i := sock1.txQueueGet
+      LONG[LONG[i+4]] := c++
+      sock1.txQueuePut(i)
 
     showState
   
-PUB showState | j
+PUB showState
   debug.out(1)
+  debugSocket(sock1.ptr)
+  debug.out(13)
+  debugSocket(sock2.ptr)
 
-  debug.hex(gen++, 8)
-  debug.out(13)
-  debug.out(13)
+PUB debugSocket(sockPtr) | bd, data
 
-  debug.hex(LONG[sock1.ptr], 8)
+  debug.hex(LONG[sockPtr], 8)
   debug.out(13)
-  debug.hex(LONG[sock1.ptr + 4], 8)
-  debug.out(13)
-  debug.hex(LONG[sock1.ptr + 8], 8)
-  debug.out(13)
-  debug.hex(j := LONG[sock1.ptr + 12], 8)
-  debug.out(" ")
-  debug.hex(LONG[j], 8)
-  debug.hex(LONG[j+4], 8)
-  debug.out(13)
-  debug.hex(LONG[sock1.ptr + 16], 8)
-  debug.out(13)
-  debug.out(13)
-
-  debug.hex(WORD[sock1.ptr + 20], 4)
-  debug.out("-")
-  debug.hex(WORD[sock1.ptr + 22], 4)
-  debug.out("-")
-  debug.hex(WORD[sock1.ptr + 24], 4)
-  debug.out(" ")
-  debug.hex(WORD[sock1.ptr + 26], 4)
-  debug.out("-")
-  debug.hex(WORD[sock1.ptr + 28], 4)
-  debug.out("-")
-  debug.hex(WORD[sock1.ptr + 30], 4)
-  debug.out(" ")
-{
-  debug.out(13)
-  debug.hex(LONG[sock2.ptr], 8)
-  debug.out(13)
-  debug.hex(LONG[sock2.ptr + 4], 8)
-  debug.out(13)
-  debug.hex(LONG[sock2.ptr + 8], 8)
-  debug.out(13)
-  debug.hex(j := LONG[sock2.ptr + 12], 8)
-  debug.out(" ")
-  debug.hex(LONG[j], 8)
-  debug.hex(LONG[j+4], 8)
-  debug.out(13)
-  debug.hex(LONG[sock2.ptr + 16], 8)
-  }
+  repeat 2
+    debug.hex(LONG[sockPtr += 4], 8)
+    debug.out(13)
+  repeat 2
+    debug.hex(bd := LONG[sockPtr += 4], 8)
+    debug.out(" ")
+    debug.hex(LONG[bd], 8)
+    debug.hex(data := LONG[bd+4], 8)
+    debug.out(" ")
+    data &= !3
+    repeat 12
+      debug.out(BYTE[data++] #> " ")
+    debug.out(13)
+  
