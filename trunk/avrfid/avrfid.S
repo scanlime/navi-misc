@@ -110,15 +110,15 @@
 
 #define OUT_PINS       _BV(PINB3) | _BV(PINB4)
 
-	.macro	delay cycles
-	.if \cycles > 1
-	rjmp	.+0
-	delay	(\cycles - 2)
-	.elseif \cycles > 0
-	nop
-	delay	(\cycles - 1)
-	.endif
-	.endm
+    .macro	delay cycles
+    .if \cycles > 1
+    rjmp	.+0
+    delay	(\cycles - 2)
+    .elseif \cycles > 0
+    nop
+    delay	(\cycles - 1)
+    .endif
+    .endm
 
     .macro	manchester bit, count=1
     .if		\count
@@ -251,13 +251,13 @@ baseband30:
 #ifdef FORMAT_IS_HID
 
 main:
-		eor		r16, r16
-		ldi		r17, OUT_PINS
+        eor		r16, r16
+        ldi		r17, OUT_PINS
 loop:
 
-		/*
-		 * Toggle the output modulation, in the specified number
-		 * of total clock cycles.
+        /*
+         * Toggle the output modulation, in the specified number
+         * of total clock cycles.
          */        
         .macro toggle clocks
         eor		r16, r17
@@ -270,54 +270,54 @@ loop:
          * We don't have time for a function call, so we just chew
          * up lots of flash...
          */
-		.macro	baseband_0
-		toggle	4		// 4
-		toggle	4		// 8
-		toggle	4		// 12
-		toggle	4		// 16
-		toggle	4		// 20
-		toggle	4		// 24
-		toggle	4		// 28
-		toggle	4		// 32
-		toggle	4		// 36
-		toggle	4		// 40
-		toggle	4		// 44
-		toggle	4		// 48
-		toggle	2		// 50
-		.endm
+        .macro	baseband_0
+        toggle	4		// 4
+        toggle	4		// 8
+        toggle	4		// 12
+        toggle	4		// 16
+        toggle	4		// 20
+        toggle	4		// 24
+        toggle	4		// 28
+        toggle	4		// 32
+        toggle	4		// 36
+        toggle	4		// 40
+        toggle	4		// 44
+        toggle	4		// 48
+        toggle	2		// 50
+        .endm
 
         /*
          * Emit a 1 at the baseband layer. (Toggle every 5 cycles, for 50 cycles)
          */	
-		.macro	baseband_1
-		toggle	5		// 5
-		toggle	5		// 10
-		toggle	5		// 15
-		toggle	5		// 20
-		toggle	5		// 25
-		toggle	5		// 30
-		toggle	5		// 35
-		toggle	5		// 40
-		toggle	5		// 45
-		toggle	5		// 50
-		.endm
+        .macro	baseband_1
+        toggle	5		// 5
+        toggle	5		// 10
+        toggle	5		// 15
+        toggle	5		// 20
+        toggle	5		// 25
+        toggle	5		// 30
+        toggle	5		// 35
+        toggle	5		// 40
+        toggle	5		// 45
+        toggle	5		// 50
+        .endm
 
-		/*
+        /*
          * Emit a 1 at the baseband layer, but only take 47 cycles.
          */	
-		.macro	baseband_1_last
-		toggle	5		// 5
-		toggle	5		// 10
-		toggle	5		// 15
-		toggle	5		// 20
-		toggle	5		// 25
-		toggle	5		// 30
-		toggle	5		// 35
-		toggle	5		// 40
-		toggle	5		// 45
-		toggle	2		// 47
-		rjmp	loop
-		.endm
+        .macro	baseband_1_last
+        toggle	5		// 5
+        toggle	5		// 10
+        toggle	5		// 15
+        toggle	5		// 20
+        toggle	5		// 25
+        toggle	5		// 30
+        toggle	5		// 35
+        toggle	5		// 40
+        toggle	5		// 45
+        toggle	2		// 47
+        rjmp	loop
+        .endm
     
         .macro	header
         baseband_0
@@ -328,10 +328,10 @@ loop:
         baseband_1
         .endm
 
-		header
-		manchester	HID_SITE_CODE, 24
-		manchester	HID_UNIQUE_ID, 20
-		stop_bit
+        header
+        manchester	HID_SITE_CODE, 24
+        manchester	HID_UNIQUE_ID, 20
+        stop_bit
 
 #endif /* FORMAT_IS_HID */
 
