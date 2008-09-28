@@ -81,7 +81,7 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = main.c filter.c serial.c
+SRC = main.c filter.c serial.c pll.c
 
 
 # List C++ source files here. (C dependencies are automatically generated.)

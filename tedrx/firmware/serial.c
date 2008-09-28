@@ -1,6 +1,11 @@
 /* -*- Mode: C; c-basic-offset: 4 -*-
  *
- * Work-in-progress: Open source receiver for The Energy Detective
+ * serial.c --
+ *
+ *   A simple low-speed transmit only serial port, implemented
+ *   in software using Timer 1. This timer is shared with the
+ *   PLL module- our serial baud rate also determines the PLL
+ *   sampling rate.
  *
  * Copyright (c) 2008 Micah Dowty <micah@navi.cx>
  *
@@ -32,10 +37,7 @@
 
 #include "tedrx.h"
 
-#define OUTPUT_BAUD      9600                      /* Baud rate for the output port */
-#define SERIAL_OUT_PIN   PINB4
 #define BUFFER_SIZE      16
-#define INVERT_OUTPUT    0
 
 volatile static struct {
     uint8_t data[BUFFER_SIZE];
@@ -57,12 +59,16 @@ ISR(TIM1_COMPA_vect)
     static uint16_t current;
     static uint8_t next_bit;
 
+#ifndef DEBUG_PIN
     /* Latch the output at the top of the ISR, to reduce jitter. */
     if (next_bit ^ INVERT_OUTPUT) {
         PORTB |= _BV(SERIAL_OUT_PIN);
     } else {
         PORTB &= ~_BV(SERIAL_OUT_PIN);
     }
+#endif
+
+    pll_update();
   
     /* Reload our shift register, if it's empty. */
     if (!bits_remaining) {
