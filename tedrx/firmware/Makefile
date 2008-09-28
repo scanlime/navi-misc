@@ -81,7 +81,7 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = tedrx_main.c tedrx_filter.c tedrx_serial.c
+SRC = main.c filter.c serial.c
 
 
 # List C++ source files here. (C dependencies are automatically generated.)

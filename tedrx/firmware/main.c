@@ -30,8 +30,7 @@
 #include <avr/interrupt.h>
 #include <stdio.h>
 
-#include "tedrx_filter.h"
-#include "tedrx_serial.h"
+#include "tedrx.h"
 
 FUSES = {
 	.low = 0xE1,       /* 16 MHz PLL */
