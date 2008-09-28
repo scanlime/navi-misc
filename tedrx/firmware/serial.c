@@ -1,4 +1,5 @@
-/*
+/* -*- Mode: C; c-basic-offset: 4 -*-
+ *
  * Work-in-progress: Open source receiver for The Energy Detective
  *
  * Copyright (c) 2008 Micah Dowty <micah@navi.cx>
@@ -31,15 +32,15 @@
 
 #include "tedrx.h"
 
-#define OUTPUT_BAUD      9600			   /* Baud rate for the output port */
+#define OUTPUT_BAUD      9600                      /* Baud rate for the output port */
 #define SERIAL_OUT_PIN   PINB4
 #define BUFFER_SIZE      16
-#define INVERT_OUTPUT	 0
+#define INVERT_OUTPUT    0
 
 volatile static struct {
-	uint8_t data[BUFFER_SIZE];
-	uint8_t head;
-	uint8_t tail;
+    uint8_t data[BUFFER_SIZE];
+    uint8_t head;
+    uint8_t tail;
 } buffer;
 
 
@@ -52,35 +53,35 @@ volatile static struct {
 
 ISR(TIM1_COMPA_vect)
 {
-	static uint8_t bits_remaining;
-	static uint16_t current;
-	static uint8_t next_bit;
+    static uint8_t bits_remaining;
+    static uint16_t current;
+    static uint8_t next_bit;
 
-	/* Latch the output at the top of the ISR, to reduce jitter. */
-	if (next_bit ^ INVERT_OUTPUT) {
-		PORTB |= _BV(SERIAL_OUT_PIN);
-	} else {
-		PORTB &= ~_BV(SERIAL_OUT_PIN);
-	}
+    /* Latch the output at the top of the ISR, to reduce jitter. */
+    if (next_bit ^ INVERT_OUTPUT) {
+        PORTB |= _BV(SERIAL_OUT_PIN);
+    } else {
+        PORTB &= ~_BV(SERIAL_OUT_PIN);
+    }
+  
+    /* Reload our shift register, if it's empty. */
+    if (!bits_remaining) {
+        if (buffer.head == buffer.tail) {
+            /* Buffer is empty */
+            next_bit = 1;
+            return;
+        }
+    
+        /* 8-N-1 framing */
+        current = _BV(9) | (buffer.data[buffer.head] << 1);
+        bits_remaining = 10;
 
-	/* Reload our shift register, if it's empty. */
-	if (!bits_remaining) {
-		if (buffer.head == buffer.tail) {
-			/* Buffer is empty */
-			next_bit = 1;
-			return;
-		}
-		
-		/* 8-N-1 framing */
-		current = _BV(9) | (buffer.data[buffer.head] << 1);
-		bits_remaining = 10;
+        buffer.head = (buffer.head + 1) & (BUFFER_SIZE - 1);
+    }
 
-		buffer.head = (buffer.head + 1) & (BUFFER_SIZE - 1);
-	}
-
-	next_bit = current & 1;
-	current >>= 1;
-	bits_remaining--;
+    next_bit = current & 1;
+    current >>= 1;
+    bits_remaining--;
 }
 
 
@@ -94,16 +95,16 @@ ISR(TIM1_COMPA_vect)
 static int
 serial_putchar(char c, FILE *stream)
 {
-	uint8_t next_tail;
+    uint8_t next_tail;
 
-	do {
-		next_tail = (buffer.tail + 1) & (BUFFER_SIZE - 1);
-	} while (next_tail == buffer.head);
+    do {
+        next_tail = (buffer.tail + 1) & (BUFFER_SIZE - 1);
+    } while (next_tail == buffer.head);
 
-	buffer.data[buffer.tail] = c;
-	buffer.tail = next_tail;
+    buffer.data[buffer.tail] = c;
+    buffer.tail = next_tail;
 
-	return 0;
+    return 0;
 }
 
 
@@ -116,22 +117,22 @@ serial_putchar(char c, FILE *stream)
 void
 serial_init(void)
 {
-	static FILE stream = FDEV_SETUP_STREAM(serial_putchar, NULL, _FDEV_SETUP_WRITE);
+    static FILE stream = FDEV_SETUP_STREAM(serial_putchar, NULL, _FDEV_SETUP_WRITE);
 
-	DDRB |= _BV(SERIAL_OUT_PIN);
-	
-	/*
-	 * Set up Timer 1 as a baud rate generator for OUTPUT_BAUD.
-	 * We have 1/2 of a software UART, to implement stdout.
-	 * This baud rate calculation uses a CK/8 prescaler.
-	 *
-	 * When the timer reaches OCR1C, it will be reset. When it
-	 * reaches OCR1A, we fire an interrupt.
-	 */
-	TCCR1 = _BV(CTC1) | _BV(CS12);
-	OCR1A = 1;
-	OCR1C = F_CPU / 8 / OUTPUT_BAUD;
-	TIMSK |= _BV(OCIE1A);
+    DDRB |= _BV(SERIAL_OUT_PIN);
+        
+    /*
+     * Set up Timer 1 as a baud rate generator for OUTPUT_BAUD.
+     * We have 1/2 of a software UART, to implement stdout.
+     * This baud rate calculation uses a CK/8 prescaler.
+     *
+     * When the timer reaches OCR1C, it will be reset. When it
+     * reaches OCR1A, we fire an interrupt.
+     */
+    TCCR1 = _BV(CTC1) | _BV(CS12);
+    OCR1A = 1;
+    OCR1C = F_CPU / 8 / OUTPUT_BAUD;
+    TIMSK |= _BV(OCIE1A);
 
-	stdout = stderr = &stream;
+    stdout = stderr = &stream;
 }

@@ -1,4 +1,5 @@
-/*
+/* -*- Mode: C; c-basic-offset: 4 -*-
+ *
  * Work-in-progress: Open source receiver for The Energy Detective
  *
  * Copyright (c) 2008 Micah Dowty <micah@navi.cx>
@@ -33,28 +34,28 @@
 #include "tedrx.h"
 
 FUSES = {
-	.low = 0xE1,       /* 16 MHz PLL */
-	.high = 0xDF,      /* Defaults */
-	.extended = 0xFF,  /* Defaults */
+    .low = 0xE1,       /* 16 MHz PLL */
+    .high = 0xDF,      /* Defaults */
+    .extended = 0xFF,  /* Defaults */
 };
 
 int main(void)
 {
-	uint8_t buf[16];
+    uint8_t buf[16];
 
-	filter_init();
-	//serial_init();
-	sei();
+    filter_init();
+    //serial_init();
+    sei();
 
-	while (1) {
-		uint8_t i;
+    while (1) {
+        uint8_t i;
 
-		filter_rx(buf, sizeof buf);
-	
-		printf("Ping");
-		for (i = 0; i < sizeof buf; i++) {
-			printf(" %02x", buf[i]);
-		}
-		printf("\r\n");
-	}
+        filter_rx(buf, sizeof buf);
+        
+        printf("Ping");
+        for (i = 0; i < sizeof buf; i++) {
+            printf(" %02x", buf[i]);
+        }
+        printf("\r\n");
+    }
 }
