@@ -48,7 +48,6 @@ int main(void)
     sei();
 
     while (1) {
-#if 0
         uint8_t i;
 
         filter_rx(buf, sizeof buf);
@@ -58,6 +57,5 @@ int main(void)
             printf(" %02x", buf[i]);
         }
         printf("\r\n");
-#endif
     }
 }
