@@ -2,10 +2,8 @@
  *
  * serial.c --
  *
- *   A simple low-speed transmit only serial port, implemented
- *   in software using Timer 1. This timer is shared with the
- *   PLL module- our serial baud rate also determines the PLL
- *   sampling rate.
+ *   A simple low-speed transmit only serial port, implemented in
+ *   software using Timer 1.
  *
  * Copyright (c) 2008 Micah Dowty <micah@navi.cx>
  *
@@ -49,28 +47,33 @@ volatile static struct {
 /*
  * Timer 1 compare match vector --
  *
- *    This is our software async serial transmitter,
- *    which implements stdout.
+ *    This is our software async serial transmitter, which implements
+ *    stdout.
+ *
+ *    We intentionally use COMPB instead of COMPA, because this
+ *    interrupt must be lower priority than the Timer 0 overflow. This
+ *    interrupt must not block the Timer 0 interrupt, or our ASK
+ *    demodulation timebase will be inaccurate.
  */
 
-ISR(TIM1_COMPA_vect)
+ISR(TIM1_COMPB_vect, ISR_NOBLOCK)
 {
     static uint8_t bits_remaining;
     static uint16_t current;
     static uint8_t next_bit;
 
-#ifndef DEBUG_PIN
+#if !defined(DEBUG_PIN) || (DEBUG_PIN != SERIAL_OUT_PIN)
     /* Latch the output at the top of the ISR, to reduce jitter. */
-    if (next_bit ^ INVERT_OUTPUT) {
+    if (next_bit ^ SERIAL_INVERT) {
         PORTB |= _BV(SERIAL_OUT_PIN);
     } else {
         PORTB &= ~_BV(SERIAL_OUT_PIN);
     }
 #endif
 
-    pll_update();
-  
-    /* Reload our shift register, if it's empty. */
+    /*
+     * Reload our shift register, if it's empty.
+     */
     if (!bits_remaining) {
         if (buffer.head == buffer.tail) {
             /* Buffer is empty */
@@ -128,17 +131,17 @@ serial_init(void)
     DDRB |= _BV(SERIAL_OUT_PIN);
         
     /*
-     * Set up Timer 1 as a baud rate generator for OUTPUT_BAUD.
+     * Set up Timer 1 as a baud rate generator for SERIAL_BAUD.
      * We have 1/2 of a software UART, to implement stdout.
      * This baud rate calculation uses a CK/8 prescaler.
      *
      * When the timer reaches OCR1C, it will be reset. When it
-     * reaches OCR1A, we fire an interrupt.
+     * reaches OCR1B, we fire an interrupt.
      */
     TCCR1 = _BV(CTC1) | _BV(CS12);
-    OCR1A = 1;
-    OCR1C = F_CPU / 8 / OUTPUT_BAUD;
-    TIMSK |= _BV(OCIE1A);
+    OCR1B = 1;
+    OCR1C = F_CPU / 8 / SERIAL_BAUD;
+    TIMSK |= _BV(OCIE1B);
 
     stdout = stderr = &stream;
 }
