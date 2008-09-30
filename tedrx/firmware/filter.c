@@ -199,11 +199,7 @@ ISR(TIM0_OVF_vect)
 /*
  * rx_bit --
  *
- *    Receive one bit, with weighted majority-detect.
- *
- *    Since ASK pulses are usually stretched a bit due to 'ringing'
- *    both on the transmit and receive side, we give 0 more weight
- *    than 1.
+ *    Receive one bit, with majority-detect.
  */
 
 static uint8_t
@@ -212,35 +208,71 @@ rx_bit(void)
     uint16_t high_cnt = 0;
     uint16_t low_cnt = 0;
     
+#if defined(DEBUG_PIN) && defined(DEBUG_RX_BIT_TIME)
+    PORTB ^= _BV(DEBUG_PIN);
+    PORTB ^= _BV(DEBUG_PIN);
+#endif
+
     do {
 	ask_demodulate_poll();
 
-	if (baseband) {
-	    high_cnt++;
-	} else {
-	    low_cnt += 2;
+	/*
+	 * Majority-detection window: Between 1/2 and 2/3 of the bit
+	 * width. We bias toward the end of the bit, since the tail
+	 * end of each "1" tends to ring a bit.
+	 */
+	if (bit_timer >= BIT_DIV / 2 && bit_timer <= BIT_DIV * 2 / 3) {
+	    if (baseband) {
+		high_cnt++;
+	    } else {
+		low_cnt++;
+	    }
 	}
+
     } while (bit_timer < BIT_DIV);
 
     cli();
     bit_timer -= BIT_DIV;
     sei();
 
+#if defined(DEBUG_PIN) && defined(DEBUG_RX_BIT_TIME)
+    PORTB ^= _BV(DEBUG_PIN);
+    PORTB ^= _BV(DEBUG_PIN);
+    PORTB ^= _BV(DEBUG_PIN);
+    PORTB ^= _BV(DEBUG_PIN);
+    if (high_cnt > low_cnt) {
+	PORTB |= _BV(DEBUG_PIN);
+    } else {
+	PORTB &= ~_BV(DEBUG_PIN);
+    }
+#endif
+
     return high_cnt > low_cnt;
 }
 
 
 /*
- * try_packet_rx --
+ * filter_rx --
  *
- *    Try to receive a packet. Returns 1 on success, or 0 on framing error.
+ *    Try to receive a packet. Returns the number of bytes received.
  */
 
-static uint8_t
-try_packet_rx(uint8_t *buffer, uint8_t length)
+uint8_t
+filter_rx(uint8_t *buffer, uint8_t length)
 {
-    /* Wait for start bit. */
-	
+    uint8_t result = 0;
+    uint8_t i;
+
+    /*
+     * Prime the ASK demodulation filters, by running
+     * through a few dummy cycles.
+     */
+    for (i = LPF_SIZE; i; i--) {
+	while (!ask_demodulate_pending());
+	ask_demodulate();
+    }
+
+    /* Wait for first start bit. */	
     do {
 	do {
 	    ask_demodulate_poll();
@@ -255,6 +287,10 @@ try_packet_rx(uint8_t *buffer, uint8_t length)
 
 	/* Receive 8 data bits, LSB first. */
 
+#if defined(DEBUG_PIN) && defined(DEBUG_RX_BYTE_FRAMING)
+	PORTB |= _BV(DEBUG_PIN);
+#endif
+
 	for (bit = 8; bit; bit--) {
 	    byte >>= 1;
 	    if (rx_bit()) {
@@ -262,12 +298,22 @@ try_packet_rx(uint8_t *buffer, uint8_t length)
 	    }
 	}
 
-	/* Two stop bits */
+#if defined(DEBUG_PIN) && defined(DEBUG_RX_BYTE_FRAMING)
+	PORTB ^= _BV(DEBUG_PIN);
+	PORTB ^= _BV(DEBUG_PIN);
+#endif
 
-	for (bit = 2; bit; bit--) {
-	    if (rx_bit()) {
-		return 0;
-	    }
+	/*
+	 * Two stop bits.
+	 *
+	 * Validate the first one, but use the second one as an error
+	 * margin in synchronizing with the next byte's start
+	 * bit. This makes us a lot more tolerant to timing errors in
+	 * detecting the edge of the first start bit.
+	 */
+
+	if (rx_bit()) {
+	    goto error;
 	}
 
 	/* Store this byte */
@@ -275,146 +321,38 @@ try_packet_rx(uint8_t *buffer, uint8_t length)
 	*buffer = byte;
 	buffer++;
 	length--;
+	result++;
 
 	if (!length) {
 	    break;
 	}
 
-	/* Next byte's start bit */
+	/* Wait for up to two bit widths, for the next start bit. */
+	bit = 2;
 
+	do {
+	    ask_demodulate_poll();
+	    if (bit_timer > BIT_DIV) {
+		bit--;
+		bit_timer = 0;
+		if (bit == 0) {
+		    goto error;
+		}
+	    }
+	} while (!baseband);
 
+#if defined(DEBUG_PIN) && defined(DEBUG_RX_BYTE_FRAMING)
+	PORTB &= ~_BV(DEBUG_PIN);
+#endif
+
+	bit_timer = 0;
+	if (!rx_bit()) {
+	    goto error;
+	}
     }
 
-
-
-
-
-#if defined(DEBUG_PIN) && defined(DEBUG_RX_BITS)
-  		    if (bit) {
-				PORTB |= _BV(DEBUG_PIN);
-			} else {
-				PORTB &= ~_BV(DEBUG_PIN);
-			}
-
-			byte = (byte << 1) | bit;
-			
-			cli();
-			bit_timer -= BIT_DIV;
-			sei();
-		}
-
-#endif
-		buffer[0] = byte;
-		buffer++;
-		length--;
-	}
-#endif
-    
-
-
-
-
-	while (1) {
-	    ask_demodulate_poll();
-	}
-
-	/*
-	 * Wait for a start bit.
-	 *
-	 * The start bit is special: we want to be sure it's acutally
-         * bit-length, so we don't misinterpret a short noise spike as an
-         * actual start bit.
-	 *
-	 * So, we'll actually wait for the start bit to start *and*
-	 * finish, then we'll time it. If the time looks right, we start
-	 * receiving. The bit clock will be synchronized to the falling
-	 * edge of the start bit.
-	 *
-	 * Any time we wait, poll the demodulator.
-	 */
-
-	while (length) {
-		uint8_t bit;
-		uint8_t byte = 0;
-
-		for (bit = 8; bit; bit--) {
-			uint16_t t;
-			uint8_t bit;
-			uint8_t high_cnt = 0;
-			uint8_t low_cnt = 0;
-				
-			/*
-			 * Receive one bit.
-			 *
-			 * We discard data from the edges of the bit's timeslot, but
-			 * we do continuous majority-detection during the bit's center.
-			 */
-
-			do {
-				ask_demodulate_poll();
-
-				if (t > BIT_DIV / 3 && t < BIT_DIV * 2 / 3) {
-					if (baseband) {
-						high_cnt++;
-					} else {
-						low_cnt++;
-					}
-				}
-				
-				cli();
-				t = bit_timer;
-				sei();	
-			} while (t < BIT_DIV);
-
-			bit = high_cnt >= low_cnt;
-
-#if defined(DEBUG_PIN) && defined(DEBUG_RX_BITS)
-  		    if (bit) {
-				PORTB |= _BV(DEBUG_PIN);
-			} else {
-				PORTB &= ~_BV(DEBUG_PIN);
-			}
-
-			byte = (byte << 1) | bit;
-			
-			cli();
-			bit_timer -= BIT_DIV;
-			sei();
-		}
-
-#endif
-		buffer[0] = byte;
-		buffer++;
-		length--;
-	}
-#endif
-}
-}
-
-
-/*
- * filter_rx --
- *
- *    Receive filtered bits.
- */
-
-void
-filter_rx(uint8_t *buffer, uint8_t length)
-{
-	uint8_t i;
-
-	/*
-	 * Prime the ASK demodulation filters, by running
-	 * through a few dummy cycles.
-	 */
-
-	for (i = LPF_SIZE; i; i--) {
-		while (!ask_demodulate_pending());
-		ask_demodulate();
-	}
-
-	/* Keep receiving until we get a packet with no framing errors. */
-	while (!try_packet_rx(buffer, length));
+ error:
+    return result;
 }
 
 
