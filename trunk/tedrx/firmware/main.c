@@ -41,19 +41,20 @@ FUSES = {
 
 int main(void)
 {
-    uint8_t buf[16];
+    uint8_t buf[32];
 
     filter_init();
     serial_init();
     sei();
 
     while (1) {
-        uint8_t i;
+        uint8_t i, size;
 
-        filter_rx(buf, sizeof buf);
-        
-        printf("Ping");
-        for (i = 0; i < sizeof buf; i++) {
+        size = filter_rx(buf, sizeof buf);
+	_delay_ms(1);
+
+        printf("[%02d]", size);
+        for (i = 0; i < size; i++) {
             printf(" %02x", buf[i]);
         }
         printf("\r\n");
