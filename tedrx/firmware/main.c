@@ -51,7 +51,19 @@ int main(void)
         uint8_t i, size;
 
         size = filter_rx(buf, sizeof buf);
-	_delay_ms(1);
+
+	/*
+	 * Packet format notes:
+	 *
+	 *  11 bytes
+	 * 
+	 *  0.     Header (0x55)
+	 *  1.     House code
+	 *  2.     Packet counter
+	 *  3-5.   Raw power reading (complement)
+	 *  6-8.   Raw voltage?
+	 *  9-10.  16-bit checksum?
+	 */
 
         printf("[%02d]", size);
         for (i = 0; i < size; i++) {
