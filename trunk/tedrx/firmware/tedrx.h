@@ -16,7 +16,7 @@
  * Serial port.
  */
 #define SERIAL_BAUD        9600
-#define SERIAL_INVERT      0
+#define SERIAL_INVERT      1
 
 void serial_init(void);
 
