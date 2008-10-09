@@ -1,7 +1,6 @@
 /* -*- Mode: C; c-basic-offset: 4 -*-
  *
- * Main program for an open source receiver unit for The Energy
- * Detective.
+ * Main program for an open source receiver unit for The Energy Detective.
  *
  * Copyright (c) 2008 Micah Dowty <micah@navi.cx>
  *
@@ -32,24 +31,14 @@
 #include <avr/interrupt.h>
 #include <stdio.h>
 
-#include "tedrx.h"
+#include <tedrx.h>
+#include <ted-raw.h>
 
 FUSES = {
     .low = 0xE1,       /* 16 MHz PLL */
     .high = 0xDF,      /* Defaults */
     .extended = 0xFF,  /* Defaults */
 };
-
-uint8_t checksum(uint8_t *buf, uint8_t len)
-{
-    uint8_t sum = 0;
-
-    while (len) {
-	sum += *buf;
-	buf++;
-	len--;
-    }
-}
 
 int main(void)
 {
@@ -60,50 +49,20 @@ int main(void)
     sei();
 
     while (1) {
-        uint8_t i, size;
+        uint8_t size;
 	uint32_t power, voltage;
-
+	TEDPacket *packet;
+	
         size = filter_rx(buf, sizeof buf);
+	packet = ted_packet_validate(buf, size);
 
-	/*
-	 * Packet format notes:
-	 *
-	 *  11 bytes
-	 * 
-	 *  0.     Header (0x55)
-	 *  1.     House code
-	 *  2.     Packet counter
-	 *  3-5.   Raw power reading
-	 *  6-8.   Raw voltage reading
-	 *  9.     Unknown
-	 *  10.    Checksum
-	 *
-	 * The raw voltage and power readings can be converted to
-	 * kilowatts and volts using these experimentally determined
-	 * formulae:
-	 *
-	 *   kW = (raw_power - 16777177) / -62048
-	 *   V  = (raw_voltage - 170350) / 55822
-	 *
-	 * Byte 9 seems to always hover around 250 in my
-	 * measurements. This could be a flag byte, some kind of
-	 * parity signal, or maybe even a measurement of the AC line
-	 * frequency.
-	 *
-	 * Byte 10 is a simple checksum. Add all the bytes in the packet,
-	 * modulo 256, and this byte ensures that the result is zero.
-	 */
-
-	if (size != 11 || buf[0] != 0x55 || checksum(buf, size) != 0) {
+	if (!packet) {
 	    /* Bad packet */
 	    continue;
 	}
 
-	power = (uint32_t)buf[3] | (((uint32_t)buf[4]) << 8) | (((uint32_t)buf[5]) << 16);
-	voltage = (uint32_t)buf[6] | (((uint32_t)buf[7]) << 8) | (((uint32_t)buf[8]) << 16);
-
-	power = -(power - 16777177L);
-	voltage -= 170350L;
+	power = ted_packet_watts(packet);
+	voltage = ted_packet_millivolts(packet);
 
 	/*
 	 * Print a representation of this packet which is designed
@@ -111,11 +70,11 @@ int main(void)
 	 */
 
 	printf("HC=%03u KW=%03u.%03u V=%03u.%03u CNT=%03u\r\n",
-	       buf[1],
-	       (int)(power / 62048L),
-	       (int)((power * 100L / 6204L) % 1000),
-	       (int)(voltage / 55822L),
-	       (int)((voltage * 100L / 5582L) % 1000),
-	       buf[2]);
+	       packet->houseCode,
+	       (int)(power / 1000),
+	       (int)(power % 1000),
+	       (int)(voltage / 1000),
+	       (int)(voltage % 1000),
+	       packet->packetCount);
     }
 }
