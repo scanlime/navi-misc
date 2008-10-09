@@ -3,16 +3,20 @@
  * filter.c --
  *
  *   A digital filter and demodulator. Our input is the amplified
- *   output of a 138 kHz bandpass filter, which separates the
+ *   output of a 132 kHz bandpass filter, which separates the
  *   modulated signal from most of the background noise (and, of
  *   course, the mains frequency itself).
  *
  *   This module's job is to phovide a very narrow digital bandpass
- *   filter to select the 138 kHz pulses. The result is then low-pass
+ *   filter to select the 132 kHz pulses. The result is then low-pass
  *   filtered into a clean baseband signal. We provide a high-level
  *   entry point which receives a packet, using a serial protocol
  *   which is similar to RS-232 at 1200 baud 8-N-2, but with a
  *   different idle state.
+ *
+ *   Note that, according to the data sheet for the TDA5051A modem
+ *   used by TED, the modulation frequency may be anywhere between
+ *   95 and 148.5 kHz, with a "typical" value of 132.5 kHz.
  *
  * Copyright (c) 2008 Micah Dowty <micah@navi.cx>
  *
@@ -46,7 +50,7 @@
 #include <tedrx.h>
 
 /* Experimentally determined protocol constants */
-#define ASK_FREQ      138000                       /* The TED uses ASK modulation at 138 kHz */
+#define ASK_FREQ      132500                       /* The nominal modulation frequency is 132.5 kHz */
 #define BIT_RATE      1200                         /* Data is 1200 baud serial */
 
 #define RDIV(x,y)     (((x) + ((y)/2)) / (y))      /* Integer divide, with rounding. */
@@ -57,9 +61,9 @@
 #define BIT_DIV       RDIV(TMR0_ACTUAL, BIT_RATE)  /* Number of TMR0 interrupts per bit */
 
 #define PATMATCH_DIV  8                            /* How many TMR0 cycles between pattern matching opportunities? */
-#define LPF_SIZE      8                           /* Size of low-pass filter buffer. Must be a power of two. */
-#define LPF_THRESHOLD (LPF_SIZE * 3)               /* Low pass filter threshold */
-#define LPF_HYST      4                            /* Amount of hysteresis applied to LPF_THREHSOLD */
+#define LPF_SIZE      8                            /* Size of low-pass filter buffer. Must be a power of two. */
+#define LPF_THRESHOLD (LPF_SIZE * 2)               /* Low pass filter threshold */
+#define LPF_HYST      1                            /* Amount of hysteresis applied to LPF_THREHSOLD */
 
 static volatile uint8_t  baseband;                 /* The latest demodulated bit */
 static volatile uint8_t  bit_timer;                /* TMR0-driven counter for bit timing */
