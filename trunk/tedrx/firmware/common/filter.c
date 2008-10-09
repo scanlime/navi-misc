@@ -42,7 +42,8 @@
 #include <avr/interrupt.h>
 #include <string.h>
 
-#include "tedrx.h"
+#include <filter.h>
+#include <tedrx.h>
 
 /* Experimentally determined protocol constants */
 #define ASK_FREQ      138000                       /* The TED uses ASK modulation at 138 kHz */
