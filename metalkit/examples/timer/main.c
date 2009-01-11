@@ -21,8 +21,8 @@ main(void)
    Intr_SetFaultHandlers(Console_UnhandledFault);
 
    Timer_InitPIT(PIT_HZ / 100);
-   Intr_SetMask(0, TRUE);
-   Intr_SetHandler(IRQ_VECTOR(0), timerHandler);
+   Intr_SetMask(PIT_IRQ, TRUE);
+   Intr_SetHandler(IRQ_VECTOR(PIT_IRQ), timerHandler);
 
    while (1) {
       Console_MoveTo(0, 0);

@@ -44,6 +44,7 @@
 #define KEY_ESCAPE      0x1B
 #define KEY_BACKSPACE   '\b'
 #define KEY_ENTER       '\n'
+#define KEY_TAB         '\t'
 #define KEY_LCTRL       0x80
 #define KEY_LSHIFT      0x81
 #define KEY_RCTRL       0x82
@@ -73,18 +74,22 @@
 #define KEY_RIGHT       0x9A
 #define KEY_INSERT      0x9B
 #define KEY_DELETE      0x9C
+#define KEY_LALT        0x9D
+#define KEY_RALT        0x9E
+#define KEY_MAX         0x9F   // Number of keycodes
 
 typedef uint8 Keycode;
 
 typedef struct KeyEvent {
+   uint8   scancode;
    Keycode key;
    Bool    pressed;
 } KeyEvent;
 
-typedef void (KeyboardIRQHandler*)(KeyEvent *event);
+typedef fastcall void (*KeyboardIRQHandler)(KeyEvent *event);
 
-void Keyboard_Init(void);
-Bool Keyboard_IsKeyPressed(Keycode key);
-void Keyboard_SetHandler(KeyboardIRQHandler handler);
+fastcall void Keyboard_Init(void);
+fastcall Bool Keyboard_IsKeyPressed(Keycode key);
+fastcall void Keyboard_SetHandler(KeyboardIRQHandler handler);
 
 #endif /* __VGA_TEXT_H__ */
