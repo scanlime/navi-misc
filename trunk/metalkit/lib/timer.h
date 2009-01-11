@@ -35,7 +35,8 @@
 
 #include "types.h"
 
-#define PIT_HZ  1193182
+#define PIT_HZ   1193182
+#define PIT_IRQ  0
 
 fastcall void Timer_InitPIT(uint16 divisor);
 

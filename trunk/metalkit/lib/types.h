@@ -57,6 +57,7 @@ typedef struct {
 
 #define offsetof(type, member)  ((uint32)(&((type*)NULL)->member))
 #define arraysize(var)          (sizeof(var) / sizeof((var)[0]))
+#define roundup(x, y)           (((x) + ((y) - 1)) / (y))
 
 #define PACKED       __attribute__ ((__packed__))
 #define ALIGNED(n)   __attribute__ ((aligned(n)))
