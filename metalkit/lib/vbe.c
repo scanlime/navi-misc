@@ -152,6 +152,38 @@ VBE_SetStartAddress(int x, int y)
 
 
 /*
+ * VBE_SetPalette --
+ *
+ *    Use the VESA BIOS (not the VGA registers) to update any number
+ *    of palette entries.
+ *
+ *    Note that the entire block of palette entries must fit in the
+ *    BIOS_SHARED scratch area. Currently this is 1 kilobyte, which
+ *    is exactly the size of a full VBE palette.
+ *
+ *    Each palette entry is a 32-bit BGRX-format color. By default,
+ *    each color component is 6 bits wide.
+ */
+
+fastcall void
+VBE_SetPalette(int firstColor, int numColors, uint32 *colors)
+{
+   Regs16 reg = {};
+   uint32 *tempColors = (void*) BIOS_SHARED->userdata;
+
+   memcpy32(tempColors, colors, numColors);
+
+   reg.ax = 0x4f09;
+   reg.bx = 0x0000;  // Set palette data
+   reg.cx = numColors;
+   reg.dx = firstColor;
+   reg.di = PTR_32_TO_NEAR(tempColors, 0);
+
+   BIOS_Call(0x10, &reg);
+}
+
+
+/*
  * VBE_InitSimple --
  *
  *    Look for a linear video mode matching the requested
