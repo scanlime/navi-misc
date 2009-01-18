@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
+<channel>
+<title>Temperature Data</title>
+
+<item><media:content url="http://192.168.1.77/therm/temp-1d.jpeg?1" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1h.jpeg?1" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1m.jpeg?1" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1w.jpeg?1" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1y.jpeg?1" type="image/jpeg" /></item>
+
+<item><media:content url="http://192.168.1.77/therm/temp-1d.jpeg?2" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1h.jpeg?2" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1m.jpeg?2" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1w.jpeg?2" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1y.jpeg?2" type="image/jpeg" /></item>
+
+<item><media:content url="http://192.168.1.77/therm/temp-1d.jpeg?3" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1h.jpeg?3" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1m.jpeg?3" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1w.jpeg?3" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1y.jpeg?3" type="image/jpeg" /></item>
+
+<item><media:content url="http://192.168.1.77/therm/temp-1d.jpeg?4" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1h.jpeg?4" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1m.jpeg?4" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1w.jpeg?4" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1y.jpeg?4" type="image/jpeg" /></item>
+
+<item><media:content url="http://192.168.1.77/therm/temp-1d.jpeg?5" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1h.jpeg?5" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1m.jpeg?5" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1w.jpeg?5" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1y.jpeg?5" type="image/jpeg" /></item>
+
+<item><media:content url="http://192.168.1.77/therm/temp-1d.jpeg?6" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1h.jpeg?6" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1m.jpeg?6" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1w.jpeg?6" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1y.jpeg?6" type="image/jpeg" /></item>
+
+<item><media:content url="http://192.168.1.77/therm/temp-1d.jpeg?7" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1h.jpeg?7" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1m.jpeg?7" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1w.jpeg?7" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1y.jpeg?7" type="image/jpeg" /></item>
+
+<item><media:content url="http://192.168.1.77/therm/temp-1d.jpeg?8" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1h.jpeg?8" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1m.jpeg?8" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1w.jpeg?8" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1y.jpeg?8" type="image/jpeg" /></item>
+
+<item><media:content url="http://192.168.1.77/therm/temp-1d.jpeg?9" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1h.jpeg?9" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1m.jpeg?9" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1w.jpeg?9" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1y.jpeg?9" type="image/jpeg" /></item>
+
+<item><media:content url="http://192.168.1.77/therm/temp-1d.jpeg?10" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1h.jpeg?10" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1m.jpeg?10" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1w.jpeg?10" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1y.jpeg?10" type="image/jpeg" /></item>
+
+<item><media:content url="http://192.168.1.77/therm/temp-1d.jpeg?11" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1h.jpeg?11" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1m.jpeg?11" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1w.jpeg?11" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1y.jpeg?11" type="image/jpeg" /></item>
+
+<item><media:content url="http://192.168.1.77/therm/temp-1d.jpeg?12" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1h.jpeg?12" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1m.jpeg?12" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1w.jpeg?12" type="image/jpeg" /></item>
+<item><media:content url="http://192.168.1.77/therm/temp-1y.jpeg?12" type="image/jpeg" /></item>
+
+</channel>
+</rss>
