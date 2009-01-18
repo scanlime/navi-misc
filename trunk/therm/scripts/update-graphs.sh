@@ -1,7 +1,11 @@
-for scale in 1h 1d 1w 1m 1y; do
+qfor scale in 1h 1d 1w 1m 1y; do
 
-rrdtool graph temp-$scale.png -a PNG -w 800 -h 400 \
-	-t "Temperature Data" \
+imgName=temp-$scale
+title="Temperature Data ($scale) - `date`"
+
+rrdtool graph $imgName.png -a PNG -w 900 -h 340 \
+	--font DEFAULT:12:Vera.ttf \
+	-t "$title" \
 	--end now --start end-$scale \
 	-v "Degrees Fahrenheit" \
 	DEF:rf3=rf3-temperature.rrd:temperature:AVERAGE CDEF:rf3f=9,5,/,rf3,*,32,+ VDEF:vrf3f=rf3f,AVERAGE \
@@ -16,5 +20,8 @@ rrdtool graph temp-$scale.png -a PNG -w 800 -h 400 \
 	LINE2:rf7f#79d1d5:"Office" GPRINT:vrf7f:"%0.1lf F\n" \
 	LINE2:rf8f#798634:"Upstairs Hall" GPRINT:vrf8f:"%0.1lf F\n" \
 	LINE2:rf9f#f76115:"Downstairs Thermostat" GPRINT:vrf9f:"%0.1lf F\n" \
+
+convert $imgName.png $imgName.tmp.jpeg
+mv $imgName.tmp.jpeg $imgName.jpeg
 
 done
