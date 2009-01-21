@@ -1,12 +1,54 @@
-for scale in 1h 1d 1w 1m 1y; do
+#!/bin/bash
+#
+# Generate RRD graphs for the temperature sensors, and update an RSS file
+# which includes per-file timestamps in order to defeat client-side caching.
+#
+# Micah Dowty <micah@navi.cx>
+#
 
-imgName=temp-$scale
-title="Temperature Data ($scale) - `date`"
+####### Configuration ########
 
-rrdtool graph $imgName.png -a PNG -w 900 -h 340 \
+#
+# Which intervals to generate graphs for? 
+# These must be rrdtool-compatible time differences.
+#
+INTERVALS="1d 1w 1m"
+
+#
+# Variables for the generated RSS file
+#
+TITLE="Temperature Data"
+URL_BASE="http://192.168.1.77/therm"
+RSSFILE="therm.rss"
+
+##############################
+
+hash=`date +%s`
+
+( cat <<EOF
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
+<channel>
+
+<title>$TITLE</title>
+<ttl>2</ttl>
+EOF
+
+for interval in $INTERVALS; do
+   echo "<item><media:content url=\"$URL_BASE/temp-$interval.jpeg?t=$hash\" type=\"image/jpeg\" /></item>"
+done
+
+echo "</channel></rss>" ) > $RSSFILE
+
+for interval in $INTERVALS; do
+
+imgName=temp-$interval
+graphTitle="Temperature Data ($interval) - `date`"
+
+rrdtool graph $imgName.png -a PNG -w 900 -h 350 \
 	--font DEFAULT:12:Vera.ttf \
-	-t "$title" \
-	--end now --start end-$scale \
+	-t "$graphTitle" \
+	--end now --start end-$interval \
 	-v "Degrees Fahrenheit" \
 	DEF:rf3=rf3-temperature.rrd:temperature:AVERAGE CDEF:rf3f=9,5,/,rf3,*,32,+ VDEF:vrf3f=rf3f,AVERAGE \
 	DEF:rf4=rf4-temperature.rrd:temperature:AVERAGE CDEF:rf4f=9,5,/,rf4,*,32,+ VDEF:vrf4f=rf4f,AVERAGE \
