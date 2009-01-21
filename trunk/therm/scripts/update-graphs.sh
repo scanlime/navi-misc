@@ -23,6 +23,7 @@ RSSFILE="therm.rss"
 
 ##############################
 
+date=`date`
 hash=`date +%s`
 
 ( cat <<EOF
@@ -35,7 +36,18 @@ hash=`date +%s`
 EOF
 
 for interval in $INTERVALS; do
-   echo "<item><media:content url=\"$URL_BASE/temp-$interval.jpeg?t=$hash\" type=\"image/jpeg\" /></item>"
+  url="$URL_BASE/temp-$interval.jpeg?t=$hash"
+
+cat <<EOF
+  <item>
+    <title>Temperature data ($interval)</title>
+    <link>$url</link>
+    <description>$url</description>
+    <pubDate>$date</pubDate>
+    <guid isPermaLink="false">therm-$interval-$hash</guid>
+    <media:content url="$URL_BASE/temp-$interval.jpeg?t=$hash" type="image/jpeg" />
+  </item>
+EOF
 done
 
 echo "</channel></rss>" ) > $RSSFILE
