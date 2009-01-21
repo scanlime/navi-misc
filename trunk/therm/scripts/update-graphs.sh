@@ -50,7 +50,10 @@ cat <<EOF
 EOF
 done
 
-echo "</channel></rss>" ) > $RSSFILE
+echo "</channel></rss>" ) > $RSSFILE.temp
+
+# Atomically update the RSS file
+mv $RSSFILE.temp $RSSFILE
 
 for interval in $INTERVALS; do
 
