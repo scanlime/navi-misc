@@ -11,9 +11,9 @@ fastcall void
 kbHandler(KeyEvent *event)
 {
    Console_Format("scancode: %02x  key: %02x '%c'  pressed: %02x\n",
-		  event->scancode,
-		  event->key, event->key,
-		  event->pressed);
+                  event->scancode,
+                  event->key, event->key,
+                  event->pressed);
    Console_Flush();
 }
 

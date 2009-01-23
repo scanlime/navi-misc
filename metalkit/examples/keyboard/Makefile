@@ -1,5 +1,5 @@
 METALKIT_LIB = ../../lib
-TARGET = console.img
+TARGET = keyboard.img
 LIB_MODULES = console console_vga timer intr keyboard
 APP_SOURCES = main.c
 

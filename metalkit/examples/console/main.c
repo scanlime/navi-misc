@@ -10,10 +10,15 @@ volatile uint32 count = 0;
 fastcall void
 kbHandler(KeyEvent *event)
 {
-   if (event->key && event->pressed) {
-      Console_WriteChar(event->key);
-      Console_Flush();
+   if (!event->pressed) {
+      return;
    }
+   if (event->key == 0 || event->key >= 0x80) {
+      return;
+   }
+
+   Console_WriteChar(event->key);
+   Console_Flush();
 }
 
 int
