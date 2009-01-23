@@ -15,7 +15,7 @@
 # Produce 32-bit code, even on 64-bit machines. Don't use
 # the standard library at all. Use a custom linker script.
 
-CFLAGS := -m32 -ffreestanding -nostdinc -I$(METALKIT_LIB)
+CFLAGS := -m32 -ffreestanding -nostdinc -fno-stack-protector -I$(METALKIT_LIB)
 LDFLAGS := -nostdlib -Wl,-T,$(METALKIT_LIB)/image.ld
 
 # Extra warnings
@@ -67,7 +67,7 @@ $(ELF_TARGET): $(SOURCES)
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(SOURCES)
 
 clean:
-	rm -f $(TARGET) $(ELF_TARGET) $(LST_TARGET) *.o *.z
+	rm -f $(TARGET) $(ELF_TARGET) $(LST_TARGET) *.o
 
 # This is a phony target which prints a list of symbols, sorted by
 # size, and excluding the BSS segment. This is a quick way to see
