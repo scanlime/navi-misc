@@ -172,10 +172,19 @@ ConsoleVGAWriteChar(char c)
    if (c == '\n') {
       self->cursor.y++;
       self->cursor.x = 0;
+
    } else if (c == '\t') {
       while (self->cursor.x & 7) {
-	 ConsoleVGAWriteChar(' ');
+         ConsoleVGAWriteChar(' ');
       }
+
+   } else if (c == '\b') {
+      if (self->cursor.x > 0) {
+         self->cursor.x--;
+         ConsoleVGAWriteChar(' ');
+         self->cursor.x--;
+      }
+
    } else {
       fb += self->cursor.x * 2 + self->cursor.y * VGA_TEXT_WIDTH * 2;
       fb[0] = c;
