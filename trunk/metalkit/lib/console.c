@@ -87,8 +87,8 @@ Console_WriteUInt32(uint32 num, int digits, char padding, int base, Bool suppres
  * Console_FormatV --
  *
  *    Write a formatted string. This is for the most part a tiny
- *    subset of printf(). Supports the standard %c, %s, %d, and %X
- *    specifiers.
+ *    subset of printf(). Supports the standard %c, %s, %d, %u,
+ *    and %X specifiers.
  *
  *    Deviates from a standard printf() in a few ways, in the interest
  *    of low-level utility and small code size:
@@ -112,6 +112,7 @@ Console_FormatV(const char **args)
 
    while ((c = *(fmt++))) {
       int width = 0;
+      Bool isSigned = FALSE;
       char padding = '\0';
 
       if (c != '%') {
@@ -120,60 +121,76 @@ Console_FormatV(const char **args)
       }
 
       while ((c = *(fmt++))) {
-	 if (c == '0' && width == 0) {
-	    /* If we get a leading 0 in the width specifier, turn on zero-padding */
-	    padding = '0';
-	    continue;
-	 }
+         if (c == '0' && width == 0) {
+            /* If we get a leading 0 in the width specifier, turn on zero-padding */
+            padding = '0';
+            continue;
+         }
          if (c >= '0' && c <= '9') {
-	    /* Add another digit to the width specifier */
+            /* Add another digit to the width specifier */
             width = (width * 10) + (c - '0');
-	    if (padding == '\0') {
-	       padding = ' ';
-	    }
+            if (padding == '\0') {
+               padding = ' ';
+            }
             continue;
          }
 
-	 /*
-	  * Any other character means the width specifier has
-	  * ended. If it's still zero, set the defaults.
-	  */
-	 if (width == 0) {
-	    width = 32;
-	 }
+         /*
+          * Any other character means the width specifier has
+          * ended. If it's still zero, set the defaults.
+          */
+         if (width == 0) {
+            width = 32;
+         }
 
-	 /*
-	  * Non-integer format specifiers
-	  */
+         /*
+          * Non-integer format specifiers
+          */
 
          if (c == 's') {
-	    Console_WriteString((char*) *(args++));
-	    break;
+            Console_WriteString((char*) *(args++));
+            break;
          }
          if (c == 'c') {
             Console_WriteChar((char)(uint32) *(args++));
-	    break;
-	 }
+            break;
+         }
 
-	 /*
-	  * Integers of different bases
-	  */
-	 int base = 0;
+         /*
+          * Integers of different bases
+          */
+         int base = 0;
 
-	 if (c == 'X' || c == 'x') {
-	    base = 16;
-	 } else if (c == 'd') {
-	    base = 10;
-	 } else if (c == 'b') {
-	    base = 2;
-	 }
+         if (c == 'X' || c == 'x') {
+            base = 16;
+         } else if (c == 'd') {
+            base = 10;
+            isSigned = TRUE;
+         } else if (c == 'u') {
+            base = 10;
+         } else if (c == 'b') {
+            base = 2;
+         }
 
-	 if (base) {
-	    Console_WriteUInt32((uint32) *(args++), width, padding, base, FALSE);
-	 } else {
-	    Console_WriteChar(c);
-	 }
-	 break;
+         if (base) {
+            uint32 value = (uint32)*(args++);
+
+            /*
+             * Print the sign for negative numbers.
+             */
+            if (isSigned && 0 > (int32)value) {
+               Console_WriteChar('-');
+               width--;
+               value = -value;
+            }
+
+            Console_WriteUInt32(value, width, padding, base, FALSE);
+            break;
+         }
+
+         /* Unrecognized */
+         Console_WriteChar(c);
+         break;
       }
    }
 }
