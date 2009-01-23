@@ -76,13 +76,16 @@
 #define KEY_DELETE      0x9C
 #define KEY_LALT        0x9D
 #define KEY_RALT        0x9E
-#define KEY_MAX         0x9F   // Number of keycodes
+#define KEY_CTRL_PRTSCN 0x9F
+#define KEY_CTRL_BREAK  0xA0
+#define KEY_MAX         0xA1   // Number of keycodes
 
 typedef uint8 Keycode;
 
 typedef struct KeyEvent {
-   uint8   scancode;
-   Keycode key;
+   uint8   scancode;           // Raw i8042 scancode
+   Keycode rawKey;             // Not affected by modifiers
+   Keycode key;                // Superset of ASCII
    Bool    pressed;
 } KeyEvent;
 

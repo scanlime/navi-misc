@@ -44,7 +44,7 @@
 #define KB_CMD_PORT     0x64       // Write for command
 #define KB_STATUS_PORT  0x64       // Read for status
 #define KB_STATUS_IBF   (1 << 0)   // Input buffer full
-#define KB_STATUS_OBF   (1 << 1)   // Output buffer full   
+#define KB_STATUS_OBF   (1 << 1)   // Output buffer full
 #define KB_CMD_RCB      0x20       // Read command byte
 #define KB_CMD_WCB      0x60       // Write command byte
 #define KB_CB_INT       (1 << 0)   // IBF Interrupt enabled
@@ -54,9 +54,9 @@
  */
 
 static struct {
+   Bool escape;
    KeyboardIRQHandler handler;
    uint32 keyDown[roundup(KEY_MAX, 32)];
-   uint32 scState;
 } gKeyboard;
 
 
@@ -104,7 +104,7 @@ KeyboardWriteCB(uint8 byte)
    while (IO_In8(KB_STATUS_PORT) & KB_STATUS_OBF);
    IO_Out8(KB_CMD_PORT, KB_CMD_WCB);
    KeyboardWrite(byte);
-}   
+}
 
 
 /*
@@ -146,129 +146,148 @@ KeyboardSetKeyPressed(Keycode k, Bool down)
  *    Translate scancodes to keycodes when possible, and update
  *    internal state: the scancode state machine, and the up/down
  *    state of all keys.
- */ 
+ */
 
 static void
 KeyboardTranslate(KeyEvent *event)
 {
+   enum {
+      S_NORMAL = 0,
+      S_SHIFTED,
+      S_ESCAPED,
+   };
+
    /*
     * XXX: We hardcode a US-Ascii QWERTY layout.
     */
-   static const Keycode normalMap[] = {
-      /* 00 */  KEY_NONE,
-      /* 01 */  KEY_ESCAPE,
-      /* 02 */  '1',
-      /* 03 */  '2',
-      /* 04 */  '3',
-      /* 05 */  '4',
-      /* 06 */  '5',
-      /* 07 */  '6',
-      /* 08 */  '7',
-      /* 09 */  '8',
-      /* 0a */  '9',
-      /* 0b */  '0',
-      /* 0c */  '-',
-      /* 0d */  '=',
-      /* 0e */  KEY_BACKSPACE,
-      /* 0f */  KEY_TAB,
-      /* 10 */  'q',
-      /* 11 */  'w',
-      /* 12 */  'e',
-      /* 13 */  'r',
-      /* 14 */  't',
-      /* 15 */  'y',
-      /* 16 */  'u',
-      /* 17 */  'i',
-      /* 18 */  'o',
-      /* 19 */  'p',
-      /* 1a */  '[',
-      /* 1b */  ']',
-      /* 1c */  KEY_ENTER,
-      /* 1d */  KEY_LCTRL,
-      /* 1e */  'a',
-      /* 1f */  's',
-      /* 20 */  'd',
-      /* 21 */  'f',
-      /* 22 */  'g',
-      /* 23 */  'h',
-      /* 24 */  'j',
-      /* 25 */  'k',
-      /* 26 */  'l',
-      /* 27 */  ';',
-      /* 28 */  '\'',
-      /* 29 */  '`',
-      /* 2a */  KEY_LSHIFT,
-      /* 2b */  '\\',
-      /* 2c */  'z',
-      /* 2d */  'x',
-      /* 2e */  'c',
-      /* 2f */  'v',
-      /* 30 */  'b',
-      /* 31 */  'n',
-      /* 32 */  'm',
-      /* 33 */  ',',
-      /* 34 */  '.',
-      /* 35 */  '/',
-      /* 36 */  KEY_RSHIFT,
-      /* 37 */  '*',
-      /* 38 */  KEY_LALT,
-      /* 39 */  ' ',
-      /* 3a */  KEY_CAPSLOCK,
-      /* 3b */  KEY_F1,
-      /* 3c */  KEY_F2,
-      /* 3d */  KEY_F3,
-      /* 3e */  KEY_F4,
-      /* 3f */  KEY_F5,
-      /* 40 */  KEY_F6,
-      /* 41 */  KEY_F7,
-      /* 42 */  KEY_F8,
-      /* 43 */  KEY_F9,
-      /* 44 */  KEY_F10,
-      /* 45 */  KEY_NUMLOCK,
-      /* 46 */  KEY_SCROLLLOCK,
-      /* 47 */  '7',  // Numpad
-      /* 48 */  '8',
-      /* 49 */  '9',
-      /* 4a */  '+',
-      /* 4b */  '4',
-      /* 4c */  '5',
-      /* 4d */  '6',
-      /* 4e */  '+',
-      /* 4f */  '1',
-      /* 50 */  '2',
-      /* 51 */  '3',
-      /* 52 */  '0',
-      /* 53 */  '.',
+   static const Keycode kbmap[][3] = {
+      /*          S_NORMAL        S_SHIFTED       S_ESCAPED */
+      /* 00 */  { KEY_NONE,       KEY_NONE,       KEY_NONE },
+      /* 01 */  { KEY_ESCAPE,     KEY_ESCAPE,     KEY_NONE },
+      /* 02 */  { '1',            '!',            KEY_NONE },
+      /* 03 */  { '2',            '@',            KEY_NONE },
+      /* 04 */  { '3',            '#',            KEY_NONE },
+      /* 05 */  { '4',            '$',            KEY_NONE },
+      /* 06 */  { '5',            '%',            KEY_NONE },
+      /* 07 */  { '6',            '^',            KEY_NONE },
+      /* 08 */  { '7',            '&',            KEY_NONE },
+      /* 09 */  { '8',            '*',            KEY_NONE },
+      /* 0a */  { '9',            '(',            KEY_NONE },
+      /* 0b */  { '0',            ')',            KEY_NONE },
+      /* 0c */  { '-',            '_',            KEY_NONE },
+      /* 0d */  { '=',            '+',            KEY_NONE },
+      /* 0e */  { KEY_BACKSPACE,  KEY_BACKSPACE,  KEY_NONE },
+      /* 0f */  { KEY_TAB,        KEY_TAB,        KEY_NONE },
+      /* 10 */  { 'q',            'Q',            KEY_NONE },
+      /* 11 */  { 'w',            'W',            KEY_NONE },
+      /* 12 */  { 'e',            'E',            KEY_NONE },
+      /* 13 */  { 'r',            'R',            KEY_NONE },
+      /* 14 */  { 't',            'T',            KEY_NONE },
+      /* 15 */  { 'y',            'Y',            KEY_NONE },
+      /* 16 */  { 'u',            'U',            KEY_NONE },
+      /* 17 */  { 'i',            'I',            KEY_NONE },
+      /* 18 */  { 'o',            'O',            KEY_NONE },
+      /* 19 */  { 'p',            'P',            KEY_NONE },
+      /* 1a */  { '[',            '{',            KEY_NONE },
+      /* 1b */  { ']',            '}',            KEY_NONE },
+      /* 1c */  { KEY_ENTER,      KEY_ENTER,      KEY_ENTER },
+      /* 1d */  { KEY_LCTRL,      KEY_LCTRL,      KEY_RCTRL },
+      /* 1e */  { 'a',            'A',            KEY_NONE },
+      /* 1f */  { 's',            'S',            KEY_NONE },
+      /* 20 */  { 'd',            'D',            KEY_NONE },
+      /* 21 */  { 'f',            'F',            KEY_NONE },
+      /* 22 */  { 'g',            'G',            KEY_NONE },
+      /* 23 */  { 'h',            'H',            KEY_NONE },
+      /* 24 */  { 'j',            'J',            KEY_NONE },
+      /* 25 */  { 'k',            'K',            KEY_NONE },
+      /* 26 */  { 'l',            'L',            KEY_NONE },
+      /* 27 */  { ';',            ':',            KEY_NONE },
+      /* 28 */  { '\'',           '"',            KEY_NONE },
+      /* 29 */  { '`',            '~',            KEY_NONE },
+      /* 2a */  { KEY_LSHIFT,     KEY_LSHIFT,     KEY_NONE },
+      /* 2b */  { '\\',           '|',            KEY_NONE },
+      /* 2c */  { 'z',            'Z',            KEY_NONE },
+      /* 2d */  { 'x',            'X',            KEY_NONE },
+      /* 2e */  { 'c',            'C',            KEY_NONE },
+      /* 2f */  { 'v',            'V',            KEY_NONE },
+      /* 30 */  { 'b',            'B',            KEY_NONE },
+      /* 31 */  { 'n',            'N',            KEY_NONE },
+      /* 32 */  { 'm',            'M',            KEY_NONE },
+      /* 33 */  { ',',            '<',            KEY_NONE },
+      /* 34 */  { '.',            '>',            KEY_NONE },
+      /* 35 */  { '/',            '?',            '/' },
+      /* 36 */  { KEY_RSHIFT,     KEY_RSHIFT,     KEY_NONE },
+      /* 37 */  { '*',            '*',            KEY_CTRL_PRTSCN },
+      /* 38 */  { KEY_LALT,       KEY_LALT,       KEY_RALT },
+      /* 39 */  { ' ',            ' ',            KEY_NONE },
+      /* 3a */  { KEY_CAPSLOCK,   KEY_CAPSLOCK,   KEY_NONE },
+      /* 3b */  { KEY_F1,         KEY_F1,         KEY_NONE },
+      /* 3c */  { KEY_F2,         KEY_F2,         KEY_NONE },
+      /* 3d */  { KEY_F3,         KEY_F3,         KEY_NONE },
+      /* 3e */  { KEY_F4,         KEY_F4,         KEY_NONE },
+      /* 3f */  { KEY_F5,         KEY_F5,         KEY_NONE },
+      /* 40 */  { KEY_F6,         KEY_F6,         KEY_NONE },
+      /* 41 */  { KEY_F7,         KEY_F6,         KEY_NONE },
+      /* 42 */  { KEY_F8,         KEY_F7,         KEY_NONE },
+      /* 43 */  { KEY_F9,         KEY_F8,         KEY_NONE },
+      /* 44 */  { KEY_F10,        KEY_F9,         KEY_NONE },
+      /* 45 */  { KEY_NUMLOCK,    KEY_NUMLOCK,    KEY_NONE },
+      /* 46 */  { KEY_SCROLLLOCK, KEY_SCROLLLOCK, KEY_CTRL_BREAK },
+      /* 47 */  { '7',            '7',            KEY_HOME },
+      /* 48 */  { '8',            '8',            KEY_UP },
+      /* 49 */  { '9',            '9',            KEY_PGUP },
+      /* 4a */  { '-',            '-',            KEY_NONE },
+      /* 4b */  { '4',            '4',            KEY_LEFT },
+      /* 4c */  { '5',            '5',            KEY_NONE },
+      /* 4d */  { '6',            '6',            KEY_RIGHT },
+      /* 4e */  { '+',            '+',            KEY_NONE },
+      /* 4f */  { '1',            '1',            KEY_END },
+      /* 50 */  { '2',            '2',            KEY_DOWN },
+      /* 51 */  { '3',            '3',            KEY_PGDOWN },
+      /* 52 */  { '0',            '0',            KEY_INSERT },
+      /* 53 */  { '.',            '.',            KEY_DELETE },
    };
 
-   switch (gKeyboard.scState) {
+   uint8 scancode = event->scancode & 0x7F;
+   event->pressed = (event->scancode & 0x80) == 0;
 
-   case 0:   // 0 - Default state
-      
-      if (event->scancode == 0xe0) {
-	 /* Escape */
-	 gKeyboard.scState = 1;
+   if (event->scancode == 0xe0) {
+      /*
+       * Begin an escape sequence.
+       */
 
+      gKeyboard.escape = TRUE;
+
+   } else if (scancode >= KEY_MAX) {
+      /*
+       * Unsupported scancode.
+       */
+
+   } else if (gKeyboard.escape) {
+      /*
+       * Escaped key.
+       */
+      gKeyboard.escape = FALSE;
+      event->rawKey = kbmap[scancode][S_ESCAPED];
+      event->key = event->rawKey;
+
+   } else {
+      /*
+       * Non-escaped key.
+       */
+
+      event->rawKey = kbmap[scancode][S_NORMAL];
+
+      if (Keyboard_IsKeyPressed(KEY_LSHIFT) ||
+          Keyboard_IsKeyPressed(KEY_RSHIFT)) {
+
+         event->key = kbmap[scancode][S_SHIFTED];
       } else {
-	 uint8 code = event->scancode;
-
-	 if (code & 0x80) {
-	    code &= 0x7F;
-	 } else {
-	    event->pressed = 1;
-	 }
-	    
-	 event->key = code < arraysize(normalMap) ? normalMap[code] : KEY_NONE;
-
-	 KeyboardSetKeyPressed(event->key, event->pressed);
+         event->key = event->rawKey;
       }
-      break;
-
-   case 1:   // 1 - Escaped state
-      gKeyboard.scState = 0;
-      break;
-
    }
+
+   KeyboardSetKeyPressed(event->rawKey, event->pressed);
 }
 
 
@@ -278,16 +297,12 @@ KeyboardTranslate(KeyEvent *event)
  *    This is the low-level keyboard interrupt handler.  We convert
  *    the incoming key into a Keycode, modify our key state table, and
  *    pass it on to any registered KeyboardIRQHandler.
- */ 
+ */
 
 static void
 KeyboardHandlerInternal(int vector)
 {
-   KeyEvent event;
-
-   event.scancode = KeyboardRead();
-   event.key = 0;
-   event.pressed = 0;
+   KeyEvent event = { KeyboardRead() };
 
    KeyboardTranslate(&event);
 
