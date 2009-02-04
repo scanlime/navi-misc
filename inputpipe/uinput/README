@@ -1,9 +1,0 @@
-This is a modified version of the uinput module,
-required for force-feedback support in inputpipe-server.
-See the new comments in uinput.h for details on implementing
-force feedback devices.
-
-NOTE: Starting with linux-2.6.10-rc2-mm4, you don't need
-      this. Force feedback support is included in an unmodified
-      uinput driver.
-
