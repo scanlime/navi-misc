@@ -82,8 +82,8 @@ def updateChannelRRD(dataDir, name, values, lastTS={}):
         rra = []
         for cf in 'AVERAGE', 'MIN', 'MAX':
             rra.extend([
-                    "RRA:%s:0.9:1:172800" % cf,
-                    "RRA:%s:0.5:60:2880" % cf,
+                    "RRA:%s:0.99:1:172800" % cf,
+                    "RRA:%s:0.99:60:2880" % cf,
                     "RRA:%s:0.5:420:2880" % cf,
                     "RRA:%s:0.5:1860:2880" % cf,
                     "RRA:%s:0.5:21900:2880" % cf,
