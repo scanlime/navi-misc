@@ -4,17 +4,31 @@
  *    This is a tiny but relatively featureful bootloader for
  *    32-bit standalone apps and kernels. It compiles into one
  *    binary that can be used either stand-alone (loaded directly
- *    by the BIOS, from a floppy disk image) or as a GNU Multiboot
- *    image, loaded by GRUB.
+ *    by the BIOS, from a floppy or USB disk image) or as a GNU
+ *    Multiboot image, loaded by GRUB.
  *
  *    This bootloader loads itself and the attached main program
  *    at 1MB, with the available portions of the first megabyte of
  *    RAM set up as stack space by default.
  *
- *    This loader is capable of loading an entire 1.44MB floppy
- *    image into high memory. It uses the BIOS's floppy driver,
- *    switching back and forth between real mode and protected
- *    mode in order to copy the resulting blocks into high memory.
+ *    This loader is capable of loading an arbitrarily big binary
+ *    image from the boot device into high memory. If you're booting
+ *    from a floppy, it can load the whole 1.44MB disk. If you're
+ *    booting from USB, it can load any amount of data from the USB
+ *    disk.
+ *
+ *    This loader works by using the BIOS's disk services, so we
+ *    should be able to read the whole binary image off of any device
+ *    the BIOS knows how to boot from. Since we have only a tiny
+ *    amount of buffer space, and we need to store the resulting image
+ *    above the 1MB boundary, we have to keep switching back and forth
+ *    between real mode and protected mode.
+ *
+ *    To avoid device-specific CHS addressing madness, we require LBA
+ *    mode to boot off of anything other than a 1.44MB floppy or a
+ *    Multiboot loader. We try to use the INT 13h AH=42h "Extended Read
+ *    Sectors From Drive" command, which uses LBA addressing. If this
+ *    doesn't work, we fall back to floppy-disk-style CHS addressing.
  *
  *
  * This file is part of Metalkit, a simple collection of modules for
@@ -47,19 +61,19 @@
 
 #include "boot.h"
 
+/*
+ * Constants that affect our early boot memory map.
+ */
 #define BIOS_START_ADDRESS     0x7C00    // Defined by the BIOS
-
 #define EARLY_STACK_ADDRESS    0x2000    // In low DOS memory
-#define DISK_SECTOR            0x2700
-#define DISK_CYLINDER          0x2701
-#define DISK_DRIVE             0x2702
-#define DISK_HEAD              0x2703
-#define DISK_DEST_ADDRESS      0x2704
-#define SECTORS_AT_A_TIME      18
+#define SECTORS_AT_A_TIME      18        // Must equal sectors per head
 #define SECTOR_SIZE            512
 #define DISK_BUFFER            0x2800
 #define DISK_BUFFER_SIZE       (SECTORS_AT_A_TIME * SECTOR_SIZE)
 
+/*
+ * Post-boot memory map
+ */
 #define FINAL_START_ADDRESS    0x100000
 #define FINAL_STACK_ADDRESS    0x9FFFC   // Top of usable part of first 1MB
 
@@ -91,10 +105,34 @@ _start:
 
 
         /*
+         * gnu_multiboot --
+         *
+         *    GNU Multiboot header. This can come anywhere in the
+         *    first 8192 bytes of the image file.
+         */
+
+        .p2align 2
+        .code32
+gnu_multiboot:
+
+#define MULTIBOOT_MAGIC         0x1BADB002
+#define MULTIBOOT_FLAGS         0x00010000
+
+        .long   MULTIBOOT_MAGIC
+        .long   MULTIBOOT_FLAGS
+        .long   -(MULTIBOOT_MAGIC + MULTIBOOT_FLAGS)
+        .long   gnu_multiboot
+        .long   _start
+        .long   _edata
+        .long   _end
+        .long   entry32
+
+
+        /*
          * String table, located in the boot sector.
          */
 
-loading_str:            .string "Loading."
+loading_str:            .string "\r\nMETALKIT - Loading"
 disk_error_str:         .string " err!"
 
 
@@ -128,12 +166,21 @@ wait_for_8042:
         .code16
 bios_main:
 
+        /*
+         * Early init: setup our stack and data segments, make sure
+         * interrupts are off.
+         */
         cli
         xorw    %ax, %ax
         movw    %ax, %ss
         movw    %ax, %ds
         movw    %ax, %es
         movw    $EARLY_STACK_ADDRESS, %sp
+
+        /*
+         * Save parameters that the BIOS gave us via registers.
+         */
+        mov     %dl, BIOS_PTR(disk_drive)
 
         /*
          * Switch on the A20 gate, so we can access more than 1MB
@@ -160,33 +207,50 @@ bios_main:
         call    wait_for_8042
 
         /*
-         * Load from the beginning of floppy disk 0.
-         * Note that sector numbers start at 1.
+         * Load our image, starting at the beginning of whatever disk
+         * the BIOS told us we booted from. The Disk Address Packet
+         * (DAP) has already been initialized statically.
          */
 
         mov     $BIOS_PTR(loading_str), %si
         call    print_str
 
-        xor     %ax, %ax
-        mov     %ax, DISK_DRIVE         // Drive and head
-        inc     %al
-        mov     %ax, DISK_SECTOR        // Sector and cylinder
-
-        movw    $(FINAL_START_ADDRESS & 0xFFFF), DISK_DEST_ADDRESS
-        movw    $(FINAL_START_ADDRESS >> 16), DISK_DEST_ADDRESS+2
-
         /*
          * Fill our DISK_BUFFER, reading SECTORS_AT_A_TIME sectors.
+         *
+         * First, try to use LBA addressing. This is required in
+         * order to boot off of non-floppy devices, like USB drives.
          */
 
 disk_copy_loop:
+        mov     $0x42, %ah
+        mov     BIOS_PTR(disk_drive), %dl
+        mov     $BIOS_PTR(dap_buffer), %si
+        int     $0x13
+        jnc     disk_success
+
+        /*
+         * If LBA fails, fall back to old fashioned CHS addressing.
+         * This works everywhere, but only if we're on a 1.44MB floppy.
+         */
+
         mov     $(0x0200 | SECTORS_AT_A_TIME), %ax
-        mov     DISK_SECTOR, %cx        // Sector and cylinder
-        mov     DISK_DRIVE, %dx         // Drive and head
+        mov     BIOS_PTR(chs_sector), %cx               // Sector and cylinder
+        mov     BIOS_PTR(disk_drive), %dx               // Drive and head
         mov     $DISK_BUFFER, %bx
         int     $0x13
-        jc      disk_error
+        jnc     disk_success
 
+        /*
+         * If both CHS and LBA fail, the error is fatal.
+         */
+
+        mov     $BIOS_PTR(disk_error_str), %si
+        call    print_str
+        cli
+        hlt
+
+disk_success:
         mov     $'.', %al
         call    print_char
 
@@ -212,36 +276,38 @@ copy_enter32:
          */
 
         mov     $DISK_BUFFER, %esi
-        mov     DISK_DEST_ADDRESS, %edi
+        mov     BIOS_PTR(dest_address), %edi
         mov     $(DISK_BUFFER_SIZE / 4), %ecx
         rep movsl
 
         /*
          * Next...
          *
-         * This code assumes that SECTORS_AT_A_TIME is 18, i.e.
-         * we copy one head at a time.
+         * Even though the CHS and LBA addresses are mutually exclusive,
+         * there's no harm in incrementing them both. The LBA increment
+         * is pretty straightforward, but CHS is of course less so.
+         * We only support CHS on 1.44MB floppies. We always copy one
+         * head at a time (SECTORS_AT_A_TIME must equal 18), so we have
+         * to hop between disk head 0 and 1, and increment the cylinder
+         * on every other head.
          *
          * When we're done copying, branch to entry32 while we're
          * still in protected mode. Also note that we do a long branch
          * to its final address, not it's temporary BIOS_PTR() address.
          */
 
-        addl    $DISK_BUFFER_SIZE, DISK_DEST_ADDRESS
+        addl    $DISK_BUFFER_SIZE, BIOS_PTR(dest_address)
+        addl    $SECTORS_AT_A_TIME, BIOS_PTR(dap_sector)
 
-        cmpl    $_edata, DISK_DEST_ADDRESS
+        xorb    $1, BIOS_PTR(chs_head)
+        jnz     same_cylinder
+        incb    BIOS_PTR(chs_cylinder)
+same_cylinder:
+
+        cmpl    $_edata, BIOS_PTR(dest_address)
         jl      not_done_copying
         ljmp    $BOOT_CODE_SEGMENT, $entry32
 not_done_copying:
-
-        incb    DISK_HEAD
-        cmpb    $2, DISK_HEAD
-        jnz     next_sector_done
-        movb    $0, DISK_HEAD
-
-        incb    DISK_CYLINDER
-
-next_sector_done:
 
         /*
          * Back to 16-bit mode for the next copy.
@@ -287,19 +353,6 @@ copy_enter16:
         movw    $EARLY_STACK_ADDRESS, %sp
         ljmp    $0, $BIOS_PTR(disk_copy_loop)
 
-
-        /*
-         * disk_error --
-         *
-         *    Handlers for fatal errors. Display a message and halt.
-         */
-
-        .code16
-disk_error:
-        mov     $BIOS_PTR(disk_error_str), %si
-        call    print_str
-        cli
-        hlt
 
         /*
          * print_char --
@@ -435,32 +488,50 @@ final_gdt_desc:                                 // Uses final address
          *    This must be at the end of the first 512-byte disk
          *    sector. The partition table marks the end of the
          *    portion of this binary which is loaded by the BIOS.
-         */
-
-        .org    0x1BE           // Blank partition table (all zeroes on disk)
-        .org    0x1FE           // Boot signature
-        .byte   0x55, 0xAA
-
-        /*
-         * gnu_multiboot --
          *
-         *    GNU Multiboot header. This can come anywhere in the
-         *    first 8192 bytes of the image file, and we don't
-         *    need it at all in BIOS MBR mode.
+         *    Each partition record is 16 bytes. We reuse partition 4
+         *    as a 16-byte Disk Address Packet buffer. (On disk, this
+         *    looks like yet another unused partition entry. At runtime,
+         *    this is the memory we use to store the DAP.) We reuse
+         *    partition 3 to hold our default CHS addressing values.
+         *
+         *    Note that the DAP is only used in LBA mode, not CHS mode.
+         *
+         * References:
+         *
+         *    http://en.wikipedia.org/wiki/Master_boot_record
+         *
+         *    http://en.wikipedia.org/wiki/INT_13
+         *        #INT_13h_AH.3D42h:_Extended_Read_Sectors_From_Drive
          */
 
-        .p2align 2
-        .code32
-gnu_multiboot:
+        .org    0x1BE           // Partition 1
+        .org    0x1CE           // Partition 2
 
-#define MULTIBOOT_MAGIC         0x1BADB002
-#define MULTIBOOT_FLAGS         0x00010000
+        .org    0x1DE           // Partition 3
 
-        .long   MULTIBOOT_MAGIC
-        .long   MULTIBOOT_FLAGS
-        .long   -(MULTIBOOT_MAGIC + MULTIBOOT_FLAGS)
-        .long   gnu_multiboot
-        .long   _start
-        .long   _edata
-        .long   _end
-        .long   entry32
+chs_sector:                             // Order matters. Cylinder/sector and head/drive
+        .byte   0x01                    //   are packed into words together.
+chs_cylinder:
+        .byte   0x00
+disk_drive:
+        .byte   0x00
+chs_head:
+        .byte   0x00
+dest_address:
+        .long   FINAL_START_ADDRESS     // Initial dest address for 16-to-32-bit copy.
+
+        .org    0x1EE           // Partition 4
+dap_buffer:
+        .byte   0x10                    // DAP structure size
+        .byte   0x00                    // (Unused)
+        .byte   SECTORS_AT_A_TIME       // Number of sectors to read
+        .byte   0x00                    // (Unused)
+        .word   DISK_BUFFER             // Buffer offset
+        .word   0x00                    // Buffer segment
+dap_sector:
+        .long   0x00000000              // Disk sector number
+        .long   0x00000000
+
+        .org    0x1FE           // Boot signature
+        .byte   0x55, 0xAA      //   This marks the end of the 512-byte MBR.
