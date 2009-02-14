@@ -35,7 +35,7 @@
  * writing software that runs on the bare metal. Get the latest code
  * at http://svn.navi.cx/misc/trunk/metalkit/
  *
- * Copyright (c) 2008 Micah Dowty
+ * Copyright (c) 2008-2009 Micah Dowty
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -66,27 +66,31 @@
  */
 #define BIOS_START_ADDRESS     0x7C00    // Defined by the BIOS
 #define EARLY_STACK_ADDRESS    0x2000    // In low DOS memory
-#define SECTORS_AT_A_TIME      18        // Must equal sectors per head
+#define SECTORS_AT_A_TIME      18        // Must equal CHS sectors per head
 #define SECTOR_SIZE            512
 #define DISK_BUFFER            0x2800
 #define DISK_BUFFER_SIZE       (SECTORS_AT_A_TIME * SECTOR_SIZE)
 
-/*
- * Post-boot memory map
- */
-#define FINAL_START_ADDRESS    0x100000
-#define FINAL_STACK_ADDRESS    0x9FFFC   // Top of usable part of first 1MB
-
 #define BIOS_PTR(x)            (x - _start + BIOS_START_ADDRESS)
-#define FILE_OFFSET(x)         (x - _start)
 
         .section .boot
 
         .global _start
 
+        /*
+         * External symbols. main() is self-explanatory, but these
+         * other symbols must be provided by the linker script. See
+         * "image.ld" for the actual partition size calculations.
+         */
+        .extern main
         .extern _end
         .extern _edata
-        .extern main
+        .extern _bss_size
+        .extern _stack
+        .extern _partition_chs_head
+        .extern _partition_chs_sector_byte
+        .extern _partition_chs_cylinder_byte
+        .extern _partition_blocks
 
         /*
          * This begins our 16-bit DOS MBR boot sector segment. This
@@ -132,7 +136,7 @@ gnu_multiboot:
          * String table, located in the boot sector.
          */
 
-loading_str:            .string "\r\nMETALKIT - Loading"
+loading_str:            .string "\r\nMETAL "
 disk_error_str:         .string " err!"
 
 
@@ -257,6 +261,9 @@ disk_success:
         /*
          * Enter protected mode, so we can copy this sector to
          * memory above the 1MB boundary.
+         *
+         * Note that we reset CS, DS, and ES, but we don't
+         * modify the stack at all.
          */
 
         cli
@@ -322,12 +329,11 @@ not_done_copying:
          * register remains set.
          */
 
-        /* 1. Load all protected-mode segment registers */
+        /* 1. Load protected-mode segment registers (CS, DS, ES) */
 
         movw    $BOOT_DATA16_SEGMENT, %ax
         movw    %ax, %ds
         movw    %ax, %es
-        movw    %ax, %ss
         ljmp    $BOOT_CODE16_SEGMENT, $BIOS_PTR(copy_enter16)
 
         /* (We're entering a 16-bit code segment now) */
@@ -341,16 +347,12 @@ copy_enter16:
         movl    %eax, %cr0
 
         /*
-         * 3. Load all real-mode segment registers.
-         *    The %cs load occurs when we do a long
-         *    branch back to disk_copy_loop.
+         * 3. Load real-mode segment registers. (CS, DS, ES)
          */
 
         xorw    %ax, %ax
-        movw    %ax, %ss
         movw    %ax, %ds
         movw    %ax, %es
-        movw    $EARLY_STACK_ADDRESS, %sp
         ljmp    $0, $BIOS_PTR(disk_copy_loop)
 
 
@@ -365,6 +367,7 @@ print_char:
         mov     $0x0E, %ah
         mov     $0x0001, %bx
         int     $0x10
+ret_label:
         ret
 
         /*
@@ -377,11 +380,9 @@ print_char:
 print_str:
         lodsb
         test    %al, %al
-        jz      print_str_done
+        jz      ret_label
         call    print_char
         jmp     print_str
-print_str_done:
-        ret
 
 
         /*
@@ -391,7 +392,7 @@ print_str_done:
          *
          *      - We're running in protected mode
          *      - The A20 gate is enabled
-         *      - The entire image is loaded at FINAL_START_ADDRESS
+         *      - The entire image is loaded at _start
          *
          *    We jump directly here from GNU Multiboot loaders (like
          *    GRUB), and this is where we jump directly from our
@@ -419,15 +420,14 @@ entry32_gdt_done:
         movw    %ax, %es
         movw    %ax, %fs
         movw    %ax, %gs
-        mov     $FINAL_STACK_ADDRESS, %esp
+        mov     $_stack, %esp
 
         /*
          * Zero out the BSS segment.
          */
 
         xor     %eax, %eax
-        mov     $_end, %ecx
-        sub     $_edata, %ecx
+        mov     $_bss_size, %ecx
         mov     $_edata, %edi
         rep stosb
 
@@ -483,45 +483,19 @@ final_gdt_desc:                                 // Uses final address
 
 
         /*
-         * Partition table and Boot Signature --
+         * dap_buffer --
          *
-         *    This must be at the end of the first 512-byte disk
-         *    sector. The partition table marks the end of the
-         *    portion of this binary which is loaded by the BIOS.
-         *
-         *    Each partition record is 16 bytes. We reuse partition 4
-         *    as a 16-byte Disk Address Packet buffer. (On disk, this
-         *    looks like yet another unused partition entry. At runtime,
-         *    this is the memory we use to store the DAP.) We reuse
-         *    partition 3 to hold our default CHS addressing values.
+         *    The Disk Address Packet buffer holds the current LBA
+         *    disk address. We pass this to BIOS INT 13h, and we
+         *    statically initialize it here.
          *
          *    Note that the DAP is only used in LBA mode, not CHS mode.
          *
          * References:
-         *
-         *    http://en.wikipedia.org/wiki/Master_boot_record
-         *
          *    http://en.wikipedia.org/wiki/INT_13
          *        #INT_13h_AH.3D42h:_Extended_Read_Sectors_From_Drive
          */
 
-        .org    0x1BE           // Partition 1
-        .org    0x1CE           // Partition 2
-
-        .org    0x1DE           // Partition 3
-
-chs_sector:                             // Order matters. Cylinder/sector and head/drive
-        .byte   0x01                    //   are packed into words together.
-chs_cylinder:
-        .byte   0x00
-disk_drive:
-        .byte   0x00
-chs_head:
-        .byte   0x00
-dest_address:
-        .long   FINAL_START_ADDRESS     // Initial dest address for 16-to-32-bit copy.
-
-        .org    0x1EE           // Partition 4
 dap_buffer:
         .byte   0x10                    // DAP structure size
         .byte   0x00                    // (Unused)
@@ -533,5 +507,61 @@ dap_sector:
         .long   0x00000000              // Disk sector number
         .long   0x00000000
 
+        /*
+         * Statically initialized disk addressing variables.  The CHS
+         * address here is only used in CHS mode, not LBA mode, but
+         * the disk drive number and dest address are always used.
+         */
+chs_sector:                             // Order matters. Cylinder/sector and head/drive
+        .byte   0x01                    //   are packed into words together.
+chs_cylinder:
+        .byte   0x00
+disk_drive:
+        .byte   0x00
+chs_head:
+        .byte   0x00
+dest_address:
+        .long   _start                  // Initial dest address for 16-to-32-bit copy.
+
+
+        /*
+         * Partition table and Boot Signature --
+         *
+         *    This must be at the end of the first 512-byte disk
+         *    sector. The partition table marks the end of the
+         *    portion of this binary which is loaded by the BIOS.
+         *
+         *    Each partition record is 16 bytes.
+         *
+         *    After installing Metalkit, a disk can be partitioned as
+         *    long as the space used by the Metalkit binary itself is
+         *    reserved. By default, we create a single "Non-FS data"
+         *    partition which holds the Metalkit binary. Note that
+         *    this default partition starts at sector 1 (the first
+         *    sector) so it covers the entire Metalkit image including
+         *    bootloader.
+         *
+         *    Partitions 2 through 4 are unused, and must be all zero
+         *    or fdisk will complain.
+         *
+         * References:
+         *    http://en.wikipedia.org/wiki/Master_boot_record
+         */
+
+        .org    0x1BE           // Partition 1
+        .byte   0x80                     // Status (Bootable)
+        .byte   0x00                     // First block (head, sector/cylinder, cylinder)
+        .byte   0x01
+        .byte   0x00
+        .byte   0xda                     // Partition type ("Non-FS data" in fdisk)
+        .byte   _partition_chs_head      // Last block (head, sector/cylinder, cylinder)
+        .byte   _partition_chs_sector_byte
+        .byte   _partition_chs_cylinder_byte
+        .long   0                        // LBA of first sector
+        .long   _partition_blocks        // Number of blocks in partition
+
+        .org    0x1CE           // Partition 2 (Unused)
+        .org    0x1DE           // Partition 3 (Unused)
+        .org    0x1EE           // Partition 4 (Unused)
         .org    0x1FE           // Boot signature
         .byte   0x55, 0xAA      //   This marks the end of the 512-byte MBR.
