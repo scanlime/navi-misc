@@ -346,7 +346,7 @@ fastcall Bool
 Keyboard_IsKeyPressed(Keycode k)
 {
    if (k < KEY_MAX) {
-      return (gKeyboard.keyDown[k >> 5] >> (k & 0x1F)) != 0;
+      return (gKeyboard.keyDown[k >> 5] >> (k & 0x1F)) & 1;
    }
    return FALSE;
 }
