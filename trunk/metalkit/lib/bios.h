@@ -39,7 +39,7 @@
 #include "types.h"
 #include "boot.h"
 
-typedef struct Regs16 {
+typedef struct Regs {
    /*
     * Subset of segment registers
     */
@@ -48,15 +48,63 @@ typedef struct Regs16 {
    uint16  es;
 
    /*
-    * General purpose 16-bit registers, in the order expected by pusha/popa.
+    * CPU flags (Saved on BIOS exit, ignored on entry)
     */
 
-   uint16  di;
-   uint16  si;
-   uint16  bp;
-   uint16  sp;
+   union {
+      uint16 flags;
+      uint32 eflags;
+      struct {
+         uint32 cf : 1;
+         uint32 reserved_0 : 1;
+         uint32 pf : 1;
+         uint32 reserved_1 : 1;
+         uint32 af : 1;
+         uint32 reserved_2 : 1;
+         uint32 zf : 1;
+         uint32 sf : 1;
+         uint32 tp : 1;
+         uint32 intf : 1;
+         uint32 df : 1;
+         uint32 of : 1;
+         uint32 iopl : 2;
+         uint32 nt : 1;
+         uint32 reserved_3 : 1;
+         uint32 rf : 1;
+         uint32 vm : 1;
+         uint32 vif : 1;
+         uint32 vip : 1;
+         uint32 id : 1;
+         uint32 reserved_4 : 10;
+      };
+   };
+
+   /*
+    * General purpose 32-bit registers, in the order expected by
+    * pushad/popad.  Note that while most BIOS routines need only the
+    * 16-bit portions of these registers, some 32-bit-aware routines
+    * use them even in real mode.
+    */
 
    union {
+      uint32 edi;
+      uint16 di;
+   };
+   union {
+      uint32 esi;
+      uint16 si;
+   };
+   union {
+      uint32 ebp;
+      uint16 bp;
+   };
+   union {           // Saved on BIOS exit, ignored on entry
+      uint32 esp;
+      uint16 sp;
+   };
+
+   union {
+      uint32  ebx;
       uint16  bx;
       struct {
          uint8 bl;
@@ -64,6 +112,7 @@ typedef struct Regs16 {
       };
    };
    union {
+      uint32  edx;
       uint16  dx;
       struct {
          uint8 dl;
@@ -71,6 +120,7 @@ typedef struct Regs16 {
       };
    };
    union {
+      uint32  ecx;
       uint16  cx;
       struct {
          uint8 cl;
@@ -78,13 +128,14 @@ typedef struct Regs16 {
       };
    };
    union {
+      uint32  eax;
       uint16  ax;
       struct {
          uint8 al;
          uint8 ah;
       };
    };
-} PACKED Regs16;
+} PACKED Regs;
 
 /*
  * This is the communication area between the real-mode BIOS
@@ -120,6 +171,6 @@ typedef uint32 far_ptr_t;
  * Public entry point.
  */
 
-fastcall void BIOS_Call(uint8 vector, Regs16 *regs);
+fastcall void BIOS_Call(uint8 vector, Regs *regs);
 
 #endif /* __BIOS_H__ */

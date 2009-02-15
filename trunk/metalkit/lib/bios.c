@@ -145,14 +145,15 @@ BIOSCallInternal(void)
    asm volatile("xorw %%ax, %%ax \n"
                 "mov %%ax, %%ss \n"
                 "mov %0, %%esp \n"
-                :: "i" (&BIOS_SHARED->stackTop[-sizeof(Regs16)]));
+                :: "i" (&BIOS_SHARED->stackTop[-sizeof(Regs)]));
 
    /*
-    * Pop Regs16 off the stack.
+    * Pop Regs off the stack.
     */
    asm volatile("pop %ds \n"
                 "pop %es \n"
-                "popa \n");
+                "pop %eax \n"   // Ignore EFLAGS value.
+                "popal \n");
 
    /*
     * This interrupt instruction is a placeholder that gets
@@ -163,9 +164,10 @@ BIOSCallInternal(void)
                 "int $0xFF");
 
    /*
-    * Push Regs16 back onto the stack.
+    * Push Regs back onto the stack.
     */
-   asm volatile("pusha \n"
+   asm volatile("pushal \n"
+                "pushfl \n"
                 "push %es \n"
                 "push %ds \n");
 
@@ -203,7 +205,7 @@ BIOSCallInternal(void)
  */
 
 fastcall void
-BIOS_Call(uint8 vector, Regs16 *regs)
+BIOS_Call(uint8 vector, Regs *regs)
 {
    extern uint8 BIOSTrampoline[];
    extern uint8 BIOSTrampolineVector[];
@@ -231,13 +233,13 @@ BIOS_Call(uint8 vector, Regs16 *regs)
    BIOS_SHARED->trampoline[vectorOffset] = vector;
 
    /*
-    * Copy Regs16 onto the top of the 16-bit stack.
+    * Copy Regs onto the top of the 16-bit stack.
     */
    memcpy(&BIOS_SHARED->stackTop[-sizeof *regs], regs, sizeof *regs);
 
    BIOSCallInternal();
 
-   /* Copy Regs16 back */
+   /* Copy Regs back */
    memcpy(regs, &BIOS_SHARED->stackTop[-sizeof *regs], sizeof *regs);
 
    Intr_Restore(iFlag);

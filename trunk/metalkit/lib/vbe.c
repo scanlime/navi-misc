@@ -49,7 +49,7 @@ fastcall Bool
 VBE_Init()
 {
    VBEState *self = &gVBE;
-   Regs16 reg = {};
+   Regs reg = {};
    VBEControllerInfo *cInfo = (void*) BIOS_SHARED->userdata;
    uint16 *modes;
 
@@ -94,7 +94,7 @@ VBE_Init()
 fastcall void
 VBE_GetModeInfo(uint16 mode, VBEModeInfo *info)
 {
-   Regs16 reg = {};
+   Regs reg = {};
    VBEModeInfo *tempInfo = (void*) BIOS_SHARED->userdata;
 
    memset(tempInfo, 0, sizeof *info);
@@ -125,7 +125,7 @@ VBE_SetMode(uint16 mode, uint16 modeFlags)
    self->current.flags = modeFlags;
    VBE_GetModeInfo(mode, &self->current.info);
 
-   Regs16 reg = {};
+   Regs reg = {};
    reg.ax = 0x4f02;
    reg.bx = mode | modeFlags;
    BIOS_Call(0x10, &reg);
@@ -142,7 +142,7 @@ VBE_SetMode(uint16 mode, uint16 modeFlags)
 fastcall void
 VBE_SetStartAddress(int x, int y)
 {
-   Regs16 reg = {};
+   Regs reg = {};
    reg.ax = 0x4f07;
    reg.bx = 0x0000;
    reg.cx = x;
@@ -168,7 +168,7 @@ VBE_SetStartAddress(int x, int y)
 fastcall void
 VBE_SetPalette(int firstColor, int numColors, uint32 *colors)
 {
-   Regs16 reg = {};
+   Regs reg = {};
    uint32 *tempColors = (void*) BIOS_SHARED->userdata;
 
    memcpy32(tempColors, colors, numColors);
