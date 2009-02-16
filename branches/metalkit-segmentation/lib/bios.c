@@ -63,7 +63,7 @@ BIOSCallInternal(void)
     * Jump the the relocated 16-bit trampoline (source code below).
     */
    asm volatile ("ljmp %0, %1"
-                 :: "i" (BOOT_CODE16_SEGMENT), "i" (BIOS_SHARED->trampoline));
+                 :: "i" (BOOT_CODE16_SEG), "i" (BIOS_SHARED->trampoline));
 
    /*
     * This is where we return from the relocated trampoline.
@@ -78,7 +78,7 @@ BIOSCallInternal(void)
                  "mov %%ax, %%es \n"
                  "mov %%ax, %%fs \n"
                  "mov %%ax, %%gs \n"
-                 :: "i" (BOOT_DATA_SEGMENT));
+                 :: "i" (BOOT_DATA_SEG));
 
    /*
     * Restore our stack and saved registers.
@@ -113,7 +113,7 @@ BIOSCallInternal(void)
                 "movw %%ax, %%ds \n"
                 "movw %%ax, %%es \n"
                 "movw %%ax, %%ss \n"
-                :: "i" (BOOT_DATA16_SEGMENT));
+                :: "i" (BOOT_DATA16_SEG));
 
    /*
     * Switch from 32-bit to 16-bit IDT.
@@ -187,7 +187,7 @@ BIOSCallInternal(void)
     * Return via a long 16-to-32 bit jump.
     */
    asm volatile("data32 ljmp %0, $BIOSReturn32 \n"
-                :: "i" (BOOT_CODE_SEGMENT));
+                :: "i" (BOOT_CODE_SEG));
 
    asm volatile("BIOSTrampolineEnd: .code32 \n");
 }
