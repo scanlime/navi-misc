@@ -263,9 +263,7 @@ Intr_Init(void)
 fastcall void
 Intr_SetHandler(int vector, IntrHandler handler)
 {
-   Intr_Disable();
    IntrTrampoline[vector].handler = handler;
-   Intr_Enable();
 }
 
 
