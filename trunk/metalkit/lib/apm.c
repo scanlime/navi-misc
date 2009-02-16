@@ -41,12 +41,14 @@ APMState gAPM;
  *
  *    Probe for APM support. If APM is available, this connects to APM.
  *
- *    Even though support for 32-bit APM is common, it's actually more
- *    convenient for us to use the 16-bit real-mode interface. We
- *    already have a convenient way to make 16-bit calls via
- *    Metalkit's Bios module, and the 32-bit APM interface would
- *    require us to change our GDT or LDT to accomodate the BIOS's
- *    requested segments.
+ *    It would be easier to use the 16-bit real mode interface via
+ *    Metalkit's BIOS module, but that wouldn't work very well for us
+ *    because we can't handle interrupts during a real-mode BIOS call.
+ *    So, any APM_Idle() call would hang!
+ *
+ *    Instead, we need to use 16-bit BIOS calls to bootstrap APM, then
+ *    we do our real work via the 32-bit APM interface that is present
+ *    in all APM 1.2 BIOSes.
  *
  *    On exit, gAPM will have a valid 'connected' flag, APM version,
  *    and flags.
@@ -69,8 +71,8 @@ APM_Init()
       return;
    }
 
-   /* Real mode interface connect */
-   reg.ax = 0x5301;
+   /* Protected mode 32-bit interface connect */
+   reg.ax = 0x5303;
    reg.bx = 0x0000;
    BIOS_Call(0x15, &reg);
    if (reg.cf == 0) {

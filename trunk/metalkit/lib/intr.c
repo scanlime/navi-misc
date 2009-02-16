@@ -63,7 +63,12 @@ typedef union {
    };
 } PACKED IDTType;
 
-static IDTType ALIGNED(8) IDT[NUM_INTR_VECTORS];
+/*
+ * Note the IDT is page-aligned. Only 8-byte alignment is actually
+ * necessary, though page alignment may help performance in some
+ * environments.
+ */
+static IDTType ALIGNED(4096) IDT[NUM_INTR_VECTORS];
 
 const struct {
    uint16 limit;
@@ -138,7 +143,7 @@ Intr_Init(void)
        * than when writing four 16-bit fields separately.
        */
 
-      idt->offsetLowSeg = (trampolineAddr & 0x0000FFFF) | (BOOT_CODE_SEGMENT << 16);
+      idt->offsetLowSeg = (trampolineAddr & 0x0000FFFF) | (BOOT_CODE_SEG << 16);
       idt->flagsOffsetHigh = (trampolineAddr & 0xFFFF0000) | 0x00008E00;
 
       /*
@@ -258,9 +263,7 @@ Intr_Init(void)
 fastcall void
 Intr_SetHandler(int vector, IntrHandler handler)
 {
-   Intr_Disable();
    IntrTrampoline[vector].handler = handler;
-   Intr_Enable();
 }
 
 
