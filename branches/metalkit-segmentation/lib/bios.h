@@ -151,7 +151,7 @@ struct BIOSShared {
    struct {
       uint16 limit;
       uint32 base;
-   } idtr16, idtr32;
+   } PACKED idtr16, idtr32;
    uint8 userdata[1024];
 } PACKED;
 
