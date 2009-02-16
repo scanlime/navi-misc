@@ -59,6 +59,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#define ASM
 #include "boot.h"
 
 /*
@@ -80,7 +81,7 @@
         /*
          * External symbols. main() is self-explanatory, but these
          * other symbols must be provided by the linker script. See
-         * "image.ld" for the actual partition size calculations.
+         * "image.ld" for the actual partition size and LDT calculations.
          */
         .extern main
         .extern _end
@@ -91,6 +92,23 @@
         .extern _partition_chs_sector_byte
         .extern _partition_chs_cylinder_byte
         .extern _partition_blocks
+        .extern _ldt_byte0
+        .extern _ldt_byte1
+        .extern _ldt_byte2
+        .extern _ldt_byte3
+
+	/*
+	 * Other modules can optionally define an LDT in uninitialized
+	 * memory.  By default this LDT will be all zeroes, but this
+	 * is a simple and code-size-efficient way of letting other
+	 * Metalkit modules allocate segment descriptors when they
+	 * need to.
+         *
+         * Note that we page-align the LDT. This isn't strictly
+         * necessary, but it might be useful for performance in
+         * some environments.
+	 */
+	.comm	LDT, BOOT_LDT_SIZE, 4096
 
         /*
          * This begins our 16-bit DOS MBR boot sector segment. This
@@ -139,23 +157,6 @@ gnu_multiboot:
 loading_str:            .string "\r\nMETAL "
 disk_error_str:         .string " err!"
 
-
-        /*
-         * wait_for_8042 --
-         *
-         *    Utility function used by the A20 gate code. Waits for
-         *    the keyboard microcontroller's I/O queues to empty. (On
-         *    modern hardware this is probably not necessary, but we
-         *    do it anyway for good luck.)
-         */
-
-        .code16
-wait_for_8042:
-        inb     $0x64, %al
-        test    $0x02, %al
-        jnz     wait_for_8042
-        ret
-
         /*
          * bios_main --
          *
@@ -188,27 +189,26 @@ bios_main:
 
         /*
          * Switch on the A20 gate, so we can access more than 1MB
-         * of memory.
-         *
-         * The A20 line is part of the keyboard controller, for
-         * amusing legacy reasons. Modern chipsets support a "Fast
-         * A20" line which requires only a single I/O cycle, but we
-         * can't rely on its presence.
-         *
-         * There are a few different descriptions of the keyboard
-         * controller and the A20 line floating around on the 'net.
-         * This uses the first sequence described by:
-         *
-         * http://www.win.tue.nl/~aeb/linux/kbd/A20.html
+         * of memory. There are multiple ways to do this: The
+	 * original way was to write to bit 1 of the keyboard
+	 * controller's output port. There's also a bit on PS2
+	 * System Control port A to enable A20.
+	 *
+	 * The keyboard controller method should always work, but
+	 * it's kind of slow and it takes a lot of code space in
+	 * our already-cramped bootloader. Instead, we ask the BIOS
+	 * to enable A20.
+	 *
+	 * If your computer doesn't support this BIOS interface,
+	 * you'll see our "err!" message before "METAL" appears.
+	 *
+	 * References:
+         *    http://www.win.tue.nl/~aeb/linux/kbd/A20.html
          */
 
-        call    wait_for_8042
-        mov     $0xd1, %al      // Command: Write to output port
-        outb    %al, $0x64
-        call    wait_for_8042
-        mov     $0xdf, %al      // Output port value. Bit 1 is A20.
-        outb    %al, $0x60
-        call    wait_for_8042
+	mov	$0x2401, %ax	// Enable A20
+	int	$15
+	jc	fatal_error
 
         /*
          * Load our image, starting at the beginning of whatever disk
@@ -249,6 +249,7 @@ disk_copy_loop:
          * If both CHS and LBA fail, the error is fatal.
          */
 
+fatal_error:
         mov     $BIOS_PTR(disk_error_str), %si
         call    print_str
         cli
@@ -271,10 +272,10 @@ disk_success:
         movl    %cr0, %eax
         orl     $1, %eax
         movl    %eax, %cr0
-        ljmp    $BOOT_CODE_SEGMENT, $BIOS_PTR(copy_enter32)
+        ljmp    $BOOT_CODE_SEG, $BIOS_PTR(copy_enter32)
         .code32
 copy_enter32:
-        movw    $BOOT_DATA_SEGMENT, %ax
+        movw    $BOOT_DATA_SEG, %ax
         movw    %ax, %ds
         movw    %ax, %es
 
@@ -313,7 +314,7 @@ same_cylinder:
 
         cmpl    $_edata, BIOS_PTR(dest_address)
         jl      not_done_copying
-        ljmp    $BOOT_CODE_SEGMENT, $entry32
+        ljmp    $BOOT_CODE_SEG, $entry32
 not_done_copying:
 
         /*
@@ -331,10 +332,10 @@ not_done_copying:
 
         /* 1. Load protected-mode segment registers (CS, DS, ES) */
 
-        movw    $BOOT_DATA16_SEGMENT, %ax
+        movw    $BOOT_DATA16_SEG, %ax
         movw    %ax, %ds
         movw    %ax, %es
-        ljmp    $BOOT_CODE16_SEGMENT, $BIOS_PTR(copy_enter16)
+        ljmp    $BOOT_CODE16_SEG, $BIOS_PTR(copy_enter16)
 
         /* (We're entering a 16-bit code segment now) */
         .code16
@@ -407,14 +408,14 @@ entry32:
 
         cli
 
-        lgdt    final_gdt_desc
+        lgdt    boot_gdt_desc
         movl    %cr0, %eax
         orl     $1, %eax
         movl    %eax, %cr0
-        ljmp    $BOOT_CODE_SEGMENT, $entry32_gdt_done
+        ljmp    $BOOT_CODE_SEG, $entry32_gdt_done
 entry32_gdt_done:
 
-        movw    $BOOT_DATA_SEGMENT, %ax
+        movw    $BOOT_DATA_SEG, %ax
         movw    %ax, %ds
         movw    %ax, %ss
         movw    %ax, %es
@@ -432,6 +433,12 @@ entry32_gdt_done:
         rep stosb
 
         /*
+         * Set our LDT segment as the current LDT.
+         */
+        mov     $BOOT_LDT_SEG, %ax
+        lldt    %ax
+
+        /*
          * Call main().
          *
          * If it returns, put the machine in a halt loop. We don't
@@ -446,7 +453,7 @@ halt_loop:
         jmp     halt_loop
 
         /*
-         * gdt --
+         * boot_gdt --
          *
          *    This is a Global Descriptor Table that gives us a
          *    code and data segment, with a flat memory model.
@@ -456,30 +463,37 @@ halt_loop:
 
         .code32
         .p2align 3
-gdt:
-        .word   0x0000, 0x0000                  // Unused
+boot_gdt:
+        .word   0x0000, 0x0000                  // BOOT_NULL_SEG
         .byte   0x00, 0x00, 0x00, 0x00
 
-        .word   0xFFFF, 0x0000                  // 32-bit Code segment
+        .word   0xFFFF, 0x0000                  // BOOT_CODE_SEG
         .byte   0x00, 0x9A, 0xCF, 0x00
 
-        .word   0xFFFF, 0x0000                  // 32-bit Data segment
+        .word   0xFFFF, 0x0000                  // BOOT_DATA_SEG
         .byte   0x00, 0x92, 0xCF, 0x00
 
-        .word   0xFFFF, 0x0000                  // 16-bit Code segment
+        .word   0xFFFF, 0x0000                  // BOOT_CODE16_SEG
         .byte   0x00, 0x9A, 0x00, 0x00
 
-        .word   0xFFFF, 0x0000                  // 16-bit Data segment
+        .word   0xFFFF, 0x0000                  // BOOT_DATA16_SEG
         .byte   0x00, 0x92, 0x00, 0x00
-gdt_end:
+
+        .word   0xFFFF                          // BOOT_LDT_SEG
+        .byte   _ldt_byte0
+        .byte   _ldt_byte1
+        .byte   _ldt_byte2
+        .byte   0x82, 0x40
+        .byte   _ldt_byte3
+boot_gdt_end:
 
 bios_gdt_desc:                                  // Uses BIOS_PTR
-        .word   (gdt_end - gdt - 1)
-        .long   BIOS_PTR(gdt)
+        .word   (boot_gdt_end - boot_gdt - 1)
+        .long   BIOS_PTR(boot_gdt)
 
-final_gdt_desc:                                 // Uses final address
-        .word   (gdt_end - gdt - 1)
-        .long   gdt
+boot_gdt_desc:                                  // Uses final address
+        .word   (boot_gdt_end - boot_gdt - 1)
+        .long   boot_gdt
 
 
         /*
@@ -549,6 +563,7 @@ dest_address:
          */
 
         .org    0x1BE           // Partition 1
+boot_partition_table:
         .byte   0x80                     // Status (Bootable)
         .byte   0x00                     // First block (head, sector/cylinder, cylinder)
         .byte   0x01

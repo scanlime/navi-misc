@@ -56,6 +56,8 @@ VBE_Init()
    /* Let the BIOS know we support VBE2 */
    cInfo->signature = SIGNATURE_VBE2;
 
+   Console_WriteString("Foo\n");
+
    /* "Get SuperVGA Information" command */
    reg.ax = 0x4f00;
    reg.di = PTR_32_TO_NEAR(cInfo, 0);
@@ -63,6 +65,7 @@ VBE_Init()
    if (reg.ax != 0x004F) {
       return FALSE;
    }
+   Console_WriteString("Bar\n");
 
    /*
     * Make a copy of the VBEControllerInfo struct itself, and of the
