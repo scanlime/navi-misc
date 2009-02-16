@@ -1,5 +1,0 @@
-On IRIX it appears as though the remote name of sockets is set
-to something entirely wrong.  (perhaps just use getpeeer??)
-------------
-YOUCH!  -- The rect coordinates for the mean calculation do NOTHING!
-
