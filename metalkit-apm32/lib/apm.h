@@ -54,6 +54,11 @@ typedef struct {
    Bool         connected;         // Are we successfully connected to APM?
    uint16       version;           // Supported APM version in BCD, 0 if not supported
    uint16       flags;
+   struct {                        // Protected mode 32-bit entry point.
+      uint32    eip;               // Order matters: Far Call loads cs:eip from here.
+      uint16    cs;
+      uint16    ds;
+   } PACKED pm32;
 } APMState;
 
 extern APMState gAPM;

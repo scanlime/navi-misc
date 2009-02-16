@@ -33,6 +33,7 @@
 #include "apm.h"
 #include "bios.h"
 #include "intr.h"
+#include "segment.h"
 
 APMState gAPM;
 
@@ -71,12 +72,68 @@ APM_Init()
       return;
    }
 
-   /* Protected mode 32-bit interface connect */
+   /*
+    * Protected mode 32-bit interface connect.
+    *
+    * If this returns successfully, we're responsible for setting up
+    * three consecutive segments using the parameters it gives us:
+    *
+    *   AX:        32-bit code segment base
+    *   EBX:       Entry EIP
+    *   CX:        16-bit code segment base
+    *   DX:        Data segment base
+    *   ESI high:  16-bit code segment length
+    *   ESI low:   32-bit code segment length
+    *   DI:        Data segment length.
+    */
    reg.ax = 0x5303;
    reg.bx = 0x0000;
    BIOS_Call(0x15, &reg);
    if (reg.cf == 0) {
       self->connected = TRUE;
+   }
+
+   /*
+    * Segment order must be according to the APM spec.
+    */
+   uint32 cs32 = Segment_LDTAlloc();
+   uint32 cs16 = Segment_LDTAlloc();
+   uint32 ds = Segment_LDTAlloc();
+
+   self->pm32.eip = reg.ebx;
+   self->pm32.cs = cs32;
+   self->pm32.ds = ds;
+
+   {
+      SegmentDesc *d = Segment_LDTLookup(cs32);
+
+      d->limit0 = (reg.esi & 0xFFFF) - 1;
+      d->base0 = reg.ax;
+      d->rw = 1;
+      d->code = 1;
+      d->nonSystem = 1;
+      d->present = 1;
+      d->bits32 = 1;
+   }
+   {
+      SegmentDesc *d = Segment_LDTLookup(cs16);
+
+      d->limit0 = (reg.esi >> 16) - 1;
+      d->base0 = reg.cx;
+      d->rw = 1;
+      d->code = 1;
+      d->nonSystem = 1;
+      d->present = 1;
+   }
+   {
+      SegmentDesc *d = Segment_LDTLookup(ds);
+
+      d->limit0 = reg.di - 1;
+      d->base0 = reg.dx;
+      d->rw = 1;
+      d->nonSystem = 1;
+      d->present = 1;
+      d->bits32 = 1;
    }
 }
 
@@ -95,31 +152,29 @@ APM_Init()
 fastcall void
 APM_Idle()
 {
-   /*
-    * XXX: This doesn't actually work, because BIOS_Call disables
-    *      interrupts!  To get idle calls working, we'll need to use
-    *      the real 32-bit APM interface.
-    */
-#if 0
+   if (gAPM.connected) {
+      /* Protected mode "CPU Idle" call */
 
-   APMState *self = &gAPM;
+      /*
+       * XXX: FIXME:
+       *  - This is crashing on lcall (#GP)
+       *  - The fault handler faults because DS is incorrect.
+       *  - IntrTrampoline needs to save/restore segment regs!
+       */
 
-   if (self->connected) {
-      Regs reg = {};
-
-      /* Real mode "CPU Idle" call */
-      reg.ax = 0x5305;
-      BIOS_Call(0x15, &reg);
-      if (reg.cf == 0) {
-         /* Success */
-         return;
-      }
+      asm volatile ("push %0 \n"
+                    "pop %%ds \n"
+                    "lcall *%1 \n"
+                    "push %2 \n"
+                    "pop %%ds"
+                    :: "m" (gAPM.pm32.ds),
+                       "m" (gAPM.pm32),
+                       "i" (BOOT_DATA_SEG),
+                       "a" (0x5305));
+   } else {
+      /* Fall back to CPU HLT */
+      Intr_Halt();
    }
-
-#endif
-
-   /* Fall back to CPU HLT */
-   Intr_Halt();
 }
 
 
@@ -133,14 +188,17 @@ APM_Idle()
 fastcall void
 APM_SetPowerState(uint16 state)
 {
-   APMState *self = &gAPM;
-
-   if (self->connected) {
-      Regs reg = {};
-
-      reg.ax = 0x5307;   // APM Set Power State
-      reg.bx = 0x0001;   // All devices
-      reg.cx = state;
-      BIOS_Call(0x15, &reg);
+   if (gAPM.connected) {
+      asm volatile ("push %0 \n"
+                    "pop %%ds \n"
+                    "lcall *%1 \n"
+                    "push %2 \n"
+                    "pop %%ds"
+                    :: "m" (gAPM.pm32.ds),
+                       "m" (gAPM.pm32),
+                       "i" (BOOT_DATA_SEG),
+                       "a" (0x5305),   // APM Set Power State
+                       "b" (0x0001),   // All devices
+                       "c" (state));
    }
 }
