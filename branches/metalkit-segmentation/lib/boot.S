@@ -97,18 +97,18 @@
         .extern _ldt_byte2
         .extern _ldt_byte3
 
-	/*
-	 * Other modules can optionally define an LDT in uninitialized
-	 * memory.  By default this LDT will be all zeroes, but this
-	 * is a simple and code-size-efficient way of letting other
-	 * Metalkit modules allocate segment descriptors when they
-	 * need to.
+        /*
+         * Other modules can optionally define an LDT in uninitialized
+         * memory.  By default this LDT will be all zeroes, but this
+         * is a simple and code-size-efficient way of letting other
+         * Metalkit modules allocate segment descriptors when they
+         * need to.
          *
          * Note that we page-align the LDT. This isn't strictly
          * necessary, but it might be useful for performance in
          * some environments.
-	 */
-	.comm	LDT, BOOT_LDT_SIZE, 4096
+         */
+        .comm   LDT, BOOT_LDT_SIZE, 4096
 
         /*
          * This begins our 16-bit DOS MBR boot sector segment. This
@@ -154,7 +154,7 @@ gnu_multiboot:
          * String table, located in the boot sector.
          */
 
-loading_str:            .string "\r\nMETAL "
+loading_str:            .string "\r\nMETALKIT "
 disk_error_str:         .string " err!"
 
         /*
@@ -190,25 +190,25 @@ bios_main:
         /*
          * Switch on the A20 gate, so we can access more than 1MB
          * of memory. There are multiple ways to do this: The
-	 * original way was to write to bit 1 of the keyboard
-	 * controller's output port. There's also a bit on PS2
-	 * System Control port A to enable A20.
-	 *
-	 * The keyboard controller method should always work, but
-	 * it's kind of slow and it takes a lot of code space in
-	 * our already-cramped bootloader. Instead, we ask the BIOS
-	 * to enable A20.
-	 *
-	 * If your computer doesn't support this BIOS interface,
-	 * you'll see our "err!" message before "METAL" appears.
-	 *
-	 * References:
+         * original way was to write to bit 1 of the keyboard
+         * controller's output port. There's also a bit on PS2
+         * System Control port A to enable A20.
+         *
+         * The keyboard controller method should always work, but
+         * it's kind of slow and it takes a lot of code space in
+         * our already-cramped bootloader. Instead, we ask the BIOS
+         * to enable A20.
+         *
+         * If your computer doesn't support this BIOS interface,
+         * you'll see our "err!" message before "METAL" appears.
+         *
+         * References:
          *    http://www.win.tue.nl/~aeb/linux/kbd/A20.html
          */
 
-	mov	$0x2401, %ax	// Enable A20
-	int	$15
-	jc	fatal_error
+        mov     $0x2401, %ax    // Enable A20
+        int     $0x15
+        jc      fatal_error
 
         /*
          * Load our image, starting at the beginning of whatever disk
@@ -464,8 +464,16 @@ halt_loop:
         .code32
         .p2align 3
 boot_gdt:
-        .word   0x0000, 0x0000                  // BOOT_NULL_SEG
-        .byte   0x00, 0x00, 0x00, 0x00
+
+        /*
+         * This is BOOT_NULL_SEG, the unusable segment zero.
+         * Reuse this memory as bios_gdt_desc, a GDT descriptor
+         * which uses our pre-relocation (BIOS_PTR) GDT address.
+         */
+bios_gdt_desc:
+        .word   (boot_gdt_end - boot_gdt - 1)
+        .long   BIOS_PTR(boot_gdt)
+        .word   0  // Unused
 
         .word   0xFFFF, 0x0000                  // BOOT_CODE_SEG
         .byte   0x00, 0x9A, 0xCF, 0x00
@@ -486,10 +494,6 @@ boot_gdt:
         .byte   0x82, 0x40
         .byte   _ldt_byte3
 boot_gdt_end:
-
-bios_gdt_desc:                                  // Uses BIOS_PTR
-        .word   (boot_gdt_end - boot_gdt - 1)
-        .long   BIOS_PTR(boot_gdt)
 
 boot_gdt_desc:                                  // Uses final address
         .word   (boot_gdt_end - boot_gdt - 1)
