@@ -109,6 +109,7 @@
          * some environments.
          */
         .comm   LDT, BOOT_LDT_SIZE, 4096
+	.comm	LDTAllocNext, 4, 4
 
         /*
          * This begins our 16-bit DOS MBR boot sector segment. This
