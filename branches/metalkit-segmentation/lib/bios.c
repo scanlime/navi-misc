@@ -37,6 +37,7 @@
 #include "boot.h"
 #include "intr.h"
 
+
 /*
  * BIOSCallInternal --
  *
@@ -92,8 +93,7 @@ BIOSCallInternal(void)
     * Return here. The rest of this code is never run directly,
     * but we need to prevent GCC from optimizing it out.
     */
-   asm volatile("leave \n"
-                "ret \n");
+   asm volatile("jmp BIOSTrampolineEnd\n");
 
    /*
     * This is a 16-bit assembly-language trampoline, relocated at
@@ -114,12 +114,6 @@ BIOSCallInternal(void)
                 "movw %%ax, %%es \n"
                 "movw %%ax, %%ss \n"
                 :: "i" (BOOT_DATA16_SEG));
-
-   /*
-    * Switch from 32-bit to 16-bit IDT.
-    */
-   asm volatile("sidt %0" : "=m" (BIOS_SHARED->idtr32));
-   asm volatile("lidt %0" :: "m" (BIOS_SHARED->idtr16));
 
    /*
     * Disable protected mode.
@@ -179,11 +173,6 @@ BIOSCallInternal(void)
                 "movl %eax, %cr0 \n");
 
    /*
-    * Back to 32-bit IDT.
-    */
-   asm volatile("lidt %0" :: "m" (BIOS_SHARED->idtr32));
-
-   /*
     * Return via a long 16-to-32 bit jump.
     */
    asm volatile("data32 ljmp %0, $BIOSReturn32 \n"
@@ -192,6 +181,10 @@ BIOSCallInternal(void)
    asm volatile("BIOSTrampolineEnd: .code32 \n");
 }
 
+extern struct {
+   uint16 limit;
+   uint32 base;
+} PACKED IDTDesc;
 
 /*
  * BIOS_Call --
@@ -222,10 +215,13 @@ BIOS_Call(uint8 vector, Regs *regs)
    memcpy(BIOS_SHARED->trampoline, BIOSTrampoline, trampSize);
 
    /*
-    * Set up the 16-bit IDT descriptor.
+    * Save the 32-bit IDT descriptor, and set up a legacy 256-entry
+    * 16-bit IDT descriptor.
     */
-   BIOS_SHARED->idtr16.base = 0x00000000;
-   BIOS_SHARED->idtr16.limit = 0xFFFF;
+   asm volatile("sidt %0" : "=m" (BIOS_SHARED->idtr32));
+   BIOS_SHARED->idtr16.base = 0;
+   BIOS_SHARED->idtr16.limit = 0x3ff;
+   asm volatile("lidt %0" :: "m" (BIOS_SHARED->idtr16));
 
    /*
     * Binary-patch the trampoline code with the right interrupt vector.
@@ -241,6 +237,11 @@ BIOS_Call(uint8 vector, Regs *regs)
 
    /* Copy Regs back */
    memcpy(regs, &BIOS_SHARED->stackTop[-sizeof *regs], sizeof *regs);
+
+   /*
+    * Back to 32-bit IDT.
+    */
+   asm volatile("lidt %0" :: "m" (BIOS_SHARED->idtr32));
 
    Intr_Restore(iFlag);
 }
