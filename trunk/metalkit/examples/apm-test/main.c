@@ -47,9 +47,11 @@ main(void)
             Console_Format("Setting power state %d... ", i);
             Console_Flush();
 
-            APM_SetPowerState(i);
-
-            Console_Format("Done\n");
+            if (APM_SetPowerState(i)) {
+               Console_Format("Success\n");
+            } else {
+               Console_Format("Failed\n");
+            }
             Console_Flush();
          }
       }
