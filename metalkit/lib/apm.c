@@ -71,13 +71,25 @@ APM_Init()
       return;
    }
 
-   /* Protected mode 32-bit interface connect */
+   /* Real-mode interface connect */
    reg.ax = 0x5303;
    reg.bx = 0x0000;
    BIOS_Call(0x15, &reg);
-   if (reg.cf == 0) {
-      self->connected = TRUE;
+   if (reg.cf != 0) {
+      return;
    }
+
+   /* Indicate that we want APM v1.2 */
+   reg.ax = 0x530e;
+   reg.bx = 0x0000;
+   reg.cx = 0x0102;
+   BIOS_Call(0x15, &reg);
+   if (reg.cf != 0) {
+      return;
+   }
+
+   /* Success! */
+   self->connected = TRUE;
 }
 
 
