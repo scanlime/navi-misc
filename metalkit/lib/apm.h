@@ -60,6 +60,6 @@ extern APMState gAPM;
 
 fastcall void APM_Init();
 fastcall void APM_Idle();
-fastcall void APM_SetPowerState(uint16 state);
+fastcall Bool APM_SetPowerState(uint16 state);
 
 #endif /* __APM_H_ */

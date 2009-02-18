@@ -127,10 +127,12 @@ APM_Idle()
  * APM_SetPowerState --
  *
  *    Set the power state of all APM-managed devices.
- *    If we aren't connected to APM, has no effect.
+ *    If we aren't connected to APM, always fails.
+ *
+ *    Returns TRUE on success, FALSE on error.
  */
 
-fastcall void
+fastcall Bool
 APM_SetPowerState(uint16 state)
 {
    APMState *self = &gAPM;
@@ -142,5 +144,9 @@ APM_SetPowerState(uint16 state)
       reg.bx = 0x0001;   // All devices
       reg.cx = state;
       BIOS_Call(0x15, &reg);
+
+      return reg.cf == 0;
    }
+
+   return FALSE;
 }
