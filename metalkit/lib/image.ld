@@ -51,6 +51,10 @@ SECTIONS
    }
 
    _end = .;
+
+   /DISCARD/ : {
+      *(.note .note.* .comment .comment.*);
+   }
 }
 
 _bss_size = _end - _edata;
