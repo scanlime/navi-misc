@@ -7,7 +7,67 @@
 # TUT.EXE binaries. The others do not need any patch, and this patcher
 # will not run on them.
 #
-# Patcher version 1.0, April 4 2009.
+# Usage:
+#
+#   1. Make sure your binaries are original. I'm not sure whether multiple
+#      versions of the game were released, so this patcher has been designed
+#      to be pretty lenient- but you really don't want to start with binaries
+#      that have already been patched or cracked by someone else. My copy
+#      of the game has the following SHA-1 hashes:
+#
+#      756a92e6647a105695ac61e374fd2e9edbe8d935  GAME.EXE
+#      692a9bb5caca7827eb933cc3e88efef4812b30c5  LAB.EXE
+#      360e983c090c95c99e39a7ebdb9d6649b537d75f  MENU2.EXE
+#      a6293df401a3d4b8b516aa6a832b9dd07f782a39  MENU.EXE
+#      12df28e9c3998714feaa81b99542687fc36f792f  PLAY.EXE
+#      bb7b45761d84ddbf0a9e561c3c3603c7f65fd36d  SETUP.EXE
+#      e4a1e59665595ef84fe7ff45474bcb62c382b68d  TUT.EXE
+#
+#   2. Make backup copies of your original binaries:
+#
+#       > mkdir original
+#       > copy *.EXE original
+#
+#   3. Patch them! Each section of the game (Robotropolis, Innovation
+#      Lab, and Tutorials) has a separate EXE file, each of which has
+#      a separate copy of the game engine. You can use the same or
+#      different settings for each.
+#
+#      For example, to patch all binaries with default frame rate, and
+#      with the keyboard patch enabled:
+#
+#       > python robot_odyssey_patcher.py original/GAME.EXE GAME.EXE -k
+#       > python robot_odyssey_patcher.py original/TUT.EXE TUT.EXE -k
+#       > python robot_odyssey_patcher.py original/LAB.EXE LAB.EXE -k
+#
+#      To speed up the game a bit, you might want to increase the
+#      frame rate (-r) and/or turn on 'fast' mode (-f) which speeds
+#      up the game when there's keyboard input:
+#
+#       > python robot_odyssey_patcher.py original/GAME.EXE GAME.EXE -k -r 10 -f
+#       > python robot_odyssey_patcher.py original/TUT.EXE TUT.EXE -k -r 10 -f
+#       > python robot_odyssey_patcher.py original/LAB.EXE LAB.EXE -k -r 10 -f
+#
+#      If you want compatibility with the DOS box in Windows XP, you
+#      should turn on the -p option. Otherwise, the game will run too fast:
+#
+#       > python robot_odyssey_patcher.py original/GAME.EXE GAME.EXE -p -k -f
+#       > python robot_odyssey_patcher.py original/TUT.EXE TUT.EXE -p -k -f
+#       > python robot_odyssey_patcher.py original/LAB.EXE LAB.EXE -p -k -f
+#
+#      You can try to patch games other than Robot Odyssey which use the
+#      same engine. For example, Gertrude's Secrets or Rocky's Boots. You
+#      may need to omit the keyboard patch (-k) because not all games use
+#      the same keyboard mappings as Robot Odyssey:
+#
+#       > python robot_odyssey_patcher.py original/GERTSEC.EXE GERTSEC.EXE
+#
+#   4. Enjoy!
+#
+# Patcher version 1.1, April 4 2009.
+# The latest version is always at:
+#    http://svn.navi.cx/misc/trunk/python/robot_odyssey_patcher.py
+#
 # Requires Python 2.5 and nasm.
 #
 # This patcher knows how to make four changes to the Robot Odyssey engine:
@@ -26,10 +86,17 @@
 #      normal (non-numeric-keypad) arrow keys. Without this patch,
 #      the shift-arrow combination (for walking slowly) only worked
 #      with the numpad arrows, so the game was impossible to play on
-#      a laptop.
+#      a laptop. This patch also makes it possible to play without
+#      Caps Lock on.
+#
+#   5. We also try to add a human-readable (ASCII) comment in the
+#      binary, which you can look for in order to find out which
+#      patches have been applied.
 #
 # -- Micah Dowty <micah@navi.cx>
 #
+
+VERSION = "1.1"
 
 import optparse
 import sys
@@ -163,7 +230,7 @@ def copyPatch(exe):
     p[len(stackSegment)] = patch
 
 
-def blitPatch(exe, fps, kbFast):
+def blitPatch(exe, fps, kbFast=False, noPIT=False):
     """Patch the Robot Odyssey engine's blit loop"""
 
     # The engine used by Robot Odyssey has a giant unrolled loop which
@@ -262,18 +329,34 @@ def blitPatch(exe, fps, kbFast):
     pitHZ = 1193182
     numTicks = 1
 
-    while True:
-        tickHZ = fps * numTicks
+    if noPIT:
+        # If we can't reprogram the PIT, stick with the default
+        # BIOS rate, and increase the number of ticks until we're
+        # at or below the requested frame rate.
 
-        divisor = int(pitHZ / tickHZ)
+        divisor = 0xFFFF
+        tickHZ = pitHZ / float(divisor)
 
-        if divisor < 0x10000:
-            # The divisor is fine, we're done
-            break
-        else:
-            # Divisor is too large, increase the
-            # ticks-per-frame ratio.
+        while tickHZ / numTicks > fps:
             numTicks += 1
+
+    else:
+        # We have the flexibility to reprogram the PIT and get
+        # a more accurate frame rate. Find a good combination
+        # of PIT divisor and numTicks.
+
+        while True:
+            tickHZ = fps * numTicks
+
+            divisor = int(pitHZ / tickHZ)
+
+            if divisor < 0x10000:
+                # The divisor is fine, we're done
+                break
+            else:
+                # Divisor is too large, increase the
+                # ticks-per-frame ratio.
+                numTicks += 1
 
     divHigh = divisor >> 8
     divLow = divisor & 0xFF
@@ -290,14 +373,16 @@ def blitPatch(exe, fps, kbFast):
         jz    waitLoop
         mov   byte [tmr_init], 1
 
-        mov   dx, 0x43            ; Program the divisor for PIT channel 0
-        mov   al, 0x34
-        out   dx, al
-        mov   dx, 0x40
-        mov   al, %d
-        out   dx, al
-        mov   al, %d
-        out   dx, al
+        %%if !%d
+          mov   dx, 0x43          ; Program the divisor for PIT channel 0
+          mov   al, 0x34
+          out   dx, al
+          mov   dx, 0x40
+          mov   al, %d
+          out   dx, al
+          mov   al, %d
+          out   dx, al
+        %%endif
 
 waitLoop
         xor   ax, ax              ; Get number of ticks from BIOS
@@ -329,7 +414,7 @@ exit
 last_tick  equ 0
 tmr_init   equ 2
 
-    """ % (divLow, divHigh, numTicks, kbFast))
+    """ % (noPIT, divLow, divHigh, numTicks, kbFast))
 
     # Now overwrite the original blit loop with our modified loop.
     # We pad any excess space with NOPs
@@ -387,9 +472,11 @@ def kbPatch(exe):
     #
     # This is a clever hack, but it won't do for gray arrow keys.
     # Instead, we'd rather look at the actual status of the shift
-    # keys. We can get this from the BIOS data area. This will
-    # increase the code size a bit, but we can make room by removing
-    # support for very old legacy scancodes.
+    # keys. We can get this from the BIOS data area, but that won't
+    # work in a Windows DOS box. Instead, we call a BIOS interrupt.
+    #
+    # This will increase the code size a bit, but we can make room by
+    # removing support for very old legacy scancodes.
 
     # XXX: This patcher works on Robot Odyssey, but it does not
     #      work on Gertrude's Secrets, since that game uses different
@@ -438,7 +525,19 @@ def kbPatch(exe):
         cmp   ah, 0x53      ;     Gertrude's Secrets.
         jz      key_delete
 
-        ; Other key: Leave it in ASCII, we're done.
+        ; Other key: Leave it in ASCII. Normally we'd be done now...
+        ; However, while we're here, we'll apply another bug fix.
+        ; The game is expecting all keyboard input to be in uppercase.
+        ; It does this by forcing Caps Lock to be on, using the BIOS
+        ; data area. However, this isn't supported by the Windows XP
+        ; DOS box. We can work around this by doing a toupper() on all
+        ; characters here.
+
+        cmp   al, 'a'
+        jb    done
+        cmp   al, 'z'
+        ja    done
+        xor   al, 0x20
         jmp   done
 
 key_insert
@@ -468,12 +567,11 @@ key_right
         ; Fall through
 
 arrow_shift_test
-        push  ds
-        mov   bx, 0x40     ; BIOS Data Area
-        mov   ds, bx
-        mov   cl, [0x17]   ; Keyboard Flags 0
-        pop   ds
-        and   cl, 0x3      ; Left/right shift mask
+        pusha
+        mov   ah, 2
+        int   0x16
+        and   al, 0x3      ; Left/right shift mask
+        popa
         jz    done         ; Not shifted
         add   al, 6        ; Shifted
         jmp done
@@ -490,6 +588,46 @@ done
 
     assert len(patch) <= origMapperLen
     kbMapper[0] = patch + (origMapperLen - len(patch)) * asm('nop')
+
+
+
+def commentPatch(exe, opts):
+    """Add a human-readable comment, to identify which patches a binary has."""
+
+    # Formatted to look good in a 16-column hex dump, but to also be
+    # readable if you're just running 'strings'.
+
+    comment = ("================"
+               "Patched by      "
+               "  Robot Odyssey "
+               "  Patcher v%-5s"
+               ". . . . . . . . "
+               "Micah Dowty 2009"
+               ". . . . . . . . "
+               "TinyURL: ropatch"
+               "================"
+               "rate: %-10f"
+               "fast: %-10s"
+               "kbmap: %-9s"
+               "nopit: %-9s"
+               "================"
+               % (
+            VERSION, opts.fps, opts.kbfast,
+            opts.kbmap, opts.nopit))
+
+    # Put the comment 16 bytes from the bottom of the stack segment.
+    # The game itself should never use this memory without initializing
+    # it first. The first few bytes are already being repurposed as
+    # global variables by other patches.
+
+    stackSeg = (exe[0x0E] + (exe[0x0F] << 8))  # SS offset in EXE header
+    hdrSize  = (exe[0x08] + (exe[0x09] << 8))  # Header size, in paragraphs
+    stackOffset = (stackSeg + hdrSize) << 4
+    commentOffset = stackOffset + 16
+    maxCommentSize = 512
+
+    print "Saving comment at 0x%x" % commentOffset
+    exe[commentOffset] = comment[:maxCommentSize]
 
 
 class Patchable:
@@ -588,14 +726,19 @@ if __name__ == "__main__":
     p.parser.add_option("-k", "--kbmap", action="store_true", default=False,
                         dest="kbmap",
                         help="patch the keyboard mapper, to fix shift-Arrow keys")
+    p.parser.add_option("-p", "--nopit", action="store_true", default=False,
+                        dest="nopit",
+                        help="don't reprogram the PIT. Frame rate is rounded "
+                        "down to the nearest 18.2/N Hz. (Windows compatibility)")
 
     exe = p.load()
 
     try:
         copyPatch(exe)
-        blitPatch(exe, p.options.fps, p.options.kbfast)
+        blitPatch(exe, p.options.fps, p.options.kbfast, p.options.nopit)
         if p.options.kbmap:
             kbPatch(exe)
+        commentPatch(exe, p.options)
 
     except CodeMismatchError:
         sys.stderr.write("Error: Can't find the code to patch. EXE file is"
