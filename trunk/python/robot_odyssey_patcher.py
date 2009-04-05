@@ -64,7 +64,7 @@
 #
 #   4. Enjoy!
 #
-# Patcher version 1.1, April 4 2009.
+# Patcher version 1.1.2, April 4 2009.
 # The latest version is always at:
 #    http://svn.navi.cx/misc/trunk/python/robot_odyssey_patcher.py
 #
@@ -96,6 +96,11 @@
 # -- Micah Dowty <micah@navi.cx>
 #
 
+# Major and minor version. The micro version (in the comments above
+# only) is for changes that affect this script itself, but not the
+# patched output. Any time the generated code might change, the minor
+# version should be bumped.
+
 VERSION = "1.1"
 
 import optparse
@@ -116,16 +121,19 @@ def asm(str, bits=16):
     """Assemble some code, returning the raw code bytes.
        This implementation calls nasm in a subprocess.
        """
-    asmFile = tempfile.NamedTemporaryFile()
-    asmFile.write(" bits %d\n %s\n" % (bits, str))
-    asmFile.flush()
-    outputDir = tempfile.mkdtemp()
+    tempDir = tempfile.mkdtemp()
     try:
-        outputFile = os.path.join(outputDir, 'out')
-        subprocess.check_call(('nasm', asmFile.name, '-o', outputFile))
-        outputData = open(outputFile, 'rb').read()
+        inputFileName = os.path.join(tempDir, 'in')
+        inputFile = open(inputFileName, 'w')
+        inputFile.write(" bits %d\n %s\n" % (bits, str))
+        inputFile.close()
+
+        outputFileName = os.path.join(tempDir, 'out')
+        subprocess.check_call(('nasm', inputFileName, '-o', outputFileName))
+        
+        outputData = open(outputFileName, 'rb').read()
     finally:
-        shutil.rmtree(outputDir)
+        shutil.rmtree(tempDir)
     return outputData
 
 class CodeMismatchError(Exception):
@@ -384,7 +392,7 @@ def blitPatch(exe, fps, kbFast=False, noPIT=False):
           out   dx, al
         %%endif
 
-waitLoop
+waitLoop:
         xor   ax, ax              ; Get number of ticks from BIOS
         int   0x1A                ; Result is in DX
         mov   bx, dx
@@ -404,7 +412,7 @@ waitLoop
         hlt                       ; Wait for a timer tick
         jmp   waitLoop
 
-exit
+exit:
         mov   [last_tick], dx     ; Save this frame's tick count
         pop   ds                  ; Restore state, exit.
         popa
@@ -540,10 +548,10 @@ def kbPatch(exe):
         xor   al, 0x20
         jmp   done
 
-key_insert
+key_insert:
         mov   al, 0x86
         jmp   done
-key_delete
+key_delete:
         mov   al, 0x87
         jmp   done
 
@@ -553,20 +561,20 @@ key_delete
         ; arrow key here, then we'll head to a shared block of code
         ; below which checks the shift modifierss.
 
-key_up
+key_up:
         mov   al, 0x82
         jmp   arrow_shift_test
-key_down
+key_down:
         mov   al, 0x83
         jmp   arrow_shift_test
-key_left
+key_left:
         mov   al, 0x84
         jmp   arrow_shift_test
-key_right
+key_right:
         mov   al, 0x85
         ; Fall through
 
-arrow_shift_test
+arrow_shift_test:
         pusha
         mov   ah, 2
         int   0x16
@@ -576,9 +584,9 @@ arrow_shift_test
         add   al, 6        ; Shifted
         jmp done
 
-no_key
+no_key:
         xor al, al
-done
+done:
         ; Immediately afterwards will be some code that saves AL
         ; and returns.
 
@@ -707,12 +715,12 @@ class BinaryPatcher:
 
         self.inFile, self.outFile = args
 
-        self.patchable = Patchable(open(self.inFile).read())
+        self.patchable = Patchable(open(self.inFile, 'rb').read())
         atexit.register(self.save)
         return self.patchable
 
     def save(self):
-        open(self.outFile, "wb").write(str(self.patchable))
+        open(self.outFile, 'wb').write(str(self.patchable))
 
 
 if __name__ == "__main__":
