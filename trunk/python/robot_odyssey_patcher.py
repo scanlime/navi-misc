@@ -64,7 +64,7 @@
 #
 #   4. Enjoy!
 #
-# Patcher version 1.1.2, April 4 2009.
+# Patcher version 1.2.1, April 11 2009.
 # The latest version is always at:
 #    http://svn.navi.cx/misc/trunk/python/robot_odyssey_patcher.py
 #
@@ -101,7 +101,7 @@
 # patched output. Any time the generated code might change, the minor
 # version should be bumped.
 
-VERSION = "1.1"
+VERSION = "1.2"
 
 import optparse
 import sys
@@ -129,12 +129,39 @@ def asm(str, bits=16):
         inputFile.close()
 
         outputFileName = os.path.join(tempDir, 'out')
-        subprocess.check_call(('nasm', inputFileName, '-o', outputFileName))
-        
+
+        try:
+            subprocess.check_call(('nasm', inputFileName, '-o', outputFileName))
+        except:
+            sys.stderr.write("===== Assembly failed: ======\n" +
+                             str + "\n" +
+                             "=============================\n")
+            raise
+
         outputData = open(outputFileName, 'rb').read()
     finally:
         shutil.rmtree(tempDir)
     return outputData
+
+def asmPadToLength(str, length):
+    padLen = length - len(str)
+    if padLen < 0:
+        raise ValueError("Code block is too long (%d bytes), must fit in %d bytes!"
+                         % (len(str), length))
+
+    if padLen <= 4:
+        # Just pad with no-ops
+        result = str + asm("nop") * padLen
+
+    else:
+        # Fill with no-ops, but jump over them.
+        result = str + asm("   jmp end\n" +
+                           "   nop\n" * (padLen - 3) +
+                           "end:\n")
+
+    assert len(result) == length
+    return result
+
 
 class CodeMismatchError(Exception):
     pass
@@ -255,7 +282,7 @@ def blitPatch(exe, fps, kbFast=False, noPIT=False):
     # nasm seems to generate slightly different code than what the
     # game actually uses.
 
-    blitLoopPattern = 191 * unhex("A5 8B CB 96 8B FE F3")
+    blitLoopPattern = 191 * unhex("A5 8B CB 96 8B FE F3") + unhex("A5")
     blitLoop = exe.find(blitLoopPattern)
     if not blitLoop:
         raise CodeMismatchError()
@@ -428,7 +455,7 @@ tmr_init   equ 2
     # We pad any excess space with NOPs
 
     assert len(patch) <= len(blitLoopPattern)
-    blitLoop[0] = patch + (len(blitLoopPattern) - len(patch)) * asm('nop')
+    blitLoop[0] = asmPadToLength(patch, len(blitLoopPattern))
 
 
 def kbPatch(exe):
@@ -595,8 +622,7 @@ done:
     # Insert the patch, and pad any extra space with NOPs
 
     assert len(patch) <= origMapperLen
-    kbMapper[0] = patch + (origMapperLen - len(patch)) * asm('nop')
-
+    kbMapper[0] = asmPadToLength(patch, origMapperLen)
 
 
 def commentPatch(exe, opts):
