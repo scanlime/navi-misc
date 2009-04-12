@@ -644,6 +644,8 @@ haveObject:
         mov   al, [click_y]
         mov   [ES:w_object_y + si], al
 
+        jmp   nextFrame           ; Skip the inter-frame delay while we're dragging
+
 mouseDone:
 
         hlt                       ; Wait for a timer tick
