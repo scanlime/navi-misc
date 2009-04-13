@@ -35,6 +35,7 @@ CFLAGS += -g
 
 SOURCES := \
   $(METALKIT_LIB)/boot.S \
+  $(METALKIT_LIB)/gcc_support.c \
   $(addprefix $(METALKIT_LIB)/, $(addsuffix .c, $(LIB_MODULES))) \
   $(APP_SOURCES)
 
