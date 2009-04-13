@@ -6,7 +6,7 @@
  * writing software that runs on the bare metal. Get the latest code
  * at http://svn.navi.cx/misc/trunk/metalkit/
  *
- * Copyright (c) 2008 Micah Dowty
+ * Copyright (c) 2008-2009 Micah Dowty
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
