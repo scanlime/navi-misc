@@ -100,6 +100,18 @@ class Register:
         return "reg.%s" % self.name
 
 
+class Flag:
+    width = 1
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return "Flag(%s)" % self.name
+
+    def codegen(self):
+        return "fl.%s" % self.name
+
+
 class TempRegister:
     def __init__(self, width, name='t'):
         self.width = width
@@ -339,18 +351,27 @@ class Instruction:
                 signed(result), result.codegen(),
                 signed(b), signed(a), b.codegen(), a.codegen())
 
-    def _addFlags(self, a, b, result):
+    def _addFlags(self, a, b, c, result):
         """Set flags after an addition. OF = signed carry, CF = unsigned carry.
         This implementation of OF relies on 32-bit arithmetic.
         """
         msb = 1 << (a.width * 8 - 1)
 
-        return (("fl.s=%s<0; fl.z=%s==0; fl.c = (%s&%s) && (%s&%s); "
-                 "{int32_t s = (int32_t)%s + (int32_t)%s; "
+        return (("fl.s=%s<0; fl.z=%s==0;"
+                 "fl.c = ((%s&%s) + (%s&%s) + (%s&%s)) > %s; "
+                 "{int32_t s = (int32_t)%s + (int32_t)%s + (int32_t)%s; "
                  "fl.o = ((s ^ (s >> 1)) & %s) != 0;}") %
-                 (signed(result), result.codegen(),
-                 signed(a), msb, signed(b), msb,
-                 signed(a), signed(b), msb))
+                (signed(result), result.codegen(),
+                 signed(a), msb, signed(b), msb, signed(c), msb, msb,
+                 signed(a), signed(b), signed(c),
+                 msb))
+
+    def _repeat(self, cnt, contents):
+        """Repeat 'contents', 'cnt' times."""
+        if cnt == 1:
+            return "{ %s }" % contents;
+        else:
+            return "{ int c = %s; while (c--) { %s } }" % (cnt.codegen(), contents)
 
     def codegen(self):
         f = getattr(self, "codegen_%s" % self.op, None)
@@ -374,10 +395,14 @@ class Instruction:
         t = TempRegister(a.width)
         return t.scope("t = %s + %s; %s %s = t;" % (
                 a.codegen(), b.codegen(),
-                self._addFlags(a, b, t), a.codegen()))
+                self._addFlags(a, b, Literal(0), t), a.codegen()))
 
-    def codegen_adc(self, dest, src):
-        return "%s += %s;" % (dest.codegen(), src.codegen())
+    def codegen_adc(self, a, b):
+        t = TempRegister(a.width)
+        c = Flag('c')
+        return t.scope("t = %s + %s + %s; %s %s = t;" % (
+                a.codegen(), b.codegen(), c.codegen(),
+                self._addFlags(a, b, c, t), a.codegen()))
 
     def codegen_sub(self, a, b):
         t = TempRegister(a.width)
@@ -385,35 +410,44 @@ class Instruction:
                 a.codegen(), b.codegen(),
                 self._subFlags(a, b, t), a.codegen()))
 
-    def codegen_sbb(self, dest, src):
-        return "%s -= %s;" % (dest.codegen(), src.codegen())
+    def codegen_sbb(self, dest, cnt):
+        return "%s -= %s;" % (dest.codegen(), cnt.codegen())
 
-    def codegen_shl(self, dest, src):
-        return "%s <<= %s;" % (dest.codegen(), src.codegen())
+    def codegen_shl(self, dest, cnt):
+        return "%s <<= %s;" % (dest.codegen(), cnt.codegen())
 
-    def codegen_shr(self, dest, src):
-        return "%s >>= %s;" % (dest.codegen(), src.codegen())
+    def codegen_shr(self, dest, cnt):
+        return "%s >>= %s;" % (dest.codegen(), cnt.codegen())
 
-    def codegen_ror(self, dest, src):
-        #if dest.width == 2:
-         #   return "%s = ((%s) >> (%s)) | ((%s) << (%s))
-            
-#        return "
-        return "printf(\"XXX: ROR\\n\");"
+    def codegen_sar(self, dest, cnt):
+        return "%s = (int16_t)%s >> %s;" % (dest.codegen(), dest.codegen(),
+                                            cnt.codegen())
 
-    def codegen_rcr(self, dest, src):
-        return "printf(\"XXX: RCR\\n\");"
+    def codegen_ror(self, r, cnt):
+        msbShift = r.width * 8 - 1
+        return self._repeat(cnt,
+                            ("(%s) = ((%s) >> 1) + ((%s) << %s);") %
+                            (r.codegen(), r.codegen(), r.codegen(), msbShift))
 
-    def codegen_rcl(self, dest, src):
-        return "printf(\"XXX: RCL\\n\");"
+    def codegen_rcr(self, r, cnt):
+        msbShift = r.width * 8 - 1
+        return self._repeat(cnt,
+                            ("int lsb = %s;"
+                             "(%s) = ((%s) >> 1) + (fl.c << %s);"
+                             "fl.c = lsb;") %
+                            (r.codegen(), r.codegen(), r.codegen(), msbShift))
+
+    def codegen_rcl(self, r, cnt):
+        msbShift = r.width * 8 - 1
+        return self._repeat(cnt,
+                            ("int msb = %s >> %s;"
+                             "(%s) = ((%s) << 1) + fl.c;"
+                             "fl.c = msb;") %
+                            (r.codegen(), msbShift, r.codegen(), r.codegen()))
 
     def codegen_xchg(self, a, b):
         return "{ uint16_t t = %s; %s = %s; %s = t; }" % (
             a.codegen(), a.codegen(), b.codegen(), b.codegen())
-
-    def codegen_sar(self, dest, src):
-        return "%s = (int16_t)%s >> %s;" % (dest.codegen(), dest.codegen(),
-                                            src.codegen())
 
     def codegen_imul(self, arg):
         return "reg.ax = (int8_t)reg.al * %s;" % arg.codegen()
@@ -622,7 +656,7 @@ class Instruction:
         return self.codegen_ret()
 
     def codegen_int(self, arg):
-        return "reg = int%X(reg); fl.c = 0;" % arg
+        return "{ IntState s = {reg, fl}; int%X(&s); reg = s.reg; fl = s.flag; }" % arg
 
     def codegen_out(self, port, value):
         return "out(%s,%s);" % (port.codegen(), value.codegen())
@@ -760,7 +794,7 @@ body(Regs initRegs)
         self.entryPoint = Addr16(entryCS, entryIP)
         self.image = self.offset(self.headerSize)
 
-    def analyze(self, ptr, verbose=True):
+    def analyze(self, ptr, verbose=False):
         # Address memo: linear -> Addr16
         memo = {}
 
