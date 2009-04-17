@@ -14,6 +14,8 @@ class Addr16:
        Requires 2 out of 3 parameters, or 'str' to parse an
        address in hexadecimal string form.
        """
+    width = 4
+
     def __init__(self, segment=None, offset=None, linear=None, str=None):
         if str is not None:
             if ':' in str:
@@ -235,7 +237,7 @@ class Instruction:
         # (it's an Indirect) we ignore it. Function pointers and
         # computed jumps can't be translated automatically.
 
-        if op in ('jmp', 'ret', 'iret'):
+        if op in ('jmp', 'ret', 'iret', 'retf'):
             self.nextAddrs = ()
         else:
             self.nextAddrs = (self.addr.add(self.length),)
@@ -248,7 +250,7 @@ class Instruction:
                 self.labels = (offset.add(self.args[0]),)
             elif isinstance(arg, Addr16):
                 # Far branch
-                self.labels = (Addr16(arg.segment + offset.segment, arg.offset),)
+                self.labels = (arg,)
 
         self.nextAddrs += self.labels
 
@@ -393,13 +395,17 @@ class Instruction:
         return "%s >>= %s;" % (dest.codegen(), src.codegen())
 
     def codegen_ror(self, dest, src):
-        return "/* XXX ror */;"
+        #if dest.width == 2:
+         #   return "%s = ((%s) >> (%s)) | ((%s) << (%s))
+            
+#        return "
+        return "printf(\"XXX: ROR\\n\");"
 
     def codegen_rcr(self, dest, src):
-        return "/* XXX rcr */;"
+        return "printf(\"XXX: RCR\\n\");"
 
     def codegen_rcl(self, dest, src):
-        return "/* XXX rcl */;"
+        return "printf(\"XXX: RCL\\n\");"
 
     def codegen_xchg(self, a, b):
         return "{ uint16_t t = %s; %s = %s; %s = t; }" % (
@@ -612,6 +618,9 @@ class Instruction:
     def codegen_ret(self):
         return "stackPtr--; _longjmp(stack[stackPtr].addr, 1);"
 
+    def codegen_retf(self):
+        return self.codegen_ret()
+
     def codegen_int(self, arg):
         return "reg = int%X(reg); fl.c = 0;" % arg
 
@@ -751,7 +760,7 @@ body(Regs initRegs)
         self.entryPoint = Addr16(entryCS, entryIP)
         self.image = self.offset(self.headerSize)
 
-    def analyze(self, ptr):
+    def analyze(self, ptr, verbose=True):
         # Address memo: linear -> Addr16
         memo = {}
 
@@ -764,12 +773,17 @@ body(Regs initRegs)
         while stack:
             referent, ptr = stack.pop()
             if ptr.linear in memo:
+                if verbose:
+                    sys.stderr.write("Address %s already visited\n" % ptr)
                 continue
 
             memo[ptr.linear] = ptr
             i = self.image.iFetch(ptr)
             i.referent = referent
-            #print "R[%s] D%-3d %s %r" % (referent, len(stack), i, i.raw)
+
+            if verbose:
+                sys.stderr.write("R[%s] D%-3d %s -> %s\n" % (
+                        referent, len(stack), i, i.nextAddrs))
 
             # Remember all label targets, and remember future
             # addresses to analyze.
@@ -826,7 +840,7 @@ b.image.patch("0C63:1CB2 - jmp 0x21B3")
 b.image.patch("0C63:0F89 - int 3")
 
 # Patch copy protection in LAB.EXE
-b.image.patch("0C63:004B - nop")
+b.image.patch("0C63:004B 00 nop")
 
 # Dynamic call in MENU.EXE
 b.image.patch("009E:0778 - int 3")

@@ -150,13 +150,18 @@ int21(Regs r)
     switch (r.ah) {
 
     case 0x06: {              /* Direct console input/output */
-       if (r.dl == 0xFF) {  /* (Input) */
+       if (r.dl == 0xFF) {    /* (Input) */
           r.al = keyboardBuffer;
           if (r.al) {
              printf("DOS: Read key 0x%02x\n", r.al);
              keyboardBuffer = 0;
           }
        }
+       break;
+    }
+
+    case 0x25: {              /* Set interrupt vector */
+       /* Ignored. Robot Odyssey uses this to set the INT 24h error handler. */
        break;
     }
 
@@ -237,6 +242,7 @@ int
 main(int argc, char **argv)
 {
   register Regs reg = {{ 0 }};
+  const char *cmdLine = argc > 1 ? argv[1] : "";
 
   consoleInit();
 
@@ -252,8 +258,8 @@ main(int argc, char **argv)
   reg.ds = 0;                     // Beginning of EXE image
   reg.es = 0xFFFF;                // Program Segment Prefix addr
 
-  mem[SEG(reg.es, 0x80)] = 1;     // Empty command line
-  mem[SEG(reg.es, 0x81)] = '\0';
+  mem[SEG(reg.es, 0x80)] = strlen(cmdLine);
+  strcpy(mem + SEG(reg.es, 0x81), cmdLine);
 
   body(reg);
   return 0;
