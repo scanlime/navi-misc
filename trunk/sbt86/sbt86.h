@@ -92,11 +92,12 @@ typedef union StackItem {
 
 
 static void body(Regs reg);
-static void videoInit(void);
-static void videoPoll(void);
-static int videoThread(void *arg);
+static void consoleInit(void);
+static void consolePoll(void);
+static int consoleThread(void *arg);
 
 static uint8_t mem[0xFFFF0 + 0xFFFF];
+static uint8_t keyboardBuffer;
 static SDL_Surface *screen;
 
 
@@ -117,7 +118,7 @@ SEG(uint16_t seg, uint16_t off)
     /* XXX: Slow down the video so I can see it... */
     if (seg == 0xB800) {
        static uint8_t cnt = 0;
-       if (cnt++ == 5) {
+       if (cnt++ == 20) {
           cnt = 0;
           SDL_Delay(1);
        }
@@ -146,19 +147,20 @@ int21(Regs r)
     static int numFiles = 0;
     static FILE *files[16];
 
-    /*
-     * Silently ignore requests to write out character 0xFF. (invalid)
-     * The Robot Odyssey menu seems to do this really often.. why?
-     */
-    if (r.ah == 0x06 && r.dl == 0xFF) {
-        return r;
-    }
-
-    printf("INT 21, ax=0x%04x bx=0x%04x cx=0x%04x dx=0x%04x\n", r.ax, r.bx, r.cx, r.dx);
-
     switch (r.ah) {
 
-    case 0x3D: {
+    case 0x06: {              /* Direct console input/output */
+       if (r.dl == 0xFF) {  /* (Input) */
+          r.al = keyboardBuffer;
+          if (r.al) {
+             printf("DOS: Read key 0x%02x\n", r.al);
+             keyboardBuffer = 0;
+          }
+       }
+       break;
+    }
+
+    case 0x3D: {              /* Open File */
        int fd = numFiles;
        const char *name = mem + SEG(r.ds, r.dx);
 
@@ -175,12 +177,12 @@ int21(Regs r)
        break;
     }
 
-    case 0x3E: {
+    case 0x3E: {              /* Close File */
        printf("DOS: Close file #%d\n", r.bx);
        break;
     }
 
-    case 0x3F: {
+    case 0x3F: {              /* Read File */
        int fd = r.bx;
        int len = r.cx;
        void *dest = mem + SEG(r.ds, r.dx);
@@ -192,6 +194,16 @@ int21(Regs r)
        break;
     }
 
+    case 0x4C: {              /* Exit with return code */
+       int retval = r.al;
+       printf("DOS: Exit (Return code %d)\n", retval);
+       exit(retval);
+       break;
+    }
+
+    default:
+       printf("DOS: Unsupported! ax=0x%04x bx=0x%04x cx=0x%04x dx=0x%04x\n",
+              r.ax, r.bx, r.cx, r.dx);
     }
     return r;
 }
@@ -226,7 +238,7 @@ main(int argc, char **argv)
 {
   register Regs reg = {{ 0 }};
 
-  videoInit();
+  consoleInit();
 
   memset(mem, 0, sizeof mem);
   memcpy(mem, dataImage, sizeof dataImage);
@@ -249,11 +261,11 @@ main(int argc, char **argv)
 
 
 /*****************************************************************
- * Video Emulator
+ * Console Emulator
  */
 
 static void
-videoInit()
+consoleInit()
 {
    if (SDL_Init(SDL_INIT_VIDEO) == -1) {
       fprintf(stderr, "SDL initialization error: %s\n", SDL_GetError());
@@ -266,14 +278,14 @@ videoInit()
       exit(1);
    }
 
-   SDL_CreateThread(videoThread, NULL);
+   SDL_CreateThread(consoleThread, NULL);
 }
 
 static int
-videoThread(void *arg)
+consoleThread(void *arg)
 {
    while (1) {
-      videoPoll();
+      consolePoll();
       SDL_Delay(10);
    }
 
@@ -281,7 +293,7 @@ videoThread(void *arg)
 }
 
 static void
-videoDrawPlane(uint8_t *in, uint8_t *out, size_t pitch)
+cgaDrawPlane(uint8_t *in, uint8_t *out, size_t pitch)
 {
    uint16_t *in16 = (uint16_t *)in;
    static const uint32_t palette[4] = {0x000000, 0x55ffff, 0xff55ff, 0xffffff};
@@ -320,25 +332,32 @@ videoDrawPlane(uint8_t *in, uint8_t *out, size_t pitch)
 
 
 static void
-videoPoll()
+consolePoll()
 {
    SDL_Event event;
 
    while (SDL_PollEvent(&event)) {
-      if (event.type == SDL_QUIT) {
+      switch (event.type) {
+
+      case SDL_QUIT:
          exit(0);
+
+      case SDL_KEYDOWN:
+         keyboardBuffer = event.key.keysym.sym;
+         break;
+
       }
    }
 
    SDL_LockSurface(screen);
 
-   videoDrawPlane(mem + 0xb8000,
-                  screen->pixels,
-                  screen->pitch);
+   cgaDrawPlane(mem + 0xb8000,
+                screen->pixels,
+                screen->pitch);
 
-   videoDrawPlane(mem + 0xb8000 + 0x2000,
-                  (uint8_t *)screen->pixels + screen->pitch * 2,
-                  screen->pitch);
+   cgaDrawPlane(mem + 0xb8000 + 0x2000,
+                (uint8_t *)screen->pixels + screen->pitch * 2,
+                screen->pitch);
 
    SDL_UnlockSurface(screen);
    SDL_UpdateRect(screen, 0, 0, 640, 400);
