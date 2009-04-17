@@ -3,7 +3,6 @@
 import sys
 
 logfile = open(sys.argv[1], 'r')
-imgfile = open("img.pnm", "wb")
 
 prevBits = None
 count = None
