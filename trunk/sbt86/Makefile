@@ -1,5 +1,6 @@
 #BIN = MENU.EXE
-BIN = LAB.EXE
+#BIN = LAB.EXE
+BIN = TUT.EXE
 
 sbt: sbt.c sbt86.h
 	gcc -o sbt sbt.c -g `sdl-config --cflags --libs` \
