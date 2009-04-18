@@ -329,6 +329,7 @@ consoleInit()
         exit(1);
     }
 
+    SDL_EnableKeyRepeat(100, 100);
     SDL_CreateThread(consoleThread, NULL);
 }
 
@@ -398,13 +399,26 @@ consoleTranslateKey(SDL_Event *event)
         }
     }
 
-    switch (key) {
+    if (event->key.keysym.mod & KMOD_SHIFT) {
+        switch (key) {
 
-    case SDLK_UP:    scancode = 0x83; break;
-    case SDLK_DOWN:  scancode = 0x84; break;
-    case SDLK_LEFT:  scancode = 0x79; break;
-    case SDLK_RIGHT: scancode = 0x89; break;
+        case SDLK_UP:      scancode = 0x48; ascii = '8'; break;
+        case SDLK_DOWN:    scancode = 0x50; ascii = '2'; break;
+        case SDLK_LEFT:    scancode = 0x4B; ascii = '4'; break;
+        case SDLK_RIGHT:   scancode = 0x4D; ascii = '6'; break;
 
+        }
+    } else {
+        switch (key) {
+
+        case SDLK_UP:      scancode = 0x48; break;
+        case SDLK_DOWN:    scancode = 0x50; break;
+        case SDLK_LEFT:    scancode = 0x4B; break;
+        case SDLK_RIGHT:   scancode = 0x4D; break;
+        case SDLK_INSERT:  scancode = 0x52; break;
+        case SDLK_DELETE:  scancode = 0x53; break;
+
+        }
     }
 
     if (scancode || key) {
