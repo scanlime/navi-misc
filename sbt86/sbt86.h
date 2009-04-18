@@ -10,7 +10,6 @@
 #include <endian.h>
 #include <stdio.h>
 #include <string.h>
-#include <setjmp.h>
 #include <stdlib.h>
 #include <SDL.h>
 
@@ -18,6 +17,9 @@
 /*****************************************************************
  * Definitions
  */
+
+/* Optimization barrier */
+#define barrier() asm volatile ("":::"memory")
 
 #if BYTE_ORDER == LITTLE_ENDIAN
 #define DEF_WORD_REG(o)                         \
@@ -86,14 +88,13 @@ typedef struct Flags {
     };
 } Flags;
 
-typedef struct IntState {
+typedef struct SubState {
     Regs reg;
     Flags flag;
-} IntState;
+} SubState;
 
 typedef union StackItem {
     uint16_t word;
-    jmp_buf addr;
 } StackItem;
 
 
@@ -104,6 +105,8 @@ static int consoleThread(void *arg);
 
 static uint8_t mem[0xFFFF0 + 0xFFFF];
 static SDL_Surface *screen;
+static StackItem stack[128];
+static int stackPtr;
 
 static volatile struct {
     int eventWaiting;
@@ -130,7 +133,7 @@ SEG(uint16_t seg, uint16_t off)
 }
 
 static void
-int10(IntState *s)
+int10(SubState *s)
 {
     switch (s->reg.ah) {
 
@@ -147,7 +150,7 @@ int10(IntState *s)
 }
 
 static void
-int16(IntState *s)
+int16(SubState *s)
 {
     switch (s->reg.ah) {
 
@@ -182,7 +185,7 @@ int16(IntState *s)
 }
 
 static void
-int21(IntState *s)
+int21(SubState *s)
 {
     static int numFiles = 0;
     static FILE *files[16];
@@ -259,8 +262,8 @@ int21(IntState *s)
     }
 }
 
-static Regs
-int3(IntState *s)
+static void
+int3(SubState *s)
 {
     //printf("INT 3\n");
 }
@@ -286,7 +289,7 @@ out(uint16_t port, uint8_t value)
 int
 main(int argc, char **argv)
 {
-    register Regs reg = {{ 0 }};
+    Regs reg = {{ 0 }};
     const char *cmdLine = argc > 1 ? argv[1] : "";
 
     consoleInit();
