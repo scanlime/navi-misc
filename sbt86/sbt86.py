@@ -230,6 +230,7 @@ class Instruction:
             self.op = "%s_%s" % (prefix.op, self.op)
             self.addr = prefix.addr
             self.encoding = prefix.encoding + self.encoding
+            self.raw = prefix.raw + self.raw
 
         # Calculate instruction length *after* merging the prefix.
         # Otherwise, we'll end up decoding the instruction after
@@ -338,10 +339,9 @@ class Instruction:
         return "%s %s %r" % (self.addr, self.op, self.args)
 
     def _resultFlags(self, result):
-        """The OF and CF flags are cleared. SF and ZF are set
-        according to the result. (PF is not implemented.)
+        """SF and ZF are set according to the result. (PF is not implemented.)
         """
-        return "fl.o=fl.c=0; fl.s=%s<0; fl.z=%s==0;" % (
+        return "fl.s=%s<0; fl.z=%s==0;" % (
             signed(result), result.codegen())
 
     def _subFlags(self, a, b, result):
@@ -383,13 +383,16 @@ class Instruction:
         return "%s = %s;" % (dest.codegen(), src.codegen())
 
     def codegen_xor(self, dest, src):
-        return "%s ^= %s; %s" % (dest.codegen(), src.codegen(), self._resultFlags(dest))
+        return "%s ^= %s; %s fl.o=fl.c=0;" % (
+            dest.codegen(), src.codegen(), self._resultFlags(dest))
 
     def codegen_or(self, dest, src):
-        return "%s |= %s; %s" % (dest.codegen(), src.codegen(), self._resultFlags(dest))
+        return "%s |= %s; %s fl.o=fl.c=0;" % (
+            dest.codegen(), src.codegen(), self._resultFlags(dest))
 
     def codegen_and(self, dest, src):
-        return "%s &= %s; %s" % (dest.codegen(), src.codegen(), self._resultFlags(dest))
+        return "%s &= %s; %s fl.o=fl.c=0;" % (
+            dest.codegen(), src.codegen(), self._resultFlags(dest))
 
     def codegen_add(self, a, b):
         t = TempRegister(a.width)
@@ -410,18 +413,30 @@ class Instruction:
                 a.codegen(), b.codegen(),
                 self._subFlags(a, b, t), a.codegen()))
 
-    def codegen_sbb(self, dest, cnt):
-        return "%s -= %s;" % (dest.codegen(), cnt.codegen())
+    def codegen_sbb(self, a, b):
+        t = TempRegister(a.width)
+        b2 = TempRegister(b.width, 'b2')
+        return t.scope(b2.scope(
+                "b2 = (%s) + fl.c; t = %s - %s; %s %s = t;" % (
+                b.codegen(), a.codegen(), b2.codegen(),
+                self._subFlags(a, b2, t), a.codegen())))
 
-    def codegen_shl(self, dest, cnt):
-        return "%s <<= %s;" % (dest.codegen(), cnt.codegen())
+    def codegen_shl(self, r, cnt):
+        msbShift = r.width * 8 - 1
+        return self._repeat(cnt,
+                            ("fl.c = (%s) >> %d; (%s) <<= 1; %s") %
+                            (r.codegen(), msbShift, r.codegen(), self._resultFlags(r)))
 
-    def codegen_shr(self, dest, cnt):
-        return "%s >>= %s;" % (dest.codegen(), cnt.codegen())
+    def codegen_shr(self, r, cnt):
+        return self._repeat(cnt,
+                            ("fl.c = (%s); (%s) >>= 1; %s") %
+                            (r.codegen(), r.codegen(), self._resultFlags(r)))
 
     def codegen_sar(self, dest, cnt):
-        return "%s = (int16_t)%s >> %s;" % (dest.codegen(), dest.codegen(),
-                                            cnt.codegen())
+        return self._repeat(cnt,
+                            ("fl.c = (%s); (%s) = ((int16_t)%s) >> 1; %s") %
+                            (r.codegen(), r.codegen(), r.codegen(),
+                             self._resultFlags(r)))
 
     def codegen_ror(self, r, cnt):
         msbShift = r.width * 8 - 1
@@ -545,7 +560,7 @@ class Instruction:
             Register('di').codegen())
 
     def codegen_lodsb(self):
-        return "%s = %s; %s += 2;" % (
+        return "%s = %s; %s++;" % (
             Register('al').codegen(),
             Indirect(Register('ds'), (Register('si'),), 1).codegen(),
             Register('si').codegen())
@@ -755,7 +770,8 @@ class DOSBinary(BinaryImage):
 
 #include <stdint.h>
 
-static uint8_t dataImage[] = {%(dataImage)s};
+static uint8_t dataImage[] = {
+%(dataImage)s};
 
 #include "sbt86.h"
 
@@ -816,8 +832,8 @@ body(Regs initRegs)
             i.referent = referent
 
             if verbose:
-                sys.stderr.write("R[%s] D%-3d %s -> %s\n" % (
-                        referent, len(stack), i, i.nextAddrs))
+                sys.stderr.write("R[%-9s] D%-3d %-50s -> %-22s || %s\n" % (
+                        referent, len(stack), i, i.nextAddrs, i.raw.strip()))
 
             # Remember all label targets, and remember future
             # addresses to analyze.
@@ -834,7 +850,8 @@ body(Regs initRegs)
         self.instructions = map(self.image.iFetch, addrs)
 
     def _toHexArray(self, data):
-        return ','.join(["0x%02x" % ord(b) for b in data])
+        return ''.join(["0x%02x,%s" % (ord(b), "\n"[:(i&15)==15])
+                         for i, b in enumerate(data)])
 
     def codegen(self):
         body = []
@@ -866,18 +883,28 @@ body(Regs initRegs)
 b = DOSBinary(sys.argv[1])
 
 # Patches for dynamic jumps in LAB.EXE
-b.image.patch("0C63:040D - int 3")
-b.image.patch("0C63:041B - int 3")
-b.image.patch("0C63:11B5 - int 3")
-b.image.patch("0C63:1271 - int 3")
-b.image.patch("0C63:1CB2 - jmp 0x21B3")
-b.image.patch("0C63:0F89 - int 3")
-
-# Patch copy protection in LAB.EXE
-b.image.patch("0C63:004B 00 nop")
+if 0:
+    b.image.patch("0C63:040D - int 3")
+    b.image.patch("0C63:041B - int 3")
+    b.image.patch("0C63:11B5 - int 3")
+    b.image.patch("0C63:1271 - int 3")
+    b.image.patch("0C63:1CB2 - jmp 0x21B3")
+    b.image.patch("0C63:0F89 - int 3")
+    b.image.patch("0C63:004B 00 nop")   # Copy protection
 
 # Dynamic call in MENU.EXE
-b.image.patch("009E:0778 - int 3")
+if 0:
+    b.image.patch("009E:0778 - int 3")
+
+# Patches for TUT.EXE
+if 1:
+    b.image.patch("098F:03F2 - ret")           # Stub out video_set_cursor_position,
+                                               # avoid push/pop_ax_bx_cx_dx routine.
+    b.image.patch("098F:0F89 00112233  nop")   # game_func_ptr
+    b.image.patch("098F:11B5 - ret")           # unknown func ptr
+    b.image.patch("098F:1271 - ret")           # unknown func ptr (text-related?)
+    b.image.patch("098F:1CB2 - jmp 0x21b3")    # video_draw_playfield
+    b.image.patch("098F:0D72 - ret")           # Self-modifying code (largetext font)
 
 b.analyze(b.entryPoint)
 print b.codegen()
