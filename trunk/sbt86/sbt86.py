@@ -373,6 +373,9 @@ class Instruction:
         else:
             return "{ int c = %s; while (c--) { %s } }" % (cnt.codegen(), contents)
 
+    def _call(self, name):
+        return "{ SubState s = {reg, fl}; %s(&s); reg = s.reg; fl = s.flag; }" % name
+
     def codegen(self):
         f = getattr(self, "codegen_%s" % self.op, None)
         if not f:
@@ -659,19 +662,18 @@ class Instruction:
 
     def codegen_call(self, arg):
         if isinstance(arg, Literal) or isinstance(arg, Addr16):
-            return "if (!_setjmp(stack[stackPtr].addr)) { stackPtr++; goto %s; }" % (
-                self.nextAddrs[-1].label())
+            return self._call("sub_%X" % self.nextAddrs[-1].linear)
         else:
             raise NotImplementedError("Dynamic call not supported at %s" % self)
 
     def codegen_ret(self):
-        return "stackPtr--; _longjmp(stack[stackPtr].addr, 1);"
+        return "callerState->reg = reg; callerState->flag = fl; return;"
 
     def codegen_retf(self):
         return self.codegen_ret()
 
     def codegen_int(self, arg):
-        return "{ IntState s = {reg, fl}; int%X(&s); reg = s.reg; fl = s.flag; }" % arg
+        return self._call("int%x" % arg);
 
     def codegen_out(self, port, value):
         return "out(%s,%s);" % (port.codegen(), value.codegen())
@@ -757,6 +759,94 @@ class BinaryImage:
                 break
 
 
+class Subroutine:
+    """Information about a single subroutine. We define a subroutine as
+       the section of a control flow graph which begins just after a
+       'call' and ends at all 'ret's. One code fragment may be used
+       by multiple subroutines.
+       """
+    def __init__(self, image, entryPoint, hooks=None):
+        self.image = image
+        self.entryPoint = entryPoint
+        self.hooks = hooks or {}
+        self.name = "sub_%X" % self.entryPoint.linear
+
+    def analyze(self, verbose=False):
+        """Analyze the code in this subroutine.
+           Stores analysis results in member attributes.
+           """
+
+        # Address memo: linear -> Addr16
+        memo = {}
+
+        # Label flags: linear -> True
+        self.labels = { self.entryPoint.linear: True }
+
+        # Routines that are called by this one
+        self.callsTo = {}
+
+        # Local jump stack: (referent, level, ptr)
+        stack = [(None, self.entryPoint)]
+
+        while stack:
+            referent, ptr = stack.pop()
+            if ptr.linear in memo:
+                if verbose:
+                    sys.stderr.write("Address %s already visited\n" % ptr)
+                continue
+
+            memo[ptr.linear] = ptr
+            i = self.image.iFetch(ptr)
+            i.referent = referent
+
+            if verbose:
+                sys.stderr.write("%s R[%-9s] D%-3d %-50s -> %-22s || %s\n" % (
+                        self.name, referent, len(stack), i, i.nextAddrs, i.raw.strip()))
+
+            # Remember all label targets, and remember future
+            # addresses to analyze. Treat subroutine calls specially.
+
+            for next in i.labels:
+                self.labels[next.linear] = True
+
+            if i.op == 'call':
+                assert len(i.nextAddrs) == 2
+                stack.append((ptr, i.nextAddrs[0]))
+                self.callsTo[i.nextAddrs[1].linear] = i.nextAddrs[1]
+            else:
+                for next in i.nextAddrs:
+                    stack.append((ptr, next))
+
+        # Sort the instruction memo, and store a list
+        # of instructions sorted by address.
+        addrs = memo.values()
+        addrs.sort()
+        self.instructions = map(self.image.iFetch, addrs)
+
+    def codegen(self):
+        body = []
+        for i in self.instructions:
+            if i.addr.linear in self.labels:
+                label = i.addr.label() + ': '
+            else:
+                label = ''
+            body.append("/* %-60s R[%-9s] */ %15s %s%s" % (
+                    i, i.referent, label,
+                    self.hooks.get(i.addr.linear, ''),
+                    i.codegen()))
+        return """
+void
+%s(SubState *callerState)
+{
+  register Regs reg = callerState->reg;
+  register Flags fl = callerState->flag;
+
+  goto %s;
+
+%s
+}""" % (self.name, self.entryPoint.label(), '\n'.join(body))
+
+
 class DOSBinary(BinaryImage):
     # Skeleton for output C code
     _skel = """/*
@@ -775,23 +865,17 @@ static uint8_t dataImage[] = {
 
 #include "sbt86.h"
 
+%(subDecls)s
+
+%(subCode)s
 void
 body(Regs initRegs)
 {
-//  register Regs reg = initRegs;
-//  register Flags fl = {{ 0 }};
+  SubState s = { initRegs };
 
-  // XXX: Optimizer + longjmp == badness
-  volatile Regs reg = initRegs;
-  volatile Flags fl = {{ 0 }};
-  static StackItem stack[256];
-  int stackPtr = 0;
+  s.reg.cs = 0x%(entryCS)04x;
 
-  reg.cs = 0x%(entryCS)04x;
-
-  goto %(entryLabel)s;
-
-%(body)s
+  sub_%(entryLinear)X(&s);
 }
 """
 
@@ -816,45 +900,6 @@ body(Regs initRegs)
         self.entryPoint = Addr16(entryCS, entryIP)
         self.image = self.offset(self.headerSize)
 
-    def analyze(self, ptr, verbose=False):
-        # Address memo: linear -> Addr16
-        memo = {}
-
-        # Label flags: linear -> True
-        self.labels = { self.entryPoint.linear: True }
-
-        # Stack: (referent, level, ptr)
-        stack = [(None, ptr)]
-
-        while stack:
-            referent, ptr = stack.pop()
-            if ptr.linear in memo:
-                if verbose:
-                    sys.stderr.write("Address %s already visited\n" % ptr)
-                continue
-
-            memo[ptr.linear] = ptr
-            i = self.image.iFetch(ptr)
-            i.referent = referent
-
-            if verbose:
-                sys.stderr.write("R[%-9s] D%-3d %-50s -> %-22s || %s\n" % (
-                        referent, len(stack), i, i.nextAddrs, i.raw.strip()))
-
-            # Remember all label targets, and remember future
-            # addresses to analyze.
-
-            for next in i.labels:
-                self.labels[next.linear] = True
-            for next in i.nextAddrs:
-                stack.append((ptr, next))
-
-        # Sort the instruction memo, and store a list
-        # of instructions sorted by address.
-        addrs = memo.values()
-        addrs.sort()
-        self.instructions = map(self.image.iFetch, addrs)
-
     def _toHexArray(self, data):
         return ''.join(["0x%02x,%s" % (ord(b), "\n"[:(i&15)==15])
                          for i, b in enumerate(data)])
@@ -866,21 +911,33 @@ body(Regs initRegs)
            """
         self._hooks[Addr16(str=addr).linear] = "{\n%s\n } " % code
 
-    def codegen(self):
-        body = []
-        for i in self.instructions:
-            if i.addr.linear in self.labels:
-                label = i.addr.label() + ': '
-            else:
-                label = ''
-            body.append("/* R[%s] %-50s */ %15s %s%s" % (
-                    i.referent, i, label,
-                    self._hooks.get(i.addr.linear, ''),
-                    i.codegen()))
+    def analyze(self, verbose=False):
+       """Analyze the whole program. This breaks it up into
+          subroutines, and analyzes each routine.
+          """
 
+       self.subroutines = {}
+       stack = [ self.entryPoint ]
+
+       while stack:
+           ptr = stack.pop()
+           if ptr.linear in self.subroutines:
+               if verbose:
+                   sys.stderr.write("Subroutine %s already visited\n" % ptr)
+               continue
+
+           sub = Subroutine(self.image, ptr, self._hooks)
+           sub.analyze(verbose)
+           stack.extend(sub.callsTo.values())
+           self.subroutines[ptr.linear] = sub
+
+    def codegen(self):
         vars = dict(self.__dict__)
-        vars['body'] = "\n".join(body)
-        vars['entryLabel'] = self.entryPoint.label()
+        vars['subCode'] = '\n'.join([s.codegen()
+                                     for s in self.subroutines.itervalues()])
+        vars['subDecls'] = '\n'.join(["void %s(SubState *s);" % s.name
+                                     for s in self.subroutines.itervalues()])
+        vars['entryLinear'] = self.entryPoint.linear
         vars['entryCS'] = self.entryPoint.segment
 
         # The data image contains everything prior to the entry point
@@ -927,19 +984,16 @@ if 1:
     b.hook("098F:1C93", "SDL_Delay(15);")
 
     # XXX: Collision detection debug/disable
-    if 0:
+    if 1:
         b.hook("098F:165C", """
            printf("Begin collision detection of object %d\\n", mem[0x485a]);
            """)
         b.hook("098F:16FD", """
-           printf("Collision detection result = 0x%02x\\n", reg.al); reg.al = 0;
+           printf("Collision detection result = 0x%02x\\n", reg.al);
            """)
         b.hook("098F:16E9", """
            printf("Playfield tile collision at (%d,%d)\\n", mem[0x3aba], mem[0x3abb]);
            """)
-        b.hook("098F:2167", """
-           printf("testing (%d,%d): Byte = %d  Bit = %d  AL = %02x\\n", mem[0x3aba], mem[0x3abb], reg.di, reg.si, reg.al);
-           """)
 
-b.analyze(b.entryPoint)
+b.analyze()
 print b.codegen()
