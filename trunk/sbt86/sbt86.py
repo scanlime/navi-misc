@@ -100,36 +100,6 @@ class Register:
         return "reg.%s" % self.name
 
 
-class Flag:
-    width = 1
-    def __init__(self, name):
-        self.name = name
-
-    def __repr__(self):
-        return "Flag(%s)" % self.name
-
-    def codegen(self):
-        return "fl.%s" % self.name
-
-
-class TempRegister:
-    def __init__(self, width, name='t'):
-        self.width = width
-        self.name = name
-
-    def codegen(self):
-        return self.name
-
-    def scope(self, contents):
-        """Wrap 'str' in a block where this temporary register exists."""
-        if self.width == 1:
-            return "{ uint8_t %s; %s }" % (self.name, contents)
-        elif self.width == 2:
-            return "{ uint16_t %s; %s }" % (self.name, contents)
-        else:
-            raise InternalError("Unsupported width for temporary variable")
-
-
 class Indirect:
     def __init__(self, segment, offsets, width=None):
         self.segment = segment
@@ -160,6 +130,10 @@ def signed(operand):
         return "((int8_t)%s)" % operand.codegen()
     else:
         raise InternalError("Unsupported width for signed operand (%s)" % operand.width)
+
+def u32(operand):
+    """Generate 32-bit unsigned code for an operand."""
+    return "((uint32_t)%s)" % operand.codegen()
 
 
 class InternalError(Exception):
@@ -338,34 +312,6 @@ class Instruction:
     def __repr__(self):
         return "%s %s %r" % (self.addr, self.op, self.args)
 
-    def _resultFlags(self, result):
-        """SF and ZF are set according to the result. (PF is not implemented.)
-        """
-        return "fl.s=%s<0; fl.z=%s==0;" % (
-            signed(result), result.codegen())
-
-    def _subFlags(self, a, b, result):
-        """Set flags after a subtraction. OF = signed borrow, CF = unsigned borrow.
-        """
-        return "fl.s=%s<0; fl.z=%s==0; fl.o=%s>%s; fl.c=%s>%s;" % (
-                signed(result), result.codegen(),
-                signed(b), signed(a), b.codegen(), a.codegen())
-
-    def _addFlags(self, a, b, c, result):
-        """Set flags after an addition. OF = signed carry, CF = unsigned carry.
-        This implementation of OF relies on 32-bit arithmetic.
-        """
-        msb = 1 << (a.width * 8 - 1)
-
-        return (("fl.s=%s<0; fl.z=%s==0;"
-                 "fl.c = ((%s&%s) + (%s&%s) + (%s&%s)) > %s; "
-                 "{int32_t s = (int32_t)%s + (int32_t)%s + (int32_t)%s; "
-                 "fl.o = ((s ^ (s >> 1)) & %s) != 0;}") %
-                (signed(result), result.codegen(),
-                 signed(a), msb, signed(b), msb, signed(c), msb, msb,
-                 signed(a), signed(b), signed(c),
-                 msb))
-
     def _repeat(self, cnt, contents):
         """Repeat 'contents', 'cnt' times."""
         if cnt == 1:
@@ -373,8 +319,14 @@ class Instruction:
         else:
             return "{ int c = %s; while (c--) { %s } }" % (cnt.codegen(), contents)
 
+    def _resultShift(self, dest):
+        if dest.width == 1:
+            return "reg.uresult <<= 8; reg.sresult <<= 8;"
+        else:
+            return ""
+
     def _call(self, name):
-        return "{ SubState s = {reg, fl}; %s(&s); reg = s.reg; fl = s.flag; }" % name
+        return "{ Regs r = reg; %s(&r); reg = r; }" % name
 
     def codegen(self):
         f = getattr(self, "codegen_%s" % self.op, None)
@@ -386,82 +338,83 @@ class Instruction:
         return "%s = %s;" % (dest.codegen(), src.codegen())
 
     def codegen_xor(self, dest, src):
-        return "%s ^= %s; %s fl.o=fl.c=0;" % (
-            dest.codegen(), src.codegen(), self._resultFlags(dest))
+        return "reg.uresult = %s ^= %s; reg.sresult=0; %s" % (
+            dest.codegen(), src.codegen(), self._resultShift(dest))
 
     def codegen_or(self, dest, src):
-        return "%s |= %s; %s fl.o=fl.c=0;" % (
-            dest.codegen(), src.codegen(), self._resultFlags(dest))
+        return "reg.uresult = %s |= %s; reg.sresult=0; %s" % (
+            dest.codegen(), src.codegen(), self._resultShift(dest))
 
     def codegen_and(self, dest, src):
-        return "%s &= %s; %s fl.o=fl.c=0;" % (
-            dest.codegen(), src.codegen(), self._resultFlags(dest))
+        return "reg.uresult = %s &= %s; reg.sresult=0; %s" % (
+            dest.codegen(), src.codegen(), self._resultShift(dest))
 
-    def codegen_add(self, a, b):
-        t = TempRegister(a.width)
-        return t.scope("t = %s + %s; %s %s = t;" % (
-                a.codegen(), b.codegen(),
-                self._addFlags(a, b, Literal(0), t), a.codegen()))
+    def codegen_add(self, dest, src):
+        return "reg.sresult = %s + %s; %s = reg.uresult = %s + %s; %s" % (
+            signed(dest), signed(src),
+            dest.codegen(), u32(dest), u32(src),
+            self._resultShift(dest))
 
-    def codegen_adc(self, a, b):
-        t = TempRegister(a.width)
-        c = Flag('c')
-        return t.scope("t = %s + %s + %s; %s %s = t;" % (
-                a.codegen(), b.codegen(), c.codegen(),
-                self._addFlags(a, b, c, t), a.codegen()))
+    def codegen_adc(self, dest, src):
+        return "reg.sresult = %s + %s + CF; %s = reg.uresult = %s + %s + CF; %s" % (
+            signed(dest), signed(src),
+            dest.codegen(), u32(dest), u32(src),
+            self._resultShift(dest))
 
-    def codegen_sub(self, a, b):
-        t = TempRegister(a.width)
-        return t.scope("t = %s - %s; %s %s = t;" % (
-                a.codegen(), b.codegen(),
-                self._subFlags(a, b, t), a.codegen()))
+    def codegen_sub(self, dest, src):
+        return "reg.sresult = %s - %s; %s = reg.uresult = %s - %s; %s" % (
+            signed(dest), signed(src),
+            dest.codegen(), u32(dest), u32(src),
+            self._resultShift(dest))
 
-    def codegen_sbb(self, a, b):
-        t = TempRegister(a.width)
-        b2 = TempRegister(b.width, 'b2')
-        return t.scope(b2.scope(
-                "b2 = (%s) + fl.c; t = %s - %s; %s %s = t;" % (
-                b.codegen(), a.codegen(), b2.codegen(),
-                self._subFlags(a, b2, t), a.codegen())))
+    def codegen_sbb(self, dest, src):
+        return "reg.sresult = %s - (%s + CF); %s = reg.uresult = %s - (%s + CF); %s" % (
+            signed(dest), signed(src),
+            dest.codegen(), u32(dest), u32(src),
+            self._resultShift(dest))
 
     def codegen_shl(self, r, cnt):
-        msbShift = r.width * 8 - 1
         return self._repeat(cnt,
-                            ("fl.c = (%s) >> %d; (%s) <<= 1; %s") %
-                            (r.codegen(), msbShift, r.codegen(), self._resultFlags(r)))
+                            ("reg.sresult=0; %s = reg.uresult = ((uint32_t)%s) << 1;") %
+                            (r.codegen(), r.codegen())) + self._resultShift(r)
 
     def codegen_shr(self, r, cnt):
         return self._repeat(cnt,
-                            ("fl.c = (%s); (%s) >>= 1; %s") %
-                            (r.codegen(), r.codegen(), self._resultFlags(r)))
+                            ("reg.sresult=0; "
+                             "reg.uresult = (%s & 1) << 16; "
+                             "(%s) >>= 1;") %
+                            (u32(r), r.codegen()))
 
     def codegen_sar(self, dest, cnt):
         return self._repeat(cnt,
-                            ("fl.c = (%s); (%s) = ((int16_t)%s) >> 1; %s") %
-                            (r.codegen(), r.codegen(), r.codegen(),
-                             self._resultFlags(r)))
+                            ("reg.sresult=0; "
+                             "reg.uresult = (%s & 1) << 16; "
+                             "(%s) = ((int16_t)%s) >> 1;") %
+                            (u32(r), r.codegen(), r.codegen()))
 
     def codegen_ror(self, r, cnt):
         msbShift = r.width * 8 - 1
         return self._repeat(cnt,
-                            ("(%s) = ((%s) >> 1) + ((%s) << %s);") %
-                            (r.codegen(), r.codegen(), r.codegen(), msbShift))
+                            ("reg.sresult=0; "
+                             "reg.uresult = ((uint32_t)(%s) & 1) << 16;"
+                             "(%s) = ((%s) >> 1) + ((%s) << %s);") %
+                            (r.codegen(), r.codegen(),
+                             r.codegen(), r.codegen(), msbShift))
 
     def codegen_rcr(self, r, cnt):
         msbShift = r.width * 8 - 1
         return self._repeat(cnt,
-                            ("int lsb = %s;"
-                             "(%s) = ((%s) >> 1) + (fl.c << %s);"
-                             "fl.c = lsb;") %
+                            ("int cf = CF;"
+                             "reg.sresult=0; "
+                             "reg.uresult = %s << 16;"
+                             "(%s) = ((%s) >> 1) + (cf << %s);") %
                             (r.codegen(), r.codegen(), r.codegen(), msbShift))
 
     def codegen_rcl(self, r, cnt):
-        msbShift = r.width * 8 - 1
         return self._repeat(cnt,
-                            ("int msb = %s >> %s;"
-                             "(%s) = ((%s) << 1) + fl.c;"
-                             "fl.c = msb;") %
-                            (r.codegen(), msbShift, r.codegen(), r.codegen()))
+                            ("reg.sresult=0; "
+                             "%s = reg.uresult = (%s << 1) + CF; %s") %
+                            (r.codegen(), u32(r), self._resultShift(r)))
 
     def codegen_xchg(self, a, b):
         return "{ uint16_t t = %s; %s = %s; %s = t; }" % (
@@ -478,28 +431,26 @@ class Instruction:
             arg.codegen(), arg.codegen())
 
     def codegen_cmc(self):
-        return "fl.c = !fl.c;"
+        return "if (CF) CLR_CF(reg); else SET_CF(reg);"
 
     def codegen_clc(self):
-        return "fl.c = 0;"
+        return "CLR_CF(reg);"
 
     def codegen_stc(self):
-        return "fl.c = 1;"
+        return "SET_CF(reg);"
 
     def codegen_cbw(self):
         return "reg.ax = (int16_t)(int8_t)reg.al;"
 
     def codegen_cmp(self, a, b):
-        t = TempRegister(a.width)
-        return t.scope("t = %s - %s; %s" % (
-                a.codegen(), b.codegen(),
-                self._subFlags(a, b, t)))
+        return "reg.sresult = %s - %s; reg.uresult = %s - %s; %s" % (
+            signed(a), signed(b),
+            u32(a), u32(b),
+            self._resultShift(a))
 
     def codegen_test(self, a, b):
-        t = TempRegister(a.width)
-        return t.scope("t = %s & %s; %s" % (
-                a.codegen(), b.codegen(),
-                self._resultFlags(t)))
+        return "reg.uresult = %s & %s; reg.sresult=0; %s" % (
+            a.codegen(), b.codegen(), self._resultShift(a))
 
     def codegen_inc(self, arg):
         return self.codegen_add(arg, Literal(1))
@@ -537,7 +488,7 @@ class Instruction:
     def codegen_rep_scasb(self):
         # (Actually the 'repe' prefix, repeat while equal.)
         cx = Register('cx').codegen()
-        return "while (%s) { %s %s--; if (!fl.z) break; }" % (
+        return "while (%s) { %s %s--; if (!ZF) break; }" % (
             cx, self.codegen_scasb(), cx)
 
     def codegen_movsw(self):
@@ -601,52 +552,54 @@ class Instruction:
                 ))
 
     def codegen_pushfw(self):
-        return "stack[stackPtr++].word = fl.value;"
+        return ("stack[stackPtr].uresult = reg.uresult;"
+                "stack[stackPtr++].sresult = reg.sresult;")
 
     def codegen_popfw(self):
-        return "fl.value = stack[--stackPtr].word;"
+        return ("reg.uresult = stack[--stackPtr].uresult;"
+                "reg.sresult = stack[stackPtr].sresult;")
 
     def codegen_nop(self):
         return "/* nop */;"
 
     def codegen_cli(self):
-        return "fl.i = 0;"
+        return "/* cli */;"
 
     def codegen_sti(self):
-        return "fl.i = 1;"
+        return "/* sti */;"
 
     def codegen_jz(self, arg):
-        return "if (fl.z) goto %s;" % self.nextAddrs[-1].label()
+        return "if (ZF) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_jnz(self, arg):
-        return "if (!fl.z) goto %s;" % self.nextAddrs[-1].label()
+        return "if (!ZF) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_jc(self, arg):
-        return "if (fl.c) goto %s;" % self.nextAddrs[-1].label()
+        return "if (CF) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_jnc(self, arg):
-        return "if (!fl.c) goto %s;" % self.nextAddrs[-1].label()
+        return "if (!CF) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_js(self, arg):
-        return "if (fl.s) goto %s;" % self.nextAddrs[-1].label()
+        return "if (SF) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_jns(self, arg):
-        return "if (!fl.s) goto %s;" % self.nextAddrs[-1].label()
+        return "if (!SF) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_ja(self, arg):
-        return "if (!fl.c && !fl.z) goto %s;" % self.nextAddrs[-1].label()
+        return "if (!CF && !ZF) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_jnl(self, arg):
-        return "if (fl.s == fl.o) goto %s;" % self.nextAddrs[-1].label()
+        return "if (SF == OF) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_jl(self, arg):
-        return "if (fl.s != fl.o) goto %s;" % self.nextAddrs[-1].label()
+        return "if (SF != OF) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_jng(self, arg):
-        return "if (fl.z || fl.s != fl.o) goto %s;" % self.nextAddrs[-1].label()
+        return "if (ZF || (SF != OF)) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_jna(self, arg):
-        return "if (fl.c || fl.z) goto %s;" % self.nextAddrs[-1].label()
+        return "if (CF || ZF) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_jcxz(self, arg):
         return "if (!reg.cx) goto %s;" % self.nextAddrs[-1].label()
@@ -667,7 +620,7 @@ class Instruction:
             raise NotImplementedError("Dynamic call not supported at %s" % self)
 
     def codegen_ret(self):
-        return "callerState->reg = reg; callerState->flag = fl; return;"
+        return "*callerRegs = reg; return;"
 
     def codegen_retf(self):
         return self.codegen_ret()
@@ -836,10 +789,9 @@ class Subroutine:
                     i.codegen()))
         return """
 void
-%s(SubState *callerState)
+%s(Regs *callerRegs)
 {
-  register Regs reg = callerState->reg;
-  register Flags fl = callerState->flag;
+  register Regs reg = *callerRegs;
 
   goto %s;
 
@@ -871,11 +823,8 @@ static uint8_t dataImage[] = {
 void
 body(Regs initRegs)
 {
-  SubState s = { initRegs };
-
-  s.reg.cs = 0x%(entryCS)04x;
-
-  sub_%(entryLinear)X(&s);
+  initRegs.cs = 0x%(entryCS)04x;
+  sub_%(entryLinear)X(&initRegs);
 }
 """
 
@@ -935,7 +884,7 @@ body(Regs initRegs)
         vars = dict(self.__dict__)
         vars['subCode'] = '\n'.join([s.codegen()
                                      for s in self.subroutines.itervalues()])
-        vars['subDecls'] = '\n'.join(["void %s(SubState *s);" % s.name
+        vars['subDecls'] = '\n'.join(["void %s(Regs *r);" % s.name
                                      for s in self.subroutines.itervalues()])
         vars['entryLinear'] = self.entryPoint.linear
         vars['entryCS'] = self.entryPoint.segment
@@ -970,30 +919,20 @@ if 0:
 
 # Patches for TUT.EXE
 if 1:
-    b.image.patch("098F:03F2 - ret")           # Stub out video_set_cursor_position,
-                                               # avoid push/pop_ax_bx_cx_dx routine.
-    b.image.patch("098F:0F89 00112233  nop")   # game_func_ptr
+    # Good patches
+    b.image.patch("098F:03F2 - ret")                   # Stub video_set_cursor_position,
+                                                       # avoid push/pop_ax_bx_cx_dx
+    b.image.patch("098F:1CB2 - jmp 0x21b3")            # video_draw_playfield
+    b.image.patch("098F:0D72 - ret")                   # Self-modifying (largetext font)
+    b.image.patch("098F:0D19 - ret")                   # Self-modifying (text font)
+    b.image.patch("098F:0F89 00112233  call 0x4E03")   # game_func_ptr
+    b.hook("098F:1C93", "SDL_Delay(15);")              # Per-frame delay
+
+    # XXX: Problematic patches
     b.image.patch("098F:11B5 - ret")           # unknown func ptr
     b.image.patch("098F:1271 - ret")           # unknown func ptr (text-related?)
-    b.image.patch("098F:1CB2 - jmp 0x21b3")    # video_draw_playfield
-    b.image.patch("098F:0D72 - ret")           # Self-modifying code (largetext font)
-    b.image.patch("098F:0D19 - ret")           # Self-modifying code (text font)
     b.image.patch("098F:0B7B - ret")           # Self-modifying code (text rendering XXX)
 
-    # Per-frame delay
-    b.hook("098F:1C93", "SDL_Delay(15);")
-
-    # XXX: Collision detection debug/disable
-    if 1:
-        b.hook("098F:165C", """
-           printf("Begin collision detection of object %d\\n", mem[0x485a]);
-           """)
-        b.hook("098F:16FD", """
-           printf("Collision detection result = 0x%02x\\n", reg.al);
-           """)
-        b.hook("098F:16E9", """
-           printf("Playfield tile collision at (%d,%d)\\n", mem[0x3aba], mem[0x3abb]);
-           """)
 
 b.analyze()
 print b.codegen()
