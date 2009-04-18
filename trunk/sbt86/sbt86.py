@@ -532,9 +532,9 @@ class Instruction:
         return "while (%s) { %s %s--;}" % (cx, self.codegen_stosb(), cx)
 
     def codegen_rep_scasb(self):
-        # REPE
+        # (Actually the 'repe' prefix, repeat while equal.)
         cx = Register('cx').codegen()
-        return "while (%s) { %s if (!fl.z) break; %s--; }" % (
+        return "while (%s) { %s %s--; if (!fl.z) break; }" % (
             cx, self.codegen_scasb(), cx)
 
     def codegen_movsw(self):
@@ -778,8 +778,12 @@ static uint8_t dataImage[] = {
 void
 body(Regs initRegs)
 {
-  register Regs reg = initRegs;
-  register Flags fl = {{ 0 }};
+//  register Regs reg = initRegs;
+//  register Flags fl = {{ 0 }};
+
+  // XXX: Optimizer + longjmp == badness
+  volatile Regs reg = initRegs;
+  volatile Flags fl = {{ 0 }};
   static StackItem stack[256];
   int stackPtr = 0;
 
@@ -795,6 +799,8 @@ body(Regs initRegs)
         return ((segmentOffset >> 16) << 4) | (segmentOffset & 0xFFFF)
 
     def parseHeader(self):
+        self._hooks = {}
+
         (signature, bytesInLastPage, numPages, numRelocations,
          headerParagraphs, minMemParagraphs, maxMemParagraphs,
          initSS, initSP, checksum, entryIP, entryCS, relocTable,
@@ -853,6 +859,13 @@ body(Regs initRegs)
         return ''.join(["0x%02x,%s" % (ord(b), "\n"[:(i&15)==15])
                          for i, b in enumerate(data)])
 
+    def hook(self, addr, code):
+        """Install a C-language hook, to be executed just before the
+           instruction at address 'addr'.  The address and C-code are
+           both specified as strings.
+           """
+        self._hooks[Addr16(str=addr).linear] = "{\n%s\n } " % code
+
     def codegen(self):
         body = []
         for i in self.instructions:
@@ -860,8 +873,10 @@ body(Regs initRegs)
                 label = i.addr.label() + ': '
             else:
                 label = ''
-            body.append("/* R[%s] %-50s */ %15s %s" % (
-                    i.referent, i, label, i.codegen()))
+            body.append("/* R[%s] %-50s */ %15s %s%s" % (
+                    i.referent, i, label,
+                    self._hooks.get(i.addr.linear, ''),
+                    i.codegen()))
 
         vars = dict(self.__dict__)
         vars['body'] = "\n".join(body)
@@ -905,6 +920,26 @@ if 1:
     b.image.patch("098F:1271 - ret")           # unknown func ptr (text-related?)
     b.image.patch("098F:1CB2 - jmp 0x21b3")    # video_draw_playfield
     b.image.patch("098F:0D72 - ret")           # Self-modifying code (largetext font)
+    b.image.patch("098F:0D19 - ret")           # Self-modifying code (text font)
+    b.image.patch("098F:0B7B - ret")           # Self-modifying code (text rendering XXX)
+
+    # Per-frame delay
+    b.hook("098F:1C93", "SDL_Delay(15);")
+
+    # XXX: Collision detection debug/disable
+    if 0:
+        b.hook("098F:165C", """
+           printf("Begin collision detection of object %d\\n", mem[0x485a]);
+           """)
+        b.hook("098F:16FD", """
+           printf("Collision detection result = 0x%02x\\n", reg.al); reg.al = 0;
+           """)
+        b.hook("098F:16E9", """
+           printf("Playfield tile collision at (%d,%d)\\n", mem[0x3aba], mem[0x3abb]);
+           """)
+        b.hook("098F:2167", """
+           printf("testing (%d,%d): Byte = %d  Bit = %d  AL = %02x\\n", mem[0x3aba], mem[0x3abb], reg.di, reg.si, reg.al);
+           """)
 
 b.analyze(b.entryPoint)
 print b.codegen()
