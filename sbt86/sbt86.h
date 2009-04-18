@@ -77,24 +77,26 @@ typedef struct Regs {
     uint16_t si, di;
     uint16_t cs, ds, es, ss;
     uint16_t sp, bp;
+
+    /*
+     * We cheat enormously on implementing 8086 flags: Instead of
+     * calculating the flags for every ALU instruction, we store a
+     * 32-bit version of that instruction's result.  All flag tests
+     * are rewritten in terms of this result word. Anything that
+     * explicitly sets flags does so by tweaking this result word in
+     * such a way as to change the flag value we would calculate.
+     *
+     * To avoid having to store the word width separately, all 8-bit
+     * results are left-shifted by 8.
+     */
+    uint32_t uresult;
+    int32_t sresult;
 } Regs;
 
-typedef struct Flags {
-    union {
-        struct {
-            DEF_FLAG_BITS
-        };
-        uint16_t value;
-    };
-} Flags;
-
-typedef struct SubState {
-    Regs reg;
-    Flags flag;
-} SubState;
-
-typedef union StackItem {
-    uint16_t word;
+typedef struct StackItem {
+    uint16_t  word;
+    uint32_t  uresult;
+    int32_t   sresult;
 } StackItem;
 
 
@@ -116,7 +118,7 @@ static volatile struct {
 
 
 /*****************************************************************
- * Misc functions for use in translated code.
+ * Misc functions and macors for use in translated code.
  */
 
 static inline
@@ -132,10 +134,27 @@ SEG(uint16_t seg, uint16_t off)
     return (seg32 << 4) + off32;
 }
 
+/*
+ * Calculate/set flag values
+ */
+
+#define ZF   ((reg.uresult & 0xFFFF) == 0)
+#define SF   ((reg.uresult & 0x8000) != 0)
+#define OF   ((((reg.sresult >> 1) ^ (reg.sresult)) & 0x8000) != 0)  // Signed
+#define CF   ((reg.uresult & 0x10000) != 0)                          // Unsigned
+
+#define SET_ZF(reg)  (reg).uresult &= ~0xFFFF
+#define CLR_ZF(reg)  (reg).uresult |= 1
+#define SET_OF(reg)  (reg).sresult = 0x8000
+#define CLR_OF(reg)  (reg).sresult = 0
+#define SET_CF(reg)  (reg).uresult |= 0x10000
+#define CLR_CF(reg)  (reg).uresult &= 0xFFFF
+
+
 static void
-int10(SubState *s)
+int10(Regs *reg)
 {
-    switch (s->reg.ah) {
+    switch (reg->ah) {
 
     case 0x00: {              /* Set video mode */
         /* Ignore. We're always in CGA mode. */
@@ -143,64 +162,64 @@ int10(SubState *s)
     }
 
     default: {
-        printf("BIOS10: Unsupported! ax=0x%04x\n", s->reg.ax);
+        printf("BIOS10: Unsupported! ax=0x%04x\n", reg->ax);
         break;
     }
     }
 }
 
 static void
-int16(SubState *s)
+int16(Regs *reg)
 {
-    switch (s->reg.ah) {
+    switch (reg->ah) {
 
     case 0x00: {              /* Get keystroke */
         if (keyboard.eventWaiting) {
-            s->reg.ah = keyboard.scancode;
-            s->reg.al = keyboard.ascii;
-            printf("BIOS16: Got key %04x\n", s->reg.ax);
+            reg->ah = keyboard.scancode;
+            reg->al = keyboard.ascii;
+            printf("BIOS16: Got key %04x\n", reg->ax);
             keyboard.eventWaiting = 0;
         } else {
-            s->reg.ax = 0;
+            reg->ax = 0;
         }
         break;
     }
 
     case 0x01: {              /* Check for keystroke */
         if (keyboard.eventWaiting) {
-            s->flag.z = 0;
-            s->reg.ah = keyboard.scancode;
-            s->reg.al = keyboard.ascii;
+            CLR_ZF(*reg);
+            reg->ah = keyboard.scancode;
+            reg->al = keyboard.ascii;
         } else {
-            s->flag.z = 1;
+            SET_ZF(*reg);
         }
         break;
     }
 
     default: {
-        printf("BIOS16: Unsupported! ax=0x%04x\n", s->reg.ax);
+        printf("BIOS16: Unsupported! ax=0x%04x\n", reg->ax);
         break;
     }
     }
 }
 
 static void
-int21(SubState *s)
+int21(Regs *reg)
 {
     static int numFiles = 0;
     static FILE *files[16];
 
-    switch (s->reg.ah) {
+    switch (reg->ah) {
 
     case 0x06: {              /* Direct console input/output (Only input supported) */
-        if (s->reg.dl == 0xFF) {
+        if (reg->dl == 0xFF) {
             if (keyboard.eventWaiting) {
-                s->reg.al = keyboard.ascii;
-                s->flag.z = 0;
+                reg->al = keyboard.ascii;
+                CLR_ZF(*reg);
                 keyboard.eventWaiting = 0;
             } else {
-                s->reg.al = 0;
-                s->flag.z = 1;
+                reg->al = 0;
+                SET_ZF(*reg);
             }
         }
         break;
@@ -213,15 +232,15 @@ int21(SubState *s)
 
     case 0x3D: {              /* Open File */
         int fd = numFiles;
-        const char *name = mem + SEG(s->reg.ds, s->reg.dx);
+        const char *name = mem + SEG(reg->ds, reg->dx);
 
         printf("DOS: Open file %04x:%04x='%s' -> #%d\n",
-               s->reg.ds, s->reg.dx, name, fd);
+               reg->ds, reg->dx, name, fd);
 
         numFiles++;
         files[fd] = fopen(name, "rb");
-        s->reg.ax = fd;
-        s->flag.c = 0;
+        reg->ax = fd;
+        CLR_CF(*reg);
 
         if (!files[fd]) {
             perror("fopen");
@@ -231,41 +250,41 @@ int21(SubState *s)
     }
 
     case 0x3E: {              /* Close File */
-        printf("DOS: Close file #%d\n", s->reg.bx);
-        s->flag.c = 0;
+        printf("DOS: Close file #%d\n", reg->bx);
+        CLR_CF(*reg);
         break;
     }
 
     case 0x3F: {              /* Read File */
-        int fd = s->reg.bx;
-        int len = s->reg.cx;
-        void *dest = mem + SEG(s->reg.ds, s->reg.dx);
+        int fd = reg->bx;
+        int len = reg->cx;
+        void *dest = mem + SEG(reg->ds, reg->dx);
         int result = fread(dest, 1, len, files[fd]);
 
         printf("DOS: Read %d bytes from file #%d -> %d bytes at %04x:%04x\n",
-               len, fd, result, s->reg.ds, s->reg.dx);
-        s->reg.ax = result;
-        s->flag.c = 0;
+               len, fd, result, reg->ds, reg->dx);
+        reg->ax = result;
+        CLR_CF(*reg);
         break;
     }
 
     case 0x4C: {              /* Exit with return code */
-        int retval = s->reg.al;
+        int retval = reg->al;
         printf("DOS: Exit (Return code %d)\n", retval);
         exit(retval);
         break;
     }
 
     default:
-        printf("DOS: Unsupported! ax=0x%04x\n", s->reg.ax);
+        printf("DOS: Unsupported! ax=0x%04x\n", reg->ax);
         break;
     }
 }
 
 static void
-int3(SubState *s)
+int3(Regs *reg)
 {
-    //printf("INT 3\n");
+    printf("INT 3\n");
 }
 
 static uint8_t
