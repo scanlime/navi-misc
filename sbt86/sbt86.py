@@ -1,7 +1,53 @@
-#!/usr/bin/env python
 #
-# Experimental 8086 -> C static binary translator.
-# Micah Dowty <micah@navi.cx>
+# Experimental DOS 8086 -> C static binary translator.
+#
+# This isn't a general-purpose static binary translator. That wouldn't
+# be possible, since self-modifying code and dynamic branches make it
+# impossible to create a static translation of any arbitrary program.
+# Instead, this is a toolkit which does *most* of the work in creating
+# a static translation of one particular program. You'll still need to
+# write some program-specific code in order to fix up any untranslateable
+# parts in the binary.
+#
+# These fixups come in the form of a separate per-program Python file
+# where you will create a DOSBinary() class to represent your input
+# file, apply patches to that in-memory representation, then generate
+# code. The patches can either replace original assembly instructions
+# (a 'patch') or add C code which executes just prior to an original
+# instruction (a 'hook').
+#
+# Patches affect the analysis phase, where we discover subroutines and
+# figure out which parts of the binary are executable code. So, if you
+# stub out a function by patching its first instruction with a 'ret',
+# or if you patch out any call sites, no code will be generated for
+# that function. If you want to replace an original subroutine with a
+# C-language routine, for example, you can patch in a 'ret'
+# instruction, then hook the 'ret'.
+#
+# Requires Python 2.5 and the ndisasm disassembler.
+#
+# Copyright (c) 2009 Micah Dowty <micah@navi.cx>
+#
+#    Permission is hereby granted, free of charge, to any person
+#    obtaining a copy of this software and associated documentation
+#    files (the "Software"), to deal in the Software without
+#    restriction, including without limitation the rights to use,
+#    copy, modify, merge, publish, distribute, sublicense, and/or sell
+#    copies of the Software, and to permit persons to whom the
+#    Software is furnished to do so, subject to the following
+#    conditions:
+#
+#    The above copyright notice and this permission notice shall be
+#    included in all copies or substantial portions of the Software.
+#
+#    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+#    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+#    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+#    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+#    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+#    OTHER DEALINGS IN THE SOFTWARE.
 #
 
 import sys
@@ -111,13 +157,13 @@ class Indirect:
             self.segment, '+'.join(map(repr, self.offsets)), self.width)
 
     def codegen(self):
-        addr = "SEG(%s,%s)" % (
-            self.segment.codegen(), " + ".join([o.codegen() for o in self.offsets]))
+        segOff = (self.segment.codegen(),
+                  " + ".join([o.codegen() for o in self.offsets]))
 
         if self.width == 1:
-            return "mem[%s]" % addr
+            return "MEM8(%s,%s)" % segOff
         elif self.width == 2:
-            return "(*(uint16_t*)(mem + %s))" % addr
+            return "MEM16(%s,%s)" % segOff
         else:
             raise InternalError("Indirect %r has unknown width" % self)
 
@@ -686,14 +732,6 @@ class BinaryImage:
             else:
                 yield i
 
-    def patch(self, line):
-        """Manually stick a line of assembly into the iCache,
-           in order to replace an instruction we would have loaded
-           from the EXE file.
-           """
-        i = Instruction(line)
-        self._iCache[i.addr.linear] = i
-
     def iFetch(self, addr):
         """Fetch the next instruction, via the instruction cache.  If there's
            a cache miss, disassemble a block of code starting at this
@@ -814,16 +852,61 @@ static uint8_t dataImage[] = {
 
 #include "sbt86.h"
 
+static StackItem stack[64];
+static int stackPtr;
+
 %(subDecls)s
 
 %(subCode)s
-void
-body(Regs initRegs)
+
+uint8_t
+%(mainFunction)s(const char *cmdLine)
 {
-  initRegs.cs = 0x%(entryCS)04x;
-  sub_%(entryLinear)X(initRegs);
+    Regs reg = {{ 0 }};
+    int retval;
+
+    // Set up our DOS Exit handler
+
+    retval = setjmp(dosExitJump);
+    if (retval) {
+        return (uint8_t)retval;
+    }
+
+    memset(mem, 0, %(memorySize)d);
+    memcpy(mem, dataImage, sizeof dataImage);
+
+    // Memory size (32-bit)
+    reg.bx = %(memorySize)d >> 16;
+    reg.cx = (uint16_t) %(memorySize)d;
+
+    // XXX: Stack is fake.
+    stackPtr = 0;
+    reg.ss = 0;
+    reg.sp = 0xFFFF;
+
+    // Beginning of EXE image (unrelocated)
+    reg.ds = 0;
+
+    // Program Segment Prefix. Put it right after
+    // the end of the program's requested memory,
+    // zero it, and copy in our command line.
+
+    reg.es = (%(memorySize)d + 16) >> 4;
+    memset(mem + SEG(reg.es, 0), 0, 0x100);
+
+    mem[SEG(reg.es, 0x80)] = strlen(cmdLine);
+    strcpy(mem + SEG(reg.es, 0x81), cmdLine);
+
+    // Jump to the entry point
+
+    reg.cs = 0x%(entryCS)04x;
+    sub_%(entryLinear)X(reg);
+
+    return 0xFF;
 }
 """
+
+    subroutines = None
 
     def toLinear(self, segmentOffset):
         return ((segmentOffset >> 16) << 4) | (segmentOffset & 0xFFFF)
@@ -850,12 +933,32 @@ body(Regs initRegs)
         return ''.join(["0x%02x,%s" % (ord(b), "\n"[:(i&15)==15])
                          for i, b in enumerate(data)])
 
+    def patch(self, addr, code, length=0):
+        """Manually stick a line of assembly into the iCache,
+           in order to replace an instruction we would have loaded
+           from the EXE file.
+
+           If the instruction is not a return or an unconditional
+           jump, you must specify the instruction's length (in bytes)
+           so we know where to find the next instruction. The length
+           doesn't have to match the actual length of the assembly
+           code you provide, it's just used to locate the next
+           instruction to disassemble.
+           """
+        i = Instruction("%s %s %s" % (addr, ("--" * length) or '-', code))
+        self.image._iCache[i.addr.linear] = i
+
     def hook(self, addr, code):
         """Install a C-language hook, to be executed just before the
            instruction at address 'addr'.  The address and C-code are
            both specified as strings.
            """
         self._hooks[Addr16(str=addr).linear] = "{\n%s\n } " % code
+
+    def patchAndHook(self, addr, asmCode, cCode, length=0):
+        """This is a shorthand for patching and hooking the same address."""
+        self.patch(addr, asmCode, length)
+        self.hook(addr, cCode)
 
     def analyze(self, verbose=False):
        """Analyze the whole program. This breaks it up into
@@ -877,8 +980,9 @@ body(Regs initRegs)
            stack.extend(sub.callsTo.values())
            self.subroutines[ptr.linear] = sub
 
-    def codegen(self):
+    def codegen(self, mainFunction):
         vars = dict(self.__dict__)
+        vars['mainFunction'] = mainFunction
         vars['subCode'] = '\n'.join([s.codegen()
                                      for s in self.subroutines.itervalues()])
         vars['subDecls'] = '\n'.join(["Regs %s(Regs r);" % s.name
@@ -897,56 +1001,9 @@ body(Regs initRegs)
 
         return self._skel % vars
 
-
-b = DOSBinary(sys.argv[1])
-
-# Patches for dynamic jumps in LAB.EXE
-if 0:
-    b.image.patch("0C63:040D - int 3")
-    b.image.patch("0C63:041B - int 3")
-    b.image.patch("0C63:11B5 - int 3")
-    b.image.patch("0C63:1271 - int 3")
-    b.image.patch("0C63:1CB2 - jmp 0x21B3")
-    b.image.patch("0C63:0F89 - int 3")
-    b.image.patch("0C63:004B 00 nop")   # Copy protection
-
-# Dynamic call in MENU.EXE
-if 0:
-    b.image.patch("009E:0778 - int 3")
-
-# Patches for TUT.EXE
-if 1:
-    # Good patches
-
-    b.image.patch("098F:03F2 - ret")                   # Stub video_set_cursor_position,
-                                                       # avoid push/pop_ax_bx_cx_dx
-    b.image.patch("098F:1CB2 - jmp 0x21b3")            # video_draw_playfield
-    b.image.patch("098F:0D72 - ret")                   # Self-modifying (largetext font)
-    b.image.patch("098F:0D19 - ret")                   # Self-modifying (text font)
-    b.image.patch("098F:0F89 00112233  call 0x4E03")   # game_func_ptr
-    b.hook("098F:1C93", "SDL_Delay(30);")              # Per-frame delay
-
-    # At 11B5, there's a function pointer which is related to finding
-    # the object under the cursor, for grabbing it. There are two
-    # possible targets, 1131 and 1141. Target 1131 is just an "stc"
-    # instruction.
-    b.image.patch("098F:11B5 - jmp 0x1141")
-    b.hook("098F:11B5", "if (reg.bx == 0x1131) { SET_CF; return reg; }")
-
-    # At 1271, there's a calculated jump which is used to perform a
-    # left/right shift by 0 to 7. At this point, SI is the shift value
-    # to apply to AL.  0-7 are left shifts, 9-15 (-7 to 0) are right
-    # shifts.  After shifting, the code in the jump table branches
-    # back to 1273.
-    b.image.patch("098F:1271 - jmp 0x1273")
-    b.hook("098F:1271", "if (reg.si < 8) reg.al <<= reg.si; else reg.al >>= 16 - reg.si;")
-
-    # XXX: Problematic patches
-    b.image.patch("098F:0B7B - ret")           # Self-modifying code (text rendering XXX)
-
-    # Debugging
-    b.hook("098F:0ED4", "printf(\"Grabbing, object under cursor is 0x%02x\\n\", reg.cx);")
-
-
-b.analyze()
-print b.codegen()
+    def writeCodeToFile(self, filename, mainFunction='body', verbose=False):
+        """Run analysis if necessary, then generate code to a file."""
+        f = open(filename, 'w')
+        if self.subroutines is None:
+            self.analyze(verbose)
+        f.write(self.codegen(mainFunction))
