@@ -917,18 +917,35 @@ if 0:
 # Patches for TUT.EXE
 if 1:
     # Good patches
+
     b.image.patch("098F:03F2 - ret")                   # Stub video_set_cursor_position,
                                                        # avoid push/pop_ax_bx_cx_dx
     b.image.patch("098F:1CB2 - jmp 0x21b3")            # video_draw_playfield
     b.image.patch("098F:0D72 - ret")                   # Self-modifying (largetext font)
     b.image.patch("098F:0D19 - ret")                   # Self-modifying (text font)
     b.image.patch("098F:0F89 00112233  call 0x4E03")   # game_func_ptr
-    b.hook("098F:1C93", "SDL_Delay(15);")              # Per-frame delay
+    b.hook("098F:1C93", "SDL_Delay(30);")              # Per-frame delay
+
+    # At 11B5, there's a function pointer which is related to finding
+    # the object under the cursor, for grabbing it. There are two
+    # possible targets, 1131 and 1141. Target 1131 is just an "stc"
+    # instruction.
+    b.image.patch("098F:11B5 - jmp 0x1141")
+    b.hook("098F:11B5", "if (reg.bx == 0x1131) { SET_CF; return reg; }")
+
+    # At 1271, there's a calculated jump which is used to perform a
+    # left/right shift by 0 to 7. At this point, SI is the shift value
+    # to apply to AL.  0-7 are left shifts, 9-15 (-7 to 0) are right
+    # shifts.  After shifting, the code in the jump table branches
+    # back to 1273.
+    b.image.patch("098F:1271 - jmp 0x1273")
+    b.hook("098F:1271", "if (reg.si < 8) reg.al <<= reg.si; else reg.al >>= 16 - reg.si;")
 
     # XXX: Problematic patches
-    b.image.patch("098F:11B5 - ret")           # unknown func ptr
-    b.image.patch("098F:1271 - ret")           # unknown func ptr (text-related?)
     b.image.patch("098F:0B7B - ret")           # Self-modifying code (text rendering XXX)
+
+    # Debugging
+    b.hook("098F:0ED4", "printf(\"Grabbing, object under cursor is 0x%02x\\n\", reg.cx);")
 
 
 b.analyze()
