@@ -246,7 +246,8 @@ consoleInit()
         exit(1);
     }
 
-    SDL_EnableKeyRepeat(100, 100);
+    SDL_WM_SetCaption("SBT86", "sbt86");
+    SDL_EnableKeyRepeat(200, 10);
 }
 
 static int
@@ -379,5 +380,5 @@ consoleBlitToScreen(uint8_t *fb)
     SDL_UnlockSurface(screen);
     SDL_UpdateRect(screen, 0, 0, 640, 400);
 
-    SDL_Delay(10);
+    SDL_Delay(50);
 }
