@@ -138,6 +138,24 @@ int21(Regs reg)
         break;
     }
 
+    case 0x2C: {              /* Get system time */
+        /*
+         * XXX: This is supposed to return wallclock time, but Robot Odyssey's
+         *      menu just uses this for calculated delays- so the offset from
+         *      real time is not important.
+         */
+        uint32_t ticks = SDL_GetTicks();
+        uint32_t seconds = ticks / 1000;
+        uint32_t minutes = seconds / 60;
+        uint32_t hours = minutes / 60;
+        reg.ch = hours % 24;
+        reg.cl = minutes % 60;
+        reg.dh = seconds % 60;
+        reg.dl = (ticks / 10) % 100;
+        break;
+    }
+
+
     case 0x3D: {              /* Open File */
         int fd = numFiles;
         const char *name = mem + SEG(reg.ds, reg.dx);
@@ -221,9 +239,9 @@ main(int argc, char **argv)
 
     consoleInit();
 
-    retval = body(cmdLine);
-    printf("DOS Exit (return code %d)\n", retval);
+    retval = menu_main(cmdLine);
 
+    printf("DOS Exit (return code %d)\n", retval);
     return retval;
 }
 
@@ -380,5 +398,5 @@ consoleBlitToScreen(uint8_t *fb)
     SDL_UnlockSurface(screen);
     SDL_UpdateRect(screen, 0, 0, 640, 400);
 
-    SDL_Delay(50);
+    consolePollEvents();
 }

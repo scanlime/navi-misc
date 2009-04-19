@@ -48,6 +48,7 @@ b.patch('098F:0F89', 'call 0x4E03', 4)
 b.patchAndHook('098F:1730', 'ret', '''
     uint16_t backbufferSegment = MEM16(reg.ds, 0x3AD5);
     consoleBlitToScreen(mem + SEG(backbufferSegment,0));
+    SDL_Delay(50);
 ''')
 
 # At 11B5, there's a function pointer which is related to finding
@@ -117,4 +118,4 @@ for i, (addr, jmp) in enumerate((
     ''' % i)
 
 
-b.writeCodeToFile("bt_tutorial.c")
+b.writeCodeToFile("bt_tutorial.c", "tutorial_main")

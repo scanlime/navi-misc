@@ -3,7 +3,7 @@ LDFLAGS = -Os -g `sdl-config --libs`
 
 PROGRAM = bt
 
-OBJ = bt_tutorial.o sbt86.o
+OBJ = bt_tutorial.o bt_menu.o sbt86.o
 
 .PHONY: sizeprof all clean
 
@@ -16,6 +16,9 @@ $(PROGRAM): $(OBJ)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 bt_tutorial.c: bt_tutorial.py sbt86.py TUT.EXE
+	python $<
+
+bt_menu.c: bt_menu.py sbt86.py MENU.EXE
 	python $<
 
 sizeprof: $(PROGRAM)
