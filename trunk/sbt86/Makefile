@@ -1,10 +1,25 @@
-#BIN = MENU.EXE
-#BIN = LAB.EXE
-BIN = TUT.EXE
+CFLAGS  = -Os -g `sdl-config --cflags`
+LDFLAGS = -Os -g `sdl-config --libs`
 
-sbt: sbt.c sbt86.h
-	gcc -o sbt sbt.c -Os -g `sdl-config --cflags --libs`
+PROGRAM = bt
 
-sbt.c: sbt86.py $(BIN)
-	python sbt86.py $(BIN) > sbt.c
+OBJ = bt_tutorial.o sbt86.o
 
+.PHONY: sizeprof all clean
+
+all: $(PROGRAM)
+
+$(PROGRAM): $(OBJ)
+	$(CC) -o $@ $(OBJ) $(LDFLAGS)
+
+%.o: %.c *.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+bt_tutorial.c: bt_tutorial.py sbt86.py TUT.EXE
+	python $<
+
+sizeprof: $(PROGRAM)
+	@nm --size-sort -S $< | egrep -v " [bBsS] "
+
+clean:
+	rm -f $(PROGRAM) $(OBJ) bt_*.c
