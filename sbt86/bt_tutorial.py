@@ -45,22 +45,22 @@ b.patch('098F:0F89', 'call 0x4E03', 4)
 # and unnecessary for us. Replace it with a call to
 # consoleBlitToScreen(), and read directly from the game's backbuffer.
 
-b.patchAndHook('098F:1730', 'ret', """
+b.patchAndHook('098F:1730', 'ret', '''
     uint16_t backbufferSegment = MEM16(reg.ds, 0x3AD5);
     consoleBlitToScreen(mem + SEG(backbufferSegment,0));
-""")
+''')
 
 # At 11B5, there's a function pointer which is related to finding
 # the object under the cursor, for grabbing it. There are two
 # possible targets, 1131 and 1141. Target 1131 is just an "stc"
 # instruction.
 
-b.patchAndHook('098F:11B5', 'jmp 0x1141', """
+b.patchAndHook('098F:11B5', 'jmp 0x1141', '''
     if (reg.bx == 0x1131) {
         SET_CF;
         return reg;
     }
-""")
+''')
 
 # At 1271, there's a calculated jump which is used to perform a
 # left/right shift by 0 to 7. At this point, SI is the shift value
@@ -68,14 +68,53 @@ b.patchAndHook('098F:11B5', 'jmp 0x1141', """
 # are right shifts, 9-15 (-7 to 0) are left shifts.  After shifting,
 # the code in the jump table branches back to 1273.
 
-b.patchAndHook('098F:1271', 'jmp 0x1273', """
+b.patchAndHook('098F:1271', 'jmp 0x1273', '''
     if (reg.si < 16)
         reg.al >>= reg.si >> 1;
     else
         reg.al <<= 16 - (reg.si >> 1);
-""")
+''')
 
-# XXX: Text rendering self-modifying code
-b.patch('098F:0B7B', 'ret')
+# The text rendering code is a bit crazy.. The inner loop draws one
+# character, 8x8 pixels, by performing a 16-bit read-modify-write at 7
+# different locations on the framebuffer. Every time we move down to
+# the next line of text, these locations must be patched.
+#
+# To eliminate the self-modifying code, we patch the patcher function
+# to write its offsets into an array rather than into the code itself,
+# then we patch the code to read this array.
+
+b.decl('''
+    union {
+        struct {
+            uint8_t low;
+            uint8_t high;
+        };
+        uint16_t word;
+    } textOffsets[8];
+''')
+
+b.patchAndHook('098F:0CED', 'jmp 0xCF7', '''
+    textOffsets[reg.si / 0x18].low = reg.al;
+''')
+
+b.patchAndHook('098F:0CFF', 'jmp 0xD09', '''
+    textOffsets[reg.si / 0x18].high = reg.al;
+''')
+
+for i, (addr, jmp) in enumerate((
+    ('098F:0BE2', 'jmp 0xBEC'),
+    ('098F:0BFA', 'jmp 0xC04'),
+    ('098F:0C12', 'jmp 0xC1C'),
+    ('098F:0C2A', 'jmp 0xC34'),
+    ('098F:0C42', 'jmp 0xC4C'),
+    ('098F:0C5A', 'jmp 0xC64'),
+    ('098F:0C72', 'jmp 0xC7C'),
+    ('098F:0C8A', 'jmp 0xC94'),
+    )):
+    b.patchAndHook(addr, jmp, '''
+        MEM16(reg.es, reg.si + textOffsets[%d].word) |= reg.ax;
+    ''' % i)
+
 
 b.writeCodeToFile("bt_tutorial.c")

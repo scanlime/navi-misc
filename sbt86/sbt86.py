@@ -856,7 +856,7 @@ static StackItem stack[64];
 static int stackPtr;
 
 %(subDecls)s
-
+%(patchDecls)s
 %(subCode)s
 
 uint8_t
@@ -907,6 +907,7 @@ uint8_t
 """
 
     subroutines = None
+    patchDecls = ''
 
     def toLinear(self, segmentOffset):
         return ((segmentOffset >> 16) << 4) | (segmentOffset & 0xFFFF)
@@ -932,6 +933,13 @@ uint8_t
     def _toHexArray(self, data):
         return ''.join(["0x%02x,%s" % (ord(b), "\n"[:(i&15)==15])
                          for i, b in enumerate(data)])
+
+    def decl(self, code):
+        """Add code to the declarations in the generated C file.
+           This is useful if patches require global variables or
+           shared code.
+           """
+        self.patchDecls += code
 
     def patch(self, addr, code, length=0):
         """Manually stick a line of assembly into the iCache,
