@@ -326,7 +326,7 @@ class Instruction:
             return ""
 
     def _call(self, name):
-        return "{ Regs r = reg; %s(&r); reg = r; }" % name
+        return "reg = %s(reg);" % name
 
     def codegen(self):
         f = getattr(self, "codegen_%s" % self.op, None)
@@ -431,13 +431,13 @@ class Instruction:
             arg.codegen(), arg.codegen())
 
     def codegen_cmc(self):
-        return "if (CF) CLR_CF(reg); else SET_CF(reg);"
+        return "if (CF) CLR_CF; else SET_CF;"
 
     def codegen_clc(self):
-        return "CLR_CF(reg);"
+        return "CLR_CF;"
 
     def codegen_stc(self):
-        return "SET_CF(reg);"
+        return "SET_CF;"
 
     def codegen_cbw(self):
         return "reg.ax = (int16_t)(int8_t)reg.al;"
@@ -620,7 +620,7 @@ class Instruction:
             raise NotImplementedError("Dynamic call not supported at %s" % self)
 
     def codegen_ret(self):
-        return "*callerRegs = reg; return;"
+        return "return reg;"
 
     def codegen_retf(self):
         return self.codegen_ret()
@@ -788,13 +788,10 @@ class Subroutine:
                     self.hooks.get(i.addr.linear, ''),
                     i.codegen()))
         return """
-void
-%s(Regs *callerRegs)
+Regs
+%s(Regs reg)
 {
-  register Regs reg = *callerRegs;
-
   goto %s;
-
 %s
 }""" % (self.name, self.entryPoint.label(), '\n'.join(body))
 
@@ -824,7 +821,7 @@ void
 body(Regs initRegs)
 {
   initRegs.cs = 0x%(entryCS)04x;
-  sub_%(entryLinear)X(&initRegs);
+  sub_%(entryLinear)X(initRegs);
 }
 """
 
@@ -884,7 +881,7 @@ body(Regs initRegs)
         vars = dict(self.__dict__)
         vars['subCode'] = '\n'.join([s.codegen()
                                      for s in self.subroutines.itervalues()])
-        vars['subDecls'] = '\n'.join(["void %s(Regs *r);" % s.name
+        vars['subDecls'] = '\n'.join(["Regs %s(Regs r);" % s.name
                                      for s in self.subroutines.itervalues()])
         vars['entryLinear'] = self.entryPoint.linear
         vars['entryCS'] = self.entryPoint.segment
