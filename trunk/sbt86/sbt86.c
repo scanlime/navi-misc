@@ -239,7 +239,7 @@ main(int argc, char **argv)
 
     consoleInit();
 
-    retval = menu_main(cmdLine);
+    retval = game_main(cmdLine);
 
     printf("DOS Exit (return code %d)\n", retval);
     return retval;
