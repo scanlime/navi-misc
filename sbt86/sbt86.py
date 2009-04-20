@@ -53,6 +53,83 @@
 import sys
 import struct
 import subprocess
+import re
+
+
+class Signature:
+    """A binary signature, which can be used to identify a code fragment
+       at an unknown address. The signature consists of a list of
+       bytes before and after the matching address, as well as an
+       optional list of wildcard bytes to exclude from the search.
+       The signature is formatted as a hexadecimal string. A ':'
+       represents the search address. Characters prior to the colon
+       occur before the search address, and characters afterward occur
+       at/after the address. Underscores represent 'blanks', that can
+       contain any value.  Underscores must by byte
+       aligned. Whitespace is optional. The '#' character marks the
+       beginning of a comment, all text until the next newline is
+       ignored.
+       """
+    def __init__(self, text):
+        self.longText = text
+
+        # Remove comments
+        t = re.sub(r"#.*", "", text)
+
+        # Remove whitespace
+        t = t.replace('\n','').replace('\t','').replace(' ','')
+
+        self.shortText = t
+
+        m = re.search(r"[^0-9a-fA-F_:]", t)
+        if m:
+            raise SignatureFormatError("Invalid character %r in pattern %r" %
+                                       (m.group(0), self.shortText))
+
+        parts = t.split(':')
+        if len(parts) != 2:
+            raise SignatureFormatError("Pattern must have exactly one ':' to"
+                                       " mark the search address.")
+        pre, post = parts
+        self.preLength = len(pre) / 2
+        t = pre + post
+
+        if len(t) % 2:
+            raise SignatureFormatError("Pattern must have an even "
+                                       "number of digits: %r" % self.shortText)
+
+        regex = ""
+        for byte in xrange(len(t) / 2):
+            hexByte = t[byte * 2: (byte + 1) * 2]
+            if '_' in hexByte:
+                if hexByte == '__':
+                    regex += '.'
+                else:
+                    SignatureFormatError("Pattern has blanks which are "
+                                         "not byte aligned: %r" % self.shortText)
+            else:
+                char = chr(int(hexByte, 16))
+                if char in ".^$*+?\\{}[]()|":
+                    # Special character. Escape it.
+                    regex += '\\' + char
+                else:
+                    regex += char
+
+        self.re = re.compile(regex)
+
+    def find(self, str):
+        """Locate the pattern in a string, with zero or more occurrances.
+           Returns a list of offsets, in bytes from the beginning of the string.
+           """
+        return [m.start(0) + self.preLength for m in
+                self.re.finditer(str)]
+
+
+class SignatureFormatError(Exception):
+    pass
+
+class SignatureMatchError(Exception):
+    pass
 
 
 class Addr16:
@@ -810,24 +887,30 @@ class Instruction:
 
 
 class BinaryImage:
-    def __init__(self, filename=None, file=None, offset=0):
+    def __init__(self, filename=None, file=None, offset=0, data=None):
         if file is None:
             file = open(filename, "rb")
+        if data is None:
+            file.seek(0)
+            data = file.read()
+
         self.filename = filename
+        self._data = data
         self._file = file
         self._offset = offset
         self.parseHeader()
         self._iCache = {}
 
     def offset(self, offset):
-        return BinaryImage(self.filename, self._file, self._offset + offset)
+        return BinaryImage(self.filename, self._file,
+                           self._offset + offset, self._data)
 
     def parseHeader(self):
         pass
 
     def read(self, offset, length):
-        self._file.seek(offset + self._offset)
-        return self._file.read(length)
+        return self._data[self._offset + offset:
+                          self._offset + offset + length]
 
     def unpack(self, offset, fmt):
         return struct.unpack(fmt, self.read(offset, struct.calcsize(fmt)))
@@ -1092,7 +1175,7 @@ uint8_t
            instruction at address 'addr'.  The address and C-code are
            both specified as strings.
            """
-        self._hooks[Addr16(str=addr).linear] = "{\n%s\n } " % code
+        self._hooks[Addr16(str=str(addr)).linear] = "{\n%s\n } " % code
 
     def patchAndHook(self, addr, asmCode, cCode, length=0):
         """This is a shorthand for patching and hooking the same address."""
@@ -1121,6 +1204,8 @@ uint8_t
           subroutines, and analyzes each routine.
           """
 
+       print "Analyzing %s..." % self.filename
+
        self.subroutines = {}
        stack = [ self.entryPoint ]
 
@@ -1136,13 +1221,39 @@ uint8_t
            stack.extend(sub.callsTo.values())
            self.subroutines[ptr.linear] = sub
 
+    def findCode(self, signature):
+        """Find a signature in the binary's code segment.
+           Returns an Addr16, using the binary's entry
+           point as a segment reference.
+           """
+        return self.findCodeMultiple(signature, 1)[0]
+
+    def findCodeMultiple(self, signature, expectedCount=None):
+        """Like findCode(), but allows the signature to appear zero or more times.
+           If expectedCount is specified, we require it to occur exactly that many
+           times. Returns a list of Addr16s.
+           """
+        sig = Signature(signature)
+        addrs = [self.entryPoint.add(o - self.image._offset - self.entryPoint.linear)
+                 for o in sig.find(self.image._data)]
+        if expectedCount is not None and len(addrs) != expectedCount:
+            raise SignatureMatchError("Signature found %d times, expected to "
+                                      "find %d. Matches: %r" %
+                                      (len(addrs), expectedCount, addrs))
+        print "Found patch location %r in %s for: %r" % (
+            addrs, self.filename, sig.shortText)
+        return addrs
+
     def codegen(self, mainFunction):
         vars = dict(self.__dict__)
+
+        print "Code generating %s (%d subroutines)..." % (
+            self.filename, len(self.subroutines.values()))
 
         vars['mainFunction'] = mainFunction
         vars['subCode'] = '\n'.join([s.codegen(traces=self._traces)
                                      for s in self.subroutines.itervalues()])
-        vars['subDecls'] = '\n'.join(["Regs %s(Regs r);" % s.name
+        vars['subDecls'] = '\n'.join(["static Regs %s(Regs r);" % s.name
                                      for s in self.subroutines.itervalues()])
         vars['traceDecls'] = '\n'.join([t.codegen() for t in self._traces])
         vars['entryLinear'] = self.entryPoint.linear
