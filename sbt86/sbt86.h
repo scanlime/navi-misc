@@ -129,8 +129,8 @@ typedef union StackItem {
 Regs int10(Regs reg);
 Regs int16(Regs reg);
 Regs int21(Regs reg);
-uint8_t in(uint16_t port);
-void out(uint16_t port, uint8_t value);
+uint8_t in(uint16_t port, uint32_t timestamp);
+void out(uint16_t port, uint8_t value, uint32_t timestamp);
 
 void consoleBlitToScreen(uint8_t *fb);
 
