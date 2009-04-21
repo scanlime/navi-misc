@@ -424,9 +424,24 @@ class Instruction:
         line = line.replace("far ", "")
         line = line.replace("near ", "")
 
-        # ndisasm doesn't seem to decode prefixes...
-        line = line.replace("db 0xF3", "rep")
+        # Different versions of ndisasm treat prefixes differently...
+	# Some of them disassemble prefixes correctly ("rep stosb"),
+	# whereas some versions don't disassemble the prefix at all
+	# and give a separate 'db' pseudo-op for the prefix.
+	#
+	# We want to convert either of these to a single combined
+	# opcode (like "rep_stosb"). If it's a separate 'db', we'll
+	# convert the db into a rep/rene here, then combine that with
+	# the next instruction via the isPrefix flag below.
+	#
+	# If ndisasm gives us a normal prefix, though, we can just
+	# do a string replace to combine it with the opcode.
+
+	line = line.replace("db 0xF3", "rep")
         line = line.replace("db 0xF2", "repne")
+        line = line.replace("rep ", "rep_")
+        line = line.replace("repe ", "rep_")
+        line = line.replace("repne ", "repne_")
 
         # Split up the ndisasm line into useful pieces.
 
@@ -943,6 +958,9 @@ class Instruction:
     def codegen_popfw(self):
         return ("reg.uresult = stack[--stackPtr].uresult;"
                 "reg.sresult = stack[stackPtr].sresult;")
+
+    codegen_pushf = codegen_pushfw
+    codegen_popf = codegen_popfw
 
     def codegen_nop(self):
         return "/* nop */;"
