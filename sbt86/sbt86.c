@@ -57,7 +57,7 @@ static struct {
  */
 
 #define AUDIO_BUFFER_SIZE 4096     // Must be a power of two
-#define AUDIO_HZ          22000
+#define AUDIO_HZ          11000    // Seems to sound best at 11kHz. (low-pass filtering)
 #define PC_CLOCK_HZ       4770000  // 4.77 MHz
 
 static struct {
@@ -486,8 +486,6 @@ void
 audioCallback(void *userdata, uint8_t *buffer, int len)
 {
     int sample;
-
-    printf("audio! head=0x%08x tail=%08x len=%d\n", audio.buffer.head, audio.buffer.tail, len);
 
     for (sample = 0; sample < len; sample++) {
 
