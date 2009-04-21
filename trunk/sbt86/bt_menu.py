@@ -9,7 +9,7 @@ import sbt86
 b = sbt86.DOSBinary('MENU.EXE')
 
 # XXX: Dynamic branch, looks sound related.
-b.patch('009E:0778', 'nop', 2)
+b.patch('010E:0778', 'nop', 2)
 
 # XXX: For now, implement screen updates by tracing the framebuffer.
 #      Ideally we'd hook all the drawing routines, but this isn't

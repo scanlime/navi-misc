@@ -54,6 +54,7 @@ import sys
 import struct
 import subprocess
 import re
+import tempfile
 
 
 class Signature:
@@ -1023,27 +1024,59 @@ class BinaryImage:
     def __init__(self, filename=None, file=None, offset=0, data=None):
         if file is None:
             file = open(filename, "rb")
+
         if data is None:
-            file.seek(0)
+            file.seek(offset)
             data = file.read()
+            offset = 0
+
+        if offset:
+            data = data[offset:]
 
         self.filename = filename
         self._data = data
-        self._file = file
-        self._offset = offset
+        self.loadSegment = 0
         self.parseHeader()
         self._iCache = {}
+        self._tempFile = None
+
+    def relocate(self, segment, addrs):
+        """Apply a list of relocations to this image. 'addrs' is a list of
+           Addr16s which describe 16-bit relocations, 'segment' is the
+           amount we'll add to each relocation. This function modifies
+           the BinaryImage's data buffer.
+
+           This implementation is horribly inefficient, but given how
+           few relocations we have and how slow gcc is at compiling
+           our output anyway, I don't care.
+           """
+
+        print "Applying relocations at %r" % addrs
+        self.loadSegment = segment
+
+        if self._tempFile:
+            raise Exception("Must relocate before starting disassembly!")
+
+        for addr in addrs:
+            offset = addr.linear
+            pre = self._data[:offset]
+            reloc = self._data[offset:offset+2]
+            post = self._data[offset+2:]
+
+            reloc = struct.unpack("<H", reloc)[0]
+            reloc = (reloc + segment) & 0xFFFF
+            reloc = struct.pack("<H", reloc)
+
+            self._data = ''.join((pre, reloc, post))
 
     def offset(self, offset):
-        return BinaryImage(self.filename, self._file,
-                           self._offset + offset, self._data)
+        return BinaryImage(self.filename, offset=offset, data=self._data)
 
     def parseHeader(self):
         pass
 
     def read(self, offset, length):
-        return self._data[self._offset + offset:
-                          self._offset + offset + length]
+        return self._data[offset:offset + length]
 
     def unpack(self, offset, fmt):
         return struct.unpack(fmt, self.read(offset, struct.calcsize(fmt)))
@@ -1058,11 +1091,25 @@ class BinaryImage:
         return self.unpack(offset, "<I")[0]
 
     def disasm(self, addr, bits=16):
+        """This is an iterator which disassembles starting at the specified
+           memory address. Uses a temporary file to pass the relocated
+           binary image to ndisasm.
+
+           If the memory address is different from the address on disk,
+           self.loadSegment must be set to the segment where this image
+           is loaded.
+           """
+
+        if not self._tempFile:
+            self._tempFile = tempfile.NamedTemporaryFile()
+            self._tempFile.write(self._data)
+            self._tempFile.flush()
+
         args = ["ndisasm",
                 "-o", str(addr.offset),
                 "-b", str(bits),
-                "-e", str(addr.linear + self._offset),
-                self.filename]
+                "-e", str(addr.linear - (self.loadSegment << 4)),
+                self._tempFile.name]
         proc = subprocess.Popen(args, stdout=subprocess.PIPE)
 
         prefix = None
@@ -1219,6 +1266,9 @@ static uint32_t clock;
 uint8_t
 %(mainFunction)s(const char *cmdLine)
 {
+    const uint32_t relocSegment = 0x%(relocSegment)04x;
+    const uint32_t pspSegment = 0x%(pspSegment)04x;
+    const uint32_t memorySize = 0x%(memorySize)08x;
     Regs reg = {{ 0 }};
     int retval;
 
@@ -1229,26 +1279,25 @@ uint8_t
         return (uint8_t)retval;
     }
 
-    memset(mem, 0, %(memorySize)d);
-    memcpy(mem, dataImage, sizeof dataImage);
+    memset(mem, 0, memorySize + SEG(relocSegment, 0));
+    memcpy(mem + SEG(relocSegment, 0), dataImage, sizeof dataImage);
 
     // Memory size (32-bit)
-    reg.bx = %(memorySize)d >> 16;
-    reg.cx = (uint16_t) %(memorySize)d;
+    reg.bx = memorySize >> 16;
+    reg.cx = (uint16_t) memorySize;
 
     // XXX: Stack is fake.
     stackPtr = 0;
     reg.ss = 0;
     reg.sp = 0xFFFF;
 
-    // Beginning of EXE image (unrelocated)
-    reg.ds = 0;
+    // Beginning of EXE image, after relocation
+    reg.ds = relocSegment;
 
-    // Program Segment Prefix. Put it right after
-    // the end of the program's requested memory,
-    // zero it, and copy in our command line.
+    // Program Segment Prefix.
+    // Zero it, and copy in our command line.
 
-    reg.es = (%(memorySize)d + 16) >> 4;
+    reg.es = pspSegment;
     memset(mem + SEG(reg.es, 0), 0, 0x100);
 
     mem[SEG(reg.es, 0x80)] = strlen(cmdLine);
@@ -1262,6 +1311,17 @@ uint8_t
     return 0xFF;
 }
 """
+
+    # Memory map:
+    #
+    #  relocSegment -- Segment to relocate binary to. This must be
+    #  after the BIOS data area, IVT, and other low-memory areas.
+    #
+    #  pspSegment - Segment to place the Program Segment Prefix in.
+    #  Generally this is 256 bytes prior to the relocSegment.
+    #
+    relocSegment = 0x70
+    pspSegment = 0x60
 
     subroutines = None
 
@@ -1285,8 +1345,14 @@ uint8_t
 
         self.headerSize = headerParagraphs * 16
         self.memorySize = minMemParagraphs * 16 + self.exeSize
-        self.entryPoint = Addr16(entryCS, entryIP)
+        self.entryPoint = Addr16(self.relocSegment + entryCS, entryIP)
         self.image = self.offset(self.headerSize)
+
+        relocs = []
+        for i in range(numRelocations):
+            offset, segment = self.unpack(relocTable + i * 4, "<HH")
+            relocs.append(Addr16(segment, offset))
+        self.image.relocate(self.relocSegment, relocs)
 
     def _toHexArray(self, data):
         return ''.join(["0x%02x,%s" % (ord(b), "\n"[:(i&15)==15])
@@ -1378,7 +1444,8 @@ uint8_t
            times. Returns a list of Addr16s.
            """
         sig = Signature(signature)
-        addrs = [self.entryPoint.add(o - self.image._offset - self.entryPoint.linear)
+        addrs = [self.entryPoint.add(o + (self.relocSegment << 4)
+                                     - self.entryPoint.linear)
                  for o in sig.find(self.image._data)]
         if expectedCount is not None and len(addrs) != expectedCount:
             raise SignatureMatchError("Signature found %d times, expected to "
@@ -1389,7 +1456,8 @@ uint8_t
         return addrs
 
     def codegen(self, mainFunction):
-        vars = dict(self.__dict__)
+        vars = dict(self.__class__.__dict__)
+        vars.update(self.__dict__)
 
         print "Code generating %s (%d subroutines)..." % (
             self.filename, len(self.subroutines.values()))
