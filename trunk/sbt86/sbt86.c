@@ -45,8 +45,41 @@ static struct {
     int ascii;
 } keyboard;
 
+/*
+ * We emulate the PC speaker in a way which is very specific to how
+ * Robot Odyssey uses it. It doesn't use the PIT at all, it just turns
+ * the speaker on and off programmatically, relying on cycle timing to
+ * generate the right noises. We rely on the cycle counter that we
+ * insert into the binary translated code in order to timestamp all
+ * I/O operations. When the speaker is toggled, we store a timestamp
+ * into a buffer. This buffer is then converted to audio by our
+ * audioCallback().
+ */
+
+#define AUDIO_BUFFER_SIZE 4096     // Must be a power of two
+#define AUDIO_HZ          22000
+#define PC_CLOCK_HZ       4770000  // 4.77 MHz
+
+static struct {
+    SDL_AudioSpec spec;
+    uint8_t       port61;
+
+    struct {
+        int       enable;
+        uint32_t  currentTime;
+        uint8_t   state;
+    } playback;
+
+    struct {
+        uint32_t  timestamps[AUDIO_BUFFER_SIZE];
+        uint32_t  head;
+        uint32_t  tail;
+    } buffer;
+} audio;
+
 static void consoleInit();
 static void consolePollEvents();
+static void audioCallback(void *userdata, uint8_t *buffer, int len);
 
 
 /*****************************************************************
@@ -214,16 +247,54 @@ int3(Regs reg)
 }
 
 uint8_t
-in(uint16_t port)
+in(uint16_t port, uint32_t timestamp)
 {
-    printf("IN %04x\n", port);
-    return 0;
+    switch (port) {
+
+    case 0x61:    /* PC speaker gate */
+        return audio.port61;
+
+    default:
+        printf("IO: Unimplemented IN %0x04x\n", port);
+        return 0;
+    }
 }
 
 void
-out(uint16_t port, uint8_t value)
+out(uint16_t port, uint8_t value, uint32_t timestamp)
 {
-    printf("OUT %04x, %02x\n", port, value);
+    switch (port) {
+
+    case 0x43:    /* PIT mode bits */
+        /*
+         * Ignored. We don't emulate the PIT, we just assume the
+         * speaker is always being toggled manually.
+         */
+        break;
+
+    case 0x61:    /* PC speaker gate */
+        if ((value ^ audio.port61) & 2) {
+            /*
+             * PC speaker state toggled. Store a timestamp.
+             */
+            audio.buffer.timestamps[audio.buffer.head] = timestamp;
+            audio.buffer.head = (audio.buffer.head + 1) & (AUDIO_BUFFER_SIZE - 1);
+
+            /*
+             * If the audio wasn't playing, start it.
+             */
+            if (!audio.playback.enable) {
+                audio.playback.currentTime = timestamp;
+                audio.playback.enable = 1;
+                SDL_PauseAudio(0);
+            }
+        }
+        audio.port61 = value;
+        break;
+
+    default:
+        printf("IO: Unimplemented OUT 0x%04x, %02x\n", port, value);
+    }
 }
 
 
@@ -239,7 +310,7 @@ main(int argc, char **argv)
 
     consoleInit();
 
-    retval = game_main(cmdLine);
+    retval = lab_main(cmdLine);
 
     printf("DOS Exit (return code %d)\n", retval);
     return retval;
@@ -253,7 +324,8 @@ main(int argc, char **argv)
 static void
 consoleInit()
 {
-    if (SDL_Init(SDL_INIT_VIDEO) == -1) {
+
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == -1) {
         fprintf(stderr, "SDL initialization error: %s\n", SDL_GetError());
         exit(1);
     }
@@ -262,6 +334,16 @@ consoleInit()
     if (!screen) {
         fprintf(stderr, "Error setting video mode: %s\n", SDL_GetError());
         exit(1);
+    }
+
+    audio.spec.freq = AUDIO_HZ;
+    audio.spec.format = AUDIO_U8;
+    audio.spec.channels = 1;
+    audio.spec.samples = 1024;
+    audio.spec.callback = audioCallback;
+
+    if (SDL_OpenAudio(&audio.spec, NULL)) {
+        fprintf(stderr, "Error opening audio device %s\n", SDL_GetError());
     }
 
     SDL_WM_SetCaption("SBT86", "sbt86");
@@ -357,7 +439,6 @@ consoleTranslateKey(SDL_Event *event)
     }
 
     if (scancode || key) {
-        printf("Console: Received key ascii=%02x scan=%02x\n", ascii, scancode);
         keyboard.ascii = ascii;
         keyboard.scancode = scancode;
         keyboard.eventWaiting = 1;
@@ -399,4 +480,39 @@ consoleBlitToScreen(uint8_t *fb)
     SDL_UpdateRect(screen, 0, 0, 640, 400);
 
     consolePollEvents();
+}
+
+void
+audioCallback(void *userdata, uint8_t *buffer, int len)
+{
+    int sample;
+
+    printf("audio! head=0x%08x tail=%08x len=%d\n", audio.buffer.head, audio.buffer.tail, len);
+
+    for (sample = 0; sample < len; sample++) {
+
+        if (audio.buffer.head == audio.buffer.tail) {
+            /* Buffer empty, stop playback. */
+            audio.playback.enable = 0;
+            SDL_PauseAudio(1);
+        }
+
+        /*
+         * Advance the audio clock, measuring its progress in CPU cycles.
+         */
+        audio.playback.currentTime += PC_CLOCK_HZ / AUDIO_HZ;
+
+        /*
+         * Slurp up any events from the timestamp buffer which have
+         * elapsed by now, and adjust the current speaker state
+         * accordingly.
+         */
+        while (audio.buffer.head != audio.buffer.tail &&
+               audio.buffer.timestamps[audio.buffer.tail] < audio.playback.currentTime) {
+            audio.buffer.tail = (audio.buffer.tail + 1) & (AUDIO_BUFFER_SIZE - 1);
+            audio.playback.state ^= 0xFF;
+        }
+
+        buffer[sample] = audio.playback.state;
+    }
 }

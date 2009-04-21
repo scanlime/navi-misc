@@ -284,6 +284,126 @@ class Trace:
             self.name, self._args, self.fire)
 
 
+def _genCycleTable():
+    """Generate a table of 8086/8086 instruction timings.  This isn't
+       quite accurate, as it doesn't bother calculating the number of
+       cycles necessary to look up the effective address based on the
+       type of Indirect() argument we have. It also doesn't account
+       for instructions that take a variable number of clocks
+       depending on their arguments, like MUL. In practice I doubt
+       this matters, at least for the things we're using our virtual
+       clock for.
+
+       This is based on the information from:
+          http://umcs.maine.edu/~cmeadow/courses/cos335/
+          80x86-Integer-Instruction-Set-Clocks.pdf
+       """
+
+    table = {
+        ('mov', Register, Register): 2,
+        ('mov', Indirect, Register): 13,
+        ('mov', Register, Indirect): 12,
+        ('mov', Indirect, Literal): 14,
+        ('mov', Register, Literal): 4,
+
+        ('cmp', Register, Register): 3,
+        ('cmp', Indirect, Register): 13,
+        ('cmp', Register, Indirect): 12,
+        ('cmp', Indirect, Literal): 14,
+        ('cmp', Register, Literal): 4,
+
+        ('test', Register, Register): 3,
+        ('test', Indirect, Register): 13,
+        ('test', Register, Indirect): 13,
+        ('test', Indirect, Literal): 11,
+        ('test', Register, Literal): 5,
+
+        ('xchg', Register, Register): 4,
+        ('xchg', Indirect, Register): 25,
+        ('xchg', Register, Indirect): 25,
+
+        ('imul', Register): 89,  # Average (8-bit)
+        ('imul', Indirect): 95,
+
+        ('mul', Register): 73,  # Average (8-bit)
+        ('mul', Indirect): 79,
+
+        ('div', Register): 85,  # Average (8-bit)
+        ('div', Indirect): 91,
+
+        ('not', Register): 3,
+        ('not', Indirect): 24,
+
+        ('neg', Register): 3,
+        ('neg', Indirect): 24,
+
+        ('inc', Register): 3,
+        ('inc', Indirect): 23,
+
+        ('dec', Register): 3,
+        ('dec', Indirect): 23,
+
+        ('les', Register, Indirect): 24,
+
+        ('jmp', Literal): 15,
+        ('loop', Literal): 17,
+        ('call', Literal): 23,
+        ('ret',): 20,
+
+        ('out', Literal, Register): 14,
+        ('out', Register, Register): 12,
+
+        ('in', Register, Literal): 14,
+        ('in', Register, Register): 12,
+
+        ('push', Register): 15,
+        ('push', Indirect): 24,
+
+        ('pop', Register): 12,
+        ('pop', Indirect): 25,
+
+        ('cmc',): 2,
+        ('clc',): 2,
+        ('stc',): 2,
+        ('cbw',): 2,
+
+        # Stubs for instructions that take a long and variable
+        # amount of time to execute. No sane programmer would
+        # use these in a timing-critical loop.. (fingers crossed)
+
+        ('int', Literal): 0,
+        ('rep_stosb',): 0,
+        ('rep_stosw',): 0,
+        ('rep_movsb',): 0,
+        ('rep_movsw',): 0,
+        }
+
+    # Conditional jumps (assume jump taken)
+    for op in 'jz jnz jc jnc js jns ja jnl jl jng jna jcxz'.split():
+        table[(op, Literal)] = 16
+
+    # All shifts and rotates are the same
+    for op in ('shl', 'shr', 'rcl', 'rcr', 'sar', 'ror'):
+        table.update({
+                (op, Register, Register): 12,
+                (op, Indirect, Register): 32,   # This is why you see so many
+                (op, Indirect, Literal): 23,    #    repeated shifts by 1...
+                (op, Register, Literal): 2,     # <-- Much cheaper.
+                })
+
+    # 2-operand ALU operations are mostly the same.
+    for op in ('xor', 'and', 'or', 'add', 'sub', 'adc', 'sbb'):
+        table.update({
+                (op, Register, Register): 3,
+                (op, Indirect, Register): 24,
+                (op, Register, Indirect): 13,
+                (op, Register, Literal): 4,
+                (op, Indirect, Literal): 23,
+                })
+
+    return table
+
+
 class Instruction:
     """A disassembled instruction, in NASM format."""
 
@@ -292,6 +412,8 @@ class Instruction:
         "short": 2,
         "word": 2,
         }
+
+    _cycleTable = _genCycleTable()
 
     def __init__(self, line, offset=None, prefix=None):
         self.raw = line
@@ -472,12 +594,23 @@ class Instruction:
     def _call(self, name):
         return "reg = %s(reg);" % name
 
-    def codegen(self, traces=None):
+    def codegen(self, traces=None, clockEnable=False):
         f = getattr(self, "codegen_%s" % self.op, None)
         if not f:
             raise NotImplementedError("Unsupported opcode in %s" % self)
         self._traces = traces
-        return f(*self.args)
+
+        code = f(*self.args)
+
+        if clockEnable:
+            # Come up with a signature for this instruction, which
+            # consists of its opcode name and operand types. This
+            # will be used to index into a table of instruction timings.
+
+            sig = (self.op,) + tuple([arg.__class__ for arg in self.args])
+            code += 'clock+=%d;' % self._cycleTable[sig]
+
+        return code
 
     def _genTraces(self, *ops):
         """Generate code to fire any runtime traces. If there are no runtime
@@ -880,10 +1013,10 @@ class Instruction:
         return self._call("int%x" % arg);
 
     def codegen_out(self, port, value):
-        return "out(%s,%s);" % (port.codegen(), value.codegen())
+        return "out(%s,%s,clock);" % (port.codegen(), value.codegen())
 
     def codegen_in(self, value, port):
-        return "%s = in(%s);" % (value.codegen(), port.codegen())
+        return "%s = in(%s,clock);" % (value.codegen(), port.codegen())
 
 
 class BinaryImage:
@@ -967,6 +1100,10 @@ class Subroutine:
        'call' and ends at all 'ret's. One code fragment may be used
        by multiple subroutines.
        """
+
+    # Should this subroutine generate clock cycle counting code?
+    clockEnable = False
+
     def __init__(self, image, entryPoint, hooks=None):
         self.image = image
         self.entryPoint = entryPoint
@@ -1005,6 +1142,12 @@ class Subroutine:
                 sys.stderr.write("%s R[%-9s] D%-3d %-50s -> %-22s || %s\n" % (
                         self.name, referent, len(stack), i, i.nextAddrs, i.raw.strip()))
 
+            # I/O instructions enable cycle counting, so that we can
+            # give in() and out() accurate timestamps.
+
+            if i.op in ('in', 'out'):
+                self.clockEnable = True
+
             # Remember all label targets, and remember future
             # addresses to analyze. Treat subroutine calls specially.
 
@@ -1034,7 +1177,7 @@ class Subroutine:
             body.append("/* %-60s R[%-9s] */ %15s %s%s" % (
                     i, i.referent, label,
                     self.hooks.get(i.addr.linear, ''),
-                    i.codegen(traces=traces)))
+                    i.codegen(traces=traces, clockEnable=self.clockEnable)))
         return """
 Regs
 %s(Regs reg)
@@ -1064,6 +1207,7 @@ static uint8_t dataImage[] = {
 
 static StackItem stack[64];
 static int stackPtr;
+static uint32_t clock;
 
 %(subDecls)s
 
