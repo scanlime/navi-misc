@@ -54,9 +54,14 @@ static struct {
  * I/O operations. When the speaker is toggled, we store a timestamp
  * into a buffer. This buffer is then converted to audio by our
  * audioCallback().
+ *
+ * XXX: We don't have a good way to slow down the CPU when it gets
+ *      too far ahead of the audio thread, so currently the audio
+ *      buffer must be large enough to store the longest sound
+ *      effect. (The transporter, I think.)
  */
 
-#define AUDIO_BUFFER_SIZE 4096     // Must be a power of two
+#define AUDIO_BUFFER_SIZE 0x10000  // Must be a power of two
 #define AUDIO_HZ          11000    // Seems to sound best at 11kHz. (low-pass filtering)
 #define PC_CLOCK_HZ       4770000  // 4.77 MHz
 
@@ -70,7 +75,7 @@ static struct {
         uint8_t   state;
     } playback;
 
-    struct {
+    volatile struct {
         uint32_t  timestamps[AUDIO_BUFFER_SIZE];
         uint32_t  head;
         uint32_t  tail;
@@ -277,8 +282,15 @@ out(uint16_t port, uint8_t value, uint32_t timestamp)
             /*
              * PC speaker state toggled. Store a timestamp.
              */
+
+            uint32_t nextHead = (audio.buffer.head + 1) & (AUDIO_BUFFER_SIZE - 1);
+
+            if (nextHead == audio.buffer.tail) {
+                printf("AUDIO: Buffer overflow!\n");
+            }
+
             audio.buffer.timestamps[audio.buffer.head] = timestamp;
-            audio.buffer.head = (audio.buffer.head + 1) & (AUDIO_BUFFER_SIZE - 1);
+            audio.buffer.head = nextHead;
 
             /*
              * If the audio wasn't playing, start it.
@@ -286,9 +298,12 @@ out(uint16_t port, uint8_t value, uint32_t timestamp)
             if (!audio.playback.enable) {
                 audio.playback.currentTime = timestamp;
                 audio.playback.enable = 1;
+                printf("AUDIO: Starting (H:%04x T:%04x)\n",
+                       audio.buffer.head, audio.buffer.tail);
                 SDL_PauseAudio(0);
             }
         }
+        SDL_UnlockAudio();
         audio.port61 = value;
         break;
 
@@ -310,7 +325,7 @@ main(int argc, char **argv)
 
     consoleInit();
 
-    retval = lab_main(cmdLine);
+    retval = tutorial_main(cmdLine);
 
     printf("DOS Exit (return code %d)\n", retval);
     return retval;
@@ -488,11 +503,13 @@ audioCallback(void *userdata, uint8_t *buffer, int len)
     int sample;
 
     for (sample = 0; sample < len; sample++) {
-
         if (audio.buffer.head == audio.buffer.tail) {
             /* Buffer empty, stop playback. */
+            printf("AUDIO: Stopping (H:%04x T:%04x)\n",
+                   audio.buffer.head, audio.buffer.tail);
             audio.playback.enable = 0;
             SDL_PauseAudio(1);
+            break;
         }
 
         /*
