@@ -278,6 +278,16 @@ def u32(operand):
 class InternalError(Exception):
     pass
 
+class UndecodedInstruction:
+    isPrefix = False
+    addr = None
+
+    def __init__(self, err):
+        self.err = err
+
+    def __str__(self):
+        return "%s(%r)" % (self.__class__.__name__, self.err)
+
 
 class Trace:
     _args = "uint16_t segment, uint16_t offset, uint16_t cs, uint16_t ip, int width"
@@ -422,6 +432,7 @@ class Instruction:
         "byte": 1,
         "short": 2,
         "word": 2,
+        "dword": 4,
         }
 
     _cycleTable = _genCycleTable()
@@ -1154,7 +1165,11 @@ class BinaryImage:
         base = Addr16(addr.segment, 0)
 
         for line in proc.stdout:
-            i = Instruction(line, base, prefix)
+            try:
+                i = Instruction(line, base, prefix)
+            except Exception, e:
+                i = UndecodedInstruction(e)
+
             prefix = None
             if i.isPrefix:
                 prefix = i
@@ -1170,12 +1185,16 @@ class BinaryImage:
             self._disasmToCache(addr)
         return self._iCache[addr.linear]
 
-    def _disasmToCache(self, addr, instructions=100):
+    def _disasmToCache(self, addr, instructionLimit=10000):
+
+        # XXX: This ends up leaving many ndisasm subprocesses open in
+        #      the background until the translator finishes.
+
         for i in self.disasm(addr):
-            if i.addr.linear not in self._iCache:
+            if i.addr and i.addr.linear not in self._iCache:
                 self._iCache[i.addr.linear] = i
-            instructions -= 1
-            if instructions <= 0:
+            instructionLimit -= 1
+            if instructionLimit <= 0:
                 break
 
 
