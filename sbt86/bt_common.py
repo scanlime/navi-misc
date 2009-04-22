@@ -72,7 +72,7 @@ def patch(b):
                    'jmp %s' % t1141, '''
         if (reg.bx != %s) {
             SET_CF;
-            return reg;
+            return;
         }
     ''' % t1141)
 
