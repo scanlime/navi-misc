@@ -614,9 +614,6 @@ class Instruction:
         else:
             return ""
 
-    def _call(self, name):
-        return "reg = %s(reg);" % name
-
     def codegen(self, traces=None, clockEnable=False):
         f = getattr(self, "codegen_%s" % self.op, None)
         if not f:
@@ -1038,18 +1035,18 @@ class Instruction:
 
     def codegen_call(self, arg):
         if isinstance(arg, Literal) or isinstance(arg, Addr16):
-            return self._call("sub_%X" % self.nextAddrs[-1].linear)
+            return "sub_%X();" % self.nextAddrs[-1].linear
         else:
             raise NotImplementedError("Dynamic call not supported at %s" % self)
 
     def codegen_ret(self):
-        return "return reg;"
+        return "return;"
 
     def codegen_retf(self):
         return self.codegen_ret()
 
     def codegen_int(self, arg):
-        return self._call("int%x" % arg);
+        return "reg = int%X(reg);" % arg
 
     def codegen_out(self, port, value):
         return "out(%s,%s,clock);" % (port.codegen(), value.codegen())
@@ -1264,8 +1261,8 @@ class Subroutine:
                     self.hooks.get(i.addr.linear, ''),
                     i.codegen(traces=traces, clockEnable=self.clockEnable)))
         return """
-Regs
-%s(Regs reg)
+void
+%s(void)
 {
   goto %s;
 %s
@@ -1294,6 +1291,13 @@ static StackItem stack[64];
 static int stackPtr;
 static uint32_t clock;
 
+/*
+ * For the right gcc optimizations to take effect, it's important
+ * that the address of 'reg' is never taken! It *must* be passed
+ * by value only.
+ */
+static Regs reg;
+
 %(subDecls)s
 
 %(_decls)s
@@ -1307,7 +1311,6 @@ uint8_t
     const uint32_t relocSegment = 0x%(relocSegment)04x;
     const uint32_t pspSegment = 0x%(pspSegment)04x;
     const uint32_t memorySize = 0x%(memorySize)08x;
-    Regs reg = {{ 0 }};
     int retval;
 
     // Set up our DOS Exit handler
@@ -1350,7 +1353,7 @@ uint8_t
 
     // Jump to the entry point
 
-    sub_%(entryLinear)X(reg);
+    sub_%(entryLinear)X();
 
     return 0xFF;
 }
@@ -1509,7 +1512,7 @@ uint8_t
         vars['mainFunction'] = mainFunction
         vars['subCode'] = '\n'.join([s.codegen(traces=self._traces)
                                      for s in self.subroutines.itervalues()])
-        vars['subDecls'] = '\n'.join(["static Regs %s(Regs r);" % s.name
+        vars['subDecls'] = '\n'.join(["static void %s(void);" % s.name
                                      for s in self.subroutines.itervalues()])
         vars['traceDecls'] = '\n'.join([t.codegen() for t in self._traces])
         vars['entryLinear'] = self.entryPoint.linear
