@@ -141,6 +141,8 @@ typedef union StackItem {
  * Functions and data defined in sbt86.c
  */
 
+void decompressRLE(uint8_t *dest, uint8_t *src, uint32_t srcLength);
+
 Regs int10(Regs reg);
 Regs int16(Regs reg);
 Regs int21(Regs reg);

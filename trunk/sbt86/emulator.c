@@ -88,6 +88,43 @@ static void audioCallback(void *userdata, uint8_t *buffer, int len);
 
 
 /*****************************************************************
+ * Data utilities
+ */
+
+void
+decompressRLE(uint8_t *dest, uint8_t *src, uint32_t srcLength)
+{
+    /*
+     * Decompress our very simple RLE format. Runs of 2 or more zeroes
+     * are replaced with 2 zeroes plus a 16-bit count of the omitted
+     * zeroes. We assume the output buffer has already been
+     * zero-filled, so the zero runs are simply skipped.
+     */
+
+    int zeroes = 0;
+
+    while (srcLength) {
+        uint8_t byte = *(src++);
+        *(dest++) = byte;
+        srcLength--;
+
+        if (byte) {
+            zeroes = 0;
+        } else {
+            zeroes++;
+
+            if (zeroes == 2) {
+                zeroes = 0;
+                dest += src[0] + (src[1] << 8);
+                src += 2;
+                srcLength -= 2;
+            }
+        }
+    }
+}
+
+
+/*****************************************************************
  * Emulated DOS, BIOS, and PC hardware.
  */
 

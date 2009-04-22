@@ -1,5 +1,5 @@
 # Normal CFLAGS and LDFLAGS for the program as a whole
-CFLAGS = -Os `sdl-config --cflags`
+CFLAGS = -Os -g `sdl-config --cflags`
 LDFLAGS = `sdl-config --libs`
 
 # Special CFLAGS for sbt-generated code. We care less about this code
