@@ -112,6 +112,9 @@ class Signature:
                 else:
                     SignatureFormatError("Pattern has blanks which are "
                                          "not byte aligned: %r" % self.shortText)
+            elif hexByte == '00':
+                # NUL is special, they get escaped in an unusual way
+                regex += r'\x00'
             else:
                 char = chr(int(hexByte, 16))
                 if char in ".^$*+?\\{}[]()|":
@@ -1269,6 +1272,42 @@ void
 }""" % (self.name, self.entryPoint.label(), '\n'.join(body))
 
 
+def toHexArray(data):
+    """Convert binary data to a list of hexadecimal
+       values suitable for including in a C array.
+       """
+    return ''.join(["0x%02x,%s" % (ord(b), "\n"[:(i&15)==15])
+                    for i, b in enumerate(data)])
+
+
+def compressRLE(data):
+    """Compress a string using a simple form of RLE which
+       is optimized for eliminating long runs of zeroes. This
+       is used to automatically avoid storing zeroed portions
+       of the data segment.
+
+       In the resulting binary, any run of two consecutive zeroes is
+       followed by a 16-bit value (little endian) which indicates how
+       many more zeroes have been omitted afterwards.
+
+       Trailing zeroes in the data are ignored.
+       """
+    output = []
+    zeroes = []
+    for byte in data:
+        if byte == '\0':
+            zeroes.append(byte)
+        elif not zeroes:
+            output.append(byte)
+        elif len(zeroes) == 1:
+            output.append('\0' + byte)
+            zeroes = []
+        else:
+            output.append('\0\0' + struct.pack("<H", len(zeroes) - 2) + byte)
+            zeroes = []
+    return ''.join(output)
+
+
 class DOSBinary(BinaryImage):
     # Skeleton for output C code
     _skel = """/*
@@ -1321,7 +1360,15 @@ uint8_t
     }
 
     memset(mem, 0, memorySize + SEG(relocSegment, 0));
-    memcpy(mem + SEG(relocSegment, 0), dataImage, sizeof dataImage);
+    decompressRLE(mem + SEG(relocSegment, 0), dataImage, sizeof dataImage);
+
+    /*
+     * We explicitly don't zero Regs, since that would break
+     * compiler optimizations that only work on non-aliased data.
+     * A single memset(&reg, 0, sizeof reg) here bloats the binary
+     * by tens of kilobytes.
+     */
+    reg.ax = reg.dx = reg.si = reg.di = reg.bp = 0;
 
     // Memory size (32-bit)
     reg.bx = memorySize >> 16;
@@ -1400,10 +1447,6 @@ uint8_t
             offset, segment = self.unpack(relocTable + i * 4, "<HH")
             relocs.append(Addr16(segment, offset))
         self.image.relocate(self.relocSegment, relocs)
-
-    def _toHexArray(self, data):
-        return ''.join(["0x%02x,%s" % (ord(b), "\n"[:(i&15)==15])
-                         for i, b in enumerate(data)])
 
     def decl(self, code):
         """Add code to the declarations in the generated C file.
@@ -1525,7 +1568,7 @@ uint8_t
         # need to be patched.
 
         dataSize = min(self.exeSize, self.entryPoint.linear)
-        vars['dataImage'] = self._toHexArray(self.image.read(0, dataSize))
+        vars['dataImage'] = toHexArray(compressRLE(self.image.read(0, dataSize)))
 
         return self._skel % vars
 
