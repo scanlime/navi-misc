@@ -1,6 +1,6 @@
 /* -*- Mode: C; c-basic-offset: 4 -*-
  *
- * Environment support code for sbt86, an
+ * Hardware emulation and environment support code for sbt86, an
  * experimental 8086 -> C static binary translator.
  *
  * Copyright (c) 2009 Micah Dowty <micah@navi.cx>
@@ -325,7 +325,7 @@ main(int argc, char **argv)
 
     consoleInit();
 
-    retval = game_main(cmdLine);
+    retval = tutorial_main(cmdLine);
 
     printf("DOS Exit (return code %d)\n", retval);
     return retval;
