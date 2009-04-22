@@ -14,7 +14,7 @@ PROGRAM = bt
 
 OBJ_MAIN = emulator.o
 #OBJ_BT = bt_game.o bt_lab.o bt_menu.o bt_play.o bt_tutorial.o
-OBJ_BT = bt_tutorial.o
+OBJ_BT = bt_game.o
 
 OBJ_ALL = $(OBJ_MAIN) $(OBJ_BT)
 

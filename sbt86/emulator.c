@@ -157,7 +157,6 @@ int16(Regs reg)
         if (keyboard.eventWaiting) {
             reg.ah = keyboard.scancode;
             reg.al = keyboard.ascii;
-            printf("BIOS16: Got key %04x\n", reg.ax);
             keyboard.eventWaiting = 0;
         } else {
             reg.ax = 0;
@@ -335,8 +334,6 @@ out(uint16_t port, uint8_t value, uint32_t timestamp)
             if (!audio.playback.enable) {
                 audio.playback.currentTime = timestamp;
                 audio.playback.enable = 1;
-                printf("AUDIO: Starting (H:%04x T:%04x)\n",
-                       audio.buffer.head, audio.buffer.tail);
                 SDL_PauseAudio(0);
             }
         }
@@ -362,7 +359,7 @@ main(int argc, char **argv)
 
     consoleInit();
 
-    retval = tutorial_main(cmdLine);
+    retval = game_main(cmdLine);
 
     printf("DOS Exit (return code %d)\n", retval);
     return retval;
@@ -542,8 +539,6 @@ audioCallback(void *userdata, uint8_t *buffer, int len)
     for (sample = 0; sample < len; sample++) {
         if (audio.buffer.head == audio.buffer.tail) {
             /* Buffer empty, stop playback. */
-            printf("AUDIO: Stopping (H:%04x T:%04x)\n",
-                   audio.buffer.head, audio.buffer.tail);
             audio.playback.enable = 0;
             SDL_PauseAudio(1);
             break;

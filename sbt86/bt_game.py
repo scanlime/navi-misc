@@ -12,7 +12,8 @@ b = sbt86.DOSBinary('GAME.EXE')
 bt_common.patch(b)
 
 b.decl("#include <stdio.h>")
-b.patchAndHook("0DAB:BC3F", 'nop', length=1, cCode='''
+b.patchAndHook(b.findCode('2c01 :2f a2____ a2____ b12c 32ed'),
+               'nop', length=1, cCode='''
    printf("XXX: Skipping unimplemented 'das' instruction.\\n");
 ''')
 
