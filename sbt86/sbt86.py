@@ -57,6 +57,10 @@ import re
 import tempfile
 
 
+def log(msg):
+    print "SBT86: %s" % msg
+
+
 class Signature:
     """A binary signature, which can be used to identify a code fragment
        at an unknown address. The signature consists of a list of
@@ -243,12 +247,15 @@ class Indirect:
                 " + ".join([o.codegen() for o in self.offsets]))
 
     def codegen(self):
-        if self.width == 1:
-            return "MEM8(%s,%s)" % self.genAddr()
-        elif self.width == 2:
-            return "MEM16(%s,%s)" % self.genAddr()
-        else:
-            raise InternalError("Indirect %r has unknown width" % self)
+        # Instead of using the normal code generated for segment, use
+        # the segment cache. This means our segment _must_ be a
+        # register.
+
+        assert isinstance(self.segment, Register)
+        _, offset = self.genAddr()
+
+        return "%s(reg.ptr.%s[(uint16_t)(%s)])" % ((None, '', 'M16')[self.width],
+                                                   self.segment.name, offset)
 
 
 def signed(operand):
@@ -425,19 +432,19 @@ class Instruction:
         line = line.replace("near ", "")
 
         # Different versions of ndisasm treat prefixes differently...
-	# Some of them disassemble prefixes correctly ("rep stosb"),
-	# whereas some versions don't disassemble the prefix at all
-	# and give a separate 'db' pseudo-op for the prefix.
-	#
-	# We want to convert either of these to a single combined
-	# opcode (like "rep_stosb"). If it's a separate 'db', we'll
-	# convert the db into a rep/rene here, then combine that with
-	# the next instruction via the isPrefix flag below.
-	#
-	# If ndisasm gives us a normal prefix, though, we can just
-	# do a string replace to combine it with the opcode.
+        # Some of them disassemble prefixes correctly ("rep stosb"),
+        # whereas some versions don't disassemble the prefix at all
+        # and give a separate 'db' pseudo-op for the prefix.
+        #
+        # We want to convert either of these to a single combined
+        # opcode (like "rep_stosb"). If it's a separate 'db', we'll
+        # convert the db into a rep/rene here, then combine that with
+        # the next instruction via the isPrefix flag below.
+        #
+        # If ndisasm gives us a normal prefix, though, we can just
+        # do a string replace to combine it with the opcode.
 
-	line = line.replace("db 0xF3", "rep")
+        line = line.replace("db 0xF3", "rep")
         line = line.replace("db 0xF2", "repne")
         line = line.replace("rep ", "rep_")
         line = line.replace("repe ", "rep_")
@@ -633,29 +640,36 @@ class Instruction:
            traces, this generates no code (and there is no overhead).
 
            'ops' is a list of (operand, mode) tuples, which describe
-           accesses to operands. Currently we only care about tracing memory,
+           accesses to operands. Currently we only care about tracing memry,
            so we ignore operands that aren't Indirects. If any traces are in
            place, we call an inline 'probe' function to test whether we should
            call its 'fire' function.
+
+           Besides user-provided traces, this function also implements
+           the internal traces we use to update cached segment
+           pointers.
            """
-        if not self._traces:
-            return ''
 
         code = []
         for operand, mode in ops:
-            if not isinstance(operand, Indirect):
-                continue
 
-            for trace in self._traces:
-                if mode not in trace.mode:
-                    continue
+            if (isinstance(operand, Register) and mode == 'w'
+                and operand.name in ('cs', 'es', 'ds', 'ss')):
 
-                seg, off = operand.genAddr()
-                args = "%s,%s,0x%x,0x%x,%d" % (seg, off, self.addr.segment,
-                                               self.addr.offset, operand.width)
+                code.append("reg.ptr.%s = mem + (reg.%s << 4);"
+                            % (operand.name, operand.name))
 
-                code.append("if (%s_probe(%s)) %s_fire(%s);" % (
-                        trace.name, args, trace.name, args))
+            if isinstance(operand, Indirect):
+                for trace in self._traces:
+                    if mode not in trace.mode:
+                        continue
+
+                    seg, off = operand.genAddr()
+                    args = "%s,%s,0x%x,0x%x,%d" % (seg, off, self.addr.segment,
+                                                   self.addr.offset, operand.width)
+
+                    code.append("if (%s_probe(%s)) %s_fire(%s);" % (
+                            trace.name, args, trace.name, args))
 
         return ''.join(code)
 
@@ -857,13 +871,15 @@ class Instruction:
         assert isinstance(src, Indirect)
         assert src.width == 2
         segPtr = Indirect(src.segment, src.offsets + [Literal(2)], 2)
+        es = Register('es')
 
         return "%s = %s; %s = %s;%s" % (
             dest.codegen(), src.codegen(),
-            Register('es').codegen(), segPtr.codegen(),
+            es.codegen(), segPtr.codegen(),
             self._genTraces((src, 'r'),
                             (segPtr, 'r'),
-                            (dest, 'w')))
+                            (dest, 'w'),
+                            (es, 'w')))
 
     def codegen_rep_stosw(self):
         cx = Register('cx').codegen()
@@ -922,10 +938,14 @@ class Instruction:
     def codegen_push(self, arg):
         # We currently implement the stack as a totally separate memory
         # area which can hold 16-bit words or native code return addresses.
-        return "stack[stackPtr++].word = %s;" % arg.codegen()
+        return "stack[stackPtr++].word = %s;%s" % (
+            arg.codegen(),
+            self._genTraces((arg, 'r')))
 
     def codegen_pop(self, arg):
-        return "%s = stack[--stackPtr].word;" % arg.codegen()
+        return "%s = stack[--stackPtr].word;%s" % (
+            arg.codegen(),
+            self._genTraces((arg, 'w')))
 
     def codegen_pushaw(self):
         return ' '.join((
@@ -1069,7 +1089,7 @@ class BinaryImage:
            our output anyway, I don't care.
            """
 
-        print "Applying relocations at %r" % addrs
+        log("Applying relocations at %r" % addrs)
         self.loadSegment = segment
 
         if self._tempFile:
@@ -1307,10 +1327,10 @@ uint8_t
     // XXX: Stack is fake.
     stackPtr = 0;
     reg.ss = 0;
-    reg.sp = 0xFFFF;
 
     // Beginning of EXE image, after relocation
     reg.ds = relocSegment;
+    reg.cs = 0x%(entryCS)04x;
 
     // Program Segment Prefix.
     // Zero it, and copy in our command line.
@@ -1321,9 +1341,15 @@ uint8_t
     mem[SEG(reg.es, 0x80)] = strlen(cmdLine);
     strcpy(mem + SEG(reg.es, 0x81), cmdLine);
 
+    // Populate segment pointer cache
+
+    reg.ptr.cs = mem + (reg.cs << 4);
+    reg.ptr.ds = mem + (reg.ds << 4);
+    reg.ptr.es = mem + (reg.es << 4);
+    reg.ptr.ss = mem + (reg.ss << 4);
+
     // Jump to the entry point
 
-    reg.cs = 0x%(entryCS)04x;
     sub_%(entryLinear)X(reg);
 
     return 0xFF;
@@ -1432,7 +1458,7 @@ uint8_t
           subroutines, and analyzes each routine.
           """
 
-       print "Analyzing %s..." % self.filename
+       log("Analyzing %s..." % self.filename)
 
        self.subroutines = {}
        stack = [ self.entryPoint ]
@@ -1469,16 +1495,16 @@ uint8_t
             raise SignatureMatchError("Signature found %d times, expected to "
                                       "find %d. Matches: %r" %
                                       (len(addrs), expectedCount, addrs))
-        print "Found patch location %r in %s for: %r" % (
-            addrs, self.filename, sig.shortText)
+        log("Found patch location %r in %s for: %r" % (
+            addrs, self.filename, sig.shortText))
         return addrs
 
     def codegen(self, mainFunction):
         vars = dict(self.__class__.__dict__)
         vars.update(self.__dict__)
 
-        print "Code generating %s (%d subroutines)..." % (
-            self.filename, len(self.subroutines.values()))
+        log("Code generating %s (%d subroutines)..." % (
+                self.filename, len(self.subroutines.values())))
 
         vars['mainFunction'] = mainFunction
         vars['subCode'] = '\n'.join([s.codegen(traces=self._traces)

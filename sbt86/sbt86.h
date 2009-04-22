@@ -96,7 +96,7 @@ typedef struct Regs {
     DEF_WORD_REG(d);
     uint16_t si, di;
     uint16_t cs, ds, es, ss;
-    uint16_t sp, bp;
+    uint16_t bp, sp;
 
     /*
      * We cheat enormously on implementing 8086 flags: Instead of
@@ -111,6 +111,21 @@ typedef struct Regs {
      */
     uint32_t uresult;
     int32_t sresult;
+
+    /*
+     * As another trick to make generated code smaller, we cache
+     * pointers to the memory behind all segment registers.  Any time
+     * we write to a segment registers, this cache is also updated.
+     * (This is much more like how the x86 works in protected mode,
+     * and it saves us the SEG() calculation on every memory access.)
+     */
+    struct {
+        uint8_t *cs;
+        uint8_t *ds;
+        uint8_t *es;
+        uint8_t *ss;
+    } ptr;
+
 } Regs;
 
 typedef union StackItem {
@@ -142,6 +157,12 @@ extern jmp_buf dosExitJump;
  * Inline functions and macors for use in translated code.
  */
 
+/*
+ * For global segment/offset calculations. If you're loading or
+ * storing relative to a segment register, use the reg.ptr pointers
+ * instead.
+ */
+
 static inline
 SEG(uint16_t seg, uint16_t off)
 {
@@ -156,11 +177,10 @@ SEG(uint16_t seg, uint16_t off)
 }
 
 /*
- * Memory access
+ * Convert an (8-bit) lvalue into a 16-bit lvalue.
  */
 
-#define MEM8(seg, off)   mem[SEG(seg,off)]
-#define MEM16(seg, off)  (*(uint16_t*)(mem + SEG(seg,off)))
+#define M16(x)  (*(uint16_t*)&(x))
 
 /*
  * Calculate/set flag values

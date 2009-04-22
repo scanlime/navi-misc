@@ -56,7 +56,7 @@ def patch(b):
     b.patchAndHook(b.findCode(':803e____01 7503 e95a05 c43e____'
                               'bb2800 a1____ 8cda 8ed8 be0020 33 c0'),
                    'ret', '''
-        uint16_t backbufferSegment = MEM16(reg.ds, 0x3AD5);
+        uint16_t backbufferSegment = M16(reg.ptr.ds[0x3AD5]);
         consoleBlitToScreen(mem + SEG(backbufferSegment,0));
         SDL_Delay(50);
     ''')
@@ -129,6 +129,6 @@ def patch(b):
                       '8b87____ 86e0 :260b84fefe 268984fefe')
     for i in range(8):
         b.patchAndHook(addr, 'nop', length=10, cCode='''
-            MEM16(reg.es, reg.si + textOffsets[%d].word) |= reg.ax;
+            M16(reg.ptr.es[reg.si + textOffsets[%d].word]) |= reg.ax;
         ''' % i)
         addr = addr.add(0x18)
