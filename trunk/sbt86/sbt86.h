@@ -143,6 +143,8 @@ typedef union StackItem {
 
 void decompressRLE(uint8_t *dest, uint8_t *src, uint32_t srcLength);
 
+void failedDynamicBranch(uint16_t cs, uint16_t ip, uint32_t value);
+
 Regs int10(Regs reg);
 Regs int16(Regs reg);
 Regs int21(Regs reg);
