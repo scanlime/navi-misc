@@ -10,6 +10,6 @@ import bt_common
 b = sbt86.DOSBinary('TUT.EXE')
 
 bt_common.patch(b)
-bt_common.worldTrace(b)
+bt_common.findSelfModifyingCode(b)
 
 b.writeCodeToFile("bt_tutorial.c", "tutorial_main")

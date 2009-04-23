@@ -1582,8 +1582,18 @@ uint8_t
            This will generate code to select a target at runtime. If
            the branch does not target any of the addresses in the
            list, the failedDynamicBranch() function will be invoked.
+
+           If 'addr' is already registered as a dynamic branch site,
+           this function will add additional targets. It is an error
+           to specify one target twice.
            """
-        self._dynBranches[Addr16(str=str(addr)).linear] = targets
+        linear = Addr16(str=str(addr)).linear
+        prevTargets = self._dynBranches.get(linear, [])
+        for target in targets:
+            if target in prevTargets:
+                raise Exception("Duplicate dynamic branch target %s at address %s"
+                                % (target, addr))
+        self._dynBranches[linear] = prevTargets + targets
 
     def trace(self, mode, probe, fire):
         """Define a memory trace.
