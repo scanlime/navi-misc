@@ -88,7 +88,7 @@ static void audioCallback(void *userdata, uint8_t *buffer, int len);
 
 
 /*****************************************************************
- * Data utilities
+ * Utilitity functions that are referenced by generated code
  */
 
 void
@@ -121,6 +121,14 @@ decompressRLE(uint8_t *dest, uint8_t *src, uint32_t srcLength)
             }
         }
     }
+}
+
+void
+failedDynamicBranch(uint16_t cs, uint16_t ip, uint32_t value)
+{
+    printf("ERROR: Dynamic branch at %04X:%04X to unsupported value 0x%04x\n",
+           cs, ip, value);
+    exit(1);
 }
 
 
@@ -359,7 +367,7 @@ main(int argc, char **argv)
 
     consoleInit();
 
-    retval = game_main(cmdLine);
+    retval = tutorial_main(cmdLine);
 
     printf("DOS Exit (return code %d)\n", retval);
     return retval;

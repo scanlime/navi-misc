@@ -437,6 +437,10 @@ class Instruction:
 
     _cycleTable = _genCycleTable()
 
+    # Optional dynamic branch targets, assigned during subroutine
+    # analysis.  This is a list of Addr16 instances.
+    dynTargets = None
+
     def __init__(self, line, offset=None, prefix=None):
         self.raw = line
         self._offset = offset
@@ -1044,14 +1048,50 @@ class Instruction:
     def codegen_jmp(self, arg):
         if isinstance(arg, Literal) or isinstance(arg, Addr16):
             return "goto %s;" % self.nextAddrs[-1].label()
+
+        elif self.dynTargets:
+            # Generate a dynamic branch to any of the targets in
+            # dynTargets.  This is implemented as a switch statement
+            # that maps operand to label. If no target matches, we
+            # cause a runtime error.
+
+            # XXX: Only handles near jumps
+
+            return "switch (%s) { %s default: failedDynamicBranch(%s,%s,%s); }" % (
+                arg.codegen(),
+                ''.join([ "case 0x%04x: goto %s;" % (addr.offset, addr.label())
+                          for addr in self.dynTargets ]),
+                self.addr.segment,
+                self.addr.offset,
+                arg.codegen())
+
         else:
-            raise NotImplementedError("Dynamic jmp not supported at %s" % self)
+            raise Exception("Dynamic jmp at %s must be patched. See patchDynamic()."
+                            % self.addr)
 
     def codegen_call(self, arg):
         if isinstance(arg, Literal) or isinstance(arg, Addr16):
             return "sub_%X();" % self.nextAddrs[-1].linear
+
+        elif self.dynTargets:
+            # Generate a dynamic call to any of the targets in
+            # dynTargets.  This is implemented as a switch statement
+            # that maps operand to a function call. If no target
+            # matches, we cause a runtime error.
+
+            # XXX: Only handles near calls
+
+            return "switch (%s) { %s default: failedDynamicBranch(%s,%s,%s); }" % (
+                arg.codegen(),
+                ''.join([ "case 0x%04x: sub_%X(); break;" % (addr.offset, addr.linear)
+                          for addr in self.dynTargets ]),
+                self.addr.segment,
+                self.addr.offset,
+                arg.codegen())
+
         else:
-            raise NotImplementedError("Dynamic call not supported at %s" % self)
+            raise Exception("Dynamic call at %s must be patched. See patchDynamic()."
+                            % self.addr)
 
     def codegen_ret(self):
         return "return;"
@@ -1214,9 +1254,15 @@ class Subroutine:
         self.hooks = hooks or {}
         self.name = "sub_%X" % self.entryPoint.linear
 
-    def analyze(self, verbose=False):
+    def analyze(self, dynBranches=None, verbose=False):
         """Analyze the code in this subroutine.
            Stores analysis results in member attributes.
+
+           The optional 'dynBranches' parameter is a map of dynamic
+           branch targets for each dynamic branch intruction. The
+           dynamic branch targets must be included alongside static
+           branch targets when we perform the label, branch, and call
+           analysis.
            """
 
         # Address memo: linear -> Addr16
@@ -1264,6 +1310,24 @@ class Subroutine:
             else:
                 for next in i.nextAddrs:
                     stack.append((ptr, next))
+
+            # If this instruction is in the dynamic branch table,
+            # include all branch targets in the label/subroutine
+            # analysis.
+
+            if i.addr.linear in dynBranches:
+                i.dynTargets = dynBranches[i.addr.linear]
+                for target in i.dynTargets:
+                    target = Addr16(str=str(target))
+
+                    if i.op == 'call':
+                        self.callsTo[target.linear] = target
+                    elif i.op == 'jmp':
+                        self.labels[target.linear] = True
+                        stack.append((ptr, target))
+                    else:
+                        raise InternalError("Unknown dynamic branch origin opcode %r"
+                                            % i.op)
 
         # Sort the instruction memo, and store a list
         # of instructions sorted by address.
@@ -1445,6 +1509,7 @@ uint8_t
         self._hooks = {}
         self._traces = []
         self._decls = ''
+        self._dynBranches = {}
 
         (signature, bytesInLastPage, numPages, numRelocations,
          headerParagraphs, minMemParagraphs, maxMemParagraphs,
@@ -1472,7 +1537,7 @@ uint8_t
            This is useful if patches require global variables or
            shared code.
            """
-        self._decls += code
+        self._decls = "%s\n%s\n" % (self._decls, code)
 
     def patch(self, addr, code, length=0):
         """Manually stick a line of assembly into the iCache,
@@ -1494,12 +1559,31 @@ uint8_t
            instruction at address 'addr'.  The address and C-code are
            both specified as strings.
            """
-        self._hooks[Addr16(str=str(addr)).linear] = "{\n%s\n } " % code
+        code = "{\n%s\n } " % code
+        linear = Addr16(str=str(addr)).linear
+
+        if linear in self._hooks:
+            self._hooks[linear] += code
+        else:
+            self._hooks[linear] = code
 
     def patchAndHook(self, addr, asmCode, cCode, length=0):
         """This is a shorthand for patching and hooking the same address."""
         self.patch(addr, asmCode, length)
         self.hook(addr, cCode)
+
+    def patchDynamic(self, addr, targets):
+        """Patch a dynamic jmp or call, using a static list of possible
+           targets.  Each of the possible targets will be analyzed as
+           if they were a static target of the function. This means
+           that all static jmp targets will be inlined into the
+           calling subroutine if they aren't already.
+
+           This will generate code to select a target at runtime. If
+           the branch does not target any of the addresses in the
+           list, the failedDynamicBranch() function will be invoked.
+           """
+        self._dynBranches[Addr16(str=str(addr)).linear] = targets
 
     def trace(self, mode, probe, fire):
         """Define a memory trace.
@@ -1536,7 +1620,7 @@ uint8_t
                continue
 
            sub = Subroutine(self.image, ptr, self._hooks)
-           sub.analyze(verbose)
+           sub.analyze(self._dynBranches, verbose)
            stack.extend(sub.callsTo.values())
            self.subroutines[ptr.linear] = sub
 
