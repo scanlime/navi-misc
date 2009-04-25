@@ -25,6 +25,7 @@ def chipTrace(b):
 bt_common.patch(b)
 bt_common.findSelfModifyingCode(b)
 #bt_common.worldTrace(b)
-chipTrace(b)
+#chipTrace(b)
 
+b.analyze(verbose=False)
 b.writeCodeToFile("bt_lab.c", "lab_main")

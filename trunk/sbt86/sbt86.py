@@ -54,6 +54,7 @@ import sys
 import struct
 import subprocess
 import re
+import binascii
 import tempfile
 
 
@@ -193,19 +194,31 @@ class Addr16:
 
 
 class Literal(int):
-    def __new__(self, x):
-        # We never really want a signed literal.
-        if x < 0:
-            x += 0x10000
+    def __new__(self, x, addr=None, width=None, dynamic=False):
+        """A literal value. Optionally has a width in bytes,
+           and an Addr16 where this literal is located in the
+           code segment.
 
+           If 'dynamic' is set, this literal may be modified at
+           runtime. We code-generate it as a reference to the
+           immeidate data within an instruction in the code
+           segment.
+           """
         obj = int.__new__(self, x)
-        obj.width = 2
+        obj.addr = addr
+        obj.width = width
+        obj.dynamic = dynamic
         return obj
 
     def __repr__(self):
         return self.codegen()
 
     def codegen(self):
+        if self.dynamic:
+            return Indirect(Register('cs'),
+                            (Literal(self.addr.offset),),
+                            self.width).codegen()
+
         if self < 16:
             return str(self)
         elif self < 0x100:
@@ -263,30 +276,34 @@ class Indirect:
 
 def signed(operand):
     """Generate signed code for an operand."""
-    if operand.width == 2:
-        return "((int16_t)%s)" % operand.codegen()
-    elif operand.width == 1:
+    if operand.width == 1:
         return "((int8_t)%s)" % operand.codegen()
     else:
-        raise InternalError("Unsupported width for signed operand (%s)" % operand.width)
+        return "((int16_t)%s)" % operand.codegen()
 
 def u32(operand):
     """Generate 32-bit unsigned code for an operand."""
     return "((uint32_t)%s)" % operand.codegen()
 
+def findAll(needle, haystack):
+    """Find all occurrances of 'needle' in 'haystack', even overlapping ones.
+       Returns a list of zero-based offsets.
+       """
+    results = []
+    offset = 0
+    while True:
+        search = haystack[offset:]
+        if not search:
+            break
+        x = search.find(needle)
+        if x < 0:
+            break
+        results.append(offset + x)
+        offset += x + 1
+    return results
 
 class InternalError(Exception):
     pass
-
-class UndecodedInstruction:
-    isPrefix = False
-    addr = None
-
-    def __init__(self, err):
-        self.err = err
-
-    def __str__(self):
-        return "%s(%r)" % (self.__class__.__name__, self.err)
 
 
 class Trace:
@@ -441,7 +458,7 @@ class Instruction:
     # analysis.  This is a list of Addr16 instances.
     dynTargets = None
 
-    def __init__(self, line, offset=None, prefix=None):
+    def __init__(self, line, offset=None, prefix=None, dynLiteralsMap=None):
         self.raw = line
         self._offset = offset
 
@@ -484,7 +501,16 @@ class Instruction:
 
         self.op = op
         self.addr = Addr16(str=addr).add(offset or 0)
-        self.encoding = encoding
+        try:
+            self.encoding = binascii.a2b_hex(encoding)
+        except TypeError:
+            self.encoding = None
+
+        # Figure out whether this instruction has dynamic literals
+        # (if it was marked by patchDynamicLiteral)
+
+        self.dynLiteralsMap = dynLiteralsMap or {}
+        self.dynamicLiterals = self.addr.offset in self.dynLiteralsMap
 
         # Normally we get an offset from the disassembler,
         # but if this is a manually entered (patch) instruction,
@@ -516,7 +542,10 @@ class Instruction:
         # Calculate instruction length *after* merging the prefix.
         # Otherwise, we'll end up decoding the instruction after
         # the prefix twice.
-        self.length = len(self.encoding) / 2
+        if self.encoding:
+            self.length = len(self.encoding)
+        else:
+            self.length = None
 
         # Calculate the next address(es) for this instruction.
         # For most instructions, this is the next instruction.
@@ -532,6 +561,8 @@ class Instruction:
         # computed jumps can't be translated automatically.
 
         if op in ('jmp', 'ret', 'iret', 'retf'):
+            self.nextAddrs = ()
+        elif self.length is None:
             self.nextAddrs = ()
         else:
             self.nextAddrs = (self.addr.add(self.length),)
@@ -563,9 +594,8 @@ class Instruction:
         return w
 
     def _decodeOperand(self, text):
-        """Decode an instruction operand. If this operand includes a clue
-        about the instruction width, sets self.width as a side-effect.
-           """
+        """Decode an instruction operand."""
+
         # Does the operand begin with a width keyword?
         firstToken = text.split(None, 2)[0]
         if firstToken in self._widthNames:
@@ -576,9 +606,11 @@ class Instruction:
 
         # Is it an immediate value?
         try:
-            return Literal(int(text, 0))
+            value = int(text, 0)
         except ValueError:
             pass
+        else:
+            return self._decodeLiteral(value)
 
         # Does it look like a register?
         if len(text) == 2:
@@ -594,6 +626,54 @@ class Instruction:
 
         raise InternalError("Unsupported operand %r in %r at %r" %
                             (text, self.raw, self.addr))
+
+    def _findLiteralAddr(self, value, opcodeLen=1):
+        """Try to figure out the address of a string that occurs inside the
+           encoded instruction. Returns an (address, width) tuple if
+           there is one unique place where the value occurs. If the
+           value can't be found or isn't unique, returns (None, None).
+
+           XXX: This is a huge hack. Really we should just be
+                decoding the machine code directly, parsing asm
+                is turning out to be more trouble than it's worth.
+           """
+        if self.encoding:
+            # First try 16-bit
+            offsets = findAll(struct.pack("<H", value), self.encoding[opcodeLen:])
+            if len(offsets) == 1:
+                return self.addr.add(offsets[0] + opcodeLen), 2
+
+            # Now 8-bit
+            if value < 0x100:
+                offsets = findAll(struct.pack("<B", value), self.encoding[opcodeLen:])
+                if len(offsets) == 1:
+                    return self.addr.add(offsets[0] + opcodeLen), 1
+
+        return None, None
+
+    def _decodeLiteral(self, value):
+        """Decode a literal operand.
+           Optionally converts it to an indirect reference to the code segment,
+           in case we expect the literal to be modified at runtime.
+           """
+
+        # Ignore dynamic literals for certain instructions.
+        # Shifts are encoded with less than one byte, jumps
+        # aren't yet supported.
+        dynamic = self.dynamicLiterals and not (
+            self.op[0] == 'j' or self.op in (
+                'call', 'shl', 'shr', 'rol', 'ror', 'sar', 'rcl', 'rcr'))
+
+        # Make it unsigned
+        if value < 0:
+            value += 0x10000
+
+        addr, width = self._findLiteralAddr(value)
+        if dynamic and not addr:
+            raise Exception("Can't find address for dynamic literal 0x%x at %s"
+                            % (value, self.addr))
+
+        return Literal(value, addr, width, dynamic=dynamic)
 
     def _decodeIndirect(self, text, width=None):
         """Decode an operand that uses indirect addressing."""
@@ -661,8 +741,8 @@ class Instruction:
            call its 'fire' function.
 
            Besides user-provided traces, this function also implements
-           the internal traces we use to update cached segment
-           pointers.
+           the internal traces we use to update cached segment pointers
+           and to detect writes to the code segment.
            """
 
         code = []
@@ -673,6 +753,12 @@ class Instruction:
 
                 code.append("reg.ptr.%s = mem + (reg.%s << 4);"
                             % (operand.name, operand.name))
+
+            if (isinstance(operand, Indirect) and
+                isinstance(operand.segment, Register) and
+                operand.segment.name == 'cs'):
+
+                self._warnSelfModifyingCode(operand, mode)
 
             if isinstance(operand, Indirect):
                 for trace in self._traces:
@@ -687,6 +773,27 @@ class Instruction:
                             trace.name, args, trace.name, args))
 
         return ''.join(code)
+
+    def _warnSelfModifyingCode(self, operand, mode):
+        """This is a read or write to the code segment.
+           The address may be static or dynamic. If any
+           of the given offsets are inside the dynLiteralsMap,
+           ignore it. Otherwise, print a warning.
+           """
+        for offset in operand.offsets:
+            if isinstance(offset, int) and offset in self.dynLiteralsMap:
+                return
+
+        if (len(operand.offsets) != 1 or
+            not isinstance(operand.offsets[0], int)):
+            log("Warning! Access (%s) to code segment "
+                "@%s with dynamic offset %r" % (
+                    mode, self.addr, operand.offsets))
+
+        elif int(operand.offsets[0]) not in self.dynLiteralsMap:
+            log("Warning! Access (%s) to code segment "
+                "@%s with offset %04x. Mark as dynamic literal."
+                % (mode, self.addr, operand.offsets[0]))
 
     def codegen_mov(self, dest, src):
         return "%s = %s;%s" % (
@@ -1066,8 +1173,7 @@ class Instruction:
                 arg.codegen())
 
         else:
-            raise Exception("Dynamic jmp at %s must be patched. See patchDynamic()."
-                            % self.addr)
+            raise Exception("Dynamic jmp at %s must be patched." % self.addr)
 
     def codegen_call(self, arg):
         if isinstance(arg, Literal) or isinstance(arg, Addr16):
@@ -1090,8 +1196,7 @@ class Instruction:
                 arg.codegen())
 
         else:
-            raise Exception("Dynamic call at %s must be patched. See patchDynamic()."
-                            % self.addr)
+            raise Exception("Dynamic call at %s must be patched." % self.addr)
 
     def codegen_ret(self):
         return "return;"
@@ -1127,6 +1232,7 @@ class BinaryImage:
         self.loadSegment = 0
         self.parseHeader()
         self._iCache = {}
+        self._dynLiterals = {}
         self._tempFile = None
 
     def relocate(self, segment, addrs):
@@ -1205,10 +1311,7 @@ class BinaryImage:
         base = Addr16(addr.segment, 0)
 
         for line in proc.stdout:
-            try:
-                i = Instruction(line, base, prefix)
-            except Exception, e:
-                i = UndecodedInstruction(e)
+            i = Instruction(line, base, prefix, self._dynLiterals)
 
             prefix = None
             if i.isPrefix:
@@ -1223,9 +1326,12 @@ class BinaryImage:
            """
         if addr.linear not in self._iCache:
             self._disasmToCache(addr)
-        return self._iCache[addr.linear]
+        try:
+            return self._iCache[addr.linear]
+        except KeyError:
+            raise InternalError("Failed to disassemble instruction at %s" % addr)
 
-    def _disasmToCache(self, addr, instructionLimit=10000):
+    def _disasmToCache(self, addr, instructionLimit=100):
 
         # XXX: This ends up leaving many ndisasm subprocesses open in
         #      the background until the translator finishes.
@@ -1248,10 +1354,11 @@ class Subroutine:
     # Should this subroutine generate clock cycle counting code?
     clockEnable = False
 
-    def __init__(self, image, entryPoint, hooks=None):
+    def __init__(self, image, entryPoint, hooks=None, staticData=None):
         self.image = image
         self.entryPoint = entryPoint
         self.hooks = hooks or {}
+        self.staticData = staticData or BinaryImage()
         self.name = "sub_%X" % self.entryPoint.linear
 
     def analyze(self, dynBranches=None, verbose=False):
@@ -1287,6 +1394,10 @@ class Subroutine:
             memo[ptr.linear] = ptr
             i = self.image.iFetch(ptr)
             i.referent = referent
+
+            # Remove this instruction from our static data
+            if i.length and not i.dynamicLiterals:
+                self.staticData.remove(i.addr, i.length)
 
             if verbose:
                 sys.stderr.write("%s R[%-9s] D%-3d %-50s -> %-22s || %s\n" % (
@@ -1355,40 +1466,55 @@ void
 }""" % (self.name, self.entryPoint.label(), '\n'.join(body))
 
 
-def toHexArray(data):
-    """Convert binary data to a list of hexadecimal
-       values suitable for including in a C array.
+class BinaryData:
+    """Represents the data portions of a binary image. These parts are RLE
+       compressed and converted to an array in the generated code.
        """
-    return ''.join(["0x%02x,%s" % (ord(b), "\n"[:(i&15)==15])
-                    for i, b in enumerate(data)])
+    def __init__(self, data='', baseAddr=Addr16(0,0)):
+        self.data = list(data)
+        self.baseAddr = baseAddr
 
+    def remove(self, addr, len):
+        """Remove a section of data from the image. This operation is
+           performed on ranges of bytes that we've identified as static code.
+           """
+        offset = addr.linear - self.baseAddr.linear
+        self.data[offset:offset+len] = ['\0'] * len
 
-def compressRLE(data):
-    """Compress a string using a simple form of RLE which
-       is optimized for eliminating long runs of zeroes. This
-       is used to automatically avoid storing zeroed portions
-       of the data segment.
+    def toHexArray(self):
+        """Convert compressed binary data to a list of hexadecimal values
+           suitable for including in a C array.
+           """
+        return ''.join(["0x%02x,%s" % (ord(b), "\n"[:(i&15)==15])
+                        for i, b in enumerate(self.compressRLE())])
 
-       In the resulting binary, any run of two consecutive zeroes is
-       followed by a 16-bit value (little endian) which indicates how
-       many more zeroes have been omitted afterwards.
+    def compressRLE(self):
+        """Compress a string using a simple form of RLE which
+           is optimized for eliminating long runs of zeroes. This
+           is used to automatically avoid storing zeroed portions
+           of the data segment.
 
-       Trailing zeroes in the data are ignored.
-       """
-    output = []
-    zeroes = []
-    for byte in data:
-        if byte == '\0':
-            zeroes.append(byte)
-        elif not zeroes:
-            output.append(byte)
-        elif len(zeroes) == 1:
-            output.append('\0' + byte)
-            zeroes = []
-        else:
-            output.append('\0\0' + struct.pack("<H", len(zeroes) - 2) + byte)
-            zeroes = []
-    return ''.join(output)
+           In the resulting binary, any run of two consecutive zeroes is
+           followed by a 16-bit value (little endian) which indicates how
+           many more zeroes have been omitted afterwards.
+
+           Trailing zeroes in the data are ignored.
+           """
+        output = []
+        zeroes = []
+        for byte in self.data:
+            if byte == '\0':
+                zeroes.append(byte)
+            elif not zeroes:
+                output.append(byte)
+            elif len(zeroes) == 1:
+                output.append('\0')
+                output.append(byte)
+                zeroes = []
+            else:
+                output.extend(list('\0\0' + struct.pack("<H", len(zeroes) - 2) + byte))
+                zeroes = []
+        return output
 
 
 class DOSBinary(BinaryImage):
@@ -1532,6 +1658,12 @@ uint8_t
             relocs.append(Addr16(segment, offset))
         self.image.relocate(self.relocSegment, relocs)
 
+        # By default, treat the whole relocated image as data.
+        # We'll carve out the pieces that we can identify as code,
+        # and the zeroes will be compressed out.
+        self.staticData = BinaryData(self.image._data,
+                                     Addr16(self.relocSegment, 0))
+
     def decl(self, code):
         """Add code to the declarations in the generated C file.
            This is useful if patches require global variables or
@@ -1551,7 +1683,7 @@ uint8_t
            code you provide, it's just used to locate the next
            instruction to disassemble.
            """
-        i = Instruction("%s %s %s" % (addr, ("--" * length) or '-', code))
+        i = Instruction("%s %s %s" % (addr, ("00" * length) or '-', code))
         self.image._iCache[i.addr.linear] = i
 
     def hook(self, addr, code):
@@ -1572,7 +1704,7 @@ uint8_t
         self.patch(addr, asmCode, length)
         self.hook(addr, cCode)
 
-    def patchDynamic(self, addr, targets):
+    def patchDynamicBranch(self, addr, targets):
         """Patch a dynamic jmp or call, using a static list of possible
            targets.  Each of the possible targets will be analyzed as
            if they were a static target of the function. This means
@@ -1594,6 +1726,22 @@ uint8_t
                 raise Exception("Duplicate dynamic branch target %s at address %s"
                                 % (target, addr))
         self._dynBranches[linear] = prevTargets + targets
+
+    def patchDynamicLiteral(self, addr, length=1):
+        """Patch a common flavour of self-modifying code by marking an
+           instruction's literal data as dynamic. Instead of translating
+           the data as numeric literals, it will be translated as
+           indirect references to the code segment. Also, the instruction
+           will be preserved in the static data image.
+
+           If 'length' is specified, any instructions in a range of
+           addresses will be translated using dynamic literals.
+           """
+        offset = Addr16(str=str(addr)).offset
+        while length > 0:
+            self.image._dynLiterals[offset] = True
+            offset += 1
+            length -= 1
 
     def trace(self, mode, probe, fire):
         """Define a memory trace.
@@ -1629,7 +1777,7 @@ uint8_t
                    sys.stderr.write("Subroutine %s already visited\n" % ptr)
                continue
 
-           sub = Subroutine(self.image, ptr, self._hooks)
+           sub = Subroutine(self.image, ptr, self._hooks, self.staticData)
            sub.analyze(self._dynBranches, verbose)
            stack.extend(sub.callsTo.values())
            self.subroutines[ptr.linear] = sub
@@ -1673,15 +1821,7 @@ uint8_t
         vars['traceDecls'] = '\n'.join([t.codegen() for t in self._traces])
         vars['entryLinear'] = self.entryPoint.linear
         vars['entryCS'] = self.entryPoint.segment
-
-        # The data image contains everything prior to the entry point
-        # (discard most of the code segment). This assumes the program
-        # doesn't have any initialized data in the code segment, or any
-        # self-modifying or self-referential code. Any exceptions will
-        # need to be patched.
-
-        dataSize = min(self.exeSize, self.entryPoint.linear)
-        vars['dataImage'] = toHexArray(compressRLE(self.image.read(0, dataSize)))
+        vars['dataImage'] = self.staticData.toHexArray()
 
         return self._skel % vars
 

@@ -27,7 +27,7 @@ def patch(b):
     # pointer. This pointer only ever has one value, so replace with an
     # unconditional jump.
 
-    b.patchDynamic(b.findCode('8a1e____8a3e____:ffe3 a0____3c9a7203'), [
+    b.patchDynamicBranch(b.findCode('8a1e____8a3e____:ffe3 a0____3c9a7203'), [
             b.findCode(':e8c0ffb91e008b2e____8bf9'),
             ])
 
@@ -46,7 +46,7 @@ def patch(b):
     # game-specific logic. As far as I can tell, it's always set to the
     # same value by the main loop, and never touched thereafter.
 
-    b.patchDynamic(b.findCode('75cc8bcf 880e____ :ff16____ a0____ 3cff'), [
+    b.patchDynamicBranch(b.findCode('75cc8bcf 880e____ :ff16____ a0____ 3cff'), [
             b.findCode(':8a16____ 80faff 74ef a0____ 32f6'),
             ])
 
@@ -67,8 +67,8 @@ def patch(b):
     # three different implementations of this function: a stub, a simple
     # one which tests BX, and a complex one that handles robot grabbing.
 
-    b.patchDynamic(b.findCode('a2____ 0ac0 f8 c3 8a1e____ 8a3e____'
-                              ':ffe3 b500 8a____'), [
+    b.patchDynamicBranch(b.findCode('a2____ 0ac0 f8 c3 8a1e____ 8a3e____'
+                                    ':ffe3 b500 8a____'), [
             # Required in all binaries
             b.findCode(':8a85____ 3cff 7402 f9c3 f8c3'),               # Normal callback
             b.findCode(':80fafc f5 72__ 80fa__ f5 72__'),              # Robot grabbing
@@ -95,59 +95,49 @@ def patch(b):
     ''')
 
     # The text rendering code is a bit crazy.. The inner loop draws one
-    # character, 8x8 pixels, by performing a 16-bit read-modify-write at 7
+    # character, 8x8 pixels, by performing a 16-bit read-modify-write at 8
     # different locations on the framebuffer. Every time we move down to
     # the next line of text, these locations must be patched.
     #
-    # To eliminate the self-modifying code, we patch the patcher function
-    # to write its offsets into an array rather than into the code itself,
-    # then we patch the code to read this array.
+    # We need to mark each of these locations as having dynamic
+    # literal values.
 
-    b.decl('''
-        union {
-            struct {
-                uint8_t low;
-                uint8_t high;
-            };
-            uint16_t word;
-        } textOffsets[8];
-    ''')
+    b.patchDynamicLiteral(b.findCode('7203 e9c000 8a9d____ b700d1e3'
+                                     '8b87____ 86e0 :260b84fefe 268984fefe'),
+                          178)
 
-    b.patchAndHook(b.findCode('b500b1008bf1 8a85____ :2e8884____ 2e8884____'
-                              'fec0 8b1e____ 8a01 2e8884____ 2e8884____'
-                              '478bc6f81518008bf0'),
-                   'nop', length=10, cCode='''
-        textOffsets[reg.si / 0x18].low = reg.al;
-    ''')
+    # Even crazier self-modifying code for the electrical simulation of chips..
+    # Still not sure what this is for or how it works.
 
-    b.patchAndHook(b.findCode('b500b1008bf1 8a85____ 2e8884____ 2e8884____'
-                              'fec0 8b1e____ 8a01 :2e8884____ 2e8884____'
-                              '478bc6f81518008bf0'),
-                   'nop', length=10, cCode='''
-        textOffsets[reg.si / 0x18].high = reg.al;
-    ''')
+    b.patchDynamicLiteral(b.findCode('e9c000 :8a9d____ b700 d1e3 8b87____'
+                                     '86e0 260b84fefe 268984fefe'),
+                          192)
+    b.patchDynamicLiteral(b.findCode(':b200 32f6 8bfa 8b1e____ 8a01 3c07'),
+                          896)
+    b.patchDynamicLiteral(b.findCode('8a01 :a2____ 8ad0 32f6 8bfa 8a85____'),
+                          3)
 
-    addr = b.findCode('7203 e9c000 8a9d____ b700d1e3'
-                      '8b87____ 86e0 :260b84fefe 268984fefe')
-    for i in range(8):
-        b.patchAndHook(addr, 'nop', length=10, cCode='''
-            M16(reg.ptr.es[reg.si + textOffsets[%d].word]) |= reg.ax;
-        ''' % i)
-        addr = addr.add(0x18)
+    for addr in b.findCodeMultiple(':8885efef'):
+        b.patchDynamicLiteral(addr, 4)
+    for addr in b.findCodeMultiple(':8884fefe'):
+        b.patchDynamicLiteral(addr, 4)
+    for addr in b.findCodeMultiple(':8a84fefe'):
+        b.patchDynamicLiteral(addr, 4)
 
 
-def findSelfModifyingCode(b):
+def findSelfModifyingCode(b, traceReads=False):
     """A debug tool which traces access to the code segment,
        to find unpatched self-modifying code or reads to
        data which may have been located in the code segment.
        """
     b.decl("#include <stdio.h>")
-    b.trace('r', '''
-        return segment == 0x%x;
-    ''' % b.entryPoint.segment, '''
-        printf("XXX: READ from code segment offset 0x%04x @[%04x:%04x]\\n",
-               offset, cs, ip);
-    ''')
+    if traceReads:
+        b.trace('r', '''
+            return segment == 0x%x;
+        ''' % b.entryPoint.segment, '''
+            printf("XXX: READ from code segment offset 0x%04x @[%04x:%04x]\\n",
+                   offset, cs, ip);
+        ''')
     b.trace('w', '''
         return segment == 0x%x;
     ''' % b.entryPoint.segment, '''
