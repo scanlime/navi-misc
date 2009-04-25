@@ -231,6 +231,9 @@ SEG(uint16_t seg, uint16_t off)
 #define SET_CF  reg.uresult |= 0x10000
 #define CLR_CF  reg.uresult &= 0xFFFF
 
+#define SAVE_CF          (reg.uresult & 0x10000)
+#define RESTORE_CF(x)    reg.uresult = (reg.uresult & 0xFFFF) | (x);
+
 /*
  * Stack access functions. Since our translation is procedure-level,
  * the stack is mostly fake and it's intended to store normal data

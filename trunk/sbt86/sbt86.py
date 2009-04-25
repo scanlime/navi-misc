@@ -972,10 +972,12 @@ class Instruction:
             a.codegen(), b.codegen(), self._resultShift(a))
 
     def codegen_inc(self, arg):
-        return self.codegen_add(arg, Literal(1))
+        return "{ uint32_t _cf = SAVE_CF; %s; RESTORE_CF(_cf); }" % (
+            self.codegen_add(arg, Literal(1)))
 
     def codegen_dec(self, arg):
-        return self.codegen_sub(arg, Literal(1))
+        return "{ uint32_t _cf = SAVE_CF; %s; RESTORE_CF(_cf); }" % (
+            self.codegen_sub(arg, Literal(1)))
 
     def codegen_not(self, arg):
         return "%s = ~%s;%s" % (
