@@ -367,7 +367,7 @@ main(int argc, char **argv)
 
     consoleInit();
 
-    retval = game_main(cmdLine);
+    retval = lab_main(cmdLine);
 
     printf("DOS Exit (return code %d)\n", retval);
     return retval;
