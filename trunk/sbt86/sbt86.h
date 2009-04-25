@@ -171,7 +171,9 @@ extern jmp_buf dosExitJump;
 
 #ifdef SBT86_CODE
 
-static StackItem stack[64];
+#define STACK_SIZE 512
+
+static StackItem stack[STACK_SIZE];
 static int stackPtr;
 static uint32_t clock;
 static uint16_t stackRetVerification = 0xBEEF;
@@ -232,7 +234,7 @@ SEG(uint16_t seg, uint16_t off)
 #define CLR_CF  reg.uresult &= 0xFFFF
 
 #define SAVE_CF          (reg.uresult & 0x10000)
-#define RESTORE_CF(x)    reg.uresult = (reg.uresult & 0xFFFF) | (x);
+#define RESTORE_CF(x)    reg.uresult = (reg.uresult & 0xFFFF) | (x)
 
 /*
  * Stack access functions. Since our translation is procedure-level,
@@ -249,6 +251,7 @@ SEG(uint16_t seg, uint16_t off)
 static inline
 pushw(uint16_t word)
 {
+    assert(stackPtr < STACK_SIZE);
     stack[stackPtr].word = word;
     stack[stackPtr].stackTag = STACK_TAG_WORD;
     stackPtr++;
@@ -257,6 +260,7 @@ pushw(uint16_t word)
 static inline
 pushf()
 {
+    assert(stackPtr < STACK_SIZE);
     stack[stackPtr].uresult = reg.uresult;
     stack[stackPtr].sresult = reg.sresult;
     stack[stackPtr].stackTag = STACK_TAG_FLAGS;
@@ -266,6 +270,7 @@ pushf()
 static inline
 pushret()
 {
+    assert(stackPtr < STACK_SIZE);
     stack[stackPtr].stackTag = STACK_TAG_RETADDR;
     stackPtr++;
 }
