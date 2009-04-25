@@ -35,6 +35,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <setjmp.h>
+#include <assert.h>
 
 
 /*****************************************************************
@@ -128,8 +129,14 @@ typedef struct Regs {
 
 } Regs;
 
-typedef union StackItem {
-    uint16_t  word;
+#define STACK_TAG_INVALID   0
+#define STACK_TAG_WORD      1
+#define STACK_TAG_FLAGS     2
+#define STACK_TAG_RETADDR   3
+
+typedef struct StackItem {
+    uint32_t  stackTag;
+    uint32_t  word;
     struct {
         uint32_t  uresult;
         int32_t   sresult;
@@ -138,7 +145,8 @@ typedef union StackItem {
 
 
 /*****************************************************************
- * Functions and data defined in sbt86.c
+ * Functions and data which come from the emulation support
+ * code in emulator.c.
  */
 
 void decompressRLE(uint8_t *dest, uint8_t *src, uint32_t srcLength);
@@ -155,6 +163,27 @@ void consoleBlitToScreen(uint8_t *fb);
 
 extern uint8_t mem[];
 extern jmp_buf dosExitJump;
+
+
+/*****************************************************************
+ * Data definitions which are private to the translated code.
+ */
+
+#ifdef SBT86_CODE
+
+static StackItem stack[64];
+static int stackPtr;
+static uint32_t clock;
+static uint16_t stackRetVerification = 0xBEEF;
+
+/*
+ * For the right gcc optimizations to take effect, it's important
+ * that the address of 'reg' is never taken! It *must* be passed
+ * by value only.
+ */
+static Regs reg;
+
+#endif // SBT86_CODE
 
 
 /*****************************************************************
@@ -202,4 +231,101 @@ SEG(uint16_t seg, uint16_t off)
 #define SET_CF  reg.uresult |= 0x10000
 #define CLR_CF  reg.uresult &= 0xFFFF
 
-#endif /* __SBT86_H__ */
+/*
+ * Stack access functions. Since our translation is procedure-level,
+ * the stack is mostly fake and it's intended to store normal data
+ * items only.  Furthermore, we store flags in a different format than
+ * the x86, so flags words and data words aren't interchangeable.
+ *
+ * To detect code that breaks these assumptions, we implement a
+ * strongly typed stack.
+ */
+
+#ifdef SBT86_CODE
+
+static inline
+pushw(uint16_t word)
+{
+    stack[stackPtr].word = word;
+    stack[stackPtr].stackTag = STACK_TAG_WORD;
+    stackPtr++;
+}
+
+static inline
+pushf()
+{
+    stack[stackPtr].uresult = reg.uresult;
+    stack[stackPtr].sresult = reg.sresult;
+    stack[stackPtr].stackTag = STACK_TAG_FLAGS;
+    stackPtr++;
+}
+
+static inline
+pushret()
+{
+    stack[stackPtr].stackTag = STACK_TAG_RETADDR;
+    stackPtr++;
+}
+
+static inline
+popw()
+{
+    stackPtr--;
+    assert(stack[stackPtr].stackTag == STACK_TAG_WORD);
+    return stack[stackPtr].word;
+}
+
+static inline
+popf()
+{
+    stackPtr--;
+    assert(stack[stackPtr].stackTag == STACK_TAG_FLAGS);
+    reg.uresult = stack[stackPtr].uresult;
+    reg.sresult = stack[stackPtr].sresult;
+}
+
+static inline
+popret()
+{
+    stackPtr--;
+    assert(stack[stackPtr].stackTag == STACK_TAG_RETADDR);
+}
+
+/*
+ * These are special stack accessors for use in hook routines.
+ * Some routines in Robot Odyssey save the return value off
+ * the stack, manipulate the caller's stack, then restore
+ * the return value.
+ *
+ * preSaveRet() should be called before the return value is
+ * saved at the beginning of such a function. It converts the
+ * top of the stack from a RETADDR to a WORD, and stores a
+ * verification value in that word.
+ *
+ * postRestoreRet() should be called after the return value is
+ * restored. It verifies the value saved by preSaveRet, and
+ * converts the top of stack back to a RETADDR.
+ */
+
+static inline
+preSaveRet()
+{
+    assert(stack[stackPtr-1].stackTag == STACK_TAG_RETADDR);
+    stack[stackPtr-1].word = stackRetVerification;
+    stack[stackPtr-1].stackTag = STACK_TAG_WORD;
+}
+
+static inline
+postRestoreRet()
+{
+    assert(stack[stackPtr-1].stackTag == STACK_TAG_WORD);
+    assert(stack[stackPtr-1].word == stackRetVerification);
+    stack[stackPtr-1].stackTag = STACK_TAG_RETADDR;
+    stackRetVerification++;
+}
+
+
+#endif // SBT86_CODE
+
+
+#endif // __SBT86_H__

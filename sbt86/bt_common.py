@@ -5,6 +5,9 @@
 #
 
 def patch(b):
+    """Patches that should be applied to all binaries that have the Robot
+       Odyssey game engine. (TUT, GAME, LAB)
+       """
 
     # Remove the copy protection. (This would never work on an
     # emulated floppy controller anyway...) Not all binaries have the
@@ -106,6 +109,11 @@ def patch(b):
                                      '8b87____ 86e0 :260b84fefe 268984fefe'),
                           178)
 
+
+def patchChips(b):
+    """Patches for binaries that support chips. (LAB and GAME, but not TUT).
+       """
+
     # Even crazier self-modifying code for the electrical simulation of chips..
     # Still not sure what this is for or how it works.
 
@@ -117,6 +125,8 @@ def patch(b):
     b.patchDynamicLiteral(b.findCode('8a01 :a2____ 8ad0 32f6 8bfa 8a85____'),
                           3)
 
+    # These seem to only be in LAB.EXE? Maybe chip burning related?
+
     for addr in b.findCodeMultiple(':8885efef'):
         b.patchDynamicLiteral(addr, 4)
     for addr in b.findCodeMultiple(':8884fefe'):
@@ -124,24 +134,49 @@ def patch(b):
     for addr in b.findCodeMultiple(':8a84fefe'):
         b.patchDynamicLiteral(addr, 4)
 
+    # Patch some craziness with the stack. This function seems to be
+    # related to simulating flip-flops within chips.
 
-def findSelfModifyingCode(b, traceReads=False):
+    b.hook(b.findCode(':58 a3____ 32f68bfa 8b1e'),
+           'preSaveRet();')
+    b.hook(b.findCode('8ac2 e8____ b200 a1____ 50 :c3'),
+           'postRestoreRet();')
+
+    b.hook(b.findCode(':58 a3____ a0____ 0ac0 7417'),
+           'preSaveRet();')
+    b.hook(b.findCode('75e9 a1____ 50 :c3'),
+           'postRestoreRet();')
+
+
+def findSelfModifyingCode(b):
     """A debug tool which traces access to the code segment,
        to find unpatched self-modifying code or reads to
        data which may have been located in the code segment.
+
+       Warnings are only printed for addresses that weren't patched
+       using patchDynamicLiteral. This tool is designed to supplement
+       the static warnings given out by sbt86 itself.
        """
+
     b.decl("#include <stdio.h>")
-    if traceReads:
-        b.trace('r', '''
-            return segment == 0x%x;
-        ''' % b.entryPoint.segment, '''
-            printf("XXX: READ from code segment offset 0x%04x @[%04x:%04x]\\n",
-                   offset, cs, ip);
-        ''')
-    b.trace('w', '''
-        return segment == 0x%x;
+
+    # Declare a table of flags which indicate, for every CS offset,
+    # whether the address has been already marked as a dynamic literal.
+    b.decl("static uint8_t dynLiteralsMap[] = { %s };" % ''.join([
+                "%d," % (i in b.image.dynLiterals)
+                for i in xrange(0x10000)
+                ]))
+
+    b.trace('r', '''
+        return segment == 0x%x && !dynLiteralsMap[offset];
     ''' % b.entryPoint.segment, '''
-        printf("XXX: WRITE to code segment offset 0x%04x @[%04x:%04x]\\n",
+        printf("XXX: Unpatched READ from code segment offset 0x%04x @[%04x:%04x]\\n",
+               offset, cs, ip);
+    ''')
+    b.trace('w', '''
+            return segment == 0x%x && !dynLiteralsMap[offset];
+    ''' % b.entryPoint.segment, '''
+        printf("XXX: Unpatched WRITE to code segment offset 0x%04x @[%04x:%04x]\\n",
                offset, cs, ip);
     ''')
 

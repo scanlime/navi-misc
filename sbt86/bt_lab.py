@@ -23,6 +23,7 @@ def chipTrace(b):
             ])
 
 bt_common.patch(b)
+bt_common.patchChips(b)
 bt_common.findSelfModifyingCode(b)
 #bt_common.worldTrace(b)
 #chipTrace(b)

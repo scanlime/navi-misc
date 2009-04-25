@@ -1060,12 +1060,12 @@ class Instruction:
     def codegen_push(self, arg):
         # We currently implement the stack as a totally separate memory
         # area which can hold 16-bit words or native code return addresses.
-        return "stack[stackPtr++].word = %s;%s" % (
+        return "pushw(%s);%s" % (
             arg.codegen(),
             self._genTraces((arg, 'r')))
 
     def codegen_pop(self, arg):
-        return "%s = stack[--stackPtr].word;%s" % (
+        return "%s = popw();%s" % (
             arg.codegen(),
             self._genTraces((arg, 'w')))
 
@@ -1094,15 +1094,16 @@ class Instruction:
                 ))
 
     def codegen_pushfw(self):
-        return ("stack[stackPtr].uresult = reg.uresult;"
-                "stack[stackPtr++].sresult = reg.sresult;")
+        return "pushf();"
+
+    def codegen_pushf(self):
+        return "pushf();"
 
     def codegen_popfw(self):
-        return ("reg.uresult = stack[--stackPtr].uresult;"
-                "reg.sresult = stack[stackPtr].sresult;")
+        return "popf();"
 
-    codegen_pushf = codegen_pushfw
-    codegen_popf = codegen_popfw
+    def codegen_popf(self):
+        return "popf();"
 
     def codegen_nop(self):
         return "/* nop */;"
@@ -1199,7 +1200,7 @@ class Instruction:
             raise Exception("Dynamic call at %s must be patched." % self.addr)
 
     def codegen_ret(self):
-        return "return;"
+        return "goto ret;"
 
     def codegen_retf(self):
         return self.codegen_ret()
@@ -1232,7 +1233,7 @@ class BinaryImage:
         self.loadSegment = 0
         self.parseHeader()
         self._iCache = {}
-        self._dynLiterals = {}
+        self.dynLiterals = {}
         self._tempFile = None
 
     def relocate(self, segment, addrs):
@@ -1311,7 +1312,7 @@ class BinaryImage:
         base = Addr16(addr.segment, 0)
 
         for line in proc.stdout:
-            i = Instruction(line, base, prefix, self._dynLiterals)
+            i = Instruction(line, base, prefix, self.dynLiterals)
 
             prefix = None
             if i.isPrefix:
@@ -1461,8 +1462,12 @@ class Subroutine:
 void
 %s(void)
 {
+  pushret();
   goto %s;
 %s
+ret:
+  popret();
+  return;
 }""" % (self.name, self.entryPoint.label(), '\n'.join(body))
 
 
@@ -1533,18 +1538,8 @@ class DOSBinary(BinaryImage):
 static uint8_t dataImage[] = {
 %(dataImage)s};
 
+#define SBT86_CODE
 #include "sbt86.h"
-
-static StackItem stack[64];
-static int stackPtr;
-static uint32_t clock;
-
-/*
- * For the right gcc optimizations to take effect, it's important
- * that the address of 'reg' is never taken! It *must* be passed
- * by value only.
- */
-static Regs reg;
 
 %(subDecls)s
 
@@ -1739,7 +1734,7 @@ uint8_t
            """
         offset = Addr16(str=str(addr)).offset
         while length > 0:
-            self.image._dynLiterals[offset] = True
+            self.image.dynLiterals[offset] = True
             offset += 1
             length -= 1
 
