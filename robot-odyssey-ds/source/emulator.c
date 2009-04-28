@@ -366,7 +366,7 @@ main(int argc, char **argv)
 
     iprintf("Hello World!\n");
 
-    retval = tutorial_main("21");
+    retval = lab_main("30");
 
     printf("DOS Exit (return code %d)\n", retval);
     return retval;

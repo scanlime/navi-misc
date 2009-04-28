@@ -19,4 +19,4 @@ b.patchAndHook(b.findCode('2c01 :2f a2____ a2____ b12c 32ed'),
    printf("XXX: Skipping unimplemented 'das' instruction.\\n");
 ''')
 
-b.writeCodeToFile("bt_game.c", "game_main")
+b.writeCodeToFile("../build/game.bt.c", "lab_main")
