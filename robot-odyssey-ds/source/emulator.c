@@ -380,40 +380,103 @@ main(int argc, char **argv)
 static void
 cgaDrawPlane(uint8_t *in, uint16_t *out)
 {
-    static const uint16_t palette[4] = {
-        RGB8(0x00, 0x00, 0x00) | 0x8000,
-        RGB8(0x55, 0xff, 0xff) | 0x8000,
-        RGB8(0xff, 0x55, 0xff) | 0x8000,
-        RGB8(0xff, 0xff, 0xff) | 0x8000,
-    };
+    /*
+     * Palette tables for an antialiased scaler which squishes every 5
+     * input pixels into 4 output pixels. See gen-scaler-table.py for
+     * the general algorithm these were generated with.
+     */
+    static const uint16_t pal00_pal31[] = { 0x8000, 0xe728, 0xe519, 0xe739 };
+    static const uint16_t pal01_pal30[] = { 0x0000, 0x18c2, 0x1846, 0x18c6 };
+    static const uint16_t pal10_pal21[] = { 0x8000, 0xce66, 0xccd3, 0xce73 };
+    static const uint16_t pal11_pal20[] = { 0x0000, 0x3184, 0x308c, 0x318c };
 
     int x, y;
 
     for (y = 96; y; y--) {
-        uint16_t *line = out;
+        uint16_t color;
+        uint8_t byte;
 
         /*
-         * Draw one byte (4 CGA pixels) at a time.
-         *
-         * XXX: Only drawing left side of screen for now.
+         * Our scaling pattern is 5 input pixels / 4 output pixels
+         * wide. Loop it 16 times to cover 256 output pixels.
          */
 
-        for (x = 64; x; x--) {
-            uint8_t byte = *(in++);
+        for (x = 16; x; x--) {
+            byte      = *(in++);
+            color     = pal00_pal31[byte >> 6];
+            byte    <<= 2;
+            color    += pal01_pal30[byte >> 6];
+            *(out++)  = color;
+            color     = pal10_pal21[byte >> 6];
+            byte    <<= 2;
+            color    += pal11_pal20[byte >> 6];
+            *(out++)  = color;
+            color     = pal11_pal20[byte >> 6];
+            byte    <<= 2;
+            color    += pal10_pal21[byte >> 6];
+            *(out++)  = color;
+            color     = pal01_pal30[byte >> 6];
+            byte      = *(in++);
+            color    += pal00_pal31[byte >> 6];
+            *(out++)  = color;
 
-            line[3] = palette[byte & 3];
-            byte >>= 2;
-            line[2] = palette[byte & 3];
-            byte >>= 2;
-            line[1] = palette[byte & 3];
-            byte >>= 2;
-            line[0] = palette[byte & 3];
+            byte    <<= 2;
+            color     = pal00_pal31[byte >> 6];
+            byte    <<= 2;
+            color    += pal01_pal30[byte >> 6];
+            *(out++)  = color;
+            color     = pal10_pal21[byte >> 6];
+            byte    <<= 2;
+            color    += pal11_pal20[byte >> 6];
+            *(out++)  = color;
+            color     = pal11_pal20[byte >> 6];
+            byte      = *(in++);
+            color    += pal10_pal21[byte >> 6];
+            *(out++)  = color;
+            color     = pal01_pal30[byte >> 6];
+            byte    <<= 2;
+            color    += pal00_pal31[byte >> 6];
+            *(out++)  = color;
 
-            line += 4;
+            byte    <<= 2;
+            color     = pal00_pal31[byte >> 6];
+            byte    <<= 2;
+            color    += pal01_pal30[byte >> 6];
+            *(out++)  = color;
+            color     = pal10_pal21[byte >> 6];
+            byte      = *(in++);
+            color    += pal11_pal20[byte >> 6];
+            *(out++)  = color;
+            color     = pal11_pal20[byte >> 6];
+            byte    <<= 2;
+            color    += pal10_pal21[byte >> 6];
+            *(out++)  = color;
+            color     = pal01_pal30[byte >> 6];
+            byte    <<= 2;
+            color    += pal00_pal31[byte >> 6];
+            *(out++)  = color;
+
+            byte    <<= 2;
+            color     = pal00_pal31[byte >> 6];
+            byte      = *(in++);
+            color    += pal01_pal30[byte >> 6];
+            *(out++)  = color;
+            color     = pal10_pal21[byte >> 6];
+            byte    <<= 2;
+            color    += pal11_pal20[byte >> 6];
+            *(out++)  = color;
+            color     = pal11_pal20[byte >> 6];
+            byte    <<= 2;
+            color    += pal10_pal21[byte >> 6];
+            *(out++)  = color;
+            color     = pal01_pal30[byte >> 6];
+            byte    <<= 2;
+            color    += pal00_pal31[byte >> 6];
+            *(out++)  = color;
         }
 
-        in += 80 - 64;
-        out += 256 * 2;
+        /* Skip every other line (CGA interlacing) */
+        out += 256;
     }
 }
 
@@ -426,15 +489,15 @@ keyboardPoll(void)
         uint16_t code;
     } keyTable[] = {
 
-        { KEY_UP,    0x4800 },
-        { KEY_DOWN,  0x5000 },
-        { KEY_LEFT,  0x4B00 },
-        { KEY_RIGHT, 0x4D00 },
-
         { KEY_UP    | KEY_R,  0x4800 | '8' },
         { KEY_DOWN  | KEY_R,  0x5000 | '2' },
         { KEY_LEFT  | KEY_R,  0x4B00 | '4' },
         { KEY_RIGHT | KEY_R,  0x4D00 | '6' },
+
+        { KEY_UP,    0x4800 },
+        { KEY_DOWN,  0x5000 },
+        { KEY_LEFT,  0x4B00 },
+        { KEY_RIGHT, 0x4D00 },
 
         { KEY_B, ' ' },
         { KEY_A, 'S' },
@@ -459,9 +522,11 @@ consoleBlitToScreen(uint8_t *fb)
 {
     int i;
 
-    i = 5;
-    while (i--)
-        swiWaitForVBlank();
+    if (!(keysHeld() & KEY_SELECT)) {
+        i = 5;
+        while (i--)
+            swiWaitForVBlank();
+    }
 
     cgaDrawPlane(fb, bgGetGfxPtr(bg));
     cgaDrawPlane(fb + 0x2000, bgGetGfxPtr(bg) + 256);
