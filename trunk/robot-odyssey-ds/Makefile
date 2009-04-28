@@ -22,7 +22,7 @@ GBFSDIR         :=      data/fs
 INCLUDES        :=      include
 
 # List of object files to generate via binary translation
-BT_OBJS         :=      tutorial.bt.o
+BT_OBJS         :=      lab.bt.o
 
 
 #---------------------------------------------------------------------------------
