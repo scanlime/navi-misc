@@ -1,6 +1,12 @@
-#---------------------------------------------------------------------------------
+# -----------------------------
+# Makefile for Robot Odyssey DS
+# -----------------------------
+
+############################################
+# Tools and Directories
+#
+
 .SUFFIXES:
-#---------------------------------------------------------------------------------
 
 ifeq ($(strip $(DEVKITARM)),)
 $(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
@@ -8,143 +14,165 @@ endif
 
 include $(DEVKITARM)/ds_rules
 
-#---------------------------------------------------------------------------------
-# TARGET is the name of the output
-# BUILD is the directory where object files & intermediate files will be placed
-# SOURCES is a list of directories containing source code
-# INCLUDES is a list of directories containing extra header files
-#---------------------------------------------------------------------------------
-TARGET          :=      $(shell basename $(CURDIR))
-BUILD           :=      build
-SOURCES         :=      source
-SCRIPTS         :=      scripts
-GBFSDIR         :=      data/fs
-INCLUDES        :=      include
+# Python executable
+PYTHON      := python
 
-# List of object files to generate via binary translation
-BT_OBJS         :=      lab.bt.o
+TARGET      := robot-odyssey-ds
+BUILDDIR    := build
+SOURCEDIR   := source
+SCRIPTDIR   := scripts
+INCLUDEDIR  := include
+TOPDIR      := $(shell pwd)
 
+LIBDIRS     := $(LIBNDS)
 
-#---------------------------------------------------------------------------------
-# options for code generation
-#---------------------------------------------------------------------------------
-ARCH    :=      -mthumb -mthumb-interwork
+############################################
+# Object Files.
+#
+# There are separate lists for normal ARM9
+# sources, SBT86 scripts, and ARM7 sources.
+#
 
-# These optimization options are really important for compacting down
-# the binary translated code.. especially -Os and -fweb! I usually use
-# -frtl-abstract-sequences too, but it causes an internal compiler error...
+SOURCES_A9 := emulator.c
+SOURCES_A7 := arm7.c
+SOURCES_BT := bt_lab.py
 
-CFLAGS  :=      -g -Wall -Os \
-                -march=armv5te -mtune=arm946e-s -fomit-frame-pointer \
-                -ffast-math -fweb \
-                $(ARCH)
+############################################
+# Build flags.
+#
+# We use separate build flags for normal ARM9
+# sources, sources produced by SBT86, and ARM7
+# sources.
+#
+# These are the normal ARM7/ARM9 build flags for
+# producing Nintendo DS binaries, plus specific
+# flags that are intended to help optimize the
+# output of SBT86.
+#
+# XXX: I also want to use -frtl-abstract-sequences
+#      in CFLAGS_BT, but it's currently causing
+#      an internal gcc error. Oops.
+#
 
-CFLAGS  +=      $(INCLUDE) -DARM9
-CXXFLAGS        := $(CFLAGS) -fno-rtti -fno-exceptions
+LIB_LDFLAGS      := $(foreach dir,$(LIBDIRS),-L$(dir)/lib)
+LIB_CFLAGS       := $(foreach dir,$(LIBDIRS),-I$(dir)/include)
 
-ASFLAGS :=      -g $(ARCH)
-LDFLAGS =       -specs=ds_arm9.specs -g $(ARCH) -mno-fpu -Wl,-Map,$(notdir $*.map)
+CFLAGS_COMMON    := -fomit-frame-pointer -ffast-math -I$(INCLUDEDIR)
 
-#---------------------------------------------------------------------------------
-# any extra libraries we wish to link with the project
-#---------------------------------------------------------------------------------
-LIBS    := -lnds9
+ARCH_A9          := -mthumb -mthumb-interwork
+CFLAGS_COMMON_A9 := $(CFLAGS_COMMON) $(ARCH_A9) -march=armv5te -mtune=arm946e-s
+CFLAGS_A9        := $(CFLAGS_COMMON_A9) -Wall -O2 -DARM9 $(LIB_CFLAGS)
+CXXFLAGS_A9      := $(CFLAGS_A9) -fno-rtti -fno-exceptions
+CFLAGS_BT        := $(CFLAGS_COMMON_A9) -Os -fweb
+LDFLAGS_A9       := -specs=ds_arm9.specs $(ARCH_A9) $(LIB_LDFLAGS)
+LIBS_A9          := -lnds9
 
+ARCH_A7          := -mthumb-interwork
+CFLAGS_COMMON_A7 := $(CFLAGS_COMMON) $(ARCH_A7) -mcpu=arm7tdmi -mtune=arm7tdmi
+CFLAGS_A7        := $(CFLAGS_COMMON_A7) -Wall -O2 -DARM7 $(LIB_CFLAGS)
+LDFLAGS_A7       := -specs=ds_arm7.specs $(ARCH_A7) $(LIB_LDFLAGS)
+LIBS_A7          := -lnds7
 
-#---------------------------------------------------------------------------------
-# list of directories containing libraries, this must be the top level containing
-# include and lib
-#---------------------------------------------------------------------------------
-LIBDIRS :=      $(LIBNDS)
+############################################
+# Local Variables
+#
 
-#---------------------------------------------------------------------------------
-# no real need to edit anything past this point unless you need to add additional
-# rules for different file extensions
-#---------------------------------------------------------------------------------
-ifneq ($(BUILD),$(notdir $(CURDIR)))
-#---------------------------------------------------------------------------------
+# Binary names
+NDSFILE  := $(TARGET).nds
+ARM7BIN  := $(BUILDDIR)/$(TARGET).arm7
+ARM7ELF  := $(BUILDDIR)/$(TARGET).arm7.elf
+ARM9BIN  := $(BUILDDIR)/$(TARGET).arm9
+ARM9ELF  := $(BUILDDIR)/$(TARGET).arm9.elf
 
-export TOPDIR   :=      $(CURDIR)
+# Default dependencies
+CDEPS := $(addprefix $(INCLUDEDIR)/,$(notdir $(wildcard $(INCLUDEDIR)/*.h)))
 
-export OUTPUT   :=      $(TOPDIR)/$(TARGET)
+# SBT86 sources
+GENERATED_BT := $(addprefix $(BUILDDIR)/,$(subst .py,.c,$(SOURCES_BT)))
+OBJS_BT      := $(subst .c,.o,$(GENERATED_BT))
+SBT86_DEPS   := $(SCRIPTDIR)/sbt86.py
 
-export VPATH    :=      $(foreach dir,$(SOURCES),$(TOPDIR)/$(dir)) \
-                        $(TOPDIR)/$(GBFSDIR)
+# Other sources
+OBJS_A7      := $(addprefix $(BUILDDIR)/,$(subst .c,.o,$(SOURCES_A7)))
+OBJS_A9      := $(addprefix $(BUILDDIR)/,$(subst .c,.o,$(SOURCES_A9)))
 
-export DEPSDIR  :=      $(TOPDIR)/$(BUILD)
+# We have a GBFS filesystem to hold all game datafiles
+GBFS_ROOT    := $(BUILDDIR)/fs
+GBFS_FILE    := $(BUILDDIR)/data.gbfs
+GBFS_OBJ     := $(BUILDDIR)/data.gbfs.o
 
-CFILES          :=      $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
-CPPFILES        :=      $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
-SFILES          :=      $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
+# All ARM9 objects, including non-normal files like GBFS and SBT86 output.
+OBJS_A9_ALL  := $(OBJS_A9) $(OBJS_BT) $(GBFS_OBJ)
 
-export GBFSFILES        := $(notdir $(wildcard $(GBFSDIR)/*.*))
+############################################
+# Build targets.
+#
+# There are separate compile targets for normal ARM9 code,
+# binary translated ARM9 code, and ARM7 code.
+#
 
-#---------------------------------------------------------------------------------
-# use CXX for linking C++ projects, CC for standard C
-#---------------------------------------------------------------------------------
-ifeq ($(strip $(CPPFILES)),)
-#---------------------------------------------------------------------------------
-        export LD       :=      $(CC)
-#---------------------------------------------------------------------------------
-else
-#---------------------------------------------------------------------------------
-        export LD       :=      $(CXX)
-#---------------------------------------------------------------------------------
-endif
-#---------------------------------------------------------------------------------
+.PHONY: all
+all: $(NDSFILE)
 
-
-export OFILES   :=      data.gbfs.o $(BT_OBJS) \
-                        $(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
-
-export INCLUDE  :=      $(foreach dir,$(INCLUDES),-I$(TOPDIR)/$(dir)) \
-                                        $(foreach dir,$(LIBDIRS),-I$(dir)/include) \
-                                        $(foreach dir,$(LIBDIRS),-I$(dir)/include) \
-                                        -I$(TOPDIR)/$(BUILD)
-
-export LIBPATHS :=      $(foreach dir,$(LIBDIRS),-L$(dir)/lib)
-
-.PHONY: $(BUILD) clean
-
-#---------------------------------------------------------------------------------
-$(BUILD):
-	@[ -d $@ ] || mkdir -p $@
-	@$(MAKE) --no-print-directory -C $(BUILD) -f $(TOPDIR)/Makefile
-
-#---------------------------------------------------------------------------------
+.PHONY: clean
 clean:
-	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).elf $(TARGET).nds $(TARGET).arm9 $(TARGET).ds.gba 
+	rm -rf $(BUILDDIR)/* $(NDSFILE)
+
+$(NDSFILE): $(ARM7BIN) $(ARM9BIN)
+	@echo "[NDSTOOL]" $@
+	@ndstool -c $(NDSFILE) -7 $(ARM7BIN) -9 $(ARM9BIN)
+
+$(ARM7BIN): $(ARM7ELF)
+	@echo "[OBJCOPY]" $@
+	@$(OBJCOPY) -O binary $< $@
+
+$(ARM9BIN): $(ARM9ELF)
+	@echo "[OBJCOPY]" $@
+	@$(OBJCOPY) -O binary $< $@
+
+$(ARM7ELF): $(OBJS_A7)
+	@echo "[LD-ARM7]" $@
+	@$(CC) $(LDFLAGS_A7) $(OBJS_A7) $(LIBS_A7) -o $@
+
+$(ARM9ELF): $(OBJS_A9_ALL)
+	@echo "[LD-ARM9]" $@
+	@$(CC) $(LDFLAGS_A9) $(OBJS_A9_ALL) $(LIBS_A9) -o $@
+
+$(OBJS_A7): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.c $(CDEPS)
+	@echo "[CC-ARM7]" $@
+	@$(CC) $(CFLAGS_A7) -c -o $@ $<
+
+$(OBJS_A9): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.c $(CDEPS)
+	@echo "[CC-ARM9]" $@
+	@$(CC) $(CFLAGS_A9) -c -o $@ $<
+
+$(OBJS_BT): $(BUILDDIR)/%.o: $(BUILDDIR)/%.c $(CDEPS)
+	@echo "[CC-SBT ]" $@
+	@$(CC) $(CFLAGS_BT) -c -o $@ $<
+
+$(GENERATED_BT): $(BUILDDIR)/%.c: $(SCRIPTDIR)/%.py $(SBT86_DEPS) $(BUILDDIR)/original
+	@echo "[SBT86  ]" $@
+	@$(PYTHON) $<
+
+# Pseudo-target to clean up and extract original Robot Odyssey data
+$(BUILDDIR)/original:
+	@echo "[UNPACK ] Unpacking original Robot Odyssey data..."
+	@$(PYTHON) $(SCRIPTDIR)/check-originals.py
+	@touch $@
+
+# Pseudo-target to package up the game data files with GBFS
+$(GBFS_FILE): $(BUILDDIR)/original
+	@echo "[GBFS   ] Packing game data files"
+	@cd $(GBFS_ROOT); gbfs $(TOPDIR)/$(GBFS_FILE) *
+
+$(GBFS_OBJ): $(GBFS_FILE)
+	@echo "[OBJCOPY]" $@
+	@$(OBJCOPY) -I binary -O elf32-littlearm -B arm \
+		--rename-section .data=.rodata,readonly,data,contents,alloc \
+		--redefine-sym _binary_build_data_gbfs_start=data_gbfs \
+		--redefine-sym _binary_build_data_gbfs_end=data_gbfs_end \
+		--redefine-sym _binary_build_data_gbfs_size=data_gbfs_size \
+		$< $@
 
 
-#---------------------------------------------------------------------------------
-else
-
-DEPENDS :=      $(OFILES:.o=.d)
-
-#---------------------------------------------------------------------------------
-# main targets
-#---------------------------------------------------------------------------------
-$(OUTPUT).nds   :       $(OUTPUT).arm9
-$(OUTPUT).arm9  :       $(OUTPUT).elf
-$(OUTPUT).elf   :       $(OFILES)
-
-#---------------------------------------------------------------------------------
-%.gbfs.o : %.gbfs
-	@$(bin2o)
-
-#---------------------------------------------------------------------------------
-%.gbfs :
-	@cd $(TOPDIR)/$(GBFSDIR) && gbfs $(TOPDIR)/$(BUILD)/$@ $(GBFSFILES)
-
-#---------------------------------------------------------------------------------
-# Binary translation rules
-
-%.bt.c: $(TOPDIR)/$(SCRIPTS)/bt_%.py $(TOPDIR)/$(SCRIPTS)/sbt86.py
-	@cd $(TOPDIR)/$(SCRIPTS) && python $<
-
--include $(DEPENDS)
-
-#---------------------------------------------------------------------------------------
-endif
-#---------------------------------------------------------------------------------------
+### The End ###

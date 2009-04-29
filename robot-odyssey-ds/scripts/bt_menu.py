@@ -4,9 +4,10 @@
 # Micah Dowty <micah@navi.cx>
 #
 
+import sys
 import sbt86
 
-b = sbt86.DOSBinary('MENU.EXE')
+b = sbt86.DOSBinary('build/menu.exe')
 
 # XXX: Dynamic branch, looks sound related.
 b.patch('010E:0778', 'nop', 2)
@@ -31,4 +32,4 @@ b.trace('w', '''
    //printf("Write to %04x:%04x from %04x:%04x\\n", segment, offset, cs, ip);
 ''')
 
-b.writeCodeToFile("bt_menu.c", "menu_main")
+b.writeCodeToFile('build/bt_menu.c', "menu_main")

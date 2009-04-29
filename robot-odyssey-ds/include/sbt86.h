@@ -35,6 +35,8 @@
 #include <stdlib.h>
 #include <setjmp.h>
 
+/* XXX: Hack! */
+#include <stdio.h>
 #define assert(x) \
     if (!(x)) { \
         printf("Assert failed at %s:%d\n", __FILE__, __LINE__); \

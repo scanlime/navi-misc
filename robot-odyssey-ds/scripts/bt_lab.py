@@ -4,10 +4,11 @@
 # Micah Dowty <micah@navi.cx>
 #
 
+import sys
 import sbt86
 import bt_common
 
-b = sbt86.DOSBinary('LAB.EXE')
+b = sbt86.DOSBinary('build/lab.exe')
 
 def chipTrace(b):
     """Debugging code: Add a memory trace which catches all *reads* to
@@ -28,4 +29,4 @@ bt_common.patchChips(b)
 #bt_common.worldTrace(b)
 #chipTrace(b)
 
-b.writeCodeToFile("../build/lab.bt.c", "lab_main")
+b.writeCodeToFile('build/bt_lab.c', "lab_main")

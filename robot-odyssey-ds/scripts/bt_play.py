@@ -4,8 +4,9 @@
 # Micah Dowty <micah@navi.cx>
 #
 
+import sys
 import sbt86
 
-b = sbt86.DOSBinary('PLAY.EXE')
+b = sbt86.DOSBinary('build/play.exe')
 
-b.writeCodeToFile("bt_play.c", "play_main")
+b.writeCodeToFile('build/bt_play.c', "play_main")

@@ -4,10 +4,11 @@
 # Micah Dowty <micah@navi.cx>
 #
 
+import sys
 import sbt86
 import bt_common
 
-b = sbt86.DOSBinary('GAME.EXE')
+b = sbt86.DOSBinary('build/game.exe')
 
 bt_common.patch(b)
 bt_common.patchChips(b)
@@ -19,4 +20,4 @@ b.patchAndHook(b.findCode('2c01 :2f a2____ a2____ b12c 32ed'),
    printf("XXX: Skipping unimplemented 'das' instruction.\\n");
 ''')
 
-b.writeCodeToFile("../build/game.bt.c", "lab_main")
+b.writeCodeToFile('build/bt_game.c', "lab_main")

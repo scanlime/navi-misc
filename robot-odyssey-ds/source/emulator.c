@@ -42,12 +42,6 @@ extern const GBFS_FILE data_gbfs;
 uint8_t mem[0xFFFF0 + 0xFFFF];
 jmp_buf dosExitJump;
 
-static struct {
-    int eventWaiting;
-    int scancode;
-    int ascii;
-} keyboard;
-
 /*
  * We emulate the PC speaker in a way which is very specific to how
  * Robot Odyssey uses it. It doesn't use the PIT at all, it just turns
@@ -353,6 +347,7 @@ out(uint16_t port, uint8_t value, uint32_t timestamp)
  */
 
 extern int tutorial_main(const char *cmdLine);
+extern int lab_main(const char *cmdLine);
 
 int
 main(int argc, char **argv)
