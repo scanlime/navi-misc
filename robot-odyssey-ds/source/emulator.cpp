@@ -36,6 +36,7 @@ extern "C" {
 #include <stdio.h>
 
 #include "videoConvert.h"
+#include "soundEngine.h"
 
 extern const GBFS_FILE data_gbfs;
 
@@ -68,18 +69,6 @@ jmp_buf dosExitJump;
 
 static struct {
     uint8_t       port61;
-
-    struct {
-        int       enable;
-        uint32_t  currentTime;
-        uint8_t   state;
-    } playback;
-
-    volatile struct {
-        uint32_t  timestamps[AUDIO_BUFFER_SIZE];
-        uint32_t  head;
-        uint32_t  tail;
-    } buffer;
 } audio;
 
 int bg;
@@ -319,24 +308,9 @@ out(uint16_t port, uint8_t value, uint32_t timestamp)
              * PC speaker state toggled. Store a timestamp.
              */
 
-            uint32_t nextHead = (audio.buffer.head + 1) & (AUDIO_BUFFER_SIZE - 1);
-
-            if (nextHead == audio.buffer.tail) {
-                iprintf("AUDIO: Buffer overflow!\n");
-            }
-
-            audio.buffer.timestamps[audio.buffer.head] = timestamp;
-            audio.buffer.head = nextHead;
-
-            /*
-             * If the audio wasn't playing, start it.
-             */
-            if (!audio.playback.enable) {
-                audio.playback.currentTime = timestamp;
-                audio.playback.enable = 1;
-                // XXX NDS
-            }
+            SoundEngine::writeSpeakerTimestamp(timestamp);
         }
+
         audio.port61 = value;
         break;
 
@@ -370,7 +344,8 @@ main(int argc, char **argv)
             "Micah Dowty <micah@navi.cx>\n"
             "---------------------------\n");
 
-    retval = lab_main("30");
+    //retval = lab_main("30");
+    retval = tutorial_main("21");
 
     iprintf("DOS Exit (return code %d)\n", retval);
     return retval;
@@ -425,8 +400,9 @@ consoleBlitToScreen(uint8_t *fb)
 
     if (!(keysHeld() & KEY_SELECT)) {
         i = 5;
-        while (i--)
+        while (i--) {
             swiWaitForVBlank();
+        }
     }
 
     VideoConvert::scaleCGAto256(fb, bgGetGfxPtr(bg));

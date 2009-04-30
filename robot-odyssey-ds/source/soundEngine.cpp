@@ -41,11 +41,16 @@
 
 uint8_t SoundEngine::buffer[SoundEngine::BUFFER_SIZE];
 int SoundEngine::bufferIndex;
+bool SoundEngine::streaming;
+uint8_t SoundEngine::edgeState;
+uint32_t SoundEngine::currentTime;
 
 
 void SoundEngine::init(int timerChannel)
 {
     soundOn();
+    streaming = false;
+    edgeState = 0;
     initStreaming(timerChannel);
 }
 
@@ -67,10 +72,14 @@ void SoundEngine::soundOn()
 void SoundEngine::initStreaming(int timerChannel)
 {
     memset(buffer, 0, sizeof buffer);
-    bufferIndex = SAMPLES_PER_FRAME;
+    bufferIndex = 0;
 
     /*
-     * Next timer tick will populate second half of the buffer.
+     * Next timer tick will populate the first half of the buffer
+     * (bufferIndex=0) but by the time we get there, the audio
+     * hardware will already be started on the second half.  We want
+     * the sound hardware and Timer 0 to stay synchronized, so that
+     * they're always operating on opposite halves of 'buffer'.
      */
     timerStart(timerChannel,
                ClockDivider_256,
@@ -82,7 +91,7 @@ void SoundEngine::initStreaming(int timerChannel)
      */
     SCHANNEL_SOURCE(CHANNEL_PCSPEAKER)       = (uint32_t) &buffer[0];
     SCHANNEL_REPEAT_POINT(CHANNEL_PCSPEAKER) = 0;
-    SCHANNEL_LENGTH(CHANNEL_PCSPEAKER)       = SAMPLES_PER_FRAME * 2;
+    SCHANNEL_LENGTH(CHANNEL_PCSPEAKER)       = BUFFER_SIZE / sizeof(uint32_t);
     SCHANNEL_TIMER(CHANNEL_PCSPEAKER)        = SOUND_FREQ(SAMPLE_RATE);
     SCHANNEL_CR(CHANNEL_PCSPEAKER)           = SCHANNEL_ENABLE |
                                                SOUND_VOL(127) |
@@ -93,13 +102,66 @@ void SoundEngine::initStreaming(int timerChannel)
 
 void SoundEngine::timerCallback()
 {
-#if 0
-    int i;
-    uint8_t *bufPtr = buffer; // + bufferIndex;
-    //bufferIndex ^= SAMPLES_PER_FRAME;
+    /*
+     * Perform per-buffer state updates, then fill the next frame
+     * (1/2 of 'buffer') with audio samples.
+     */
 
-    for (i = SAMPLES_PER_FRAME * 2; i; i--) {
-        *(bufPtr++) = i;
+    uint8_t *bufPtr = buffer + bufferIndex;
+    bufferIndex ^= SAMPLES_PER_FRAME;
+
+    if (streaming) {
+        /*
+         * We're in the middle of an audio stream.  Generate samples
+         * based on the values in our FIFO, which are timestamps at
+         * which a PC speaker edge transition (0->1 or 1->0) occurred.
+         */
+
+        int remaining;
+
+        for (remaining = SAMPLES_PER_FRAME; remaining; remaining--, bufPtr++) {
+            uint16_t head = getIPC()->head;
+            uint16_t tail = getIPC()->tail;
+
+            if (head == tail) {
+                /*
+                 * Stream ended. Fill the rest of the buffer with silence.
+                 */
+                streaming = false;
+                memset(bufPtr, edgeState, remaining);
+                break;
+            }
+
+            /*
+             * Slurp up any events from the timestamp buffer which have
+             * elapsed by now, and adjust the current speaker state
+             * accordingly.
+             */
+
+            while (head != tail &&
+                   ((int32_t)(getIPC()->fifo[tail] - currentTime)) <= 0) {
+
+                edgeState ^= 0x80;
+                getIPC()->tail = tail = (tail + 1) & (FIFO_SIZE - 1);
+                head = getIPC()->head;
+            }
+
+            currentTime += CLOCKS_PER_SAMPLE;
+            *bufPtr = edgeState;
+        }
+
+    } else {
+        /*
+         * No stream is currently in progress. Output silence.  If we
+         * see data in the FIFO, start a stream on the _next_ timer
+         * tick, to give the FIFO some opportunity to pre-buffer.
+         */
+
+        if (getIPC()->head != getIPC()->tail) {
+            currentTime = getIPC()->fifo[getIPC()->tail];
+            streaming = true;
+        }
+
+        memset(bufPtr, edgeState, SAMPLES_PER_FRAME);
     }
-#endif
 }
