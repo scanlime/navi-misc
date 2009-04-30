@@ -37,7 +37,7 @@ LIBDIRS     := $(LIBNDS)
 SOURCES_A9   := emulator.cpp
 SOURCES_ITCM := videoConvert.cpp
 SOURCES_A7   := arm7.cpp soundEngine.cpp
-SOURCES_BT   := bt_lab.py
+SOURCES_BT   := bt_tutorial.py
 
 ############################################
 # Build flags.
