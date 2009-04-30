@@ -30,12 +30,14 @@ LIBDIRS     := $(LIBNDS)
 # Object Files.
 #
 # There are separate lists for normal ARM9
-# sources, SBT86 scripts, and ARM7 sources.
+# sources, ARM9 sources that run out of ITCM
+# memory, SBT86 scripts, and ARM7 sources.
 #
 
-SOURCES_A9 := emulator.c
-SOURCES_A7 := arm7.c
-SOURCES_BT := bt_lab.py
+SOURCES_A9   := emulator.cpp
+SOURCES_ITCM := videoConvert.cpp
+SOURCES_A7   := arm7.cpp soundEngine.cpp
+SOURCES_BT   := bt_lab.py
 
 ############################################
 # Build flags.
@@ -57,19 +59,27 @@ SOURCES_BT := bt_lab.py
 LIB_LDFLAGS      := $(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 LIB_CFLAGS       := $(foreach dir,$(LIBDIRS),-I$(dir)/include)
 
-CFLAGS_COMMON    := -fomit-frame-pointer -ffast-math -I$(INCLUDEDIR)
+CFLAGS_COMMON    := -g -Werror -fomit-frame-pointer -ffast-math -I$(INCLUDEDIR)
+CXX_COMMON       := -fno-rtti -fno-exceptions
 
 ARCH_A9          := -mthumb -mthumb-interwork
-CFLAGS_COMMON_A9 := $(CFLAGS_COMMON) $(ARCH_A9) -march=armv5te -mtune=arm946e-s
-CFLAGS_A9        := $(CFLAGS_COMMON_A9) -Wall -O2 -DARM9 $(LIB_CFLAGS)
-CXXFLAGS_A9      := $(CFLAGS_A9) -fno-rtti -fno-exceptions
-CFLAGS_BT        := $(CFLAGS_COMMON_A9) -Os -fweb
+ARM_A9           := -march=armv5te -mtune=arm946e-s -DARM9
+CFLAGS_COMMON_A9 := $(CFLAGS_COMMON) $(ARCH_A9) $(ARM_A9)
+CFLAGS_A9        := $(CFLAGS_COMMON_A9) -Wall -O2 $(LIB_CFLAGS)
+CXXFLAGS_A9      := $(CFLAGS_A9) $(CXX_COMMON)
 LDFLAGS_A9       := -specs=ds_arm9.specs $(ARCH_A9) $(LIB_LDFLAGS)
 LIBS_A9          := -lnds9
+
+ARCH_ITCM        := -marm -mlong-calls
+CXXFLAGS_ITCM    := $(CFLAGS_COMMON) $(CXX_COMMON) $(ARCH_ITCM) \
+                    $(ARM_A9) -Wall -O3 $(LIB_CFLAGS)
+
+CFLAGS_BT        := $(CFLAGS_COMMON_A9) -Os -fweb
 
 ARCH_A7          := -mthumb-interwork
 CFLAGS_COMMON_A7 := $(CFLAGS_COMMON) $(ARCH_A7) -mcpu=arm7tdmi -mtune=arm7tdmi
 CFLAGS_A7        := $(CFLAGS_COMMON_A7) -Wall -O2 -DARM7 $(LIB_CFLAGS)
+CXXFLAGS_A7      := $(CFLAGS_A7) $(CXX_COMMON)
 LDFLAGS_A7       := -specs=ds_arm7.specs $(ARCH_A7) $(LIB_LDFLAGS)
 LIBS_A7          := -lnds7
 
@@ -93,8 +103,9 @@ OBJS_BT      := $(subst .c,.o,$(GENERATED_BT))
 SBT86_DEPS   := $(SCRIPTDIR)/sbt86.py
 
 # Other sources
-OBJS_A7      := $(addprefix $(BUILDDIR)/,$(subst .c,.o,$(SOURCES_A7)))
-OBJS_A9      := $(addprefix $(BUILDDIR)/,$(subst .c,.o,$(SOURCES_A9)))
+OBJS_A7      := $(addprefix $(BUILDDIR)/,$(subst .cpp,.o,$(SOURCES_A7)))
+OBJS_A9      := $(addprefix $(BUILDDIR)/,$(subst .cpp,.o,$(SOURCES_A9)))
+OBJS_ITCM    := $(addprefix $(BUILDDIR)/,$(subst .cpp,.o,$(SOURCES_ITCM)))
 
 # We have a GBFS filesystem to hold all game datafiles
 GBFS_ROOT    := $(BUILDDIR)/fs
@@ -102,7 +113,7 @@ GBFS_FILE    := $(BUILDDIR)/data.gbfs
 GBFS_OBJ     := $(BUILDDIR)/data.gbfs.o
 
 # All ARM9 objects, including non-normal files like GBFS and SBT86 output.
-OBJS_A9_ALL  := $(OBJS_A9) $(OBJS_BT) $(GBFS_OBJ)
+OBJS_A9_ALL  := $(OBJS_A9) $(OBJS_BT) $(OBJS_ITCM) $(GBFS_OBJ)
 
 ############################################
 # Build targets.
@@ -117,6 +128,11 @@ all: $(NDSFILE)
 .PHONY: clean
 clean:
 	rm -rf $(BUILDDIR)/* $(NDSFILE)
+
+# Simple size profiler
+.PHONY: sizeprof
+sizeprof: $(ARM9ELF)
+	@arm-eabi-nm --size-sort -S $< | egrep -v " [bBsS] "
 
 $(NDSFILE): $(ARM7BIN) $(ARM9BIN)
 	@echo "[NDSTOOL]" $@
@@ -138,13 +154,17 @@ $(ARM9ELF): $(OBJS_A9_ALL)
 	@echo "[LD-ARM9]" $@
 	@$(CC) $(LDFLAGS_A9) $(OBJS_A9_ALL) $(LIBS_A9) -o $@
 
-$(OBJS_A7): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.c $(CDEPS)
+$(OBJS_A7): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.cpp $(CDEPS)
 	@echo "[CC-ARM7]" $@
-	@$(CC) $(CFLAGS_A7) -c -o $@ $<
+	@$(CXX) $(CXXFLAGS_A7) -c -o $@ $<
 
-$(OBJS_A9): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.c $(CDEPS)
+$(OBJS_A9): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.cpp $(CDEPS)
 	@echo "[CC-ARM9]" $@
-	@$(CC) $(CFLAGS_A9) -c -o $@ $<
+	@$(CXX) $(CXXFLAGS_A9) -c -o $@ $<
+
+$(OBJS_ITCM): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.cpp $(CDEPS)
+	@echo "[CC-ITCM]" $@
+	@$(CXX) $(CXXFLAGS_ITCM) -c -o $@ $<
 
 $(OBJS_BT): $(BUILDDIR)/%.o: $(BUILDDIR)/%.c $(CDEPS)
 	@echo "[CC-SBT ]" $@

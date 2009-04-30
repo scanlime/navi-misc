@@ -27,11 +27,15 @@
  *    OTHER DEALINGS IN THE SOFTWARE.
  */
 
+extern "C" {
 #include "sbt86.h"
+}
 
 #include <nds.h>
 #include <gbfs.h>
 #include <stdio.h>
+
+#include "videoConvert.h"
 
 extern const GBFS_FILE data_gbfs;
 
@@ -235,7 +239,7 @@ interrupt21(Regs reg)
                 reg.ds, reg.dx, name, fd);
 
         numFiles++;
-        files[fd].data = gbfs_get_obj(&data_gbfs, name, &files[fd].len);
+        files[fd].data = (const uint8_t*) gbfs_get_obj(&data_gbfs, name, &files[fd].len);
         reg.ax = fd;
         CLR_CF;
 
@@ -253,8 +257,8 @@ interrupt21(Regs reg)
     }
 
     case 0x3F: {              /* Read File */
-        int fd = reg.bx;
-        int len = reg.cx;
+        uint16_t fd = reg.bx;
+        uint16_t len = reg.cx;
         void *dest = mem + SEG(reg.ds, reg.dx);
 
         if (len > files[fd].len) {
@@ -346,8 +350,10 @@ out(uint16_t port, uint8_t value, uint32_t timestamp)
  * Main Program
  */
 
-extern int tutorial_main(const char *cmdLine);
-extern int lab_main(const char *cmdLine);
+extern "C" {
+    int tutorial_main(const char *cmdLine);
+    int lab_main(const char *cmdLine);
+}
 
 int
 main(int argc, char **argv)
@@ -375,115 +381,12 @@ main(int argc, char **argv)
  * Console
  */
 
-static void
-cgaDrawPlane(uint8_t *in, uint16_t *out)
-{
-    /*
-     * Palette tables for an antialiased scaler which squishes every 5
-     * input pixels into 4 output pixels. See gen-scaler-table.py for
-     * the general algorithm these were generated with.
-     */
-    static const uint16_t pal00_pal31[] = { 0x8000, 0xe728, 0xe519, 0xe739 };
-    static const uint16_t pal01_pal30[] = { 0x0000, 0x18c2, 0x1846, 0x18c6 };
-    static const uint16_t pal10_pal21[] = { 0x8000, 0xce66, 0xccd3, 0xce73 };
-    static const uint16_t pal11_pal20[] = { 0x0000, 0x3184, 0x308c, 0x318c };
-
-    int x, y;
-
-    for (y = 96; y; y--) {
-        uint16_t color;
-        uint8_t byte;
-
-        /*
-         * Our scaling pattern is 5 input pixels / 4 output pixels
-         * wide. Loop it 16 times to cover 256 output pixels.
-         */
-
-        for (x = 16; x; x--) {
-            byte      = *(in++);
-            color     = pal00_pal31[byte >> 6];
-            byte    <<= 2;
-            color    += pal01_pal30[byte >> 6];
-            *(out++)  = color;
-            color     = pal10_pal21[byte >> 6];
-            byte    <<= 2;
-            color    += pal11_pal20[byte >> 6];
-            *(out++)  = color;
-            color     = pal11_pal20[byte >> 6];
-            byte    <<= 2;
-            color    += pal10_pal21[byte >> 6];
-            *(out++)  = color;
-            color     = pal01_pal30[byte >> 6];
-            byte      = *(in++);
-            color    += pal00_pal31[byte >> 6];
-            *(out++)  = color;
-
-            byte    <<= 2;
-            color     = pal00_pal31[byte >> 6];
-            byte    <<= 2;
-            color    += pal01_pal30[byte >> 6];
-            *(out++)  = color;
-            color     = pal10_pal21[byte >> 6];
-            byte    <<= 2;
-            color    += pal11_pal20[byte >> 6];
-            *(out++)  = color;
-            color     = pal11_pal20[byte >> 6];
-            byte      = *(in++);
-            color    += pal10_pal21[byte >> 6];
-            *(out++)  = color;
-            color     = pal01_pal30[byte >> 6];
-            byte    <<= 2;
-            color    += pal00_pal31[byte >> 6];
-            *(out++)  = color;
-
-            byte    <<= 2;
-            color     = pal00_pal31[byte >> 6];
-            byte    <<= 2;
-            color    += pal01_pal30[byte >> 6];
-            *(out++)  = color;
-            color     = pal10_pal21[byte >> 6];
-            byte      = *(in++);
-            color    += pal11_pal20[byte >> 6];
-            *(out++)  = color;
-            color     = pal11_pal20[byte >> 6];
-            byte    <<= 2;
-            color    += pal10_pal21[byte >> 6];
-            *(out++)  = color;
-            color     = pal01_pal30[byte >> 6];
-            byte    <<= 2;
-            color    += pal00_pal31[byte >> 6];
-            *(out++)  = color;
-
-            byte    <<= 2;
-            color     = pal00_pal31[byte >> 6];
-            byte      = *(in++);
-            color    += pal01_pal30[byte >> 6];
-            *(out++)  = color;
-            color     = pal10_pal21[byte >> 6];
-            byte    <<= 2;
-            color    += pal11_pal20[byte >> 6];
-            *(out++)  = color;
-            color     = pal11_pal20[byte >> 6];
-            byte    <<= 2;
-            color    += pal10_pal21[byte >> 6];
-            *(out++)  = color;
-            color     = pal01_pal30[byte >> 6];
-            byte    <<= 2;
-            color    += pal00_pal31[byte >> 6];
-            *(out++)  = color;
-        }
-
-        /* Skip every other line (CGA interlacing) */
-        out += 256;
-    }
-}
-
 static uint16_t
 keyboardPoll(void)
 {
-    int i;
+    unsigned int i;
     static const struct {
-        int      key;
+        uint16_t key;
         uint16_t code;
     } keyTable[] = {
 
@@ -526,8 +429,7 @@ consoleBlitToScreen(uint8_t *fb)
             swiWaitForVBlank();
     }
 
-    cgaDrawPlane(fb, bgGetGfxPtr(bg));
-    cgaDrawPlane(fb + 0x2000, bgGetGfxPtr(bg) + 256);
+    VideoConvert::scaleCGAto256(fb, bgGetGfxPtr(bg));
 }
 
 #if 0
