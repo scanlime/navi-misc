@@ -122,8 +122,8 @@ decompressRLE(uint8_t *dest, uint8_t *src, uint32_t srcLength)
 void
 failedDynamicBranch(uint16_t cs, uint16_t ip, uint32_t value)
 {
-    printf("ERROR: Dynamic branch at %04X:%04X to unsupported value 0x%04x\n",
-           cs, ip, value);
+    iprintf("ERROR: Dynamic branch at %04X:%04X to unsupported value 0x%04x\n",
+            cs, ip, value);
     exit(1);
 }
 
@@ -143,7 +143,7 @@ interrupt10(Regs reg)
     }
 
     default: {
-        printf("BIOS10: Unsupported! ax=0x%04x\n", reg.ax);
+        iprintf("BIOS10: Unsupported! ax=0x%04x\n", reg.ax);
         break;
     }
     }
@@ -172,7 +172,7 @@ interrupt16(Regs reg)
     }
 
     default: {
-        printf("BIOS16: Unsupported! ax=0x%04x\n", reg.ax);
+        iprintf("BIOS16: Unsupported! ax=0x%04x\n", reg.ax);
         break;
     }
     }
@@ -231,8 +231,8 @@ interrupt21(Regs reg)
         int fd = numFiles;
         const char *name = (char*)(mem + SEG(reg.ds, reg.dx));
 
-        printf("DOS: Open file %04x:%04x='%s' -> #%d\n",
-               reg.ds, reg.dx, name, fd);
+        iprintf("DOS: Open file %04x:%04x='%s' -> #%d\n",
+                reg.ds, reg.dx, name, fd);
 
         numFiles++;
         files[fd].data = gbfs_get_obj(&data_gbfs, name, &files[fd].len);
@@ -240,14 +240,14 @@ interrupt21(Regs reg)
         CLR_CF;
 
         if (!files[fd].data) {
-            printf("Error opening file");
+            iprintf("Error opening file");
             exit(1);
         }
         break;
     }
 
     case 0x3E: {              /* Close File */
-        printf("DOS: Close file #%d\n", reg.bx);
+        iprintf("DOS: Close file #%d\n", reg.bx);
         CLR_CF;
         break;
     }
@@ -265,8 +265,8 @@ interrupt21(Regs reg)
         files[fd].len -= len;
         reg.ax = len;
 
-        printf("DOS: Read %d bytes from file #%d -> %d bytes at %04x:%04x\n",
-               reg.cx, fd, reg.ax, reg.ds, reg.dx);
+        iprintf("DOS: Read %d bytes from file #%d -> %d bytes at %04x:%04x\n",
+                reg.cx, fd, reg.ax, reg.ds, reg.dx);
         CLR_CF;
         break;
     }
@@ -277,7 +277,7 @@ interrupt21(Regs reg)
     }
 
     default:
-        printf("DOS: Unsupported! ax=0x%04x\n", reg.ax);
+        iprintf("DOS: Unsupported! ax=0x%04x\n", reg.ax);
         break;
     }
     return reg;
@@ -292,7 +292,7 @@ in(uint16_t port, uint32_t timestamp)
         return audio.port61;
 
     default:
-        printf("IO: Unimplemented IN %0x04x\n", port);
+        iprintf("IO: Unimplemented IN %0x04x\n", port);
         return 0;
     }
 }
@@ -318,7 +318,7 @@ out(uint16_t port, uint8_t value, uint32_t timestamp)
             uint32_t nextHead = (audio.buffer.head + 1) & (AUDIO_BUFFER_SIZE - 1);
 
             if (nextHead == audio.buffer.tail) {
-                printf("AUDIO: Buffer overflow!\n");
+                iprintf("AUDIO: Buffer overflow!\n");
             }
 
             audio.buffer.timestamps[audio.buffer.head] = timestamp;
@@ -337,7 +337,7 @@ out(uint16_t port, uint8_t value, uint32_t timestamp)
         break;
 
     default:
-        printf("IO: Unimplemented OUT 0x%04x, %02x\n", port, value);
+        iprintf("IO: Unimplemented OUT 0x%04x, %02x\n", port, value);
     }
 }
 
@@ -359,11 +359,14 @@ main(int argc, char **argv)
     consoleDemoInit();
     bg = bgInit(2, BgType_Bmp16, BgSize_B16_256x256, 0,0);
 
-    iprintf("Hello World!\n");
+    iprintf("Robot Odyssey DS\n"
+            "(Work In Progress)\n"
+            "Micah Dowty <micah@navi.cx>\n"
+            "---------------------------\n");
 
     retval = lab_main("30");
 
-    printf("DOS Exit (return code %d)\n", retval);
+    iprintf("DOS Exit (return code %d)\n", retval);
     return retval;
 }
 
@@ -497,8 +500,8 @@ keyboardPoll(void)
         { KEY_B, ' ' },
         { KEY_A, 'S' },
         { KEY_X, 'C' },
-        { KEY_Y, 'H' },
-        { KEY_L, 'T' },
+        { KEY_Y, 'T' },
+        { KEY_L, 'R' },
     };
 
     scanKeys();
