@@ -47,31 +47,9 @@ extern const GBFS_FILE data_gbfs;
 uint8_t mem[0xFFFF0 + 0xFFFF];
 jmp_buf dosExitJump;
 
-/*
- * We emulate the PC speaker in a way which is very specific to how
- * Robot Odyssey uses it. It doesn't use the PIT at all, it just turns
- * the speaker on and off programmatically, relying on cycle timing to
- * generate the right noises. We rely on the cycle counter that we
- * insert into the binary translated code in order to timestamp all
- * I/O operations. When the speaker is toggled, we store a timestamp
- * into a buffer. This buffer is then converted to audio by our
- * audioCallback().
- *
- * XXX: We don't have a good way to slow down the CPU when it gets
- *      too far ahead of the audio thread, so currently the audio
- *      buffer must be large enough to store the longest sound
- *      effect. (The transporter, I think.)
- */
-
-#define AUDIO_BUFFER_SIZE 0x10000  // Must be a power of two
-#define AUDIO_HZ          11000    // Seems to sound best at 11kHz. (low-pass filtering)
-#define PC_CLOCK_HZ       4770000  // 4.77 MHz
-
 static struct {
     uint8_t       port61;
 } audio;
-
-int bg;
 
 static uint16_t keyboardPoll(void);
 
@@ -334,10 +312,14 @@ main(int argc, char **argv)
 {
     int retval;
 
-    videoSetMode(MODE_5_2D);
-    vramSetBankA(VRAM_A_MAIN_BG_0x06000000);
     consoleDemoInit();
-    bg = bgInit(2, BgType_Bmp16, BgSize_B16_256x256, 0,0);
+
+    /*
+     * We'll be using VRAM banks A and B for a double-buffered framebuffer.
+     * Assign them directly to the LCD controller, bypassing the graphics engine.
+     */
+    vramSetBankA(VRAM_A_LCD);
+    vramSetBankB(VRAM_B_LCD);
 
     iprintf("Robot Odyssey DS\n"
             "(Work In Progress)\n"
@@ -396,7 +378,12 @@ keyboardPoll(void)
 void
 consoleBlitToScreen(uint8_t *fb)
 {
+    static bool toggle;
     int i;
+
+    toggle = !toggle;
+
+    VideoConvert::scaleCGAto256(fb, toggle ? VRAM_A : VRAM_B);
 
     if (!(keysHeld() & KEY_SELECT)) {
         i = 5;
@@ -405,40 +392,5 @@ consoleBlitToScreen(uint8_t *fb)
         }
     }
 
-    VideoConvert::scaleCGAto256(fb, bgGetGfxPtr(bg));
+    videoSetMode(toggle ? MODE_FB0 : MODE_FB1);
 }
-
-#if 0
-void
-audioCallback(void *userdata, uint8_t *buffer, int len)
-{
-    int sample;
-
-    for (sample = 0; sample < len; sample++) {
-        if (audio.buffer.head == audio.buffer.tail) {
-            /* Buffer empty, stop playback. */
-            audio.playback.enable = 0;
-            // XXX NDS
-            break;
-        }
-
-        /*
-         * Advance the audio clock, measuring its progress in CPU cycles.
-         */
-        audio.playback.currentTime += PC_CLOCK_HZ / AUDIO_HZ;
-
-        /*
-         * Slurp up any events from the timestamp buffer which have
-         * elapsed by now, and adjust the current speaker state
-         * accordingly.
-         */
-        while (audio.buffer.head != audio.buffer.tail &&
-               audio.buffer.timestamps[audio.buffer.tail] < audio.playback.currentTime) {
-            audio.buffer.tail = (audio.buffer.tail + 1) & (AUDIO_BUFFER_SIZE - 1);
-            audio.playback.state ^= 0xFF;
-        }
-
-        buffer[sample] = audio.playback.state;
-    }
-}
-#endif
