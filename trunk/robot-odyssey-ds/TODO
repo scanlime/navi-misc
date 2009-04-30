@@ -1,0 +1,12 @@
+Gameplay
+--------
+
+- Main Menu
+- Load/save menus
+- Touchscreen support for changing cursor modes
+- Touchscreen soldering mode
+
+Robustness
+----------
+
+- Power down audio hardware on sleep
