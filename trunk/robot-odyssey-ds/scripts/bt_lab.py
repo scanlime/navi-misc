@@ -29,4 +29,4 @@ bt_common.patchChips(b)
 #bt_common.worldTrace(b)
 #chipTrace(b)
 
-b.writeCodeToFile('build/bt_lab.c', "lab_main")
+b.writeCodeToFile('build/bt_lab.cpp', 'LabEXE')

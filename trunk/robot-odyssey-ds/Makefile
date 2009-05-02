@@ -34,10 +34,10 @@ LIBDIRS     := $(LIBNDS)
 # memory, SBT86 scripts, and ARM7 sources.
 #
 
-SOURCES_A9   := emulator.cpp
+SOURCES_A9   := main.cpp sbtHardware.cpp sbtProcess.cpp
 SOURCES_ITCM := videoConvert.cpp
 SOURCES_A7   := arm7.cpp soundEngine.cpp
-SOURCES_BT   := bt_tutorial.py
+SOURCES_BT   := bt_tutorial.py bt_menu.py bt_game.py bt_lab.py
 
 ############################################
 # Build flags.
@@ -59,19 +59,18 @@ SOURCES_BT   := bt_tutorial.py
 LIB_LDFLAGS      := $(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 LIB_CFLAGS       := $(foreach dir,$(LIBDIRS),-I$(dir)/include)
 
-CFLAGS_COMMON    := -g -Werror -fomit-frame-pointer -ffast-math -I$(INCLUDEDIR)
-CXX_COMMON       := -fno-rtti -fno-exceptions
+CFLAGS_COMMON    := -g -Werror -fomit-frame-pointer -ffast-math \
+                    -I$(INCLUDEDIR) -fno-rtti -fno-exceptions
 
 ARCH_A9          := -mthumb -mthumb-interwork
 ARM_A9           := -march=armv5te -mtune=arm946e-s -DARM9
 CFLAGS_COMMON_A9 := $(CFLAGS_COMMON) $(ARCH_A9) $(ARM_A9)
 CFLAGS_A9        := $(CFLAGS_COMMON_A9) -Wall -O2 $(LIB_CFLAGS)
-CXXFLAGS_A9      := $(CFLAGS_A9) $(CXX_COMMON)
 LDFLAGS_A9       := -specs=ds_arm9.specs $(ARCH_A9) $(LIB_LDFLAGS)
 LIBS_A9          := -lnds9
 
 ARCH_ITCM        := -marm -mlong-calls
-CXXFLAGS_ITCM    := $(CFLAGS_COMMON) $(CXX_COMMON) $(ARCH_ITCM) \
+CFLAGS_ITCM      := $(CFLAGS_COMMON) $(ARCH_ITCM) \
                     $(ARM_A9) -Wall -O3 $(LIB_CFLAGS)
 
 CFLAGS_BT        := $(CFLAGS_COMMON_A9) -Os -fweb
@@ -79,7 +78,6 @@ CFLAGS_BT        := $(CFLAGS_COMMON_A9) -Os -fweb
 ARCH_A7          := -mthumb-interwork
 CFLAGS_COMMON_A7 := $(CFLAGS_COMMON) $(ARCH_A7) -mcpu=arm7tdmi -mtune=arm7tdmi
 CFLAGS_A7        := $(CFLAGS_COMMON_A7) -Wall -O2 -DARM7 $(LIB_CFLAGS)
-CXXFLAGS_A7      := $(CFLAGS_A7) $(CXX_COMMON)
 LDFLAGS_A7       := -specs=ds_arm7.specs $(ARCH_A7) $(LIB_LDFLAGS)
 LIBS_A7          := -lnds7
 
@@ -98,8 +96,8 @@ ARM9ELF  := $(BUILDDIR)/$(TARGET).arm9.elf
 CDEPS := $(addprefix $(INCLUDEDIR)/,$(notdir $(wildcard $(INCLUDEDIR)/*.h)))
 
 # SBT86 sources
-GENERATED_BT := $(addprefix $(BUILDDIR)/,$(subst .py,.c,$(SOURCES_BT)))
-OBJS_BT      := $(subst .c,.o,$(GENERATED_BT))
+GENERATED_BT := $(addprefix $(BUILDDIR)/,$(subst .py,.cpp,$(SOURCES_BT)))
+OBJS_BT      := $(subst .cpp,.o,$(GENERATED_BT))
 SBT86_DEPS   := $(SCRIPTDIR)/sbt86.py
 
 # Other sources
@@ -148,29 +146,29 @@ $(ARM9BIN): $(ARM9ELF)
 
 $(ARM7ELF): $(OBJS_A7)
 	@echo "[LD-ARM7]" $@
-	@$(CC) $(LDFLAGS_A7) $(OBJS_A7) $(LIBS_A7) -o $@
+	@$(CXX) $(LDFLAGS_A7) $(OBJS_A7) $(LIBS_A7) -o $@
 
 $(ARM9ELF): $(OBJS_A9_ALL)
 	@echo "[LD-ARM9]" $@
-	@$(CC) $(LDFLAGS_A9) $(OBJS_A9_ALL) $(LIBS_A9) -o $@
+	@$(CXX) $(LDFLAGS_A9) $(OBJS_A9_ALL) $(LIBS_A9) -o $@
 
 $(OBJS_A7): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.cpp $(CDEPS)
 	@echo "[CC-ARM7]" $@
-	@$(CXX) $(CXXFLAGS_A7) -c -o $@ $<
+	@$(CXX) $(CFLAGS_A7) -c -o $@ $<
 
 $(OBJS_A9): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.cpp $(CDEPS)
 	@echo "[CC-ARM9]" $@
-	@$(CXX) $(CXXFLAGS_A9) -c -o $@ $<
+	@$(CXX) $(CFLAGS_A9) -c -o $@ $<
 
 $(OBJS_ITCM): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.cpp $(CDEPS)
 	@echo "[CC-ITCM]" $@
-	@$(CXX) $(CXXFLAGS_ITCM) -c -o $@ $<
+	@$(CXX) $(CFLAGS_ITCM) -c -o $@ $<
 
-$(OBJS_BT): $(BUILDDIR)/%.o: $(BUILDDIR)/%.c $(CDEPS)
+$(OBJS_BT): $(BUILDDIR)/%.o: $(BUILDDIR)/%.cpp $(CDEPS)
 	@echo "[CC-SBT ]" $@
-	@$(CC) $(CFLAGS_BT) -c -o $@ $<
+	@$(CXX) $(CFLAGS_BT) -c -o $@ $<
 
-$(GENERATED_BT): $(BUILDDIR)/%.c: $(SCRIPTDIR)/%.py $(SBT86_DEPS) $(BUILDDIR)/original
+$(GENERATED_BT): $(BUILDDIR)/%.cpp: $(SCRIPTDIR)/%.py $(SBT86_DEPS) $(BUILDDIR)/original
 	@echo "[SBT86  ]" $@
 	@$(PYTHON) $<
 

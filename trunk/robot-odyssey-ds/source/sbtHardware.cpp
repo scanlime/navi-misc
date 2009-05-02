@@ -1,7 +1,7 @@
 /* -*- Mode: C; c-basic-offset: 4 -*-
  *
- * Hardware emulation and environment support code for sbt86, an
- * experimental 8086 -> C static binary translator.
+ * Implementation of basic PC hardware emulation support for SBT86.
+ * This file defines the base class implementation for SBTHardware.
  *
  * Copyright (c) 2009 Micah Dowty <micah@navi.cx>
  *
@@ -27,84 +27,17 @@
  *    OTHER DEALINGS IN THE SOFTWARE.
  */
 
-extern "C" {
-#include "sbt86.h"
-}
-
+#include <stdio.h>
+#include <string.h>
 #include <nds.h>
 #include <gbfs.h>
-#include <stdio.h>
-
+#include "sbt86.h"
 #include "videoConvert.h"
-#include "soundEngine.h"
 
 extern const GBFS_FILE data_gbfs;
 
-/*
- * XXX: Use less memory. For now, this is just set to the maximum
- * amount that real-mode code can address.
- */
-uint8_t mem[0xFFFF0 + 0xFFFF];
-jmp_buf dosExitJump;
 
-static struct {
-    uint8_t       port61;
-} audio;
-
-static uint16_t keyboardPoll(void);
-
-
-/*****************************************************************
- * Utilitity functions that are referenced by generated code
- */
-
-void
-decompressRLE(uint8_t *dest, uint8_t *src, uint32_t srcLength)
-{
-    /*
-     * Decompress our very simple RLE format. Runs of 2 or more zeroes
-     * are replaced with 2 zeroes plus a 16-bit count of the omitted
-     * zeroes. We assume the output buffer has already been
-     * zero-filled, so the zero runs are simply skipped.
-     */
-
-    int zeroes = 0;
-
-    while (srcLength) {
-        uint8_t byte = *(src++);
-        *(dest++) = byte;
-        srcLength--;
-
-        if (byte) {
-            zeroes = 0;
-        } else {
-            zeroes++;
-
-            if (zeroes == 2) {
-                zeroes = 0;
-                dest += src[0] + (src[1] << 8);
-                src += 2;
-                srcLength -= 2;
-            }
-        }
-    }
-}
-
-void
-failedDynamicBranch(uint16_t cs, uint16_t ip, uint32_t value)
-{
-    iprintf("ERROR: Dynamic branch at %04X:%04X to unsupported value 0x%04x\n",
-            cs, ip, value);
-    exit(1);
-}
-
-
-/*****************************************************************
- * Emulated DOS, BIOS, and PC hardware.
- */
-
-Regs
-interrupt10(Regs reg)
+SBTRegs SBTHardware::interrupt10(SBTProcess *proc, SBTRegs reg)
 {
     switch (reg.ah) {
 
@@ -121,8 +54,7 @@ interrupt10(Regs reg)
     return reg;
 }
 
-Regs
-interrupt16(Regs reg)
+SBTRegs SBTHardware::interrupt16(SBTProcess *proc, SBTRegs reg)
 {
     switch (reg.ah) {
 
@@ -134,10 +66,10 @@ interrupt16(Regs reg)
     case 0x01: {              /* Check for keystroke */
         uint16_t key = keyboardPoll();
         if (key) {
-            CLR_ZF;
+            reg.clearZF();
             reg.ax = key;
         } else {
-            SET_ZF;
+            reg.setZF();
         }
         break;
     }
@@ -150,8 +82,7 @@ interrupt16(Regs reg)
     return reg;
 }
 
-Regs
-interrupt21(Regs reg)
+SBTRegs SBTHardware::interrupt21(SBTProcess *proc, SBTRegs reg)
 {
     static int numFiles = 0;
     static struct {
@@ -166,10 +97,10 @@ interrupt21(Regs reg)
             uint16_t key = keyboardPoll();
             if (key) {
                 reg.al = (uint8_t) key;
-                CLR_ZF;
+                reg.clearZF();
             } else {
                 reg.al = 0;
-                SET_ZF;
+                reg.setZF();
             }
         }
         break;
@@ -181,26 +112,24 @@ interrupt21(Regs reg)
     }
 
     case 0x2C: {              /* Get system time */
-        /*
-         * XXX: This is supposed to return wallclock time, but Robot Odyssey's
-         *      menu just uses this for calculated delays- so the offset from
-         *      real time is not important.
-         */
-        uint32_t ticks = 0; // XXX NDS
-        uint32_t seconds = ticks / 1000;
-        uint32_t minutes = seconds / 60;
-        uint32_t hours = minutes / 60;
-        reg.ch = hours % 24;
-        reg.cl = minutes % 60;
-        reg.dh = seconds % 60;
-        reg.dl = (ticks / 10) % 100;
+       
+        //time_t unixTime = time(NULL);
+        static time_t unixTime;
+        struct tm* timeStruct = gmtime((const time_t *)&unixTime);
+        unixTime++;
+
+        reg.ch = timeStruct->tm_hour;
+        reg.cl = timeStruct->tm_min;
+        reg.dh = timeStruct->tm_sec;
+        reg.dl = 0;
+
+        //iprintf("Clock %04x%04x\n", reg.cx, reg.dx);
         break;
     }
 
-
     case 0x3D: {              /* Open File */
         int fd = numFiles;
-        const char *name = (char*)(mem + SEG(reg.ds, reg.dx));
+        const char *name = (char*)(proc->memSeg(reg.ds) + reg.dx);
 
         iprintf("DOS: Open file %04x:%04x='%s' -> #%d\n",
                 reg.ds, reg.dx, name, fd);
@@ -208,25 +137,24 @@ interrupt21(Regs reg)
         numFiles++;
         files[fd].data = (const uint8_t*) gbfs_get_obj(&data_gbfs, name, &files[fd].len);
         reg.ax = fd;
-        CLR_CF;
+        reg.clearCF();
 
         if (!files[fd].data) {
-            iprintf("Error opening file");
-            exit(1);
+            iprintf("Error opening file\n");
         }
         break;
     }
 
     case 0x3E: {              /* Close File */
         iprintf("DOS: Close file #%d\n", reg.bx);
-        CLR_CF;
+        reg.clearCF();
         break;
     }
 
     case 0x3F: {              /* Read File */
         uint16_t fd = reg.bx;
         uint16_t len = reg.cx;
-        void *dest = mem + SEG(reg.ds, reg.dx);
+        void *dest = proc->memSeg(reg.ds) + reg.dx;
 
         if (len > files[fd].len) {
             len = files[fd].len;
@@ -238,12 +166,13 @@ interrupt21(Regs reg)
 
         iprintf("DOS: Read %d bytes from file #%d -> %d bytes at %04x:%04x\n",
                 reg.cx, fd, reg.ax, reg.ds, reg.dx);
-        CLR_CF;
+        reg.clearCF();
         break;
     }
 
     case 0x4C: {              /* Exit with return code */
-        longjmp(dosExitJump, 0x100 | reg.al);
+        /* XXX */
+        proc->halt(0x100 | reg.al);
         break;
     }
 
@@ -254,13 +183,12 @@ interrupt21(Regs reg)
     return reg;
 }
 
-uint8_t
-in(uint16_t port, uint32_t timestamp)
+uint8_t SBTHardware::in(uint16_t port, uint32_t timestamp)
 {
     switch (port) {
 
     case 0x61:    /* PC speaker gate */
-        return audio.port61;
+        return port61;
 
     default:
         iprintf("IO: Unimplemented IN %0x04x\n", port);
@@ -268,8 +196,7 @@ in(uint16_t port, uint32_t timestamp)
     }
 }
 
-void
-out(uint16_t port, uint8_t value, uint32_t timestamp)
+void SBTHardware::out(uint16_t port, uint8_t value, uint32_t timestamp)
 {
     switch (port) {
 
@@ -281,15 +208,16 @@ out(uint16_t port, uint8_t value, uint32_t timestamp)
         break;
 
     case 0x61:    /* PC speaker gate */
-        if ((value ^ audio.port61) & 2) {
+        if ((value ^ port61) & 2) {
             /*
              * PC speaker state toggled. Store a timestamp.
              */
 
-            SoundEngine::writeSpeakerTimestamp(timestamp);
+            /* XXX */
+            //SoundEngine::writeSpeakerTimestamp(timestamp);
         }
 
-        audio.port61 = value;
+        port61 = value;
         break;
 
     default:
@@ -297,49 +225,25 @@ out(uint16_t port, uint8_t value, uint32_t timestamp)
     }
 }
 
-
-/*****************************************************************
- * Main Program
- */
-
-extern "C" {
-    int tutorial_main(const char *cmdLine);
-    int lab_main(const char *cmdLine);
-}
-
-int
-main(int argc, char **argv)
+void SBTHardware::drawScreen(uint8_t *framebuffer)
 {
-    int retval;
+    static bool toggle;
 
-    consoleDemoInit();
+    toggle = !toggle;
 
-    /*
-     * We'll be using VRAM banks A and B for a double-buffered framebuffer.
-     * Assign them directly to the LCD controller, bypassing the graphics engine.
-     */
-    vramSetBankA(VRAM_A_LCD);
-    vramSetBankB(VRAM_B_LCD);
+    VideoConvert::scaleCGAto256(framebuffer, toggle ? VRAM_A : VRAM_B);
 
-    iprintf("Robot Odyssey DS\n"
-            "(Work In Progress)\n"
-            "Micah Dowty <micah@navi.cx>\n"
-            "---------------------------\n");
+    if (!(keysHeld() & KEY_SELECT)) {
+        int i = 5;
+        while (i--) {
+            swiWaitForVBlank();
+        }
+    }
 
-    //retval = lab_main("30");
-    retval = tutorial_main("21");
-
-    iprintf("DOS Exit (return code %d)\n", retval);
-    return retval;
+    videoSetMode(toggle ? MODE_FB0 : MODE_FB1);
 }
 
-
-/*****************************************************************
- * Console
- */
-
-static uint16_t
-keyboardPoll(void)
+uint16_t SBTHardware::keyboardPoll(void)
 {
     unsigned int i;
     static const struct {
@@ -373,24 +277,4 @@ keyboardPoll(void)
     }
 
     return 0;
-}
-
-void
-consoleBlitToScreen(uint8_t *fb)
-{
-    static bool toggle;
-    int i;
-
-    toggle = !toggle;
-
-    VideoConvert::scaleCGAto256(fb, toggle ? VRAM_A : VRAM_B);
-
-    if (!(keysHeld() & KEY_SELECT)) {
-        i = 5;
-        while (i--) {
-            swiWaitForVBlank();
-        }
-    }
-
-    videoSetMode(toggle ? MODE_FB0 : MODE_FB1);
 }

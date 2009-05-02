@@ -59,10 +59,7 @@ def patch(b):
 
     b.patchAndHook(b.findCode(':803e____01 7503 e95a05 c43e____'
                               'bb2800 a1____ 8cda 8ed8 be0020 33 c0'),
-                   'ret', '''
-        uint16_t backbufferSegment = M16R(&reg.ptr.ds[0x3AD5]);
-        consoleBlitToScreen(mem + SEG(backbufferSegment,0));
-    ''')
+                   'ret', 'hw->drawScreen(proc->memSeg(proc->peek16(r.ds, 0x3AD5)));')
 
     # Object intersection tests make use of a callback function that tests
     # whether the object is allowed to be picked up. There are at least
@@ -90,10 +87,10 @@ def patch(b):
     b.patchAndHook(b.findCode('b500 8a0e____ 8bf9 8b1e____ 8a01 247f'
                               '741c 8a1e____ 8a3e____ :ffe3 b500 8a0e____'),
                    'nop', length=2, cCode='''
-        if (reg.si < 16)
-            reg.al >>= reg.si >> 1;
+        if (r.si < 16)
+            r.al >>= r.si >> 1;
         else
-            reg.al <<= 16 - (reg.si >> 1);
+            r.al <<= 16 - (r.si >> 1);
     ''')
 
     # The text rendering code is a bit crazy.. The inner loop draws one
@@ -137,14 +134,14 @@ def patchChips(b):
     # related to simulating flip-flops within chips.
 
     b.hook(b.findCode(':58 a3____ 32f68bfa 8b1e'),
-           'preSaveRet();')
+           'gStack->preSaveRet();')
     b.hook(b.findCode('8ac2 e8____ b200 a1____ 50 :c3'),
-           'postRestoreRet();')
+           'gStack->postRestoreRet();')
 
     b.hook(b.findCode(':58 a3____ a0____ 0ac0 7417'),
-           'preSaveRet();')
+           'gStack->preSaveRet();')
     b.hook(b.findCode('75e9 a1____ 50 :c3'),
-           'postRestoreRet();')
+           'gStack->postRestoreRet();')
 
 
 def findSelfModifyingCode(b):

@@ -15,4 +15,4 @@ bt_common.patch(b)
 # Debug: Trace all IPs which access memory (for diagnosing hangs)
 #b.trace('rw', 'return 1;', 'printf("%04x ", ip);')
 
-b.writeCodeToFile('build/bt_tutorial.c', "tutorial_main")
+b.writeCodeToFile('build/bt_tutorial.cpp', 'TutorialEXE')
