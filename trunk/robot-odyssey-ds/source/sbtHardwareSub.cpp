@@ -1,7 +1,7 @@
 /* -*- Mode: C; c-basic-offset: 4 -*-
  *
- * Main implementation of SBTHardware, which emulates video using the
- * Nintendo DS's primary screen.
+ * An implementation of SBTHardware which displays on the Nintendo
+ * DS's sub engine.
  *
  * Copyright (c) 2009 Micah Dowty <micah@navi.cx>
  *
@@ -27,24 +27,41 @@
  *    OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef _SBTHARDWAREMAIN_H_
-#define _SBTHARDWAREMAIN_H_
+#include <nds.h>
+#include <stdio.h>
+#include "sbtHardwareSub.h"
+#include "videoConvert.h"
 
-#include "sbtHardwareCommon.h"
 
-
-class SBTHardwareMain : public SBTHardwareCommon
+void SBTHardwareSub::reset()
 {
- public:
-    virtual void reset();
-    virtual void drawScreen(SBTProcess *proc, uint8_t *framebuffer);
+    SBTHardwareCommon::reset();
 
- protected:
-    bool vidBuffer;
+    videoSetModeSub(MODE_0_2D);
+    consoleDemoInit();
+    vramSetBankD(VRAM_D_SUB_SPRITE);
 
-    virtual void writeSpeakerTimestamp(uint32_t timestamp);
-    virtual void pollKeys();
-};
+    iprintf("Foo!\n");
+
+    oamInit(&oamSub, SpriteMapping_1D_32, false);
+
+    spr = oamAllocateGfx(&oamSub, SpriteSize_64x64, SpriteColorFormat_256Color);
+
+    for (int i = 0; i < 256; i++) {
+        SPRITE_PALETTE_SUB[i] = rand();
+    }
+
+    oamSet(&oamSub, 0, 20, 20, 0, 0, SpriteSize_64x64,
+           SpriteColorFormat_256Color, spr, -1, false, false, false, false, false);
+
+    swiWaitForVBlank();
+    oamUpdate(&oamSub);
+}
 
 
-#endif // _SBTHARDWAREMAIN_H_
+void SBTHardwareSub::drawScreen(SBTProcess *proc, uint8_t *framebuffer)
+{
+    swiCopy(framebuffer, spr, 64*64/2);
+
+    SBTHardwareCommon::drawScreen(proc, framebuffer);
+}
