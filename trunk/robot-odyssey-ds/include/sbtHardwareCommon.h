@@ -35,20 +35,6 @@
 
 #include "sbt86.h"
 
-/*
- * SBTHaltCode --
- *
- *    Enumeration with halt() values we use with SBTProcess.
- */
-
-enum SBTHaltCode {
-    SBTHALT_MASK_CODE    = 0xFFFF0000,
-    SBTHALT_MASK_ARG     = 0x0000FFFF,
-
-    SBTHALT_DOS_EXIT     = (1 << 16),    // OR'ed with DOS exit code
-    SBTHALT_FRAME_DRAWN  = (2 << 16),    // We just rendered a frame
-};
-
 
 /*
  * DOSFilesystem --

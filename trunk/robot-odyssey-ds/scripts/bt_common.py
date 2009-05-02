@@ -107,6 +107,13 @@ def patch(b):
                                      '8b87____ 86e0 :260b84fefe 268984fefe'),
                           178)
 
+    # Each of the per-level main loops has code to set the currently
+    # viewable room (playfield_room_number) based on the player's location.
+    # We may want to override that, so insert a halt() hook there.
+
+    for addr in b.findCodeMultiple('a0ac05 :a25848'):
+        b.hook(addr, 'proc->halt(SBTHALT_LOAD_ROOM_ID);')
+
 
 def patchChips(b):
     """Patches for binaries that support chips. (LAB and GAME, but not TUT).

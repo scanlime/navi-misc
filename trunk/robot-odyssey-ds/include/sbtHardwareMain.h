@@ -40,7 +40,11 @@ class SBTHardwareMain : public SBTHardwareCommon
     virtual void drawScreen(SBTProcess *proc, uint8_t *framebuffer);
 
  protected:
-    bool vidBuffer;
+    static const unsigned MAP_BASE_OFFSET =
+        (SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(uint16_t)) / (16 * 1024);
+
+    int bg;
+    uint16_t *backbuffer;
 
     virtual void writeSpeakerTimestamp(uint32_t timestamp);
     virtual void pollKeys();

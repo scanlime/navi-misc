@@ -52,6 +52,22 @@ class SBTSegmentCache;
 
 
 /*
+ * SBTHaltCode --
+ *
+ *    Enumeration with halt() values we use with SBTProcess.
+ */
+
+enum SBTHaltCode {
+    SBTHALT_MASK_CODE      = 0xFFFF0000,
+    SBTHALT_MASK_ARG       = 0x0000FFFF,
+
+    SBTHALT_DOS_EXIT       = (1 << 16),    // OR'ed with DOS exit code
+    SBTHALT_FRAME_DRAWN    = (2 << 16),    // We just rendered a frame
+    SBTHALT_LOAD_ROOM_ID   = (3 << 16),    // Loading room ID from al
+};
+
+
+/*
  * SBTHardware --
  *
  *    Abstract base class for a virtual hardware implementation which
@@ -190,42 +206,42 @@ class SBTStack
 
     inline void pushw(uint16_t word) {
         sassert(top < STACK_SIZE, "SBT86 stack overflow");
-        stack[top].word = word;
-        stack[top].tag = STACK_TAG_WORD;
+        words[top] = word;
+        tags[top] = STACK_TAG_WORD;
         top++;
     }
 
     inline void pushf(SBTRegs reg) {
         sassert(top < STACK_SIZE, "SBT86 stack overflow");
-        stack[top].uresult = reg.uresult;
-        stack[top].sresult = reg.sresult;
-        stack[top].tag = STACK_TAG_FLAGS;
+        flags[top].uresult = reg.uresult;
+        flags[top].sresult = reg.sresult;
+        tags[top] = STACK_TAG_FLAGS;
         top++;
     }
 
     inline void pushret() {
         sassert(top < STACK_SIZE, "SBT86 stack overflow");
-        stack[top].tag = STACK_TAG_RETADDR;
+        tags[top] = STACK_TAG_RETADDR;
         top++;
     }
 
     inline uint16_t popw() {
         top--;
-        sassert(stack[top].tag == STACK_TAG_WORD, "SBT86 stack tag mismatch");
-        return stack[top].word;
+        sassert(tags[top] == STACK_TAG_WORD, "SBT86 stack tag mismatch");
+        return words[top];
     }
 
     inline SBTRegs popf(SBTRegs reg) {
         top--;
-        sassert(stack[top].tag == STACK_TAG_FLAGS, "SBT86 stack tag mismatch");
-        reg.uresult = stack[top].uresult;
-        reg.sresult = stack[top].sresult;
+        sassert(tags[top] == STACK_TAG_FLAGS, "SBT86 stack tag mismatch");
+        reg.uresult = flags[top].uresult;
+        reg.sresult = flags[top].sresult;
         return reg;
     }
 
     inline void popret() {
         top--;
-        sassert(stack[top].tag == STACK_TAG_RETADDR, "SBT86 stack tag mismatch");
+        sassert(tags[top] == STACK_TAG_RETADDR, "SBT86 stack tag mismatch");
     }
 
     /*
@@ -245,15 +261,15 @@ class SBTStack
      */
 
     inline void preSaveRet() {
-        sassert(stack[top - 1].tag == STACK_TAG_RETADDR, "SBT86 stack tag mismatch");
-        stack[top - 1].word = retVerification;
-        stack[top - 1].tag = STACK_TAG_WORD;
+        sassert(tags[top - 1] == STACK_TAG_RETADDR, "SBT86 stack tag mismatch");
+        words[top - 1] = retVerification;
+        tags[top - 1] = STACK_TAG_WORD;
     }
 
     inline void postRestoreRet() {
-        sassert(stack[top - 1].tag == STACK_TAG_WORD, "SBT86 stack tag mismatch");
-        sassert(stack[top - 1].word == retVerification, "SBT86 stack retaddr mismatch");
-        stack[top - 1].tag = STACK_TAG_RETADDR;
+        sassert(tags[top - 1] == STACK_TAG_WORD, "SBT86 stack tag mismatch");
+        sassert(words[top - 1] == retVerification, "SBT86 stack retaddr mismatch");
+        tags[top - 1] = STACK_TAG_RETADDR;
         retVerification++;
     }
 
@@ -269,16 +285,12 @@ class SBTStack
     uint32_t top;
     uint32_t retVerification;
 
+    Tag tags[STACK_SIZE];
+    uint32_t words[STACK_SIZE];
     struct {
-        Tag tag;
-        union {
-            uint32_t word;
-            struct {
-                uint32_t uresult;
-                int32_t  sresult;
-            };
-        };
-    } stack[STACK_SIZE];
+        uint32_t uresult;
+        int32_t sresult;
+    } flags[STACK_SIZE];
 };
 
 

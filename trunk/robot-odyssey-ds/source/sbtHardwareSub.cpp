@@ -37,31 +37,21 @@ void SBTHardwareSub::reset()
 {
     SBTHardwareCommon::reset();
 
-    videoSetModeSub(MODE_0_2D);
-    consoleDemoInit();
-    vramSetBankD(VRAM_D_SUB_SPRITE);
+    // Mode 5: Two tiled 'text' layers, two extended background layers
+    videoSetModeSub(MODE_5_2D);
 
-    iprintf("Foo!\n");
+    /*
+     * XXX: We're using bank C, which is only 128kB: not enough to double-buffer.
+     */
+    vramSetBankC(VRAM_C_SUB_BG_0x06200000);
 
-    oamInit(&oamSub, SpriteMapping_1D_32, false);
-
-    spr = oamAllocateGfx(&oamSub, SpriteSize_64x64, SpriteColorFormat_256Color);
-
-    for (int i = 0; i < 256; i++) {
-        SPRITE_PALETTE_SUB[i] = rand();
-    }
-
-    oamSet(&oamSub, 0, 20, 20, 0, 0, SpriteSize_64x64,
-           SpriteColorFormat_256Color, spr, -1, false, false, false, false, false);
-
-    swiWaitForVBlank();
-    oamUpdate(&oamSub);
+    bg = bgInitSub(3, BgType_Bmp16, BgSize_B16_256x256, 0, 0);
+    backbuffer= bgGetGfxPtr(bg);
 }
 
 
 void SBTHardwareSub::drawScreen(SBTProcess *proc, uint8_t *framebuffer)
 {
-    swiCopy(framebuffer, spr, 64*64/2);
-
+    VideoConvert::scaleCGAto256(framebuffer, backbuffer);
     SBTHardwareCommon::drawScreen(proc, framebuffer);
 }
