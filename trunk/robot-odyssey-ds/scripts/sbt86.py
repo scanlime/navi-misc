@@ -1622,8 +1622,8 @@ void %(className)s::saveCache() {
 
 %(subCode)s
 
-void %(className)s::entry() {
-    sub_%(entryLinear)X();
+uintptr_t %(className)s::getEntryPtr() {
+    return (uintptr_t) sub_%(entryLinear)X;
 }
 """
 
