@@ -32,6 +32,20 @@
 #include "sbt86.h"
 
 
+/*
+ * Verify the architecture. SBT86 only supports little-endian, and the
+ * jmp_buf setup code here only supports ARMs which are new enough to
+ * support Thumb.
+ */
+
+#ifndef __ARMEL__
+#define This SBTProcess implementation only supports ARM little-endian
+#endif
+#ifndef __thumb2__
+#define This SBTProcess implementation only supports ARM processors with thumb2
+#endif
+
+
 static void decompressRLE(uint8_t *dest, uint8_t *src, uint32_t srcLength)
 {
     /*
@@ -85,18 +99,52 @@ void SBTProcess::exec(const char *cmdLine)
     reg.es = reg.ds - 0x10;
     poke8(reg.es, 0x80, strlen(cmdLine));
     strcpy((char*) (memSeg(reg.es) + 0x81), cmdLine);
+
+    /*
+     * Set up the initial jmpHalt buffer to point to the program's
+     * entry point. This is very non-portable code, and it's the main
+     * reason for the platform checks at the top of the file.
+     *
+     * NOTE: The stack grows down, and arm-eabi specifies that it
+     *       must be 8-byte aligned!
+     */
+
+    uintptr_t sp = (uintptr_t) &nativeStack[NATIVE_STACK_WORDS-1];
+    sp &= ~7;
+
+    memset(jmpHalt, 0, sizeof(jmpHalt));
+    jmpHalt[9] = sp;
+    jmpHalt[10] = getEntryPtr();
 }
 
 int SBTProcess::run(void)
 {
+    /*
+     * Give us a way to exit from run mode. The halt() routine will
+     * bounce back here with a return code.
+     */
+    int result = setjmp(jmpRun);
+    if (result) {
+        return result;
+    }
+
+    /*
+     * Go back to executing this process.
+     */
     loadCache();
-    entry();
+    longjmp(jmpHalt, 1);
     return 0;
 }
 
 void SBTProcess::halt(int code)
 {
-
+    /*
+     * Save our current state, and exit from run().
+     */
+    if (!setjmp(jmpHalt)) {
+        saveCache();
+        longjmp(jmpRun, code);
+    }
 }
 
 uint8_t *SBTProcess::memSeg(uint16_t seg)

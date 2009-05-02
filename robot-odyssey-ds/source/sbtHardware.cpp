@@ -56,6 +56,8 @@ SBTRegs SBTHardware::interrupt10(SBTProcess *proc, SBTRegs reg)
 
 SBTRegs SBTHardware::interrupt16(SBTProcess *proc, SBTRegs reg)
 {
+    proc->halt(1000 + reg.ah);
+
     switch (reg.ah) {
 
     case 0x00: {              /* Get keystroke */
@@ -112,7 +114,7 @@ SBTRegs SBTHardware::interrupt21(SBTProcess *proc, SBTRegs reg)
     }
 
     case 0x2C: {              /* Get system time */
-       
+
         //time_t unixTime = time(NULL);
         static time_t unixTime;
         struct tm* timeStruct = gmtime((const time_t *)&unixTime);

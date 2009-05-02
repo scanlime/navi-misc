@@ -35,10 +35,12 @@
 #include "soundEngine.h"
 
 SBT_DECL_PROCESS(LabEXE);
+SBT_DECL_PROCESS(TutorialEXE);
 
 int
 main(int argc, char **argv)
 {
+    defaultExceptionHandler();
     consoleDemoInit();
 
     /*
@@ -54,9 +56,19 @@ main(int argc, char **argv)
             "---------------------------\n");
 
     static LabEXE lab;
+    static TutorialEXE tutorial;
+    static SBTHardware hw;
+
+    lab.hardware = &hw;
+    tutorial.hardware = &hw;
 
     lab.exec("30");
-    lab.run();
+    tutorial.exec("22");
+
+    while (1) {
+        lab.run();
+        tutorial.run();
+    }
 
     return 0;
 }
