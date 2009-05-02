@@ -59,7 +59,9 @@ def patch(b):
 
     b.patchAndHook(b.findCode(':803e____01 7503 e95a05 c43e____'
                               'bb2800 a1____ 8cda 8ed8 be0020 33 c0'),
-                   'ret', 'hw->drawScreen(proc->memSeg(proc->peek16(r.ds, 0x3AD5)));')
+                   'ret', '''
+        hw->drawScreen(proc, proc->memSeg(proc->peek16(r.ds, 0x3AD5)));
+    ''')
 
     # Object intersection tests make use of a callback function that tests
     # whether the object is allowed to be picked up. There are at least

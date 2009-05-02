@@ -1,6 +1,7 @@
 /* -*- Mode: C; c-basic-offset: 4 -*-
  *
- * Main loop and initialization for Robot Odyssey DS.
+ * Main implementation of SBTHardware, which emulates video using the
+ * Nintendo DS's primary screen.
  *
  * Copyright (c) 2009 Micah Dowty <micah@navi.cx>
  *
@@ -26,56 +27,23 @@
  *    OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <nds.h>
-#include <stdio.h>
+#ifndef _SBTHARDWAREMAIN_H_
+#define _SBTHARDWAREMAIN_H_
 
-#include "sbt86.h"
 #include "sbtHardwareCommon.h"
-#include "sbtHardwareMain.h"
-#include "soundEngine.h"
 
-SBT_DECL_PROCESS(LabEXE);
-SBT_DECL_PROCESS(TutorialEXE);
 
-int
-main(int argc, char **argv)
+class SBTHardwareMain : public SBTHardwareCommon
 {
-    defaultExceptionHandler();
-    consoleDemoInit();
+ public:
+    virtual void drawScreen(SBTProcess *proc, uint8_t *framebuffer);
 
-    /*
-     * We'll be using VRAM banks A and B for a double-buffered framebuffer.
-     * Assign them directly to the LCD controller, bypassing the graphics engine.
-     */
-    vramSetBankA(VRAM_A_LCD);
-    vramSetBankB(VRAM_B_LCD);
+ protected:
+    bool vidBuffer;
 
-    iprintf("Robot Odyssey DS\n"
-            "(Work In Progress)\n"
-            "Micah Dowty <micah@navi.cx>\n"
-            "---------------------------\n");
+    virtual void writeSpeakerTimestamp(uint32_t timestamp);
+    virtual void pollKeys();
+};
 
-    static TutorialEXE tutorial;
-    static TutorialEXE tutorial2;
-    static SBTHardwareMain hwMain;
-    static SBTHardwareCommon hwStub;
 
-    tutorial.hardware = &hwMain;
-    tutorial2.hardware = &hwStub;
-
-    tutorial.exec("22");
-    tutorial2.exec("21");
-
-    while (1) {
-        tutorial.run();
-        tutorial2.run();
-
-        if (keysHeld() & KEY_START) {
-            SBTHardware *hw = tutorial.hardware;
-            tutorial.hardware = tutorial2.hardware;
-            tutorial2.hardware = hw;
-        }
-    }
-
-    return 0;
-}
+#endif // _SBTHARDWAREMAIN_H_

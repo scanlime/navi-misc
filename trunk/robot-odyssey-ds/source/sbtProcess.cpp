@@ -29,13 +29,15 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <nds.h>
 #include "sbt86.h"
+#include "panic.h"
 
 
 /*
  * Verify the architecture. SBT86 only supports little-endian, and the
- * jmp_buf setup code here only supports ARMs which are new enough to
- * support Thumb.
+ * jmp_buf setup code here only supports a particular jmp_buf layout
+ * which in newlib is conditional on thumb2.
  */
 
 #ifndef __ARMEL__
@@ -119,6 +121,8 @@ void SBTProcess::exec(const char *cmdLine)
 
 int SBTProcess::run(void)
 {
+    sassert(hardware != NULL, "SBTHardware must be defined\nbefore running a process");
+
     /*
      * Give us a way to exit from run mode. The halt() routine will
      * bounce back here with a return code.
@@ -149,15 +153,17 @@ void SBTProcess::halt(int code)
 
 uint8_t *SBTProcess::memSeg(uint16_t seg)
 {
-    /* XXX bounds */
-    return mem + ((uint32_t)seg << 4);
+    if (seg > MAX_SEGMENT) {
+        seg = MAX_SEGMENT;
+    }
+    return mem + (((uint32_t)seg) << 4);
 }
 
 void SBTProcess::failedDynamicBranch(uint16_t cs, uint16_t ip, uint32_t value)
 {
-    /* XXX */
-    iprintf("ERROR: Dynamic branch at %04X:%04X to unsupported value 0x%04x\n",
-            cs, ip, value);
+    PANIC(SBT86_RT_ERROR, ("Dynamic branch at %04X:%04X\n"
+                           "to unsupported location 0x%04x\n",
+                           cs, ip, value));
 }
 
 uint8_t SBTProcess::peek8(uint16_t seg, uint16_t off) {

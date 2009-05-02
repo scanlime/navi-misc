@@ -25,7 +25,7 @@ b.trace('w', '''
 
    hit++;
    if ((hit & 0x3F) == 0) {
-       hw->drawScreen(proc->memSeg(0xB800));
+       hw->drawScreen(proc, proc->memSeg(0xB800));
    }
 ''')
 
