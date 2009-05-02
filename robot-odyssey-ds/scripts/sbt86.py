@@ -242,9 +242,9 @@ class Register:
 
     def codegen(self, mode='r'):
         if mode == 'w':
-            return "reg.%s =(" % self.name
+            return "r.%s =(" % self.name
         else:
-            return "reg.%s" % self.name
+            return "r.%s" % self.name
 
 
 class Indirect:
@@ -272,7 +272,7 @@ class Indirect:
 
         assert isinstance(self.segment, Register)
         _, offset = self.genAddr()
-        mem = "reg.ptr.%s[(uint16_t)(%s)]" % (self.segment.name, offset)
+        mem = "s.%s[(uint16_t)(%s)]" % (self.segment.name, offset)
 
         if self.width == 1:
             if mode == 'w':
@@ -281,9 +281,9 @@ class Indirect:
                 return mem
         elif self.width == 2:
             if mode == 'w':
-                return "M16W(&%s," % mem
+                return "W16(&%s," % mem
             else:
-                return "M16R(&%s)" % mem
+                return "R16(&%s)" % mem
         else:
             raise InternalError("Unsupported memory access width")
 
@@ -723,7 +723,7 @@ class Instruction:
 
     def _resultShift(self, dest):
         if dest.width == 1:
-            return "reg.uresult <<= 8; reg.sresult <<= 8;"
+            return "r.uresult <<= 8; r.sresult <<= 8;"
         else:
             return ""
 
@@ -741,7 +741,7 @@ class Instruction:
             # will be used to index into a table of instruction timings.
 
             sig = (self.op,) + tuple([arg.__class__ for arg in self.args])
-            code += 'clock+=%d;' % self._cycleTable[sig]
+            code += 'gClock+=%d;' % self._cycleTable[sig]
 
         return code
 
@@ -766,8 +766,7 @@ class Instruction:
             if (isinstance(operand, Register) and mode == 'w'
                 and operand.name in ('cs', 'es', 'ds', 'ss')):
 
-                code.append("reg.ptr.%s = mem + (reg.%s << 4);"
-                            % (operand.name, operand.name))
+                code.append("s.load%s(proc, r);" % operand.name.upper())
 
             if (isinstance(operand, Indirect) and
                 isinstance(operand.segment, Register) and
@@ -818,7 +817,7 @@ class Instruction:
             )
 
     def codegen_xor(self, dest, src):
-        return "reg.uresult = %s ^ %s; %sreg.uresult); reg.sresult=0; %s%s" % (
+        return "r.uresult = %s ^ %s; %sr.uresult); r.sresult=0; %s%s" % (
             dest.codegen(), src.codegen(), dest.codegen('w'),
             self._resultShift(dest),
             self._genTraces((src, 'r'),
@@ -827,7 +826,7 @@ class Instruction:
             )
 
     def codegen_or(self, dest, src):
-        return "reg.uresult = %s | %s; %sreg.uresult); reg.sresult=0; %s%s" % (
+        return "r.uresult = %s | %s; %sr.uresult); r.sresult=0; %s%s" % (
             dest.codegen(), src.codegen(), dest.codegen('w'),
             self._resultShift(dest),
             self._genTraces((src, 'r'),
@@ -836,7 +835,7 @@ class Instruction:
             )
 
     def codegen_and(self, dest, src):
-        return "reg.uresult = %s & %s; %sreg.uresult); reg.sresult=0; %s%s" % (
+        return "r.uresult = %s & %s; %sr.uresult); r.sresult=0; %s%s" % (
             dest.codegen(), src.codegen(), dest.codegen('w'),
             self._resultShift(dest),
             self._genTraces((src, 'r'),
@@ -845,7 +844,9 @@ class Instruction:
             )
 
     def codegen_add(self, dest, src):
-        return "reg.sresult = %s + %s; reg.uresult = %s + %s; %sreg.uresult); %s%s" % (
+        return ("r.sresult = %s + %s;"
+                "r.uresult = %s + %s;"
+                "%sr.uresult); %s%s") % (
             signed(dest), signed(src),
             u32(dest), u32(src), dest.codegen('w'),
             self._resultShift(dest),
@@ -855,8 +856,9 @@ class Instruction:
             )
 
     def codegen_adc(self, dest, src):
-        return ("reg.sresult = %s + %s + CF; reg.uresult = %s + %s + CF;"
-                "%sreg.uresult); %s%s") % (
+        return ("r.sresult = %s + %s + r.getCF();"
+                "r.uresult = %s + %s + r.getCF();"
+                "%sr.uresult); %s%s") % (
             signed(dest), signed(src),
             u32(dest), u32(src), dest.codegen('w'),
             self._resultShift(dest),
@@ -866,7 +868,9 @@ class Instruction:
             )
 
     def codegen_sub(self, dest, src):
-        return "reg.sresult = %s - %s; reg.uresult = %s - %s; %sreg.uresult); %s%s" % (
+        return ("r.sresult = %s - %s;"
+                "r.uresult = %s - %s;"
+                "%sr.uresult); %s%s") % (
             signed(dest), signed(src),
             u32(dest), u32(src), dest.codegen('w'),
             self._resultShift(dest),
@@ -876,8 +880,9 @@ class Instruction:
             )
 
     def codegen_sbb(self, dest, src):
-        return ("reg.sresult=%s - (%s + CF); reg.uresult=%s - (%s + CF);"
-                "%sreg.uresult); %s%s") % (
+        return ("r.sresult=%s - (%s + r.getCF());"
+                "r.uresult=%s - (%s + r.getCF());"
+                "%sr.uresult); %s%s") % (
             signed(dest), signed(src),
             u32(dest), u32(src), dest.codegen('w'),
             self._resultShift(dest),
@@ -888,8 +893,8 @@ class Instruction:
 
     def codegen_shl(self, r, cnt):
         return self._repeat(cnt,
-                            ("reg.sresult=0; reg.uresult = ((uint32_t)%s) << 1;"
-                             "%sreg.uresult); %s") %
+                            ("r.sresult=0; r.uresult = ((uint32_t)%s) << 1;"
+                             "%sr.uresult); %s") %
                             (r.codegen(), r.codegen('w'),
                              self._genTraces((cnt, 'r'),
                                              (r, 'r'),
@@ -898,8 +903,8 @@ class Instruction:
 
     def codegen_shr(self, r, cnt):
         return self._repeat(cnt,
-                            ("reg.sresult=0; "
-                             "reg.uresult = (%s & 1) << 16; "
+                            ("r.sresult=0; "
+                             "r.uresult = (%s & 1) << 16; "
                              "%s%s >> 1); %s") %
                             (u32(r), r.codegen('w'), r.codegen(),
                              self._genTraces((cnt, 'r'),
@@ -908,9 +913,9 @@ class Instruction:
 
     def codegen_sar(self, r, cnt):
         return self._repeat(cnt,
-                            ("reg.sresult=0; "
-                             "reg.uresult = (%s & 1) << 16; "
-                             "%s(int16_t)%s) >> 1); %s") %
+                            ("r.sresult=0; "
+                             "r.uresult = (%s & 1) << 16; "
+                             "%s((int16_t)%s) >> 1); %s") %
                             (u32(r), r.codegen('w'), r.codegen(),
                              self._genTraces((cnt, 'r'),
                                              (r, 'r'),
@@ -919,8 +924,8 @@ class Instruction:
     def codegen_ror(self, r, cnt):
         msbShift = r.width * 8 - 1
         return self._repeat(cnt,
-                            ("reg.sresult=0; "
-                             "reg.uresult = ((uint32_t)(%s) & 1) << 16;"
+                            ("r.sresult=0; "
+                             "r.uresult = ((uint32_t)(%s) & 1) << 16;"
                              "%s((%s) >> 1) + ((%s) << %s)); %s") %
                             (r.codegen(), r.codegen('w'),
                              r.codegen(), r.codegen(), msbShift,
@@ -931,9 +936,9 @@ class Instruction:
     def codegen_rcr(self, r, cnt):
         msbShift = r.width * 8 - 1
         return self._repeat(cnt,
-                            ("int cf = CF;"
-                             "reg.sresult=0; "
-                             "reg.uresult = %s << 16;"
+                            ("int cf = r.getCF();"
+                             "r.sresult=0; "
+                             "r.uresult = %s << 16;"
                              "%s((%s) >> 1) + (cf << %s)); %s") %
                             (r.codegen(), r.codegen('w'), r.codegen(), msbShift,
                              self._genTraces((cnt, 'r'),
@@ -942,8 +947,9 @@ class Instruction:
 
     def codegen_rcl(self, r, cnt):
         return self._repeat(cnt,
-                            ("reg.sresult=0; "
-                             "reg.uresult = (%s << 1) + CF; %sreg.uresult); %s%s") %
+                            ("r.sresult=0; "
+                             "r.uresult = (%s << 1) + r.getCF();"
+                             "%sr.uresult); %s%s") %
                             (u32(r), r.codegen('w'), self._resultShift(r),
                              self._genTraces((cnt, 'r'),
                                              (r, 'r'),
@@ -958,43 +964,43 @@ class Instruction:
                             (b, 'w')))
 
     def codegen_imul(self, arg):
-        return "reg.ax = (int8_t)reg.al * %s;" % arg.codegen()
+        return "r.ax = (int8_t)r.al * %s;" % arg.codegen()
 
     def codegen_mul(self, arg):
-        return "reg.ax = reg.al * %s;" % arg.codegen()
+        return "r.ax = r.al * %s;" % arg.codegen()
 
     def codegen_div(self, arg):
-        return "reg.al = reg.ax / %s; reg.ah = reg.ax %% %s;" % (
+        return "r.al = r.ax / %s; r.ah = r.ax %% %s;" % (
             arg.codegen(), arg.codegen())
 
     def codegen_cmc(self):
-        return "if (CF) CLR_CF; else SET_CF;"
+        return "if (r.getCF()) r.clearCF(); else r.setCF();"
 
     def codegen_clc(self):
-        return "CLR_CF;"
+        return "r.clearCF();"
 
     def codegen_stc(self):
-        return "SET_CF;"
+        return "r.setCF();"
 
     def codegen_cbw(self):
-        return "reg.ax = (int16_t)(int8_t)reg.al;"
+        return "r.ax = (int16_t)(int8_t)r.al;"
 
     def codegen_cmp(self, a, b):
-        return "reg.sresult = %s - %s; reg.uresult = %s - %s; %s" % (
+        return "r.sresult = %s - %s; r.uresult = %s - %s; %s" % (
             signed(a), signed(b),
             u32(a), u32(b),
             self._resultShift(a))
 
     def codegen_test(self, a, b):
-        return "reg.uresult = %s & %s; reg.sresult=0; %s" % (
+        return "r.uresult = %s & %s; r.sresult=0; %s" % (
             a.codegen(), b.codegen(), self._resultShift(a))
 
     def codegen_inc(self, arg):
-        return "{ uint32_t _cf = SAVE_CF; %s; RESTORE_CF(_cf); }" % (
+        return "{ uint32_t _cf = r.saveCF(); %s; r.restoreCF(_cf); }" % (
             self.codegen_add(arg, Literal(1)))
 
     def codegen_dec(self, arg):
-        return "{ uint32_t _cf = SAVE_CF; %s; RESTORE_CF(_cf); }" % (
+        return "{ uint32_t _cf = r.saveCF(); %s; r.restoreCF(_cf); }" % (
             self.codegen_sub(arg, Literal(1)))
 
     def codegen_not(self, arg):
@@ -1038,7 +1044,7 @@ class Instruction:
     def codegen_rep_scasb(self):
         # (Actually the 'repe' prefix, repeat while equal.)
         cx = Register('cx').codegen()
-        return "while (%s) { %s %s--; if (!ZF) break; }" % (
+        return "while (%s) { %s %s--; if (!r.getZF()) break; }" % (
             cx, self.codegen_scasb(), cx)
 
     def codegen_movsw(self):
@@ -1080,12 +1086,12 @@ class Instruction:
     def codegen_push(self, arg):
         # We currently implement the stack as a totally separate memory
         # area which can hold 16-bit words or native code return addresses.
-        return "pushw(%s);%s" % (
+        return "gStack->pushw(%s);%s" % (
             arg.codegen(),
             self._genTraces((arg, 'r')))
 
     def codegen_pop(self, arg):
-        return "%spopw());%s" % (
+        return "%sgStack->popw());%s" % (
             arg.codegen('w'),
             self._genTraces((arg, 'w')))
 
@@ -1114,16 +1120,16 @@ class Instruction:
                 ))
 
     def codegen_pushfw(self):
-        return "pushf();"
+        return "gStack->pushf(r);"
 
     def codegen_pushf(self):
-        return "pushf();"
+        return "gStack->pushf(r);"
 
     def codegen_popfw(self):
-        return "popf();"
+        return "r = gStack->popf(r);"
 
     def codegen_popf(self):
-        return "popf();"
+        return "r = gStack->popf(r);"
 
     def codegen_nop(self):
         return "/* nop */;"
@@ -1135,43 +1141,45 @@ class Instruction:
         return "/* sti */;"
 
     def codegen_jz(self, arg):
-        return "if (ZF) goto %s;" % self.nextAddrs[-1].label()
+        return "if (r.getZF()) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_jnz(self, arg):
-        return "if (!ZF) goto %s;" % self.nextAddrs[-1].label()
+        return "if (!r.getZF()) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_jc(self, arg):
-        return "if (CF) goto %s;" % self.nextAddrs[-1].label()
+        return "if (r.getCF()) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_jnc(self, arg):
-        return "if (!CF) goto %s;" % self.nextAddrs[-1].label()
+        return "if (!r.getCF()) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_js(self, arg):
-        return "if (SF) goto %s;" % self.nextAddrs[-1].label()
+        return "if (r.getSF()) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_jns(self, arg):
-        return "if (!SF) goto %s;" % self.nextAddrs[-1].label()
+        return "if (!r.getSF()) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_ja(self, arg):
-        return "if (!CF && !ZF) goto %s;" % self.nextAddrs[-1].label()
+        return ("if (!r.getCF() && !r.getZF()) goto %s;" %
+                self.nextAddrs[-1].label())
 
     def codegen_jnl(self, arg):
-        return "if (SF == OF) goto %s;" % self.nextAddrs[-1].label()
+        return "if (r.getSF() == r.getOF()) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_jl(self, arg):
-        return "if (SF != OF) goto %s;" % self.nextAddrs[-1].label()
+        return "if (r.getSF() != r.getOF()) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_jng(self, arg):
-        return "if (ZF || (SF != OF)) goto %s;" % self.nextAddrs[-1].label()
+        return ("if (r.getZF() || (r.getSF() != r.getOF())) goto %s;" %
+                self.nextAddrs[-1].label())
 
     def codegen_jna(self, arg):
-        return "if (CF || ZF) goto %s;" % self.nextAddrs[-1].label()
+        return "if (r.getCF() || r.getZF()) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_jcxz(self, arg):
-        return "if (!reg.cx) goto %s;" % self.nextAddrs[-1].label()
+        return "if (!r.cx) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_loop(self, arg):
-        return "if (--reg.cx) goto %s;" % self.nextAddrs[-1].label()
+        return "if (--r.cx) goto %s;" % self.nextAddrs[-1].label()
 
     def codegen_jmp(self, arg):
         if isinstance(arg, Literal) or isinstance(arg, Addr16):
@@ -1185,7 +1193,7 @@ class Instruction:
 
             # XXX: Only handles near jumps
 
-            return "switch (%s) { %s default: failedDynamicBranch(%s,%s,%s); }" % (
+            return "switch (%s) { %s default: proc->failedDynamicBranch(%s,%s,%s); }" % (
                 arg.codegen(),
                 ''.join([ "case 0x%04x: goto %s;" % (addr.offset, addr.label())
                           for addr in self.dynTargets ]),
@@ -1208,7 +1216,7 @@ class Instruction:
 
             # XXX: Only handles near calls
 
-            return "switch (%s) { %s default: failedDynamicBranch(%s,%s,%s); }" % (
+            return "switch (%s) { %s default: proc->failedDynamicBranch(%s,%s,%s); }" % (
                 arg.codegen(),
                 ''.join([ "case 0x%04x: sub_%X(); break;" % (addr.offset, addr.linear)
                           for addr in self.dynTargets ]),
@@ -1226,13 +1234,13 @@ class Instruction:
         return self.codegen_ret()
 
     def codegen_int(self, arg):
-        return "reg = interrupt%X(reg);" % arg
+        return "r = hw->interrupt%X(proc, r);" % arg
 
     def codegen_out(self, port, value):
-        return "out(%s,%s,clock);" % (port.codegen(), value.codegen())
+        return "hw->out(%s,%s,gClock);" % (port.codegen(), value.codegen())
 
     def codegen_in(self, value, port):
-        return "%s = in(%s,clock);" % (value.codegen(), port.codegen())
+        return "%s = hw->in(%s,gClock);" % (value.codegen(), port.codegen())
 
 
 class BinaryImage:
@@ -1482,11 +1490,11 @@ class Subroutine:
 void
 %s(void)
 {
-  pushret();
+  gStack->pushret();
   goto %s;
 %s
 ret:
-  popret();
+  gStack->popret();
   return;
 }""" % (self.name, self.entryPoint.label(), '\n'.join(body))
 
@@ -1551,15 +1559,61 @@ class DOSBinary(BinaryImage):
  * EXE size: %(exeSize)r
  * Memory size: %(memorySize)r
  * Entry point: %(entryPoint)s
+ *
+ * Generated process class %(className)r
  */
 
 #include <stdint.h>
+#include "sbt86.h"
+
+SBT_DECL_PROCESS(%(className)s);
+
+/*
+ * Shorter names for static functions
+ */
+#define W16 SBTSegmentCache::write16
+#define R16 SBTSegmentCache::read16
+
+/*
+ * Local cache of registers and process pointer.
+ */
+static SBTRegs r;
+static SBTSegmentCache s;
+static SBTProcess *proc;
+static SBTStack *gStack;
+static SBTHardware *hw;
+static uint32_t gClock;
 
 static uint8_t dataImage[] = {
 %(dataImage)s};
 
-#define SBT86_CODE
-#include "sbt86.h"
+uint8_t *%(className)s::getData() {
+    return dataImage;
+}
+
+uint32_t %(className)s::getDataLen() {
+    return sizeof(dataImage);
+}
+
+uint16_t %(className)s::getRelocSegment() {
+    return 0x%(relocSegment)04x;
+}
+
+uint16_t %(className)s::getEntryCS() {
+    return 0x%(entryCS)04x;
+}
+
+void %(className)s::loadCache() {
+    r = reg;
+    proc = this;
+    gStack = &stack;
+    hw = hardware;
+    s.load(proc, r);
+}
+
+void %(className)s::saveCache() {
+    reg = r;
+}
 
 %(subDecls)s
 
@@ -1568,65 +1622,8 @@ static uint8_t dataImage[] = {
 
 %(subCode)s
 
-uint8_t
-%(mainFunction)s(const char *cmdLine)
-{
-    const uint32_t relocSegment = 0x%(relocSegment)04x;
-    const uint32_t pspSegment = 0x%(pspSegment)04x;
-    const uint32_t memorySize = 0x%(memorySize)08x;
-    int retval;
-
-    // Set up our DOS Exit handler
-
-    retval = setjmp(dosExitJump);
-    if (retval) {
-        return (uint8_t)retval;
-    }
-
-    memset(mem, 0, memorySize + SEG(relocSegment, 0));
-    decompressRLE(mem + SEG(relocSegment, 0), dataImage, sizeof dataImage);
-
-    /*
-     * We explicitly don't zero Regs, since that would break
-     * compiler optimizations that only work on non-aliased data.
-     * A single memset(&reg, 0, sizeof reg) here bloats the binary
-     * by tens of kilobytes.
-     */
-    reg.ax = reg.dx = reg.si = reg.di = reg.bp = 0;
-
-    // Memory size (32-bit)
-    reg.bx = memorySize >> 16;
-    reg.cx = (uint16_t) memorySize;
-
-    // XXX: Stack is fake.
-    stackPtr = 0;
-    reg.ss = 0;
-
-    // Beginning of EXE image, after relocation
-    reg.ds = relocSegment;
-    reg.cs = 0x%(entryCS)04x;
-
-    // Program Segment Prefix.
-    // Zero it, and copy in our command line.
-
-    reg.es = pspSegment;
-    memset(mem + SEG(reg.es, 0), 0, 0x100);
-
-    mem[SEG(reg.es, 0x80)] = strlen(cmdLine);
-    strcpy((char*) (mem + SEG(reg.es, 0x81)), cmdLine);
-
-    // Populate segment pointer cache
-
-    reg.ptr.cs = mem + (reg.cs << 4);
-    reg.ptr.ds = mem + (reg.ds << 4);
-    reg.ptr.es = mem + (reg.es << 4);
-    reg.ptr.ss = mem + (reg.ss << 4);
-
-    // Jump to the entry point
-
+void %(className)s::entry() {
     sub_%(entryLinear)X();
-
-    return 0xFF;
 }
 """
 
@@ -1635,11 +1632,7 @@ uint8_t
     #  relocSegment -- Segment to relocate binary to. This must be
     #  after the BIOS data area, IVT, and other low-memory areas.
     #
-    #  pspSegment - Segment to place the Program Segment Prefix in.
-    #  Generally this is 256 bytes prior to the relocSegment.
-    #
     relocSegment = 0x70
-    pspSegment = 0x60
 
     subroutines = None
 
@@ -1821,14 +1814,14 @@ uint8_t
             addrs, self.filename, sig.shortText))
         return addrs
 
-    def codegen(self, mainFunction):
+    def codegen(self, className):
         vars = dict(self.__class__.__dict__)
         vars.update(self.__dict__)
 
         log("Code generating %s (%d subroutines)..." % (
                 self.filename, len(self.subroutines.values())))
 
-        vars['mainFunction'] = mainFunction
+        vars['className'] = className
         vars['subCode'] = '\n'.join([s.codegen(traces=self._traces)
                                      for s in self.subroutines.itervalues()])
         vars['subDecls'] = '\n'.join(["static void %s(void);" % s.name
@@ -1840,9 +1833,9 @@ uint8_t
 
         return self._skel % vars
 
-    def writeCodeToFile(self, filename, mainFunction='body', verbose=False):
+    def writeCodeToFile(self, filename, className, verbose=False):
         """Run analysis if necessary, then generate code to a file."""
         f = open(filename, 'w')
         if self.subroutines is None:
             self.analyze(verbose)
-        f.write(self.codegen(mainFunction))
+        f.write(self.codegen(className))
