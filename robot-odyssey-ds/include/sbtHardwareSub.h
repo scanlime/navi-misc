@@ -38,7 +38,13 @@ class SBTHardwareSub : public SBTHardwareCommon
  public:
     virtual void reset();
     virtual void drawScreen(SBTProcess *proc, uint8_t *framebuffer);
-    uint16_t *spr;
+
+ protected:
+    static const unsigned MAP_BASE_OFFSET =
+        (SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(uint16_t)) / (16 * 1024);
+
+    int bg;
+    uint16_t *backbuffer;
 };
 
 

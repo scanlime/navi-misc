@@ -28,6 +28,7 @@
 
 #include <nds.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "sbt86.h"
 #include "sbtHardwareSub.h"
@@ -41,23 +42,36 @@ int
 main(int argc, char **argv)
 {
     defaultExceptionHandler();
+    consoleDemoInit();
 
     static TutorialEXE tutorial;
     static SBTHardwareMain hwMain;
-    static SBTHardwareSub hwSub;
-
     hwMain.reset();
-    hwSub.reset();
-
     tutorial.hardware = &hwMain;
+    tutorial.exec("21");
 
-    tutorial.exec("22");
+    static TutorialEXE tutSub;
+    static SBTHardwareSub hwSub;
+    hwSub.reset();
+    tutSub.hardware = &hwSub;
+    tutSub.exec("25");
+
+    /* Let both binaries initialize themselves */
+    while (tutorial.run() != SBTHALT_FRAME_DRAWN);
+    while (tutSub.run() != SBTHALT_FRAME_DRAWN);
 
     while (1) {
-        tutorial.hardware = &hwMain;
-        tutorial.run();
-        tutorial.hardware = &hwSub;
-        tutorial.run();
+        while (tutorial.run() != SBTHALT_FRAME_DRAWN);
+
+        uint8_t *dsSrc = tutorial.memSeg(tutorial.reg.ds);
+        uint8_t *dsDst = tutSub.memSeg(tutorial.reg.ds);
+
+        // Copy the whole data segment
+        dmaCopyWords(3, dsSrc, dsDst, 0xA000);
+
+        while (tutSub.run() != SBTHALT_LOAD_ROOM_ID);
+        tutSub.reg.al = 0x0B; // Scanner
+        while (tutSub.run() != SBTHALT_FRAME_DRAWN);
     }
 
     return 0;
