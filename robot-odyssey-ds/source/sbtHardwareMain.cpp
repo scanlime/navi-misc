@@ -28,10 +28,23 @@
  */
 
 #include <nds.h>
+#include "panic.h"
 #include "sbtHardwareMain.h"
 #include "soundEngine.h"
 #include "videoConvert.h"
 
+
+void SBTHardwareMain::reset()
+{
+    SBTHardwareCommon::reset();
+
+    /*
+     * We'll be using VRAM banks A and B for a double-buffered framebuffer.
+     * Assign them directly to the LCD controller, bypassing the graphics engine.
+     */
+    vramSetBankA(VRAM_A_LCD);
+    vramSetBankB(VRAM_B_LCD);
+}
 
 void SBTHardwareMain::drawScreen(SBTProcess *proc, uint8_t *framebuffer)
 {
@@ -86,6 +99,7 @@ void SBTHardwareMain::pollKeys()
     for (i = 0; i < (sizeof keyTable / sizeof keyTable[0]); i++) {
         if ((keysHeld() & keyTable[i].key) == keyTable[i].key) {
             keycode = keyTable[i].code;
+            return;
         }
     }
 }
