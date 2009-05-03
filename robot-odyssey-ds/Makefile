@@ -22,9 +22,15 @@ BUILDDIR    := build
 SOURCEDIR   := source
 SCRIPTDIR   := scripts
 INCLUDEDIR  := include
+DATADIR     := data
 TOPDIR      := $(shell pwd)
 
 LIBDIRS     := $(LIBNDS)
+
+# NDS file banner
+BANNER_ICON := $(DATADIR)/icon.bmp
+BANNER_TEXT := "Robot Odyssey DS"
+
 
 ############################################
 # Object Files.
@@ -138,7 +144,8 @@ sizeprof: $(ARM9ELF)
 
 $(NDSFILE): $(ARM7BIN) $(ARM9BIN)
 	@echo "[NDSTOOL]" $@
-	@ndstool -c $(NDSFILE) -7 $(ARM7BIN) -9 $(ARM9BIN)
+	@ndstool -c $(NDSFILE) -7 $(ARM7BIN) -9 $(ARM9BIN) \
+		-o $(BANNER_ICON) -b $(BANNER_ICON) $(BANNER_TEXT)
 
 $(ARM7BIN): $(ARM7ELF)
 	@echo "[OBJCOPY]" $@

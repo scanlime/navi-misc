@@ -46,7 +46,10 @@ enum ROColor {
  * Room IDs
  */
 enum RORoomId {
-    RO_ROOM_SCANNER     = 0x0B,
+    RO_ROOM_ESC_TEXT    = 0x00,   // "To go back to the menu, press ESC."
+    RO_ROOM_SPARKY      = 0x09,   // Inside Sparky
+    RO_ROOM_CHECKERS    = 0x0A,   // Inside Checkers
+    RO_ROOM_SCANNER     = 0x0B,   // Inside Scanner
     RO_ROOM_NONE        = 0x3F,
 };
 
@@ -84,7 +87,8 @@ enum ROObjectId {
  * Memory offsets
  */
 enum ROMemOffset {
-    RO_MEM_WORLD_DATA = 0x2AC,
+    RO_MEM_WORLD_DATA    = 0x02AC,
+    RO_MEM_CIRCUIT_DATA  = 0x8C53,
 };
 
 
@@ -172,6 +176,36 @@ class ROWorld {
  private:
     void removeObjectFromRoom(ROObjectId obj, RORoomId room);
     void addObjectToRoom(ROObjectId obj, RORoomId room);
+
+} __attribute__ ((packed));
+
+
+/*
+ * Robot Odyssey's circuit data. This is in memory at the address
+ * RO_MEM_CIRCUIT_DATA, and it is also saved on disk as the .CIR file
+ * or as part of a saved game file.
+ */
+class ROCircuit {
+ public:
+    /* XXX: Todo */
+
+    uint8_t unk1[0x100];
+
+    struct {
+        uint8_t x1[0x100];
+        uint8_t x2[0x100];
+        uint8_t y1[0x100];
+        uint8_t y2[0x100];
+    } wires;
+
+    uint8_t unk2[0x100];
+    uint8_t unk3[20];
+
+    /*
+     * Functions for accessing circuit data
+     */
+
+    static ROCircuit *fromProcess(SBTProcess *proc);
 
 } __attribute__ ((packed));
 
