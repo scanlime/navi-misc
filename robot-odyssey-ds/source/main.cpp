@@ -33,7 +33,7 @@
 #include "sbt86.h"
 #include "sbtHardwareSub.h"
 #include "sbtHardwareMain.h"
-#include "soundEngine.h"
+#include "roData.h"
 
 SBT_DECL_PROCESS(LabEXE);
 SBT_DECL_PROCESS(TutorialEXE);
@@ -69,8 +69,25 @@ main(int argc, char **argv)
         // Copy the whole data segment
         dmaCopyWords(3, dsSrc, dsDst, 0xA000);
 
+        ROWorld *wld = ROWorld::fromProcess(&tutSub);
+        RORoomId subRoom = (RORoomId) 0;
+
         while (tutSub.run() != SBTHALT_LOAD_ROOM_ID);
-        tutSub.reg.al = 0x0B; // Scanner
+        tutSub.reg.al = subRoom;
+
+        memset(wld->text.room, RO_ROOM_NONE, sizeof wld->text.room);
+        wld->rooms.bgColor[subRoom] = 0;
+        wld->rooms.fgColor[subRoom] = 0;
+
+        wld->setRobotRoom(RO_OBJ_ROBOT_SCANNER_L, subRoom);
+        wld->setRobotXY(RO_OBJ_ROBOT_SCANNER_L, 20, 100);
+
+        wld->setRobotRoom(RO_OBJ_ROBOT_CHECKERS_L, subRoom);
+        wld->setRobotXY(RO_OBJ_ROBOT_CHECKERS_L, 50, 100);
+
+        wld->setRobotRoom(RO_OBJ_ROBOT_SPARKY_L, subRoom);
+        wld->setRobotXY(RO_OBJ_ROBOT_SPARKY_L, 80, 100);
+
         while (tutSub.run() != SBTHALT_FRAME_DRAWN);
     }
 

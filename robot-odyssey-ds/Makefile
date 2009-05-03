@@ -35,7 +35,7 @@ LIBDIRS     := $(LIBNDS)
 #
 
 SOURCES_A9   := main.cpp sbtHardwareCommon.cpp sbtProcess.cpp \
-                sbtHardwareMain.cpp sbtHardwareSub.cpp
+                sbtHardwareMain.cpp sbtHardwareSub.cpp roData.cpp
 
 SOURCES_ITCM := videoConvert.cpp
 SOURCES_A7   := arm7.cpp soundEngine.cpp
