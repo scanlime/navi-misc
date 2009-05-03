@@ -42,7 +42,8 @@ void HwSprites::reset()
     consoleDemoInit();
     vramSetBankD(VRAM_D_SUB_SPRITE);
 
-    iprintf("Foo!\n");
+    for (int i = 0; i < 768; i++)
+        iprintf("*");
 
     oamInit(&oamSub, SpriteMapping_1D_256, false);
 
@@ -54,8 +55,22 @@ void HwSprites::reset()
     SPRITE_PALETTE_SUB[2] = RGB8(0xFF,0x55,0xFF);
     SPRITE_PALETTE_SUB[3] = RGB8(0xFF,0xFF,0xFF);
 
-    oamSet(&oamSub, 0, 20, 20, 0, 0, SpriteSize_64x64,
-           SpriteColorFormat_16Color, spr, 0, false, false, false, false, false);
+    for (int i = 1; i < 0x100; i++) {
+        BG_PALETTE_SUB[i] = RGB15(6,6,6);
+    }
+
+    oamSet(&oamSub, 0, 20, 20, 0, 0, SpriteSize_64x64, SpriteColorFormat_16Color,
+           spr, 0, false, false, false, false, false);
+
+    /* alpha blending */
+    oamSub.oamMemory[0].blendMode = OBJMODE_BLENDED;
+    oamSub.oamMemory[0].priority = OBJPRIORITY_1;
+    oamSub.oamMemory[1].blendMode = OBJMODE_BLENDED;
+    oamSub.oamMemory[1].priority = OBJPRIORITY_2;
+
+    REG_BLDALPHA_SUB = 0x0808;
+    REG_BLDCNT_SUB = BLEND_ALPHA | BLEND_SRC_SPRITE | BLEND_DST_BG0 | BLEND_DST_BACKDROP | BLEND_DST_SPRITE;
+
 }
 
 
@@ -65,7 +80,7 @@ void HwSprites::drawScreen(SBTProcess *proc, uint8_t *framebuffer)
     VideoConvert::CGAclear(framebuffer, 64, 90, 64, 64);
 
     static int angle;
-    angle += 400;
+    //angle += 400;
     oamRotateScale(&oamSub, 0, angle, 0x100 * 5/4, 0x100);
     oamUpdate(&oamSub);
 

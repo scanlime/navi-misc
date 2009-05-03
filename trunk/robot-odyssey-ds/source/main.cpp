@@ -89,13 +89,13 @@ main(int argc, char **argv)
         renderData.copyFrom(&gameData);
 
         renderData.world->setRobotRoom(RO_OBJ_ROBOT_SCANNER_L, subRoom);
-        renderData.world->setRobotXY(RO_OBJ_ROBOT_SCANNER_L, 40, 60);
+        renderData.world->setRobotXY(RO_OBJ_ROBOT_SCANNER_L, 100, 60);
 
         renderData.world->setRobotRoom(RO_OBJ_ROBOT_CHECKERS_L, subRoom);
         renderData.world->setRobotXY(RO_OBJ_ROBOT_CHECKERS_L, 70, 60);
 
         renderData.world->setRobotRoom(RO_OBJ_ROBOT_SPARKY_L, subRoom);
-        renderData.world->setRobotXY(RO_OBJ_ROBOT_SPARKY_L, 100, 60);
+        renderData.world->setRobotXY(RO_OBJ_ROBOT_SPARKY_L, 40, 60);
 
         do {
             haltCode = render.run();
