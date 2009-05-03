@@ -163,19 +163,22 @@ void ROData::copyFrom(ROData *source) {
     /*
      * Move the grabber sprites, if necessary.
      */
-    ROSprite *srcGrabSpr = &source->world->sprites[source->getFirstGrabberSpriteId()];
-    ROSprite *destGrabSpr = &world->sprites[getFirstGrabberSpriteId()];
-    memmove(destGrabSpr, srcGrabSpr, sizeof(ROSprite) * NUM_GRABBER_SPRITES);
-}
 
-
-ROSpriteId ROData::getFirstGrabberSpriteId(void) {
-    /*
-     * GAME.EXE (with 4 robots) has its grabber sprites shifted down by one.
-     */
-    if (numRobots == 4) {
-        return RO_SPR_GRABBER_RIGHT;
-    } else {
-        return RO_SPR_GRABBER_UP;
+    if (numRobots == 4 && source->numRobots == 3) {
+        /* Convert sprites from TUT/LAB to GAME IDs */
+        memcpy(&world->sprites[RO_SPR_GAME_GRABBER_UP],
+               &source->world->sprites[RO_SPR_GRABBER_UP], sizeof(ROSprite));
+        memcpy(&world->sprites[RO_SPR_GAME_GRABBER_RIGHT],
+               &source->world->sprites[RO_SPR_GRABBER_RIGHT], sizeof(ROSprite));
+        memcpy(&world->sprites[RO_SPR_GAME_GRABBER_LEFT],
+               &source->world->sprites[RO_SPR_GRABBER_LEFT], sizeof(ROSprite));
+    } else if (numRobots == 3 && source->numRobots == 4) {
+        /* Convert sprites from GAME to TUT/LAB IDs */
+        memcpy(&world->sprites[RO_SPR_GRABBER_UP],
+               &source->world->sprites[RO_SPR_GAME_GRABBER_UP], sizeof(ROSprite));
+        memcpy(&world->sprites[RO_SPR_GRABBER_RIGHT],
+               &source->world->sprites[RO_SPR_GAME_GRABBER_RIGHT], sizeof(ROSprite));
+        memcpy(&world->sprites[RO_SPR_GRABBER_LEFT],
+               &source->world->sprites[RO_SPR_GAME_GRABBER_LEFT], sizeof(ROSprite));
     }
 }

@@ -41,6 +41,10 @@ namespace VideoConvert
     void CGAto16ColorTiles(uint8_t *cgaBuffer, uint16_t *spr,
                            uint32_t x, uint32_t y,
                            uint32_t width, uint32_t height);
+
+    void CGAclear(uint8_t *cgaBuffer,
+                  uint32_t x, uint32_t y,
+                  uint32_t width, uint32_t height);
 }
 
 #endif // _VIDEOCONVERT_H_

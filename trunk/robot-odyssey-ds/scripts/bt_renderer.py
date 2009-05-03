@@ -65,4 +65,16 @@ b.patch('0DAB:676a', 'jmp 0x6776')
 # Skip text rendering. We don't need it.
 b.patch('0DAB:6758', 'jmp 0x675b')
 
+# Locate video_draw_current_room, and have it return early if the room
+# number is RO_ROOM_RENDERER (0) This gives us an easy way to disable
+# playfield rendering, to save CPU cycles. The screen will not be
+# cleared at all with playfield rendering disabled, so it's up to our
+# C code to clear the parts that are being used.
+#
+# Note that we can't use RO_ROOM_NONE, since it's special. We just need
+# a normal room that has no objects on it.
+
+b.hook(b.findCode('a0____ :e8____ b500 8a0e____ 8bf9 8a85____'),
+       'if (r.al == 0) goto ret;')
+
 b.writeCodeToFile('build/bt_renderer.cpp', 'RendererEXE')
