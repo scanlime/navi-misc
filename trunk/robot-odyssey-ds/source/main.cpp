@@ -48,7 +48,7 @@ main(int argc, char **argv)
     static SBTHardwareMain hwMain;
     hwMain.reset();
     tutorial.hardware = &hwMain;
-    tutorial.exec("21");
+    tutorial.exec("25");
 
     static TutorialEXE tutSub;
     static SBTHardwareSub hwSub;
@@ -63,14 +63,26 @@ main(int argc, char **argv)
     while (1) {
         while (tutorial.run() != SBTHALT_FRAME_DRAWN);
 
-        uint8_t *dsSrc = tutorial.memSeg(tutorial.reg.ds);
-        uint8_t *dsDst = tutSub.memSeg(tutorial.reg.ds);
-
-        // Copy the whole data segment
-        dmaCopyWords(3, dsSrc, dsDst, 0xA000);
-
+        /*
+         * We don't want to copy the whole data segment, just copy the
+         * world data. This is faster, and it doesn't clobber the
+         * robot animation state.
+         *
+         * Note that we also must copy circuit data, or the sub
+         * process can hang when it tries to simulate a circuit which
+         * doesn't match the world data. This is also where we get
+         * things like robot thruster state, and remote control state.
+         */
         ROWorld *wld = ROWorld::fromProcess(&tutSub);
-        RORoomId subRoom = (RORoomId) 0;
+        *wld = *ROWorld::fromProcess(&tutorial);
+
+        *ROCircuit::fromProcess(&tutSub) = *ROCircuit::fromProcess(&tutorial);
+
+        /*
+         * Move the robots into an unused room, and draw them without
+         * any playfield or text.
+         */
+        const RORoomId subRoom = RO_ROOM_ESC_TEXT;
 
         while (tutSub.run() != SBTHALT_LOAD_ROOM_ID);
         tutSub.reg.al = subRoom;

@@ -33,6 +33,10 @@ ROWorld *ROWorld::fromProcess(SBTProcess *proc) {
     return (ROWorld*) (proc->memSeg(proc->reg.ds) + RO_MEM_WORLD_DATA);
 }
 
+ROCircuit *ROCircuit::fromProcess(SBTProcess *proc) {
+    return (ROCircuit*) (proc->memSeg(proc->reg.ds) + RO_MEM_CIRCUIT_DATA);
+}
+
 RORoomId ROWorld::getObjectRoom(ROObjectId obj) {
     return (RORoomId) objects.room[obj];
 }
