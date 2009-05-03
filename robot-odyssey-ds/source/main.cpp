@@ -67,7 +67,7 @@ main(int argc, char **argv)
     gameData.world->setObjectRoom(RO_OBJ_WORLD_0,
                              (RORoomId) gameData.world->rooms.links.right[
                                  gameData.world->getObjectRoom(RO_OBJ_PLAYER)]);
-    gameData.world->setObjectXY(RO_OBJ_WORLD_0, 20, 160);
+    gameData.world->setObjectXY(RO_OBJ_WORLD_0, 5, 135);
 
     while (1) {
         // XXX: Energize Scanner's grabber.
@@ -84,12 +84,9 @@ main(int argc, char **argv)
          */
         int haltCode = SBTHALT_FRAME_DRAWN;
 
-        const RORoomId subRoom = RO_ROOM_ESC_TEXT;
+        const RORoomId subRoom = RO_ROOM_RENDERER;
 
         renderData.copyFrom(&gameData);
-
-        renderData.world->rooms.bgColor[subRoom] = 0;
-        renderData.world->rooms.fgColor[subRoom] = 0;
 
         renderData.world->setRobotRoom(RO_OBJ_ROBOT_SCANNER_L, subRoom);
         renderData.world->setRobotXY(RO_OBJ_ROBOT_SCANNER_L, 40, 60);

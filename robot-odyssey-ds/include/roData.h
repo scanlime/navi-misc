@@ -46,10 +46,13 @@ enum ROColor {
  * Room IDs
  */
 enum RORoomId {
+    RO_ROOM_RENDERER    = 0x00,   // Blank room, patched in bt_renderer.py
+
     RO_ROOM_ESC_TEXT    = 0x00,   // "To go back to the menu, press ESC."
     RO_ROOM_SPARKY      = 0x09,   // Inside Sparky
     RO_ROOM_CHECKERS    = 0x0A,   // Inside Checkers
     RO_ROOM_SCANNER     = 0x0B,   // Inside Scanner
+
     RO_ROOM_NONE        = 0x3F,
 };
 
@@ -193,12 +196,18 @@ enum ROSpriteId {
     RO_SPR_BUTTON,
     RO_SPR_KEY,
     RO_SPR_CRYSTAL,
-    RO_SPR_GRABBER_UP,     // NOTE: In GAME.EXE, grabber sprites are shifted down by one.
+
+    RO_SPR_GRABBER_UP,
     RO_SPR_GRABBER_RIGHT,
     RO_SPR_GRABBER_LEFT,
     RO_SPR_GRABBER_DOWN,
     RO_SPR_UNUSED_1,
     RO_SPR_UNUSED_2,
+
+    // Note: Some of the grabber sprites are different in GAME.EXE
+    RO_SPR_GAME_GRABBER_UP = RO_SPR_GRABBER_RIGHT,
+    RO_SPR_GAME_GRABBER_RIGHT = RO_SPR_GRABBER_LEFT,
+    RO_SPR_GAME_GRABBER_LEFT = RO_SPR_UNUSED_1,
 };
 
 /*
@@ -387,9 +396,6 @@ class ROData {
     RORobotGrabber *robotGrabbers;
 
     void copyFrom(ROData *source);
-
-    static const unsigned NUM_GRABBER_SPRITES = 4;
-    ROSpriteId getFirstGrabberSpriteId(void);
 };
 
 

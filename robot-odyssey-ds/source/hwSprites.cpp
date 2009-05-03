@@ -29,6 +29,7 @@
 
 #include <nds.h>
 #include <stdio.h>
+#include <string.h>
 #include "hwSprites.h"
 #include "videoConvert.h"
 
@@ -43,27 +44,30 @@ void HwSprites::reset()
 
     iprintf("Foo!\n");
 
-    oamInit(&oamSub, SpriteMapping_1D_64, false);
+    oamInit(&oamSub, SpriteMapping_1D_256, false);
 
     spr = oamAllocateGfx(&oamSub, SpriteSize_64x64, SpriteColorFormat_16Color);
 
     /* CGA */
-    SPRITE_PALETTE_SUB[0] = RGB8(0x00,0x00,0x00);
+    SPRITE_PALETTE_SUB[0] = 0;  // Transparent
     SPRITE_PALETTE_SUB[1] = RGB8(0x55,0xFF,0xFF);
     SPRITE_PALETTE_SUB[2] = RGB8(0xFF,0x55,0xFF);
     SPRITE_PALETTE_SUB[3] = RGB8(0xFF,0xFF,0xFF);
 
     oamSet(&oamSub, 0, 20, 20, 0, 0, SpriteSize_64x64,
-           SpriteColorFormat_16Color, spr, -1, false, false, false, false, false);
-
-    swiWaitForVBlank();
-    oamUpdate(&oamSub);
+           SpriteColorFormat_16Color, spr, 0, false, false, false, false, false);
 }
 
 
 void HwSprites::drawScreen(SBTProcess *proc, uint8_t *framebuffer)
 {
-    VideoConvert::CGAto16ColorTiles(framebuffer, spr, 60, 80, 64, 64);
+    VideoConvert::CGAto16ColorTiles(framebuffer, spr, 64, 90, 64, 64);
+    VideoConvert::CGAclear(framebuffer, 64, 90, 64, 64);
+
+    static int angle;
+    angle += 400;
+    oamRotateScale(&oamSub, 0, angle, 0x100 * 5/4, 0x100);
+    oamUpdate(&oamSub);
 
     HwCommon::drawScreen(proc, framebuffer);
 }

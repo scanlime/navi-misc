@@ -216,3 +216,41 @@ void ITCM_CODE VideoConvert::CGAto16ColorTiles(uint8_t *cgaBuffer,
         }
     }
 }
+
+
+/*
+ * Quickly clear a subrectangle of the CGA framebuffer.
+ *
+ * 'x' and 'width' must be multiples of 16. 'y' and 'height' must be
+ * multiples of 2. The CGA framebuffer itself must be word aligned.
+ */
+void ITCM_CODE VideoConvert::CGAclear(uint8_t *cgaBuffer,
+                                      uint32_t x,
+                                      uint32_t y,
+                                      uint32_t width,
+                                      uint32_t height)
+{
+    sassert((x & 15) == 0, "x must be a mulitple of 16");
+    sassert((y & 1) == 0, "y must be a mulitple of 2");
+    sassert((width & 15) == 0, "width must be a mulitple of 16");
+    sassert((height & 1) == 0, "height must be a mulitple of 2");
+    sassert(((uintptr_t)cgaBuffer & 3) == 0, "framebuffer must be word aligned");
+
+    uint32_t tileWidth = width >> 4;
+    uint32_t tileHeight = height >> 1;
+    uint32_t *cga32 = (uint32_t*) (cgaBuffer + (x >> 2) + (y >> 1) * 80);
+
+    while (tileHeight--) {
+        uint32_t *line = cga32;
+
+        cga32 += 80 / sizeof *cga32;
+
+        uint32_t i = tileWidth;
+        while (i--) {
+            line[0] = 0;
+            line[0x2000 / sizeof *cga32] = 0;
+            line++;
+        }
+    }
+}
+
