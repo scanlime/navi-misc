@@ -30,8 +30,8 @@
  *    OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef _SBTHARDWARECOMMON_H_
-#define _SBTHARDWARECOMMON_H_
+#ifndef _HWCOMMON_H_
+#define _HWCOMMON_H_
 
 #include "sbt86.h"
 
@@ -70,7 +70,7 @@ class DOSFilesystem
 
 
 /*
- * SBTHardwareCommon --
+ * HwCommon --
  *
  *    Concrete subclass of SBTHardware that provides minimal
  *    implementations of all emulated interrupts and hardware.
@@ -78,7 +78,7 @@ class DOSFilesystem
  *    but it can handle DOS interrupts and load files.
  */
 
-class SBTHardwareCommon : public SBTHardware
+class HwCommon : public SBTHardware
 {
  public:
     virtual void reset();

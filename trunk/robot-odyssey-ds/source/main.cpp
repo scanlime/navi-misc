@@ -31,8 +31,8 @@
 #include <string.h>
 
 #include "sbt86.h"
-#include "sbtHardwareSub.h"
-#include "sbtHardwareMain.h"
+#include "hwSub.h"
+#include "hwMain.h"
 #include "roData.h"
 
 SBT_DECL_PROCESS(LabEXE);
@@ -46,13 +46,13 @@ main(int argc, char **argv)
     defaultExceptionHandler();
     consoleDemoInit();
 
-    static SBTHardwareMain hwMain;
+    static HwMain hwMain;
     static TutorialEXE game;
     hwMain.reset();
     game.hardware = &hwMain;
     game.exec("25");
 
-    static SBTHardwareSub hwSub;
+    static HwSub hwSub;
     static RendererEXE render;
     hwSub.reset();
     render.hardware = &hwSub;

@@ -35,7 +35,7 @@
 #include <gbfs.h>
 #include "panic.h"
 #include "sbt86.h"
-#include "sbtHardwareCommon.h"
+#include "hwCommon.h"
 
 
 void DOSFilesystem::reset()
@@ -101,13 +101,13 @@ uint16_t DOSFilesystem::allocateFD()
     return fd;
 }
 
-void SBTHardwareCommon::reset()
+void HwCommon::reset()
 {
     dosFS.reset();
     port61 = 0;
 }
 
-uint8_t SBTHardwareCommon::in(uint16_t port, uint32_t timestamp)
+uint8_t HwCommon::in(uint16_t port, uint32_t timestamp)
 {
     switch (port) {
 
@@ -120,7 +120,7 @@ uint8_t SBTHardwareCommon::in(uint16_t port, uint32_t timestamp)
     }
 }
 
-void SBTHardwareCommon::out(uint16_t port, uint8_t value, uint32_t timestamp)
+void HwCommon::out(uint16_t port, uint8_t value, uint32_t timestamp)
 {
     switch (port) {
 
@@ -147,7 +147,7 @@ void SBTHardwareCommon::out(uint16_t port, uint8_t value, uint32_t timestamp)
     }
 }
 
-SBTRegs SBTHardwareCommon::interrupt10(SBTProcess *proc, SBTRegs reg)
+SBTRegs HwCommon::interrupt10(SBTProcess *proc, SBTRegs reg)
 {
     switch (reg.ah) {
 
@@ -162,7 +162,7 @@ SBTRegs SBTHardwareCommon::interrupt10(SBTProcess *proc, SBTRegs reg)
     return reg;
 }
 
-SBTRegs SBTHardwareCommon::interrupt16(SBTProcess *proc, SBTRegs reg)
+SBTRegs HwCommon::interrupt16(SBTProcess *proc, SBTRegs reg)
 {
     switch (reg.ah) {
 
@@ -189,7 +189,7 @@ SBTRegs SBTHardwareCommon::interrupt16(SBTProcess *proc, SBTRegs reg)
     return reg;
 }
 
-SBTRegs SBTHardwareCommon::interrupt21(SBTProcess *proc, SBTRegs reg)
+SBTRegs HwCommon::interrupt21(SBTProcess *proc, SBTRegs reg)
 {
     switch (reg.ah) {
 
@@ -252,18 +252,18 @@ SBTRegs SBTHardwareCommon::interrupt21(SBTProcess *proc, SBTRegs reg)
     return reg;
 }
 
-void SBTHardwareCommon::drawScreen(SBTProcess *proc, uint8_t *framebuffer) {
+void HwCommon::drawScreen(SBTProcess *proc, uint8_t *framebuffer) {
     proc->halt(SBTHALT_FRAME_DRAWN);
 }
 
-void SBTHardwareCommon::writeSpeakerTimestamp(uint32_t timestamp) {
+void HwCommon::writeSpeakerTimestamp(uint32_t timestamp) {
     /* Stub. Ignore audio output. */
 }
 
-void SBTHardwareCommon::pressKey(uint8_t ascii, uint8_t scancode) {
+void HwCommon::pressKey(uint8_t ascii, uint8_t scancode) {
     keycode = (scancode << 8) | ascii;
 }
 
-void SBTHardwareCommon::pollKeys(SBTProcess *proc) {
+void HwCommon::pollKeys(SBTProcess *proc) {
     proc->halt(SBTHALT_KEYBOARD_POLL);
 }

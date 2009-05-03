@@ -29,14 +29,14 @@
 
 #include <nds.h>
 #include "panic.h"
-#include "sbtHardwareMain.h"
+#include "hwMain.h"
 #include "soundEngine.h"
 #include "videoConvert.h"
 
 
-void SBTHardwareMain::reset()
+void HwMain::reset()
 {
-    SBTHardwareCommon::reset();
+    HwCommon::reset();
 
     // Mode 5: Two tiled 'text' layers, two extended background layers
     videoSetMode(MODE_5_2D);
@@ -53,7 +53,7 @@ void SBTHardwareMain::reset()
     bgSetMapBase(bg, MAP_BASE_OFFSET);
 }
 
-void SBTHardwareMain::drawScreen(SBTProcess *proc, uint8_t *framebuffer)
+void HwMain::drawScreen(SBTProcess *proc, uint8_t *framebuffer)
 {
     VideoConvert::scaleCGAto256(framebuffer, backbuffer);
 
@@ -72,15 +72,15 @@ void SBTHardwareMain::drawScreen(SBTProcess *proc, uint8_t *framebuffer)
     /* Toggle between displaying the top 96kB and the bottom 96kB */
     bgSetMapBase(bg, bgGetMapBase(bg) ^ MAP_BASE_OFFSET);
 
-    SBTHardwareCommon::drawScreen(proc, framebuffer);
+    HwCommon::drawScreen(proc, framebuffer);
 }
 
-void SBTHardwareMain::writeSpeakerTimestamp(uint32_t timestamp)
+void HwMain::writeSpeakerTimestamp(uint32_t timestamp)
 {
     SoundEngine::writeSpeakerTimestamp(timestamp);
 }
 
-void SBTHardwareMain::pollKeys(SBTProcess *proc)
+void HwMain::pollKeys(SBTProcess *proc)
 {
     unsigned int i;
     static const struct {
@@ -105,7 +105,7 @@ void SBTHardwareMain::pollKeys(SBTProcess *proc)
         { KEY_L, 'R' },
     };
 
-    SBTHardwareCommon::pollKeys(proc);
+    HwCommon::pollKeys(proc);
 
     scanKeys();
 

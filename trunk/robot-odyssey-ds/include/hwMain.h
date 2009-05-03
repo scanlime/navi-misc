@@ -1,7 +1,7 @@
 /* -*- Mode: C; c-basic-offset: 4 -*-
  *
- * An implementation of SBTHardware which displays on the Nintendo
- * DS's sub engine.
+ * Main implementation of SBTHardware, which emulates video using the
+ * Nintendo DS's primary screen.
  *
  * Copyright (c) 2009 Micah Dowty <micah@navi.cx>
  *
@@ -27,31 +27,28 @@
  *    OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <nds.h>
-#include <stdio.h>
-#include "sbtHardwareSub.h"
-#include "videoConvert.h"
+#ifndef _HWMAIN_H_
+#define _HWMAIN_H_
+
+#include "hwCommon.h"
 
 
-void SBTHardwareSub::reset()
+class HwMain : public HwCommon
 {
-    SBTHardwareCommon::reset();
+ public:
+    virtual void reset();
+    virtual void drawScreen(SBTProcess *proc, uint8_t *framebuffer);
 
-    // Mode 5: Two tiled 'text' layers, two extended background layers
-    videoSetModeSub(MODE_5_2D);
+ protected:
+    static const unsigned MAP_BASE_OFFSET =
+        (SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(uint16_t)) / (16 * 1024);
 
-    /*
-     * XXX: We're using bank C, which is only 128kB: not enough to double-buffer.
-     */
-    vramSetBankC(VRAM_C_SUB_BG_0x06200000);
+    int bg;
+    uint16_t *backbuffer;
 
-    bg = bgInitSub(3, BgType_Bmp16, BgSize_B16_256x256, 0, 0);
-    backbuffer= bgGetGfxPtr(bg);
-}
+    virtual void writeSpeakerTimestamp(uint32_t timestamp);
+    virtual void pollKeys(SBTProcess *proc);
+};
 
 
-void SBTHardwareSub::drawScreen(SBTProcess *proc, uint8_t *framebuffer)
-{
-    VideoConvert::scaleCGAto256(framebuffer, backbuffer);
-    SBTHardwareCommon::drawScreen(proc, framebuffer);
-}
+#endif // _SBTHARDWAREMAIN_H_

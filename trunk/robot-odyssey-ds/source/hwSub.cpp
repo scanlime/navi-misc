@@ -27,25 +27,31 @@
  *    OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef _SBTHARDWARESUB_H_
-#define _SBTHARDWARESUB_H_
+#include <nds.h>
+#include <stdio.h>
+#include "hwSub.h"
+#include "videoConvert.h"
 
-#include "sbtHardwareCommon.h"
 
-
-class SBTHardwareSub : public SBTHardwareCommon
+void HwSub::reset()
 {
- public:
-    virtual void reset();
-    virtual void drawScreen(SBTProcess *proc, uint8_t *framebuffer);
+    HwCommon::reset();
 
- protected:
-    static const unsigned MAP_BASE_OFFSET =
-        (SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(uint16_t)) / (16 * 1024);
+    // Mode 5: Two tiled 'text' layers, two extended background layers
+    videoSetModeSub(MODE_5_2D);
 
-    int bg;
-    uint16_t *backbuffer;
-};
+    /*
+     * XXX: We're using bank C, which is only 128kB: not enough to double-buffer.
+     */
+    vramSetBankC(VRAM_C_SUB_BG_0x06200000);
+
+    bg = bgInitSub(3, BgType_Bmp16, BgSize_B16_256x256, 0, 0);
+    backbuffer= bgGetGfxPtr(bg);
+}
 
 
-#endif // _SBTHARDWAREMAIN_H_
+void HwSub::drawScreen(SBTProcess *proc, uint8_t *framebuffer)
+{
+    VideoConvert::scaleCGAto256(framebuffer, backbuffer);
+    HwCommon::drawScreen(proc, framebuffer);
+}
