@@ -1305,15 +1305,6 @@ class BinaryImage:
     def unpack(self, offset, fmt):
         return struct.unpack(fmt, self.read(offset, struct.calcsize(fmt)))
 
-    def le8(self, offset):
-        return self.unpack(offset, "<B")[0]
-
-    def le16(self, offset):
-        return self.unpack(offset, "<H")[0]
-
-    def le32(self, offset):
-        return self.unpack(offset, "<I")[0]
-
     def disasm(self, addr, bits=16):
         """This is an iterator which disassembles starting at the specified
            memory address. Uses a temporary file to pass the relocated
@@ -1625,6 +1616,16 @@ void %(className)s::saveCache() {
 uintptr_t %(className)s::getEntryPtr() {
     return (uintptr_t) sub_%(entryLinear)X;
 }
+
+uint16_t %(className)s::getAddress(SBTAddressId id) {
+    switch (id) {
+%(getAddrCode)s
+
+    default:
+        sassert(0, "Bad SBTAddressId");
+        return 0;
+    }
+}
 """
 
     # Memory map:
@@ -1644,6 +1645,7 @@ uintptr_t %(className)s::getEntryPtr() {
         self._traces = []
         self._decls = ''
         self._dynBranches = {}
+        self._publishedAddresses = {}
 
         (signature, bytesInLastPage, numPages, numRelocations,
          headerParagraphs, minMemParagraphs, maxMemParagraphs,
@@ -1678,6 +1680,12 @@ uintptr_t %(className)s::getEntryPtr() {
            shared code.
            """
         self._decls = "%s\n%s\n" % (self._decls, code)
+
+    def publishAddress(self, enum, addr):
+        """Provide an address that can be looked up via getAddress() at runtime."""
+        if enum in self._publishedAddresses:
+            raise Exception("Already published %s" % enum)
+        self._publishedAddresses[enum] = addr
 
     def patch(self, addr, code, length=0):
         """Manually stick a line of assembly into the iCache,
@@ -1814,6 +1822,42 @@ uintptr_t %(className)s::getEntryPtr() {
             addrs, self.filename, sig.shortText))
         return addrs
 
+    def findData(self, signature):
+        """Find a signature in the binary's data segment. Returns an Addr16,
+           using the binary's relocated DS as a segment reference.
+           """
+        return self.findDataMultiple(signature, 1)[0]
+
+    def findDataMultiple(self, signature, expectedCount=None):
+        """Like findData(), but allows the signature to appear zero or more times.
+           If expectedCount is specified, we require it to occur exactly that many
+           times. Returns a list of Addr16s.
+           """
+        sig = Signature(signature)
+        addrs = [Addr16(self.relocSegment, o) for o in sig.find(self.image._data)]
+
+        if expectedCount is not None and len(addrs) != expectedCount:
+            raise SignatureMatchError("Signature found %d times, expected to "
+                                      "find %d. Matches: %r" %
+                                      (len(addrs), expectedCount, addrs))
+        log("Found data address %r in %s for: %r" % (
+            addrs, self.filename, sig.shortText))
+        return addrs
+
+    def peek8(self, addr):
+        """Read an 8-bit value. 'addr' may be a data segment offset or an Addr16."""
+        if not isinstance(addr, Addr16):
+            addr = Addr16(self.relocSegment, addr)
+        return self.image.unpack(addr.linear -
+                                 Addr16(self.relocSegment, 0).linear, "<B")[0]
+
+    def peek16(self, addr):
+        """Read a 16-bit value. 'addr' may be a data segment offset or an Addr16."""
+        if not isinstance(addr, Addr16):
+            addr = Addr16(self.relocSegment, addr)
+        return self.image.unpack(addr.linear -
+                                 Addr16(self.relocSegment, 0).linear, "<H")[0]
+
     def codegen(self, className):
         vars = dict(self.__class__.__dict__)
         vars.update(self.__dict__)
@@ -1830,6 +1874,8 @@ uintptr_t %(className)s::getEntryPtr() {
         vars['entryLinear'] = self.entryPoint.linear
         vars['entryCS'] = self.entryPoint.segment
         vars['dataImage'] = self.staticData.toHexArray()
+        vars['getAddrCode'] = '\n'.join(['case %s: return 0x%04x;' % i
+                                         for i in self._publishedAddresses.items()])
 
         return self._skel % vars
 

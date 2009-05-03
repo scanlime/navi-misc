@@ -57,12 +57,14 @@ void SBTHardwareMain::drawScreen(SBTProcess *proc, uint8_t *framebuffer)
 {
     VideoConvert::scaleCGAto256(framebuffer, backbuffer);
 
+#if 0
     if (!(keysHeld() & KEY_SELECT)) {
         int i = 5;
         while (i--) {
             swiWaitForVBlank();
         }
     }
+#endif
 
     /* The current frontbuffer will be the next backbuffer. */
     backbuffer= bgGetGfxPtr(bg);
@@ -78,7 +80,7 @@ void SBTHardwareMain::writeSpeakerTimestamp(uint32_t timestamp)
     SoundEngine::writeSpeakerTimestamp(timestamp);
 }
 
-void SBTHardwareMain::pollKeys()
+void SBTHardwareMain::pollKeys(SBTProcess *proc)
 {
     unsigned int i;
     static const struct {
@@ -102,6 +104,8 @@ void SBTHardwareMain::pollKeys()
         { KEY_Y, 'T' },
         { KEY_L, 'R' },
     };
+
+    SBTHardwareCommon::pollKeys(proc);
 
     scanKeys();
 

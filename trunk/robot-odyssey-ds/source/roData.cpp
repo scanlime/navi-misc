@@ -30,11 +30,18 @@
 
 
 ROWorld *ROWorld::fromProcess(SBTProcess *proc) {
-    return (ROWorld*) (proc->memSeg(proc->reg.ds) + RO_MEM_WORLD_DATA);
+    return (ROWorld*) (proc->memSeg(proc->reg.ds) +
+                       proc->getAddress(SBTADDR_WORLD_DATA));
 }
 
 ROCircuit *ROCircuit::fromProcess(SBTProcess *proc) {
-    return (ROCircuit*) (proc->memSeg(proc->reg.ds) + RO_MEM_CIRCUIT_DATA);
+    return (ROCircuit*) (proc->memSeg(proc->reg.ds) +
+                       proc->getAddress(SBTADDR_CIRCUIT_DATA));
+}
+
+RORobot *RORobot::fromProcess(SBTProcess *proc) {
+    return (RORobot*) (proc->memSeg(proc->reg.ds) +
+                       proc->getAddress(SBTADDR_ROBOT_DATA));
 }
 
 RORoomId ROWorld::getObjectRoom(ROObjectId obj) {

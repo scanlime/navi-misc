@@ -107,7 +107,7 @@ CDEPS := $(addprefix $(INCLUDEDIR)/,$(notdir $(wildcard $(INCLUDEDIR)/*.h)))
 # SBT86 sources
 GENERATED_BT := $(addprefix $(BUILDDIR)/,$(subst .py,.cpp,$(SOURCES_BT)))
 OBJS_BT      := $(subst .cpp,.o,$(GENERATED_BT))
-SBT86_PYDEPS := $(SCRIPTDIR)/sbt86.py $(BUILDDIR)/original
+SBT86_PYDEPS := $(SCRIPTDIR)/sbt86.py $(SCRIPTDIR)/bt_common.py $(BUILDDIR)/original
 SBT86_CDEPS  := $(INCLUDEDIR)/sbt86.h
 
 # Other sources

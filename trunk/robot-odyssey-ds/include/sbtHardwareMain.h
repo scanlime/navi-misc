@@ -47,7 +47,7 @@ class SBTHardwareMain : public SBTHardwareCommon
     uint16_t *backbuffer;
 
     virtual void writeSpeakerTimestamp(uint32_t timestamp);
-    virtual void pollKeys();
+    virtual void pollKeys(SBTProcess *proc);
 };
 
 
