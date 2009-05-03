@@ -145,3 +145,74 @@ void ITCM_CODE VideoConvert::scaleCGAPlaneTo256(uint8_t *in, uint16_t *out)
         out += 256;
     }
 }
+
+
+/*
+ * Expand and swizzle 4 pixels from 2bpp to 4bpp
+ */
+static inline uint16_t expand2to4(uint8_t byte) {
+    return (0x3000 & (byte << 12)) |
+           (0x0300 & (byte <<  6)) |
+           (0x0030 & (byte      )) |
+           (0x0003 & (byte >>  6));
+}
+
+
+/*
+ * Convert a subrectangle of a CGA framebuffer into a 16-color sprite
+ * compatible with Nintendo DS hardware. Only colors 0-3 are used.
+ *
+ * 'x' must be a multiple of 4. 'y' must be a multiple of 2. width and
+ * height must be multiples of 8. (The sprite format consists of a
+ * grid of 8x8 tiles.)
+ */
+void ITCM_CODE VideoConvert::CGAto16ColorTiles(uint8_t *cgaBuffer,
+                                               uint16_t *fb4,
+                                               uint32_t x,
+                                               uint32_t y,
+                                               uint32_t width,
+                                               uint32_t height)
+{
+    sassert((x & 3) == 0, "x must be a mulitple of 4");
+    sassert((y & 1) == 0, "y must be a mulitple of 2");
+    sassert((width & 7) == 0, "width must be a mulitple of 8");
+    sassert((height & 7) == 0, "height must be a mulitple of 8");
+
+    uint32_t tileWidth = width >> 3;
+    uint32_t tileHeight = height >> 3;
+
+    cgaBuffer += (x >> 2) + (y >> 1) * 80;
+
+    while (tileHeight--) {
+        uint8_t *line = cgaBuffer;
+
+        cgaBuffer += 80 * 4;
+
+        uint32_t i = tileWidth;
+        while (i--) {
+            /*
+             * Generate one 8x8 tile.
+             * This is 16 words, in a 2x4 grid, with 4 pixels per word.
+             */
+
+            *(fb4++) = expand2to4(line[0 + 80*0]);
+            *(fb4++) = expand2to4(line[1 + 80*0]);
+            *(fb4++) = expand2to4(line[0 + 80*0 + 0x2000]);
+            *(fb4++) = expand2to4(line[1 + 80*0 + 0x2000]);
+            *(fb4++) = expand2to4(line[0 + 80*1]);
+            *(fb4++) = expand2to4(line[1 + 80*1]);
+            *(fb4++) = expand2to4(line[0 + 80*1 + 0x2000]);
+            *(fb4++) = expand2to4(line[1 + 80*1 + 0x2000]);
+            *(fb4++) = expand2to4(line[0 + 80*2]);
+            *(fb4++) = expand2to4(line[1 + 80*2]);
+            *(fb4++) = expand2to4(line[0 + 80*2 + 0x2000]);
+            *(fb4++) = expand2to4(line[1 + 80*2 + 0x2000]);
+            *(fb4++) = expand2to4(line[0 + 80*3]);
+            *(fb4++) = expand2to4(line[1 + 80*3]);
+            *(fb4++) = expand2to4(line[0 + 80*3 + 0x2000]);
+            *(fb4++) = expand2to4(line[1 + 80*3 + 0x2000]);
+
+            line += 2;
+        }
+    }
+}

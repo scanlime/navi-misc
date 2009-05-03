@@ -1,7 +1,7 @@
 /* -*- Mode: C; c-basic-offset: 4 -*-
  *
- * Fast video conversion routines. These run out of ITCM RAM, and are
- * compiled with 32-bit ARM instructions.
+ * An implementation of SBTHardware which displays portions of the
+ * screen using hardware sprites.
  *
  * Copyright (c) 2009 Micah Dowty <micah@navi.cx>
  *
@@ -27,20 +27,21 @@
  *    OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef _VIDEOCONVERT_H_
-#define _VIDEOCONVERT_H_
+#ifndef _HWSPRITES_H_
+#define _HWSPRITES_H_
 
-#include <stdint.h>
-#include <nds.h>
+#include "hwCommon.h"
 
-namespace VideoConvert
+
+class HwSprites : public HwCommon
 {
-    void scaleCGAto256(uint8_t *cgaBuffer, uint16_t *fb16);
-    void scaleCGAPlaneTo256(uint8_t *cgaBuffer, uint16_t *fb16);
+ public:
+    virtual void reset();
+    virtual void drawScreen(SBTProcess *proc, uint8_t *framebuffer);
 
-    void CGAto16ColorTiles(uint8_t *cgaBuffer, uint16_t *spr,
-                           uint32_t x, uint32_t y,
-                           uint32_t width, uint32_t height);
-}
+ protected:
+    uint16_t *spr;
+};
 
-#endif // _VIDEOCONVERT_H_
+
+#endif // _HWSPRITES_H_
