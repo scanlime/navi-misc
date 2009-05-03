@@ -10,3 +10,11 @@ Robustness
 ----------
 
 - Power down audio hardware on sleep
+
+Efficiency
+----------
+
+- Compress GBFS files
+- Move data segment images into GBFS, compress them too
+- Examine generated ARM code, look for optimizations
+

@@ -1416,8 +1416,8 @@ class Subroutine:
             i.referent = referent
 
             # Remove this instruction from our static data
-            if i.length and not i.dynamicLiterals:
-                self.staticData.remove(i.addr, i.length)
+            if i.dynamicLiterals:
+                self.staticData.markPreserved(i.addr, i.length)
 
             if verbose:
                 sys.stderr.write("%s R[%-9s] D%-3d %-50s -> %-22s || %s\n" % (
@@ -1497,13 +1497,21 @@ class BinaryData:
     def __init__(self, data='', baseAddr=Addr16(0,0)):
         self.data = list(data)
         self.baseAddr = baseAddr
+        self.preserved = {}
 
-    def remove(self, addr, len):
-        """Remove a section of data from the image. This operation is
-           performed on ranges of bytes that we've identified as static code.
-           """
+    def markPreserved(self, addr, len):
+        """Mark a range of bytes to be preserved in the memory image."""
         offset = addr.linear - self.baseAddr.linear
-        self.data[offset:offset+len] = ['\0'] * len
+        while len:
+            self.preserved[offset] = True
+            len -= 1
+            offset += 1
+
+    def trim(self):
+        """Zero out sections of memory that haven't been preserved."""
+        for i in xrange(len(self.data)):
+            if i not in self.preserved:
+                self.data[i] = '\0'
 
     def toHexArray(self):
         """Convert compressed binary data to a list of hexadecimal values
@@ -1668,11 +1676,13 @@ uint16_t %(className)s::getAddress(SBTAddressId id) {
             relocs.append(Addr16(segment, offset))
         self.image.relocate(self.relocSegment, relocs)
 
-        # By default, treat the whole relocated image as data.
-        # We'll carve out the pieces that we can identify as code,
-        # and the zeroes will be compressed out.
-        self.staticData = BinaryData(self.image._data,
-                                     Addr16(self.relocSegment, 0))
+        # Create a binary image for our initial memory contents. We'll
+        # by default keep all bytes prior to the CS (the data segment)
+        # but during translation we may also mark additional parts of
+        # the binary to keep due to self-modifying code.
+
+        self.staticData = BinaryData(self.image._data, Addr16(self.relocSegment, 0))
+        self.staticData.markPreserved(Addr16(self.relocSegment, 0), entryCS << 4)
 
     def decl(self, code):
         """Add code to the declarations in the generated C file.
@@ -1873,7 +1883,10 @@ uint16_t %(className)s::getAddress(SBTAddressId id) {
         vars['traceDecls'] = '\n'.join([t.codegen() for t in self._traces])
         vars['entryLinear'] = self.entryPoint.linear
         vars['entryCS'] = self.entryPoint.segment
+
+        self.staticData.trim()
         vars['dataImage'] = self.staticData.toHexArray()
+
         vars['getAddrCode'] = '\n'.join(['case %s: return 0x%04x;' % i
                                          for i in self._publishedAddresses.items()])
 
