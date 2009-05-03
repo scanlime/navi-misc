@@ -216,7 +216,6 @@ class SBTStack
  public:
     inline void init() {
         top = 0;
-        retVerification = 0xBEEF;
     }
 
     inline void pushw(uint16_t word) {
@@ -277,15 +276,14 @@ class SBTStack
 
     inline void preSaveRet() {
         sassert(tags[top - 1] == STACK_TAG_RETADDR, "SBT86 stack tag mismatch");
-        words[top - 1] = retVerification;
+        words[top - 1] = RET_VERIFICATION;
         tags[top - 1] = STACK_TAG_WORD;
     }
 
     inline void postRestoreRet() {
         sassert(tags[top - 1] == STACK_TAG_WORD, "SBT86 stack tag mismatch");
-        sassert(words[top - 1] == retVerification, "SBT86 stack retaddr mismatch");
+        sassert(words[top - 1] == RET_VERIFICATION, "SBT86 stack retaddr mismatch");
         tags[top - 1] = STACK_TAG_RETADDR;
-        retVerification++;
     }
 
  private:
@@ -297,8 +295,8 @@ class SBTStack
     };
 
     static const uint32_t STACK_SIZE = 512;
+    static const uint16_t RET_VERIFICATION = 0xBEEF;
     uint32_t top;
-    uint32_t retVerification;
 
     Tag tags[STACK_SIZE];
     uint32_t words[STACK_SIZE];

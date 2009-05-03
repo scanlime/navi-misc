@@ -36,7 +36,9 @@
 #include "roData.h"
 
 SBT_DECL_PROCESS(LabEXE);
+SBT_DECL_PROCESS(GameEXE);
 SBT_DECL_PROCESS(TutorialEXE);
+SBT_DECL_PROCESS(RendererEXE);
 
 int
 main(int argc, char **argv)
@@ -44,58 +46,46 @@ main(int argc, char **argv)
     defaultExceptionHandler();
     consoleDemoInit();
 
-    static TutorialEXE tutorial;
+    static GameEXE game;
     static SBTHardwareMain hwMain;
     hwMain.reset();
-    tutorial.hardware = &hwMain;
-    tutorial.exec("21");
+    game.hardware = &hwMain;
+    game.exec("");
 
-    static TutorialEXE tutSub;
+    static RendererEXE render;
     static SBTHardwareSub hwSub;
     hwSub.reset();
-    tutSub.hardware = &hwSub;
-    tutSub.exec("25");
-
-    /*
-     * Run each binary until it reaches the main loop.
-     * If we start patching too early, initialization
-     * won't work correctly.
-     */
-    while (tutorial.run() != SBTHALT_FRAME_DRAWN);
-    while (tutSub.run() != SBTHALT_FRAME_DRAWN);
+    render.hardware = &hwSub;
+    render.exec();
 
     while (1) {
-        int haltCode;
 
         /*
          * Run one normal frame.
          */
-        while (tutorial.run() != SBTHALT_FRAME_DRAWN);
+        while (game.run() != SBTHALT_FRAME_DRAWN);
 
         /*
          * Run one sub-screen frame.
          */
-        do {
-            /*
-             * Move the robots into an unused room, and draw them without
-             * any playfield or text.
-             */
+        int haltCode;
 
-            const RORoomId subRoom = RO_ROOM_ESC_TEXT;
+        //const RORoomId subRoom = RO_ROOM_ESC_TEXT;
 
-            ROWorld *world = ROWorld::fromProcess(&tutSub);
-            ROCircuit *circuit = ROCircuit::fromProcess(&tutSub);
-            RORobot *robots = RORobot::fromProcess(&tutSub);
+            ROWorld *world = ROWorld::fromProcess(&render);
+            ROCircuit *circuit = ROCircuit::fromProcess(&render);
+            RORobot *robots = RORobot::fromProcess(&render);
 
-            haltCode = tutSub.run();
+                *world = *ROWorld::fromProcess(&game);
+                *circuit = *ROCircuit::fromProcess(&game);
 
-            switch (haltCode) {
+                memcpy(robots, RORobot::fromProcess(&game),
+                       sizeof(RORobot) * RORobot::NUM_ROBOTS);
 
                 /*
-                 * Override the room ID.
-                 */
-            case SBTHALT_LOAD_ROOM_ID:
-                tutSub.reg.al = subRoom;
+                memset(world->text.room, RO_ROOM_NONE, sizeof world->text.room);
+                world->rooms.bgColor[subRoom] = 0;
+                world->rooms.fgColor[subRoom] = 0;
 
                 world->setRobotRoom(RO_OBJ_ROBOT_SCANNER_L, subRoom);
                 world->setRobotXY(RO_OBJ_ROBOT_SCANNER_L, 40, 60);
@@ -105,25 +95,23 @@ main(int argc, char **argv)
 
                 world->setRobotRoom(RO_OBJ_ROBOT_SPARKY_L, subRoom);
                 world->setRobotXY(RO_OBJ_ROBOT_SPARKY_L, 100, 60);
+                */
 
-                break;
+        do {
+            /*
+             * Move the robots into an unused room, and draw them without
+             * any playfield or text.
+             */
 
-            case SBTHALT_KEYBOARD_POLL:
+            haltCode = render.run();
+
+            switch (haltCode) {
+
                 /*
-                 * The keyboard poll comes pretty early in the main loop.
-                 * Use this opportunity to refresh the world state.
+                 * Override the room ID.
                  */
-
-                *world = *ROWorld::fromProcess(&tutorial);
-                *circuit = *ROCircuit::fromProcess(&tutorial);
-
-                memcpy(robots, RORobot::fromProcess(&tutorial),
-                       sizeof(RORobot) * RORobot::NUM_ROBOTS);
-
-                memset(world->text.room, RO_ROOM_NONE, sizeof world->text.room);
-                world->rooms.bgColor[subRoom] = 0;
-                world->rooms.fgColor[subRoom] = 0;
-
+            case SBTHALT_LOAD_ROOM_ID:
+                //render.reg.al = subRoom;
                 break;
             }
         } while (haltCode != SBTHALT_FRAME_DRAWN);

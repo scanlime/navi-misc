@@ -45,7 +45,7 @@ SOURCES_A9   := main.cpp sbtHardwareCommon.cpp sbtProcess.cpp \
 
 SOURCES_ITCM := videoConvert.cpp
 SOURCES_A7   := arm7.cpp soundEngine.cpp
-SOURCES_BT   := bt_lab.py bt_menu.py bt_game.py bt_tutorial.py
+SOURCES_BT   := bt_lab.py bt_menu.py bt_game.py bt_tutorial.py bt_renderer.py
 
 ############################################
 # Build flags.

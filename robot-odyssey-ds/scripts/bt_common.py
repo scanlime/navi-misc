@@ -9,6 +9,10 @@ def patch(b):
        Odyssey game engine. (TUT, GAME, LAB)
        """
 
+    # Don't bother zeroing video memory, we already clear all of RAM.
+
+    b.patch(b.findCode(':9c 33c0 33ff 9d 7206 b90040 f3aa'), 'ret')
+
     # Remove the copy protection. (This would never work on an
     # emulated floppy controller anyway...) Not all binaries have the
     # copy protection itself (TUT.EXE is unprotected) but they all
