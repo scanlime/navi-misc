@@ -45,7 +45,9 @@
 class DOSFilesystem
 {
  public:
-    DOSFilesystem() { reset(); }
+    DOSFilesystem() {
+        reset();
+    }
 
     void reset();
 
@@ -79,8 +81,6 @@ class DOSFilesystem
 class SBTHardwareCommon : public SBTHardware
 {
  public:
-    SBTHardwareCommon() { reset(); }
-
     virtual void reset();
 
     /*

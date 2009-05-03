@@ -46,19 +46,32 @@ main(int argc, char **argv)
     defaultExceptionHandler();
     consoleDemoInit();
 
-    static GameEXE game;
     static SBTHardwareMain hwMain;
+    static TutorialEXE game;
     hwMain.reset();
     game.hardware = &hwMain;
-    game.exec("");
+    game.exec("25");
 
-    static RendererEXE render;
     static SBTHardwareSub hwSub;
+    static RendererEXE render;
     hwSub.reset();
     render.hardware = &hwSub;
     render.exec();
 
+    ROData gameData(&game);
+    ROData renderData(&render);
+
+    /* XXX: Setup for Scanner to grab an object */
+    while (game.run() != SBTHALT_FRAME_DRAWN);
+    gameData.world->setObjectRoom(RO_OBJ_WORLD_0,
+                             (RORoomId) gameData.world->rooms.links.right[
+                                 gameData.world->getObjectRoom(RO_OBJ_PLAYER)]);
+    gameData.world->setObjectXY(RO_OBJ_WORLD_0, 20, 160);
+
     while (1) {
+        // XXX: Energize Scanner's grabber.
+        gameData.world->objects.color[RO_OBJ_NODE_SCANNER_GRABBER_IN] =
+            RO_COLOR_WIRE_HOT;
 
         /*
          * Run one normal frame.
@@ -68,52 +81,31 @@ main(int argc, char **argv)
         /*
          * Run one sub-screen frame.
          */
-        int haltCode;
+        int haltCode = SBTHALT_FRAME_DRAWN;
 
-        //const RORoomId subRoom = RO_ROOM_ESC_TEXT;
+        const RORoomId subRoom = RO_ROOM_ESC_TEXT;
 
-            ROWorld *world = ROWorld::fromProcess(&render);
-            ROCircuit *circuit = ROCircuit::fromProcess(&render);
-            RORobot *robots = RORobot::fromProcess(&render);
+        renderData.copyFrom(&gameData);
 
-                *world = *ROWorld::fromProcess(&game);
-                *circuit = *ROCircuit::fromProcess(&game);
+        renderData.world->rooms.bgColor[subRoom] = 0;
+        renderData.world->rooms.fgColor[subRoom] = 0;
 
-                memcpy(robots, RORobot::fromProcess(&game),
-                       sizeof(RORobot) * RORobot::NUM_ROBOTS);
+        renderData.world->setRobotRoom(RO_OBJ_ROBOT_SCANNER_L, subRoom);
+        renderData.world->setRobotXY(RO_OBJ_ROBOT_SCANNER_L, 40, 60);
 
-                /*
-                memset(world->text.room, RO_ROOM_NONE, sizeof world->text.room);
-                world->rooms.bgColor[subRoom] = 0;
-                world->rooms.fgColor[subRoom] = 0;
+        renderData.world->setRobotRoom(RO_OBJ_ROBOT_CHECKERS_L, subRoom);
+        renderData.world->setRobotXY(RO_OBJ_ROBOT_CHECKERS_L, 70, 60);
 
-                world->setRobotRoom(RO_OBJ_ROBOT_SCANNER_L, subRoom);
-                world->setRobotXY(RO_OBJ_ROBOT_SCANNER_L, 40, 60);
-
-                world->setRobotRoom(RO_OBJ_ROBOT_CHECKERS_L, subRoom);
-                world->setRobotXY(RO_OBJ_ROBOT_CHECKERS_L, 70, 60);
-
-                world->setRobotRoom(RO_OBJ_ROBOT_SPARKY_L, subRoom);
-                world->setRobotXY(RO_OBJ_ROBOT_SPARKY_L, 100, 60);
-                */
+        renderData.world->setRobotRoom(RO_OBJ_ROBOT_SPARKY_L, subRoom);
+        renderData.world->setRobotXY(RO_OBJ_ROBOT_SPARKY_L, 100, 60);
 
         do {
-            /*
-             * Move the robots into an unused room, and draw them without
-             * any playfield or text.
-             */
-
             haltCode = render.run();
 
-            switch (haltCode) {
-
-                /*
-                 * Override the room ID.
-                 */
-            case SBTHALT_LOAD_ROOM_ID:
-                //render.reg.al = subRoom;
-                break;
+            if (haltCode == SBTHALT_LOAD_ROOM_ID) {
+                render.reg.al = subRoom;
             }
+
         } while (haltCode != SBTHALT_FRAME_DRAWN);
 
     }

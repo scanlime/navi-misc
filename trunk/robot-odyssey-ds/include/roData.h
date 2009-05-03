@@ -63,6 +63,9 @@ enum ROObjectId {
     RO_OBJ_ROBOT_MC_L                 = 0x01,  // Master Computer only in GAME.EXE
     RO_OBJ_ROBOT_MC_R                 = 0x02,
 
+    // World-specific objects
+    RO_OBJ_WORLD_0                    = 0x03,
+
     RO_OBJ_NODE_SPARKY_GRABBER_IN     = 0x1C,
     RO_OBJ_NODE_CHECKERS_GRABBER_IN   = 0x1D,
     RO_OBJ_NODE_SCANNER_GRABBER_IN    = 0x1E,
@@ -127,6 +130,76 @@ enum ROObjectId {
     RO_OBJ_NONE                       = 0xFF,
 };
 
+
+/*
+ * Sprite IDs
+ */
+enum ROSpriteId {
+    RO_SPR_CURSOR = 0,
+    RO_SPR_PIN_INOUT_LEFT,
+    RO_SPR_PIN_INOUT_RIGHT,
+    RO_SPR_SOLIDBLACK_1,
+    RO_SPR_SOLIDBLACK_2,
+    RO_SPR_SOLIDBLACK_3,
+    RO_SPR_PIN_INPUT_DOWN,
+    RO_SPR_ANDGATE_UP,
+    RO_SPR_ANDGATE_DOWN,
+    RO_SPR_ORGATE_UP,
+    RO_SPR_ORGATE_DOWN,
+    RO_SPR_XORGATE_UP,
+    RO_SPR_XORGATE_DOWN,
+    RO_SPR_NOTGATE_UP,
+    RO_SPR_NOTGATE_DOWN,
+    RO_SPR_PIN_INPUT2_DOWN,
+    RO_SPR_PIN_INPUT2_UP,
+    RO_SPR_PIN_INPUT3_DOWN,
+    RO_SPR_PIN_INPUT3_UP,
+    RO_SPR_FLIPFLOP_RIGHT,
+    RO_SPR_FLIPFLOP_LEFT,
+    RO_SPR_PIN_INPUT_LEFT,
+    RO_SPR_PIN_INPUT_RIGHT,
+    RO_SPR_PIN_OUTPUT_LEFT,
+    RO_SPR_PIN_OUTPUT_RIGHT,
+    RO_SPR_NODE,
+    RO_SPR_BLANK,
+    RO_SPR_TOOLBOX,
+    RO_SPR_SOLDER_IRON,
+    RO_SPR_SOLDER_TIP,
+    RO_SPR_BATTERY_TOP,
+    RO_SPR_PAINTBRUSH,
+    RO_SPR_CRYSTAL_CHARGER,
+    RO_SPR_CHIP_1,
+    RO_SPR_CHIP_2,
+    RO_SPR_CHIP_3,
+    RO_SPR_CHIP_4,
+    RO_SPR_CHIP_5,
+    RO_SPR_CHIP_6,
+    RO_SPR_CHIP_7,
+    RO_SPR_CHIP_8,
+    RO_SPR_CHIP_BLANK,
+    RO_SPR_THRUSTER_RIGHT,
+    RO_SPR_THRUSTER_LEFT,
+    RO_SPR_THRUSTER_ANIM1W,
+    RO_SPR_THRUSTER_ANIM2W,
+    RO_SPR_THRUSTER_ANIM3W,
+    RO_SPR_THRUSTER_ANIM4W,
+    RO_SPR_THRUSTER_SWITCH_CLOSED,
+    RO_SPR_THRUSTER_SWITCH_OPEN,
+    RO_SPR_SENTRY_BODY,
+    RO_SPR_KEYHOLE,
+    RO_SPR_PIN_OUTPUT_UP,
+    RO_SPR_PIN_OUTPUT_DOWN,
+    RO_SPR_REMOTE_CONTROL,
+    RO_SPR_BUTTON,
+    RO_SPR_KEY,
+    RO_SPR_CRYSTAL,
+    RO_SPR_GRABBER_UP,     // NOTE: In GAME.EXE, grabber sprites are shifted down by one.
+    RO_SPR_GRABBER_RIGHT,
+    RO_SPR_GRABBER_LEFT,
+    RO_SPR_GRABBER_DOWN,
+    RO_SPR_UNUSED_1,
+    RO_SPR_UNUSED_2,
+};
 
 /*
  * Sprites are a 16x8 bitmap
@@ -194,10 +267,6 @@ class ROWorld {
         uint8_t stringHeap[0x1880];
     } text;
 
-    /*
-     * Functions for accessing world data
-     */
-
     static ROWorld *fromProcess(SBTProcess *proc);
 
     RORoomId getObjectRoom(ROObjectId obj);
@@ -257,19 +326,16 @@ class ROCircuit {
     uint8_t unk_byte_19;
     uint8_t toolboxIsClosed;
 
-    /*
-     * Functions for accessing circuit data
-     */
-
     static ROCircuit *fromProcess(SBTProcess *proc);
 
 } __attribute__ ((packed));
 
 
 /*
- * Robot Odyssey's per-robot internal data. This contains thruster
- * state, bumper state, thruster switch state, etc. It includes state
- * that can't be recovered from just a world file.
+ * Robot Odyssey's main table of per-robot internal data. This
+ * contains thruster state, bumper state, thruster switch state, and
+ * grabber state. It includes state that can't be recovered from just
+ * a world file.
  */
 class RORobot {
  public:
@@ -277,7 +343,6 @@ class RORobot {
     uint8_t objLeft2;          // (duplicate)
     uint8_t objRight;          // Right half of robot
     uint8_t objRight2;         // (duplicate)
-
     uint8_t objThrusters[4];
     uint8_t objBumpers[4];
 
@@ -288,14 +353,44 @@ class RORobot {
     uint8_t grabEnableCount;
     uint8_t thrusterSwitch;
 
-    /*
-     * Functions for accessing robot data
-     */
-
-    static const unsigned NUM_ROBOTS = 4;
     static RORobot *fromProcess(SBTProcess *proc);
 
 } __attribute__ ((packed));
+
+
+/*
+ * Robot grabber directions. This table specifies which direction a
+ * robot's grabber is pointing. It has four entries, one for each
+ * direction. Each entry is zero (no grabber) or a sprite index.
+ */
+class RORobotGrabber {
+ public:
+    uint8_t state[4];
+
+    static RORobotGrabber *fromProcess(SBTProcess *proc);
+
+} __attribute__ ((packed));
+
+
+/*
+ * Top level class for all data we know how to poke at in a Robot Odyssey binary.
+ */
+class ROData {
+ public:
+    ROData(SBTProcess *proc);
+
+    ROWorld *world;
+    ROCircuit *circuit;
+
+    int numRobots;
+    RORobot *robots;
+    RORobotGrabber *robotGrabbers;
+
+    void copyFrom(ROData *source);
+
+    static const unsigned NUM_GRABBER_SPRITES = 4;
+    ROSpriteId getFirstGrabberSpriteId(void);
+};
 
 
 #endif // _RODATA_H_

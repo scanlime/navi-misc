@@ -26,6 +26,7 @@
  *    OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <string.h>
 #include "roData.h"
 
 
@@ -41,7 +42,12 @@ ROCircuit *ROCircuit::fromProcess(SBTProcess *proc) {
 
 RORobot *RORobot::fromProcess(SBTProcess *proc) {
     return (RORobot*) (proc->memSeg(proc->reg.ds) +
-                       proc->getAddress(SBTADDR_ROBOT_DATA));
+                       proc->getAddress(SBTADDR_ROBOT_DATA_MAIN));
+}
+
+RORobotGrabber *RORobotGrabber::fromProcess(SBTProcess *proc) {
+    return (RORobotGrabber*) (proc->memSeg(proc->reg.ds) +
+                              proc->getAddress(SBTADDR_ROBOT_DATA_GRABBER));
 }
 
 RORoomId ROWorld::getObjectRoom(ROObjectId obj) {
@@ -124,4 +130,52 @@ void ROWorld::setRobotXY(ROObjectId obj, int x, int y) {
 
     setObjectXY(left, x, y);
     setObjectXY(right, x + 5, y);
+}
+
+ROData::ROData(SBTProcess *proc) {
+    world = ROWorld::fromProcess(proc);
+    circuit = ROCircuit::fromProcess(proc);
+    robots = RORobot::fromProcess(proc);
+    robotGrabbers = RORobotGrabber::fromProcess(proc);
+
+    /*
+     * We can infer the number of robots by looking at the
+     * size of the robotGrabbers table, which is just prior
+     * to the 'robots' table.
+     */
+    numRobots = (RORobotGrabber*)robots - robotGrabbers;
+    sassert(numRobots == 3 || numRobots == 4, "Robot table sanity check failed");
+}
+
+void ROData::copyFrom(ROData *source) {
+    /*
+     * Copy all world data from another process.
+     */
+
+    const int copyRobots = numRobots < source->numRobots ? numRobots : source->numRobots;
+
+    memcpy(world, source->world, sizeof *world);
+    memcpy(circuit, source->circuit, sizeof *circuit);
+
+    memcpy(robotGrabbers, source->robotGrabbers, sizeof robotGrabbers[0] * copyRobots);
+    memcpy(robots, source->robots, sizeof robots[0] * copyRobots);
+
+    /*
+     * Move the grabber sprites, if necessary.
+     */
+    ROSprite *srcGrabSpr = &source->world->sprites[source->getFirstGrabberSpriteId()];
+    ROSprite *destGrabSpr = &world->sprites[getFirstGrabberSpriteId()];
+    memmove(destGrabSpr, srcGrabSpr, sizeof(ROSprite) * NUM_GRABBER_SPRITES);
+}
+
+
+ROSpriteId ROData::getFirstGrabberSpriteId(void) {
+    /*
+     * GAME.EXE (with 4 robots) has its grabber sprites shifted down by one.
+     */
+    if (numRobots == 4) {
+        return RO_SPR_GRABBER_RIGHT;
+    } else {
+        return RO_SPR_GRABBER_UP;
+    }
 }

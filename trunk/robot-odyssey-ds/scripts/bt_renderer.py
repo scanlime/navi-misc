@@ -62,4 +62,7 @@ b.patch('0DAB:675b', 'jmp 0x675e')
 b.patch('0DAB:6761', 'jmp 0x6764')
 b.patch('0DAB:676a', 'jmp 0x6776')
 
+# Skip text rendering. We don't need it.
+b.patch('0DAB:6758', 'jmp 0x675b')
+
 b.writeCodeToFile('build/bt_renderer.cpp', 'RendererEXE')
