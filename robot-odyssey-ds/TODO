@@ -6,6 +6,13 @@ Gameplay
 - Touchscreen support for changing cursor modes
 - Touchscreen soldering mode
 
+Polish
+------
+
+- Double-buffer the sub screen. There isn't enough memory
+  to have two buffers for each screen, but we don't need
+  one- we can share a backbuffer, for 3 buffers total.
+
 Robustness
 ----------
 

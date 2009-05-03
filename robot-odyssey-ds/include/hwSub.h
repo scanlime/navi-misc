@@ -1,7 +1,7 @@
 /* -*- Mode: C; c-basic-offset: 4 -*-
  *
- * Main implementation of SBTHardware, which emulates video using the
- * Nintendo DS's primary screen.
+ * An implementation of SBTHardware which displays on the Nintendo
+ * DS's sub engine.
  *
  * Copyright (c) 2009 Micah Dowty <micah@navi.cx>
  *
@@ -27,13 +27,13 @@
  *    OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef _SBTHARDWAREMAIN_H_
-#define _SBTHARDWAREMAIN_H_
+#ifndef _HWSUB_H_
+#define _HWSUB_H_
 
-#include "sbtHardwareCommon.h"
+#include "hwCommon.h"
 
 
-class SBTHardwareMain : public SBTHardwareCommon
+class HwSub : public HwCommon
 {
  public:
     virtual void reset();
@@ -45,10 +45,7 @@ class SBTHardwareMain : public SBTHardwareCommon
 
     int bg;
     uint16_t *backbuffer;
-
-    virtual void writeSpeakerTimestamp(uint32_t timestamp);
-    virtual void pollKeys(SBTProcess *proc);
 };
 
 
-#endif // _SBTHARDWAREMAIN_H_
+#endif // _HWSUB_H_
