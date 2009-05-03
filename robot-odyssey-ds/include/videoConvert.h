@@ -42,9 +42,15 @@ namespace VideoConvert
                            uint32_t x, uint32_t y,
                            uint32_t width, uint32_t height);
 
+    void CGAWideto16ColorTiles(uint8_t *cgaBuffer, uint16_t *spr,
+                               uint32_t x, uint32_t y,
+                               uint32_t width, uint32_t height);
+
     void CGAclear(uint8_t *cgaBuffer,
                   uint32_t x, uint32_t y,
                   uint32_t width, uint32_t height);
+
+    extern const uint16_t palette[16];
 }
 
 #endif // _VIDEOCONVERT_H_
