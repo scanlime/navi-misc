@@ -167,13 +167,13 @@ SBTRegs SBTHardwareCommon::interrupt16(SBTProcess *proc, SBTRegs reg)
     switch (reg.ah) {
 
     case 0x00:                /* Get keystroke */
-        pollKeys();
+        pollKeys(proc);
         reg.ax = keycode;
         keycode = 0;
         break;
 
     case 0x01:                /* Check for keystroke */
-        pollKeys();
+        pollKeys(proc);
         if (keycode) {
             reg.clearZF();
             reg.ax = keycode;
@@ -195,7 +195,7 @@ SBTRegs SBTHardwareCommon::interrupt21(SBTProcess *proc, SBTRegs reg)
 
     case 0x06:                /* Direct console input/output (Only input supported) */
         if (reg.dl == 0xFF) {
-            pollKeys();
+            pollKeys(proc);
             if (keycode) {
                 reg.al = (uint8_t) keycode;
                 reg.clearZF();
@@ -264,6 +264,6 @@ void SBTHardwareCommon::pressKey(uint8_t ascii, uint8_t scancode) {
     keycode = (scancode << 8) | ascii;
 }
 
-void SBTHardwareCommon::pollKeys(void) {
-    /* Stub. Subclasses can override if they need this. */
+void SBTHardwareCommon::pollKeys(SBTProcess *proc) {
+    proc->halt(SBTHALT_KEYBOARD_POLL);
 }

@@ -48,7 +48,7 @@ main(int argc, char **argv)
     static SBTHardwareMain hwMain;
     hwMain.reset();
     tutorial.hardware = &hwMain;
-    tutorial.exec("25");
+    tutorial.exec("21");
 
     static TutorialEXE tutSub;
     static SBTHardwareSub hwSub;
@@ -56,51 +56,78 @@ main(int argc, char **argv)
     tutSub.hardware = &hwSub;
     tutSub.exec("25");
 
-    /* Let both binaries initialize themselves */
+    /*
+     * Run each binary until it reaches the main loop.
+     * If we start patching too early, initialization
+     * won't work correctly.
+     */
     while (tutorial.run() != SBTHALT_FRAME_DRAWN);
     while (tutSub.run() != SBTHALT_FRAME_DRAWN);
 
     while (1) {
+        int haltCode;
+
+        /*
+         * Run one normal frame.
+         */
         while (tutorial.run() != SBTHALT_FRAME_DRAWN);
 
         /*
-         * We don't want to copy the whole data segment, just copy the
-         * world data. This is faster, and it doesn't clobber the
-         * robot animation state.
-         *
-         * Note that we also must copy circuit data, or the sub
-         * process can hang when it tries to simulate a circuit which
-         * doesn't match the world data. This is also where we get
-         * things like robot thruster state, and remote control state.
+         * Run one sub-screen frame.
          */
-        ROWorld *wld = ROWorld::fromProcess(&tutSub);
-        *wld = *ROWorld::fromProcess(&tutorial);
+        do {
+            /*
+             * Move the robots into an unused room, and draw them without
+             * any playfield or text.
+             */
 
-        *ROCircuit::fromProcess(&tutSub) = *ROCircuit::fromProcess(&tutorial);
+            const RORoomId subRoom = RO_ROOM_ESC_TEXT;
 
-        /*
-         * Move the robots into an unused room, and draw them without
-         * any playfield or text.
-         */
-        const RORoomId subRoom = RO_ROOM_ESC_TEXT;
+            ROWorld *world = ROWorld::fromProcess(&tutSub);
+            ROCircuit *circuit = ROCircuit::fromProcess(&tutSub);
+            RORobot *robots = RORobot::fromProcess(&tutSub);
 
-        while (tutSub.run() != SBTHALT_LOAD_ROOM_ID);
-        tutSub.reg.al = subRoom;
+            haltCode = tutSub.run();
 
-        memset(wld->text.room, RO_ROOM_NONE, sizeof wld->text.room);
-        wld->rooms.bgColor[subRoom] = 0;
-        wld->rooms.fgColor[subRoom] = 0;
+            switch (haltCode) {
 
-        wld->setRobotRoom(RO_OBJ_ROBOT_SCANNER_L, subRoom);
-        wld->setRobotXY(RO_OBJ_ROBOT_SCANNER_L, 20, 100);
+                /*
+                 * Override the room ID.
+                 */
+            case SBTHALT_LOAD_ROOM_ID:
+                tutSub.reg.al = subRoom;
 
-        wld->setRobotRoom(RO_OBJ_ROBOT_CHECKERS_L, subRoom);
-        wld->setRobotXY(RO_OBJ_ROBOT_CHECKERS_L, 50, 100);
+                world->setRobotRoom(RO_OBJ_ROBOT_SCANNER_L, subRoom);
+                world->setRobotXY(RO_OBJ_ROBOT_SCANNER_L, 40, 60);
 
-        wld->setRobotRoom(RO_OBJ_ROBOT_SPARKY_L, subRoom);
-        wld->setRobotXY(RO_OBJ_ROBOT_SPARKY_L, 80, 100);
+                world->setRobotRoom(RO_OBJ_ROBOT_CHECKERS_L, subRoom);
+                world->setRobotXY(RO_OBJ_ROBOT_CHECKERS_L, 70, 60);
 
-        while (tutSub.run() != SBTHALT_FRAME_DRAWN);
+                world->setRobotRoom(RO_OBJ_ROBOT_SPARKY_L, subRoom);
+                world->setRobotXY(RO_OBJ_ROBOT_SPARKY_L, 100, 60);
+
+                break;
+
+            case SBTHALT_KEYBOARD_POLL:
+                /*
+                 * The keyboard poll comes pretty early in the main loop.
+                 * Use this opportunity to refresh the world state.
+                 */
+
+                *world = *ROWorld::fromProcess(&tutorial);
+                *circuit = *ROCircuit::fromProcess(&tutorial);
+
+                memcpy(robots, RORobot::fromProcess(&tutorial),
+                       sizeof(RORobot) * RORobot::NUM_ROBOTS);
+
+                memset(world->text.room, RO_ROOM_NONE, sizeof world->text.room);
+                world->rooms.bgColor[subRoom] = 0;
+                world->rooms.fgColor[subRoom] = 0;
+
+                break;
+            }
+        } while (haltCode != SBTHALT_FRAME_DRAWN);
+
     }
 
     return 0;

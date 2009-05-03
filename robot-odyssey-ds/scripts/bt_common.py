@@ -114,6 +114,26 @@ def patch(b):
     for addr in b.findCodeMultiple('a0ac05 :a25848'):
         b.hook(addr, 'proc->halt(SBTHALT_LOAD_ROOM_ID);')
 
+    # Locate the robot data table, by finding the data itself.
+
+    b.publishAddress('SBTADDR_ROBOT_DATA',
+                     b.findData(':f0 f0 f1 f1 51 52 53 54 55 56 57 58'
+                                ' 00 00 00 00 07 07 07 07 00 00 00 00').offset)
+
+    # Locate the circuit data, by finding a reference to it in the
+    # code which draws all wires.
+
+    b.publishAddress('SBTADDR_CIRCUIT_DATA',
+                     b.peek16(b.findCode(
+                        '80f9ff 744f 32ed 8bf1 8a84:____ 0ac0 7437 8a84____')))
+
+    # Locate the world data. The world data is originally loaded by following
+    # a pointer which is statically initialized with the address of the data block.
+    # Find that code, and read the pointer it references.
+
+    worldPtr = b.peek16(b.findCode('8bd8 b43f 8b0e____ 8b16:____ cd21 b43e cd21'))
+    b.publishAddress('SBTADDR_WORLD_DATA', b.peek16(worldPtr))
+
 
 def patchChips(b):
     """Patches for binaries that support chips. (LAB and GAME, but not TUT).

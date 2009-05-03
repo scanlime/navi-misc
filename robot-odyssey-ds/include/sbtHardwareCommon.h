@@ -108,7 +108,7 @@ class SBTHardwareCommon : public SBTHardware
     uint16_t keycode;
 
     virtual void writeSpeakerTimestamp(uint32_t timestamp);
-    virtual void pollKeys();
+    virtual void pollKeys(SBTProcess *proc);
 };
 
 

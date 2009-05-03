@@ -59,10 +59,52 @@ enum RORoomId {
  */
 enum ROObjectId {
     RO_OBJ_PLAYER                     = 0x00,
+
+    RO_OBJ_ROBOT_MC_L                 = 0x01,  // Master Computer only in GAME.EXE
+    RO_OBJ_ROBOT_MC_R                 = 0x02,
+
     RO_OBJ_NODE_SPARKY_GRABBER_IN     = 0x1C,
     RO_OBJ_NODE_CHECKERS_GRABBER_IN   = 0x1D,
     RO_OBJ_NODE_SCANNER_GRABBER_IN    = 0x1E,
+
+    RO_OBJ_MC_THRUSTER_1              = 0x39,  // Master Computer only in GAME.EXE
+    RO_OBJ_MC_THRUSTER_2              = 0x3A,
+    RO_OBJ_MC_THRUSTER_3              = 0x3B,
+    RO_OBJ_MC_THRUSTER_4              = 0x3C,
+    RO_OBJ_MC_BUMPER_1                = 0x3D,
+    RO_OBJ_MC_BUMPER_2                = 0x3E,
+    RO_OBJ_MC_BUMPER_3                = 0x3F,
+    RO_OBJ_MC_BUMPER_4                = 0x40,
+
+    RO_OBJ_SCANNER_THRUSTER_1         = 0x41,
+    RO_OBJ_SCANNER_THRUSTER_2         = 0x42,
+    RO_OBJ_SCANNER_THRUSTER_3         = 0x43,
+    RO_OBJ_SCANNER_THRUSTER_4         = 0x44,
+    RO_OBJ_SCANNER_BUMPER_1           = 0x45,
+    RO_OBJ_SCANNER_BUMPER_2           = 0x46,
+    RO_OBJ_SCANNER_BUMPER_3           = 0x47,
+    RO_OBJ_SCANNER_BUMPER_4           = 0x48,
+
+    RO_OBJ_CHECKERS_THRUSTER_1        = 0x49,
+    RO_OBJ_CHECKERS_THRUSTER_2        = 0x4A,
+    RO_OBJ_CHECKERS_THRUSTER_3        = 0x4B,
+    RO_OBJ_CHECKERS_THRUSTER_4        = 0x4C,
+    RO_OBJ_CHECKERS_BUMPER_1          = 0x4D,
+    RO_OBJ_CHECKERS_BUMPER_2          = 0x4E,
+    RO_OBJ_CHECKERS_BUMPER_3          = 0x4F,
+    RO_OBJ_CHECKERS_BUMPER_4          = 0x50,
+
+    RO_OBJ_SPARKY_THRUSTER_1          = 0x51,
+    RO_OBJ_SPARKY_THRUSTER_2          = 0x52,
+    RO_OBJ_SPARKY_THRUSTER_3          = 0x53,
+    RO_OBJ_SPARKY_THRUSTER_4          = 0x54,
+    RO_OBJ_SPARKY_BUMPER_1            = 0x55,
+    RO_OBJ_SPARKY_BUMPER_2            = 0x56,
+    RO_OBJ_SPARKY_BUMPER_3            = 0x57,
+    RO_OBJ_SPARKY_BUMPER_4            = 0x58,
+
     RO_OBJ_TOOLBOX                    = 0xE1,
+
     RO_OBJ_CHIP1                      = 0xE8,
     RO_OBJ_CHIP2                      = 0xE9,
     RO_OBJ_CHIP3                      = 0xEA,
@@ -71,24 +113,18 @@ enum ROObjectId {
     RO_OBJ_CHIP6                      = 0xED,
     RO_OBJ_CHIP7                      = 0xEE,
     RO_OBJ_CHIP8                      = 0xEF,
+
     RO_OBJ_ROBOT_SPARKY_L             = 0xF0,
     RO_OBJ_ROBOT_SPARKY_R             = 0xF1,
     RO_OBJ_ROBOT_CHECKERS_L           = 0xF2,
     RO_OBJ_ROBOT_CHECKERS_R           = 0xF3,
     RO_OBJ_ROBOT_SCANNER_L            = 0xF4,
     RO_OBJ_ROBOT_SCANNER_R            = 0xF5,
+
     RO_OBJ_ANTENNA                    = 0xFC,
     RO_OBJ_CURSOR                     = 0xFE,
+
     RO_OBJ_NONE                       = 0xFF,
-};
-
-
-/*
- * Memory offsets
- */
-enum ROMemOffset {
-    RO_MEM_WORLD_DATA    = 0x02AC,
-    RO_MEM_CIRCUIT_DATA  = 0x8C53,
 };
 
 
@@ -105,7 +141,7 @@ typedef uint8_t RORoomTiles[30];
 
 /*
  * Robot Odyssey's world file data. This is in memory at the address
- * RO_MEM_WORLD_DATA, and it is the first structure in the saved game
+ * SBTADDR_WORLD_DATA, and it is the first structure in the saved game
  * and level data files.
  */
 class ROWorld {
@@ -182,7 +218,7 @@ class ROWorld {
 
 /*
  * Robot Odyssey's circuit data. This is in memory at the address
- * RO_MEM_CIRCUIT_DATA, and it is also saved on disk as the .CIR file
+ * SBTADDR_CIRCUIT_DATA, and it is also saved on disk as the .CIR file
  * or as part of a saved game file.
  */
 class ROCircuit {
@@ -199,13 +235,65 @@ class ROCircuit {
     } wires;
 
     uint8_t unk2[0x100];
-    uint8_t unk3[20];
+
+    uint8_t unk_byte_1;
+    uint8_t unk_byte_2;
+    uint8_t unk_byte_3;
+    uint8_t unk_byte_4;
+    uint8_t unk_byte_5;
+    uint8_t unk_byte_6;
+    uint8_t unk_byte_7;
+    uint8_t unk_byte_8;
+    uint8_t unk_byte_9;
+    uint8_t unk_byte_10;
+    uint8_t unk_byte_11;
+    uint8_t unk_byte_12;
+    uint8_t unk_byte_13;
+    uint8_t unk_byte_14;
+    uint8_t unk_byte_15;
+    uint8_t remoteControlFlag;
+    uint8_t unk_byte_17;
+    uint8_t unk_byte_18;
+    uint8_t unk_byte_19;
+    uint8_t toolboxIsClosed;
 
     /*
      * Functions for accessing circuit data
      */
 
     static ROCircuit *fromProcess(SBTProcess *proc);
+
+} __attribute__ ((packed));
+
+
+/*
+ * Robot Odyssey's per-robot internal data. This contains thruster
+ * state, bumper state, thruster switch state, etc. It includes state
+ * that can't be recovered from just a world file.
+ */
+class RORobot {
+ public:
+    uint8_t objLeft;           // Left half of robot
+    uint8_t objLeft2;          // (duplicate)
+    uint8_t objRight;          // Right half of robot
+    uint8_t objRight2;         // (duplicate)
+
+    uint8_t objThrusters[4];
+    uint8_t objBumpers[4];
+
+    uint8_t thrusterState[4];  // Animation frame #, or 0 if off
+    uint8_t bumperState[4];    // Color ID
+    uint8_t grabberState[4];
+
+    uint8_t grabEnableCount;
+    uint8_t thrusterSwitch;
+
+    /*
+     * Functions for accessing robot data
+     */
+
+    static const unsigned NUM_ROBOTS = 4;
+    static RORobot *fromProcess(SBTProcess *proc);
 
 } __attribute__ ((packed));
 
