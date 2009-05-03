@@ -14,6 +14,8 @@ Robustness
 Efficiency
 ----------
 
+- Fixed frame rate: Count VBIs, don't just wait for them.
+- Replace memcpy and struct copies with DMA (async, if possible)
 - Compress GBFS files
 - Move data segment images into GBFS, compress them too
 - Examine generated ARM code, look for optimizations

@@ -119,10 +119,16 @@ def patch(b):
         b.hook(addr, 'proc->halt(SBTHALT_LOAD_ROOM_ID);')
 
     # Locate the robot data table, by finding the data itself.
+    # The robot data table has two parts: A main table, and a grabber
+    # table. We can't treat them all as one chunk, because the grabber
+    # table length depends on the number of robots (which could be 3 or 4).
 
-    b.publishAddress('SBTADDR_ROBOT_DATA',
+    b.publishAddress('SBTADDR_ROBOT_DATA_MAIN',
                      b.findData(':f0 f0 f1 f1 51 52 53 54 55 56 57 58'
                                 ' 00 00 00 00 07 07 07 07 00 00 00 00').offset)
+    b.publishAddress('SBTADDR_ROBOT_DATA_GRABBER',
+                     b.findData('01 01 01 04 01 02 03'
+                                ':00010000 00010000 00010000').offset)
 
     # Locate the circuit data, by finding a reference to it in the
     # code which draws all wires.
