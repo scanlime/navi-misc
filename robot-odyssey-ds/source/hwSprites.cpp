@@ -1,7 +1,7 @@
 /* -*- Mode: C; c-basic-offset: 4 -*-
  *
- * Fast video conversion routines. These run out of ITCM RAM, and are
- * compiled with 32-bit ARM instructions.
+ * An implementation of SBTHardware which displays portions of the
+ * screen using hardware sprites.
  *
  * Copyright (c) 2009 Micah Dowty <micah@navi.cx>
  *
@@ -27,20 +27,43 @@
  *    OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef _VIDEOCONVERT_H_
-#define _VIDEOCONVERT_H_
-
-#include <stdint.h>
 #include <nds.h>
+#include <stdio.h>
+#include "hwSprites.h"
+#include "videoConvert.h"
 
-namespace VideoConvert
+
+void HwSprites::reset()
 {
-    void scaleCGAto256(uint8_t *cgaBuffer, uint16_t *fb16);
-    void scaleCGAPlaneTo256(uint8_t *cgaBuffer, uint16_t *fb16);
+    HwCommon::reset();
 
-    void CGAto16ColorTiles(uint8_t *cgaBuffer, uint16_t *spr,
-                           uint32_t x, uint32_t y,
-                           uint32_t width, uint32_t height);
+    videoSetModeSub(MODE_0_2D);
+    consoleDemoInit();
+    vramSetBankD(VRAM_D_SUB_SPRITE);
+
+    iprintf("Foo!\n");
+
+    oamInit(&oamSub, SpriteMapping_1D_64, false);
+
+    spr = oamAllocateGfx(&oamSub, SpriteSize_64x64, SpriteColorFormat_16Color);
+
+    /* CGA */
+    SPRITE_PALETTE_SUB[0] = RGB8(0x00,0x00,0x00);
+    SPRITE_PALETTE_SUB[1] = RGB8(0x55,0xFF,0xFF);
+    SPRITE_PALETTE_SUB[2] = RGB8(0xFF,0x55,0xFF);
+    SPRITE_PALETTE_SUB[3] = RGB8(0xFF,0xFF,0xFF);
+
+    oamSet(&oamSub, 0, 20, 20, 0, 0, SpriteSize_64x64,
+           SpriteColorFormat_16Color, spr, -1, false, false, false, false, false);
+
+    swiWaitForVBlank();
+    oamUpdate(&oamSub);
 }
 
-#endif // _VIDEOCONVERT_H_
+
+void HwSprites::drawScreen(SBTProcess *proc, uint8_t *framebuffer)
+{
+    VideoConvert::CGAto16ColorTiles(framebuffer, spr, 60, 80, 64, 64);
+
+    HwCommon::drawScreen(proc, framebuffer);
+}

@@ -33,6 +33,7 @@
 #include "sbt86.h"
 #include "hwSub.h"
 #include "hwMain.h"
+#include "hwSprites.h"
 #include "roData.h"
 
 SBT_DECL_PROCESS(LabEXE);
@@ -52,7 +53,7 @@ main(int argc, char **argv)
     game.hardware = &hwMain;
     game.exec("25");
 
-    static HwSub hwSub;
+    static HwSprites hwSub;
     static RendererEXE render;
     hwSub.reset();
     render.hardware = &hwSub;
