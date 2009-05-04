@@ -103,9 +103,13 @@ SpriteScraperRect *HwSpriteScraper::allocRect(OamState *oam, int oamId)
 void HwSpriteScraper::freeRect(SpriteScraperRect *rect)
 {
     sassert(rect->buffer, "Freeing non-allocated sprite");
+
+    rect->sprite.attribute[0] = ATTR0_DISABLED;
+
     oamFreeGfx(rect->oam, rect->buffer);
     rect->buffer = NULL;
     rect->oam = NULL;
+    rect->sprite = NULL;
     rect->live = false;
     rect->livePrev = false;
 }
