@@ -55,10 +55,10 @@ main(int argc, char **argv)
     oamInit(&oamSub, SpriteMapping_1D_64, false);
 
     static HwMain hwMain;
-    static TutorialEXE game;
+    static GameEXE game;
     hwMain.reset();
     game.hardware = &hwMain;
-    game.exec("25");
+    game.exec("");
 
     static HwSpriteScraper hwSub;
     static RendererEXE render;
@@ -72,9 +72,11 @@ main(int argc, char **argv)
     SpriteScraperRect *r1 = hwSub.allocRect(&oamSub, 0);
     SpriteScraperRect *r2 = hwSub.allocRect(&oamSub, 1);
     SpriteScraperRect *r3 = hwSub.allocRect(&oamSub, 2);
+    SpriteScraperRect *cur = hwSub.allocRect(&oamSub, 3);
 
     r2->moveSprite(50, 50);
     r3->moveSprite(80, 80);
+    cur->moveSprite(50, 160);
 
     /* XXX: Setup for Scanner to grab an object */
     while (game.run() != SBTHALT_FRAME_DRAWN);
@@ -119,6 +121,10 @@ main(int argc, char **argv)
         renderData.world->setRobotRoom(RO_OBJ_ROBOT_CHECKERS_L, subRoom);
         renderData.world->setRobotXY(RO_OBJ_ROBOT_CHECKERS_L,
                                      r3->centerX(), 192 - r3->centerY());
+
+        renderData.world->setObjectRoom(RO_OBJ_PLAYER, subRoom);
+        renderData.world->setObjectXY(RO_OBJ_PLAYER,
+                                      cur->centerX(), 192 - cur->centerY());
 
         do {
             haltCode = render.run();
