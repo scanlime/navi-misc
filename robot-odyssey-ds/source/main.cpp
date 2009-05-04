@@ -33,7 +33,8 @@
 #include "sbt86.h"
 #include "hwSub.h"
 #include "hwMain.h"
-#include "hwSprites.h"
+#include "hwSpriteScraper.h"
+#include "videoConvert.h"
 #include "roData.h"
 
 SBT_DECL_PROCESS(LabEXE);
@@ -45,7 +46,13 @@ int
 main(int argc, char **argv)
 {
     defaultExceptionHandler();
+
+    // Sprite init
+    videoSetModeSub(MODE_0_2D);
     consoleDemoInit();
+    vramSetBankD(VRAM_D_SUB_SPRITE);
+    iprintf("Foo!");
+    oamInit(&oamSub, SpriteMapping_1D_64, false);
 
     static HwMain hwMain;
     static TutorialEXE game;
@@ -53,7 +60,7 @@ main(int argc, char **argv)
     game.hardware = &hwMain;
     game.exec("25");
 
-    static HwSprites hwSub;
+    static HwSpriteScraper hwSub;
     static RendererEXE render;
     hwSub.reset();
     render.hardware = &hwSub;
@@ -61,6 +68,13 @@ main(int argc, char **argv)
 
     ROData gameData(&game);
     ROData renderData(&render);
+
+    SpriteScraperRect *r1 = hwSub.allocRect(&oamSub, 0);
+    SpriteScraperRect *r2 = hwSub.allocRect(&oamSub, 1);
+    SpriteScraperRect *r3 = hwSub.allocRect(&oamSub, 2);
+
+    r2->moveSprite(50, 50);
+    r3->moveSprite(80, 80);
 
     /* XXX: Setup for Scanner to grab an object */
     while (game.run() != SBTHALT_FRAME_DRAWN);
@@ -70,6 +84,12 @@ main(int argc, char **argv)
     gameData.world->setObjectXY(RO_OBJ_WORLD_0, 5, 135);
 
     while (1) {
+        touchPosition touch;
+        touchRead(&touch);
+        if (touch.rawx && touch.rawy) {
+            r1->moveSprite(touch.px, touch.py);
+        }
+
         // XXX: Energize Scanner's grabber.
         gameData.world->objects.color[RO_OBJ_NODE_SCANNER_GRABBER_IN] =
             RO_COLOR_WIRE_HOT;
@@ -89,13 +109,16 @@ main(int argc, char **argv)
         renderData.copyFrom(&gameData);
 
         renderData.world->setRobotRoom(RO_OBJ_ROBOT_SCANNER_L, subRoom);
-        renderData.world->setRobotXY(RO_OBJ_ROBOT_SCANNER_L, 40, 60);
-
-        renderData.world->setRobotRoom(RO_OBJ_ROBOT_CHECKERS_L, subRoom);
-        renderData.world->setRobotXY(RO_OBJ_ROBOT_CHECKERS_L, 70, 60);
+        renderData.world->setRobotXY(RO_OBJ_ROBOT_SCANNER_L,
+                                     r1->centerX(), 192 - r1->centerY());
 
         renderData.world->setRobotRoom(RO_OBJ_ROBOT_SPARKY_L, subRoom);
-        renderData.world->setRobotXY(RO_OBJ_ROBOT_SPARKY_L, 100, 60);
+        renderData.world->setRobotXY(RO_OBJ_ROBOT_SPARKY_L,
+                                     r2->centerX(), 192 - r2->centerY());
+
+        renderData.world->setRobotRoom(RO_OBJ_ROBOT_CHECKERS_L, subRoom);
+        renderData.world->setRobotXY(RO_OBJ_ROBOT_CHECKERS_L,
+                                     r3->centerX(), 192 - r3->centerY());
 
         do {
             haltCode = render.run();
@@ -106,6 +129,7 @@ main(int argc, char **argv)
 
         } while (haltCode != SBTHALT_FRAME_DRAWN);
 
+        oamUpdate(&oamSub);
     }
 
     return 0;
