@@ -149,8 +149,10 @@ def patchChips(b):
     """Patches for binaries that support chips. (LAB and GAME, but not TUT).
        """
 
-    # Even crazier self-modifying code for the electrical simulation of chips..
-    # Still not sure what this is for or how it works.
+    # There are several places where the chip simulator uses
+    # self-modifying code which requires dynamic literals. The chip
+    # simulator patches itself with destination addresses while
+    # writing the result of simulating one gate.
 
     b.patchDynamicLiteral(b.findCode('e9c000 :8a9d____ b700 d1e3 8b87____'
                                      '86e0 260b84fefe 268984fefe'),
@@ -160,17 +162,16 @@ def patchChips(b):
     b.patchDynamicLiteral(b.findCode('8a01 :a2____ 8ad0 32f6 8bfa 8a85____'),
                           3)
 
-    # These seem to only be in LAB.EXE? Maybe chip burning related?
-
-    for addr in b.findCodeMultiple(':8885efef'):
-        b.patchDynamicLiteral(addr, 4)
-    for addr in b.findCodeMultiple(':8884fefe'):
-        b.patchDynamicLiteral(addr, 4)
-    for addr in b.findCodeMultiple(':8a84fefe'):
-        b.patchDynamicLiteral(addr, 4)
-
-    # Patch some craziness with the stack. This function seems to be
-    # related to simulating flip-flops within chips.
+    # The chip simulator uses the stack in an interesting way... Any
+    # time there is a gate simulation result which can't be written
+    # immediately (it affects other gates, not just pins) it's added
+    # to the stack. At the end of each nested chip, these results are
+    # popped off the stack and written to memory. The results are
+    # enqueued by a subroutine, so this subroutine needs to affect the
+    # caller's stack, without its own return value getting in the
+    # way. It does this by temporarily removing the return value from
+    # the stack. We need to patch this code so that our strongly typed
+    # stack is okay with this usage.
 
     b.hook(b.findCode(':58 a3____ 32f68bfa 8b1e'),
            'gStack->preSaveRet();')
@@ -181,4 +182,13 @@ def patchChips(b):
            'gStack->preSaveRet();')
     b.hook(b.findCode('75e9 a1____ 50 :c3'),
            'gStack->postRestoreRet();')
+
+    # These seem to only be in LAB.EXE? Maybe chip burning related?
+
+    for addr in b.findCodeMultiple(':8885efef'):
+        b.patchDynamicLiteral(addr, 4)
+    for addr in b.findCodeMultiple(':8884fefe'):
+        b.patchDynamicLiteral(addr, 4)
+    for addr in b.findCodeMultiple(':8a84fefe'):
+        b.patchDynamicLiteral(addr, 4)
 
