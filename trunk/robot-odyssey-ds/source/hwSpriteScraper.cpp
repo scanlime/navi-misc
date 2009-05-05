@@ -40,21 +40,6 @@ void HwSpriteScraper::reset()
     memset(rects, 0, sizeof rects);
 
     /*
-     * Init palette.
-     */
-    memcpy(SPRITE_PALETTE, VideoConvert::palette, sizeof VideoConvert::palette);
-    memcpy(SPRITE_PALETTE_SUB, VideoConvert::palette, sizeof VideoConvert::palette);
-
-    /*
-     * Use matrix 0 to scale our scraped sprites, by default.
-     */
-    const int angle = 0;
-    oamRotateScale(&oamMain, MATRIX_ID, angle,
-                   SpriteScraperRect::scaleX, SpriteScraperRect::scaleY);
-    oamRotateScale(&oamSub, MATRIX_ID, angle,
-                   SpriteScraperRect::scaleX, SpriteScraperRect::scaleY);
-
-    /*
      * Set up the position of each ScraperRect.
      */
     for (int i = 0; i < NUM_SPRITES; i++) {
@@ -67,7 +52,7 @@ void HwSpriteScraper::reset()
     }
 }
 
-SpriteScraperRect *HwSpriteScraper::allocRect(OamState *oam, int oamId)
+SpriteScraperRect *HwSpriteScraper::allocRect(OamState *oam)
 {
     /*
      * Look for a free sprite rect
@@ -77,7 +62,6 @@ SpriteScraperRect *HwSpriteScraper::allocRect(OamState *oam, int oamId)
         if (rect->buffer == NULL) {
 
             rect->oam = oam;
-            rect->sprite = &oam->oamMemory[oamId];
             rect->buffer = oamAllocateGfx(oam, SpriteSize_64x64,
                                           SpriteColorFormat_16Color);
 
@@ -88,10 +72,6 @@ SpriteScraperRect *HwSpriteScraper::allocRect(OamState *oam, int oamId)
             rect->live = true;
             rect->livePrev = false;
             dmaFillHalfWords(0, rect->buffer, rect->width * rect->height / 2);
-
-            oamSet(oam, oamId, 0, 0, 0, 0, SpriteSize_64x64,
-                   SpriteColorFormat_16Color, rect->buffer,
-                   MATRIX_ID, true, false, false, false, false);
 
             return rect;
         }
@@ -104,12 +84,9 @@ void HwSpriteScraper::freeRect(SpriteScraperRect *rect)
 {
     sassert(rect->buffer, "Freeing non-allocated sprite");
 
-    rect->sprite->attribute[0] = ATTR0_DISABLED;
-
     oamFreeGfx(rect->oam, rect->buffer);
     rect->buffer = NULL;
     rect->oam = NULL;
-    rect->sprite = NULL;
     rect->live = false;
     rect->livePrev = false;
 }
@@ -145,13 +122,4 @@ void HwSpriteScraper::drawScreen(SBTProcess *proc, uint8_t *framebuffer)
     }
 
     HwCommon::drawScreen(proc, framebuffer);
-}
-
-void SpriteScraperRect::moveSprite(int x, int y) {
-    /*
-     * Our sprite is double-sized in hardware for scaling purposes, so
-     * the actual size is width*2 by height*2.
-     */
-    sprite->x = x - width;
-    sprite->y = y - height;
 }
