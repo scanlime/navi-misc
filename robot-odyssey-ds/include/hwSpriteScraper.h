@@ -58,9 +58,10 @@ class SpriteScraperRect
     static const int scaleY = 0x100;
 
     /*
-     * OAM data for the sprite associated with this rect.
+     * Sprite format
      */
-    SpriteEntry *sprite;
+    static const SpriteSize size = SpriteSize_64x64;
+    static const SpriteColorFormat format = SpriteColorFormat_16Color;
 
     /* Coordinates of top-left corner, in widepixels. */
     int x, y;
@@ -70,11 +71,6 @@ class SpriteScraperRect
      * to false without freeing the rect in order to freeze updates.
      */
     bool live;
-
-    /*
-     * Move the center of the OAM sprite
-     */
-    void moveSprite(int x, int y);
 
     /* CGA pixel X */
     inline int cgaX() {
@@ -94,9 +90,13 @@ class SpriteScraperRect
         return y + height/2;
     }
 
+    /*
+     * Sprite data buffer, in VRAM.
+     */
+    uint16_t *buffer;
+
  private:
     friend class HwSpriteScraper;
-    uint16_t *buffer;
     OamState *oam;
     bool livePrev;
 };
@@ -105,9 +105,6 @@ class SpriteScraperRect
 class HwSpriteScraper : public HwCommon
 {
  public:
-    /*
-     * Uses first 10 colors of the palette, and affine matrix MATRIX_ID.
-     */
     virtual void reset();
 
     virtual void drawScreen(SBTProcess *proc, uint8_t *framebuffer);
@@ -122,7 +119,7 @@ class HwSpriteScraper : public HwCommon
      */
     static const int NUM_SPRITES = 6;
 
-    SpriteScraperRect *allocRect(OamState *oam, int oamId);
+    SpriteScraperRect *allocRect(OamState *oam);
     void freeRect(SpriteScraperRect *rect);
 
  protected:

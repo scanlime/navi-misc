@@ -36,6 +36,7 @@
 #include "hwSpriteScraper.h"
 #include "videoConvert.h"
 #include "roData.h"
+#include "mSprite.h"
 #include "gfx_background.h"
 
 SBT_DECL_PROCESS(LabEXE);
@@ -51,7 +52,10 @@ main(int argc, char **argv)
     videoSetModeSub(MODE_5_2D);
     vramSetBankC(VRAM_C_SUB_BG_0x06200000);
     vramSetBankD(VRAM_D_SUB_SPRITE);
+
     oamInit(&oamSub, SpriteMapping_1D_64, false);
+    memcpy(SPRITE_PALETTE_SUB, VideoConvert::palette, sizeof VideoConvert::palette);
+    MSpriteAllocator sprAlloc(&oamSub);
 
     int subBg = bgInitSub(3, BgType_Bmp8, BgSize_B8_256x256, 0, 0);
     decompress(gfx_backgroundBitmap, bgGetGfxPtr(subBg), LZ77Vram);
@@ -72,30 +76,29 @@ main(int argc, char **argv)
     ROData gameData(&game);
     ROData renderData(&render);
 
-    SpriteScraperRect *r1 = hwSub.allocRect(&oamSub, 0);
-    SpriteScraperRect *r2 = hwSub.allocRect(&oamSub, 1);
-    SpriteScraperRect *r3 = hwSub.allocRect(&oamSub, 2);
+    SpriteScraperRect *r1 = hwSub.allocRect(&oamSub);
+    MSprite sprite(&sprAlloc);
 
-    r2->moveSprite(50, 50);
-    r3->moveSprite(80, 80);
+    sprite.newOBJ(MSPRR_FRONT_BORDER, -32+1, -32, r1->buffer, r1->size, r1->format)->entry->palette = 1;
+    sprite.newOBJ(MSPRR_FRONT_BORDER, -32-1, -32, r1->buffer, r1->size, r1->format)->entry->palette = 1;
+    sprite.newOBJ(MSPRR_FRONT_BORDER, -32, -32+1, r1->buffer, r1->size, r1->format)->entry->palette = 1;
+    sprite.newOBJ(MSPRR_FRONT_BORDER, -32, -32-1, r1->buffer, r1->size, r1->format)->entry->palette = 1;
+    sprite.newOBJ(MSPRR_FRONT, -32, -32, r1->buffer, r1->size, r1->format);
 
-    /* XXX: Setup for Scanner to grab an object */
-    while (game.run() != SBTHALT_FRAME_DRAWN);
-    gameData.world->setObjectRoom(RO_OBJ_WORLD_0,
-                             (RORoomId) gameData.world->rooms.links.right[
-                                 gameData.world->getObjectRoom(RO_OBJ_PLAYER)]);
-    gameData.world->setObjectXY(RO_OBJ_WORLD_0, 5, 135);
+    sprite.setIntrinsicScale(r1->scaleX, r1->scaleY);
+    sprite.show();
 
     while (1) {
         touchPosition touch;
         touchRead(&touch);
         if (touch.rawx && touch.rawy) {
-            r1->moveSprite(touch.px, touch.py);
+            static int angle = 0;
+            angle += 0x500;
+            int scale = 0x100 - (abs(sinLerp(angle)) >> 6);
+            sprite.moveTo(touch.px, touch.py);
+            sprite.setScale(scale, scale);
+            sprite.show();
         }
-
-        // XXX: Energize Scanner's grabber.
-        gameData.world->objects.color[RO_OBJ_NODE_SCANNER_GRABBER_IN] =
-            RO_COLOR_WIRE_HOT;
 
         /*
          * Run one normal frame.
@@ -115,13 +118,6 @@ main(int argc, char **argv)
         renderData.world->setRobotXY(RO_OBJ_ROBOT_SCANNER_L,
                                      r1->centerX() - 6, 192 - r1->centerY() - 8);
 
-        renderData.world->setRobotRoom(RO_OBJ_ROBOT_SPARKY_L, subRoom);
-        renderData.world->setRobotXY(RO_OBJ_ROBOT_SPARKY_L,
-                                     r2->centerX() - 6, 192 - r2->centerY() - 8);
-
-        renderData.world->setRobotRoom(RO_OBJ_ROBOT_CHECKERS_L, subRoom);
-        renderData.world->setRobotXY(RO_OBJ_ROBOT_CHECKERS_L,
-                                     r3->centerX() - 6, 192 - r3->centerY() - 8);
 
         do {
             haltCode = render.run();
