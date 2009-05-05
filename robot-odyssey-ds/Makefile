@@ -33,7 +33,7 @@ BANNER_TEXT := "Robot Odyssey DS"
 
 
 ############################################
-# Object Files.
+# Source Files.
 #
 # There are separate lists for normal ARM9
 # sources, ARM9 sources that run out of ITCM
@@ -46,6 +46,9 @@ SOURCES_A9   := main.cpp sbtProcess.cpp roData.cpp hwCommon.cpp \
 SOURCES_ITCM := videoConvert.cpp
 SOURCES_A7   := arm7.cpp soundEngine.cpp
 SOURCES_BT   := bt_lab.py bt_menu.py bt_game.py bt_tutorial.py bt_renderer.py
+
+SOURCES_GRIT := gfx_background.grit
+
 
 ############################################
 # Build flags.
@@ -68,8 +71,8 @@ LIB_LDFLAGS      := $(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 LIB_CFLAGS       := $(foreach dir,$(LIBDIRS),-I$(dir)/include)
 
 CFLAGS_COMMON    := -g -Werror -fomit-frame-pointer -ffast-math \
-                    -I$(INCLUDEDIR) -fno-rtti -fno-exceptions \
-                    $(LIB_CFLAGS)
+                    -I$(INCLUDEDIR) -I$(BUILDDIR) $(LIB_CFLAGS) \
+                    -fno-rtti -fno-exceptions
 
 ARCH_A9          := -mthumb -mthumb-interwork
 ARM_A9           := -march=armv5te -mtune=arm946e-s -DARM9
@@ -120,8 +123,12 @@ GBFS_ROOT    := $(BUILDDIR)/fs
 GBFS_FILE    := $(BUILDDIR)/data.gbfs
 GBFS_OBJ     := $(BUILDDIR)/data.gbfs.o
 
+# GRIT output files, in our build directory
+GRIT_ASM     := $(addprefix $(BUILDDIR)/,$(subst .grit,.s,$(SOURCES_GRIT)))
+GRIT_OBJS    := $(addprefix $(BUILDDIR)/,$(subst .grit,.o,$(SOURCES_GRIT)))
+
 # All ARM9 objects, including non-normal files like GBFS and SBT86 output.
-OBJS_A9_ALL  := $(OBJS_A9) $(OBJS_BT) $(OBJS_ITCM) $(GBFS_OBJ)
+OBJS_A9_ALL  := $(OBJS_A9) $(OBJS_BT) $(OBJS_ITCM) $(GBFS_OBJ) $(GRIT_OBJS)
 
 ############################################
 # Build targets.
@@ -190,7 +197,7 @@ $(BUILDDIR)/original:
 	@touch $@
 
 # Pseudo-target to package up the game data files with GBFS
-$(GBFS_FILE): $(BUILDDIR)/original
+$(GBFS_FILE): $(BUILDDIR)/original $(GRIT_OBJS)
 	@echo "[GBFS   ] Packing game data files"
 	@cd $(GBFS_ROOT); gbfs $(TOPDIR)/$(GBFS_FILE) *
 
@@ -203,5 +210,15 @@ $(GBFS_OBJ): $(GBFS_FILE)
 		--redefine-sym _binary_build_data_gbfs_size=data_gbfs_size \
 		$< $@
 
+# Convert graphics with GRIT, generating assembly source which is
+# compiled for ARM9.
+
+$(GRIT_OBJS): $(BUILDDIR)/%.o: $(BUILDDIR)/%.s
+	@echo "[GRIT-AS]" $@
+	@$(CXX) $(CFLAGS_A9) -c -o $@ $<
+
+$(GRIT_ASM): $(BUILDDIR)/%.s: $(DATADIR)/%.grit $(DATADIR)/%.png
+	@echo "[GRIT   ]" $@
+	@grit $(DATADIR)/$*.png -fts -ff $< -o $@
 
 ### The End ###

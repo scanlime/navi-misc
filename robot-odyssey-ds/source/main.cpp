@@ -36,6 +36,7 @@
 #include "hwSpriteScraper.h"
 #include "videoConvert.h"
 #include "roData.h"
+#include "gfx_background.h"
 
 SBT_DECL_PROCESS(LabEXE);
 SBT_DECL_PROCESS(GameEXE);
@@ -47,12 +48,14 @@ main(int argc, char **argv)
 {
     defaultExceptionHandler();
 
-    // Sprite init
-    videoSetModeSub(MODE_0_2D);
-    consoleDemoInit();
+    videoSetModeSub(MODE_5_2D);
+    vramSetBankC(VRAM_C_SUB_BG_0x06200000);
     vramSetBankD(VRAM_D_SUB_SPRITE);
-    iprintf("Foo!");
     oamInit(&oamSub, SpriteMapping_1D_64, false);
+
+    int subBg = bgInitSub(3, BgType_Bmp8, BgSize_B8_256x256, 0, 0);
+    decompress(gfx_backgroundBitmap, bgGetGfxPtr(subBg), LZ77Vram);
+    decompress(gfx_backgroundPal, BG_PALETTE_SUB, LZ77Vram);
 
     static HwMain hwMain;
     static GameEXE game;
