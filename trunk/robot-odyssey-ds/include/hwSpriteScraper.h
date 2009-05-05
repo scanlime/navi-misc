@@ -39,6 +39,11 @@
 class SpriteScraperRect
 {
  public:
+    /*
+     * 64x64 is fairly wide, but 32x64 is a little bit too narrow to
+     * hold a robot that's carrying something. This gives us plenty of
+     * buffer room around robots to capture objects they're holding.
+     */
     static const int width = 64;
     static const int height = 64;
 
