@@ -1,0 +1,54 @@
+Robot Odyssey DS
+----------------
+
+Notes on how we use the DS hardware:
+
+1. Graphics
+
+  i. Main Screen
+
+     2D engine in Mode 5, double-buffered 16bpp framebuffer
+     occupying VRAM banks A and B.
+
+     The game screen is 320x192, which must be scaled to the
+     DS's 256x192. This is done in software, with a fast
+     special-purpose antialiased scaler.
+
+     Uses only background 3.
+
+  ii. Sub screen, showing gameplay
+
+     This is much like the main screen showing gameplay.
+     It uses the same software scaler. Currently this uses
+     VRAM bank C, and background 3.
+
+     XXX: Not yet double-buffered.
+
+  iii. Sprites
+
+     Game sprites are converted dynamically to NDS OBJs, in tiled
+     16-color mode. These objects are allocated dynamically by the
+     MSprite class. We use hardware scaling to correct the aspect
+     ratio of sprites, and a clever palette to quickly undo the game's
+     dithering.
+
+     Some MSprites use additional OBJs to draw a solid color border in
+     hardware, by drawing multiple offset copies of the main sprite.
+
+  iv. Sub screen backdrop
+
+     This is a static 256-color image, on background 3. This uses the
+     top 3 pages of VRAM bank C, and the first 128 palette entries.
+
+  v. Sub screen text
+
+     Text renders on background 2, as a 256-color 256x256 image. Uses
+     color 0xFF in the palette.
+
+2. ARM7
+
+We use the ARM7 to do the usual touchscreen polling, plus this is
+where we run most of our PC speaker emulation code.
+
+--
+

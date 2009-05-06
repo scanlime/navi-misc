@@ -135,16 +135,31 @@ void ROWorld::setRobotXY(ROObjectId obj, int x, int y) {
 ROData::ROData(SBTProcess *proc) {
     world = ROWorld::fromProcess(proc);
     circuit = ROCircuit::fromProcess(proc);
-    robots = RORobot::fromProcess(proc);
-    robotGrabbers = RORobotGrabber::fromProcess(proc);
+    robots.state = RORobot::fromProcess(proc);
+    robots.grabbers = RORobotGrabber::fromProcess(proc);
 
     /*
      * We can infer the number of robots by looking at the
      * size of the robotGrabbers table, which is just prior
      * to the 'robots' table.
+     *
+     * Also, we can double-check this by looking for an 0xFF
+     * termination byte just after the end of the RORobot table.
      */
-    numRobots = (RORobotGrabber*)robots - robotGrabbers;
-    sassert(numRobots == 3 || numRobots == 4, "Robot table sanity check failed");
+
+    robots.count = (RORobotGrabber*)robots.state - robots.grabbers;
+    sassert(robots.count == 3 || robots.count == 4,
+            "Robot table sanity check failed");
+
+    uint8_t *endOfTable = (uint8_t*)&robots.state[robots.count];
+    sassert(*endOfTable == 0xFF, "End of robot table not found");
+
+    /*
+     * Just after the robot's table terminator, there is an array of
+     * robot battery accumulators.
+     */
+
+    robots.batteryAcc = (RORobotBatteryAcc*) (endOfTable + 1);
 }
 
 void ROData::copyFrom(ROData *source) {
@@ -152,19 +167,24 @@ void ROData::copyFrom(ROData *source) {
      * Copy all world data from another process.
      */
 
-    const int copyRobots = numRobots < source->numRobots ? numRobots : source->numRobots;
+    const int copyRobots = robots.count < source->robots.count ?
+                           robots.count : source->robots.count;
 
     memcpy(world, source->world, sizeof *world);
     memcpy(circuit, source->circuit, sizeof *circuit);
 
-    memcpy(robotGrabbers, source->robotGrabbers, sizeof robotGrabbers[0] * copyRobots);
-    memcpy(robots, source->robots, sizeof robots[0] * copyRobots);
+    memcpy(robots.grabbers, source->robots.grabbers,
+           sizeof robots.grabbers[0] * copyRobots);
+    memcpy(robots.state, source->robots.state,
+           sizeof robots.state[0] * copyRobots);
+    memcpy(robots.batteryAcc, source->robots.batteryAcc,
+           sizeof robots.batteryAcc[0] * copyRobots);
 
     /*
      * Move the grabber sprites, if necessary.
      */
 
-    if (numRobots == 4 && source->numRobots == 3) {
+    if (robots.count == 4 && source->robots.count == 3) {
         /* Convert sprites from TUT/LAB to GAME IDs */
         memcpy(&world->sprites[RO_SPR_GAME_GRABBER_UP],
                &source->world->sprites[RO_SPR_GRABBER_UP], sizeof(ROSprite));
@@ -172,7 +192,7 @@ void ROData::copyFrom(ROData *source) {
                &source->world->sprites[RO_SPR_GRABBER_RIGHT], sizeof(ROSprite));
         memcpy(&world->sprites[RO_SPR_GAME_GRABBER_LEFT],
                &source->world->sprites[RO_SPR_GRABBER_LEFT], sizeof(ROSprite));
-    } else if (numRobots == 3 && source->numRobots == 4) {
+    } else if (robots.count == 3 && source->robots.count == 4) {
         /* Convert sprites from GAME to TUT/LAB IDs */
         memcpy(&world->sprites[RO_SPR_GRABBER_UP],
                &source->world->sprites[RO_SPR_GAME_GRABBER_UP], sizeof(ROSprite));
