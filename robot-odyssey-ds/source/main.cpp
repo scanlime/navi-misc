@@ -37,6 +37,7 @@
 #include "videoConvert.h"
 #include "roData.h"
 #include "mSprite.h"
+#include "textRenderer.h"
 #include "gfx_background.h"
 
 SBT_DECL_PROCESS(LabEXE);
@@ -60,6 +61,15 @@ main(int argc, char **argv)
     int subBg = bgInitSub(3, BgType_Bmp8, BgSize_B8_256x256, 0, 0);
     decompress(gfx_backgroundBitmap, bgGetGfxPtr(subBg), LZ77Vram);
     decompress(gfx_backgroundPal, BG_PALETTE_SUB, LZ77Vram);
+
+    TextRenderer text;
+    text.init();
+    text.setAlignment(text.CENTER);
+    text.moveTo(128, 64);
+    text.printf("Hello World!\n");
+    text.printf("I am a text!\n");
+    text.printf("\nFont is Copyright ~ 2001\n");
+    text.printf("http://www.orgdot.com\n");
 
     static HwMain hwMain;
     static GameEXE game;
@@ -86,6 +96,7 @@ main(int argc, char **argv)
     sprite.newOBJ(MSPRR_FRONT, -32, -32, r1->buffer, r1->size, r1->format);
 
     sprite.setIntrinsicScale(r1->scaleX, r1->scaleY);
+    sprite.moveTo(50, 50);
     sprite.show();
 
     while (1) {
@@ -118,6 +129,10 @@ main(int argc, char **argv)
         renderData.world->setRobotXY(RO_OBJ_ROBOT_SCANNER_L,
                                      r1->centerX() - 6, 192 - r1->centerY() - 8);
 
+        /* Draw robot power levels */
+        text.moveTo(16, 192-32);
+        text.setAlignment(text.LEFT);
+        text.printf("%04x\n", gameData.robots.batteryAcc[2].get());
 
         do {
             haltCode = render.run();

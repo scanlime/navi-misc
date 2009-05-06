@@ -41,7 +41,8 @@ BANNER_TEXT := "Robot Odyssey DS"
 #
 
 SOURCES_A9   := main.cpp sbtProcess.cpp roData.cpp hwCommon.cpp \
-                hwMain.cpp hwSub.cpp hwSpriteScraper.cpp mSprite.cpp
+                hwMain.cpp hwSub.cpp hwSpriteScraper.cpp mSprite.cpp \
+                textRenderer.cpp
 
 SOURCES_ITCM := videoConvert.cpp
 SOURCES_A7   := arm7.cpp soundEngine.cpp

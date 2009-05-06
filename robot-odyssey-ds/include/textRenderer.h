@@ -1,7 +1,7 @@
 /* -*- Mode: C; c-basic-offset: 4 -*-
  *
- * Fast video conversion routines. These run out of ITCM RAM, and are
- * compiled with 32-bit ARM instructions.
+ * TextRenderer draws text on the sub screen using Background 2,
+ * configured as a 256x320 scrollable 8-bit graphics plane.
  *
  * Copyright (c) 2009 Micah Dowty <micah@navi.cx>
  *
@@ -27,33 +27,42 @@
  *    OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef _VIDEOCONVERT_H_
-#define _VIDEOCONVERT_H_
+#ifndef _TEXTRENDERER_H_
+#define _TEXTRENDERER_H_
 
-#include <stdint.h>
-#include <nds.h>
-
-namespace VideoConvert
+class TextRenderer
 {
-    void scaleCGAto256(uint8_t *cgaBuffer, uint16_t *fb16);
-    void scaleCGAPlaneTo256(uint8_t *cgaBuffer, uint16_t *fb16);
+ public:
+    void init();
 
-    void CGAto16ColorTiles(uint8_t *cgaBuffer, uint16_t *spr,
-                           uint32_t x, uint32_t y,
-                           uint32_t width, uint32_t height);
+    static const int width = 256;
+    static const int height = 320;
+    static const int lineHeight = 16;
+    static const int borderWidth = 1;
+    static const int fgPaletteIndex = 0xFF;
+    static const int borderPaletteIndex = 0xFE;
 
-    void CGAWideto16ColorTiles(uint8_t *cgaBuffer, uint16_t *spr,
-                               uint32_t x, uint32_t y,
-                               uint32_t width, uint32_t height);
+    enum Alignment { LEFT, CENTER, RIGHT };
 
-    void CGAclear(uint8_t *cgaBuffer,
-                  uint32_t x, uint32_t y,
-                  uint32_t width, uint32_t height);
+    void setScroll(int x, int y);
+    void setColor(uint16_t color);
+    void setBorderColor(uint16_t color);
 
-    void unpackFontGlyph(uint8_t *bitmap, uint32_t *fb,
-                         uint32_t x, uint32_t y);
+    void moveTo(int x, int y);
+    void setAlignment(Alignment align);
 
-    extern const uint16_t palette[16];
-}
+    void printf(const char *format, ...);
+    void draw(const char *text);
+    int measureWidth(const char *text);
 
-#endif // _VIDEOCONVERT_H_
+ private:
+    int getGlyphEscapement(char c);
+    uint8_t *getGlyphBitmap(char c);
+    void drawLine(const char *lineStart, int lineChars, int x, int y);
+
+    int bg;
+    int x, y;
+    Alignment align;
+};
+
+#endif // _TEXTRENDERER_H_

@@ -43,6 +43,15 @@ enum ROColor {
 
 
 /*
+ * Object grabFlag states. Can the player grab this object?
+ */
+enum ROGrabFlag {
+    RO_CAN_BE_GRABBED = 0x00,
+    RO_CANT_BE_GRABBED = 0xFF,
+};
+
+
+/*
  * Room IDs
  */
 enum RORoomId {
@@ -111,14 +120,14 @@ enum ROObjectId {
 
     RO_OBJ_TOOLBOX                    = 0xE1,
 
-    RO_OBJ_CHIP1                      = 0xE8,
-    RO_OBJ_CHIP2                      = 0xE9,
-    RO_OBJ_CHIP3                      = 0xEA,
-    RO_OBJ_CHIP4                      = 0xEB,
-    RO_OBJ_CHIP5                      = 0xEC,
-    RO_OBJ_CHIP6                      = 0xED,
-    RO_OBJ_CHIP7                      = 0xEE,
-    RO_OBJ_CHIP8                      = 0xEF,
+    RO_OBJ_CHIP_1                     = 0xE8,
+    RO_OBJ_CHIP_2                     = 0xE9,
+    RO_OBJ_CHIP_3                     = 0xEA,
+    RO_OBJ_CHIP_4                     = 0xEB,
+    RO_OBJ_CHIP_5                     = 0xEC,
+    RO_OBJ_CHIP_6                     = 0xED,
+    RO_OBJ_CHIP_7                     = 0xEE,
+    RO_OBJ_CHIP_8                     = 0xEF,
 
     RO_OBJ_ROBOT_SPARKY_L             = 0xF0,
     RO_OBJ_ROBOT_SPARKY_R             = 0xF1,
@@ -126,6 +135,13 @@ enum ROObjectId {
     RO_OBJ_ROBOT_CHECKERS_R           = 0xF3,
     RO_OBJ_ROBOT_SCANNER_L            = 0xF4,
     RO_OBJ_ROBOT_SCANNER_R            = 0xF5,
+
+    RO_OBJ_CRYSTAL_1                  = 0xF6,  // Not all of these are necessarily
+    RO_OBJ_CRYSTAL_2                  = 0xF7,  //  crystals. The game also checks the
+    RO_OBJ_CRYSTAL_3                  = 0xF8,  //  sprite and color of the object
+    RO_OBJ_CRYSTAL_4                  = 0xF9,  //  when checking for robot recharging.
+    RO_OBJ_CRYSTAL_5                  = 0xFA,
+    RO_OBJ_CRYSTAL_6                  = 0xFB,
 
     RO_OBJ_ANTENNA                    = 0xFC,
     RO_OBJ_CURSOR                     = 0xFE,
@@ -242,7 +258,7 @@ class ROWorld {
                 uint8_t y[0x100];
             } offset;
         } movedBy;
-        uint8_t unk[0x100];
+        uint8_t grabFlag[0x100];
     } objects;
 
     ROSprite sprites[64];
@@ -257,7 +273,7 @@ class ROWorld {
             uint8_t right[0x40];
             uint8_t left[0x40];
         } links;
-        uint8_t unk[0x40];
+        uint8_t reserved[0x40];   // Always zero?
         RORoomTiles tiles[0x40];
     } rooms;
 
@@ -290,7 +306,6 @@ class ROWorld {
  private:
     void removeObjectFromRoom(ROObjectId obj, RORoomId room);
     void addObjectToRoom(ROObjectId obj, RORoomId room);
-
 } __attribute__ ((packed));
 
 
@@ -336,7 +351,6 @@ class ROCircuit {
     uint8_t toolboxIsClosed;
 
     static ROCircuit *fromProcess(SBTProcess *proc);
-
 } __attribute__ ((packed));
 
 
@@ -359,11 +373,10 @@ class RORobot {
     uint8_t bumperState[4];    // Color ID
     uint8_t grabberState[4];
 
-    uint8_t grabEnableCount;
-    uint8_t thrusterSwitch;
+    uint8_t batteryLevel;      // 0 through 15
+    uint8_t thrusterSwitch;    // 0 or 1
 
     static RORobot *fromProcess(SBTProcess *proc);
-
 } __attribute__ ((packed));
 
 
@@ -377,7 +390,28 @@ class RORobotGrabber {
     uint8_t state[4];
 
     static RORobotGrabber *fromProcess(SBTProcess *proc);
+} __attribute__ ((packed));
 
+
+/*
+ * Robot battery discharge accumulators. The RORobot::batteryLevel
+ * byte keeps track of the visible battery guage status, but this is
+ * the internal accumulator that is used to track the actual use of
+ * power in a robot. As the robot moves, this number is
+ * incremented. When it overflows, one bar of battery is removed from
+ * RORobot::batteryLevel.
+ *
+ * This is in an array which comes almost immediately after RORobot
+ * in memory. (There is one intervening 0xFF termination byte.)
+ */
+class RORobotBatteryAcc {
+ public:
+    uint8_t high;
+    uint8_t low;
+
+    inline uint16_t get() {
+        return (high << 8) | low;
+    }
 } __attribute__ ((packed));
 
 
@@ -391,9 +425,12 @@ class ROData {
     ROWorld *world;
     ROCircuit *circuit;
 
-    int numRobots;
-    RORobot *robots;
-    RORobotGrabber *robotGrabbers;
+    struct {
+        int count;
+        RORobot *state;
+        RORobotGrabber *grabbers;
+        RORobotBatteryAcc *batteryAcc;
+    } robots;
 
     void copyFrom(ROData *source);
 };

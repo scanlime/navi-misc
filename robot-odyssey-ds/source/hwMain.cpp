@@ -67,7 +67,7 @@ void HwMain::drawScreen(SBTProcess *proc, uint8_t *framebuffer)
 #endif
 
     /* The current frontbuffer will be the next backbuffer. */
-    backbuffer= bgGetGfxPtr(bg);
+    backbuffer = bgGetGfxPtr(bg);
 
     /* Toggle between displaying the top 96kB and the bottom 96kB */
     bgSetMapBase(bg, bgGetMapBase(bg) ^ MAP_BASE_OFFSET);
