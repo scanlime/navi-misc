@@ -60,6 +60,12 @@ class UIObject
     virtual void animate(void);
     virtual void updateState(void);
     virtual void handleInput(const UIInputState &input);
+
+    /*
+     * There is a global frame counter, updated at the beginning of
+     * the UIObjectList interrupt handler.
+     */
+    static uint32_t frameCount;
 };
 
 

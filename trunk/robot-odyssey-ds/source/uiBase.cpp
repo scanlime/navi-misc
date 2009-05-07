@@ -32,6 +32,7 @@
 #include "uiBase.h"
 
 UIObjectList *UIObjectList::currentList;
+uint32_t UIObject::frameCount;
 
 
 void UIObject::animate() {
@@ -77,6 +78,7 @@ void UIObjectList::vblankISR() {
     // Local copy of current list, in case a callback changes it.
     UIObjectList *l = currentList;
 
+    UIObject::frameCount++;
     l->animate();
 
     UIInputState input;
