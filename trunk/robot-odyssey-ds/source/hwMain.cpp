@@ -88,10 +88,10 @@ void HwMain::pollKeys(SBTProcess *proc)
         uint16_t code;
     } keyTable[] = {
 
-        { KEY_UP    | KEY_R,  0x4800 | '8' },
-        { KEY_DOWN  | KEY_R,  0x5000 | '2' },
-        { KEY_LEFT  | KEY_R,  0x4B00 | '4' },
-        { KEY_RIGHT | KEY_R,  0x4D00 | '6' },
+        { KEY_UP    | KEY_Y,  0x4800 | '8' },
+        { KEY_DOWN  | KEY_Y,  0x5000 | '2' },
+        { KEY_LEFT  | KEY_Y,  0x4B00 | '4' },
+        { KEY_RIGHT | KEY_Y,  0x4D00 | '6' },
 
         { KEY_UP,    0x4800 },
         { KEY_DOWN,  0x5000 },
@@ -101,13 +101,10 @@ void HwMain::pollKeys(SBTProcess *proc)
         { KEY_B, ' ' },
         { KEY_A, 'S' },
         { KEY_X, 'C' },
-        { KEY_Y, 'T' },
-        { KEY_L, 'R' },
+        { KEY_L, 'T' },
     };
 
     HwCommon::pollKeys(proc);
-
-    scanKeys();
 
     for (i = 0; i < (sizeof keyTable / sizeof keyTable[0]); i++) {
         if ((keysHeld() & keyTable[i].key) == keyTable[i].key) {
