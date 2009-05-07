@@ -35,6 +35,10 @@
  * Palette for 16-color sprites, based on blending two CGA colors
  * together. This is used to directly convert dithered CGA images
  * (with 2x1 'wide' pixels) to 16-color 4bpp sprites.
+ *
+ * This palette only has 10 unique colors, with 6 duplicates.  It can
+ * be visualized as a 4x4 square of colors, symmetric across the
+ * diagonal.
  */
 
 const uint16_t VideoConvert::palette[16] = {

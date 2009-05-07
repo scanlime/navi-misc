@@ -37,38 +37,53 @@
 #include "videoConvert.h"
 #include "roData.h"
 #include "mSprite.h"
+#include "uiBase.h"
 #include "textRenderer.h"
 #include "gfx_background.h"
+#include "gfx_button_remote.h"
 
 SBT_DECL_PROCESS(LabEXE);
 SBT_DECL_PROCESS(GameEXE);
 SBT_DECL_PROCESS(TutorialEXE);
 SBT_DECL_PROCESS(RendererEXE);
 
-int
-main(int argc, char **argv)
-{
-    defaultExceptionHandler();
+static TextRenderer text;
 
+
+class MyObject : public UIObject {
+    virtual void handleInput(const UIInputState &input) {
+        text.moveTo(10,10);
+        text.setAlignment(text.LEFT);
+        text.printf("keys %08x\n", input.keysHeld);
+    }
+};
+
+static void subScreenInit(void) {
     videoSetModeSub(MODE_5_2D);
     vramSetBankC(VRAM_C_SUB_BG_0x06200000);
     vramSetBankD(VRAM_D_SUB_SPRITE);
 
     oamInit(&oamSub, SpriteMapping_1D_64, false);
     memcpy(SPRITE_PALETTE_SUB, VideoConvert::palette, sizeof VideoConvert::palette);
-    MSpriteAllocator sprAlloc(&oamSub);
 
     int subBg = bgInitSub(3, BgType_Bmp8, BgSize_B8_256x256, 0, 0);
     decompress(gfx_backgroundBitmap, bgGetGfxPtr(subBg), LZ77Vram);
     decompress(gfx_backgroundPal, BG_PALETTE_SUB, LZ77Vram);
+}
 
-    TextRenderer text;
+int main() {
+    defaultExceptionHandler();
+    subScreenInit();
+
+    UIObjectList ol;
+    MSpriteAllocator sprAlloc(&oamSub);
+
     text.init();
     text.setAlignment(text.CENTER);
     text.moveTo(128, 64);
     text.printf("Hello World!\n");
-    text.printf("I am a text!\n");
-    text.printf("\nFont is Copyright ~ 2001\n");
+    text.printf("I am a text\n");
+    text.printf("Font is Copyright ~ 2001\n");
     text.printf("http://www.orgdot.com\n");
 
     static HwMain hwMain;
@@ -86,8 +101,22 @@ main(int argc, char **argv)
     ROData gameData(&game);
     ROData renderData(&render);
 
+    MSprite button(&sprAlloc);
+    /* Enough room for 4 images */
+    uint16_t *buttonImg = oamAllocateGfx(&oamSub, SpriteSize_64x64,
+                                         SpriteColorFormat_16Color);
+    button.newOBJ(MSPRR_UI, 0, 0, buttonImg, SpriteSize_32x32,
+                  SpriteColorFormat_16Color)->entry->palette = 2;
+    decompress(gfx_button_remoteTiles, buttonImg, LZ77Vram);
+    decompress(gfx_button_remotePal, SPRITE_PALETTE_SUB + 2*16, LZ77Vram);
+    button.moveTo(10,120);
+    button.show();
+
     SpriteScraperRect *r1 = hwSub.allocRect(&oamSub);
     MSprite sprite(&sprAlloc);
+
+    ol.objects.push_back(new MyObject);
+    ol.makeCurrent();
 
     sprite.newOBJ(MSPRR_FRONT_BORDER, -32+1, -32, r1->buffer, r1->size, r1->format)->entry->palette = 1;
     sprite.newOBJ(MSPRR_FRONT_BORDER, -32-1, -32, r1->buffer, r1->size, r1->format)->entry->palette = 1;
@@ -98,6 +127,8 @@ main(int argc, char **argv)
     sprite.setIntrinsicScale(r1->scaleX, r1->scaleY);
     sprite.moveTo(50, 50);
     sprite.show();
+
+    
 
     while (1) {
         touchPosition touch;
@@ -110,6 +141,10 @@ main(int argc, char **argv)
             sprite.setScale(scale, scale);
             sprite.show();
         }
+
+        static int frame;
+        frame++;
+        button.obj[0].setGfx(buttonImg + ((frame & 3) << 8));
 
         /*
          * Run one normal frame.
@@ -130,9 +165,9 @@ main(int argc, char **argv)
                                      r1->centerX() - 6, 192 - r1->centerY() - 8);
 
         /* Draw robot power levels */
-        text.moveTo(16, 192-32);
-        text.setAlignment(text.LEFT);
-        text.printf("%04x\n", gameData.robots.batteryAcc[2].get());
+        //        text.moveTo(50, 60);
+        //        text.setAlignment(text.CENTER);
+        //        text.printf("%04x\n", gameData.robots.batteryAcc[2].get());
 
         do {
             haltCode = render.run();

@@ -76,9 +76,24 @@ class MSpriteAllocator
 class MSpriteOBJ
 {
  public:
+    void init(MSpriteAllocator *alloc,
+              MSpriteRange range,
+              int xOffset,
+              int yOffset,
+              const void *gfx,
+              SpriteSize size,
+              SpriteColorFormat format);
+
+    void setGfx(const void *gfx);
+
     SpriteEntry *entry;
     int xOffset;
     int yOffset;
+
+ private:
+    SpriteSize size;
+    SpriteColorFormat format;
+    MSpriteAllocator *alloc;
 };
 
 
