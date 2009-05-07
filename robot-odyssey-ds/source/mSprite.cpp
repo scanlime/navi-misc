@@ -171,36 +171,53 @@ MSpriteOBJ *MSprite::newOBJ(MSpriteRange range,
     sassert(objCount < MAX_OBJS, "Out of MSprite OBJs");
     MSpriteOBJ *o = &obj[objCount++];
 
-    o->entry = alloc->allocOBJ(range);
-    o->xOffset = xOffset;
-    o->yOffset = yOffset;
+    o->init(alloc, range, xOffset, yOffset, gfx, size, format);
 
+    return o;
+}
+
+void MSpriteOBJ::init(MSpriteAllocator *alloc,
+                      MSpriteRange range,
+                      int xOffset,
+                      int yOffset,
+                      const void *gfx,
+                      SpriteSize size,
+                      SpriteColorFormat format) {
+
+    this->alloc = alloc;
+    this->entry = alloc->allocOBJ(range);
+
+    this->xOffset = xOffset;
+    this->yOffset = yOffset;
+    this->size = size;
+    this->format = format;
+
+    entry->shape = (ObjShape) SPRITE_SIZE_SHAPE(size);
+    entry->size = (ObjSize) SPRITE_SIZE_SIZE(size);
+
+    entry->palette = 0;
+    entry->priority = OBJPRIORITY_0;
+    entry->hFlip = false;
+    entry->vFlip = false;
+    entry->isMosaic = false;
+    entry->isRotateScale = false;
+    entry->isHidden = true;
+
+    setGfx(gfx);
+}
+
+void MSpriteOBJ::setGfx(const void *gfx) {
     /*
-     * XXX: Most of this is copied from the implementation of oamSet(). It'd be
-     *      nice if this function was refactored to operate on a SpriteEntry
-     *      instead of an OamState...
+     * This is taken from ndslib's oamSet() implementation.
      */
 
-    o->entry->shape = (ObjShape) SPRITE_SIZE_SHAPE(size);
-    o->entry->size = (ObjSize) SPRITE_SIZE_SIZE(size);
-
-    o->entry->palette = 0;
-    o->entry->priority = OBJPRIORITY_0;
-    o->entry->hFlip = false;
-    o->entry->vFlip = false;
-    o->entry->isMosaic = false;
-    o->entry->isRotateScale = false;
-    o->entry->isHidden = true;
-
     if (format != SpriteColorFormat_Bmp) {
-        o->entry->gfxIndex = oamGfxPtrToOffset(gfx);
-        o->entry->colorMode = (ObjColMode) format;
+        entry->gfxIndex = oamGfxPtrToOffset(gfx);
+        entry->colorMode = (ObjColMode) format;
     } else {
         int sx = ((uint32_t)gfx >> 1) & ((1 << alloc->oam->gfxOffsetStep) - 1);
         int sy = (((uint32_t)gfx >> 1) >> alloc->oam->gfxOffsetStep) & 0xFF;
-        o->entry->gfxIndex = (sx >> 3) | ((sy >> 3) << (alloc->oam->gfxOffsetStep - 3));
-        o->entry->blendMode = (ObjBlendMode) format;
+        entry->gfxIndex = (sx >> 3) | ((sy >> 3) << (alloc->oam->gfxOffsetStep - 3));
+        entry->blendMode = (ObjBlendMode) format;
     }
-
-    return o;
 }
