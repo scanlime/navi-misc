@@ -38,6 +38,7 @@
 #include "roData.h"
 #include "mSprite.h"
 #include "uiBase.h"
+#include "uiEffects.h"
 #include "textRenderer.h"
 #include "gfx_background.h"
 #include "gfx_button_remote.h"
@@ -48,13 +49,18 @@ SBT_DECL_PROCESS(TutorialEXE);
 SBT_DECL_PROCESS(RendererEXE);
 
 static TextRenderer text;
-
+static EffectMarquee32 marquee;
+static MSpriteOBJ *mobj;
 
 class MyObject : public UIObject {
     virtual void handleInput(const UIInputState &input) {
         text.moveTo(10,10);
         text.setAlignment(text.LEFT);
         text.printf("keys %08x\n", input.keysHeld);
+    }
+
+    virtual void animate() {
+        mobj->setGfx(marquee.getFrameGfx(frameCount >> 1));
     }
 };
 
@@ -77,6 +83,8 @@ int main() {
 
     UIObjectList ol;
     MSpriteAllocator sprAlloc(&oamSub);
+
+    marquee.init(&oamSub);
 
     text.init();
     text.setAlignment(text.CENTER);
@@ -102,9 +110,12 @@ int main() {
     ROData renderData(&render);
 
     MSprite button(&sprAlloc);
-    /* Enough room for 4 images */
-    uint16_t *buttonImg = oamAllocateGfx(&oamSub, SpriteSize_64x64,
+
+    uint16_t *buttonImg = oamAllocateGfx(&oamSub, SpriteSize_32x32,
                                          SpriteColorFormat_16Color);
+    mobj = button.newOBJ(MSPRR_UI, 0, 0, NULL, SpriteSize_32x32,
+                         SpriteColorFormat_16Color);
+    mobj->entry->palette = 2;
     button.newOBJ(MSPRR_UI, 0, 0, buttonImg, SpriteSize_32x32,
                   SpriteColorFormat_16Color)->entry->palette = 2;
     decompress(gfx_button_remoteTiles, buttonImg, LZ77Vram);
@@ -128,8 +139,6 @@ int main() {
     sprite.moveTo(50, 50);
     sprite.show();
 
-    
-
     while (1) {
         touchPosition touch;
         touchRead(&touch);
@@ -141,10 +150,6 @@ int main() {
             sprite.setScale(scale, scale);
             sprite.show();
         }
-
-        static int frame;
-        frame++;
-        button.obj[0].setGfx(buttonImg + ((frame & 3) << 8));
 
         /*
          * Run one normal frame.
