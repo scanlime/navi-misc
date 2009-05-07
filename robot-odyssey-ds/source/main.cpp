@@ -2,6 +2,9 @@
  *
  * Main loop and initialization for Robot Odyssey DS.
  *
+ * XXX: This whole file is a huge hack right now, just a test rig for
+ *      prototyping other modules.
+ *
  * Copyright (c) 2009 Micah Dowty <micah@navi.cx>
  *
  *    Permission is hereby granted, free of charge, to any person
@@ -29,7 +32,6 @@
 #include <nds.h>
 #include <stdio.h>
 #include <string.h>
-
 #include "sbt86.h"
 #include "hwSub.h"
 #include "hwMain.h"
@@ -51,16 +53,53 @@ SBT_DECL_PROCESS(RendererEXE);
 static TextRenderer text;
 static EffectMarquee32 marquee;
 static MSpriteOBJ *mobj;
+static MSprite *buttonPtr;
+
+static TutorialEXE game;
+static HwMain hwMain;
+static uint8_t game_remoteControl;
+
 
 class MyObject : public UIObject {
+    bool state;
+    int scale;
+
     virtual void handleInput(const UIInputState &input) {
-        text.moveTo(10,10);
-        text.setAlignment(text.LEFT);
-        text.printf("keys %08x\n", input.keysHeld);
+        if (input.keysPressed & KEY_R) {
+            hwMain.pressKey('R');
+            scale = 0xA0;
+        }
     }
 
     virtual void animate() {
-        mobj->setGfx(marquee.getFrameGfx(frameCount >> 1));
+
+        if (scale < 0x100)
+            scale += 0x8;
+        buttonPtr->setScale(scale, scale);
+        buttonPtr->show();
+
+        buttonPtr->obj[1].entry->isRotateScale = true;
+        buttonPtr->obj[1].entry->isSizeDouble = true;
+        buttonPtr->obj[1].xOffset = -16;
+        buttonPtr->obj[1].yOffset = -16;
+
+        if (game_remoteControl) {
+
+            /*
+             * XXX: In addition to the marquee, add a slow "radio
+             * waves" animation when the antenna is on.
+             */
+            mobj->setGfx(marquee.getFrameGfx(frameCount >> 1));
+
+            mobj->entry->isRotateScale = true;
+            mobj->entry->isSizeDouble = true;
+            mobj->xOffset = -16;
+            mobj->yOffset = -16;
+        } else {
+            mobj->entry->isRotateScale = false;
+            mobj->entry->isHidden = true;
+        }
+        buttonPtr->moveTo(buttonPtr->getX(), buttonPtr->getY());
     }
 };
 
@@ -94,11 +133,9 @@ int main() {
     text.printf("Font is Copyright ~ 2001\n");
     text.printf("http://www.orgdot.com\n");
 
-    static HwMain hwMain;
-    static GameEXE game;
     hwMain.reset();
     game.hardware = &hwMain;
-    game.exec("");
+    game.exec("25");
 
     static HwSpriteScraper hwSub;
     static RendererEXE render;
@@ -106,10 +143,11 @@ int main() {
     render.hardware = &hwSub;
     render.exec();
 
-    ROData gameData(&game);
     ROData renderData(&render);
+    ROData gameData(&game);
 
     MSprite button(&sprAlloc);
+    buttonPtr = &button;
 
     uint16_t *buttonImg = oamAllocateGfx(&oamSub, SpriteSize_32x32,
                                          SpriteColorFormat_16Color);
@@ -120,7 +158,7 @@ int main() {
                   SpriteColorFormat_16Color)->entry->palette = 2;
     decompress(gfx_button_remoteTiles, buttonImg, LZ77Vram);
     decompress(gfx_button_remotePal, SPRITE_PALETTE_SUB + 2*16, LZ77Vram);
-    button.moveTo(10,120);
+    button.moveTo(256-2-32,192-2-32);
     button.show();
 
     SpriteScraperRect *r1 = hwSub.allocRect(&oamSub);
@@ -150,6 +188,14 @@ int main() {
             sprite.setScale(scale, scale);
             sprite.show();
         }
+
+        /*
+         * Copy data out of the game binary only while halted.
+         *
+         * XXX: Doesn't matter for 8-bit data, but we do need to
+         *      do this for 16-bit or multi-part values.
+         */
+        game_remoteControl = gameData.circuit->remoteControlFlag;
 
         /*
          * Run one normal frame.
