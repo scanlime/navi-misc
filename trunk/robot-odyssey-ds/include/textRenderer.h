@@ -37,8 +37,16 @@ class TextRenderer
 
     static const int width = 256;
     static const int height = 320;
-    static const int lineHeight = 16;
     static const int borderWidth = 1;
+
+    /*
+     * Hardcoded font metrics.
+     */
+    static const int lineHeight = 15 + borderWidth*2;
+    static const int baselineY = 11;
+    static const int ascenderY = 3;
+    static const int centerY = (baselineY + ascenderY) / 2;
+
     static const int fgPaletteIndex = 0xFF;
     static const int borderPaletteIndex = 0xFE;
 
