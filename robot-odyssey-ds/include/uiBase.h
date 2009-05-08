@@ -31,7 +31,9 @@
 #ifndef _UIOBJECT_H_
 #define _UIOBJECT_H_
 
+#include <nds.h>
 #include <list>
+#include "mSprite.h"
 
 
 /*
@@ -95,6 +97,40 @@ class UIObjectList : public UIObject
     static UIObjectList *currentList;
     static void vblankISR();
     static void scanInput(UIInputState &input);
+};
+
+
+/*
+ * A sprite button which can be activated by a key or via the touchpad.
+ *
+ * Sprite buttons by default use one OBJ in their MSprite, and that
+ * OBJ can be configured with multiple frames of animation.
+ *
+ * When pressed, it animates by briefly scaling up, then shrinking
+ * down to its normal size.
+ */
+class UISpriteButton : public UIObject
+{
+ public:
+    UISpriteButton(MSpriteAllocator *sprAlloc, SpriteImages *images, int x, int y);
+
+    virtual void handleInput(const UIInputState &input);
+    virtual void animate();
+    virtual void activate();
+
+    void setImageIndex(int id);
+
+    MSprite sprite;
+    uint32_t hotkey;
+    SpriteImages *images;
+
+    /* Animation constants */
+    static const int normalScale = 0x100;
+    static const int activatedScale = 0xC0;
+    static const int scaleRate = 8;
+
+    /* Which OBJ palette do we use by default? */
+    static const int OBJ_PALETTE = 2;
 };
 
 

@@ -100,8 +100,72 @@ void UIObjectList::scanInput(UIInputState &input) {
 
     if (touch.rawx == 0 || touch.rawy == 0) {
         input.keysHeld &= ~KEY_TOUCH;
-    };
+    }
 
     input.touchX = touch.px;
     input.touchY = touch.py;
+}
+
+UISpriteButton::UISpriteButton(MSpriteAllocator *sprAlloc,
+                               SpriteImages *images,
+                               int x, int y) : sprite(sprAlloc) {
+    this->images = images;
+
+    /*
+     * Allocate the main OBJ, using the format and first iamge from 'images'.
+     * This OBJ needs to be double-sized, so we can magnify it without clipping.
+     */
+    MSpriteOBJ *obj = sprite.newOBJ(MSPRR_UI, 0, 0, images->getImage(0),
+                                    images->size, images->format);
+
+    obj->entry->palette = OBJ_PALETTE;
+    obj->enableDoubleSize = true;
+
+    sprite.moveTo(x, y);
+    sprite.show();
+}
+
+void UISpriteButton::setImageIndex(int id) {
+    /*
+     * Set which of the images in 'images' to display on the primary OBJ.
+     */
+    sprite.obj[0].setGfx(images->getImage(id));
+}
+
+void UISpriteButton::handleInput(const UIInputState &input) {
+    if (input.keysPressed & hotkey) {
+        activate();
+    }
+
+    if ((input.keysPressed & KEY_TOUCH) && sprite.hitTest(input.touchX, input.touchY)) {
+        activate();
+    }
+}
+
+void UISpriteButton::activate() {
+    /*
+     * Grow the button, to show that it's activated.
+     */
+    sprite.setScale(activatedScale, activatedScale);
+    sprite.show();
+}
+
+void UISpriteButton::animate() {
+    /*
+     * If the button is large, shrink down to its normal size.
+     */
+
+    int scale;
+
+    sprite.getScale(scale, scale);
+
+    if (scale < normalScale) {
+        scale += scaleRate;
+    }
+    if (scale > normalScale) {
+        scale = normalScale;
+    }
+
+    sprite.setScale(scale, scale);
+    sprite.show();
 }
