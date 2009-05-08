@@ -32,6 +32,8 @@
 #ifndef _MSPRITE_H_
 #define _MSPRITE_H_
 
+#include <vector>
+
 
 /*
  * Allocation ranges. These are OAM indices where we start allocation.
@@ -51,8 +53,7 @@ enum MSpriteRange {
 class MSpriteAllocator
 {
  public:
-    MSpriteAllocator(OamState *oam) { init(oam); }
-    void init(OamState *oam);
+    MSpriteAllocator(OamState *oam);
 
     SpriteRotation *allocMatrix();
     void freeMatrix(SpriteRotation *s);
@@ -76,6 +77,9 @@ class MSpriteAllocator
 class MSpriteOBJ
 {
  public:
+    MSpriteOBJ();
+    ~MSpriteOBJ();
+
     void init(MSpriteAllocator *alloc,
               MSpriteRange range,
               int xOffset,
@@ -85,15 +89,33 @@ class MSpriteOBJ
               SpriteColorFormat format);
 
     void setGfx(const void *gfx);
+    void getImageSize(int &width, int &height);
+    bool isVisible();
+    bool hitTest(int x, int y);
+    void setHitBox(int x, int y, int width, int height);
+
+    /*
+     * Double the size of the sprite's bounding box, so that it can be
+     * scaled in hardware without clipping.  Applied on show(). We
+     * automatically compensate for the offset when moving an MSprite.
+     */
+    bool enableDoubleSize;
 
     SpriteEntry *entry;
     int xOffset;
     int yOffset;
 
+    static const int TILE_SIZE = 8;
+    static const int TILE_SHIFT = 3;
+
  private:
     SpriteSize size;
     SpriteColorFormat format;
     MSpriteAllocator *alloc;
+
+    struct {
+        int left, top, right, bottom;
+    } hitBox;
 };
 
 
@@ -103,13 +125,8 @@ class MSpriteOBJ
 class MSprite
 {
  public:
-    MSprite(MSpriteAllocator *alloc) { init(alloc); }
-    void init(MSpriteAllocator *alloc);
-
-    /*
-     * Release all allocated OBJs and matrix.
-     */
-    void free();
+    MSprite(MSpriteAllocator *alloc);
+    ~MSprite();
 
     /*
      * Manage position and visibility.
@@ -122,6 +139,11 @@ class MSprite
     void hide();
 
     /*
+     * Collision detection. (x,y) is a coordinte in screen space.
+     */
+    bool hitTest(int x, int y);
+
+    /*
      * Transforms. Each MSprite has a settable angle and scale, plus
      * an 'intrinsic scale' which can be used for a scale factor
      * that's "built in" to the sprites and should be treated as the
@@ -132,6 +154,7 @@ class MSprite
      */
     void setAngle(int angle);
     void setScale(int sx, int sy);
+    void getScale(int &sx, int &sy);
     void setIntrinsicScale(int sx, int sy);
 
     /*
@@ -159,6 +182,38 @@ class MSprite
     int angle;
     int sx, sy;
     int isx, isy;
+};
+
+
+/*
+ * A collection of identically-sized sprite images, in VRAM.
+ */
+class SpriteImages
+{
+ public:
+    /* Uninitialized images in VRAM. */
+    SpriteImages(OamState *oam, SpriteSize size, SpriteColorFormat format,
+                 int numImages=1);
+
+    /* Initialized from compressed data. */
+    SpriteImages(OamState *oam, const void *data, DecompressType type,
+                 SpriteSize size, SpriteColorFormat format, int numImages=1);
+
+    ~SpriteImages();
+
+    uint32_t getImageBytes();
+    uint16_t *getImage(int num=0);
+
+    int numImages;
+    SpriteSize size;
+    SpriteColorFormat format;
+
+ private:
+    void allocate(OamState *oam, SpriteSize size, SpriteColorFormat format,
+                  int numImages);
+
+    OamState *oam;
+    uint16_t *images;
 };
 
 

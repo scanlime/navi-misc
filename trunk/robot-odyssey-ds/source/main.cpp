@@ -52,13 +52,16 @@ SBT_DECL_PROCESS(RendererEXE);
 
 static TextRenderer text;
 static EffectMarquee32 marquee;
-static MSpriteOBJ *mobj;
-static MSprite *buttonPtr;
 
 static TutorialEXE game;
 static HwMain hwMain;
 static uint8_t game_remoteControl;
 
+#if 0
+
+static MSpriteOBJ *mobj;
+static MSprite *buttonPtr;
+static uint16_t *buttonImg;
 
 class MyObject : public UIObject {
     bool state;
@@ -83,12 +86,12 @@ class MyObject : public UIObject {
         buttonPtr->obj[1].xOffset = -16;
         buttonPtr->obj[1].yOffset = -16;
 
-        if (game_remoteControl) {
+        int animFrame;
 
-            /*
-             * XXX: In addition to the marquee, add a slow "radio
-             * waves" animation when the antenna is on.
-             */
+        if (game_remoteControl) {
+            animFrame = (frameCount >> 5) & 3;
+            if (animFrame > 2) animFrame = 2;
+
             mobj->setGfx(marquee.getFrameGfx(frameCount >> 1));
 
             mobj->entry->isRotateScale = true;
@@ -96,12 +99,17 @@ class MyObject : public UIObject {
             mobj->xOffset = -16;
             mobj->yOffset = -16;
         } else {
+            animFrame = 0;
+
             mobj->entry->isRotateScale = false;
             mobj->entry->isHidden = true;
         }
         buttonPtr->moveTo(buttonPtr->getX(), buttonPtr->getY());
+
+        buttonPtr->obj[1].setGfx(buttonImg + (animFrame << 8));
     }
 };
+#endif
 
 static void subScreenInit(void) {
     videoSetModeSub(MODE_5_2D);
@@ -114,6 +122,11 @@ static void subScreenInit(void) {
     int subBg = bgInitSub(3, BgType_Bmp8, BgSize_B8_256x256, 0, 0);
     decompress(gfx_backgroundBitmap, bgGetGfxPtr(subBg), LZ77Vram);
     decompress(gfx_backgroundPal, BG_PALETTE_SUB, LZ77Vram);
+
+    /* Sprite palette */
+    decompress(gfx_button_remotePal,
+               SPRITE_PALETTE_SUB + UISpriteButton::OBJ_PALETTE * 16,
+               LZ77Vram);
 }
 
 int main() {
@@ -127,9 +140,7 @@ int main() {
 
     text.init();
     text.setAlignment(text.CENTER);
-    text.moveTo(128, 64);
-    text.printf("Hello World!\n");
-    text.printf("I am a text\n");
+    text.moveTo(128, 55);
     text.printf("Font is Copyright ~ 2001\n");
     text.printf("http://www.orgdot.com\n");
 
@@ -146,25 +157,38 @@ int main() {
     ROData renderData(&render);
     ROData gameData(&game);
 
+    SpriteImages remoteSprite(&oamSub, gfx_button_remoteTiles, LZ77Vram,
+                              SpriteSize_32x32, SpriteColorFormat_16Color, 3);
+    UISpriteButton remoteButton(&sprAlloc, &remoteSprite, 0, 0);
+    remoteButton.hotkey = KEY_R;
+    ol.objects.push_back(&remoteButton);
+
+    UISpriteButton remoteButton2(&sprAlloc, &remoteSprite, 32, 0);
+    remoteButton2.hotkey = KEY_L;
+    remoteButton2.setImageIndex(2);
+    ol.objects.push_back(&remoteButton2);
+
+#if 0
     MSprite button(&sprAlloc);
     buttonPtr = &button;
 
-    uint16_t *buttonImg = oamAllocateGfx(&oamSub, SpriteSize_32x32,
-                                         SpriteColorFormat_16Color);
+    buttonImg = oamAllocateGfx(&oamSub, SpriteSize_64x64,
+                               SpriteColorFormat_16Color);
     mobj = button.newOBJ(MSPRR_UI, 0, 0, NULL, SpriteSize_32x32,
                          SpriteColorFormat_16Color);
     mobj->entry->palette = 2;
-    button.newOBJ(MSPRR_UI, 0, 0, buttonImg, SpriteSize_32x32,
+    button.newOBJ(MSPRR_UI, 0, 0, NULL, SpriteSize_32x32,
                   SpriteColorFormat_16Color)->entry->palette = 2;
     decompress(gfx_button_remoteTiles, buttonImg, LZ77Vram);
-    decompress(gfx_button_remotePal, SPRITE_PALETTE_SUB + 2*16, LZ77Vram);
     button.moveTo(256-2-32,192-2-32);
     button.show();
+
+    ol.objects.push_back(new MyObject);
+#endif
 
     SpriteScraperRect *r1 = hwSub.allocRect(&oamSub);
     MSprite sprite(&sprAlloc);
 
-    ol.objects.push_back(new MyObject);
     ol.makeCurrent();
 
     sprite.newOBJ(MSPRR_FRONT_BORDER, -32+1, -32, r1->buffer, r1->size, r1->format)->entry->palette = 1;
@@ -174,21 +198,10 @@ int main() {
     sprite.newOBJ(MSPRR_FRONT, -32, -32, r1->buffer, r1->size, r1->format);
 
     sprite.setIntrinsicScale(r1->scaleX, r1->scaleY);
-    sprite.moveTo(50, 50);
+    sprite.moveTo(128, 160);
     sprite.show();
 
     while (1) {
-        touchPosition touch;
-        touchRead(&touch);
-        if (touch.rawx && touch.rawy) {
-            static int angle = 0;
-            angle += 0x500;
-            int scale = 0x100 - (abs(sinLerp(angle)) >> 6);
-            sprite.moveTo(touch.px, touch.py);
-            sprite.setScale(scale, scale);
-            sprite.show();
-        }
-
         /*
          * Copy data out of the game binary only while halted.
          *

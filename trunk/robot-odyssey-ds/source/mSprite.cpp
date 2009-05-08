@@ -34,11 +34,11 @@
 #include "mSprite.h"
 
 
-void MSpriteAllocator::init(OamState *oam) {
+MSpriteAllocator::MSpriteAllocator(OamState *oam) {
     this->oam = oam;
     memset(&matrixAlloc, 0xFF, sizeof matrixAlloc);
     memset(objAlloc, 0xFF, sizeof objAlloc);
-}
+ }
 
 SpriteRotation *MSpriteAllocator::allocMatrix() {
     int i = ffs(matrixAlloc) - 1;
@@ -60,14 +60,23 @@ void MSpriteAllocator::freeMatrix(SpriteRotation *s) {
 }
 
 SpriteEntry *MSpriteAllocator::allocOBJ(MSpriteRange range) {
-    for (int word = 0; word < (SPRITE_COUNT / 32); word++) {
-        int bit = ffs(objAlloc[word]) - 1;
-        int id = (word << 5) + bit;
-        if (bit >= 0 && id >= range) {
-            objAlloc[word] &= ~(1 << bit);
+    int id;
+
+    /*
+     * Start allocating at 'range', and keep going until we find an
+     * empty slot.
+     */
+    for (id = range; id < SPRITE_COUNT; id++) {
+        int word = id >> 5;
+        int bit = id & 31;
+        int mask = 1 << bit;
+
+        if (objAlloc[word] & mask) {
+            objAlloc[word] &= ~mask;
             return oam->oamMemory + id;
         }
     }
+
     sassert(false, "Out of MSprite OBJs");
     return NULL;
 }
@@ -81,7 +90,7 @@ void MSpriteAllocator::freeOBJ(SpriteEntry *s) {
     objAlloc[word] |= 1 << bit;
 }
 
-void MSprite::init(MSpriteAllocator *alloc) {
+MSprite::MSprite(MSpriteAllocator *alloc) {
     this->alloc = alloc;
     objCount = 0;
     visible = true;
@@ -90,20 +99,36 @@ void MSprite::init(MSpriteAllocator *alloc) {
     matrix = alloc->allocMatrix();
 }
 
-void MSprite::free() {
+MSprite::~MSprite() {
     hide();
     alloc->freeMatrix(matrix);
-    for (unsigned int i = 0; i < objCount; i++) {
-        alloc->freeOBJ(obj[i].entry);
-    }
 }
 
 void MSprite::moveTo(int x, int y) {
     this->x = x;
     this->y = y;
     for (unsigned int i = 0; i < objCount; i++) {
-        obj[i].entry->x = x + obj[i].xOffset;
-        obj[i].entry->y = y + obj[i].yOffset;
+        int objX = x + obj[i].xOffset;
+        int objY = y + obj[i].yOffset;
+
+        int spriteW, spriteH;
+        obj[i].getImageSize(spriteW, spriteH);
+
+        /*
+         * Calculate the hit box for this OBJ.
+         */
+        obj[i].setHitBox(objX, objY, spriteW, spriteH);
+
+        /*
+         * Compensate for double-size mode.
+         */
+        if (obj[i].enableDoubleSize) {
+            objX -= spriteW >> 1;
+            objY -= spriteH >> 1;
+        }
+
+        obj[i].entry->x = objX;
+        obj[i].entry->y = objY;
     }
 }
 
@@ -118,7 +143,7 @@ void MSprite::show(void) {
         SpriteEntry *entry = obj[i].entry;
 
         entry->isRotateScale = true;
-        entry->isSizeDouble = false;
+        entry->isSizeDouble = obj[i].enableDoubleSize;
         entry->rotationIndex = matrixIndex;
     }
 
@@ -147,6 +172,15 @@ void MSprite::hide(void) {
     }
 }
 
+bool MSprite::hitTest(int x, int y) {
+    for (unsigned int i = 0; i < objCount; i++) {
+        if (obj[i].hitTest(x, y)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void MSprite::setAngle(int angle) {
     this->angle = angle;
 }
@@ -154,6 +188,11 @@ void MSprite::setAngle(int angle) {
 void MSprite::setScale(int sx, int sy) {
     this->sx = sx;
     this->sy = sy;
+}
+
+void MSprite::getScale(int &sx, int &sy) {
+    sx = this->sx;
+    sy = this->sy;
 }
 
 void MSprite::setIntrinsicScale(int sx, int sy) {
@@ -170,10 +209,14 @@ MSpriteOBJ *MSprite::newOBJ(MSpriteRange range,
 
     sassert(objCount < MAX_OBJS, "Out of MSprite OBJs");
     MSpriteOBJ *o = &obj[objCount++];
-
     o->init(alloc, range, xOffset, yOffset, gfx, size, format);
-
     return o;
+}
+
+MSpriteOBJ::MSpriteOBJ() {
+    this->alloc = NULL;
+    this->entry = NULL;
+    this->enableDoubleSize = false;
 }
 
 void MSpriteOBJ::init(MSpriteAllocator *alloc,
@@ -183,6 +226,10 @@ void MSpriteOBJ::init(MSpriteAllocator *alloc,
                       const void *gfx,
                       SpriteSize size,
                       SpriteColorFormat format) {
+    if (entry) {
+        alloc->freeOBJ(entry);
+        entry = NULL;
+    }
 
     this->alloc = alloc;
     this->entry = alloc->allocOBJ(range);
@@ -206,6 +253,12 @@ void MSpriteOBJ::init(MSpriteAllocator *alloc,
     setGfx(gfx);
 }
 
+MSpriteOBJ::~MSpriteOBJ() {
+    if (entry) {
+        alloc->freeOBJ(entry);
+    }
+}
+
 void MSpriteOBJ::setGfx(const void *gfx) {
     /*
      * This is taken from ndslib's oamSet() implementation.
@@ -220,4 +273,96 @@ void MSpriteOBJ::setGfx(const void *gfx) {
         entry->gfxIndex = (sx >> 3) | ((sy >> 3) << (alloc->oam->gfxOffsetStep - 3));
         entry->blendMode = (ObjBlendMode) format;
     }
+}
+
+bool MSpriteOBJ::hitTest(int x, int y) {
+    /*
+     * Perform a hit test: Does an (x,y) coordinate in screen space
+     * touch an opaque region of this sprite?
+     *
+     * XXX: Currently this is not a pixel-accurate test, we just check
+     *      whether (x, y) touches the sprite's bounding box. In the
+     *      future this may change.
+     */
+
+    if (!isVisible()) {
+        return false;
+    }
+
+    return (x >= hitBox.left && x < hitBox.right &&
+            y >= hitBox.top && y < hitBox.bottom);
+}
+
+void MSpriteOBJ::setHitBox(int x, int y, int width, int height) {
+    hitBox.left = x;
+    hitBox.top = y;
+    hitBox.right = x + width;
+    hitBox.bottom = y + height;
+}
+
+void MSpriteOBJ::getImageSize(int &width, int &height) {
+    /*
+     * Get the size of the actual image data for this sprite.
+     */
+
+    width = height = 1 << (TILE_SHIFT + SPRITE_SIZE_SIZE(size));
+
+    if (SPRITE_SIZE_SHAPE(size) == OBJSHAPE_WIDE) {
+        width <<= 1;
+    }
+    if (SPRITE_SIZE_SHAPE(size) == OBJSHAPE_TALL) {
+        height <<= 1;
+    }
+}
+
+bool MSpriteOBJ::isVisible() {
+    /* isHidden flag only valid when isRotateScale==false */
+    return !entry->isHidden || entry->isRotateScale;
+}
+
+SpriteImages::SpriteImages(OamState *oam, SpriteSize size, SpriteColorFormat format,
+                           int numImages) {
+    allocate(oam, size, format, numImages);
+}
+
+SpriteImages::SpriteImages(OamState *oam, const void *data, DecompressType type,
+                           SpriteSize size, SpriteColorFormat format, int numImages) {
+    allocate(oam, size, format, numImages);
+    decompress(data, images, type);
+}
+
+SpriteImages::~SpriteImages() {
+    oamFreeGfx(oam, images);
+}
+
+uint32_t SpriteImages::getImageBytes() {
+    uint32_t bytes= SPRITE_SIZE_PIXELS(size);
+
+    if (format == SpriteColorFormat_16Color) {
+        bytes >>= 1;
+    }
+    if (format == SpriteColorFormat_Bmp) {
+        bytes <<= 1;
+    }
+
+    return bytes;
+}
+
+uint16_t *SpriteImages::getImage(int num) {
+    return (uint16_t*) ((uint8_t*)images + getImageBytes() * num);
+}
+
+void SpriteImages::allocate(OamState *oam, SpriteSize size, SpriteColorFormat format,
+                            int numImages) {
+    this->size = size;
+    this->format = format;
+
+    /*
+     * Make a SpriteSize value with a size that's a multiple of the
+     * actual image size, so we can use the libnds OAM allocator to
+     * grab enough VRAM for all images sequentially. Why sequential?
+     * Just because it makes decompression easier.
+     */
+    SpriteSize stackedSize = (SpriteSize) ((size & ~0xFFF) | (size & 0xFFF) * numImages);
+    images = oamAllocateGfx(oam, stackedSize, format);
 }
