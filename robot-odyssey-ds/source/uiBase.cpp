@@ -128,8 +128,11 @@ void UIObjectList::scanInput(UIInputState &input) {
 
 UISpriteButton::UISpriteButton(MSpriteAllocator *sprAlloc,
                                SpriteImages *images,
-                               int x, int y, MSpriteRange range) : sprite(sprAlloc) {
+                               int x, int y,
+                               MSpriteRange range,
+                               bool autoDoubleSize) : sprite(sprAlloc) {
     this->images = images;
+    this->autoDoubleSize = autoDoubleSize;
 
     /*
      * Allocate the main OBJ, using the format and first iamge from 'images'.
@@ -139,7 +142,6 @@ UISpriteButton::UISpriteButton(MSpriteAllocator *sprAlloc,
                                     images->size, images->format);
 
     obj->entry->palette = OBJ_PALETTE;
-    obj->enableDoubleSize = true;
     obj->show();
 
     sprite.moveTo(x, y);
@@ -164,7 +166,16 @@ void UISpriteButton::handleInput(const UIInputState &input) {
 void UISpriteButton::activate() {
     /*
      * Grow the button, to show that it's activated.
+     *
+     * While the button is large, by default we turn on double-size
+     * mode so it doesn't clip. We don't want to leave it on all the
+     * time, because the NDS hardware will quickly hit its
+     * per-scanline sprite limit.
      */
+
+    if (autoDoubleSize) {
+        sprite.setDoubleSize(true);
+    }
     sprite.setScale(activatedScale, activatedScale);
 }
 
@@ -180,7 +191,10 @@ void UISpriteButton::animate() {
     if (scale < normalScale) {
         scale += scaleRate;
     }
-    if (scale > normalScale) {
+    if (scale >= normalScale) {
+        if (autoDoubleSize) {
+            sprite.setDoubleSize(false);
+        }
         scale = normalScale;
     }
 

@@ -142,6 +142,7 @@ class MSprite
     void moveTo(int x, int y);
     void show();
     void hide();
+    void setDoubleSize(bool enable);
 
     /*
      * Collision detection. (x,y) is a coordinte in screen space.
