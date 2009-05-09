@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * Main loop and initialization for Robot Odyssey DS.
  *
@@ -30,66 +30,30 @@
  */
 
 #include <nds.h>
-#include <stdio.h>
-#include <string.h>
 #include "sbt86.h"
-#include "hwSub.h"
 #include "hwMain.h"
-#include "hwSpriteScraper.h"
-#include "videoConvert.h"
-#include "roData.h"
-#include "mSprite.h"
-#include "uiBase.h"
 #include "uiSubScreen.h"
-#include "textRenderer.h"
-#include "gfx_background.h"
-#include "gfx_button_remote.h"
 
 SBT_DECL_PROCESS(LabEXE);
 SBT_DECL_PROCESS(GameEXE);
 SBT_DECL_PROCESS(TutorialEXE);
 SBT_DECL_PROCESS(RendererEXE);
 
-static TextRenderer text;
-
-static TutorialEXE game;
-static HwMain hwMain;
-
-static void subScreenInit(void) {
-    videoSetModeSub(MODE_5_2D);
-    vramSetBankC(VRAM_C_SUB_BG_0x06200000);
-    vramSetBankD(VRAM_D_SUB_SPRITE);
-
-    oamInit(&oamSub, SpriteMapping_1D_64, false);
-    memcpy(SPRITE_PALETTE_SUB, VideoConvert::palette, sizeof VideoConvert::palette);
-
-    int subBg = bgInitSub(3, BgType_Bmp8, BgSize_B8_256x256, 0, 0);
-    decompress(gfx_backgroundBitmap, bgGetGfxPtr(subBg), LZ77Vram);
-    decompress(gfx_backgroundPal, BG_PALETTE_SUB, LZ77Vram);
-
-    /* Sprite palette */
-    decompress(gfx_button_remotePal,
-               SPRITE_PALETTE_SUB + UISpriteButton::OBJ_PALETTE * 16,
-               LZ77Vram);
-}
 
 int main() {
     defaultExceptionHandler();
-    subScreenInit();
 
-    UIObjectList ol;
-    MSpriteAllocator sprAlloc(&oamSub);
-
-    text.init();
-    text.setAlignment(text.CENTER);
-    text.moveTo(128, 55);
-    text.printf("Font is Copyright ~ 2001\n");
-    text.printf("http://www.orgdot.com\n");
+    static TutorialEXE game;
+    static HwMain hwMain;
 
     hwMain.reset();
     game.hardware = &hwMain;
     game.exec("25");
 
+    ROData gameData(&game);
+    UISubScreen subScreen(&gameData, &hwMain);
+
+#if 0
     static HwSpriteScraper hwSub;
     static RendererEXE render;
     hwSub.reset();
@@ -97,20 +61,6 @@ int main() {
     render.exec();
 
     ROData renderData(&render);
-    ROData gameData(&game);
-
-    UIRemoteControlButton rcButton(&sprAlloc, &gameData, &hwMain,
-                                   SCREEN_WIDTH - rcButton.width,
-                                   SCREEN_HEIGHT - rcButton.height);
-    ol.objects.push_back(&rcButton);
-
-    UISolderButton sButton(&sprAlloc, &gameData, &hwMain,
-                           0, SCREEN_HEIGHT - sButton.height);
-    ol.objects.push_back(&sButton);
-
-    UIToolboxButton tbButton(&sprAlloc, &hwMain,
-                             SCREEN_WIDTH - tbButton.width, 0);
-    ol.objects.push_back(&tbButton);
 
     SpriteScraperRect *r1 = hwSub.allocRect(&oamSub);
     MSprite sprite(&sprAlloc);
@@ -124,8 +74,9 @@ int main() {
     sprite.newOBJ(MSPRR_FRONT, -32, -32, r1->buffer, r1->size, r1->format);
 
     sprite.setIntrinsicScale(r1->scaleX, r1->scaleY);
-    sprite.moveTo(128, 160);
+    sprite.moveTo(128, 64);
     sprite.show();
+#endif
 
     while (1) {
         /*
@@ -133,6 +84,7 @@ int main() {
          */
         while (game.run() != SBTHALT_FRAME_DRAWN);
 
+#if 0
         /*
          * Run one sub-screen frame.
          */
@@ -144,7 +96,7 @@ int main() {
 
         renderData.world->setRobotRoom(RO_OBJ_ROBOT_SCANNER_L, subRoom);
         renderData.world->setRobotXY(RO_OBJ_ROBOT_SCANNER_L,
-                                     r1->centerX() - 6, 192 - r1->centerY() - 8);
+                                     r1->centerX() - 6, r1->centerY() - 8);
 
         /* Draw robot power levels */
         //        text.moveTo(50, 60);
@@ -160,7 +112,7 @@ int main() {
 
         } while (haltCode != SBTHALT_FRAME_DRAWN);
 
-        oamUpdate(&oamSub);
+#endif
     }
 
     return 0;

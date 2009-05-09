@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * Miscellaneous special effects for use in the UI.
  *
@@ -47,11 +47,7 @@ class EffectMarquee32
 
     uint16_t *getFrameGfx(int frame);
 
-    static EffectMarquee32 *getSingleton(OamState *oam);
-
  private:
-    static EffectMarquee32 *singleton;
-
     static const int DOT_WIDTH = 4;
     static const int DOT_COLOR = 2;
     static const int BORDER_COLOR = 1;

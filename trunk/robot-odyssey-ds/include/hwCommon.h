@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * Common hardware emulation support. This module is responsible for
  * basic DOS, BIOS, and PC hardware emulation. It provides read-only

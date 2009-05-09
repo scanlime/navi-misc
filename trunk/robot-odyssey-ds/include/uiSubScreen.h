@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * UI objects for the sub screen: For interacting during gameplay.
  *
@@ -35,6 +35,7 @@
 #include "roData.h"
 #include "hwCommon.h"
 #include "roData.h"
+#include "textRenderer.h"
 
 
 /*
@@ -46,7 +47,8 @@ class UIToggleButton : public UISpriteButton
 {
  public:
     UIToggleButton(MSpriteAllocator *sprAlloc, SpriteImages *images,
-                   UIAnimationSequence::Item *animation, int x, int y);
+                   UIAnimationSequence::Item *animation,
+                   EffectMarquee32 *marqueeEffect, int x, int y);
 
     virtual void animate();
 
@@ -69,8 +71,8 @@ class UIToggleButton : public UISpriteButton
 class UIRemoteControlButton : public UIToggleButton
 {
  public:
-    UIRemoteControlButton(MSpriteAllocator *sprAlloc, ROData *roData,
-                          HwCommon *hw, int x, int y);
+    UIRemoteControlButton(MSpriteAllocator *sprAlloc, EffectMarquee32 *marqueeEffect,
+                          ROData *roData, HwCommon *hw, int x, int y);
 
     ~UIRemoteControlButton();
 
@@ -94,8 +96,8 @@ class UIRemoteControlButton : public UIToggleButton
 class UISolderButton : public UIToggleButton
 {
  public:
-    UISolderButton(MSpriteAllocator *sprAlloc, ROData *roData,
-                   HwCommon *hw, int x, int y);
+    UISolderButton(MSpriteAllocator *sprAlloc, EffectMarquee32 *marqueeEffect,
+                   ROData *roData, HwCommon *hw, int x, int y);
 
     ~UISolderButton();
 
@@ -136,12 +138,61 @@ class UIToolboxButton : public UISpriteButton
 
 
 /*
+ * Robot battery level icon
+ */
+class UIBatteryIcon : public UISpriteButton
+{
+ public:
+    UIBatteryIcon(MSpriteAllocator *sprAlloc, ROData *roData,
+                  RORobotId robotId, int x, int y);
+    ~UIBatteryIcon();
+
+    virtual void activate();
+    virtual void updateState();
+
+    static const uint32_t width = 32;
+    static const uint32_t height = 16;
+
+ private:
+    SpriteImages *allocImages(MSpriteAllocator *sprAlloc);
+
+    SpriteImages *images;
+    ROData *roData;
+    RORobotId robotId;
+};
+
+
+/*
+ * Low-level hardware initialization for the sub-screen,
+ * as well as loading of the backdrop image for layer 3.
+ */
+class UISubHardware
+{
+ public:
+    UISubHardware(const void *bgBitmap, const void *bgPalette);
+
+ private:
+    int subBg;
+};
+
+
+/*
  * The entire sub-screen UI.
  */
 class UISubScreen : public UIObjectList
 {
  public:
-    UISubScreen();
+    UISubScreen(ROData *gameData, HwCommon *hw);
+
+ private:
+    UISubHardware subHw;
+    TextRenderer text;
+    MSpriteAllocator sprAlloc;
+    EffectMarquee32 marqueeEffect;
+
+    UIRemoteControlButton btnRemote;
+    UISolderButton btnSolder;
+    UIToolboxButton btnToolbox;
 };
 
 

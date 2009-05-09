@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * Fast video conversion routines. These run out of ITCM RAM, and are
  * compiled with 32-bit ARM instructions.

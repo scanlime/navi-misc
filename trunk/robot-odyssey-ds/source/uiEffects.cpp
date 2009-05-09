@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * Miscellaneous special effects for use in the UI.
  *
@@ -30,16 +30,6 @@
 #include "uiEffects.h"
 #include "spriteDraw.h"
 
-EffectMarquee32 *EffectMarquee32::singleton;
-
-
-EffectMarquee32 *EffectMarquee32::getSingleton(OamState *oam) {
-    if (!singleton) {
-        singleton = new EffectMarquee32(oam);
-    }
-    sassert(singleton->oam == oam, "EffectMarquee32 singleton supports only one OAM.");
-    return singleton;
-}
 
 EffectMarquee32::EffectMarquee32(OamState *oam) {
     this->oam = oam;

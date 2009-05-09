@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * Public header for SBT86. Defines common data types for binary
  * translated programs, and the SBTProcess class.

@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * Main implementation of SBTHardware, which emulates video using the
  * Nintendo DS's primary screen.

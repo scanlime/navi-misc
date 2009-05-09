@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * SpriteDraw is a class for doing very simple runtime drawing on
  * 16-color tiled sprite images.

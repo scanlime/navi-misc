@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * Implementation of SBTProcess, the abstract base class for a
  * binary-translated 8086 DOS process.

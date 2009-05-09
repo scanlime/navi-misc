@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * An implementation of SBTHardware which displays portions of the
  * screen using hardware sprites.
@@ -82,12 +82,16 @@ class SpriteScraperRect
         return width * 2;
     }
 
-    /* Center coordinates */
+    /*
+     * Center coordinates, in units compatible with Robot Odyssey.
+     * X axis is in widepixels from the left edge of the screen,
+     * Y axis is scanlines from the bottom of the screen.
+     */
     inline int centerX() {
         return x + width/2;
     }
     inline int centerY() {
-        return y + height/2;
+        return 192 - (y + height/2);
     }
 
     /*
