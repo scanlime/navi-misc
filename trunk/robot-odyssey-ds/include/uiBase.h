@@ -113,7 +113,9 @@ class UISpriteButton : public UIObject
 {
  public:
     UISpriteButton(MSpriteAllocator *sprAlloc, SpriteImages *images,
-                   int x, int y, MSpriteRange range = MSPRR_UI);
+                   int x, int y,
+                   MSpriteRange range = MSPRR_UI,
+                   bool autoDoubleSize = true);
 
     virtual void handleInput(const UIInputState &input);
     virtual void animate();
@@ -132,6 +134,9 @@ class UISpriteButton : public UIObject
 
     /* Which OBJ palette do we use by default? */
     static const int OBJ_PALETTE = 2;
+
+private:
+    bool autoDoubleSize;
 };
 
 

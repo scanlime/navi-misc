@@ -122,6 +122,16 @@ void MSprite::hide(void) {
     }
 }
 
+void MSprite::setDoubleSize(bool enable) {
+    for (unsigned int i = 0; i < objCount; i++) {
+        obj[i].enableDoubleSize = enable;
+        if (obj[i].isVisible()) {
+            obj[i].show();
+        }
+    }
+    update();
+}
+
 void MSprite::update(void) {
     unsigned int matrixIndex = alloc->getMatrixIndex(matrix);
 

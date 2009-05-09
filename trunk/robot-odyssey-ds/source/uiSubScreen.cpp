@@ -50,7 +50,6 @@ UIToggleButton::UIToggleButton(MSpriteAllocator *sprAlloc, SpriteImages *images,
     marquee = sprite.newOBJ(MSPRR_FRONT, 0, 0, NULL,
                             SpriteSize_32x32, SpriteColorFormat_16Color);
     marquee->entry->palette = OBJ_PALETTE;
-    marquee->enableDoubleSize = true;
 
     this->marqueeEffect = marqueeEffect;
 }
@@ -184,7 +183,7 @@ SpriteImages *UIToolboxButton::allocImages(MSpriteAllocator *sprAlloc) {
 
 UIBatteryIcon::UIBatteryIcon(MSpriteAllocator *sprAlloc, ROData *roData,
                              RORobotId robotId, int x, int y)
-  : UISpriteButton(sprAlloc, allocImages(sprAlloc), x, y) {
+    : UISpriteButton(sprAlloc, allocImages(sprAlloc), x, y, MSPRR_UI, false) {
     this->roData = roData;
     this->robotId = robotId;
 }
@@ -229,8 +228,13 @@ SpriteImages *UIBatteryIcon::allocImages(MSpriteAllocator *sprAlloc) {
 
 UIRobotIcon::UIRobotIcon(MSpriteAllocator *sprAlloc, HwSpriteScraper *sprScraper,
                          ROData *roData, RORobotId robotId, int x, int y)
+
+    // Note that we disable autoDoubleSize. The robot already has plenty
+    // of padding around the edges so it won't clip, and double-size
+    // here will quickly exhaust the NDS's limit on sprites per scanline.
     : UISpriteButton(sprAlloc, allocImages(sprAlloc, sprScraper),
-                     x, y, MSPRR_FRONT) {
+                     x, y, MSPRR_FRONT, false) {
+
     this->roData = roData;
     this->robotId = robotId;
 
@@ -254,7 +258,6 @@ UIRobotIcon::UIRobotIcon(MSpriteAllocator *sprAlloc, HwSpriteScraper *sprScraper
                                         scraperRect->size,
                                         scraperRect->format);
         obj->entry->palette = OBJ_BORDER_PALETTE;
-        obj->enableDoubleSize = true;
         obj->center();
         obj->moveBy(xOffset[i], yOffset[i]);
     }
