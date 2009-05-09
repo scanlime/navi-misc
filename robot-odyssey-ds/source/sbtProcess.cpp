@@ -81,8 +81,6 @@ static void decompressRLE(uint8_t *dest, uint8_t *src, uint32_t srcLength)
 
 void SBTProcess::exec(const char *cmdLine)
 {
-    stack.init();
-
     // Initialize registers
     memset(&reg, 0, sizeof reg);
 

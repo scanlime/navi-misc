@@ -90,11 +90,15 @@ class MSpriteOBJ
 
     void setGfx(const void *gfx);
     void getImageSize(int &width, int &height);
-    bool isVisible();
+    void center(void);
+    void moveBy(int x, int y);
+
     bool hitTest(int x, int y);
     void setHitBox(int x, int y, int width, int height);
+
     void show();
     void hide();
+    bool isVisible();
 
     /*
      * Double the size of the sprite's bounding box, so that it can be
@@ -159,6 +163,13 @@ class MSprite
     void setIntrinsicScale(int sx, int sy);
 
     /*
+     * Update the position and scale of all OBJs. Usually it isn't
+     * necessary to call this explicitly, but if you update OBJ
+     * attributes manually you'll need to.
+     */
+    void update();
+
+    /*
      * Scale factors are in reciprocal 1.1 fixed point format.
      */
     static const int SCALE_ONE = 0x100;
@@ -181,11 +192,6 @@ class MSprite
     unsigned int objCount;
 
  private:
-    /*
-     * Update the position and scale of all OBJs.
-     */
-    void update();
-
     MSpriteAllocator *alloc;
     SpriteRotation *matrix;
     int x, y;
@@ -202,6 +208,10 @@ class MSprite
 class SpriteImages
 {
  public:
+    /* Use a caller-provided buffer. Will not be freed. */
+    SpriteImages(OamState *oam, SpriteSize size, SpriteColorFormat format,
+                 uint16_t *buffer);
+
     /* Uninitialized images in VRAM. */
     SpriteImages(OamState *oam, SpriteSize size, SpriteColorFormat format,
                  int numImages=1);
@@ -225,6 +235,7 @@ class SpriteImages
 
     OamState *oam;
     uint16_t *images;
+    bool freeImages;
 };
 
 

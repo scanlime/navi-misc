@@ -319,9 +319,16 @@ void MSpriteOBJ::getImageSize(int &width, int &height) {
     }
 }
 
-bool MSpriteOBJ::isVisible() {
-    /* isHidden flag only valid when isRotateScale==false */
-    return !entry->isHidden || entry->isRotateScale;
+void MSpriteOBJ::center() {
+    int width, height;
+    getImageSize(width, height);
+    xOffset = -width/2;
+    yOffset = -height/2;
+}
+
+void MSpriteOBJ::moveBy(int x, int y) {
+    xOffset += x;
+    yOffset += y;
 }
 
 void MSpriteOBJ::show() {
@@ -332,6 +339,19 @@ void MSpriteOBJ::show() {
 void MSpriteOBJ::hide() {
     entry->isRotateScale = false;
     entry->isHidden = true;
+}
+
+bool MSpriteOBJ::isVisible() {
+    /* isHidden flag only valid when isRotateScale==false */
+    return !entry->isHidden || entry->isRotateScale;
+}
+
+SpriteImages::SpriteImages(OamState *oam, SpriteSize size, SpriteColorFormat format,
+                           uint16_t *buffer) {
+    this->size = size;
+    this->format = format;
+    images = buffer;
+    freeImages = false;
 }
 
 SpriteImages::SpriteImages(OamState *oam, SpriteSize size, SpriteColorFormat format,
@@ -379,4 +399,5 @@ void SpriteImages::allocate(OamState *oam, SpriteSize size, SpriteColorFormat fo
      */
     SpriteSize stackedSize = (SpriteSize) ((size & ~0xFFF) | (size & 0xFFF) * numImages);
     images = oamAllocateGfx(oam, stackedSize, format);
+    freeImages = true;
 }

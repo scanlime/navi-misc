@@ -34,10 +34,8 @@
 #include "videoConvert.h"
 
 
-void HwMain::reset()
+HwMain::HwMain()
 {
-    HwCommon::reset();
-
     // Mode 5: Two tiled 'text' layers, two extended background layers
     videoSetMode(MODE_5_2D);
 

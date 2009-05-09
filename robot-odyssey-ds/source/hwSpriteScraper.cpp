@@ -34,9 +34,8 @@
 #include "videoConvert.h"
 
 
-void HwSpriteScraper::reset()
+HwSpriteScraper::HwSpriteScraper()
 {
-    HwCommon::reset();
     memset(rects, 0, sizeof rects);
 
     /*

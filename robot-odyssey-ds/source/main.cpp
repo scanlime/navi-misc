@@ -34,85 +34,27 @@
 #include "hwMain.h"
 #include "uiSubScreen.h"
 
+SBT_DECL_PROCESS(MenuEXE);
 SBT_DECL_PROCESS(LabEXE);
 SBT_DECL_PROCESS(GameEXE);
 SBT_DECL_PROCESS(TutorialEXE);
-SBT_DECL_PROCESS(RendererEXE);
 
 
 int main() {
     defaultExceptionHandler();
 
-    static TutorialEXE game;
-    static HwMain hwMain;
+    HwMain *hwMain = new HwMain();
+    TutorialEXE *game = new TutorialEXE(hwMain, "25");
 
-    hwMain.reset();
-    game.hardware = &hwMain;
-    game.exec("25");
+    ROData gameData(game);
+    UISubScreen *subScreen = new UISubScreen(&gameData, hwMain);
 
-    ROData gameData(&game);
-    UISubScreen subScreen(&gameData, &hwMain);
-
-#if 0
-    static HwSpriteScraper hwSub;
-    static RendererEXE render;
-    hwSub.reset();
-    render.hardware = &hwSub;
-    render.exec();
-
-    ROData renderData(&render);
-
-    SpriteScraperRect *r1 = hwSub.allocRect(&oamSub);
-    MSprite sprite(&sprAlloc);
-
-    ol.makeCurrent();
-
-    sprite.newOBJ(MSPRR_FRONT_BORDER, -32+1, -32, r1->buffer, r1->size, r1->format)->entry->palette = 1;
-    sprite.newOBJ(MSPRR_FRONT_BORDER, -32-1, -32, r1->buffer, r1->size, r1->format)->entry->palette = 1;
-    sprite.newOBJ(MSPRR_FRONT_BORDER, -32, -32+1, r1->buffer, r1->size, r1->format)->entry->palette = 1;
-    sprite.newOBJ(MSPRR_FRONT_BORDER, -32, -32-1, r1->buffer, r1->size, r1->format)->entry->palette = 1;
-    sprite.newOBJ(MSPRR_FRONT, -32, -32, r1->buffer, r1->size, r1->format);
-
-    sprite.setIntrinsicScale(r1->scaleX, r1->scaleY);
-    sprite.moveTo(128, 64);
-    sprite.show();
-#endif
+    subScreen->text.moveTo(5, 5);
+    subScreen->text.printf("Boing!");
 
     while (1) {
-        /*
-         * Run one normal frame.
-         */
-        while (game.run() != SBTHALT_FRAME_DRAWN);
-
-#if 0
-        /*
-         * Run one sub-screen frame.
-         */
-        int haltCode = SBTHALT_FRAME_DRAWN;
-
-        const RORoomId subRoom = RO_ROOM_RENDERER;
-
-        renderData.copyFrom(&gameData);
-
-        renderData.world->setRobotRoom(RO_OBJ_ROBOT_SCANNER_L, subRoom);
-        renderData.world->setRobotXY(RO_OBJ_ROBOT_SCANNER_L,
-                                     r1->centerX() - 6, r1->centerY() - 8);
-
-        /* Draw robot power levels */
-        //        text.moveTo(50, 60);
-        //        text.setAlignment(text.CENTER);
-        //        text.printf("%04x\n", gameData.robots.batteryAcc[2].get());
-
-        do {
-            haltCode = render.run();
-
-            if (haltCode == SBTHALT_LOAD_ROOM_ID) {
-                render.reg.al = subRoom;
-            }
-
-        } while (haltCode != SBTHALT_FRAME_DRAWN);
-
-#endif
+        while (game->run() != SBTHALT_FRAME_DRAWN);
+        subScreen->renderFrame();
     }
 
     return 0;

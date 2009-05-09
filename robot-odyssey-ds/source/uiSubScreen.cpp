@@ -36,6 +36,9 @@
 #include "gfx_background.h"
 
 
+//********************************************************** UIToggleButton
+
+
 UIToggleButton::UIToggleButton(MSpriteAllocator *sprAlloc, SpriteImages *images,
                                UIAnimationSequence::Item *animation,
                                EffectMarquee32 *marqueeEffect, int x, int y)
@@ -50,7 +53,7 @@ UIToggleButton::UIToggleButton(MSpriteAllocator *sprAlloc, SpriteImages *images,
     marquee->enableDoubleSize = true;
 
     this->marqueeEffect = marqueeEffect;
-      }
+}
 
 void UIToggleButton::animate() {
     UISpriteButton::animate();
@@ -67,11 +70,15 @@ void UIToggleButton::animate() {
     }
 }
 
+
+//********************************************************** UIRemoteControlButton
+
+
 UIRemoteControlButton::UIRemoteControlButton(MSpriteAllocator *sprAlloc,
                                              EffectMarquee32 *marqueeEffect,
                                              ROData *roData,
                                              HwCommon *hw, int x, int y)
-  : UIToggleButton(sprAlloc, allocImages(sprAlloc), animation, marqueeEffect, x, y) {
+    : UIToggleButton(sprAlloc, allocImages(sprAlloc), animation, marqueeEffect, x, y) {
     this->hw = hw;
     this->roData = roData;
     hotkey = KEY_R;
@@ -102,6 +109,10 @@ UIAnimationSequence::Item UIRemoteControlButton::animation[] = {
     {2, 64},  // Linger on the fully expanded waves for two counts.
     {0},
 };
+
+
+//********************************************************** UISolderButton
+
 
 UISolderButton::UISolderButton(MSpriteAllocator *sprAlloc,
                                EffectMarquee32 *marqueeEffect,
@@ -142,6 +153,10 @@ UIAnimationSequence::Item UISolderButton::animation[] = {
     {0},
 };
 
+
+//********************************************************** UIToolboxButton
+
+
 UIToolboxButton::UIToolboxButton(MSpriteAllocator *sprAlloc,
                                  HwCommon *hw, int x, int y)
   : UISpriteButton(sprAlloc, allocImages(sprAlloc), x, y) {
@@ -162,6 +177,10 @@ SpriteImages *UIToolboxButton::allocImages(MSpriteAllocator *sprAlloc) {
     return images = new SpriteImages(sprAlloc->oam, gfx_button_toolboxTiles, LZ77Vram,
                                      SpriteSize_32x32, SpriteColorFormat_16Color);
 }
+
+
+//********************************************************** UIBatteryIcon
+
 
 UIBatteryIcon::UIBatteryIcon(MSpriteAllocator *sprAlloc, ROData *roData,
                              RORobotId robotId, int x, int y)
@@ -204,14 +223,101 @@ SpriteImages *UIBatteryIcon::allocImages(MSpriteAllocator *sprAlloc) {
                                      SpriteSize_32x16, SpriteColorFormat_16Color, 9);
 }
 
+
+//********************************************************** UIRobotIcon
+
+
+UIRobotIcon::UIRobotIcon(MSpriteAllocator *sprAlloc, HwSpriteScraper *sprScraper,
+                         ROData *roData, RORobotId robotId, int x, int y)
+    : UISpriteButton(sprAlloc, allocImages(sprAlloc, sprScraper),
+                     x, y, MSPRR_FRONT) {
+    this->roData = roData;
+    this->robotId = robotId;
+
+    // Center the robot sprite, and scale it properly.
+    sprite.setIntrinsicScale(scraperRect->scaleX, scraperRect->scaleY);
+    sprite.obj[0].center();
+
+    /*
+     * Abuse the sprite hardware to create a 1-pixel black border
+     * around the robot sprite. This involves creating additional OBJs
+     * behind the main robot sprite. These OBJs share the same image
+     * data, but they use an all-black palette.
+     */
+
+    static const int xOffset[] = { 1, -1,  0,  0 };
+    static const int yOffset[] = { 0,  0,  1, -1 };
+
+    for (unsigned int i = 0; i < sizeof xOffset / sizeof xOffset[0]; i++) {
+        MSpriteOBJ *obj = sprite.newOBJ(MSPRR_FRONT_BORDER, 0, 0,
+                                        scraperRect->buffer,
+                                        scraperRect->size,
+                                        scraperRect->format);
+        obj->entry->palette = OBJ_BORDER_PALETTE;
+        obj->enableDoubleSize = true;
+        obj->center();
+        obj->moveBy(xOffset[i], yOffset[i]);
+    }
+
+    sprite.update();
+    sprite.show();
+}
+
+UIRobotIcon::~UIRobotIcon() {
+    delete images;
+    sprScraper->freeRect(scraperRect);
+}
+
+void UIRobotIcon::activate() {
+    UISpriteButton::activate();
+    /*
+     * XXX: Display the robot's interior.
+     */
+}
+
+void UIRobotIcon::setupRenderer(ROData *rendererData) {
+    /*
+     * Move the robot to the center of its SpriteScraper slot.
+     */
+
+    ROObjectId objId = roData->robots.state[robotId].getObjectId();
+    const int xOffset = -6;
+    const int yOffset = -8;
+
+    rendererData->world->setRobotRoom(objId, RO_ROOM_RENDERER);
+    rendererData->world->setRobotXY(objId,
+                                    scraperRect->centerX() + xOffset,
+                                    scraperRect->centerY() + yOffset);
+}
+
+SpriteImages *UIRobotIcon::allocImages(MSpriteAllocator *sprAlloc,
+                                       HwSpriteScraper *sprScraper) {
+    this->sprScraper = sprScraper;
+    scraperRect = sprScraper->allocRect(sprAlloc->oam);
+    images = new SpriteImages(sprAlloc->oam, scraperRect->size,
+                              scraperRect->format, scraperRect->buffer);
+    return images;
+}
+
+
+//********************************************************** UISubHardware
+
+
 UISubHardware::UISubHardware(const void *bgBitmap, const void *bgPalette) {
     videoSetModeSub(MODE_5_2D);
     vramSetBankC(VRAM_C_SUB_BG_0x06200000);
     vramSetBankD(VRAM_D_SUB_SPRITE);
 
+    static const uint32 paletteSize = 16 * sizeof(uint16_t);
+
     /* Sprite palette 0: VideoConvert */
     oamInit(&oamSub, SpriteMapping_1D_64, false);
-    dmaCopy(VideoConvert::palette, SPRITE_PALETTE_SUB, sizeof VideoConvert::palette);
+    dmaCopy(VideoConvert::palette, SPRITE_PALETTE_SUB, paletteSize);
+
+    /* Sprite palette 1: All black, for robot borders */
+    dmaFillHalfWords(0x0000,
+                     SPRITE_PALETTE_SUB + UIRobotIcon::OBJ_BORDER_PALETTE * 16,
+                     paletteSize);
 
     /* Sprite palette 2: UI sprites */
     decompress(gfx_button_remotePal,
@@ -224,10 +330,19 @@ UISubHardware::UISubHardware(const void *bgBitmap, const void *bgPalette) {
     decompress(bgPalette, BG_PALETTE_SUB, LZ77Vram);
 }
 
+
+//********************************************************** UISubScreen
+
+
 UISubScreen::UISubScreen(ROData *gameData, HwCommon *hw)
   : UIObjectList(),
     subHw(gfx_backgroundBitmap, gfx_backgroundPal),
     text(),
+
+    spriteScraper(),
+    renderer(&spriteScraper),
+    rendererData(&renderer),
+
     sprAlloc(&oamSub),
     marqueeEffect(&oamSub),
 
@@ -237,11 +352,40 @@ UISubScreen::UISubScreen(ROData *gameData, HwCommon *hw)
     btnSolder(&sprAlloc, &marqueeEffect, gameData, hw,
               0, SCREEN_HEIGHT - btnSolder.height),
     btnToolbox(&sprAlloc, hw,
-               SCREEN_WIDTH - btnSolder.height, 0) {
+               SCREEN_WIDTH - btnSolder.height, 0),
+
+    xRobot(&sprAlloc, &spriteScraper, gameData, RO_ROBOT_CHECKERS, 128 - 30, 64),
+    yRobot(&sprAlloc, &spriteScraper, gameData, RO_ROBOT_SCANNER, 128 + 30, 64)
+{
+    this->gameData = gameData;
 
     objects.push_back(&btnRemote);
     objects.push_back(&btnSolder);
     objects.push_back(&btnToolbox);
+    objects.push_back(&xRobot);
+    objects.push_back(&yRobot);
 
     makeCurrent();
+}
+
+void UISubScreen::renderFrame(void) {
+    int haltCode;
+
+    // Copy all game state to the renderer
+    rendererData.copyFrom(gameData);
+
+    xRobot.setupRenderer(&rendererData);
+    yRobot.setupRenderer(&rendererData);
+
+    /*
+     * Run the renderer until it produces another frame.
+     * When we hit the LOAD_ROOM_ID hook, patch in our
+     * fake room ID.
+     */
+    do {
+        haltCode = renderer.run();
+        if (haltCode == SBTHALT_LOAD_ROOM_ID) {
+            renderer.reg.al = RO_ROOM_RENDERER;
+        }
+    } while (haltCode != SBTHALT_FRAME_DRAWN);
 }
