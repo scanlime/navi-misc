@@ -112,7 +112,8 @@ class UIObjectList : public UIObject
 class UISpriteButton : public UIObject
 {
  public:
-    UISpriteButton(MSpriteAllocator *sprAlloc, SpriteImages *images, int x, int y);
+    UISpriteButton(MSpriteAllocator *sprAlloc, SpriteImages *images,
+                   int x, int y, MSpriteRange range = MSPRR_UI);
 
     virtual void handleInput(const UIInputState &input);
     virtual void animate();

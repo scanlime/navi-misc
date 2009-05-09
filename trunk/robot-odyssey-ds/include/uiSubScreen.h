@@ -34,8 +34,12 @@
 #include "mSprite.h"
 #include "roData.h"
 #include "hwCommon.h"
+#include "hwSpriteScraper.h"
 #include "roData.h"
 #include "textRenderer.h"
+#include "sbt86.h"
+
+SBT_DECL_PROCESS(RendererEXE);
 
 
 /*
@@ -163,6 +167,35 @@ class UIBatteryIcon : public UISpriteButton
 
 
 /*
+ * Robot icon. This shows a live picture of one robot. Touching it
+ * will view the robot's interior.
+ */
+class UIRobotIcon : public UISpriteButton
+{
+ public:
+    UIRobotIcon(MSpriteAllocator *sprAlloc, HwSpriteScraper *sprScraper,
+                ROData *roData, RORobotId robotId, int x, int y);
+    ~UIRobotIcon();
+
+    virtual void activate();
+
+    void setupRenderer(ROData *rendererData);
+
+    static const int OBJ_BORDER_PALETTE = 1;
+
+ private:
+    SpriteImages *allocImages(MSpriteAllocator *sprAlloc,
+                              HwSpriteScraper *sprScraper);
+
+    SpriteImages *images;
+    ROData *roData;
+    RORobotId robotId;
+    HwSpriteScraper *sprScraper;
+    SpriteScraperRect *scraperRect;
+};
+
+
+/*
  * Low-level hardware initialization for the sub-screen,
  * as well as loading of the backdrop image for layer 3.
  */
@@ -181,18 +214,38 @@ class UISubHardware
  */
 class UISubScreen : public UIObjectList
 {
- public:
+public:
     UISubScreen(ROData *gameData, HwCommon *hw);
 
- private:
+    /*
+     * Render a frame based on the current game data state.
+     * Should be called from the main program, not an ISR.
+     */
+    void renderFrame(void);
+
+private:
     UISubHardware subHw;
+
+public:
+    // Text is public, to make debugging easier.
     TextRenderer text;
+
+private:
+    ROData *gameData;
+
+    HwSpriteScraper spriteScraper;
+    RendererEXE renderer;
+    ROData rendererData;
+
     MSpriteAllocator sprAlloc;
     EffectMarquee32 marqueeEffect;
 
     UIRemoteControlButton btnRemote;
     UISolderButton btnSolder;
     UIToolboxButton btnToolbox;
+
+    UIRobotIcon xRobot;
+    UIRobotIcon yRobot;
 };
 
 

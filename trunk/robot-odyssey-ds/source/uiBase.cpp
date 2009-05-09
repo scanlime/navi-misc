@@ -31,9 +31,11 @@
 #include <nds.h>
 #include "uiBase.h"
 
-UIObjectList *UIObjectList::currentList;
-uint32_t UIObject::frameCount;
 
+//********************************************************** UIObject
+
+
+uint32_t UIObject::frameCount;
 
 void UIObject::animate() {
     /* No-op. */
@@ -46,6 +48,12 @@ void UIObject::updateState() {
 void UIObject::handleInput(const UIInputState &input) {
     /* No-op. */
 }
+
+
+//********************************************************** UIObjectList
+
+
+UIObjectList *UIObjectList::currentList;
 
 void UIObjectList::animate() {
     std::list<UIObject*>::iterator i;
@@ -114,16 +122,20 @@ void UIObjectList::scanInput(UIInputState &input) {
     input.touchY = touch.py;
 }
 
+
+//********************************************************** UISpriteButton
+
+
 UISpriteButton::UISpriteButton(MSpriteAllocator *sprAlloc,
                                SpriteImages *images,
-                               int x, int y) : sprite(sprAlloc) {
+                               int x, int y, MSpriteRange range) : sprite(sprAlloc) {
     this->images = images;
 
     /*
      * Allocate the main OBJ, using the format and first iamge from 'images'.
      * This OBJ needs to be double-sized, so we can magnify it without clipping.
      */
-    MSpriteOBJ *obj = sprite.newOBJ(MSPRR_UI, 0, 0, images->getImage(0),
+    MSpriteOBJ *obj = sprite.newOBJ(range, 0, 0, images->getImage(0),
                                     images->size, images->format);
 
     obj->entry->palette = OBJ_PALETTE;
@@ -174,6 +186,10 @@ void UISpriteButton::animate() {
 
     sprite.setScale(scale, scale);
 }
+
+
+//********************************************************** UIAnimationSequence
+
 
 UIAnimationSequence::UIAnimationSequence(const Item *items) {
     this->items = items;

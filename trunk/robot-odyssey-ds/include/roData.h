@@ -391,6 +391,10 @@ class RORobot {
     uint8_t batteryLevel;      // 0 through 15
     uint8_t thrusterSwitch;    // 0 or 1
 
+    ROObjectId getObjectId() {
+        return (ROObjectId) objLeft;
+    }
+
     static RORobot *fromProcess(SBTProcess *proc);
 } __attribute__ ((packed));
 

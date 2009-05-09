@@ -215,7 +215,7 @@ class SBTRegs
 class SBTStack
 {
  public:
-    inline void init() {
+    SBTStack() {
         top = 0;
     }
 
@@ -322,10 +322,10 @@ class SBTProcess
      * memory, and resets the program counter. The process will begin
      * executing from the beginning on the next run().
      *
-     * (This function does not start the process, only prepares it.)
+     * A process is exec()'ed automatically by the constructor.
+     * You may manually exec() it again at any time to reset it.
      *
-     * Must be called once before the first run(), but you may also
-     * call this function at any time afterwards.
+     * (This function does not start the process, only prepares it.)
      */
     void exec(const char *cmdLine = "");
 
@@ -504,6 +504,12 @@ class SBTSegmentCache
 #define SBT_DECL_PROCESS(name)                          \
     class name : public SBTProcess                      \
     {                                                   \
+    public:                                             \
+        name(SBTHardware *hardware,                     \
+             const char *cmdLine = "") {                \
+            this->hardware = hardware;                  \
+            exec(cmdLine);                              \
+        }                                               \
     protected:                                          \
         virtual void loadCache();                       \
         virtual void saveCache();                       \

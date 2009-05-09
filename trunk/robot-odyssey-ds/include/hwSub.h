@@ -36,7 +36,8 @@
 class HwSub : public HwCommon
 {
  public:
-    virtual void reset();
+    HwSub();
+
     virtual void drawScreen(SBTProcess *proc, uint8_t *framebuffer);
 
  protected:

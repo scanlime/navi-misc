@@ -109,7 +109,7 @@ class SpriteScraperRect
 class HwSpriteScraper : public HwCommon
 {
  public:
-    virtual void reset();
+    HwSpriteScraper();
 
     virtual void drawScreen(SBTProcess *proc, uint8_t *framebuffer);
 

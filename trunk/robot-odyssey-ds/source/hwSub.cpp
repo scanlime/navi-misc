@@ -33,10 +33,8 @@
 #include "videoConvert.h"
 
 
-void HwSub::reset()
+HwSub::HwSub()
 {
-    HwCommon::reset();
-
     // Mode 5: Two tiled 'text' layers, two extended background layers
     videoSetModeSub(MODE_5_2D);
 
@@ -46,7 +44,7 @@ void HwSub::reset()
     vramSetBankC(VRAM_C_SUB_BG_0x06200000);
 
     bg = bgInitSub(3, BgType_Bmp16, BgSize_B16_256x256, 0, 0);
-    backbuffer= bgGetGfxPtr(bg);
+    backbuffer = bgGetGfxPtr(bg);
 }
 
 

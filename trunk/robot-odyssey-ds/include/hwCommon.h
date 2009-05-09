@@ -45,11 +45,7 @@
 class DOSFilesystem
 {
  public:
-    DOSFilesystem() {
-        reset();
-    }
-
-    void reset();
+    DOSFilesystem();
 
     uint16_t open(const char *name);
     void close(uint16_t fd);
@@ -81,7 +77,7 @@ class DOSFilesystem
 class HwCommon : public SBTHardware
 {
  public:
-    virtual void reset();
+    HwCommon();
 
     /*
      * SBT86 Entry points

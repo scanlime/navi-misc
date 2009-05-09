@@ -36,7 +36,8 @@
 class HwMain : public HwCommon
 {
  public:
-    virtual void reset();
+    HwMain();
+
     virtual void drawScreen(SBTProcess *proc, uint8_t *framebuffer);
 
  protected:

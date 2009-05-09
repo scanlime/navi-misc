@@ -38,7 +38,7 @@
 #include "hwCommon.h"
 
 
-void DOSFilesystem::reset()
+DOSFilesystem::DOSFilesystem()
 {
     memset(openFiles, 0, sizeof openFiles);
 }
@@ -101,9 +101,8 @@ uint16_t DOSFilesystem::allocateFD()
     return fd;
 }
 
-void HwCommon::reset()
+HwCommon::HwCommon()
 {
-    dosFS.reset();
     port61 = 0;
 }
 
