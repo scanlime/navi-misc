@@ -89,6 +89,53 @@ class UIRemoteControlButton : public UIToggleButton
 
 
 /*
+ * A button to toggle the soldering iron on and off.
+ */
+class UISolderButton : public UIToggleButton
+{
+ public:
+    UISolderButton(MSpriteAllocator *sprAlloc, ROData *roData,
+                   HwCommon *hw, int x, int y);
+
+    ~UISolderButton();
+
+    virtual void activate();
+    virtual void updateState();
+
+ private:
+    SpriteImages *allocImages(MSpriteAllocator *sprAlloc);
+
+    static UIAnimationSequence::Item animation[];
+
+    SpriteImages *images;
+    HwCommon *hw;
+    ROData *roData;
+};
+
+
+/*
+ * A button to display the toolbox.
+ */
+class UIToolboxButton : public UISpriteButton
+{
+ public:
+    UIToolboxButton(MSpriteAllocator *sprAlloc, HwCommon *hw, int x, int y);
+    ~UIToolboxButton();
+
+    virtual void activate();
+
+    static const uint32_t width = 32;
+    static const uint32_t height = 32;
+
+ private:
+    SpriteImages *allocImages(MSpriteAllocator *sprAlloc);
+
+    SpriteImages *images;
+    HwCommon *hw;
+};
+
+
+/*
  * The entire sub-screen UI.
  */
 class UISubScreen : public UIObjectList

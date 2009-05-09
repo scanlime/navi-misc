@@ -104,6 +104,14 @@ int main() {
                                    SCREEN_HEIGHT - rcButton.height);
     ol.objects.push_back(&rcButton);
 
+    UISolderButton sButton(&sprAlloc, &gameData, &hwMain,
+                           0, SCREEN_HEIGHT - sButton.height);
+    ol.objects.push_back(&sButton);
+
+    UIToolboxButton tbButton(&sprAlloc, &hwMain,
+                             SCREEN_WIDTH - tbButton.width, 0);
+    ol.objects.push_back(&tbButton);
+
 #if 0
     MSprite button(&sprAlloc);
     buttonPtr = &button;

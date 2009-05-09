@@ -49,7 +49,8 @@ SOURCES_ITCM := videoConvert.cpp
 SOURCES_A7   := arm7.cpp soundEngine.cpp
 SOURCES_BT   := bt_lab.py bt_menu.py bt_game.py bt_tutorial.py bt_renderer.py
 
-SOURCES_GRIT := gfx_background.grit gfx_button_remote.grit
+SOURCES_GRIT := gfx_background.grit gfx_button_remote.grit \
+                gfx_button_toolbox.grit gfx_button_solder.grit
 
 
 ############################################
@@ -106,9 +107,6 @@ ARM7ELF  := $(BUILDDIR)/$(TARGET).arm7.elf
 ARM9BIN  := $(BUILDDIR)/$(TARGET).arm9
 ARM9ELF  := $(BUILDDIR)/$(TARGET).arm9.elf
 
-# Default dependencies
-CDEPS := $(addprefix $(INCLUDEDIR)/,$(notdir $(wildcard $(INCLUDEDIR)/*.h)))
-
 # SBT86 sources
 GENERATED_BT := $(addprefix $(BUILDDIR)/,$(subst .py,.cpp,$(SOURCES_BT)))
 OBJS_BT      := $(subst .cpp,.o,$(GENERATED_BT))
@@ -128,6 +126,10 @@ GBFS_OBJ     := $(BUILDDIR)/data.gbfs.o
 # GRIT output files, in our build directory
 GRIT_ASM     := $(addprefix $(BUILDDIR)/,$(subst .grit,.s,$(SOURCES_GRIT)))
 GRIT_OBJS    := $(addprefix $(BUILDDIR)/,$(subst .grit,.o,$(SOURCES_GRIT)))
+
+# Default dependencies
+# (Must include GRIT_OBJS, to get grit-generated header files.)
+CDEPS := $(addprefix $(INCLUDEDIR)/,$(notdir $(wildcard $(INCLUDEDIR)/*.h))) $(GRIT_OBJS)
 
 # All ARM9 objects, including non-normal files like GBFS and SBT86 output.
 OBJS_A9_ALL  := $(OBJS_A9) $(OBJS_BT) $(OBJS_ITCM) $(GBFS_OBJ) $(GRIT_OBJS)
