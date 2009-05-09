@@ -99,9 +99,6 @@ void HwMain::pollKeys(SBTProcess *proc)
         { KEY_RIGHT, 0x4D00 },
 
         { KEY_B, ' ' },
-        { KEY_A, 'S' },
-        { KEY_X, 'C' },
-        { KEY_L, 'T' },
     };
 
     HwCommon::pollKeys(proc);
