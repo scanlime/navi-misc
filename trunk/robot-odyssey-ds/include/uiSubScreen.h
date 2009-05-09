@@ -196,6 +196,23 @@ class UIRobotIcon : public UISpriteButton
 
 
 /*
+ * All robot info on the subscreen: The robot icon and battery status.
+ */
+class UIRobotStatus : public UIObjectList
+{
+ public:
+    UIRobotStatus(MSpriteAllocator *sprAlloc, HwSpriteScraper *sprScraper,
+                  ROData *roData, RORobotId robotId, int x, int y);
+
+    void setupRenderer(ROData *rendererData);
+
+ private:
+    UIRobotIcon   icon;
+    UIBatteryIcon battery;
+};
+
+
+/*
  * Low-level hardware initialization for the sub-screen,
  * as well as loading of the backdrop image for layer 3.
  */
@@ -244,8 +261,8 @@ private:
     UISolderButton btnSolder;
     UIToolboxButton btnToolbox;
 
-    UIRobotIcon xRobot;
-    UIRobotIcon yRobot;
+    UIRobotStatus xRobot;
+    UIRobotStatus yRobot;
 };
 
 

@@ -300,6 +300,28 @@ SpriteImages *UIRobotIcon::allocImages(MSpriteAllocator *sprAlloc,
 }
 
 
+//********************************************************** UIRobotStatus
+
+
+UIRobotStatus::UIRobotStatus(MSpriteAllocator *sprAlloc,
+                             HwSpriteScraper *sprScraper,
+                             ROData *roData,
+                             RORobotId robotId,
+                             int x, int y)
+    : icon(sprAlloc, sprScraper, roData, robotId, x, y),
+      battery(sprAlloc, roData, robotId,
+              x - battery.width / 2,
+              y + 16)
+{
+    objects.push_back(&icon);
+    objects.push_back(&battery);
+}
+
+void UIRobotStatus::setupRenderer(ROData *rendererData) {
+    icon.setupRenderer(rendererData);
+}
+
+
 //********************************************************** UISubHardware
 
 
