@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * The MSprite class is a medium-level abstraction for the NDS
  * hardware sprites. A single MSprite (multi-sprite) instance consists
@@ -298,15 +298,24 @@ void MSpriteOBJ::setHitBox(int x, int y, int width, int height) {
 void MSpriteOBJ::getImageSize(int &width, int &height) {
     /*
      * Get the size of the actual image data for this sprite.
+     *
+     * Square sprites are all nice powers of two, but
+     * rectangular sprites are fairly irregular. Just use
+     * a lookup table for them.
      */
 
-    width = height = 1 << (TILE_SHIFT + SPRITE_SIZE_SIZE(size));
+    static const int major[] = { 16, 32, 32, 64 };
+    static const int minor[] = { 8, 8, 16, 32 };
+    int idx = SPRITE_SIZE_SIZE(size);
 
     if (SPRITE_SIZE_SHAPE(size) == OBJSHAPE_WIDE) {
-        width <<= 1;
-    }
-    if (SPRITE_SIZE_SHAPE(size) == OBJSHAPE_TALL) {
-        height <<= 1;
+        width = major[idx];
+        height = minor[idx];
+    } else if (SPRITE_SIZE_SHAPE(size) == OBJSHAPE_TALL) {
+        width = minor[idx];
+        height = major[idx];
+    } else {
+        width = height = 1 << (idx + TILE_SHIFT);
     }
 }
 

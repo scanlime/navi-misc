@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * TextRenderer draws text on the sub screen using Background 2,
  * configured as a 256x320 scrollable 8-bit graphics plane.
@@ -33,7 +33,7 @@
 class TextRenderer
 {
  public:
-    void init();
+    TextRenderer();
 
     static const int width = 256;
     static const int height = 320;

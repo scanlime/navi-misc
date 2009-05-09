@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * Framework for user interface objects, collections of objects, and
  * input events. A UIObject gets a per-frame callback, and it can

@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * Accessor functions for Robot Odyssey's in-memory data.
  *

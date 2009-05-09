@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * The MSprite class is a medium-level abstraction for the NDS
  * hardware sprites. A single MSprite (multi-sprite) instance consists

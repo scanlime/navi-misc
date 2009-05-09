@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * Framework for user interface objects, collections of objects, and
  * input events. A UIObject gets a per-frame callback, and it can
@@ -75,6 +75,10 @@ void UIObjectList::makeCurrent() {
 }
 
 void UIObjectList::vblankISR() {
+    /*
+     * During vertical blank, scan input and update the UI.
+     */
+
     // Local copy of current list, in case a callback changes it.
     UIObjectList *l = currentList;
 
@@ -86,6 +90,10 @@ void UIObjectList::vblankISR() {
     l->handleInput(input);
 
     l->updateState();
+
+    // Flush updated sprites to the hardware.
+    oamUpdate(&oamMain);
+    oamUpdate(&oamSub);
 }
 
 void UIObjectList::scanInput(UIInputState &input) {

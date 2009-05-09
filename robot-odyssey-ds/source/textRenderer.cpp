@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * TextRenderer draws text on the sub screen using Background 2,
  * configured as a 256x320 scrollable 8-bit graphics plane.
@@ -35,7 +35,7 @@
 #include "font_table.h"
 
 
-void TextRenderer::init() {
+TextRenderer::TextRenderer() {
     /*
      * Background 2.
      *

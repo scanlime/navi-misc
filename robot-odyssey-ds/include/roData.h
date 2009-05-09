@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * Reverse engineered constants and memory offsets for Robot Odyssey.
  *
@@ -225,6 +225,21 @@ enum ROSpriteId {
     RO_SPR_GAME_GRABBER_RIGHT = RO_SPR_GRABBER_LEFT,
     RO_SPR_GAME_GRABBER_LEFT = RO_SPR_UNUSED_1,
 };
+
+
+/*
+ * Robot IDs.
+ *
+ * Often a robot is referred to by its room ID or object ID,
+ * but these numbers are used in the RORobot tables.
+ */
+enum RORobotId {
+    RO_ROBOT_SPARKY = 0,
+    RO_ROBOT_CHECKERS,
+    RO_ROBOT_SCANNER,
+    RO_ROBOT_MC,
+};
+
 
 /*
  * Sprites are a 16x8 bitmap

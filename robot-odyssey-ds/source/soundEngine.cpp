@@ -1,4 +1,4 @@
-/* -*- Mode: C; c-basic-offset: 4 -*-
+/* -*- Mode: C++; c-basic-offset: 4 -*-
  *
  * Sound engine for Robot Odyssey DS. This is a special-purpose PC
  * speaker emulator which runs mainly on the ARM7. It is designed to
