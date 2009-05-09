@@ -40,7 +40,7 @@
 #include "roData.h"
 #include "mSprite.h"
 #include "uiBase.h"
-#include "uiEffects.h"
+#include "uiSubScreen.h"
 #include "textRenderer.h"
 #include "gfx_background.h"
 #include "gfx_button_remote.h"
@@ -51,65 +51,9 @@ SBT_DECL_PROCESS(TutorialEXE);
 SBT_DECL_PROCESS(RendererEXE);
 
 static TextRenderer text;
-static EffectMarquee32 marquee;
 
 static TutorialEXE game;
 static HwMain hwMain;
-static uint8_t game_remoteControl;
-
-#if 0
-
-static MSpriteOBJ *mobj;
-static MSprite *buttonPtr;
-static uint16_t *buttonImg;
-
-class MyObject : public UIObject {
-    bool state;
-    int scale;
-
-    virtual void handleInput(const UIInputState &input) {
-        if (input.keysPressed & KEY_R) {
-            hwMain.pressKey('R');
-            scale = 0xA0;
-        }
-    }
-
-    virtual void animate() {
-
-        if (scale < 0x100)
-            scale += 0x8;
-        buttonPtr->setScale(scale, scale);
-        buttonPtr->show();
-
-        buttonPtr->obj[1].entry->isRotateScale = true;
-        buttonPtr->obj[1].entry->isSizeDouble = true;
-        buttonPtr->obj[1].xOffset = -16;
-        buttonPtr->obj[1].yOffset = -16;
-
-        int animFrame;
-
-        if (game_remoteControl) {
-            animFrame = (frameCount >> 5) & 3;
-            if (animFrame > 2) animFrame = 2;
-
-            mobj->setGfx(marquee.getFrameGfx(frameCount >> 1));
-
-            mobj->entry->isRotateScale = true;
-            mobj->entry->isSizeDouble = true;
-            mobj->xOffset = -16;
-            mobj->yOffset = -16;
-        } else {
-            animFrame = 0;
-
-            mobj->entry->isRotateScale = false;
-            mobj->entry->isHidden = true;
-        }
-        buttonPtr->moveTo(buttonPtr->getX(), buttonPtr->getY());
-
-        buttonPtr->obj[1].setGfx(buttonImg + (animFrame << 8));
-    }
-};
-#endif
 
 static void subScreenInit(void) {
     videoSetModeSub(MODE_5_2D);
@@ -136,8 +80,6 @@ int main() {
     UIObjectList ol;
     MSpriteAllocator sprAlloc(&oamSub);
 
-    marquee.init(&oamSub);
-
     text.init();
     text.setAlignment(text.CENTER);
     text.moveTo(128, 55);
@@ -157,16 +99,10 @@ int main() {
     ROData renderData(&render);
     ROData gameData(&game);
 
-    SpriteImages remoteSprite(&oamSub, gfx_button_remoteTiles, LZ77Vram,
-                              SpriteSize_32x32, SpriteColorFormat_16Color, 3);
-    UISpriteButton remoteButton(&sprAlloc, &remoteSprite, 0, 0);
-    remoteButton.hotkey = KEY_R;
-    ol.objects.push_back(&remoteButton);
-
-    UISpriteButton remoteButton2(&sprAlloc, &remoteSprite, 32, 0);
-    remoteButton2.hotkey = KEY_L;
-    remoteButton2.setImageIndex(2);
-    ol.objects.push_back(&remoteButton2);
+    UIRemoteControlButton rcButton(&sprAlloc, &gameData, &hwMain,
+                                   SCREEN_WIDTH - rcButton.width,
+                                   SCREEN_HEIGHT - rcButton.height);
+    ol.objects.push_back(&rcButton);
 
 #if 0
     MSprite button(&sprAlloc);
@@ -202,14 +138,6 @@ int main() {
     sprite.show();
 
     while (1) {
-        /*
-         * Copy data out of the game binary only while halted.
-         *
-         * XXX: Doesn't matter for 8-bit data, but we do need to
-         *      do this for 16-bit or multi-part values.
-         */
-        game_remoteControl = gameData.circuit->remoteControlFlag;
-
         /*
          * Run one normal frame.
          */

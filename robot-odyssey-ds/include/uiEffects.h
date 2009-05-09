@@ -39,15 +39,19 @@ class SpriteDraw;
 class EffectMarquee32
 {
  public:
-    void init(OamState *oam);
-    void free();
+    EffectMarquee32(OamState *oam);
+    ~EffectMarquee32();
 
     static const int NUM_FRAMES = 16;   // Must be a power of two
     static const int SPRITE_SIZE = 32;
 
     uint16_t *getFrameGfx(int frame);
 
+    static EffectMarquee32 *getSingleton(OamState *oam);
+
  private:
+    static EffectMarquee32 *singleton;
+
     static const int DOT_WIDTH = 4;
     static const int DOT_COLOR = 2;
     static const int BORDER_COLOR = 1;

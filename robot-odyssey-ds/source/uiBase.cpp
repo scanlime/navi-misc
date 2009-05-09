@@ -135,9 +135,8 @@ void UISpriteButton::setImageIndex(int id) {
 void UISpriteButton::handleInput(const UIInputState &input) {
     if (input.keysPressed & hotkey) {
         activate();
-    }
-
-    if ((input.keysPressed & KEY_TOUCH) && sprite.hitTest(input.touchX, input.touchY)) {
+    } else if ((input.keysPressed & KEY_TOUCH) &&
+               sprite.hitTest(input.touchX, input.touchY)) {
         activate();
     }
 }
@@ -169,3 +168,29 @@ void UISpriteButton::animate() {
     sprite.setScale(scale, scale);
     sprite.show();
 }
+
+UIAnimationSequence::UIAnimationSequence(const Item *items) {
+    this->items = items;
+    start();
+}
+
+void UIAnimationSequence::start() {
+    currentItem = items;
+    remainingFrames = currentItem->numFrames;
+}
+
+void UIAnimationSequence::next() {
+    remainingFrames--;
+    if (remainingFrames <= 0) {
+        currentItem++;
+        if (currentItem->numFrames == 0) {
+            currentItem = items;
+        }
+        remainingFrames = currentItem->numFrames;
+    }
+}
+
+int UIAnimationSequence::getIndex() {
+    return currentItem->index;
+}
+

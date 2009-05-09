@@ -30,8 +30,18 @@
 #include "uiEffects.h"
 #include "spriteDraw.h"
 
+EffectMarquee32 *EffectMarquee32::singleton;
 
-void EffectMarquee32::init(OamState *oam) {
+
+EffectMarquee32 *EffectMarquee32::getSingleton(OamState *oam) {
+    if (!singleton) {
+        singleton = new EffectMarquee32(oam);
+    }
+    sassert(singleton->oam == oam, "EffectMarquee32 singleton supports only one OAM.");
+    return singleton;
+}
+
+EffectMarquee32::EffectMarquee32(OamState *oam) {
     this->oam = oam;
 
     for (int frame = 0; frame < NUM_FRAMES; frame++) {
@@ -70,16 +80,16 @@ void EffectMarquee32::init(OamState *oam) {
     }
 }
 
-void EffectMarquee32::drawDot(SpriteDraw *draw, int x, int y) {
-    draw->rect(x, y, DOT_WIDTH, DOT_WIDTH, BORDER_COLOR);
-    draw->rect(x+1, y+1, DOT_WIDTH-2, DOT_WIDTH-2, DOT_COLOR);
-}
-
-void EffectMarquee32::free() {
+EffectMarquee32::~EffectMarquee32() {
     for (int frame = 0; frame < NUM_FRAMES; frame++) {
         oamFreeGfx(oam, frames[frame]);
         frames[frame] = NULL;
     }
+}
+
+void EffectMarquee32::drawDot(SpriteDraw *draw, int x, int y) {
+    draw->rect(x, y, DOT_WIDTH, DOT_WIDTH, BORDER_COLOR);
+    draw->rect(x+1, y+1, DOT_WIDTH-2, DOT_WIDTH-2, DOT_COLOR);
 }
 
 uint16_t *EffectMarquee32::getFrameGfx(int frame) {
