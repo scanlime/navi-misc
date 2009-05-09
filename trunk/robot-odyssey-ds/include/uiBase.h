@@ -125,12 +125,49 @@ class UISpriteButton : public UIObject
     SpriteImages *images;
 
     /* Animation constants */
-    static const int normalScale = 0x100;
-    static const int activatedScale = 0xC0;
+    static const int normalScale = MSprite::SCALE_ONE;
+    static const int activatedScale = MSprite::SCALE_ONE / 1.25;
     static const int scaleRate = 8;
 
     /* Which OBJ palette do we use by default? */
     static const int OBJ_PALETTE = 2;
+};
+
+
+/*
+ * Manages an animation sequence. An animation is a mapping from LCD
+ * frames to integers, typically sprite indices.  Each index can be
+ * repeated for an arbitrary number of frames, allowing animations
+ * with different delays between each frame.
+ *
+ * This class provides a way to restart or advance the animation
+ * sequence, and to get its current frame's associated index.
+ */
+class UIAnimationSequence {
+ public:
+    /*
+     * When constructing an animation sequence, you build a static
+     * list of UIAnimationSequence::Item structures which describe
+     * the animation. This list is then passed to the constructor.
+     *
+     * The list is terminated by an Item with numFrames == 0.
+     */
+
+    struct Item {
+        int index;
+        int numFrames;
+    };
+
+    UIAnimationSequence(const Item *items);
+
+    void start();
+    void next();
+    int getIndex();
+
+ private:
+    const Item *items;
+    const Item *currentItem;
+    int remainingFrames;
 };
 
 

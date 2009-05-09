@@ -93,6 +93,8 @@ class MSpriteOBJ
     bool isVisible();
     bool hitTest(int x, int y);
     void setHitBox(int x, int y, int width, int height);
+    void show();
+    void hide();
 
     /*
      * Double the size of the sprite's bounding box, so that it can be
@@ -156,6 +158,11 @@ class MSprite
     void setScale(int sx, int sy);
     void getScale(int &sx, int &sy);
     void setIntrinsicScale(int sx, int sy);
+
+    /*
+     * Scale factors are in reciprocal 1.1 fixed point format.
+     */
+    static const int SCALE_ONE = 0x100;
 
     /*
      * Manage MSpriteOBJs.

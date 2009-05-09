@@ -140,11 +140,8 @@ void MSprite::show(void) {
     unsigned int matrixIndex = alloc->getMatrixIndex(matrix);
 
     for (unsigned int i = 0; i < objCount; i++) {
-        SpriteEntry *entry = obj[i].entry;
-
-        entry->isRotateScale = true;
-        entry->isSizeDouble = obj[i].enableDoubleSize;
-        entry->rotationIndex = matrixIndex;
+        obj[i].entry->rotationIndex = matrixIndex;
+        obj[i].show();
     }
 
     int s = sinLerp(angle);
@@ -165,10 +162,7 @@ void MSprite::hide(void) {
      */
 
     for (unsigned int i = 0; i < objCount; i++) {
-        SpriteEntry *entry = obj[i].entry;
-
-        entry->isRotateScale = false;
-        entry->isHidden = true;
+        obj[i].hide();
     }
 }
 
@@ -318,6 +312,16 @@ void MSpriteOBJ::getImageSize(int &width, int &height) {
 bool MSpriteOBJ::isVisible() {
     /* isHidden flag only valid when isRotateScale==false */
     return !entry->isHidden || entry->isRotateScale;
+}
+
+void MSpriteOBJ::show() {
+    entry->isRotateScale = true;
+    entry->isSizeDouble = enableDoubleSize;
+}
+
+void MSpriteOBJ::hide() {
+    entry->isRotateScale = false;
+    entry->isHidden = true;
 }
 
 SpriteImages::SpriteImages(OamState *oam, SpriteSize size, SpriteColorFormat format,
