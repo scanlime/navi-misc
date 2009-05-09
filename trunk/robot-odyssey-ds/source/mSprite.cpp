@@ -107,7 +107,27 @@ MSprite::~MSprite() {
 void MSprite::moveTo(int x, int y) {
     this->x = x;
     this->y = y;
+    update();
+}
+
+void MSprite::show(void) {
     for (unsigned int i = 0; i < objCount; i++) {
+        obj[i].show();
+    }
+}
+
+void MSprite::hide(void) {
+    for (unsigned int i = 0; i < objCount; i++) {
+        obj[i].hide();
+    }
+}
+
+void MSprite::update(void) {
+    unsigned int matrixIndex = alloc->getMatrixIndex(matrix);
+
+    for (unsigned int i = 0; i < objCount; i++) {
+        obj[i].entry->rotationIndex = matrixIndex;
+
         int objX = x + obj[i].xOffset;
         int objY = y + obj[i].yOffset;
 
@@ -130,19 +150,6 @@ void MSprite::moveTo(int x, int y) {
         obj[i].entry->x = objX;
         obj[i].entry->y = objY;
     }
-}
-
-void MSprite::show(void) {
-    /*
-     * Show all OBJs, and update the rotation/scaling matrix.
-     */
-
-    unsigned int matrixIndex = alloc->getMatrixIndex(matrix);
-
-    for (unsigned int i = 0; i < objCount; i++) {
-        obj[i].entry->rotationIndex = matrixIndex;
-        obj[i].show();
-    }
 
     int s = sinLerp(angle);
     int c = cosLerp(angle);
@@ -154,16 +161,6 @@ void MSprite::show(void) {
     matrix->hdy = -s * sxall >> 12;
     matrix->vdx =  s * syall >> 12;
     matrix->vdy =  c * syall >> 12;
-}
-
-void MSprite::hide(void) {
-    /*
-     * Hide all OBJs.
-     */
-
-    for (unsigned int i = 0; i < objCount; i++) {
-        obj[i].hide();
-    }
 }
 
 bool MSprite::hitTest(int x, int y) {
@@ -182,6 +179,7 @@ void MSprite::setAngle(int angle) {
 void MSprite::setScale(int sx, int sy) {
     this->sx = sx;
     this->sy = sy;
+    update();
 }
 
 void MSprite::getScale(int &sx, int &sy) {
@@ -192,6 +190,7 @@ void MSprite::getScale(int &sx, int &sy) {
 void MSprite::setIntrinsicScale(int sx, int sy) {
     this->isx = sx;
     this->isy = sy;
+    update();
 }
 
 MSpriteOBJ *MSprite::newOBJ(MSpriteRange range,
@@ -204,6 +203,7 @@ MSpriteOBJ *MSprite::newOBJ(MSpriteRange range,
     sassert(objCount < MAX_OBJS, "Out of MSprite OBJs");
     MSpriteOBJ *o = &obj[objCount++];
     o->init(alloc, range, xOffset, yOffset, gfx, size, format);
+    update();
     return o;
 }
 
@@ -245,6 +245,7 @@ void MSpriteOBJ::init(MSpriteAllocator *alloc,
     entry->isHidden = true;
 
     setGfx(gfx);
+    hide();
 }
 
 MSpriteOBJ::~MSpriteOBJ() {

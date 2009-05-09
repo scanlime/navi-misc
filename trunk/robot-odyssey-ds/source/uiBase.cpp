@@ -120,9 +120,9 @@ UISpriteButton::UISpriteButton(MSpriteAllocator *sprAlloc,
 
     obj->entry->palette = OBJ_PALETTE;
     obj->enableDoubleSize = true;
+    obj->show();
 
     sprite.moveTo(x, y);
-    sprite.show();
 }
 
 void UISpriteButton::setImageIndex(int id) {
@@ -146,7 +146,6 @@ void UISpriteButton::activate() {
      * Grow the button, to show that it's activated.
      */
     sprite.setScale(activatedScale, activatedScale);
-    sprite.show();
 }
 
 void UISpriteButton::animate() {
@@ -166,7 +165,6 @@ void UISpriteButton::animate() {
     }
 
     sprite.setScale(scale, scale);
-    sprite.show();
 }
 
 UIAnimationSequence::UIAnimationSequence(const Item *items) {

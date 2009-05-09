@@ -132,7 +132,6 @@ class MSprite
 
     /*
      * Manage position and visibility.
-     * This updates every OBJ in the sprite.
      */
     int getX() { return x; };
     int getY() { return y; };
@@ -182,6 +181,11 @@ class MSprite
     unsigned int objCount;
 
  private:
+    /*
+     * Update the position and scale of all OBJs.
+     */
+    void update();
+
     MSpriteAllocator *alloc;
     SpriteRotation *matrix;
     int x, y;

@@ -46,9 +46,6 @@ UIToggleButton::UIToggleButton(MSpriteAllocator *sprAlloc, SpriteImages *images,
    marquee->enableDoubleSize = true;
 
    marqueeEffect = EffectMarquee32::getSingleton(sprAlloc->oam);
-
-   sprite.moveTo(x, y);
-   sprite.show();
 }
 
 void UIToggleButton::animate() {

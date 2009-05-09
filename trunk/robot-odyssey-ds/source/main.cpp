@@ -112,24 +112,6 @@ int main() {
                              SCREEN_WIDTH - tbButton.width, 0);
     ol.objects.push_back(&tbButton);
 
-#if 0
-    MSprite button(&sprAlloc);
-    buttonPtr = &button;
-
-    buttonImg = oamAllocateGfx(&oamSub, SpriteSize_64x64,
-                               SpriteColorFormat_16Color);
-    mobj = button.newOBJ(MSPRR_UI, 0, 0, NULL, SpriteSize_32x32,
-                         SpriteColorFormat_16Color);
-    mobj->entry->palette = 2;
-    button.newOBJ(MSPRR_UI, 0, 0, NULL, SpriteSize_32x32,
-                  SpriteColorFormat_16Color)->entry->palette = 2;
-    decompress(gfx_button_remoteTiles, buttonImg, LZ77Vram);
-    button.moveTo(256-2-32,192-2-32);
-    button.show();
-
-    ol.objects.push_back(new MyObject);
-#endif
-
     SpriteScraperRect *r1 = hwSub.allocRect(&oamSub);
     MSprite sprite(&sprAlloc);
 
