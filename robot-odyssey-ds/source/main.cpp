@@ -44,17 +44,26 @@ int main() {
     defaultExceptionHandler();
 
     HwMain *hwMain = new HwMain();
-    TutorialEXE *game = new TutorialEXE(hwMain, "25");
+    SBTProcess *game = new GameEXE(hwMain, "99");
 
     ROData gameData(game);
     UISubScreen *subScreen = new UISubScreen(&gameData, hwMain);
 
     subScreen->text.moveTo(5, 5);
-    subScreen->text.printf("Boing!");
+    subScreen->text.printf("Boing!\n");
 
     while (1) {
-        while (game->run() != SBTHALT_FRAME_DRAWN);
-        subScreen->renderFrame();
+        switch (game->run() & SBTHALT_MASK_CODE) {
+
+        case SBTHALT_FRAME_DRAWN:
+            subScreen->renderFrame();
+            break;
+
+        case SBTHALT_DOS_EXIT:
+            subScreen->text.printf("DOS EXIT\n");
+            while (1);
+            break;
+        }
     }
 
     return 0;

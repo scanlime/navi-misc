@@ -4,6 +4,9 @@
 # Micah Dowty <micah@navi.cx>
 #
 
+import sbt86
+
+
 def patch(b):
     """Patches that should be applied to all binaries that have the Robot
        Odyssey game engine. (TUT, GAME, LAB)
@@ -191,4 +194,44 @@ def patchChips(b):
         b.patchDynamicLiteral(addr, 4)
     for addr in b.findCodeMultiple(':8a84fefe'):
         b.patchDynamicLiteral(addr, 4)
+
+
+def patchLoadSave(b):
+    """Patch loading and saving. This removes the game's normal file picking UI.
+       Instead, we'll have the game load/save with an arbitrary file name and we'll
+       handle loading/storing that ourselves.
+       """
+
+    # Find the location of the save filename buffer in the data
+    # segment.  To locate the name, we'll find the snippet of code
+    # which creates a new file using this name. This buffer is about
+    # 20 bytes long.
+
+    saveFilenameAddr = b.peek16(b.findCode('b000 b43c 33c9 ba:____ cd21'))
+
+    # The load filename address is the same as the current world name.
+    # It's probably safe to hardcode this...
+
+    loadFilenameAddr = 0x0002
+
+    # Now find the subroutines which ask the user which file to load
+    # or save.  There are two separate functions, one for load and one
+    # for save. This pattern matches both. The same function is used
+    # for chips and for game saves.
+    #
+    # This function returns bx=0 on failure. On success, it seems to
+    # return a pointer to the file name.
+    #
+    # So, return success, and set a static name of 'savefile'.
+
+    b.decl("#include <string.h>")
+    for addr in b.findCodeMultiple(':e8____ f8 e8____ c706________ 803e____00'
+                                   '7406 c706________ e8____ e8____ e8____',
+                                   2):
+        b.patchAndHook(addr, 'ret', '''
+            static const char *filename = SBT_SAVE_FILE_NAME;
+            r.bx = 0x%04x;
+            strcpy((char*)s.ds + 0x%04x, filename);
+            strcpy((char*)s.ds + 0x%04x, filename);
+        ''' % (saveFilenameAddr, saveFilenameAddr, loadFilenameAddr))
 

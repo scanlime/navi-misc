@@ -1499,6 +1499,12 @@ class BinaryData:
         self.baseAddr = baseAddr
         self.preserved = {}
 
+    def patch(self, addr, data):
+        """Overwrite bytes with 'data', starting at 'addr'."""
+        offset = addr.linear - self.baseAddr.linear
+        for i, byte in enumerate(data):
+            self.data[offset + i] = byte
+
     def markPreserved(self, addr, len):
         """Mark a range of bytes to be preserved in the memory image."""
         offset = addr.linear - self.baseAddr.linear

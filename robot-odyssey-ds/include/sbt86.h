@@ -69,6 +69,15 @@ enum SBTHaltCode {
 
 
 /*
+ * SBT_SAVE_FILE_NAME --
+ *
+ *    Special filename we patch in for load/save operations
+ */
+
+#define SBT_SAVE_FILE_NAME "savefile"
+
+
+/*
  * SBTAddressId --
  *
  *    These are addresses which can be determined statically by an

@@ -79,6 +79,7 @@ void ROWorld::removeObjectFromRoom(ROObjectId obj, RORoomId room) {
     if (room == RO_ROOM_NONE) {
         return;
     }
+    return;
 
     uint8_t *head = &rooms.objectListHead[room];
 

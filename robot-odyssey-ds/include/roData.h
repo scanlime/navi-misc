@@ -242,6 +242,36 @@ enum RORobotId {
 
 
 /*
+ * World IDs.
+ *
+ * These are numbers that identify each world uniquely.  They are used
+ * as command line parameters to the game binaries, and they are
+ * stored in the saved game files to identify which world the save
+ * goes with.
+ */
+enum ROWorldId {
+    RO_WORLD_SEWER = 0,
+    RO_WORLD_SUBWAY = 1,
+    RO_WORLD_TOWN = 2,
+    RO_WORLD_COMP = 3,
+    RO_WORLD_STREET = 4,
+
+    RO_WORLD_TUT1 = 21,
+    RO_WORLD_TUT2 = 22,
+    RO_WORLD_TUT3 = 23,
+    RO_WORLD_TUT4 = 24,
+    RO_WORLD_TUT5 = 25,
+    RO_WORLD_TUT6 = 26,
+    RO_WORLD_TUT7 = 27,
+
+    RO_WORLD_LAB = 30,
+    RO_WORLD_DEMO = 40,
+
+    RO_WORLD_SAVED = 99,   // As a command line option, opens the load menu
+};
+
+
+/*
  * Sprites are a 16x8 bitmap
  */
 typedef uint8_t ROSprite[16];
@@ -432,6 +462,34 @@ class RORobotBatteryAcc {
         return (high << 8) | low;
     }
 } __attribute__ ((packed));
+
+
+/*
+ * Data for compiled chips. The format is described in detail by:
+ * http://scanwidget.livejournal.com/38373.html
+ */
+typedef uint8_t ROChipBytecode[1024];
+typedef uint8_t ROChipPins[8];
+
+
+/*
+ * The on-disk file format for a saved game. These are the .GSV/.LSV
+ * files saved by GAME.EXE or LAB.EXE. There doesn't seem to be any
+ * pre- or post-processing at all. The saved game files are just dumps
+ * of the in-memory structures for the world and circuit data.
+ */
+class ROSavedGame {
+public:
+    ROWorld world;
+    ROCircuit circuit;
+    ROChipBytecode chipBytecode[8];
+    ROChipPins chipPins[8];
+    uint8_t unk_objectId_1;
+    uint8_t unk_objectId_2;
+    uint8_t unk_offset_x;
+    uint8_t unk_offset_y;
+    uint8_t worldId;
+};
 
 
 /*
