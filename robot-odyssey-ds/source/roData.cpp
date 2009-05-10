@@ -27,6 +27,7 @@
  */
 
 #include <string.h>
+#include <vector>
 #include "roData.h"
 
 
@@ -74,16 +75,28 @@ void ROWorld::removeObjectFromRoom(ROObjectId obj, RORoomId room) {
     /*
      * Remove an object from a room's linked list.  If 'room' is
      * RO_ROOM_NONE or the object isn't found, has no effect.
+     *
+     * Uses a bit vector to memoize all objects we've visited, so we
+     * can exit if there's a cycle in the list. This may happen if we
+     * are operating on world data which isn't yet initialized.
      */
 
     if (room == RO_ROOM_NONE) {
         return;
     }
-    return;
+
+    std::vector<bool> memo(256, false);
 
     uint8_t *head = &rooms.objectListHead[room];
 
     while (*head != RO_OBJ_NONE) {
+
+        if (memo[*head]) {
+            /* Already been here! */
+            return;
+        }
+        memo[*head] = true;
+
         if (*head == obj) {
             /* Found it */
             *head = objects.nextInRoom[obj];
