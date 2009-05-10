@@ -10,23 +10,8 @@ import bt_common
 
 b = sbt86.DOSBinary('build/lab.exe')
 
-def chipTrace(b):
-    """Debugging code: Add a memory trace which catches all *reads* to
-       the memory where chip data is loaded.
-       """
-    bt_common.structTrace(b, structName='chip1', traceMode='r',
-                          structBase=0xa400, structSize=2048,
-                          itemTable=[
-            ])
-    bt_common.structTrace(b, structName='chip2', traceMode='r',
-                          structBase=0xac00, structSize=2048,
-                          itemTable=[
-            ])
-
 bt_common.patch(b)
 bt_common.patchChips(b)
-#bt_common.findSelfModifyingCode(b)
-#bt_common.worldTrace(b)
-#chipTrace(b)
+bt_common.patchLoadSave(b)
 
 b.writeCodeToFile('build/bt_lab.cpp', 'LabEXE')
