@@ -53,7 +53,11 @@ void UIObject::handleInput(const UIInputState &input) {
 //********************************************************** UIObjectList
 
 
-UIObjectList *UIObjectList::currentList;
+UIObjectList* volatile UIObjectList::currentList;
+
+UIObjectList::~UIObjectList() {
+    sassert(currentList != this, "Can't destroy the current UIObjectList");
+}
 
 void UIObjectList::animate() {
     std::list<UIObject*>::iterator i;
@@ -76,10 +80,17 @@ void UIObjectList::handleInput(const UIInputState &input) {
     }
 }
 
-void UIObjectList::makeCurrent() {
+void UIObjectList::activate() {
+    sassert(currentList == NULL, "Another UIObjectList is already active");
     currentList = this;
     irqSet(IRQ_VBLANK, vblankISR);
     irqEnable(IRQ_VBLANK);
+}
+
+void UIObjectList::deactivate() {
+    sassert(currentList == this, "Deactivating a non-active UIObjectList");
+    irqDisable(IRQ_VBLANK);
+    currentList = NULL;
 }
 
 void UIObjectList::vblankISR() {
@@ -87,17 +98,21 @@ void UIObjectList::vblankISR() {
      * During vertical blank, scan input and update the UI.
      */
 
-    // Local copy of current list, in case a callback changes it.
-    UIObjectList *l = currentList;
+    UIObjectList *current = currentList;
+
+    if (!current) {
+        return;
+    }
 
     UIObject::frameCount++;
-    l->animate();
+
+    current->animate();
 
     UIInputState input;
     scanInput(input);
-    l->handleInput(input);
+    current->handleInput(input);
 
-    l->updateState();
+    current->updateState();
 
     // Flush updated sprites to the hardware.
     oamUpdate(&oamMain);

@@ -213,20 +213,6 @@ class UIRobotStatus : public UIObjectList
 
 
 /*
- * Low-level hardware initialization for the sub-screen,
- * as well as loading of the backdrop image for layer 3.
- */
-class UISubHardware
-{
- public:
-    UISubHardware(const void *bgBitmap, const void *bgPalette);
-
- private:
-    int subBg;
-};
-
-
-/*
  * The entire sub-screen UI.
  */
 class UISubScreen : public UIObjectList
@@ -240,10 +226,6 @@ public:
      */
     void renderFrame(void);
 
-private:
-    UISubHardware subHw;
-
-public:
     UITextLayer text;
 
 private:

@@ -294,22 +294,37 @@ void UITextLayer::blit() {
 void UITextLayer::drawRect(Rect r, uint8_t paletteIndex) {
     uint32_t *line = backbuffer + (r.top << 6);
     int height = r.getHeight();
+    int width = r.getWidth();
     uint32_t fillWord = (paletteIndex | (paletteIndex << 8) |
                          (paletteIndex << 16) | (paletteIndex << 24));
 
     while (height--) {
-        if (r.left & 3) {
-            int leftRemainder = 4 - (r.left & 3);
-            memset(r.left + (uint8_t*)line, paletteIndex, leftRemainder);
-        }
 
-        int leftWord = (r.left + 3) >> 2;
-        int rightWord = r.right >> 2;
-        swiFastCopy(&fillWord, line + leftWord,
-                    COPY_MODE_FILL | (rightWord - leftWord));
+        if (width < 16) {
+            /*
+             * Short fill: Just use one memset
+             */
+            memset(r.left + (uint8_t*)line, paletteIndex, width);
 
-        if (r.right & 3) {
-            memset((r.right & ~3) + (uint8_t*)line, paletteIndex, r.right & 3);
+        } else {
+            /*
+             * Long fill: At least one full word and two partial
+             * words.  Break it up into pieces.
+             */
+
+            if (r.left & 3) {
+                int leftRemainder = 4 - (r.left & 3);
+                memset(r.left + (uint8_t*)line, paletteIndex, leftRemainder);
+            }
+
+            int leftWord = (r.left + 3) >> 2;
+            int rightWord = r.right >> 2;
+            swiFastCopy(&fillWord, line + leftWord,
+                        COPY_MODE_FILL | (rightWord - leftWord));
+
+            if (r.right & 3) {
+                memset((r.right & ~3) + (uint8_t*)line, paletteIndex, r.right & 3);
+            }
         }
 
         line += 256/4;

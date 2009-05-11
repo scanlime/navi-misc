@@ -27,13 +27,13 @@
  */
 
 #include <nds.h>
+#include <string.h>
 #include "uiSubScreen.h"
 #include "videoConvert.h"
 #include "gfx_button_remote.h"
 #include "gfx_button_toolbox.h"
 #include "gfx_button_solder.h"
 #include "gfx_battery.h"
-#include "gfx_background.h"
 
 
 //********************************************************** UIToggleButton
@@ -325,43 +325,11 @@ void UIRobotStatus::setupRenderer(ROData *rendererData) {
 }
 
 
-//********************************************************** UISubHardware
-
-
-UISubHardware::UISubHardware(const void *bgBitmap, const void *bgPalette) {
-    videoSetModeSub(MODE_5_2D);
-    vramSetBankC(VRAM_C_SUB_BG_0x06200000);
-    vramSetBankD(VRAM_D_SUB_SPRITE);
-
-    static const uint32 paletteSize = 16 * sizeof(uint16_t);
-
-    /* Sprite palette 0: VideoConvert */
-    oamInit(&oamSub, SpriteMapping_1D_64, false);
-    dmaCopy(VideoConvert::palette, SPRITE_PALETTE_SUB, paletteSize);
-
-    /* Sprite palette 1: All black, for robot borders */
-    dmaFillHalfWords(0x0000,
-                     SPRITE_PALETTE_SUB + UIRobotIcon::OBJ_BORDER_PALETTE * 16,
-                     paletteSize);
-
-    /* Sprite palette 2: UI sprites */
-    decompress(gfx_button_remotePal,
-               SPRITE_PALETTE_SUB + UISpriteButton::OBJ_PALETTE * 16,
-               LZ77Vram);
-
-    /* Backdrop image (BG3) */
-    int subBg = bgInitSub(3, BgType_Bmp8, BgSize_B8_256x256, 0, 0);
-    decompress(bgBitmap, bgGetGfxPtr(subBg), LZ77Vram);
-    decompress(bgPalette, BG_PALETTE_SUB, LZ77Vram);
-}
-
-
 //********************************************************** UISubScreen
 
 
 UISubScreen::UISubScreen(ROData *gameData, HwCommon *hw)
   : UIObjectList(),
-    subHw(gfx_backgroundBitmap, gfx_backgroundPal),
     text(),
 
     spriteScraper(),
@@ -377,7 +345,7 @@ UISubScreen::UISubScreen(ROData *gameData, HwCommon *hw)
     btnSolder(&sprAlloc, &marqueeEffect, gameData, hw,
               0, SCREEN_HEIGHT - btnSolder.height),
     btnToolbox(&sprAlloc, hw,
-               SCREEN_WIDTH - btnSolder.height, 0),
+               SCREEN_WIDTH - btnToolbox.height, 0),
 
     xRobot(&sprAlloc, &spriteScraper, gameData, RO_ROBOT_CHECKERS, 128 - 30, 64),
     yRobot(&sprAlloc, &spriteScraper, gameData, RO_ROBOT_SCANNER, 128 + 30, 64)
@@ -389,8 +357,6 @@ UISubScreen::UISubScreen(ROData *gameData, HwCommon *hw)
     objects.push_back(&btnToolbox);
     objects.push_back(&xRobot);
     objects.push_back(&yRobot);
-
-    makeCurrent();
 }
 
 void UISubScreen::renderFrame(void) {
@@ -401,13 +367,22 @@ void UISubScreen::renderFrame(void) {
     yRobot.setupRenderer(&rendererData);
 
     /*
-     * Run the renderer until it reaches the top of the main loop,
-     * where we need to patch in the fake room ID. This will run
-     * through a single frame. It also means that we'll automatically
-     * ignore any frame that might have been produced before the room
-     * ID was patched in, so we don't get a single frame flash of some
-     * other room.
+     * Clear the room data for whatever room the player is in.  The
+     * fake room ID below doesn't seem to take effect until the second
+     * frame that's rendered, so we could get a single frame flash of
+     * whatever room the player is in. Work around this by deleting
+     * all of the walls in that room.
      */
+
+    RORoomId playerRoom = (RORoomId) rendererData.world->objects.room[RO_OBJ_PLAYER];
+    memset(rendererData.world->rooms.tiles[playerRoom], 0x00, sizeof(RORoomTiles));
+
+    /*
+     * Run the renderer until it reaches the top of the main loop,
+     * where we need to patch in the fake room ID. Normally this will
+     * produce one frame of video.
+     */
+
     while (renderer.run() != SBTHALT_LOAD_ROOM_ID);
     renderer.reg.al = RO_ROOM_RENDERER;
 }

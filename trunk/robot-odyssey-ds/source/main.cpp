@@ -1,9 +1,6 @@
 /* -*- Mode: C++; c-basic-offset: 4 -*-
  *
- * Main loop and initialization for Robot Odyssey DS.
- *
- * XXX: This whole file is a huge hack right now, just a test rig for
- *      prototyping other modules.
+ * Entry point for Robot Odyssey DS.
  *
  * Copyright (c) 2009 Micah Dowty <micah@navi.cx>
  *
@@ -36,31 +33,29 @@
 #include "sbt86.h"
 #include "hwMain.h"
 #include "uiSubScreen.h"
+#include "hardware.h"
 
 SBT_DECL_PROCESS(MenuEXE);
 SBT_DECL_PROCESS(LabEXE);
 SBT_DECL_PROCESS(GameEXE);
 SBT_DECL_PROCESS(TutorialEXE);
 
-
 int main() {
-    defaultExceptionHandler();
+    Hardware::init();
 
     HwMain *hwMain = new HwMain();
     SBTProcess *game = new GameEXE(hwMain, "99");
 
     ROData gameData(game);
+
     UISubScreen *subScreen = new UISubScreen(&gameData, hwMain);
-
-    subScreen->text.moveTo(5, 5);
-    subScreen->text.setWrapWidth(SCREEN_WIDTH - 10);
-    subScreen->text.printf("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eget nulla sit amet justo blandit tempor. Mauris mi tortor, ultricies id pretium in, viverra non elit. Mauris et leo dolor, sit amet sodales orci. Nunc eget quam eros, id ornare sem. Phasellus porttitor eleifend pellentesque.");
-
-    subScreen->text.blit();
+    subScreen->activate();
 
     if (!fatInitDefault()) {
         subScreen->text.printf("No filesystem!\n");
     } else {
+        subScreen->text.printf("Filesystem OK\n");
+#if 0
         DIR *d = opendir("/");
         if (d) {
             struct dirent *pent;
@@ -68,14 +63,25 @@ int main() {
                 subScreen->text.printf("%s\n", pent->d_name);
             }
         }
+#endif
     }
 
     while (1) {
-        subScreen->text.setBackgroundOpaque(true);
-        subScreen->text.drawFrame(Rect(20, 20, 100, 50));
-        subScreen->text.moveTo(25,25);
-        subScreen->text.printf("Room %02x", gameData.world->objects.room[0]);
 
+        static int i;
+        i++;
+
+        if ((i & 7) == 0) {
+            subScreen->deactivate();
+            delete subScreen;
+            subScreen = new UISubScreen(&gameData, hwMain);
+            subScreen->activate();
+        }
+
+        subScreen->text.drawFrame(Rect(20, 20, 120, 30));
+        subScreen->text.setBackgroundOpaque(true);
+        subScreen->text.moveTo(25,25);
+        subScreen->text.printf("%d %p\n", i, subScreen);
         subScreen->text.blit();
 
         switch (game->run() & SBTHALT_MASK_CODE) {

@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-basic-offset: 4 -*-
  *
- * Fatal runtime error support.
+ * Global hardware-specific initialization.
  *
  * Copyright (c) 2009 Micah Dowty <micah@navi.cx>
  *
@@ -26,25 +26,13 @@
  *    OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef _PANIC_H_
-#define _PANIC_H_
+#ifndef _HARDWARE_H_
+#define _HARDWARE_H_
 
-#include <stdio.h>
+namespace Hardware {
 
-#ifdef NDEBUG
-#define PANIC
-#else
-#define PANIC(heading, args)  \
-    do {                      \
-        consoleDemoInit();    \
-        iprintf(heading);     \
-        iprintf args;         \
-        while (1);            \
-    } while (0);
-#endif
+    void init();
 
-/* Headings */
-#define SBT86_RT_ERROR    "\x1b[j\x1b[42mSBT86 Runtime Error\n\n"
-#define GENERIC_RT_ERROR  "\x1b[j\x1b[42mRuntime Error\n\n"
+}
 
-#endif // _PANIC_H_
+#endif // _HARDWARE_H_
