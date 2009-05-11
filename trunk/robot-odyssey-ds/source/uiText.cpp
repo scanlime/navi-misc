@@ -95,7 +95,7 @@ void UITextLayer::clear() {
     setWrapWidth(SCREEN_WIDTH);
     setAlignment(LEFT);
 
-    moveTo(0, 0);
+    moveTo(font.borderWidth, font.borderWidth);
 
     dirty.clear();
     drawRect(Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), 0);
