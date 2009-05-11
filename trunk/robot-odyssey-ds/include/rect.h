@@ -1,7 +1,6 @@
 /* -*- Mode: C++; c-basic-offset: 4 -*-
  *
- * TextRenderer draws text on the sub screen using Background 2,
- * configured as a 256x320 scrollable 8-bit graphics plane.
+ * Rectangles and dirty rectangle lists.
  *
  * Copyright (c) 2009 Micah Dowty <micah@navi.cx>
  *
@@ -27,50 +26,62 @@
  *    OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef _TEXTRENDERER_H_
-#define _TEXTRENDERER_H_
+#ifndef _RECT_H_
+#define _RECT_H_
 
-class TextRenderer
+#include <vector>
+
+
+/*
+ * A basic rectangle class, with integer dimensions.
+ */
+class Rect
 {
  public:
-    TextRenderer();
+    Rect();
+    Rect(int x, int y, int width, int height);
 
-    static const int width = 256;
-    static const int height = 320;
-    static const int borderWidth = 1;
+    int getX();
+    int getY();
+    int getWidth();
+    int getHeight();
 
-    /*
-     * Hardcoded font metrics.
-     */
-    static const int lineHeight = 15 + borderWidth*2;
-    static const int baselineY = 11;
-    static const int ascenderY = 3;
-    static const int centerY = (baselineY + ascenderY) / 2;
+    bool isEmpty();
+    bool containsPoint(int x, int y);
+    Rect intersectWith(Rect &r);
+    Rect unionWith(Rect &r);
+    bool touchesRect(Rect &r);
+    Rect align(int mx, int my);
+    bool isAligned(int mx, int my);
 
-    static const int fgPaletteIndex = 0xFF;
-    static const int borderPaletteIndex = 0xFE;
+    Rect adjacentAbove(int height);
+    Rect adjacentBelow(int height);
+    Rect adjacentLeft(int width);
+    Rect adjacentRight(int width);
+    Rect expand(int left, int top, int right, int bottom);
+    Rect expand(int size);
 
-    enum Alignment { LEFT, CENTER, RIGHT };
-
-    void setScroll(int x, int y);
-    void setColor(uint16_t color);
-    void setBorderColor(uint16_t color);
-
-    void moveTo(int x, int y);
-    void setAlignment(Alignment align);
-
-    void printf(const char *format, ...);
-    void draw(const char *text);
-    int measureWidth(const char *text);
-
- private:
-    int getGlyphEscapement(char c);
-    uint8_t *getGlyphBitmap(char c);
-    void drawLine(const char *lineStart, int lineChars, int x, int y);
-
-    int bg;
-    int x, y;
-    Alignment align;
+    int left, top, right, bottom;
 };
 
-#endif // _TEXTRENDERER_H_
+
+/*
+ * A dirty rectangle tracker. This is a set of rectangles which describe
+ * a conservative bounding region around an area of the screen. Any pixel
+ * on the screen is guaranteed to be described by at most one rectangle
+ * in the list.
+ */
+class DirtyRectTracker
+{
+public:
+    void clear();
+    void add(Rect r);
+
+    std::vector<Rect> rects;
+
+private:
+    bool mergeRects(Rect &r);
+};
+
+
+#endif // _RECT_H_

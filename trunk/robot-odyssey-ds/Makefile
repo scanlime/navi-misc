@@ -42,8 +42,8 @@ BANNER_TEXT := "Robot Odyssey DS"
 
 SOURCES_A9   := main.cpp sbtProcess.cpp roData.cpp \
                 hwCommon.cpp hwMain.cpp hwSub.cpp hwSpriteScraper.cpp \
-                mSprite.cpp textRenderer.cpp spriteDraw.cpp \
-                uiBase.cpp uiEffects.cpp uiSubScreen.cpp
+                mSprite.cpp spriteDraw.cpp rect.cpp \
+                uiBase.cpp uiText.cpp uiEffects.cpp uiSubScreen.cpp
 
 SOURCES_ITCM := videoConvert.cpp
 SOURCES_A7   := arm7.cpp soundEngine.cpp
@@ -83,7 +83,7 @@ ARM_A9           := -march=armv5te -mtune=arm946e-s -DARM9
 CFLAGS_COMMON_A9 := $(CFLAGS_COMMON) $(ARCH_A9) $(ARM_A9)
 CFLAGS_A9        := $(CFLAGS_COMMON_A9) -Wall -O2
 LDFLAGS_A9       := -specs=ds_arm9.specs $(ARCH_A9) $(LIB_LDFLAGS)
-LIBS_A9          := -lnds9
+LIBS_A9          := -lfat -lnds9
 
 ARCH_ITCM        := -marm -mlong-calls
 CFLAGS_ITCM      := $(CFLAGS_COMMON) $(ARCH_ITCM) \

@@ -33,6 +33,7 @@
 #define _MSPRITE_H_
 
 #include <vector>
+#include "rect.h"
 
 
 /*
@@ -94,7 +95,7 @@ class MSpriteOBJ
     void moveBy(int x, int y);
 
     bool hitTest(int x, int y);
-    void setHitBox(int x, int y, int width, int height);
+    void setHitBox(Rect r);
 
     void show();
     void hide();
@@ -118,10 +119,7 @@ class MSpriteOBJ
     SpriteSize size;
     SpriteColorFormat format;
     MSpriteAllocator *alloc;
-
-    struct {
-        int left, top, right, bottom;
-    } hitBox;
+    Rect hitBox;
 };
 
 

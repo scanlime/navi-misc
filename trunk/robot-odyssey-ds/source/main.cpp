@@ -30,6 +30,9 @@
  */
 
 #include <nds.h>
+#include <fat.h>
+#include <dirent.h>
+
 #include "sbt86.h"
 #include "hwMain.h"
 #include "uiSubScreen.h"
@@ -50,9 +53,31 @@ int main() {
     UISubScreen *subScreen = new UISubScreen(&gameData, hwMain);
 
     subScreen->text.moveTo(5, 5);
-    subScreen->text.printf("Boing!\n");
+    subScreen->text.setWrapWidth(SCREEN_WIDTH - 10);
+    subScreen->text.printf("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eget nulla sit amet justo blandit tempor. Mauris mi tortor, ultricies id pretium in, viverra non elit. Mauris et leo dolor, sit amet sodales orci. Nunc eget quam eros, id ornare sem. Phasellus porttitor eleifend pellentesque.");
+
+    subScreen->text.blit();
+
+    if (!fatInitDefault()) {
+        subScreen->text.printf("No filesystem!\n");
+    } else {
+        DIR *d = opendir("/");
+        if (d) {
+            struct dirent *pent;
+            while ((pent = readdir(d))) {
+                subScreen->text.printf("%s\n", pent->d_name);
+            }
+        }
+    }
 
     while (1) {
+        subScreen->text.setBackgroundOpaque(true);
+        subScreen->text.drawFrame(Rect(20, 20, 100, 50));
+        subScreen->text.moveTo(25,25);
+        subScreen->text.printf("Room %02x", gameData.world->objects.room[0]);
+
+        subScreen->text.blit();
+
         switch (game->run() & SBTHALT_MASK_CODE) {
 
         case SBTHALT_FRAME_DRAWN:

@@ -394,8 +394,6 @@ UISubScreen::UISubScreen(ROData *gameData, HwCommon *hw)
 }
 
 void UISubScreen::renderFrame(void) {
-    int haltCode;
-
     // Copy all game state to the renderer
     rendererData.copyFrom(gameData);
 
@@ -403,14 +401,13 @@ void UISubScreen::renderFrame(void) {
     yRobot.setupRenderer(&rendererData);
 
     /*
-     * Run the renderer until it produces another frame.
-     * When we hit the LOAD_ROOM_ID hook, patch in our
-     * fake room ID.
+     * Run the renderer until it reaches the top of the main loop,
+     * where we need to patch in the fake room ID. This will run
+     * through a single frame. It also means that we'll automatically
+     * ignore any frame that might have been produced before the room
+     * ID was patched in, so we don't get a single frame flash of some
+     * other room.
      */
-    do {
-        haltCode = renderer.run();
-        if (haltCode == SBTHALT_LOAD_ROOM_ID) {
-            renderer.reg.al = RO_ROOM_RENDERER;
-        }
-    } while (haltCode != SBTHALT_FRAME_DRAWN);
+    while (renderer.run() != SBTHALT_LOAD_ROOM_ID);
+    renderer.reg.al = RO_ROOM_RENDERER;
 }
