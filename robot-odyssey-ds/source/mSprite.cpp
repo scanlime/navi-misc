@@ -372,7 +372,9 @@ SpriteImages::SpriteImages(OamState *oam, const void *data, DecompressType type,
 }
 
 SpriteImages::~SpriteImages() {
-    oamFreeGfx(oam, images);
+    if (freeImages) {
+        oamFreeGfx(oam, images);
+    }
 }
 
 uint32_t SpriteImages::getImageBytes() {
@@ -396,6 +398,7 @@ void SpriteImages::allocate(OamState *oam, SpriteSize size, SpriteColorFormat fo
                             int numImages) {
     this->size = size;
     this->format = format;
+    this->oam = oam;
 
     /*
      * Make a SpriteSize value with a size that's a multiple of the
@@ -405,5 +408,6 @@ void SpriteImages::allocate(OamState *oam, SpriteSize size, SpriteColorFormat fo
      */
     SpriteSize stackedSize = (SpriteSize) ((size & ~0xFFF) | (size & 0xFFF) * numImages);
     images = oamAllocateGfx(oam, stackedSize, format);
+    sassert(images != NULL, "Out of sprite memory");
     freeImages = true;
 }

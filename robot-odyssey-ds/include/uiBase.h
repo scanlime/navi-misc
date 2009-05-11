@@ -85,16 +85,20 @@ class UIObject
 class UIObjectList : public UIObject
 {
  public:
+    virtual ~UIObjectList();
+
     std::list<UIObject*> objects;
 
     virtual void animate();
     virtual void updateState();
     virtual void handleInput(const UIInputState &input);
 
-    void makeCurrent();
+    void activate();
+    void deactivate();
 
  private:
-    static UIObjectList *currentList;
+    static UIObjectList* volatile currentList;
+
     static void vblankISR();
     static void scanInput(UIInputState &input);
 };

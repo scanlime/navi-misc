@@ -40,7 +40,7 @@ BANNER_TEXT := "Robot Odyssey DS"
 # memory, SBT86 scripts, and ARM7 sources.
 #
 
-SOURCES_A9   := main.cpp sbtProcess.cpp roData.cpp \
+SOURCES_A9   := main.cpp sbtProcess.cpp roData.cpp hardware.cpp \
                 hwCommon.cpp hwMain.cpp hwSub.cpp hwSpriteScraper.cpp \
                 mSprite.cpp spriteDraw.cpp rect.cpp \
                 uiBase.cpp uiText.cpp uiEffects.cpp uiSubScreen.cpp
