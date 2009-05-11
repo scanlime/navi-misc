@@ -31,12 +31,12 @@
 
 #include "uiBase.h"
 #include "uiEffects.h"
+#include "uiText.h"
 #include "mSprite.h"
 #include "roData.h"
 #include "hwCommon.h"
 #include "hwSpriteScraper.h"
 #include "roData.h"
-#include "textRenderer.h"
 #include "sbt86.h"
 
 SBT_DECL_PROCESS(RendererEXE);
@@ -244,8 +244,7 @@ private:
     UISubHardware subHw;
 
 public:
-    // Text is public, to make debugging easier.
-    TextRenderer text;
+    UITextLayer text;
 
 private:
     ROData *gameData;

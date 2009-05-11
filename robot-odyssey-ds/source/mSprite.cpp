@@ -147,7 +147,7 @@ void MSprite::update(void) {
         /*
          * Calculate the hit box for this OBJ.
          */
-        obj[i].setHitBox(objX, objY, spriteW, spriteH);
+        obj[i].setHitBox(Rect(objX, objY, spriteW, spriteH));
 
         /*
          * Compensate for double-size mode.
@@ -294,15 +294,11 @@ bool MSpriteOBJ::hitTest(int x, int y) {
         return false;
     }
 
-    return (x >= hitBox.left && x < hitBox.right &&
-            y >= hitBox.top && y < hitBox.bottom);
+    return hitBox.containsPoint(x, y);
 }
 
-void MSpriteOBJ::setHitBox(int x, int y, int width, int height) {
-    hitBox.left = x;
-    hitBox.top = y;
-    hitBox.right = x + width;
-    hitBox.bottom = y + height;
+void MSpriteOBJ::setHitBox(Rect r) {
+    hitBox = r;
 }
 
 void MSpriteOBJ::getImageSize(int &width, int &height) {
