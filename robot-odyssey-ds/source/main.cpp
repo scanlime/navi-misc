@@ -33,6 +33,7 @@
 #include "sbt86.h"
 #include "hwMain.h"
 #include "uiSubScreen.h"
+#include "uiMessageBox.h"
 #include "hardware.h"
 
 SBT_DECL_PROCESS(MenuEXE);
@@ -47,6 +48,10 @@ int main() {
     SBTProcess *game = new GameEXE(hwMain, "99");
 
     ROData gameData(game);
+
+    UIMessageBox *mb = new UIMessageBox("Wobble wobble wobble....");
+    mb->run();
+    delete mb;
 
     UISubScreen *subScreen = new UISubScreen(&gameData, hwMain);
     subScreen->activate();
@@ -67,22 +72,6 @@ int main() {
     }
 
     while (1) {
-
-        static int i;
-        i++;
-
-        if ((i & 7) == 0) {
-            subScreen->deactivate();
-            delete subScreen;
-            subScreen = new UISubScreen(&gameData, hwMain);
-            subScreen->activate();
-        }
-
-        subScreen->text.drawFrame(Rect(20, 20, 120, 30));
-        subScreen->text.setBackgroundOpaque(true);
-        subScreen->text.moveTo(25,25);
-        subScreen->text.printf("%d %p\n", i, subScreen);
-        subScreen->text.blit();
 
         switch (game->run() & SBTHALT_MASK_CODE) {
 
