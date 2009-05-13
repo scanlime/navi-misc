@@ -43,7 +43,8 @@ BANNER_TEXT := "Robot Odyssey DS"
 SOURCES_A9   := main.cpp sbtProcess.cpp roData.cpp hardware.cpp \
                 hwCommon.cpp hwMain.cpp hwSub.cpp hwSpriteScraper.cpp \
                 mSprite.cpp spriteDraw.cpp rect.cpp \
-                uiBase.cpp uiText.cpp uiEffects.cpp uiSubScreen.cpp
+                uiBase.cpp uiText.cpp uiEffects.cpp uiSubScreen.cpp \
+                uiMessageBox.cpp
 
 SOURCES_ITCM := videoConvert.cpp
 SOURCES_A7   := arm7.cpp soundEngine.cpp
@@ -51,7 +52,7 @@ SOURCES_BT   := bt_lab.py bt_menu.py bt_game.py bt_tutorial.py bt_renderer.py
 
 SOURCES_GRIT := gfx_background.grit gfx_button_remote.grit \
                 gfx_button_toolbox.grit gfx_button_solder.grit \
-                gfx_battery.grit
+                gfx_battery.grit gfx_rarrow.grit gfx_button_ok.grit
 
 
 ############################################

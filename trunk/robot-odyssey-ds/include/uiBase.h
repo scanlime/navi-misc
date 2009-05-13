@@ -105,6 +105,52 @@ class UIObjectList : public UIObject
 
 
 /*
+ * A transient user interface. When it is shown or hidden, it
+ * gradually animates into or out of view.
+ *
+ * This class manages the animation, and provides a fixed point value
+ * which represents the current animation position. It also contains
+ * standard methods for showing or hiding the UI, and for running it
+ * until it's hidden.
+ */
+class UITransient : public UIObjectList
+{
+public:
+    typedef uint32_t Fixed16;  // 16.16 fixed point
+
+    UITransient(Fixed16 speed);
+
+    void show();
+    void hide();
+
+    bool isShown();
+    bool isHidden();
+
+    /* Activate, run until hidden, deactivate. */
+    void run();
+
+    virtual void animate();
+
+protected:
+    enum {
+        HIDDEN,
+        SHOWN,
+        HIDING,
+        SHOWING,
+    } state;
+
+    static const Fixed16 FP_ONE = 0x10000;
+    static const int FP_SHIFT = 16;
+    Fixed16 visibility;
+
+    Fixed16 easeVisibility();
+
+private:
+    Fixed16 speed;
+};
+
+
+/*
  * A sprite button which can be activated by a key or via the touchpad.
  *
  * Sprite buttons by default use one OBJ in their MSprite, and that
@@ -117,7 +163,7 @@ class UISpriteButton : public UIObject
 {
  public:
     UISpriteButton(MSpriteAllocator *sprAlloc, SpriteImages *images,
-                   int x, int y,
+                   int x = 0, int y = 0,
                    MSpriteRange range = MSPRR_UI,
                    bool autoDoubleSize = true);
 

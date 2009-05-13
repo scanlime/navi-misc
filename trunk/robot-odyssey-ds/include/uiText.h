@@ -32,6 +32,7 @@
 #define _UITEXT_H_
 
 #include <nds.h>
+#include <stdarg.h>
 #include "rect.h"
 
 
@@ -55,6 +56,7 @@ class UITextLayer
 {
  public:
     UITextLayer();
+    ~UITextLayer();
 
     UIFont font;
     enum Alignment { LEFT, CENTER, RIGHT };
@@ -73,6 +75,7 @@ class UITextLayer
     void drawFrame(Rect r);
 
     void printf(const char *format, ...);
+    void vprintf(const char *format, va_list v);
     void draw(const char *text);
     int measureWidth(const char *text);
 

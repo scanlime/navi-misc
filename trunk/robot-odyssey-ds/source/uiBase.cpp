@@ -138,6 +138,84 @@ void UIObjectList::scanInput(UIInputState &input) {
 }
 
 
+//********************************************************** UIObjectList
+
+
+UITransient::UITransient(Fixed16 speed) {
+    state = HIDDEN;
+    visibility = 0;
+    this->speed = speed;
+}
+
+void UITransient::show() {
+    if (state != SHOWN) {
+        state = SHOWING;
+    }
+}
+
+void UITransient::hide() {
+    if (state != HIDDEN) {
+        state = HIDING;
+    }
+}
+
+bool UITransient::isShown() {
+    return state == SHOWN;
+}
+
+bool UITransient::isHidden() {
+    return state == HIDDEN;
+}
+
+void UITransient::run() {
+    show();
+    updateState();
+    activate();
+    while (!isHidden()) {
+        swiWaitForVBlank();
+    }
+    deactivate();
+}
+
+void UITransient::animate() {
+    switch (state) {
+
+    case HIDING:
+        if (visibility > speed) {
+            visibility -= speed;
+        } else {
+            visibility = 0;
+            state = HIDDEN;
+        }
+        break;
+
+    case SHOWING:
+        visibility += speed;
+        if (visibility >= FP_ONE) {
+            visibility = FP_ONE;
+            state = SHOWN;
+        }
+        break;
+
+    default:
+        break;
+    }
+
+    UIObjectList::animate();
+}
+
+
+UITransient::Fixed16 UITransient::easeVisibility() {
+    /*
+     * Apply a nonlinear transform to the current visibility so that
+     * it eases its way in and out. This implementation uses a sine
+     * curve.
+     */
+    uint16_t angle = visibility >> 3;
+    return sinLerp(angle) << 4;
+}
+
+
 //********************************************************** UISpriteButton
 
 

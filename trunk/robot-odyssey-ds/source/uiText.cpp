@@ -75,7 +75,14 @@ UITextLayer::UITextLayer() {
     bg = bgInitSub(2, BgType_Bmp8, BgSize_B8_256x256, 3, 0);
 
     clear();
+
     setScroll(0, 0);
+}
+
+UITextLayer::~UITextLayer() {
+    clear();
+    blit();
+    bgHide(bg);
 }
 
 void UITextLayer::clear() {
@@ -152,12 +159,16 @@ void UITextLayer::moveTo(int x, int y) {
 
 void UITextLayer::printf(const char *format, ...) {
     va_list v;
-    static char buffer[1024];
 
     va_start(v, format);
-    vsnprintf(buffer, sizeof buffer, format, v);
+    vprintf(format, v);
     va_end(v);
+}
 
+void UITextLayer::vprintf(const char *format, va_list v) {
+    static char buffer[1024];
+
+    vsnprintf(buffer, sizeof buffer, format, v);
     draw(buffer);
 }
 
