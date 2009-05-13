@@ -94,7 +94,7 @@ void UIRemoteControlButton::activate() {
 
 void UIRemoteControlButton::updateState() {
     UIToggleButton::updateState();
-    state = roData->circuit->remoteControlFlag;
+    state = roData->world->objects.spriteId[RO_OBJ_ANTENNA] == RO_SPR_REMOTE_CONTROL;
 }
 
 SpriteImages *UIRemoteControlButton::allocImages(MSpriteAllocator *sprAlloc) {
