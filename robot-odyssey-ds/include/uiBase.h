@@ -118,7 +118,7 @@ class UITransient : public UIObjectList
 public:
     typedef uint32_t Fixed16;  // 16.16 fixed point
 
-    UITransient(Fixed16 speed);
+    UITransient(Fixed16 speed, bool shown=false);
 
     void show();
     void hide();
@@ -147,6 +147,35 @@ protected:
 
 private:
     Fixed16 speed;
+};
+
+
+/*
+ * A UITransient which implements a fade-out to black or white.
+ */
+class UIFade : public UITransient {
+public:
+    enum Color {
+        BLACK,
+        WHITE
+    };
+
+    enum Screen {
+        MAIN,
+        SUB,
+    };
+
+    static const Fixed16 DEFAULT_SPEED = 2500;
+
+    UIFade(Screen screen,
+           bool startOutFaded = true,
+           Fixed16 speed = DEFAULT_SPEED,
+           Color color = BLACK);
+
+    virtual void updateState();
+
+private:
+    volatile uint16_t *blendReg;
 };
 
 

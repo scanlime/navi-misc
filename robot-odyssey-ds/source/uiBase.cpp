@@ -138,13 +138,19 @@ void UIObjectList::scanInput(UIInputState &input) {
 }
 
 
-//********************************************************** UIObjectList
+//********************************************************** UITransient
 
 
-UITransient::UITransient(Fixed16 speed) {
-    state = HIDDEN;
-    visibility = 0;
+UITransient::UITransient(Fixed16 speed, bool shown) {
+    if (shown) {
+        state = SHOWN;
+        visibility = FP_ONE;
+    } else {
+        state = HIDDEN;
+        visibility = 0;
+    }
     this->speed = speed;
+    updateState();
 }
 
 void UITransient::show() {
@@ -169,7 +175,6 @@ bool UITransient::isHidden() {
 
 void UITransient::run() {
     show();
-    updateState();
     activate();
     while (!isHidden()) {
         swiWaitForVBlank();
@@ -214,6 +219,53 @@ UITransient::Fixed16 UITransient::easeVisibility() {
     uint16_t angle = visibility >> 3;
     return sinLerp(angle) << 4;
 }
+
+
+//********************************************************** UIFade
+
+
+UIFade::UIFade(Screen screen, bool startOutFaded,
+               Fixed16 speed, Color color)
+    : UITransient(speed, startOutFaded)
+{
+    uint32_t ctrlValue = (BLEND_SRC_BG0 |
+                          BLEND_SRC_BG1 |
+                          BLEND_SRC_BG2 |
+                          BLEND_SRC_BG3 |
+                          BLEND_SRC_SPRITE |
+                          BLEND_SRC_BACKDROP);
+
+    switch (color) {
+
+    case BLACK:
+        ctrlValue |= BLEND_FADE_BLACK;
+        break;
+
+    case WHITE:
+        ctrlValue |= BLEND_FADE_WHITE;
+        break;
+
+    }
+
+    switch (screen) {
+
+    case MAIN:
+        blendReg = &REG_BLDY;
+        REG_BLDCNT = ctrlValue;
+        break;
+
+    case SUB:
+        blendReg = &REG_BLDY_SUB;
+        REG_BLDCNT_SUB = ctrlValue;
+        break;
+
+    }
+}
+
+void UIFade::updateState() {
+    *blendReg = 31 * visibility >> FP_SHIFT;
+}
+
 
 
 //********************************************************** UISpriteButton

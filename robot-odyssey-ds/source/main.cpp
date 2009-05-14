@@ -44,16 +44,24 @@ SBT_DECL_PROCESS(TutorialEXE);
 int main() {
     Hardware::init();
 
+    {
+        UIMessageBox *mb = new UIMessageBox("Wobble wobble wobble....");
+        UIFade fader(fader.SUB);
+        fader.hide();
+        mb->objects.push_back(&fader);
+        mb->run();
+        delete mb;
+    }
+
     HwMain *hwMain = new HwMain();
     SBTProcess *game = new GameEXE(hwMain, "99");
-
     ROData gameData(game);
 
-    UIMessageBox *mb = new UIMessageBox("Wobble wobble wobble....");
-    mb->run();
-    delete mb;
 
     UISubScreen *subScreen = new UISubScreen(&gameData, hwMain);
+    UIFade gameFader(gameFader.MAIN);
+    subScreen->objects.push_back(&gameFader);
+    gameFader.hide();
     subScreen->activate();
 
     if (!fatInitDefault()) {
