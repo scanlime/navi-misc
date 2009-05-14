@@ -51,9 +51,22 @@ void Hardware::init() {
     /*
      * Video mode, VRAM banks
      */
+    lcdMainOnTop();
+    videoSetMode(MODE_5_2D);
     videoSetModeSub(MODE_5_2D);
-    vramSetBankC(VRAM_C_SUB_BG_0x06200000);
-    vramSetBankD(VRAM_D_SUB_SPRITE);
+    vramSetMainBanks(VRAM_A_MAIN_BG_0x06000000,
+                     VRAM_B_MAIN_BG_0x06020000,
+                     VRAM_C_SUB_BG_0x06200000,
+                     VRAM_D_SUB_SPRITE);
+
+    REG_BLDCNT_SUB = BLEND_FADE_BLACK |
+                     BLEND_SRC_BG0 |
+                     BLEND_SRC_BG1 |
+                     BLEND_SRC_BG2 |
+                     BLEND_SRC_BG3 |
+                     BLEND_SRC_SPRITE |
+                     BLEND_SRC_BACKDROP;
+    REG_BLDY_SUB = 15;
 
     /*
      * Palettes

@@ -36,18 +36,8 @@
 
 HwMain::HwMain()
 {
-    // Mode 5: Two tiled 'text' layers, two extended background layers
-    videoSetMode(MODE_5_2D);
-
-    /*
-     * We need a total of 192 kB of memory for the front and back
-     * buffers.  Map banks A and B consecutively- this gives us 256 kB.
-     */
-    vramSetBankA(VRAM_A_MAIN_BG_0x06000000);
-    vramSetBankB(VRAM_B_MAIN_BG_0x06020000);
-
     bg = bgInit(3, BgType_Bmp16, BgSize_B16_256x256, 0, 0);
-    backbuffer= bgGetGfxPtr(bg);
+    backbuffer = bgGetGfxPtr(bg);
     bgSetMapBase(bg, MAP_BASE_OFFSET);
 }
 
