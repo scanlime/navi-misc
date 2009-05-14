@@ -40,12 +40,16 @@ class UIFont
 {
 public:
     /* Metrics */
-    static const int glyphHeight = 15;
     static const int borderWidth = 1;
-    static const int lineHeight = glyphHeight + borderWidth*2;
+    static const int glyphHeight = 15;
+    static const int lineSpacing = 14;
+
     static const int baselineY = 11;
     static const int ascenderY = 3;
     static const int centerY = (baselineY + ascenderY) / 2;
+
+    /* A small vertical space (For the '\v' escape code.) */
+    static const int vSpace = 5;
 
     static int getGlyphEscapement(char c);
     static uint8_t *getGlyphBitmap(char c);

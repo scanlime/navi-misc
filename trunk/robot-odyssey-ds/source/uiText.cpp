@@ -174,8 +174,6 @@ void UITextLayer::vprintf(const char *format, va_list v) {
 
 void UITextLayer::draw(const char *text) {
     int offset;
-    int lineX = 0;
-    int lineClearedTo = 0;
     char c;
 
     if (align == CENTER) {
@@ -186,54 +184,88 @@ void UITextLayer::draw(const char *text) {
         offset = 0;
     }
 
-    while ((c = *text)) {
+    /*
+     * Draw in two passes: First clear behind each glyph, then draw each glyph.
+     * This lets glyphs overlap both horizontally and vertically, we just can't
+     * allow multiple draw() calls to overlap each other.
+     */
 
-        if (c == ' ') {
-            /* See if we want to wrap at this space. */
-            if (lineX + measureNextWordWidth(text + 1) > wrapWidth) {
-                c = '\n';
+    int pass;
+    enum {
+        BACKGROUND_PASS = 0,
+        TEXT_PASS,
+    };
+
+    for (pass = BACKGROUND_PASS; pass <= TEXT_PASS; pass++) {
+        int lineX = 0;
+        int lineY = 0;
+        int lineClearedTo = 0;
+        const char *cPtr = text;
+
+        while ((c = *cPtr)) {
+
+            if (c == ' ') {
+                /* See if we want to wrap at this space. */
+                if (lineX + measureNextWordWidth(cPtr + 1) > wrapWidth) {
+                    c = '\n';
+                }
             }
+
+            if (c == '\v') {
+                /* Vertical tab: Advance by less than a full line. */
+                lineY += font.vSpace;
+                cPtr++;
+                continue;
+            }
+
+            if (c == '\n') {
+                lineX = 0;
+                lineClearedTo = 0;
+                lineY += font.lineSpacing;
+                cPtr++;
+                continue;
+            }
+
+            int escapement = font.getGlyphEscapement(c);
+            if (escapement == 0) {
+                cPtr++;
+                continue;
+            }
+
+            if (pass == BACKGROUND_PASS) {
+                /*
+                 * Clear behind the next chunk of text.  Glyphs can overlap,
+                 * so it's likely that the previous glyph needed to clear
+                 * behind part of this glyph.  'lineClearedTo' keeps track of
+                 * how far along this line we've cleared so far.
+                 *
+                 * Note that we don't need to add explicit dirty rects for the
+                 * font glyphs, since the backing rectangle will add dirty
+                 * rects.
+                 */
+
+                int clearEnd = lineX + escapement + font.borderWidth * 2;
+
+                drawRect(Rect(x + lineClearedTo + offset - font.borderWidth,
+                              y + lineY - font.borderWidth,
+                              clearEnd - lineClearedTo,
+                              font.glyphHeight + font.borderWidth * 2),
+                         bgOpaque ? bgPaletteIndex : 0);
+
+                lineClearedTo = clearEnd;
+
+            } else {
+                /*
+                 * Render a normal glyph.
+                 */
+
+                VideoConvert::unpackFontGlyph(font.getGlyphBitmap(c),
+                                              backbuffer, x + lineX + offset, y + lineY);
+            }
+
+            lineX += escapement;
+            cPtr++;
         }
-
-        if (c == '\n') {
-            lineX = 0;
-            lineClearedTo = 0;
-            y += font.lineHeight;
-            text++;
-            continue;
-        }
-
-
-        /*
-         * Clear behind the next chunk of text.  Glyphs can overlap,
-         * so it's likely that the previous glyph needed to clear
-         * behind part of this glyph.  'lineClearedTo' keeps track of
-         * how far along this line we've cleared so far.
-         *
-         * Note that we don't need to add explicit dirty rects for the
-         * font glyphs, since the backing rectangle will add dirty
-         * rects.
-         */
-
-        int escapement = font.getGlyphEscapement(c);
-        int clearEnd = lineX + escapement + font.borderWidth * 2;
-
-        drawRect(Rect(x + lineClearedTo + offset - font.borderWidth,
-                      y - font.borderWidth,
-                      clearEnd - lineClearedTo,
-                      font.lineHeight),
-                 bgOpaque ? bgPaletteIndex : 0);
-
-        lineClearedTo = clearEnd;
-
-        /*
-         * Render a normal glyph.
-         */
-
-        VideoConvert::unpackFontGlyph(font.getGlyphBitmap(c),
-                                      backbuffer, x + lineX + offset, y);
-        lineX += escapement;
-        text++;
     }
 }
 
