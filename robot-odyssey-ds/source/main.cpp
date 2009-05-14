@@ -44,8 +44,13 @@ SBT_DECL_PROCESS(TutorialEXE);
 int main() {
     Hardware::init();
 
-    {
-        UIMessageBox *mb = new UIMessageBox("Wobble wobble wobble....");
+    if (!fatInitDefault()) {
+        UIMessageBox *mb = new UIMessageBox("Can't find a storage device!"
+                                            " If you continue, you"
+                                            " will be unable to save your progress."
+                                            "\n\v"
+                                            "(Make sure you have applied the correct"
+                                            " DLDI patch for your homebrew device!)");
         UIFade fader(fader.SUB);
         fader.hide();
         mb->objects.push_back(&fader);
@@ -64,10 +69,6 @@ int main() {
     gameFader.hide();
     subScreen->activate();
 
-    if (!fatInitDefault()) {
-        subScreen->text.printf("No filesystem!\n");
-    } else {
-        subScreen->text.printf("Filesystem OK\n");
 #if 0
         DIR *d = opendir("/");
         if (d) {
@@ -77,7 +78,6 @@ int main() {
             }
         }
 #endif
-    }
 
     while (1) {
 
