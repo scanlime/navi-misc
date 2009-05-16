@@ -53,13 +53,21 @@ int main() {
                                             " DLDI patch for your homebrew device!)");
         UIFade fader(fader.SUB);
         fader.hide();
-        mb->objects.push_back(&fader);
+        mb->run();
+        delete mb;
+    }
+
+
+    while (1) {
+        UIMessageBox *mb = new UIMessageBox("Foobar! Foobar! Foobar! Foobar! "
+                                            "Foobar! Foobar! Foobar! Foobar! "
+                                            "Blah.");
         mb->run();
         delete mb;
     }
 
     HwMain *hwMain = new HwMain();
-    SBTProcess *game = new GameEXE(hwMain, "99");
+    SBTProcess *game = new GameEXE(hwMain);
     ROData gameData(game);
 
 

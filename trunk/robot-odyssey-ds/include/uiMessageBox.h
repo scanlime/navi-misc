@@ -60,6 +60,17 @@ class UIOKButton : public UISpriteButton
 };
 
 
+class UIMessageBoxText : public UITextLayer
+{
+public:
+    void init(const char *format, va_list v);
+
+protected:
+    virtual void paint();
+    char buffer[1024];
+};
+
+
 class UIMessageBox : public UITransient
 {
  public:
@@ -68,6 +79,8 @@ class UIMessageBox : public UITransient
     virtual void updateState();
 
  private:
+    friend class UIMessageBoxText;
+
     static const int frameWidth = 192;
     static const int frameHeight = 100;
     static const int outerMargin = (SCREEN_WIDTH - frameWidth) / 2;
@@ -76,7 +89,7 @@ class UIMessageBox : public UITransient
     static const int buttonY = SCREEN_HEIGHT - 40;
 
     MSpriteAllocator sprAlloc;
-    UITextLayer text;
+    UIMessageBoxText text;
     UIOKButton button;
 };
 
