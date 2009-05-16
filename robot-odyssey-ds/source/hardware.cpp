@@ -59,15 +59,6 @@ void Hardware::init() {
                      VRAM_C_SUB_BG_0x06200000,
                      VRAM_D_SUB_SPRITE);
 
-    REG_BLDCNT_SUB = BLEND_FADE_BLACK |
-                     BLEND_SRC_BG0 |
-                     BLEND_SRC_BG1 |
-                     BLEND_SRC_BG2 |
-                     BLEND_SRC_BG3 |
-                     BLEND_SRC_SPRITE |
-                     BLEND_SRC_BACKDROP;
-    REG_BLDY_SUB = 15;
-
     /*
      * Palettes
      */
