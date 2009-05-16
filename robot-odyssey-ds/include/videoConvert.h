@@ -50,9 +50,6 @@ namespace VideoConvert
                   uint32_t x, uint32_t y,
                   uint32_t width, uint32_t height);
 
-    void unpackFontGlyph(uint8_t *bitmap, uint32_t *fb,
-                         uint32_t x, uint32_t y);
-
     extern const uint16_t palette[16];
 }
 

@@ -95,6 +95,15 @@ void UIObjectList::deactivate() {
 
 void UIObjectList::vblankISR() {
     /*
+     * Flush updated sprites and layers to the hardware.
+     * This must occur before we actually exit vblank!
+     */
+
+    oamUpdate(&oamMain);
+    oamUpdate(&oamSub);
+    bgUpdate();
+
+    /*
      * During vertical blank, scan input and update the UI.
      */
 
@@ -113,10 +122,6 @@ void UIObjectList::vblankISR() {
     current->handleInput(input);
 
     current->updateState();
-
-    // Flush updated sprites to the hardware.
-    oamUpdate(&oamMain);
-    oamUpdate(&oamSub);
 }
 
 void UIObjectList::scanInput(UIInputState &input) {

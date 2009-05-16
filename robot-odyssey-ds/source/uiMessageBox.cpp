@@ -26,6 +26,7 @@
  *    OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <stdio.h>
 #include "uiMessageBox.h"
 #include "gfx_rarrow.h"
 #include "gfx_button_ok.h"
@@ -42,28 +43,46 @@ UIMessageBox::UIMessageBox(const char *format, ...)
 {
     va_list v;
 
-    text.drawFrame(Rect(outerMargin, outerMargin, frameWidth, frameHeight));
-    text.setBackgroundOpaque(true);
-    text.moveTo(outerMargin + innerMargin,
-                outerMargin + innerMargin);
-    text.setWrapWidth(frameWidth - innerMargin*2);
-
     va_start(v, format);
-    text.vprintf(format, v);
+    text.init(format, v);
     va_end(v);
 
-    text.blit();
+    text.colors.setDefaultPalette();
+
     objects.push_back(&button);
 }
 
 void UIMessageBox::updateState() {
-    text.setScroll(0, (FP_ONE - easeVisibility()) * SCREEN_HEIGHT >> FP_SHIFT);
-    bgUpdate();
-
+    text.scrollTo((FP_ONE - easeVisibility()) * SCREEN_HEIGHT >> FP_SHIFT);
     button.sprite.moveTo(buttonX - ((easeVisibility() * button.width) >> FP_SHIFT),
                          buttonY);
 
     UITransient::updateState();
+}
+
+
+//********************************************************** UIMessageBoxText
+
+
+void UIMessageBoxText::init(const char *format, va_list v) {
+    vsnprintf(buffer, sizeof buffer, format, v);
+}
+
+void UIMessageBoxText::paint() {
+    clear();
+
+    drawFrame(Rect(UIMessageBox::outerMargin,
+                   UIMessageBox::outerMargin,
+                   UIMessageBox::frameWidth,
+                   UIMessageBox::frameHeight));
+
+    moveTo(UIMessageBox::outerMargin + UIMessageBox::innerMargin,
+           UIMessageBox::outerMargin + UIMessageBox::innerMargin);
+    setWrapWidth(UIMessageBox::frameWidth - UIMessageBox::innerMargin*2);
+
+    UITextLayer::draw(buffer);
+
+    blit();
 }
 
 

@@ -33,32 +33,196 @@
 #include <stdarg.h>
 #include <string.h>
 #include "uiText.h"
-#include "videoConvert.h"
 #include "font_table.h"
 
 
-//********************************************************** UIFont
+//********************************************************** Glyph
 
-int UIFont::getGlyphEscapement(char c) {
-    if (c < FONT_FIRST_CHAR || c > FONT_LAST_CHAR) {
-        return 0;
-    }
 
+void Glyph::drawRow(int y, uint8_t *dest, TextColors colors) {
     /*
-     * Each glyph has a 1-byte header, with the escapement.
+     * XXX: There's lots of room for optimization here...
      */
-    return font_table[(c - FONT_FIRST_CHAR) << FONT_CHAR_SHIFT];
+
+    uint32_t fgBits = getRow(y + 1) << 1;
+    uint32_t borderBits = fgBits | ((getRow(y) | getRow(y + 2)) << 1);
+    borderBits |= (borderBits << 1) | (borderBits >> 1);
+
+    uint32_t mask = 1;
+    for (int i = 0; i < getWidth(); i++) {
+        if (mask & fgBits) {
+            *dest = colors.fg;
+        } else if (mask & borderBits) {
+            *dest = colors.border;
+        }
+        dest++;
+        mask <<= 1;
+    }
 }
 
-uint8_t *UIFont::getGlyphBitmap(char c) {
+
+//********************************************************** DefaultFont
+
+
+int DefaultFont::getLineSpacing() {
+    return 14;
+}
+
+Glyph DefaultFont::getGlyph(char c) {
     if (c < FONT_FIRST_CHAR || c > FONT_LAST_CHAR) {
-        return NULL;
+        return Glyph(0, 0, NULL);
+    } else {
+        uint8_t *entry = &font_table[(c - FONT_FIRST_CHAR) << FONT_CHAR_SHIFT];
+        return Glyph(entry[0], 15, entry + 1);
+    }
+}
+
+
+//********************************************************** VScrollLayer
+
+
+VScrollLayer::VScrollLayer() {
+    /*
+     * Initialize BG2.  Use 4 banks of memory in VRAM C, starting at
+     * bank 3.  (We use the first 3 banks for background 3.)
+     */
+    bg = bgInitSub(2, BgType_Bmp8, BgSize_B8_256x256, 3, 0);
+
+    clip.y1 = 0;
+    clip.y2 = height;
+
+    clear();
+    scrollTo(0);
+    bgWrapOn(bg);
+    blit();
+}
+
+VScrollLayer::~VScrollLayer() {
+    clear();
+    blit();
+    bgWrapOff(bg);
+    bgHide(bg);
+}
+
+void VScrollLayer::scrollTo(int y) {
+    /*
+     * Redraw the part of the screen that's coming into view.
+     */
+
+    if (y > yScroll) {
+        /*
+         * Viewport is moving down relative to the top of the image,
+         * new data is showing up at the bottom of the screen.
+         */
+        clip.y1 = yScroll + height;
+        clip.y2 = y + height;
+
+    } else {
+        /*
+         * Other direction: Data is showing up at the top of the screen.
+         */
+        clip.y1 = y;
+        clip.y2 = yScroll;
+    }
+
+    if (clip.y1 != clip.y2) {
+        paint();
     }
 
     /*
-     * Bitmap data is just after the 1-byte header.
+     * Update the hardware scrolling.
      */
-    return font_table + 1 + ((c - FONT_FIRST_CHAR) << FONT_CHAR_SHIFT);
+
+    yScroll = y;
+    y = 0; // XXX: Debug
+    bgSetScroll(bg, 0, y);
+}
+
+void VScrollLayer::clear() {
+    dirty.clear();
+    drawRect(Rect(0, 0, width, height), 0x00);
+}
+
+void VScrollLayer::blit() {
+    /*
+     * Draw all dirty rectangles to the screen.
+     */
+
+    std::vector<Rect>::iterator i;
+
+    for (i = dirty.rects.begin(); i != dirty.rects.end(); i++) {
+        blitRect(*i);
+    }
+    dirty.rects.clear();
+}
+
+void VScrollLayer::paint() {
+    /* Optional. For subclasses to implement. */
+}
+
+void VScrollLayer::drawRect(Rect r, uint8_t paletteIndex) {
+    int y = r.top;
+    int height = r.getHeight();
+    int width = r.getWidth();
+    uint32_t fillWord = (paletteIndex | (paletteIndex << 8) |
+                         (paletteIndex << 16) | (paletteIndex << 24));
+
+    while (height--) {
+        if (inClip(y)) {
+            uint32_t *line = linePtr32(y);
+
+            if (width < 16) {
+                /*
+                 * Short fill: Just use one memset
+                 */
+                memset(r.left + (uint8_t*)line, paletteIndex, width);
+
+            } else {
+                /*
+                 * Long fill: At least one full word and two partial
+                 * words.  Break it up into pieces.
+                 */
+
+                if (r.left & 3) {
+                    int leftRemainder = 4 - (r.left & 3);
+                    memset(r.left + (uint8_t*)line, paletteIndex, leftRemainder);
+                }
+
+                int leftWord = (r.left + 3) >> 2;
+                int rightWord = r.right >> 2;
+                swiFastCopy(&fillWord, line + leftWord,
+                            COPY_MODE_FILL | (rightWord - leftWord));
+
+                if (r.right & 3) {
+                    memset((r.right & ~3) + (uint8_t*)line, paletteIndex, r.right & 3);
+                }
+            }
+        }
+        y++;
+    }
+
+    addDirtyRect(r);
+}
+
+void VScrollLayer::addDirtyRect(Rect r) {
+    dirty.add(r.align(4, 1));
+}
+
+void VScrollLayer::blitRect(Rect r) {
+    sassert(r.isAligned(4, 1), "blitRect rectangle not aligned");
+    sassert(!r.isEmpty(), "blitRect rectangle empty");
+
+    int leftWord = r.left >> 2;
+    int widthWords = r.getWidth() >> 2;
+    uint32_t copyFlags = COPY_MODE_WORD | COPY_MODE_COPY | widthWords;
+
+    for (int y = r.top; y < r.bottom; y++) {
+        if (inClip(y)) {
+            swiFastCopy(linePtr32(y) + leftWord,
+                        destLinePtr32(y) + leftWord,
+                        copyFlags);
+        }
+    }
 }
 
 
@@ -66,82 +230,21 @@ uint8_t *UIFont::getGlyphBitmap(char c) {
 
 
 UITextLayer::UITextLayer() {
-    /*
-     * Background 2.
-     *
-     * Use 3 banks of memory in VRAM C, starting at bank 3.
-     * (We use the first 3 banks for background 3.)
-     */
-    bg = bgInitSub(2, BgType_Bmp8, BgSize_B8_256x256, 3, 0);
-
-    clear();
-
-    setScroll(0, 0);
-}
-
-UITextLayer::~UITextLayer() {
-    clear();
-    blit();
-    bgHide(bg);
-}
-
-void UITextLayer::clear() {
-    /*
-     * Clear memory, and set default parameters. Does not blit the
-     * cleared buffer to the screen. After this call, the entire
-     * screen will be marked as dirty.
-     */
-
-    setTextColor(RGB8(0xFF, 0xFF, 0xFF));
-    setBorderColor(RGB8(0x00, 0x00, 0x00));
-
-    setBackgroundColor(RGB8(0x30, 0x30, 0x30));
-    setBackgroundOpaque(false);
-    setFrameColor(RGB8(0x55, 0xFF, 0xFF));
-    setFrameThickness(8);
     setWrapWidth(SCREEN_WIDTH);
     setAlignment(LEFT);
-
-    moveTo(font.borderWidth, font.borderWidth);
-
-    dirty.clear();
-    drawRect(Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), 0);
+    moveTo(0, 0);
 }
 
-void UITextLayer::drawFrame(Rect r) {
+void UITextLayer::drawFrame(Rect r, int thickness) {
     /*
      * Draw a frame around the specified rectangle. The rectangle
      * will be filled with the background color, and a frame will be
      * drawn around its edges.
      */
 
-    drawRect(r, bgPaletteIndex);
-    drawBorderRects(r, framePaletteIndex, frameThickness);
-    drawBorderRects(r.expand(frameThickness), borderPaletteIndex, font.borderWidth);
-}
-
-void UITextLayer::setTextColor(uint16_t color) {
-    BG_PALETTE_SUB[textPaletteIndex] = color;
-}
-
-void UITextLayer::setBorderColor(uint16_t color) {
-    BG_PALETTE_SUB[borderPaletteIndex] = color;
-}
-
-void UITextLayer::setBackgroundColor(uint16_t color) {
-    BG_PALETTE_SUB[bgPaletteIndex] = color;
-}
-
-void UITextLayer::setBackgroundOpaque(bool opaque) {
-    bgOpaque = opaque;
-}
-
-void UITextLayer::setFrameColor(uint16_t color) {
-    BG_PALETTE_SUB[framePaletteIndex] = color;
-}
-
-void UITextLayer::setFrameThickness(int thickness) {
-    frameThickness = thickness;
+    drawRect(r, colors.bg);
+    drawBorderRects(r, colors.frame, thickness);
+    drawBorderRects(r.expand(thickness), colors.border, 1);
 }
 
 void UITextLayer::setWrapWidth(int width) {
@@ -213,7 +316,7 @@ void UITextLayer::draw(const char *text) {
 
             if (c == '\v') {
                 /* Vertical tab: Advance by less than a full line. */
-                lineY += font.vSpace;
+                lineY += font.getLineSpacing() / 3;
                 cPtr++;
                 continue;
             }
@@ -221,13 +324,14 @@ void UITextLayer::draw(const char *text) {
             if (c == '\n') {
                 lineX = 0;
                 lineClearedTo = 0;
-                lineY += font.lineSpacing;
+                lineY += font.getLineSpacing();
                 cPtr++;
                 continue;
             }
 
-            int escapement = font.getGlyphEscapement(c);
-            if (escapement == 0) {
+            Glyph glyph = font.getGlyph(c);
+
+            if (glyph.getEscapement() == 0) {
                 cPtr++;
                 continue;
             }
@@ -244,13 +348,13 @@ void UITextLayer::draw(const char *text) {
                  * rects.
                  */
 
-                int clearEnd = lineX + escapement + font.borderWidth * 2;
+                int clearEnd = lineX + glyph.getWidth();
 
-                drawRect(Rect(x + lineClearedTo + offset - font.borderWidth,
-                              y + lineY - font.borderWidth,
+                drawRect(Rect(x + lineClearedTo + offset,
+                              y + lineY,
                               clearEnd - lineClearedTo,
-                              font.glyphHeight + font.borderWidth * 2),
-                         bgOpaque ? bgPaletteIndex : 0);
+                              glyph.getHeight()),
+                         colors.bg);
 
                 lineClearedTo = clearEnd;
 
@@ -259,11 +363,15 @@ void UITextLayer::draw(const char *text) {
                  * Render a normal glyph.
                  */
 
-                VideoConvert::unpackFontGlyph(font.getGlyphBitmap(c),
-                                              backbuffer, x + lineX + offset, y + lineY);
+                int i;
+                for (i = 0; i < glyph.getHeight(); i++) {
+                    glyph.drawRow(i,
+                                  linePtr(y + lineY + i) + x + lineX + offset,
+                                  colors);
+                }
             }
 
-            lineX += escapement;
+            lineX += glyph.getEscapement();
             cPtr++;
         }
     }
@@ -281,7 +389,7 @@ int UITextLayer::measureWidth(const char *text) {
         if (c == '\n') {
             lineWidth = 0;
         } else {
-            lineWidth += font.getGlyphEscapement(c);
+            lineWidth += font.getGlyph(c).getEscapement();
             if (lineWidth > maxWidth) {
                 maxWidth = lineWidth;
             }
@@ -310,70 +418,11 @@ int UITextLayer::measureNextWordWidth(const char *text) {
         if (c == ' ' || c == '\n') {
             break;
         }
-        width += font.getGlyphEscapement(c);
+        width += font.getGlyph(c).getEscapement();
         text++;
     }
 
     return width;
-}
-
-void UITextLayer::setScroll(int x, int y) {
-    bgSetScroll(bg, x, y);
-}
-
-void UITextLayer::blit() {
-    /*
-     * Draw all dirty rectangles to the screen.
-     */
-
-    std::vector<Rect>::iterator i;
-
-    for (i = dirty.rects.begin(); i != dirty.rects.end(); i++) {
-        blitRect(*i);
-    }
-    dirty.rects.clear();
-}
-
-void UITextLayer::drawRect(Rect r, uint8_t paletteIndex) {
-    uint32_t *line = backbuffer + (r.top << 6);
-    int height = r.getHeight();
-    int width = r.getWidth();
-    uint32_t fillWord = (paletteIndex | (paletteIndex << 8) |
-                         (paletteIndex << 16) | (paletteIndex << 24));
-
-    while (height--) {
-
-        if (width < 16) {
-            /*
-             * Short fill: Just use one memset
-             */
-            memset(r.left + (uint8_t*)line, paletteIndex, width);
-
-        } else {
-            /*
-             * Long fill: At least one full word and two partial
-             * words.  Break it up into pieces.
-             */
-
-            if (r.left & 3) {
-                int leftRemainder = 4 - (r.left & 3);
-                memset(r.left + (uint8_t*)line, paletteIndex, leftRemainder);
-            }
-
-            int leftWord = (r.left + 3) >> 2;
-            int rightWord = r.right >> 2;
-            swiFastCopy(&fillWord, line + leftWord,
-                        COPY_MODE_FILL | (rightWord - leftWord));
-
-            if (r.right & 3) {
-                memset((r.right & ~3) + (uint8_t*)line, paletteIndex, r.right & 3);
-            }
-        }
-
-        line += 256/4;
-    }
-
-    addAlignedDirtyRect(r);
 }
 
 void UITextLayer::drawBorderRects(Rect r, uint8_t paletteIndex, int thickness) {
@@ -390,28 +439,3 @@ void UITextLayer::drawBorderRects(Rect r, uint8_t paletteIndex, int thickness) {
     drawRect(r.adjacentBelow(thickness).adjacentRight(thickness), paletteIndex);
 }
 
-void UITextLayer::addAlignedDirtyRect(Rect r) {
-    dirty.add(r.align(4, 2));
-}
-
-void UITextLayer::blitRect(Rect r) {
-    sassert(r.isAligned(4, 1), "blitRect rectangle not aligned");
-    sassert(!r.isEmpty(), "blitRect rectangle empty");
-
-    uint32_t *fbSrc = backbuffer;
-    uint32_t *fbDest = (uint32_t*) bgGetGfxPtr(bg);
-
-    fbSrc += r.top << 6;
-    fbDest += r.top << 6;
-
-    int leftWord = r.left >> 2;
-    int widthWords = r.getWidth() >> 2;
-    uint32_t copyFlags = COPY_MODE_WORD | COPY_MODE_COPY | widthWords;
-
-    int height = r.getHeight();
-    while (height--) {
-        swiFastCopy(fbSrc + leftWord, fbDest + leftWord, copyFlags);
-        fbSrc += 256/4;
-        fbDest += 256/4;
-    }
-}
