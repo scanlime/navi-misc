@@ -4,8 +4,5 @@
 # lz77 compression
 -Zl
 
-# Use at most 128 colors
--pe128
-
 # Bitmap format
 -gb

@@ -141,6 +141,12 @@ void VScrollLayer::scrollTo(int y) {
     bgSetScroll(bg, 0, y);
 }
 
+void VScrollLayer::scrollBy(int y) {
+    y = std::min(y, maxScrollSpeed);
+    y = std::max(y, -maxScrollSpeed);
+    scrollTo(getScroll() + y);
+}
+
 void VScrollLayer::clear() {
     dirty.clear();
 
@@ -179,39 +185,10 @@ void VScrollLayer::drawRect(Rect r, uint8_t paletteIndex) {
     int y = r.top;
     int height = r.getHeight();
     int width = r.getWidth();
-    uint32_t fillWord = (paletteIndex | (paletteIndex << 8) |
-                         (paletteIndex << 16) | (paletteIndex << 24));
 
     while (height--) {
         if (inClip(y)) {
-            uint32_t *line = linePtr32(y);
-
-            if (width < 16) {
-                /*
-                 * Short fill: Just use one memset
-                 */
-                memset(r.left + (uint8_t*)line, paletteIndex, width);
-
-            } else {
-                /*
-                 * Long fill: At least one full word and two partial
-                 * words.  Break it up into pieces.
-                 */
-
-                if (r.left & 3) {
-                    int leftRemainder = 4 - (r.left & 3);
-                    memset(r.left + (uint8_t*)line, paletteIndex, leftRemainder);
-                }
-
-                int leftWord = (r.left + 3) >> 2;
-                int rightWord = r.right >> 2;
-                swiFastCopy(&fillWord, line + leftWord,
-                            COPY_MODE_FILL | (rightWord - leftWord));
-
-                if (r.right & 3) {
-                    memset((r.right & ~3) + (uint8_t*)line, paletteIndex, r.right & 3);
-                }
-            }
+            fastFill(linePtr32(y), r.left, width, paletteIndex);
         }
         y++;
     }
@@ -261,6 +238,51 @@ void UITextLayer::drawFrame(Rect r, int thickness) {
     drawRect(r, colors.bg);
     drawBorderRects(r, colors.frame, thickness);
     drawBorderRects(r.expand(thickness), colors.border, 1);
+}
+
+void UITextLayer::drawBox(Rect r, uint8_t paletteOffset, const uint8_t style[256]) {
+    /*
+     * Draw a decorative box, based on data from a pixmap. The pixmap
+     * is a 16x16 square.  Row 7 and column 7 are repeated as
+     * necessary to expand the bitmap to fill 'r'.  The optional
+     * 'paletteOffset' is added to all nonzero pixels in the pixmap.
+     */
+
+    const int repeatPoint = 7;
+    int xRepeats = r.getWidth() - 15;
+    int yRepeats = r.getHeight() - 15;
+    int bx, by, yRep, screenY;
+
+    sassert(xRepeats >= 0 && yRepeats >= 0, "Box too small");
+
+    screenY = r.top;
+    for (by = 0; by < 16; by++) {
+        for (yRep = by == repeatPoint ? yRepeats : 1; yRep; yRep--) {
+            if (inClip(screenY)) {
+                int left = r.left;
+                uint32_t *line = linePtr32(screenY);
+
+                for (bx = 0; bx < 16; bx++) {
+                    uint8_t pixel = style[by << 4 | bx];
+                    bool opaque = pixel != 0;
+                    pixel += paletteOffset;
+
+                    if (bx == repeatPoint) {
+                        if (opaque) {
+                            fastFill(line, left, xRepeats, pixel);
+                        }
+                        left += xRepeats;
+                    } else {
+                        if (opaque) {
+                            *(left + (uint8_t*)line) = pixel;
+                        }
+                        left++;
+                    }
+                }
+            }
+            screenY++;
+        }
+    }
 }
 
 void UITextLayer::printf(const char *format, ...) {
@@ -407,19 +429,18 @@ int UITextLayer::measureWidth(const char *text) {
         if (c == '\n') {
             lineWidth = 0;
         } else {
-            lineWidth += font.getGlyph(c).getEscapement();
-            if (lineWidth > maxWidth) {
-                maxWidth = lineWidth;
-            }
+            /*
+             * Include the width of the last glyph, and the escapement
+             * of all others.
+             */
+            Glyph g = font.getGlyph(c);
+            maxWidth = std::max(maxWidth, lineWidth + g.getWidth());
+            lineWidth += g.getEscapement();
         }
         text++;
     }
 
-    /*
-     * Each character has a pixel of padding built-in. Remove
-     * the padding from the last character in the line.
-     */
-    return maxWidth - 1;
+    return maxWidth;
 }
 
 int UITextLayer::measureNextWordWidth(const char *text) {

@@ -62,9 +62,15 @@ int main() {
 #endif
 
     if (1) {
-        UIList *list = new UIList();
-        for (int i = 0; i < 1000; i++) {
-            list->append(new UIFileListItem());
+        UIList *list = new UIList(32);
+        for (int i = 0; i < 100; i++) {
+            UIFileListItem *item = new UIFileListItem();
+            item->setText(item->TEXT_TOP_LEFT, "top left");
+            item->setText(item->TEXT_TOP_RIGHT, "top right");
+            item->setText(item->TEXT_BOTTOM_LEFT, "bottom left");
+            item->setText(item->TEXT_BOTTOM_RIGHT, "bottom right");
+            item->setText(item->TEXT_CENTER, "#%d", i);
+            list->append(item);
         }
         list->run();
         delete list;

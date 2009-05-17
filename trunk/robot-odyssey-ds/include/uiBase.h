@@ -46,6 +46,7 @@ class UIInputState
     uint32_t keysHeld;
     uint32_t keysPressed;
     uint32_t keysReleased;
+    uint32_t keysPressedWithRepeat;
     int touchX;
     int touchY;
 };

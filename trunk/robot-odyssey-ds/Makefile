@@ -52,7 +52,8 @@ SOURCES_BT   := bt_lab.py bt_menu.py bt_game.py bt_tutorial.py bt_renderer.py
 
 SOURCES_GRIT := gfx_background.grit gfx_button_remote.grit \
                 gfx_button_toolbox.grit gfx_button_solder.grit \
-                gfx_battery.grit gfx_rarrow.grit gfx_button_ok.grit
+                gfx_battery.grit gfx_rarrow.grit gfx_button_ok.grit \
+                gfx_box.grit
 
 
 ############################################

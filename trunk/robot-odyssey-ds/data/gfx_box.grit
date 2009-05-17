@@ -1,0 +1,12 @@
+# Exclude palette, it's shared with gfx_background
+-p!
+
+# uint8 type
+-gu8
+
+# No compression
+-gz!
+
+# Bitnap format
+-gb
+
