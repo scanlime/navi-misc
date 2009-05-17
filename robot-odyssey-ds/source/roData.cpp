@@ -31,24 +31,20 @@
 #include "roData.h"
 
 
+//********************************************************** ROWorld
+
+
+ROWorld::ROWorld() {
+    memset(this, 0, sizeof *this);
+    memset(objects.nextInRoom, RO_OBJ_NONE, sizeof objects.nextInRoom);
+    memset(objects.room, RO_ROOM_NONE, sizeof objects.room);
+    memset(rooms.objectListHead, RO_OBJ_NONE, sizeof rooms.objectListHead);
+    memset(text.room, RO_ROOM_NONE, sizeof text.room);
+}
+
 ROWorld *ROWorld::fromProcess(SBTProcess *proc) {
     return (ROWorld*) (proc->memSeg(proc->reg.ds) +
                        proc->getAddress(SBTADDR_WORLD_DATA));
-}
-
-ROCircuit *ROCircuit::fromProcess(SBTProcess *proc) {
-    return (ROCircuit*) (proc->memSeg(proc->reg.ds) +
-                       proc->getAddress(SBTADDR_CIRCUIT_DATA));
-}
-
-RORobot *RORobot::fromProcess(SBTProcess *proc) {
-    return (RORobot*) (proc->memSeg(proc->reg.ds) +
-                       proc->getAddress(SBTADDR_ROBOT_DATA_MAIN));
-}
-
-RORobotGrabber *RORobotGrabber::fromProcess(SBTProcess *proc) {
-    return (RORobotGrabber*) (proc->memSeg(proc->reg.ds) +
-                              proc->getAddress(SBTADDR_ROBOT_DATA_GRABBER));
 }
 
 RORoomId ROWorld::getObjectRoom(ROObjectId obj) {
@@ -146,6 +142,37 @@ void ROWorld::setRobotXY(ROObjectId obj, int x, int y) {
     setObjectXY(right, x + 5, y);
 }
 
+
+//********************************************************** ROCircuit
+
+
+ROCircuit *ROCircuit::fromProcess(SBTProcess *proc) {
+    return (ROCircuit*) (proc->memSeg(proc->reg.ds) +
+                       proc->getAddress(SBTADDR_CIRCUIT_DATA));
+}
+
+
+//********************************************************** RORobot
+
+
+RORobot *RORobot::fromProcess(SBTProcess *proc) {
+    return (RORobot*) (proc->memSeg(proc->reg.ds) +
+                       proc->getAddress(SBTADDR_ROBOT_DATA_MAIN));
+}
+
+
+//********************************************************** RORobotGrabber
+
+
+RORobotGrabber *RORobotGrabber::fromProcess(SBTProcess *proc) {
+    return (RORobotGrabber*) (proc->memSeg(proc->reg.ds) +
+                              proc->getAddress(SBTADDR_ROBOT_DATA_GRABBER));
+}
+
+
+//********************************************************** ROData
+
+
 ROData::ROData(SBTProcess *proc) {
     world = ROWorld::fromProcess(proc);
     circuit = ROCircuit::fromProcess(proc);
@@ -180,6 +207,10 @@ void ROData::copyFrom(ROData *source) {
     /*
      * Copy all world data from another process.
      */
+
+    if (this == source) {
+        return;
+    }
 
     const int copyRobots = robots.count < source->robots.count ?
                            robots.count : source->robots.count;

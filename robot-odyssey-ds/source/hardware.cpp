@@ -36,9 +36,49 @@
 #include "gfx_background.h"
 #include "gfx_button_remote.h"
 
-
 static void allocFailed() {
     PANIC(GENERIC_RT_ERROR, ("Memory allocation failure"));
+}
+
+extern "C" void *_sbrk_r(void *reent, int bytes) {
+    /*
+     * We override the default implementation of sbrk so we can PANIC
+     * on allocation failure, and so we can redefine the end of the heap.
+     *
+     * The default sbrk in devkitARM's newlib is buggy. It uses the
+     * stack pointer as its end-of-heap, which isn't right. It also
+     * does not zero memory, which newlib expects. The stack isn't
+     * even in mainmem, it's in DTCM. So we'd rather use the end of
+     * the heap- but we also need to reserve space for the various IPC
+     * regions that are at the end of main memory. The first such
+     * region should be the one that our SoundEngine allocates.
+     */
+
+    const char *end = (char*) 0x027FE000;
+    extern char begin asm ("__end__");
+    static char *current;
+
+    if (!current) {
+        current = &begin;
+    }
+
+    void *result = (void*)current;
+    current += bytes;
+
+    if (current > end) {
+        PANIC(GENERIC_RT_ERROR, ("Memory allocation failure\n\n"
+                                 "sbrk(%d)\n"
+                                 " min=%p\n"
+                                 " cur=%p\n"
+                                 " max=%p\n",
+                                 bytes, &begin, current, end));
+    }
+
+    if (bytes > 0) {
+        memset(result, 0, bytes);
+    }
+
+    return result;
 }
 
 void Hardware::init() {

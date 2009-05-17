@@ -2,6 +2,8 @@
 # Makefile for Robot Odyssey DS
 # -----------------------------
 
+# Requires libnds 1.3.2
+
 ############################################
 # Tools and Directories
 #
@@ -54,6 +56,12 @@ SOURCES_GRIT := gfx_background.grit gfx_button_remote.grit \
                 gfx_button_toolbox.grit gfx_button_solder.grit \
                 gfx_battery.grit gfx_rarrow.grit gfx_button_ok.grit \
                 gfx_box.grit
+
+# Bug fixes for libnds
+SOURCES_A9 += sprite_alloc.cpp
+
+# Optional: Debug version of malloc()
+#SOURCES_A9 += malloc_debug.cpp
 
 
 ############################################

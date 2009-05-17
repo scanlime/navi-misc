@@ -35,7 +35,6 @@
 
 UIList::UIList(int offsetX, int offsetY)
     : UITransient(),
-      sprAlloc(&oamSub),
       draw(&items, offsetX, offsetY),
       needRepaint(true)
 {}
@@ -69,8 +68,8 @@ void UIList::updateState() {
 
 void UIList::animate() {
     /*
-     * Make sure the current item is within the safe area.  not,
-     * scroll so that it's fully inside.
+     * Make sure the current item is within the safe area.
+     * If not, scroll so that it's fully inside.
      */
 
     const int scroll = draw.getScroll();
@@ -107,6 +106,8 @@ void UIList::animate() {
 }
 
 void UIList::append(UIListItem *item) {
+    sassert(item, "Append NULL list item");
+    sassert(item->getHeight() > 0, "Append list item with no height");
     items.push_back(item);
     needRepaint = true;
 }
@@ -279,4 +280,41 @@ void UIFileListItem::paint(UIListDraw *draw, int x, int y, bool hilight) {
 
 int UIFileListItem::getHeight() {
     return height;
+}
+
+
+//********************************************************** UIFileListItem
+
+
+UIListWithRobot::UIListWithRobot(RORobotId robotId)
+    : UIList(37),
+      sprAlloc(&oamSub),
+      sprScraper(),
+      renderer(&sprScraper),
+      roData(&renderer),
+      robot(&sprAlloc, &sprScraper, &roData, robotId)
+{
+    /*
+     * Load a world from the filesystem. We need this for the sprite
+     * data, at minimum. It has the handy side-effect of putting all
+     * the other world data structures in a consistent state.
+     *
+     * We load sewer.wor here because we need a complete world file
+     * and it needs to be from the main game (so we have 4 robots).
+     * This is the only option that meets both criteria.
+     */
+    DOSFilesystem dos;
+    int fd = dos.open("sewer.wor");
+    dos.read(fd, (void*)roData.world, sizeof *roData.world);
+
+    robot.sprite.moveTo(20,20);
+    robot.sprite.show();
+    robot.setupRenderer(&roData);
+}
+
+void UIListWithRobot::animate() {
+    while (renderer.run() != SBTHALT_LOAD_ROOM_ID);
+    renderer.reg.al = RO_ROOM_RENDERER;
+
+    UIList::animate();
 }
