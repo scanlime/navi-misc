@@ -44,9 +44,23 @@ class UIListDraw : public UITextLayer
 {
 public:
     UIListDraw(std::vector<UIListItem*> *_items, int _offsetX = 0, int _offsetY = 0)
-        : items(_items), offsetX(_offsetX), offsetY(_offsetY) {}
+        : currentItem(0),
+          items(_items),
+          offsetX(_offsetX),
+          offsetY(_offsetY) {}
 
     virtual void paint();
+    void paint(UIListItem *itemToPaint);
+
+    int currentItem;
+
+    int getOffsetX() {
+        return offsetX;
+    }
+
+    int getOffsetY() {
+        return offsetY;
+    }
 
 private:
     std::vector<UIListItem*> *items;
@@ -71,7 +85,19 @@ public:
 
     void append(UIListItem *item);
 
+    int getCurrentIndex() {
+        return draw.currentItem;
+    }
+
+    UIListItem *getCurrentItem() {
+        return items[draw.currentItem];
+    }
+
+    void setCurrentIndex(int index);
+
  private:
+    void getCurrentItemY(int &top, int &bottom);
+
     std::vector<UIListItem*> items;
 
     MSpriteAllocator sprAlloc;
@@ -86,7 +112,7 @@ public:
 class UIListItem
 {
 public:
-    virtual void paint(UIListDraw *draw, int x, int y) = 0;
+    virtual void paint(UIListDraw *draw, int x, int y, bool hilight) = 0;
     virtual int getHeight() = 0;
 };
 
@@ -104,15 +130,17 @@ public:
         TEXT_TOP_RIGHT,
         TEXT_BOTTOM_LEFT,
         TEXT_BOTTOM_RIGHT,
+        TEXT_CENTER,
         TEXT_NUM_SLOTS  // Must be last
     };
 
+    UIFileListItem();
     void setText(TextSlot slot, const char *format, ...);
-    virtual void paint(UIListDraw *draw, int x, int y);
+    virtual void paint(UIListDraw *draw, int x, int y, bool hilight);
     virtual int getHeight();
 
 private:
-    static const int height = 32;
+    static const int height = 30;
     static const int bufferLen = 80;
     char text[TEXT_NUM_SLOTS][80];
 };

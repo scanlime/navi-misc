@@ -152,6 +152,7 @@ void UIObjectList::scanInput(UIInputState &input) {
     input.keysHeld = keysHeld();
     input.keysPressed = keysDown();
     input.keysReleased = keysUp();
+    input.keysPressedWithRepeat = keysDownRepeat();
 
     /*
      * Debugging: Trigger the system load meter with L+R+START

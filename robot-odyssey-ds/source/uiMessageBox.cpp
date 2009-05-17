@@ -47,8 +47,6 @@ UIMessageBox::UIMessageBox(const char *format, ...)
     text.init(format, v);
     va_end(v);
 
-    text.colors.setDefaultPalette();
-
     objects.push_back(&button);
 }
 

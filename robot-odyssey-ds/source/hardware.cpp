@@ -49,6 +49,11 @@ void Hardware::init() {
     std::set_new_handler(allocFailed);
 
     /*
+     * Key repeat delay and rate
+     */
+    keysSetRepeat(15, 4);
+
+    /*
      * Video mode, VRAM banks
      */
     lcdMainOnTop();
@@ -80,7 +85,8 @@ void Hardware::init() {
                LZ77Vram);
 
     /*
-     * Backdrop image (sub BG3)
+     * Backdrop image (sub BG3).
+     * The background's palette is shared by the text layer (UIText).
      */
     int subBg = bgInitSub(3, BgType_Bmp8, BgSize_B8_256x256, 0, 0);
     decompress(gfx_backgroundBitmap, bgGetGfxPtr(subBg), LZ77Vram);

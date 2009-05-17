@@ -36,11 +36,9 @@
 UIList::UIList(int offsetX, int offsetY)
     : UITransient(),
       sprAlloc(&oamSub),
-      draw(&items, offsetX, offsetY)
-{
-    draw.colors.setDefaultPalette();
-    needRepaint = true;
-}
+      draw(&items, offsetX, offsetY),
+      needRepaint(true)
+{}
 
 UIList::~UIList()
 {
@@ -51,12 +49,12 @@ UIList::~UIList()
 }
 
 void UIList::handleInput(const UIInputState &input) {
-    if (input.keysHeld == KEY_DOWN) {
-        draw.scrollTo(draw.getScroll() + 3);
+    if (input.keysPressedWithRepeat & KEY_DOWN) {
+        setCurrentIndex(getCurrentIndex() + 1);
     }
 
-    if (input.keysHeld == KEY_UP) {
-        draw.scrollTo(draw.getScroll() - 3);
+    if (input.keysPressedWithRepeat & KEY_UP) {
+        setCurrentIndex(getCurrentIndex() - 1);
     }
 }
 
@@ -66,6 +64,14 @@ void UIList::updateState() {
         needRepaint = false;
     }
 
+    /* XXX: Better animation */
+    int top, bottom, center;
+    getCurrentItemY(top, bottom);
+    center = (top + bottom) / 2;
+    int scrollTarget = center - (SCREEN_HEIGHT / 2);
+    int diff = scrollTarget - draw.getScroll();
+    draw.scrollBy(diff >> 3);
+
     UITransient::updateState();
 }
 
@@ -74,12 +80,55 @@ void UIList::append(UIListItem *item) {
     needRepaint = true;
 }
 
+void UIList::setCurrentIndex(int index) {
+    UIListItem *prevItem = getCurrentItem();
+
+    while (index < 0) {
+        index += items.size();
+    }
+    draw.currentItem = index % items.size();
+
+    draw.paint(prevItem);
+    draw.paint(getCurrentItem());
+}
+
+void UIList::getCurrentItemY(int &top, int &bottom) {
+    /*
+     * Get the Y coordinates of the current item.
+     */
+
+    std::vector<UIListItem*>::iterator i;
+    int index = 0;
+    int y = draw.getOffsetY();
+
+    for (i = items.begin(); i != items.end(); i++) {
+        UIListItem *item = *i;
+        int height = item->getHeight();
+
+        if (index == getCurrentIndex()) {
+            top = y;
+            bottom = y + height;
+            return;
+        }
+
+        y += height;
+        index++;
+    }
+
+    sassert(false, "Current item not found");
+}
+
 
 //********************************************************** UIListDraw
 
 
 void UIListDraw::paint() {
+    /*
+     * Repaint all items.
+     */
+
     std::vector<UIListItem*>::iterator i;
+    int index = 0;
     int x = offsetX;
     int y = offsetY;
 
@@ -90,18 +139,59 @@ void UIListDraw::paint() {
         int height = item->getHeight();
 
         if (y + height >= clip.y1 && y <= clip.y2) {
-            item->paint(this, x, y);
+            item->paint(this, x, y, currentItem == index);
         }
 
         y += height;
+        index++;
     }
 
     blit();
 }
 
+void UIListDraw::paint(UIListItem *itemToPaint) {
+    /*
+     * Repaint a single item.
+     */
+
+    std::vector<UIListItem*>::iterator i;
+    int index = 0;
+    int x = offsetX;
+    int y = offsetY;
+
+    for (i = items->begin(); i != items->end(); i++) {
+        UIListItem *item = *i;
+        int height = item->getHeight();
+
+        if (itemToPaint == item) {
+            /*
+             * Clip to this item and to the screen
+             */
+            clip.y1 = std::max(getScroll(), y);
+            clip.y2 = std::min(getScroll() + SCREEN_HEIGHT, y + height);
+
+            if (clip.y1 < clip.y2) {
+                clear();
+                item->paint(this, x, y, currentItem == index);
+                blit();
+            }
+            break;
+        }
+
+        y += height;
+        index++;
+    }
+}
+
 
 //********************************************************** UIFileListItem
 
+
+UIFileListItem::UIFileListItem() {
+    for (int slot = 0; slot < TEXT_NUM_SLOTS; slot++) {
+        text[slot][0] = '\0';
+    }
+}
 
 void UIFileListItem::setText(TextSlot slot, const char *format, ...) {
     va_list v;
@@ -111,9 +201,45 @@ void UIFileListItem::setText(TextSlot slot, const char *format, ...) {
     va_end(v);
 }
 
-void UIFileListItem::paint(UIListDraw *draw, int x, int y) {
-    draw->moveTo(x + 5, y + 5);
-    draw->printf("Foo! %p", this);
+void UIFileListItem::paint(UIListDraw *draw, int x, int y, bool hilight) {
+    const int width = SCREEN_WIDTH - x - 2;
+    int boxPalette;
+    TextColors colors;
+
+    if (hilight) {
+        boxPalette = 4;
+        draw->colors = TextColors();
+    } else {
+        boxPalette = 0;
+        draw->colors = TextColors(249, 0, 248);
+    }
+
+    /*
+     * The +1 causes the bottom black border to overlap with the top
+     * black border on the next item, so we don't get a double-thick
+     * border.
+     */
+    draw->drawBox(Rect(x, y, width, height+1), boxPalette);
+
+    int x1 = x + 1;
+    int x2 = x + width - 1;
+    int y1 = y + 1;
+
+    draw->moveTo(x1, y1);
+    draw->setAlignment(draw->LEFT);
+    draw->draw(text[TEXT_TOP_LEFT]);
+    draw->moveTo(x1, y1 + draw->font.getLineSpacing());
+    draw->draw(text[TEXT_BOTTOM_LEFT]);
+
+    draw->moveTo(x2, y1);
+    draw->setAlignment(draw->RIGHT);
+    draw->draw(text[TEXT_TOP_RIGHT]);
+    draw->moveTo(x2, y1 + draw->font.getLineSpacing());
+    draw->draw(text[TEXT_BOTTOM_RIGHT]);
+
+    draw->moveTo((x1 + x2) / 2, y1 + draw->font.getLineSpacing() / 2);
+    draw->setAlignment(draw->CENTER);
+    draw->draw(text[TEXT_CENTER]);
 }
 
 int UIFileListItem::getHeight() {

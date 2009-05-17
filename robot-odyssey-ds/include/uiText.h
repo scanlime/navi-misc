@@ -33,7 +33,9 @@
 
 #include <nds.h>
 #include <stdarg.h>
+#include <string.h>
 #include "rect.h"
+#include "gfx_box.h"
 
 
 /*
@@ -50,29 +52,6 @@ public:
 
     void setBgTransparent() {
         bg = 0;
-    }
-
-    void setFgPalette(uint16_t color = RGB8(0xFF, 0xFF, 0xFF)) {
-        BG_PALETTE_SUB[fg] = color;
-    }
-
-    void setBgPalette(uint16_t color = RGB8(0x30, 0x30, 0x30)) {
-        BG_PALETTE_SUB[bg] = color;
-    }
-
-    void setBorderPalette(uint16_t color = RGB8(0x00, 0x00, 0x00)) {
-        BG_PALETTE_SUB[border] = color;
-    }
-
-    void setFramePalette(uint16_t color = RGB8(0x55, 0xFF, 0xFF)) {
-        BG_PALETTE_SUB[frame] = color;
-    }
-
-    void setDefaultPalette() {
-        setFgPalette();
-        setBgPalette();
-        setBorderPalette();
-        setFramePalette();
     }
 
     uint8_t fg;
@@ -161,8 +140,10 @@ public:
 
     static const int width = 256;
     static const int height = 256;
+    static const int maxScrollSpeed = height - SCREEN_HEIGHT - 1;
 
     void scrollTo(int y);
+    void scrollBy(int diff);
 
     int getScroll() {
         return yScroll;
@@ -175,7 +156,8 @@ public:
     virtual void paint();
 
     void paintAll() {
-        resetClip();
+        clip.y1 = getScroll();
+        clip.y2 = clip.y1 + SCREEN_HEIGHT;
         paint();
     }
 
@@ -201,6 +183,39 @@ protected:
 
     uint32_t *linePtr32(int y) {
         return (uint32_t*) linePtr(y);
+    }
+
+    void fastFill(uint32_t *line, int left, int width, uint8_t paletteIndex) {
+        if (width < 16) {
+            /*
+             * Short fill: Just use one memset
+             */
+            memset(left + (uint8_t*)line, paletteIndex, width);
+
+        } else {
+            /*
+             * Long fill: At least one full word and two partial
+             * words.  Break it up into pieces.
+             */
+
+            int right = left + width;
+            uint32_t fillWord = (paletteIndex | (paletteIndex << 8) |
+                                 (paletteIndex << 16) | (paletteIndex << 24));
+
+            if (left & 3) {
+                int leftRemainder = 4 - (left & 3);
+                memset(left + (uint8_t*)line, paletteIndex, leftRemainder);
+            }
+
+            int leftWord = (left + 3) >> 2;
+            int rightWord = right >> 2;
+            swiFastCopy(&fillWord, line + leftWord,
+                        COPY_MODE_FILL | (rightWord - leftWord));
+
+            if (right & 3) {
+                memset((right & ~3) + (uint8_t*)line, paletteIndex, right & 3);
+            }
+        }
     }
 
 private:
@@ -248,6 +263,8 @@ class UITextLayer : public VScrollLayer
     }
 
     void drawFrame(Rect r, int thickness=8);
+    void drawBox(Rect r, uint8_t paletteOffset = 0,
+                 const uint8_t style[256] = gfx_boxBitmap);
 
     void printf(const char *format, ...);
     void vprintf(const char *format, va_list v);
@@ -255,12 +272,11 @@ class UITextLayer : public VScrollLayer
     int measureWidth(const char *text);
 
     TextColors colors;
+    DefaultFont font;
 
 private:
     void drawBorderRects(Rect r, uint8_t paletteIndex, int thickness);
     int measureNextWordWidth(const char *text);
-
-    DefaultFont font;
 
     int x, y;
     Alignment align;
