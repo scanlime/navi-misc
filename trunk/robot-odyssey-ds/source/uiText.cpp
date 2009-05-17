@@ -283,6 +283,8 @@ void UITextLayer::drawBox(Rect r, uint8_t paletteOffset, const uint8_t style[256
             screenY++;
         }
     }
+
+    addDirtyRect(r);
 }
 
 void UITextLayer::printf(const char *format, ...) {

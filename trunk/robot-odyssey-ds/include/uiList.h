@@ -82,6 +82,7 @@ public:
 
     virtual void handleInput(const UIInputState &input);
     virtual void updateState();
+    virtual void animate();
 
     void append(UIListItem *item);
 

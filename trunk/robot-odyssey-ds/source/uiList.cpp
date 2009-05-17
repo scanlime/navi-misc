@@ -64,15 +64,46 @@ void UIList::updateState() {
         needRepaint = false;
     }
 
-    /* XXX: Better animation */
-    int top, bottom, center;
-    getCurrentItemY(top, bottom);
-    center = (top + bottom) / 2;
-    int scrollTarget = center - (SCREEN_HEIGHT / 2);
-    int diff = scrollTarget - draw.getScroll();
-    draw.scrollBy(diff >> 3);
-
     UITransient::updateState();
+}
+
+void UIList::animate() {
+    /*
+     * Make sure the current item is within the safe area.  not,
+     * scroll so that it's fully inside.
+     */
+
+    const int scroll = draw.getScroll();
+    const int safeTop = scroll + 30;
+    const int safeBottom = scroll + SCREEN_HEIGHT - 30;
+
+    int top, bottom, diff;
+    getCurrentItemY(top, bottom);
+
+    if (top < safeTop) {
+        diff = top - safeTop;
+    } else if (bottom > safeBottom) {
+        diff = bottom - safeBottom;
+    } else {
+        diff = 0;
+    }
+
+    if (diff) {
+        /*
+         * Go faster when we're farther away, slower when we approach
+         * it.  scrollBy() will take care of limiting the speed.
+         */
+
+        int slowDiff = diff >> 2;
+
+        if (slowDiff) {
+            draw.scrollBy(slowDiff);
+        } else {
+            draw.scrollBy(diff);
+        }
+    }
+
+    UITransient::animate();
 }
 
 void UIList::append(UIListItem *item) {
@@ -83,10 +114,9 @@ void UIList::append(UIListItem *item) {
 void UIList::setCurrentIndex(int index) {
     UIListItem *prevItem = getCurrentItem();
 
-    while (index < 0) {
-        index += items.size();
-    }
-    draw.currentItem = index % items.size();
+    index = std::max(index, 0);
+    index = std::min(index, (int)items.size() - 1);
+    draw.currentItem = index;
 
     draw.paint(prevItem);
     draw.paint(getCurrentItem());
@@ -171,7 +201,12 @@ void UIListDraw::paint(UIListItem *itemToPaint) {
             clip.y2 = std::min(getScroll() + SCREEN_HEIGHT, y + height);
 
             if (clip.y1 < clip.y2) {
-                clear();
+                /*
+                 * Note that we don't clear behind the item: We expect
+                 * the item to fully redraw its own background, and we
+                 * don't want to wipe out the overlap from adjacent
+                 * items that we aren't painting.
+                 */
                 item->paint(this, x, y, currentItem == index);
                 blit();
             }
