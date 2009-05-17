@@ -337,6 +337,7 @@ class ROWorld {
         uint8_t stringHeap[0x1880];
     } text;
 
+    ROWorld();
     static ROWorld *fromProcess(SBTProcess *proc);
 
     RORoomId getObjectRoom(ROObjectId obj);

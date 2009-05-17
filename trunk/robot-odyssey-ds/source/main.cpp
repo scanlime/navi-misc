@@ -62,14 +62,16 @@ int main() {
 #endif
 
     if (1) {
-        UIList *list = new UIList(32);
+        UIListWithRobot *list = new UIListWithRobot;
+
         for (int i = 0; i < 100; i++) {
             UIFileListItem *item = new UIFileListItem();
             item->setText(item->TEXT_TOP_LEFT, "top left");
             item->setText(item->TEXT_TOP_RIGHT, "top right");
             item->setText(item->TEXT_BOTTOM_LEFT, "bottom left");
             item->setText(item->TEXT_BOTTOM_RIGHT, "bottom right");
-            item->setText(item->TEXT_CENTER, "#%d", i);
+            item->setText(item->TEXT_CENTER, "#%d", 0);
+
             list->append(item);
         }
         list->run();
@@ -79,7 +81,6 @@ int main() {
     HwMain *hwMain = new HwMain();
     SBTProcess *game = new GameEXE(hwMain);
     ROData gameData(game);
-
 
     UISubScreen *subScreen = new UISubScreen(&gameData, hwMain);
     UIFade gameFader(gameFader.MAIN);

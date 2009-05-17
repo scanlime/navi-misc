@@ -233,8 +233,8 @@ UIRobotIcon::UIRobotIcon(MSpriteAllocator *sprAlloc, HwSpriteScraper *sprScraper
     // of padding around the edges so it won't clip, and double-size
     // here will quickly exhaust the NDS's limit on sprites per scanline.
     : UISpriteButton(sprAlloc, allocImages(sprAlloc, sprScraper),
-                     MSPRR_FRONT, false) {
-
+                     MSPRR_FRONT, false)
+{    
     this->roData = roData;
     this->robotId = robotId;
 
@@ -248,7 +248,6 @@ UIRobotIcon::UIRobotIcon(MSpriteAllocator *sprAlloc, HwSpriteScraper *sprScraper
      * behind the main robot sprite. These OBJs share the same image
      * data, but they use an all-black palette.
      */
-
     static const int xOffset[] = { 1, -1,  0,  0 };
     static const int yOffset[] = { 0,  0,  1, -1 };
 
@@ -261,9 +260,6 @@ UIRobotIcon::UIRobotIcon(MSpriteAllocator *sprAlloc, HwSpriteScraper *sprScraper
         obj->center();
         obj->moveBy(xOffset[i], yOffset[i]);
     }
-
-    sprite.update();
-    sprite.show();
 }
 
 UIRobotIcon::~UIRobotIcon() {
@@ -297,9 +293,9 @@ SpriteImages *UIRobotIcon::allocImages(MSpriteAllocator *sprAlloc,
                                        HwSpriteScraper *sprScraper) {
     this->sprScraper = sprScraper;
     scraperRect = sprScraper->allocRect(sprAlloc->oam);
-    images = new SpriteImages(sprAlloc->oam, scraperRect->size,
-                              scraperRect->format, scraperRect->buffer);
-    return images;
+
+    return images = new SpriteImages(sprAlloc->oam, scraperRect->size,
+                                     scraperRect->format, scraperRect->buffer);
 }
 
 

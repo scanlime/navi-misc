@@ -32,6 +32,7 @@
 #include <vector>
 #include "uiText.h"
 #include "uiBase.h"
+#include "uiSubScreen.h"
 
 class UIListItem;
 
@@ -101,7 +102,6 @@ public:
 
     std::vector<UIListItem*> items;
 
-    MSpriteAllocator sprAlloc;
     UIListDraw draw;
     bool needRepaint;
 };
@@ -122,7 +122,6 @@ public:
  * A list item for files. This is 32 pixels high with enough room for
  * two lines of text, and it has a boxy background.
  */
-
 class UIFileListItem : public UIListItem
 {
 public:
@@ -144,6 +143,25 @@ private:
     static const int height = 30;
     static const int bufferLen = 80;
     char text[TEXT_NUM_SLOTS][80];
+};
+
+
+/*
+ * A list in which a robot follows the current item selection.
+ */
+class UIListWithRobot : public UIList
+{
+public:
+    UIListWithRobot(RORobotId robotId = RO_ROBOT_SCANNER);
+
+    virtual void animate();
+
+private:
+    MSpriteAllocator sprAlloc;
+    HwSpriteScraper sprScraper;
+    RendererEXE renderer;
+    ROData roData;
+    UIRobotIcon robot;
 };
 
 

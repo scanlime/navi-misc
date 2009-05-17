@@ -58,9 +58,11 @@ static void decompressRLE(uint8_t *dest, uint8_t *src, uint32_t srcLength)
      */
 
     int zeroes = 0;
+    uint8_t *limit = dest + 0x10000;
 
     while (srcLength) {
         uint8_t byte = *(src++);
+        sassert(dest < limit, "Overflow in decompressRLE");
         *(dest++) = byte;
         srcLength--;
 
