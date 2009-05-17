@@ -192,7 +192,6 @@ class UISpriteButton : public UIObject
 {
  public:
     UISpriteButton(MSpriteAllocator *sprAlloc, SpriteImages *images,
-                   int x = 0, int y = 0,
                    MSpriteRange range = MSPRR_UI,
                    bool autoDoubleSize = true);
 

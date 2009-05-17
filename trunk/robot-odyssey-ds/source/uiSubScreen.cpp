@@ -41,8 +41,8 @@
 
 UIToggleButton::UIToggleButton(MSpriteAllocator *sprAlloc, SpriteImages *images,
                                UIAnimationSequence::Item *animation,
-                               EffectMarquee32 *marqueeEffect, int x, int y)
-    : UISpriteButton(sprAlloc, images, x, y),
+                               EffectMarquee32 *marqueeEffect)
+    : UISpriteButton(sprAlloc, images),
       animSequence(animation) {
 
     state = false;
@@ -76,8 +76,8 @@ void UIToggleButton::animate() {
 UIRemoteControlButton::UIRemoteControlButton(MSpriteAllocator *sprAlloc,
                                              EffectMarquee32 *marqueeEffect,
                                              ROData *roData,
-                                             HwCommon *hw, int x, int y)
-    : UIToggleButton(sprAlloc, allocImages(sprAlloc), animation, marqueeEffect, x, y) {
+                                             HwCommon *hw)
+    : UIToggleButton(sprAlloc, allocImages(sprAlloc), animation, marqueeEffect) {
     this->hw = hw;
     this->roData = roData;
     hotkey = KEY_R;
@@ -116,8 +116,8 @@ UIAnimationSequence::Item UIRemoteControlButton::animation[] = {
 UISolderButton::UISolderButton(MSpriteAllocator *sprAlloc,
                                EffectMarquee32 *marqueeEffect,
                                ROData *roData,
-                               HwCommon *hw, int x, int y)
-  : UIToggleButton(sprAlloc, allocImages(sprAlloc), animation, marqueeEffect, x, y) {
+                               HwCommon *hw)
+  : UIToggleButton(sprAlloc, allocImages(sprAlloc), animation, marqueeEffect) {
     this->hw = hw;
     this->roData = roData;
     hotkey = KEY_A;
@@ -157,8 +157,8 @@ UIAnimationSequence::Item UISolderButton::animation[] = {
 
 
 UIToolboxButton::UIToolboxButton(MSpriteAllocator *sprAlloc,
-                                 HwCommon *hw, int x, int y)
-  : UISpriteButton(sprAlloc, allocImages(sprAlloc), x, y) {
+                                 HwCommon *hw)
+  : UISpriteButton(sprAlloc, allocImages(sprAlloc)) {
     this->hw = hw;
     hotkey = KEY_L;
 }
@@ -182,8 +182,8 @@ SpriteImages *UIToolboxButton::allocImages(MSpriteAllocator *sprAlloc) {
 
 
 UIBatteryIcon::UIBatteryIcon(MSpriteAllocator *sprAlloc, ROData *roData,
-                             RORobotId robotId, int x, int y)
-    : UISpriteButton(sprAlloc, allocImages(sprAlloc), x, y, MSPRR_UI, false) {
+                             RORobotId robotId)
+    : UISpriteButton(sprAlloc, allocImages(sprAlloc), MSPRR_UI, false) {
     this->roData = roData;
     this->robotId = robotId;
 }
@@ -227,13 +227,13 @@ SpriteImages *UIBatteryIcon::allocImages(MSpriteAllocator *sprAlloc) {
 
 
 UIRobotIcon::UIRobotIcon(MSpriteAllocator *sprAlloc, HwSpriteScraper *sprScraper,
-                         ROData *roData, RORobotId robotId, int x, int y)
+                         ROData *roData, RORobotId robotId)
 
     // Note that we disable autoDoubleSize. The robot already has plenty
     // of padding around the edges so it won't clip, and double-size
     // here will quickly exhaust the NDS's limit on sprites per scanline.
     : UISpriteButton(sprAlloc, allocImages(sprAlloc, sprScraper),
-                     x, y, MSPRR_FRONT, false) {
+                     MSPRR_FRONT, false) {
 
     this->roData = roData;
     this->robotId = robotId;
@@ -309,12 +309,9 @@ SpriteImages *UIRobotIcon::allocImages(MSpriteAllocator *sprAlloc,
 UIRobotStatus::UIRobotStatus(MSpriteAllocator *sprAlloc,
                              HwSpriteScraper *sprScraper,
                              ROData *roData,
-                             RORobotId robotId,
-                             int x, int y)
-    : icon(sprAlloc, sprScraper, roData, robotId, x, y),
-      battery(sprAlloc, roData, robotId,
-              x - battery.width / 2,
-              y + 16)
+                             RORobotId robotId)
+    : icon(sprAlloc, sprScraper, roData, robotId),
+      battery(sprAlloc, roData, robotId)
 {
     objects.push_back(&icon);
     objects.push_back(&battery);
@@ -323,6 +320,16 @@ UIRobotStatus::UIRobotStatus(MSpriteAllocator *sprAlloc,
 void UIRobotStatus::setupRenderer(ROData *rendererData) {
     icon.setupRenderer(rendererData);
 }
+
+void UIRobotStatus::moveTo(int x, int y) {
+    icon.sprite.moveTo(x, y);
+    icon.sprite.show();
+
+    battery.sprite.moveTo(x - battery.width / 2,
+                          y + 16);
+    battery.sprite.show();
+}
+
 
 
 //********************************************************** UISubScreen
@@ -339,23 +346,32 @@ UISubScreen::UISubScreen(ROData *gameData, HwCommon *hw)
     sprAlloc(&oamSub),
     marqueeEffect(&oamSub),
 
-    btnRemote(&sprAlloc, &marqueeEffect, gameData, hw,
-              SCREEN_WIDTH - btnRemote.width,
-              SCREEN_HEIGHT - btnRemote.height),
-    btnSolder(&sprAlloc, &marqueeEffect, gameData, hw,
-              0, SCREEN_HEIGHT - btnSolder.height),
-    btnToolbox(&sprAlloc, hw,
-               SCREEN_WIDTH - btnToolbox.height, 0),
+    btnRemote(&sprAlloc, &marqueeEffect, gameData, hw),
+    btnSolder(&sprAlloc, &marqueeEffect, gameData, hw),
+    btnToolbox(&sprAlloc, hw),
 
-    xRobot(&sprAlloc, &spriteScraper, gameData, RO_ROBOT_CHECKERS, 128 - 30, 64),
-    yRobot(&sprAlloc, &spriteScraper, gameData, RO_ROBOT_SCANNER, 128 + 30, 64)
+    xRobot(&sprAlloc, &spriteScraper, gameData, RO_ROBOT_CHECKERS),
+    yRobot(&sprAlloc, &spriteScraper, gameData, RO_ROBOT_SCANNER)
 {
     this->gameData = gameData;
 
+    btnRemote.sprite.moveTo(SCREEN_WIDTH - btnRemote.width,
+                     SCREEN_HEIGHT - btnRemote.height);
+    btnRemote.sprite.show();
     objects.push_back(&btnRemote);
+
+    btnSolder.sprite.moveTo(0, SCREEN_HEIGHT - btnSolder.height);
+    btnSolder.sprite.show();
     objects.push_back(&btnSolder);
+
+    btnToolbox.sprite.moveTo(SCREEN_WIDTH - btnToolbox.height, 0);
+    btnToolbox.sprite.show();
     objects.push_back(&btnToolbox);
+
+    xRobot.moveTo(128 - 30, 64);
     objects.push_back(&xRobot);
+
+    yRobot.moveTo(128 + 30, 64);
     objects.push_back(&yRobot);
 }
 

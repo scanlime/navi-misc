@@ -134,13 +134,20 @@ void VScrollLayer::scrollTo(int y) {
      */
 
     yScroll = y;
-    y = 0; // XXX: Debug
     bgSetScroll(bg, 0, y);
 }
 
 void VScrollLayer::clear() {
     dirty.clear();
-    drawRect(Rect(0, 0, width, height), 0x00);
+
+    if (clip.y1 != clip.y2) {
+        Rect r;
+        r.left = 0;
+        r.right = width;
+        r.top = clip.y1;
+        r.bottom = clip.y2;
+        drawRect(r, 0);
+    }
 }
 
 void VScrollLayer::blit() {
@@ -232,6 +239,7 @@ void VScrollLayer::blitRect(Rect r) {
 UITextLayer::UITextLayer() {
     setWrapWidth(SCREEN_WIDTH);
     setAlignment(LEFT);
+    setAutoclear(false);
     moveTo(0, 0);
 }
 
@@ -245,19 +253,6 @@ void UITextLayer::drawFrame(Rect r, int thickness) {
     drawRect(r, colors.bg);
     drawBorderRects(r, colors.frame, thickness);
     drawBorderRects(r.expand(thickness), colors.border, 1);
-}
-
-void UITextLayer::setWrapWidth(int width) {
-    wrapWidth = width;
-}
-
-void UITextLayer::setAlignment(Alignment a) {
-    this->align = a;
-}
-
-void UITextLayer::moveTo(int x, int y) {
-    this->x = x;
-    this->y = y;
 }
 
 void UITextLayer::printf(const char *format, ...) {
@@ -288,9 +283,12 @@ void UITextLayer::draw(const char *text) {
     }
 
     /*
-     * Draw in two passes: First clear behind each glyph, then draw each glyph.
-     * This lets glyphs overlap both horizontally and vertically, we just can't
-     * allow multiple draw() calls to overlap each other.
+     * To support autoClear, draw in two passes: First clear behind
+     * each glyph, then draw each glyph.  This lets glyphs overlap
+     * both horizontally and vertically, we just can't allow multiple
+     * draw() calls to overlap each other.
+     *
+     * If autoClear is off, we only draw the text pass.
      */
 
     int pass;
@@ -299,13 +297,18 @@ void UITextLayer::draw(const char *text) {
         TEXT_PASS,
     };
 
-    for (pass = BACKGROUND_PASS; pass <= TEXT_PASS; pass++) {
+    for (pass = autoClear ? BACKGROUND_PASS : TEXT_PASS; pass <= TEXT_PASS; pass++) {
         int lineX = 0;
         int lineY = 0;
         int lineClearedTo = 0;
         const char *cPtr = text;
 
         while ((c = *cPtr)) {
+
+            /* We're done if we're past the bottom of the clip region. */
+            if (y + lineY > clip.y2) {
+                break;
+            }
 
             if (c == ' ') {
                 /* See if we want to wrap at this space. */
@@ -336,41 +339,48 @@ void UITextLayer::draw(const char *text) {
                 continue;
             }
 
-            if (pass == BACKGROUND_PASS) {
-                /*
-                 * Clear behind the next chunk of text.  Glyphs can overlap,
-                 * so it's likely that the previous glyph needed to clear
-                 * behind part of this glyph.  'lineClearedTo' keeps track of
-                 * how far along this line we've cleared so far.
-                 *
-                 * Note that we don't need to add explicit dirty rects for the
-                 * font glyphs, since the backing rectangle will add dirty
-                 * rects.
-                 */
+            /*
+             * Draw this pass, if it might intersect the clip region.
+             */
+            if (y + lineY + glyph.getHeight() >= clip.y1) {
 
-                int clearEnd = lineX + glyph.getWidth();
+                if (pass == BACKGROUND_PASS) {
+                    /*
+                     * Clear behind the next chunk of text.  Glyphs can overlap,
+                     * so it's likely that the previous glyph needed to clear
+                     * behind part of this glyph.  'lineClearedTo' keeps track of
+                     * how far along this line we've cleared so far.
+                     *
+                     * Note that we don't need to add explicit dirty rects for the
+                     * font glyphs, since the backing rectangle will add dirty
+                     * rects.
+                     */
 
-                drawRect(Rect(x + lineClearedTo + offset,
-                              y + lineY,
-                              clearEnd - lineClearedTo,
-                              glyph.getHeight()),
-                         colors.bg);
+                    int clearEnd = lineX + glyph.getWidth();
 
-                lineClearedTo = clearEnd;
+                    drawRect(Rect(x + lineClearedTo + offset,
+                                  y + lineY,
+                                  clearEnd - lineClearedTo,
+                                  glyph.getHeight()),
+                             colors.bg);
 
-            } else {
-                /*
-                 * Render a normal glyph.
-                 */
+                    lineClearedTo = clearEnd;
 
-                int i;
-                for (i = 0; i < glyph.getHeight(); i++) {
-                    glyph.drawRow(i,
-                                  linePtr(y + lineY + i) + x + lineX + offset,
-                                  colors);
+                } else {
+                    /*
+                     * Render a normal glyph.
+                     */
+
+                    int i;
+                    for (i = 0; i < glyph.getHeight(); i++) {
+                        int gx = x + lineX + offset;
+                        int gy = y + lineY + i;
+                        if (inClip(gy)) {
+                            glyph.drawRow(i, linePtr(gy) + gx, colors);
+                        }
+                    }
                 }
             }
-
             lineX += glyph.getEscapement();
             cPtr++;
         }

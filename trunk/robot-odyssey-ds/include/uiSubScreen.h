@@ -52,7 +52,7 @@ class UIToggleButton : public UISpriteButton
  public:
     UIToggleButton(MSpriteAllocator *sprAlloc, SpriteImages *images,
                    UIAnimationSequence::Item *animation,
-                   EffectMarquee32 *marqueeEffect, int x, int y);
+                   EffectMarquee32 *marqueeEffect);
 
     virtual void animate();
 
@@ -76,7 +76,7 @@ class UIRemoteControlButton : public UIToggleButton
 {
  public:
     UIRemoteControlButton(MSpriteAllocator *sprAlloc, EffectMarquee32 *marqueeEffect,
-                          ROData *roData, HwCommon *hw, int x, int y);
+                          ROData *roData, HwCommon *hw);
 
     ~UIRemoteControlButton();
 
@@ -101,7 +101,7 @@ class UISolderButton : public UIToggleButton
 {
  public:
     UISolderButton(MSpriteAllocator *sprAlloc, EffectMarquee32 *marqueeEffect,
-                   ROData *roData, HwCommon *hw, int x, int y);
+                   ROData *roData, HwCommon *hw);
 
     ~UISolderButton();
 
@@ -125,7 +125,7 @@ class UISolderButton : public UIToggleButton
 class UIToolboxButton : public UISpriteButton
 {
  public:
-    UIToolboxButton(MSpriteAllocator *sprAlloc, HwCommon *hw, int x, int y);
+    UIToolboxButton(MSpriteAllocator *sprAlloc, HwCommon *hw);
     ~UIToolboxButton();
 
     virtual void activate();
@@ -148,7 +148,7 @@ class UIBatteryIcon : public UISpriteButton
 {
  public:
     UIBatteryIcon(MSpriteAllocator *sprAlloc, ROData *roData,
-                  RORobotId robotId, int x, int y);
+                  RORobotId robotId);
     ~UIBatteryIcon();
 
     virtual void activate();
@@ -174,7 +174,7 @@ class UIRobotIcon : public UISpriteButton
 {
  public:
     UIRobotIcon(MSpriteAllocator *sprAlloc, HwSpriteScraper *sprScraper,
-                ROData *roData, RORobotId robotId, int x, int y);
+                ROData *roData, RORobotId robotId);
     ~UIRobotIcon();
 
     virtual void activate();
@@ -202,9 +202,10 @@ class UIRobotStatus : public UIObjectList
 {
  public:
     UIRobotStatus(MSpriteAllocator *sprAlloc, HwSpriteScraper *sprScraper,
-                  ROData *roData, RORobotId robotId, int x, int y);
+                  ROData *roData, RORobotId robotId);
 
     void setupRenderer(ROData *rendererData);
+    void moveTo(int x, int y);
 
  private:
     UIRobotIcon   icon;
