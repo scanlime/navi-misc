@@ -36,7 +36,7 @@
 
 
 UIMessageBox::UIMessageBox(const char *format, ...)
-    : UITransient(2000),
+    : UITransient(),
       sprAlloc(&oamSub),
       text(),
       button(&sprAlloc, this)

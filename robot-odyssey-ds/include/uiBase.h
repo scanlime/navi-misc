@@ -119,7 +119,7 @@ class UITransient : public UIObjectList
 public:
     typedef uint32_t Fixed16;  // 16.16 fixed point
 
-    UITransient(Fixed16 speed, bool shown=false);
+    UITransient(Fixed16 speed=2000, bool shown=false);
 
     void show();
     void hide();
