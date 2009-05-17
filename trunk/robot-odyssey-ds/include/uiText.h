@@ -168,13 +168,18 @@ public:
         return yScroll;
     }
 
-protected:
     void blit();
     void clear();
     void drawRect(Rect r, uint8_t paletteIndex);
     void addDirtyRect(Rect r);
     virtual void paint();
 
+    void paintAll() {
+        resetClip();
+        paint();
+    }
+
+protected:
     struct Clip {
         int y1, y2;
     };
@@ -214,6 +219,10 @@ private:
 };
 
 
+/*
+ * A vertical scrolling layer that knows how to draw text and some
+ * basic decorative frames and backgrounds.
+ */
 class UITextLayer : public VScrollLayer
 {
  public:

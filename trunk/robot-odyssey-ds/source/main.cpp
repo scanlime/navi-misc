@@ -34,6 +34,7 @@
 #include "hwMain.h"
 #include "uiSubScreen.h"
 #include "uiMessageBox.h"
+#include "uiList.h"
 #include "hardware.h"
 
 SBT_DECL_PROCESS(MenuEXE);
@@ -44,6 +45,7 @@ SBT_DECL_PROCESS(TutorialEXE);
 int main() {
     Hardware::init();
 
+#if 0
     if (!fatInitDefault()) {
         UIMessageBox *mb = new UIMessageBox("Can't find a storage device!"
                                             " If you continue, you"
@@ -53,20 +55,19 @@ int main() {
                                             " DLDI patch for your homebrew device!)");
         UIFade fader(fader.SUB);
         fader.hide();
+        mb->objects.push_back(&fader);
         mb->run();
         delete mb;
     }
+#endif
 
-
-    while (1) {
-        UIMessageBox *mb = new UIMessageBox("Foobar! Foobar! Foobar! Foobar! "
-                                            "Foobar! Foobar! Foobar! Foobar! "
-                                            "Foobar! Foobar! Foobar! Foobar! "
-                                            "Foobar! Foobar! Foobar! Foobar! "
-                                            "Foobar! Foobar! Foobar! Foobar! "
-                                            "Blah.");
-        mb->run();
-        delete mb;
+    if (1) {
+        UIList *list = new UIList();
+        for (int i = 0; i < 1000; i++) {
+            list->append(new UIFileListItem());
+        }
+        list->run();
+        delete list;
     }
 
     HwMain *hwMain = new HwMain();
