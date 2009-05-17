@@ -99,9 +99,9 @@ void UIObjectList::vblankISR() {
      * This must occur before we actually exit vblank!
      */
 
+    bgUpdate();
     oamUpdate(&oamMain);
     oamUpdate(&oamSub);
-    bgUpdate();
 
     /*
      * During vertical blank, scan input and update the UI.
@@ -278,7 +278,6 @@ void UIFade::updateState() {
 
 UISpriteButton::UISpriteButton(MSpriteAllocator *sprAlloc,
                                SpriteImages *images,
-                               int x, int y,
                                MSpriteRange range,
                                bool autoDoubleSize) : sprite(sprAlloc) {
     this->images = images;
@@ -292,9 +291,6 @@ UISpriteButton::UISpriteButton(MSpriteAllocator *sprAlloc,
                                     images->size, images->format);
 
     obj->entry->palette = OBJ_PALETTE;
-    obj->show();
-
-    sprite.moveTo(x, y);
 }
 
 void UISpriteButton::setImageIndex(int id) {

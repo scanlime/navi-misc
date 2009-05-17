@@ -61,6 +61,9 @@ int main() {
     while (1) {
         UIMessageBox *mb = new UIMessageBox("Foobar! Foobar! Foobar! Foobar! "
                                             "Foobar! Foobar! Foobar! Foobar! "
+                                            "Foobar! Foobar! Foobar! Foobar! "
+                                            "Foobar! Foobar! Foobar! Foobar! "
+                                            "Foobar! Foobar! Foobar! Foobar! "
                                             "Blah.");
         mb->run();
         delete mb;

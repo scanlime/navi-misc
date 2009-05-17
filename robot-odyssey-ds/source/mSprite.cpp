@@ -34,6 +34,9 @@
 #include "mSprite.h"
 
 
+//********************************************************** MSpriteAllocator
+
+
 MSpriteAllocator::MSpriteAllocator(OamState *oam) {
     this->oam = oam;
     memset(&matrixAlloc, 0xFF, sizeof matrixAlloc);
@@ -89,6 +92,10 @@ void MSpriteAllocator::freeOBJ(SpriteEntry *s) {
     sassert((objAlloc[word] & (1 << bit)) == 0, "Freeing freed OBJ");
     objAlloc[word] |= 1 << bit;
 }
+
+
+//********************************************************** MSprite
+
 
 MSprite::MSprite(MSpriteAllocator *alloc) {
     this->alloc = alloc;
@@ -203,6 +210,10 @@ void MSprite::setIntrinsicScale(int sx, int sy) {
     update();
 }
 
+
+//********************************************************** MSpriteOBJ
+
+
 MSpriteOBJ *MSprite::newOBJ(MSpriteRange range,
                             int xOffset,
                             int yOffset,
@@ -243,16 +254,16 @@ void MSpriteOBJ::init(MSpriteAllocator *alloc,
     this->size = size;
     this->format = format;
 
-    entry->shape = (ObjShape) SPRITE_SIZE_SHAPE(size);
-    entry->size = (ObjSize) SPRITE_SIZE_SIZE(size);
-
+    entry->isRotateScale = false;
+    entry->isHidden = true;
     entry->palette = 0;
     entry->priority = OBJPRIORITY_0;
     entry->hFlip = false;
     entry->vFlip = false;
     entry->isMosaic = false;
-    entry->isRotateScale = false;
-    entry->isHidden = true;
+
+    entry->shape = (ObjShape) SPRITE_SIZE_SHAPE(size);
+    entry->size = (ObjSize) SPRITE_SIZE_SIZE(size);
 
     setGfx(gfx);
     hide();
@@ -351,6 +362,10 @@ bool MSpriteOBJ::isVisible() {
     /* isHidden flag only valid when isRotateScale==false */
     return !entry->isHidden || entry->isRotateScale;
 }
+
+
+//********************************************************** SpriteImages
+
 
 SpriteImages::SpriteImages(OamState *oam, SpriteSize size, SpriteColorFormat format,
                            uint16_t *buffer) {

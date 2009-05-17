@@ -216,9 +216,22 @@ class UITextLayer : public VScrollLayer
 
     enum Alignment { LEFT, CENTER, RIGHT };
 
-    void setWrapWidth(int width);
-    void setAlignment(Alignment align);
-    void moveTo(int x, int y);
+    void setWrapWidth(int _wrapWidth) {
+        wrapWidth = _wrapWidth;
+    }
+
+    void setAlignment(Alignment _align) {
+        align = _align;
+    }
+
+    void setAutoclear(bool _autoClear) {
+        autoClear = _autoClear;
+    }
+
+    void moveTo(int _x, int _y) {
+        x = _x;
+        y = _y;
+    }
 
     void drawFrame(Rect r, int thickness=8);
 
@@ -238,6 +251,7 @@ private:
     int x, y;
     Alignment align;
     int wrapWidth;
+    bool autoClear;
 };
 
 
