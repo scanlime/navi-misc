@@ -54,6 +54,7 @@ void UIObject::handleInput(const UIInputState &input) {
 
 
 UIObjectList* volatile UIObjectList::currentList;
+bool UIObjectList::debugLoadMeter;
 
 UIObjectList::~UIObjectList() {
     sassert(currentList != this, "Can't destroy the current UIObjectList");
@@ -95,6 +96,15 @@ void UIObjectList::deactivate() {
 
 void UIObjectList::vblankISR() {
     /*
+     * Debugging: Turn the sub background red, to indicate CPU time
+     * being used.  If the ISR runs longer than the vertical blanking
+     * period, you'll see red on the screen.
+     */
+    if (debugLoadMeter) {
+        BG_PALETTE_SUB[0] = RGB5(31,0,0);
+    }
+
+    /*
      * Flush updated sprites and layers to the hardware.
      * This must occur before we actually exit vblank!
      */
@@ -122,6 +132,17 @@ void UIObjectList::vblankISR() {
     current->handleInput(input);
 
     current->updateState();
+
+    /*
+     * Debug meter: End of ISR, turn the background blue again. Blue
+     * indicates no CPU usage, but still lets you know the load meter
+     * is on.
+     *
+     * The red portion of the screen will show how much time we're
+     * using in the ISR outside of vblank. If the red flickers, we're
+     * using more than a whole frame!
+     */
+    BG_PALETTE_SUB[0] = debugLoadMeter ? RGB5(0,0,15) : RGB5(0,0,0);
 }
 
 void UIObjectList::scanInput(UIInputState &input) {
@@ -131,6 +152,13 @@ void UIObjectList::scanInput(UIInputState &input) {
     input.keysHeld = keysHeld();
     input.keysPressed = keysDown();
     input.keysReleased = keysUp();
+
+    /*
+     * Debugging: Trigger the system load meter with L+R+START
+     */
+    if (input.keysHeld == (KEY_L | KEY_R | KEY_START) && input.keysPressed) {
+        debugLoadMeter = !debugLoadMeter;
+    }
 
     touchRead(&touch);
 

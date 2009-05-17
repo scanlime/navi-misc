@@ -88,13 +88,11 @@ VScrollLayer::VScrollLayer() {
      */
     bg = bgInitSub(2, BgType_Bmp8, BgSize_B8_256x256, 3, 0);
 
-    clip.y1 = 0;
-    clip.y2 = height;
+    yScroll = 0;
+    resetClip();
+    paint();
 
-    clear();
-    scrollTo(0);
     bgWrapOn(bg);
-    blit();
 }
 
 VScrollLayer::~VScrollLayer() {
@@ -113,9 +111,15 @@ void VScrollLayer::scrollTo(int y) {
         /*
          * Viewport is moving down relative to the top of the image,
          * new data is showing up at the bottom of the screen.
+         *
+         * Note that we really do want SCREEN_HEIGHT here, not height
+         * (the height of our buffer).  The bottom of the buffer wraps
+         * to the top of the screen, so we would end up momentarily
+         * displaying the new bottom-of-screen content at the top of
+         * the screen, before the scrolling registers get updated.
          */
-        clip.y1 = yScroll + height;
-        clip.y2 = y + height;
+        clip.y1 = yScroll + SCREEN_HEIGHT;
+        clip.y2 = y + SCREEN_HEIGHT;
 
     } else {
         /*
@@ -164,7 +168,11 @@ void VScrollLayer::blit() {
 }
 
 void VScrollLayer::paint() {
-    /* Optional. For subclasses to implement. */
+    /*
+     * For subclasses to implement. By default, paint a blank screen.
+     */
+    clear();
+    blit();
 }
 
 void VScrollLayer::drawRect(Rect r, uint8_t paletteIndex) {

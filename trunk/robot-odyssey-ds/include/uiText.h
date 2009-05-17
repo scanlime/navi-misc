@@ -181,6 +181,11 @@ protected:
 
     Clip clip;
 
+    void resetClip() {
+        clip.y1 = 0;
+        clip.y2 = height;
+    }
+
     bool inClip(int y) {
         return y >= clip.y1 && y < clip.y2;
     }
