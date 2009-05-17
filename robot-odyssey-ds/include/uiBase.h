@@ -98,6 +98,7 @@ class UIObjectList : public UIObject
 
  private:
     static UIObjectList* volatile currentList;
+    static bool debugLoadMeter;
 
     static void vblankISR();
     static void scanInput(UIInputState &input);
