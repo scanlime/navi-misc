@@ -88,6 +88,9 @@ VScrollLayer::VScrollLayer() {
      */
     bg = bgInitSub(2, BgType_Bmp8, BgSize_B8_256x256, 3, 0);
 
+    /* No blending by default. Some layers use this for fading effects. */
+    REG_BLDCNT = BLEND_NONE;
+
     yScroll = 0;
     resetClip();
     paint();

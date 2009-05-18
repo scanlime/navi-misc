@@ -118,7 +118,7 @@ class UIObjectList : public UIObject
 class UITransient : public UIObjectList
 {
 public:
-    typedef uint32_t Fixed16;  // 16.16 fixed point
+    typedef int Fixed16;  // 16.16 fixed point
 
     UITransient(Fixed16 speed=2000, bool shown=false);
 
@@ -146,6 +146,7 @@ protected:
     Fixed16 visibility;
 
     Fixed16 easeVisibility();
+    int interpVisibility(int from, int to);
 
 private:
     Fixed16 speed;

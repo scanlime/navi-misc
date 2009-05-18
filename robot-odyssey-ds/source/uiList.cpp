@@ -34,11 +34,13 @@
 
 
 UIList::UIList(int offsetX, int offsetY, int _hotkey)
-    : UITransient(),
+    : UITransient(4000),
       hotkey(_hotkey),
       draw(&items, offsetX, offsetY),
       needRepaint(true)
-{}
+{
+    draw.scrollTo(-margin);
+}
 
 UIList::~UIList()
 {
@@ -76,6 +78,16 @@ void UIList::updateState() {
         needRepaint = false;
     }
 
+    /*
+     * The list fades in and out.
+     */
+    REG_BLDCNT_SUB = (BLEND_ALPHA |
+                      BLEND_SRC_BG2 |
+                      BLEND_DST_BG3 |
+                      BLEND_DST_BACKDROP);
+    int alpha = interpVisibility(0, 16);
+    REG_BLDALPHA_SUB = alpha | (16 - alpha) << 8;
+
     UITransient::updateState();
 }
 
@@ -86,8 +98,8 @@ void UIList::animate() {
      */
 
     const int scroll = draw.getScroll();
-    const int safeTop = scroll + 30;
-    const int safeBottom = scroll + SCREEN_HEIGHT - 30;
+    const int safeTop = scroll + margin;
+    const int safeBottom = scroll + SCREEN_HEIGHT - margin;
 
     int top, bottom, diff;
     getCurrentItemY(top, bottom);
@@ -302,6 +314,8 @@ void UIFileListItem::paint(UIListDraw *draw, int x, int y, bool hilight) {
     int x2 = x + width - 1;
     int y1 = y + 1;
 
+    draw->setWrapWidth(width);
+
     draw->moveTo(x1, y1);
     draw->setAlignment(draw->LEFT);
     draw->draw(text[TEXT_TOP_LEFT]);
@@ -352,14 +366,13 @@ UIListWithRobot::UIListWithRobot(RORobotId robotId)
     int fd = dos.open("sewer.wor");
     dos.read(fd, (void*)roData.world, sizeof *roData.world);
 
-    robot.sprite.moveTo(20,60);
-    robot.sprite.show();
     robot.setupRenderer(&roData);
+    robot.sprite.moveTo(robotPositionUnset, robotPositionUnset);
 
     /*
      * Initialize the rendere by running a couple of frames.
      */
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 5; i++) {
         while (renderer.run() != SBTHALT_LOAD_ROOM_ID);
         renderer.reg.al = RO_ROOM_RENDERER;
     }
@@ -372,32 +385,43 @@ void UIListWithRobot::animate() {
 
 void UIListWithRobot::animateRobot() {
     /*
+     * Robot enters on the left side of the screen.
+     */
+    int robotX = interpVisibility(-40, 20);
+
+    /*
      * Figure out how much we need to move.
      */
-    int robotX = robot.sprite.getX();
     int currentY = robot.sprite.getY();
     int top, bottom;
     getCurrentItemY(top, bottom);
     int destY = (top + bottom) / 2 - draw.getScroll();
     int diff = destY - currentY;
 
-    if (diff > 0) {
-        diff = 1;
-    } else if (diff < 0) {
-        diff = -1;
+    /*
+     * If the robot position hasn't been set yet, move instantly.
+     * Otherwise, move slowly.
+     */
+    if (currentY != robotPositionUnset) {
+        if (diff > 0) {
+            diff = 1;
+        } else if (diff < 0) {
+            diff = -1;
+        }
     }
 
     /*
      * Move the sprite (at full frame rate)
      */
     robot.sprite.moveTo(robotX, currentY + diff);
+    robot.sprite.show();
 
     /*
      * Animate the robot and thrusters at a reduced rate.
      */
 
     if ((frameCount & 3) == 0) {
-        RORobot *robotState = &roData.robots.state[robot.getRobotId()];   
+        RORobot *robotState = &roData.robots.state[robot.getRobotId()];
 
         robotState->thrusterEnable(RO_SIDE_TOP, diff > 0);
         robotState->thrusterEnable(RO_SIDE_BOTTOM, diff < 0);

@@ -27,8 +27,6 @@
  */
 
 #include <nds.h>
-#include <fat.h>
-#include <dirent.h>
 
 #include "sbt86.h"
 #include "hwMain.h"
@@ -36,6 +34,7 @@
 #include "uiMessageBox.h"
 #include "uiList.h"
 #include "hardware.h"
+#include "saveData.h"
 
 SBT_DECL_PROCESS(MenuEXE);
 SBT_DECL_PROCESS(LabEXE);
@@ -45,32 +44,39 @@ SBT_DECL_PROCESS(TutorialEXE);
 int main() {
     Hardware::init();
 
-#if 0
-    if (!fatInitDefault()) {
-        UIMessageBox *mb = new UIMessageBox("Can't find a storage device!"
-                                            " If you continue, you"
-                                            " will be unable to save your progress."
-                                            "\n\v"
-                                            "(Make sure you have applied the correct"
-                                            " DLDI patch for your homebrew device!)");
+    SaveData sd;
+    if (!sd.init()) {
+        UIMessageBox *mb = new UIMessageBox(sd.getInitErrorMessage());
         UIFade fader(fader.SUB);
         fader.hide();
         mb->objects.push_back(&fader);
         mb->run();
         delete mb;
     }
-#endif
 
     if (1) {
         UIListWithRobot *list = new UIListWithRobot();
+        SaveType gameSaves(&sd, ".gsv");
+        SaveFileList saves;
+        SaveFileList::iterator iter;
 
-        for (int i = 0; i < 100; i++) {
+        saves.push_back(gameSaves.newFile());
+        gameSaves.listFiles(saves);
+
+        for (iter = saves.begin(); iter != saves.end(); iter++) {
             UIFileListItem *item = new UIFileListItem();
-            item->setText(item->TEXT_TOP_LEFT, "top left");
-            item->setText(item->TEXT_TOP_RIGHT, "top right");
-            item->setText(item->TEXT_BOTTOM_LEFT, "bottom left");
-            item->setText(item->TEXT_BOTTOM_RIGHT, "bottom right");
-            item->setText(item->TEXT_CENTER, "#%d", 0);
+
+            if (iter->isNew()) {
+                item->setText(item->TEXT_CENTER, "New File");
+            } else {
+                char buf[80];
+                time_t ts = iter->getTimestamp();
+                strftime(buf, sizeof buf, "%Y-%m-%d %H:%M", gmtime(&ts));
+
+                item->setText(item->TEXT_TOP_LEFT, "%s", iter->getName());
+                item->setText(item->TEXT_BOTTOM_LEFT, "%d", (int)iter->getSize());
+                item->setText(item->TEXT_BOTTOM_RIGHT, "%s", buf);
+            }
 
             list->append(item);
         }

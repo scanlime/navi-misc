@@ -254,6 +254,13 @@ UITransient::Fixed16 UITransient::easeVisibility() {
     return sinLerp(angle) << 4;
 }
 
+int UITransient::interpVisibility(int from, int to) {
+    /*
+     * Interpolate eased visibility from 'from' to 'to'.
+     */
+    return ((easeVisibility() * (to - from)) >> FP_SHIFT) + from;
+}
+
 
 //********************************************************** UIFade
 
