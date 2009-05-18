@@ -78,13 +78,14 @@ private:
 class UIList : public UITransient
 {
 public:
-    UIList(int offsetX = 0, int offsetY = 0);
+    UIList(int offsetX = 0, int offsetY = 0, int hotkey = KEY_A);
     virtual ~UIList();
 
     virtual void handleInput(const UIInputState &input);
     virtual void updateState();
     virtual void animate();
-
+    virtual void activate();
+    
     void append(UIListItem *item);
 
     int getCurrentIndex() {
@@ -97,8 +98,11 @@ public:
 
     void setCurrentIndex(int index);
 
- private:
+    int hotkey;
+
+ protected:
     void getCurrentItemY(int &top, int &bottom);
+    int findTappedItem(int x, int y);
 
     std::vector<UIListItem*> items;
 
@@ -115,6 +119,7 @@ class UIListItem
 public:
     virtual void paint(UIListDraw *draw, int x, int y, bool hilight) = 0;
     virtual int getHeight() = 0;
+    virtual bool hitTest(int x, int y) = 0;
 };
 
 
@@ -138,6 +143,7 @@ public:
     void setText(TextSlot slot, const char *format, ...);
     virtual void paint(UIListDraw *draw, int x, int y, bool hilight);
     virtual int getHeight();
+    virtual bool hitTest(int x, int y);
 
 private:
     static const int height = 30;
@@ -157,6 +163,8 @@ public:
     virtual void animate();
 
 private:
+    void animateRobot();
+
     MSpriteAllocator sprAlloc;
     HwSpriteScraper sprScraper;
     RendererEXE renderer;
