@@ -157,6 +157,10 @@ class UIBatteryIcon : public UISpriteButton
     static const uint32_t width = 32;
     static const uint32_t height = 16;
 
+    RORobotId getRobotId() {
+        return robotId;
+    }
+
  private:
     SpriteImages *allocImages(MSpriteAllocator *sprAlloc);
 
@@ -182,6 +186,10 @@ class UIRobotIcon : public UISpriteButton
     void setupRenderer(ROData *rendererData);
 
     static const int OBJ_BORDER_PALETTE = 1;
+
+    RORobotId getRobotId() {
+        return robotId;
+    }
 
  private:
     SpriteImages *allocImages(MSpriteAllocator *sprAlloc,

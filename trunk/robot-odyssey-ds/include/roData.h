@@ -240,6 +240,16 @@ enum RORobotId {
     RO_ROBOT_MC,
 };
 
+/*
+ * Robot sides. These are used as indices into the bumper, thruster,
+ * and grabber tables.
+ */
+enum ROSide {
+    RO_SIDE_TOP = 0,
+    RO_SIDE_RIGHT,
+    RO_SIDE_BOTTOM,
+    RO_SIDE_LEFT,
+};
 
 /*
  * World IDs.
@@ -424,6 +434,24 @@ class RORobot {
 
     ROObjectId getObjectId() {
         return (ROObjectId) objLeft;
+    }
+
+    void thrusterEnable(ROSide side, bool on) {
+        if (on) {
+            if (thrusterState[side] == 0) {
+                thrusterState[side] = 1;
+            }
+        } else {
+            thrusterState[side] = 0;
+        }
+    }
+
+    void animateThrusters() {
+        static const uint8_t nextState[4] = {0, 2, 3, 1};
+
+        for (unsigned int i = 0; i < sizeof thrusterState; i++) {
+            thrusterState[i] = nextState[thrusterState[i]];
+        }
     }
 
     static RORobot *fromProcess(SBTProcess *proc);

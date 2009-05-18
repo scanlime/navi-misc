@@ -33,8 +33,9 @@
 //********************************************************** UIList
 
 
-UIList::UIList(int offsetX, int offsetY)
+UIList::UIList(int offsetX, int offsetY, int _hotkey)
     : UITransient(),
+      hotkey(_hotkey),
       draw(&items, offsetX, offsetY),
       needRepaint(true)
 {}
@@ -54,6 +55,18 @@ void UIList::handleInput(const UIInputState &input) {
 
     if (input.keysPressedWithRepeat & KEY_UP) {
         setCurrentIndex(getCurrentIndex() - 1);
+    }
+
+    if (input.keysPressed & hotkey) {
+        activate();
+    } else if (input.keysPressed & KEY_TOUCH) {
+        int index = findTappedItem(input.touchX, input.touchY);
+
+        if (index == getCurrentIndex()) {
+            activate();
+        } else if (index >= 0) {
+            setCurrentIndex(index);
+        }
     }
 }
 
@@ -92,17 +105,17 @@ void UIList::animate() {
          * Go faster when we're farther away, slower when we approach
          * it.  scrollBy() will take care of limiting the speed.
          */
-
-        int slowDiff = diff >> 2;
-
-        if (slowDiff) {
-            draw.scrollBy(slowDiff);
-        } else {
-            draw.scrollBy(diff);
-        }
+        draw.scrollBy(diff >> 2);
     }
 
     UITransient::animate();
+}
+
+void UIList::activate() {
+    /*
+     * Select the current item, end the list UI.
+     */
+    hide();
 }
 
 void UIList::append(UIListItem *item) {
@@ -147,6 +160,34 @@ void UIList::getCurrentItemY(int &top, int &bottom) {
     }
 
     sassert(false, "Current item not found");
+}
+
+int UIList::findTappedItem(int x, int y) {
+    /*
+     * Find the index of the item under (x,y) in screen coordinates,
+     * if any. If no items match, returns -1.
+     */
+
+    std::vector<UIListItem*>::iterator i;
+    int index = 0;
+
+    x -= draw.getOffsetX();
+    y -= draw.getOffsetY();
+    y += draw.getScroll();
+
+    for (i = items.begin(); i != items.end(); i++) {
+        UIListItem *item = *i;
+        int height = item->getHeight();
+
+        if (item->hitTest(x, y)) {
+            return index;
+        }
+
+        y -= height;
+        index++;
+    }
+
+    return -1;
 }
 
 
@@ -282,6 +323,10 @@ int UIFileListItem::getHeight() {
     return height;
 }
 
+bool UIFileListItem::hitTest(int x, int y) {
+    return x > 0 && y > 0 && y < height;
+}
+
 
 //********************************************************** UIFileListItem
 
@@ -307,14 +352,58 @@ UIListWithRobot::UIListWithRobot(RORobotId robotId)
     int fd = dos.open("sewer.wor");
     dos.read(fd, (void*)roData.world, sizeof *roData.world);
 
-    robot.sprite.moveTo(20,20);
+    robot.sprite.moveTo(20,60);
     robot.sprite.show();
     robot.setupRenderer(&roData);
+
+    /*
+     * Initialize the rendere by running a couple of frames.
+     */
+    for (int i = 0; i < 2; i++) {
+        while (renderer.run() != SBTHALT_LOAD_ROOM_ID);
+        renderer.reg.al = RO_ROOM_RENDERER;
+    }
 }
 
 void UIListWithRobot::animate() {
-    while (renderer.run() != SBTHALT_LOAD_ROOM_ID);
-    renderer.reg.al = RO_ROOM_RENDERER;
-
+    animateRobot();
     UIList::animate();
+}
+
+void UIListWithRobot::animateRobot() {
+    /*
+     * Figure out how much we need to move.
+     */
+    int robotX = robot.sprite.getX();
+    int currentY = robot.sprite.getY();
+    int top, bottom;
+    getCurrentItemY(top, bottom);
+    int destY = (top + bottom) / 2 - draw.getScroll();
+    int diff = destY - currentY;
+
+    if (diff > 0) {
+        diff = 1;
+    } else if (diff < 0) {
+        diff = -1;
+    }
+
+    /*
+     * Move the sprite (at full frame rate)
+     */
+    robot.sprite.moveTo(robotX, currentY + diff);
+
+    /*
+     * Animate the robot and thrusters at a reduced rate.
+     */
+
+    if ((frameCount & 3) == 0) {
+        RORobot *robotState = &roData.robots.state[robot.getRobotId()];   
+
+        robotState->thrusterEnable(RO_SIDE_TOP, diff > 0);
+        robotState->thrusterEnable(RO_SIDE_BOTTOM, diff < 0);
+        robotState->animateThrusters();
+
+        while (renderer.run() != SBTHALT_LOAD_ROOM_ID);
+        renderer.reg.al = RO_ROOM_RENDERER;
+    }
 }

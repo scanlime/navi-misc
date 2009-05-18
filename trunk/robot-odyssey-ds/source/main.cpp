@@ -62,7 +62,7 @@ int main() {
 #endif
 
     if (1) {
-        UIListWithRobot *list = new UIListWithRobot;
+        UIListWithRobot *list = new UIListWithRobot();
 
         for (int i = 0; i < 100; i++) {
             UIFileListItem *item = new UIFileListItem();
@@ -99,7 +99,6 @@ int main() {
 #endif
 
     while (1) {
-
         switch (game->run() & SBTHALT_MASK_CODE) {
 
         case SBTHALT_FRAME_DRAWN:
