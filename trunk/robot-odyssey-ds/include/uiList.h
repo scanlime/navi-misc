@@ -85,7 +85,7 @@ public:
     virtual void updateState();
     virtual void animate();
     virtual void activate();
-    
+
     void append(UIListItem *item);
 
     int getCurrentIndex() {
@@ -103,6 +103,9 @@ public:
  protected:
     void getCurrentItemY(int &top, int &bottom);
     int findTappedItem(int x, int y);
+
+    static const int margin = 30;
+    static const int robotPositionUnset = -1;
 
     std::vector<UIListItem*> items;
 

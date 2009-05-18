@@ -44,7 +44,7 @@ BANNER_TEXT := "Robot Odyssey DS"
 
 SOURCES_A9   := main.cpp sbtProcess.cpp roData.cpp hardware.cpp \
                 hwCommon.cpp hwMain.cpp hwSub.cpp hwSpriteScraper.cpp \
-                mSprite.cpp spriteDraw.cpp rect.cpp \
+                mSprite.cpp spriteDraw.cpp rect.cpp saveData.cpp \
                 uiBase.cpp uiText.cpp uiEffects.cpp uiSubScreen.cpp \
                 uiMessageBox.cpp uiList.cpp
 

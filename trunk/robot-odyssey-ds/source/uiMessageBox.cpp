@@ -51,8 +51,8 @@ UIMessageBox::UIMessageBox(const char *format, ...)
 }
 
 void UIMessageBox::updateState() {
-    text.scrollTo((FP_ONE - easeVisibility()) * SCREEN_HEIGHT >> FP_SHIFT);
-    button.sprite.moveTo(buttonX - ((easeVisibility() * button.width) >> FP_SHIFT),
+    text.scrollTo(interpVisibility(SCREEN_HEIGHT, 0));
+    button.sprite.moveTo(interpVisibility(buttonX, buttonX - button.width),
                          buttonY);
     button.sprite.show();
 
