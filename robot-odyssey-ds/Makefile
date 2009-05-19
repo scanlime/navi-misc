@@ -2,7 +2,21 @@
 # Makefile for Robot Odyssey DS
 # -----------------------------
 
-# Requires libnds 1.3.2
+# NOTE: This makefile builds our own copy of libnds and libfat!
+#
+# This is because we require a specific libnds bugfix (rev 3493)
+# and we need to build libfat with the correct headers so that
+# stat() works properly. Our 'lib' directory uses svn:externals
+# to pull in snapshots of libnds and libfat from the devkitpro
+# repository.
+#
+# Because of this, we do require the devkitARM toolchain (grit,
+# ndstool, and the arm-eabi toolchain) but we don't actually
+# require an installed copy of devkitPRO, since all the pieces
+# we use are built locally.
+#
+# -- Micah Dowty <micah@navi.cx>
+
 
 ############################################
 # Tools and Directories
@@ -14,7 +28,7 @@ ifeq ($(strip $(DEVKITARM)),)
 $(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
 endif
 
-include $(DEVKITARM)/ds_rules
+include $(DEVKITARM)/base_rules
 
 # Python executable
 PYTHON      := python
@@ -27,7 +41,7 @@ INCLUDEDIR  := include
 DATADIR     := data
 TOPDIR      := $(shell pwd)
 
-LIBDIRS     := $(LIBNDS)
+LIBDIRS := lib/libfat/nds lib/libnds
 
 # NDS file banner
 BANNER_ICON := $(DATADIR)/icon.bmp
@@ -56,9 +70,6 @@ SOURCES_GRIT := gfx_background.grit gfx_button_remote.grit \
                 gfx_button_toolbox.grit gfx_button_solder.grit \
                 gfx_battery.grit gfx_rarrow.grit gfx_button_ok.grit \
                 gfx_box.grit
-
-# Bug fixes for libnds
-SOURCES_A9 += sprite_alloc.cpp
 
 # Optional: Debug version of malloc()
 #SOURCES_A9 += malloc_debug.cpp
@@ -146,10 +157,7 @@ CDEPS := $(addprefix $(INCLUDEDIR)/,$(notdir $(wildcard $(INCLUDEDIR)/*.h))) $(G
 OBJS_A9_ALL  := $(OBJS_A9) $(OBJS_BT) $(OBJS_ITCM) $(GBFS_OBJ) $(GRIT_OBJS)
 
 ############################################
-# Build targets.
-#
-# There are separate compile targets for normal ARM9 code,
-# binary translated ARM9 code, and ARM7 code.
+# Psuedo-targets
 #
 
 .PHONY: all
@@ -158,52 +166,19 @@ all: $(NDSFILE)
 .PHONY: clean
 clean:
 	rm -rf $(BUILDDIR)/* $(NDSFILE)
+	make -C lib/libfat/nds clean
+	make -C lib/libnds clean
 
 # Simple size profiler
 .PHONY: sizeprof
 sizeprof: $(ARM9ELF)
 	@arm-eabi-nm --size-sort -S $< | egrep -v " [bBsS] "
 
-$(NDSFILE): $(ARM7BIN) $(ARM9BIN)
-	@echo "[NDSTOOL]" $@
-	@ndstool -c $(NDSFILE) -7 $(ARM7BIN) -9 $(ARM9BIN) \
-		-o $(BANNER_ICON) -b $(BANNER_ICON) $(BANNER_TEXT)
-
-$(ARM7BIN): $(ARM7ELF)
-	@echo "[OBJCOPY]" $@
-	@$(OBJCOPY) -O binary $< $@
-
-$(ARM9BIN): $(ARM9ELF)
-	@echo "[OBJCOPY]" $@
-	@$(OBJCOPY) -O binary $< $@
-
-$(ARM7ELF): $(OBJS_A7)
-	@echo "[LD-ARM7]" $@
-	@$(CXX) $(LDFLAGS_A7) $(OBJS_A7) $(LIBS_A7) -o $@
-
-$(ARM9ELF): $(OBJS_A9_ALL)
-	@echo "[LD-ARM9]" $@
-	@$(CXX) $(LDFLAGS_A9) $(OBJS_A9_ALL) $(LIBS_A9) -o $@
-
-$(OBJS_A7): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.cpp $(CDEPS)
-	@echo "[CC-ARM7]" $@
-	@$(CXX) $(CFLAGS_A7) -c -o $@ $<
-
-$(OBJS_A9): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.cpp $(CDEPS)
-	@echo "[CC-ARM9]" $@
-	@$(CXX) $(CFLAGS_A9) -c -o $@ $<
-
-$(OBJS_ITCM): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.cpp $(CDEPS)
-	@echo "[CC-ITCM]" $@
-	@$(CXX) $(CFLAGS_ITCM) -c -o $@ $<
-
-$(OBJS_BT): $(BUILDDIR)/%.o: $(BUILDDIR)/%.cpp $(SBT86_CDEPS)
-	@echo "[CC-SBT ]" $@
-	@$(CXX) $(CFLAGS_BT) -c -o $@ $<
-
-$(GENERATED_BT): $(BUILDDIR)/%.cpp: $(SCRIPTDIR)/%.py $(SBT86_PYDEPS)
-	@echo "[SBT86  ]" $@
-	@$(PYTHON) $<
+# Psuedo-target to build library dependencies
+$(BUILDDIR)/libs:
+	make -C lib/libnds
+	make -C lib/libfat/nds
+	@touch $@
 
 # Pseudo-target to clean up and extract original Robot Odyssey data
 $(BUILDDIR)/original:
@@ -235,5 +210,54 @@ $(GRIT_OBJS): $(BUILDDIR)/%.o: $(BUILDDIR)/%.s
 $(GRIT_ASM): $(BUILDDIR)/%.s: $(DATADIR)/%.grit $(DATADIR)/%.png
 	@echo "[GRIT   ]" $@
 	@grit $(DATADIR)/$*.png -fts -ff $< -o $@
+
+
+############################################
+# Build targets.
+#
+# There are separate compile targets for normal ARM9 code,
+# binary translated ARM9 code, and ARM7 code.
+#
+
+$(NDSFILE): $(ARM7BIN) $(ARM9BIN)
+	@echo "[NDSTOOL]" $@
+	@ndstool -c $(NDSFILE) -7 $(ARM7BIN) -9 $(ARM9BIN) \
+		-o $(BANNER_ICON) -b $(BANNER_ICON) $(BANNER_TEXT)
+
+$(ARM7BIN): $(ARM7ELF)
+	@echo "[OBJCOPY]" $@
+	@$(OBJCOPY) -O binary $< $@
+
+$(ARM9BIN): $(ARM9ELF)
+	@echo "[OBJCOPY]" $@
+	@$(OBJCOPY) -O binary $< $@
+
+$(ARM7ELF): $(OBJS_A7) $(BUILDDIR)/libs
+	@echo "[LD-ARM7]" $@
+	@$(CXX) $(LDFLAGS_A7) $(OBJS_A7) $(LIBS_A7) -o $@
+
+$(ARM9ELF): $(OBJS_A9_ALL) $(BUILDDIR)/libs
+	@echo "[LD-ARM9]" $@
+	@$(CXX) $(LDFLAGS_A9) $(OBJS_A9_ALL) $(LIBS_A9) -o $@
+
+$(OBJS_A7): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.cpp $(CDEPS)
+	@echo "[CC-ARM7]" $@
+	@$(CXX) $(CFLAGS_A7) -c -o $@ $<
+
+$(OBJS_A9): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.cpp $(CDEPS)
+	@echo "[CC-ARM9]" $@
+	@$(CXX) $(CFLAGS_A9) -c -o $@ $<
+
+$(OBJS_ITCM): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.cpp $(CDEPS)
+	@echo "[CC-ITCM]" $@
+	@$(CXX) $(CFLAGS_ITCM) -c -o $@ $<
+
+$(OBJS_BT): $(BUILDDIR)/%.o: $(BUILDDIR)/%.cpp $(SBT86_CDEPS)
+	@echo "[CC-SBT ]" $@
+	@$(CXX) $(CFLAGS_BT) -c -o $@ $<
+
+$(GENERATED_BT): $(BUILDDIR)/%.cpp: $(SCRIPTDIR)/%.py $(SBT86_PYDEPS)
+	@echo "[SBT86  ]" $@
+	@$(PYTHON) $<
 
 ### The End ###

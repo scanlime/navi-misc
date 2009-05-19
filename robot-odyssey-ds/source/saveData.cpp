@@ -35,80 +35,6 @@
 #include "saveData.h"
 
 
-/*
- * There seems to be a compilation inconsistency in some versions of
- * libfat, where the library and the installed headers disagree on the
- * size of the dev_t inside struct stat. This causes most of the
- * structure to be misaligned quite badly.
- *
- * This is a stat() wrapper that works around the problem.
- *
- * We figure out which version of struct stat is being used by looking
- * at st_blksize. If it isn't 0x200, something's wrong.
- */
-
-static int statFix(const char *path, struct stat *sbuf) {
-    union {
-        struct stat installed;
-        struct {
-            uint16_t      st_dev;
-            uint16_t      pad1;
-            uint32_t      st_ino;
-            uint32_t      st_mode;
-            uint16_t      st_nlink;
-            uint16_t      st_uid;
-            uint16_t      st_gid;
-            uint16_t      st_rdev;
-            uint32_t      st_size;
-            uint32_t      st_atime;
-            uint32_t      pad2;
-            uint32_t      st_mtime;
-            uint32_t      pad3;
-            uint32_t      st_ctime;
-            uint32_t      pad4;
-            int32_t       st_blksize;
-            uint32_t      st_blocks;
-            uint32_t      padEnd[5];
-        } local;
-    } u;
-
-    const int32_t expectedBlkSize = 0x200;
-    int retval = stat(path, &u.installed);
-
-    if (u.installed.st_blksize == expectedBlkSize) {
-        /*
-         * Installed version of 'struct stat' matches libfat.
-         */
-        memcpy(sbuf, &u.installed, sizeof u.installed);
-
-    } else if (u.local.st_blksize == expectedBlkSize) {
-        /*
-         * Installed version doesn't match, but our local one does.
-         */
-        sbuf->st_dev = u.local.st_dev;
-        sbuf->st_ino = u.local.st_ino;
-        sbuf->st_mode = u.local.st_mode;
-        sbuf->st_nlink= u.local.st_nlink;
-        sbuf->st_uid = u.local.st_uid;
-        sbuf->st_gid = u.local.st_gid;
-        sbuf->st_rdev = u.local.st_rdev;
-        sbuf->st_size = u.local.st_size;
-        sbuf->st_atime = u.local.st_atime;
-        sbuf->st_mtime = u.local.st_mtime;
-        sbuf->st_ctime = u.local.st_ctime;
-        sbuf->st_blksize = u.local.st_blksize;
-        sbuf->st_blocks = u.local.st_blocks;
-
-    } else {
-        sassert(false,
-                "'struct stat' doesn't look right.\n"
-                "Compile problem in libfat?");
-    }
-
-    return retval;
-}
-
-
 //********************************************************** SaveData
 
 
@@ -182,7 +108,7 @@ void SaveType::listFiles(SaveFileList &l) {
     int extensionLen = strlen(extension);
 
     while ((dent = readdir(dir))) {
-        if (statFix(dent->d_name, &st)) {
+        if (stat(dent->d_name, &st)) {
             continue;
         }
 
