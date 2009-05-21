@@ -296,6 +296,8 @@ typedef uint8_t RORoomTiles[30];
  * Robot Odyssey's world file data. This is in memory at the address
  * SBTADDR_WORLD_DATA, and it is the first structure in the saved game
  * and level data files.
+ *
+ * Length: 0x3500
  */
 class ROWorld {
  public:
@@ -369,42 +371,56 @@ class ROWorld {
  * Robot Odyssey's circuit data. This is in memory at the address
  * SBTADDR_CIRCUIT_DATA, and it is also saved on disk as the .CIR file
  * or as part of a saved game file.
+ *
+ * Length: 0x0A00
+ *
+ * Warning: This is only correct for GAME.EXE and LAB.EXE. The tutorial
+ *          uses a slightly different circuit format.
  */
 class ROCircuit {
  public:
-    /* XXX: Todo */
+    /*
+     * XXX: Todo. This is mostly incomplete, and it needs to be updated
+     *      for GAME.EXE and LAB.EXE.
+     */
 
-    uint8_t unk1[0x100];
+    union {
+        uint8_t bytes[0xA00];
 
-    struct {
-        uint8_t x1[0x100];
-        uint8_t x2[0x100];
-        uint8_t y1[0x100];
-        uint8_t y2[0x100];
-    } wires;
+        struct {
+            uint8_t unk1[0x100];
 
-    uint8_t unk2[0x100];
+            struct {
+                uint8_t x1[0x100];
+                uint8_t x2[0x100];
+                uint8_t y1[0x100];
+                uint8_t y2[0x100];
+            } wires;
 
-    uint8_t unk_byte_1;
-    uint8_t unk_byte_2;
-    uint8_t unk_byte_3;
-    uint8_t unk_byte_4;
-    uint8_t unk_byte_5;
-    uint8_t unk_byte_6;
-    uint8_t unk_byte_7;
-    uint8_t unk_byte_8;
-    uint8_t unk_byte_9;
-    uint8_t unk_byte_10;
-    uint8_t unk_byte_11;
-    uint8_t unk_byte_12;
-    uint8_t unk_byte_13;
-    uint8_t unk_byte_14;
-    uint8_t unk_byte_15;
-    uint8_t remoteControlFlag;
-    uint8_t unk_byte_17;
-    uint8_t unk_byte_18;
-    uint8_t unk_byte_19;
-    uint8_t toolboxIsClosed;
+            uint8_t unk2[0x100];
+
+            uint8_t unk_byte_1;
+            uint8_t unk_byte_2;
+            uint8_t unk_byte_3;
+            uint8_t unk_byte_4;
+            uint8_t unk_byte_5;
+            uint8_t unk_byte_6;
+            uint8_t unk_byte_7;
+            uint8_t unk_byte_8;
+            uint8_t unk_byte_9;
+            uint8_t unk_byte_10;
+            uint8_t unk_byte_11;
+            uint8_t unk_byte_12;
+            uint8_t unk_byte_13;
+            uint8_t unk_byte_14;
+            uint8_t unk_byte_15;
+            uint8_t remoteControlFlag;
+            uint8_t unk_byte_17;
+            uint8_t unk_byte_18;
+            uint8_t unk_byte_19;
+            uint8_t toolboxIsClosed;
+        };
+    };
 
     static ROCircuit *fromProcess(SBTProcess *proc);
 } __attribute__ ((packed));
@@ -506,18 +522,25 @@ typedef uint8_t ROChipPins[8];
  * files saved by GAME.EXE or LAB.EXE. There doesn't seem to be any
  * pre- or post-processing at all. The saved game files are just dumps
  * of the in-memory structures for the world and circuit data.
+ *
+ * Warning: This is only correct for GAME.EXE and LAB.EXE. The tutorial
+ *          uses a slightly different circuit format.
  */
 class ROSavedGame {
 public:
-    ROWorld world;
-    ROCircuit circuit;
-    ROChipBytecode chipBytecode[8];
-    ROChipPins chipPins[8];
+    ROWorld world;                    // Length: 0x3500
+    ROCircuit circuit;                // Length: 0x0A00
+    ROChipBytecode chipBytecode[8];   // Length: 8 * 1024
+    ROChipPins chipPins[8];           // Length: 8 * 8
+
+    // 5 extra bytes which are saved individually
     uint8_t unk_objectId_1;
     uint8_t unk_objectId_2;
     uint8_t unk_offset_x;
     uint8_t unk_offset_y;
     uint8_t worldId;
+
+    const char *getWorldName();
 };
 
 

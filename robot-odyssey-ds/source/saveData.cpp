@@ -32,6 +32,10 @@
 #include <fcntl.h>
 #include <string.h>
 #include <dirent.h>
+
+#include <sstream>
+#include <algorithm>
+
 #include "saveData.h"
 
 
@@ -86,7 +90,7 @@ bool SaveData::enterSaveDir(bool canCreate) {
 //********************************************************** SaveType
 
 
-void SaveType::listFiles(SaveFileList &l) {
+void SaveType::listFiles(SaveFileList &l, bool showNewFile) {
     /*
      * Append all save files to 'l'.
      */
@@ -134,24 +138,84 @@ void SaveType::listFiles(SaveFileList &l) {
     }
 
     closedir(dir);
+
+    if (showNewFile) {
+        l.push_front(newFile(l));
+    }
 }
 
-SaveFile SaveType::newFile() {
+SaveFile SaveType::newFile(SaveFileList &otherFiles) {
     /*
-     * Return a new save file for this type.  The file won't actually
-     * be created until its write() method is called.
+     * Return a new save file for this type, with a name that's unique
+     * among all other save files.  The file won't actually be created
+     * until its write() method is called.
      */
-    return SaveFile(this, "foo");
+
+    int slotNumber = 1;
+
+    while (1) {
+        std::ostringstream s;
+
+        s << "Slot " << slotNumber;
+        SaveFile file(this, s.str());
+
+        SaveFileList::iterator it = std::find(otherFiles.begin(),
+                                              otherFiles.end(),
+                                              file);
+
+        if (it == otherFiles.end()) {
+            return file;
+        }
+
+        slotNumber++;
+    }
+}
+
+bool SaveType::operator ==(const SaveType &other) const {
+    return !strcmp(extension, other.extension);
 }
 
 
 //********************************************************** SaveFile
 
 
-bool SaveFile::write(uint8_t *buffer, int size) {
-    return false;
+bool SaveFile::write(void *buffer, size_t size) {
+    std::string fullName = name + st->extension;
+
+    if (!st->sd->enterSaveDir(true)) {
+        return false;
+    }
+
+    FILE *f = fopen(fullName.c_str(), "wb");
+    if (!f) {
+        return false;
+    }
+
+    size_t result = fwrite(buffer, 1, size, f);
+    fclose(f);
+    size = std::max(0, (int)result);
+
+    return result == getSize();
 }
 
-bool SaveFile::read(uint8_t *buffer) {
-    return false;
+bool SaveFile::read(void *buffer, size_t size) {
+    std::string fullName = name + st->extension;
+
+    if (!st->sd->enterSaveDir(false)) {
+        return false;
+    }
+
+    FILE *f = fopen(fullName.c_str(), "rb");
+    if (!f) {
+        return false;
+    }
+
+    size_t result = fread(buffer, 1, size, f);
+    fclose(f);
+
+    return result == size;
+}
+
+bool SaveFile::operator ==(const SaveFile &other) const {
+    return *st == *other.st && name == other.name;
 }
