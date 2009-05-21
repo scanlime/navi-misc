@@ -71,12 +71,21 @@ public:
     SaveType(SaveData *_sd, const char *_extension)
         : sd(_sd), extension(_extension) {}
 
-    void listFiles(SaveFileList &l);
-    SaveFile newFile();
+    void listFiles(SaveFileList &l, bool showNewFile=false);
+
+    bool operator ==(const SaveType &other) const;
+
+    const char *getExtension() {
+        return extension;
+    }
 
 private:
+    friend class SaveFile;
+
     SaveData *sd;
     const char *extension;
+
+    SaveFile newFile(SaveFileList &otherFiles);
 };
 
 
@@ -90,7 +99,7 @@ public:
         return name.c_str();
     }
 
-    int getSize() {
+    size_t getSize() {
         return size;
     }
 
@@ -102,8 +111,10 @@ public:
         return newFile;
     }
 
-    bool write(uint8_t *buffer, int size);
-    bool read(uint8_t *buffer);
+    bool write(void *buffer, size_t size);
+    bool read(void *buffer, size_t size);
+
+    bool operator ==(const SaveFile &other) const;
 
 private:
     friend class SaveType;
@@ -112,11 +123,11 @@ private:
         : st(_st), name(_name), size(_size), timestamp(_timestamp), newFile(false) {}
 
     SaveFile(SaveType *_st, std::string _name)
-        : st(_st), name(_name), size(0), timestamp(0), newFile(true) {}
+        : st(_st), name(_name), size(0), timestamp(time(NULL)), newFile(true) {}
 
     SaveType *st;
     std::string name;
-    int size;
+    size_t size;
     time_t timestamp;
     bool newFile;
 };

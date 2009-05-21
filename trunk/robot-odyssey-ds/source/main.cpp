@@ -52,34 +52,40 @@ int main() {
         mb->objects.push_back(&fader);
         mb->run();
         delete mb;
-    }
-
-    if (1) {
+    } else {
         UIListWithRobot *list = new UIListWithRobot();
         SaveType gameSaves(&sd, ".gsv");
         SaveFileList saves;
         SaveFileList::iterator iter;
 
-        saves.push_back(gameSaves.newFile());
-        gameSaves.listFiles(saves);
+        gameSaves.listFiles(saves, true);
 
         for (iter = saves.begin(); iter != saves.end(); iter++) {
             UIFileListItem *item = new UIFileListItem();
 
             if (iter->isNew()) {
                 item->setText(item->TEXT_CENTER, "New File");
-            } else {
+
+            } else if (iter->getSize() == sizeof(ROSavedGame)) {
+                ROSavedGame *saveData = new ROSavedGame();
                 char buf[80];
                 time_t ts = iter->getTimestamp();
                 strftime(buf, sizeof buf, "%Y-%m-%d %H:%M", gmtime(&ts));
 
+                if (iter->read(saveData, sizeof *saveData)) {
+                    item->setText(item->TEXT_BOTTOM_LEFT, "%s",
+                                  saveData->getWorldName());
+                }
+
+                delete saveData;
+
                 item->setText(item->TEXT_TOP_LEFT, "%s", iter->getName());
-                item->setText(item->TEXT_BOTTOM_LEFT, "%d", (int)iter->getSize());
                 item->setText(item->TEXT_BOTTOM_RIGHT, "%s", buf);
             }
 
             list->append(item);
         }
+
         list->run();
         delete list;
     }
