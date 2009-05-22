@@ -225,6 +225,10 @@ class SBTStack
 {
  public:
     SBTStack() {
+        reset();
+    }
+
+    void reset() {
         top = 0;
     }
 

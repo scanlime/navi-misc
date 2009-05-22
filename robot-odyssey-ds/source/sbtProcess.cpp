@@ -94,6 +94,9 @@ void SBTProcess::exec(const char *cmdLine)
     memset(mem, 0, MEM_SIZE);
     decompressRLE(memSeg(reg.ds), getData(), getDataLen());
 
+    // Initialize emulated stack
+    stack.reset();
+
     /*
      * Program Segment Prefix. Locate it just before the beginning of
      * the EXE, and copy our command line to it.

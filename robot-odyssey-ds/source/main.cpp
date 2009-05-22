@@ -27,6 +27,7 @@
  */
 
 #include <nds.h>
+#include <map>
 
 #include "sbt86.h"
 #include "hwMain.h"
@@ -67,27 +68,51 @@ int main() {
                 item->setText(item->TEXT_CENTER, "New File");
 
             } else if (iter->getSize() == sizeof(ROSavedGame)) {
-                ROSavedGame *saveData = new ROSavedGame();
                 char buf[80];
                 time_t ts = iter->getTimestamp();
                 strftime(buf, sizeof buf, "%Y-%m-%d %H:%M", gmtime(&ts));
 
-                if (iter->read(saveData, sizeof *saveData)) {
+                ROSavedGame *save = new ROSavedGame;
+                if (iter->read(save, sizeof *save)) {
                     item->setText(item->TEXT_BOTTOM_LEFT, "%s",
-                                  saveData->getWorldName());
+                                  save->getWorldName());
                 }
-
-                delete saveData;
+                delete save;
 
                 item->setText(item->TEXT_TOP_LEFT, "%s", iter->getName());
                 item->setText(item->TEXT_BOTTOM_RIGHT, "%s", buf);
+
+                item->file = &*iter;
             }
 
             list->append(item);
         }
 
-        list->run();
+        list->show();
+        list->activate();
+
+        HwMain *hwMain = new HwMain();
+        SBTProcess *game = new GameEXE(hwMain);
+
+        UIListItem *current = list->getCurrentItem();
+
+        while (!list->isHidden()) {
+            if (list->getCurrentItem() != current) {
+                current = list->getCurrentItem();
+                UIFileListItem *fileItem = static_cast<UIFileListItem*>(current);
+
+                fileItem->file->read(&hwMain->fs.saveFile, sizeof hwMain->fs.saveFile);
+                game->exec("99");
+            }
+
+            game->run();
+        }
+
+        list->deactivate();
+
         delete list;
+        delete game;
+        delete hwMain;
     }
 
     HwMain *hwMain = new HwMain();
