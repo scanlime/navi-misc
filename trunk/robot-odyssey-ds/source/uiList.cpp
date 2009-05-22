@@ -60,12 +60,12 @@ void UIList::handleInput(const UIInputState &input) {
     }
 
     if (input.keysPressed & hotkey) {
-        activate();
+        choose();
     } else if (input.keysPressed & KEY_TOUCH) {
         int index = findTappedItem(input.touchX, input.touchY);
 
         if (index == getCurrentIndex()) {
-            activate();
+            choose();
         } else if (index >= 0) {
             setCurrentIndex(index);
         }
@@ -123,7 +123,7 @@ void UIList::animate() {
     UITransient::animate();
 }
 
-void UIList::activate() {
+void UIList::choose() {
     /*
      * Select the current item, end the list UI.
      */

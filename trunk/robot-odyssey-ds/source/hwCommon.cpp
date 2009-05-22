@@ -45,15 +45,30 @@ DOSFilesystem::DOSFilesystem()
 
 uint16_t DOSFilesystem::open(const char *name)
 {
-    extern const GBFS_FILE data_gbfs;
     uint16_t fd = allocateFD();
     OpenFile *file = &openFiles[fd];
 
     file->open = true;
-    file->data = (const uint8_t*) gbfs_get_obj(&data_gbfs, name, &file->length);
 
-    if (!file->data) {
-        PANIC(SBT86_RT_ERROR, ("Can't open file '%s'\n", name));
+    if (!strcmp(name, SBT_SAVE_FILE_NAME)) {
+        /*
+         * Save file
+         */
+
+        file->data = saveFile;
+        file->length = sizeof saveFile;
+
+    } else {
+        /*
+         * GBFS file
+         */
+
+        extern const GBFS_FILE data_gbfs;
+
+        file->data = (uint8_t*) gbfs_get_obj(&data_gbfs, name, &file->length);
+        if (!file->data) {
+            PANIC(SBT86_RT_ERROR, ("Can't open file '%s'\n", name));
+        }
     }
 
     return fd;
@@ -227,16 +242,16 @@ SBTRegs HwCommon::interrupt21(SBTProcess *proc, SBTRegs reg)
         break;
 
     case 0x3D:                /* Open File */
-        reg.ax = dosFS.open((char*)(proc->memSeg(reg.ds) + reg.dx));
+        reg.ax = fs.open((char*)(proc->memSeg(reg.ds) + reg.dx));
         reg.clearCF();
         break;
 
     case 0x3E:                /* Close File */
-        dosFS.close(reg.bx);
+        fs.close(reg.bx);
         break;
 
     case 0x3F:                /* Read File */
-        reg.ax = dosFS.read(reg.bx, proc->memSeg(reg.ds) + reg.dx, reg.cx);
+        reg.ax = fs.read(reg.bx, proc->memSeg(reg.ds) + reg.dx, reg.cx);
         reg.clearCF();
         break;
 

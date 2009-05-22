@@ -34,28 +34,33 @@
 #define _HWCOMMON_H_
 
 #include "sbt86.h"
+#include "roData.h"
 
 
 /*
  * DOSFilesystem --
  *
  *    A utility class for implementing DOS filesystem emulation.
+ *    Most files are read-only, and backed by GBFS. One special
+ *    "save file" is backed by memory.
  */
 
 class DOSFilesystem
 {
- public:
+public:
     DOSFilesystem();
 
     uint16_t open(const char *name);
     void close(uint16_t fd);
     uint16_t read(uint16_t fd, void *buffer, uint16_t length);
 
- private:
+    uint8_t saveFile[sizeof(ROSavedGame)];
+
+private:
     struct OpenFile {
-        bool           open;
-        const uint8_t *data;
-        uint32_t       length;
+        bool       open;
+        uint8_t   *data;
+        uint32_t   length;
     };
 
     uint16_t allocateFD();
@@ -98,8 +103,9 @@ class HwCommon : public SBTHardware
 
     virtual void pressKey(uint8_t ascii, uint8_t scancode = 0);
 
+    DOSFilesystem fs;
+
  protected:
-    DOSFilesystem dosFS;
     uint8_t port61;
     uint16_t keycode;
 

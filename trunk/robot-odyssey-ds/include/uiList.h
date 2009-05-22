@@ -33,6 +33,7 @@
 #include "uiText.h"
 #include "uiBase.h"
 #include "uiSubScreen.h"
+#include "saveData.h"
 
 class UIListItem;
 
@@ -84,7 +85,7 @@ public:
     virtual void handleInput(const UIInputState &input);
     virtual void updateState();
     virtual void animate();
-    virtual void activate();
+    virtual void choose();
 
     void append(UIListItem *item);
 
@@ -147,6 +148,9 @@ public:
     virtual void paint(UIListDraw *draw, int x, int y, bool hilight);
     virtual int getHeight();
     virtual bool hitTest(int x, int y);
+
+    // XXX
+    SaveFile *file;
 
 private:
     static const int height = 30;
