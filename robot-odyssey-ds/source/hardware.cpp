@@ -125,10 +125,11 @@ void Hardware::init() {
                LZ77Vram);
 
     /*
-     * Backdrop image (sub BG3).
-     * The background's palette is shared by the text layer (UIText).
+     * Backdrop image (sub BG3). The background's palette is shared
+     * by the text layer (UIText) on both screens.
      */
     int subBg = bgInitSub(3, BgType_Bmp8, BgSize_B8_256x256, 0, 0);
     decompress(gfx_backgroundBitmap, bgGetGfxPtr(subBg), LZ77Vram);
     decompress(gfx_backgroundPal, BG_PALETTE_SUB, LZ77Vram);
+    decompress(gfx_backgroundPal, BG_PALETTE, LZ77Vram);
 }

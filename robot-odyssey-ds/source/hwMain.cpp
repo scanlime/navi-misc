@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-basic-offset: 4 -*-
  *
- * Main implementation of SBTHardware, which emulates video using the
+ * Implementations of SBTHardware which emulate video using the
  * Nintendo DS's primary screen.
  *
  * Copyright (c) 2009 Micah Dowty <micah@navi.cx>
@@ -34,25 +34,28 @@
 #include "videoConvert.h"
 
 
+//********************************************************** HWMain
+
+
 HwMain::HwMain()
+    : text(MAIN)
 {
     bg = bgInit(3, BgType_Bmp16, BgSize_B16_256x256, 0, 0);
     backbuffer = bgGetGfxPtr(bg);
     bgSetMapBase(bg, MAP_BASE_OFFSET);
 }
 
+void HwMain::setOpacity(int opacity, uint16_t bgColor) {
+    BG_PALETTE[0] = bgColor;
+    REG_BLDCNT = (BLEND_ALPHA |
+                  BLEND_SRC_BG3 |
+                  BLEND_DST_BACKDROP);
+    REG_BLDALPHA = opacity | (OPACITY_MAX - opacity) << 8;
+}
+
 void HwMain::drawScreen(SBTProcess *proc, uint8_t *framebuffer)
 {
     VideoConvert::scaleCGAto256(framebuffer, backbuffer);
-
-#if 0
-    if (!(keysHeld() & KEY_SELECT)) {
-        int i = 5;
-        while (i--) {
-            swiWaitForVBlank();
-        }
-    }
-#endif
 
     /* The current frontbuffer will be the next backbuffer. */
     backbuffer = bgGetGfxPtr(bg);
@@ -63,13 +66,15 @@ void HwMain::drawScreen(SBTProcess *proc, uint8_t *framebuffer)
     HwCommon::drawScreen(proc, framebuffer);
 }
 
-void HwMain::writeSpeakerTimestamp(uint32_t timestamp)
-{
+
+//********************************************************** HWMainInteractive
+
+
+void HwMainInteractive::writeSpeakerTimestamp(uint32_t timestamp) {
     SoundEngine::writeSpeakerTimestamp(timestamp);
 }
 
-void HwMain::pollKeys(SBTProcess *proc)
-{
+void HwMainInteractive::pollKeys(SBTProcess *proc) {
     unsigned int i;
     static const struct {
         uint16_t key;
@@ -92,7 +97,8 @@ void HwMain::pollKeys(SBTProcess *proc)
     HwCommon::pollKeys(proc);
 
     for (i = 0; i < (sizeof keyTable / sizeof keyTable[0]); i++) {
-        if ((keysHeld() & keyTable[i].key) == keyTable[i].key) {
+        uint16_t keys = keyTable[i].key;
+        if ((keysHeld() & keys) == keys) {
             keycode = keyTable[i].code;
             return;
         }

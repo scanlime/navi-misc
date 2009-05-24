@@ -33,6 +33,7 @@
 #include "uiText.h"
 #include "uiBase.h"
 #include "uiSubScreen.h"
+#include "hwMain.h"
 #include "saveData.h"
 
 class UIListItem;
@@ -97,6 +98,10 @@ public:
         return items[draw.currentItem];
     }
 
+    bool isEmpty() {
+        return items.size() == 0;
+    }
+
     void setCurrentIndex(int index);
 
     int hotkey;
@@ -149,9 +154,6 @@ public:
     virtual int getHeight();
     virtual bool hitTest(int x, int y);
 
-    // XXX
-    SaveFile *file;
-
 private:
     static const int height = 30;
     static const int bufferLen = 80;
@@ -177,6 +179,35 @@ private:
     RendererEXE renderer;
     ROData roData;
     UIRobotIcon robot;
+};
+
+
+/*
+ * A list item specifically for saved games.
+ */
+class UISavedGameItem : public UIFileListItem
+{
+public:
+    UISavedGameItem(SaveFile *file);
+
+    SaveFile *file;
+};
+
+
+/*
+ * A list UI specifically for saved games.
+ */
+class UISavedGameList : public UIListWithRobot
+{
+public:
+    UISavedGameList(SaveData *sd, const char *title, bool showNewFile=false);
+    SaveFile run();
+
+protected:
+    HwMain hw;
+    GameEXE game;
+    SaveType gameSaves;
+    SaveFileList saves;
 };
 
 

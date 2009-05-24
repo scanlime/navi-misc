@@ -256,7 +256,7 @@ SBTRegs HwCommon::interrupt21(SBTProcess *proc, SBTRegs reg)
         break;
 
     case 0x4C:                /* Exit with return code */
-        proc->halt(SBTHALT_DOS_EXIT | reg.al);
+        PANIC(SBT86_RT_ERROR, ("DOS Exit\n"));
         break;
 
     default:

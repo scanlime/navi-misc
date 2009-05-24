@@ -41,9 +41,6 @@ class HwSub : public HwCommon
     virtual void drawScreen(SBTProcess *proc, uint8_t *framebuffer);
 
  protected:
-    static const unsigned MAP_BASE_OFFSET =
-        (SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(uint16_t)) / (16 * 1024);
-
     int bg;
     uint16_t *backbuffer;
 };

@@ -81,12 +81,7 @@ void UIList::updateState() {
     /*
      * The list fades in and out.
      */
-    REG_BLDCNT_SUB = (BLEND_ALPHA |
-                      BLEND_SRC_BG2 |
-                      BLEND_DST_BG3 |
-                      BLEND_DST_BACKDROP);
-    int alpha = interpVisibility(0, 16);
-    REG_BLDALPHA_SUB = alpha | (16 - alpha) << 8;
+    draw.setOpacity(interpVisibility(0, draw.OPACITY_MAX));
 
     UITransient::updateState();
 }
@@ -342,7 +337,7 @@ bool UIFileListItem::hitTest(int x, int y) {
 }
 
 
-//********************************************************** UIFileListItem
+//********************************************************** UIListWithRobot
 
 
 UIListWithRobot::UIListWithRobot(RORobotId robotId)
@@ -431,4 +426,75 @@ void UIListWithRobot::animateRobot() {
         while (renderer.run() != SBTHALT_LOAD_ROOM_ID);
         renderer.reg.al = RO_ROOM_RENDERER;
     }
+}
+
+
+//********************************************************** UISavedGameItem
+
+
+UISavedGameItem::UISavedGameItem(SaveFile *_file)
+    : file(_file)
+{
+    if (file->isNew()) {
+        setText(TEXT_CENTER, "New File");
+        return;
+    }
+
+    setText(TEXT_TOP_LEFT, "%s", file->getName());
+
+    char buf[80];
+    file->getTimestamp(buf, sizeof buf);
+    setText(TEXT_BOTTOM_RIGHT, "%s", buf);
+
+    if (file->getSize() == sizeof(ROSavedGame)) {
+        ROSavedGame *save = new ROSavedGame;
+        if (file->read(save)) {
+            setText(TEXT_BOTTOM_LEFT, "%s", save->getWorldName());
+        }
+        delete save;
+    }
+}
+
+
+//********************************************************** UISavedGameList
+
+
+UISavedGameList::UISavedGameList(SaveData *sd, const char *title, bool showNewFile)
+    : UIListWithRobot(),
+      hw(),
+      game(&hw),
+      gameSaves(sd, ".gsv"),
+      saves()
+{
+    hw.setOpacity(6, RGB8(0x5f, 0x5F, 0x53));
+    hw.text.drawTextBox(2, 2, title);
+    hw.text.blit();
+
+    gameSaves.listFiles(saves, showNewFile);
+
+    for (SaveFileList::iterator i = saves.begin(); i != saves.end(); i++) {
+        append(new UISavedGameItem(&*i));
+    }
+}
+
+SaveFile UISavedGameList::run() {
+    show();
+    activate();
+
+    UISavedGameItem *item = NULL;
+
+    while (!isHidden()) {
+        UISavedGameItem *current = static_cast<UISavedGameItem*>(getCurrentItem());
+
+        if (item != current) {
+            item = current;
+
+            item->file->loadGame(&game, &hw);
+            while (game.run() != SBTHALT_FRAME_DRAWN);
+        }
+    }
+
+    deactivate();
+
+    return *item->file;
 }

@@ -31,6 +31,7 @@
 
 #include <string>
 #include <list>
+#include "hwCommon.h"
 
 class SaveFile;
 class SaveType;
@@ -107,6 +108,8 @@ public:
         return timestamp;
     }
 
+    void getTimestamp(char *buf, size_t bufSize);
+
     bool isNew() {
         return newFile;
     }
@@ -114,7 +117,21 @@ public:
     bool write(void *buffer, size_t size);
     bool read(void *buffer, size_t size);
 
+    bool read(ROSavedGame *game) {
+        return read(game, sizeof *game);
+    }
+
+    bool read(DOSFilesystem *fs) {
+        return read(&fs->saveFile, sizeof fs->saveFile);
+    }
+
+    bool write(DOSFilesystem *fs) {
+        return write(&fs->saveFile, sizeof fs->saveFile);
+    }
+
     bool operator ==(const SaveFile &other) const;
+
+    bool loadGame(SBTProcess *game, HwCommon *hw);
 
 private:
     friend class SaveType;

@@ -36,102 +36,51 @@
 #include "uiList.h"
 #include "hardware.h"
 #include "saveData.h"
+#include "videoConvert.h"
 
-SBT_DECL_PROCESS(MenuEXE);
-SBT_DECL_PROCESS(LabEXE);
-SBT_DECL_PROCESS(GameEXE);
-SBT_DECL_PROCESS(TutorialEXE);
 
 int main() {
     Hardware::init();
 
-    HwMain *hwMain = new HwMain();
-    SBTProcess *game = new GameEXE(hwMain);
-
     SaveData sd;
+
+    HwMainInteractive *hwMain = new HwMainInteractive();
+    SBTProcess *game = new GameEXE(hwMain);
 
     if (!sd.init()) {
         UIMessageBox *mb = new UIMessageBox(sd.getInitErrorMessage());
-        UIFade fader(fader.SUB);
+        UIFade fader(SUB);
         fader.hide();
         mb->objects.push_back(&fader);
         mb->run();
         delete mb;
+    }
+
+    UISavedGameList *games = new UISavedGameList(&sd, "Load Game");
+    if (games->isEmpty()) {
+        UIMessageBox *mb = new UIMessageBox("Can't find any saved games!");
+        mb->run();
+        delete mb;
     } else {
-        SaveType gameSaves(&sd, ".gsv");
-        SaveFileList saves;
-        SaveFileList::iterator iter;
-
-        gameSaves.listFiles(saves, true);
-
-        UIListWithRobot *list = new UIListWithRobot();
-
-        for (iter = saves.begin(); iter != saves.end(); iter++) {
-            UIFileListItem *item = new UIFileListItem();
-
-            if (iter->isNew()) {
-                item->setText(item->TEXT_CENTER, "New File");
-
-            } else if (iter->getSize() == sizeof(ROSavedGame)) {
-                char buf[80];
-                time_t ts = iter->getTimestamp();
-                strftime(buf, sizeof buf, "%Y-%m-%d %H:%M", gmtime(&ts));
-                item->setText(item->TEXT_BOTTOM_RIGHT, "%s", buf);
-
-                ROSavedGame *save = new ROSavedGame;
-                if (iter->read(save, sizeof *save)) {
-                    item->setText(item->TEXT_BOTTOM_LEFT, "%s",
-                                  save->getWorldName());
-                }
-                delete save;
-
-                item->setText(item->TEXT_TOP_LEFT, "%s", iter->getName());
-
-                item->file = &*iter;
-            }
-
-            list->append(item);
-        }
-
-        list->show();
-        list->activate();
-
-        UIListItem *current = list->getCurrentItem();
-
-        while (!list->isHidden()) {
-            if (list->getCurrentItem() != current) {
-                current = list->getCurrentItem();
-                UIFileListItem *fileItem = static_cast<UIFileListItem*>(current);
-
-                fileItem->file->read(&hwMain->fs.saveFile, sizeof hwMain->fs.saveFile);
-                game->exec("99");
-            }
-
-            game->run();
-        }
-
-        list->deactivate();
-        delete list;
+        SaveFile file = games->run();
+        delete games;
+        file.loadGame(game, hwMain);
     }
 
     ROData gameData(game);
     UISubScreen *subScreen = new UISubScreen(&gameData, hwMain);
-    UIFade gameFader(gameFader.MAIN);
+    UIFade gameFader(MAIN);
     subScreen->objects.push_back(&gameFader);
     gameFader.hide();
     subScreen->activate();
 
     while (1) {
-        switch (game->run() & SBTHALT_MASK_CODE) {
+        switch (game->run()) {
 
         case SBTHALT_FRAME_DRAWN:
             subScreen->renderFrame();
             break;
 
-        case SBTHALT_DOS_EXIT:
-            subScreen->text.printf("DOS EXIT\n");
-            while (1);
-            break;
         }
     }
 

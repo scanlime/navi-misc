@@ -58,13 +58,9 @@ class SBTSegmentCache;
  */
 
 enum SBTHaltCode {
-    SBTHALT_MASK_CODE      = 0xFFFF0000,
-    SBTHALT_MASK_ARG       = 0x0000FFFF,
-
-    SBTHALT_DOS_EXIT       = (1 << 16),    // OR'ed with DOS exit code
-    SBTHALT_FRAME_DRAWN    = (2 << 16),    // We just rendered a frame
-    SBTHALT_LOAD_ROOM_ID   = (3 << 16),    // Loading room ID from AL
-    SBTHALT_KEYBOARD_POLL  = (4 << 16),    // About to poll key state
+    SBTHALT_FRAME_DRAWN    = 1,    // We just rendered a frame
+    SBTHALT_LOAD_ROOM_ID   = 2,    // Loading room ID from AL
+    SBTHALT_KEYBOARD_POLL  = 3,    // About to poll key state
 };
 
 
