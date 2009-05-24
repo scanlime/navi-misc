@@ -45,7 +45,11 @@ SBT_DECL_PROCESS(TutorialEXE);
 int main() {
     Hardware::init();
 
+    HwMain *hwMain = new HwMain();
+    SBTProcess *game = new GameEXE(hwMain);
+
     SaveData sd;
+
     if (!sd.init()) {
         UIMessageBox *mb = new UIMessageBox(sd.getInitErrorMessage());
         UIFade fader(fader.SUB);
@@ -54,12 +58,13 @@ int main() {
         mb->run();
         delete mb;
     } else {
-        UIListWithRobot *list = new UIListWithRobot();
         SaveType gameSaves(&sd, ".gsv");
         SaveFileList saves;
         SaveFileList::iterator iter;
 
         gameSaves.listFiles(saves, true);
+
+        UIListWithRobot *list = new UIListWithRobot();
 
         for (iter = saves.begin(); iter != saves.end(); iter++) {
             UIFileListItem *item = new UIFileListItem();
@@ -71,6 +76,7 @@ int main() {
                 char buf[80];
                 time_t ts = iter->getTimestamp();
                 strftime(buf, sizeof buf, "%Y-%m-%d %H:%M", gmtime(&ts));
+                item->setText(item->TEXT_BOTTOM_RIGHT, "%s", buf);
 
                 ROSavedGame *save = new ROSavedGame;
                 if (iter->read(save, sizeof *save)) {
@@ -80,7 +86,6 @@ int main() {
                 delete save;
 
                 item->setText(item->TEXT_TOP_LEFT, "%s", iter->getName());
-                item->setText(item->TEXT_BOTTOM_RIGHT, "%s", buf);
 
                 item->file = &*iter;
             }
@@ -90,9 +95,6 @@ int main() {
 
         list->show();
         list->activate();
-
-        HwMain *hwMain = new HwMain();
-        SBTProcess *game = new GameEXE(hwMain);
 
         UIListItem *current = list->getCurrentItem();
 
@@ -109,31 +111,15 @@ int main() {
         }
 
         list->deactivate();
-
         delete list;
-        delete game;
-        delete hwMain;
     }
 
-    HwMain *hwMain = new HwMain();
-    SBTProcess *game = new GameEXE(hwMain);
     ROData gameData(game);
-
     UISubScreen *subScreen = new UISubScreen(&gameData, hwMain);
     UIFade gameFader(gameFader.MAIN);
     subScreen->objects.push_back(&gameFader);
     gameFader.hide();
     subScreen->activate();
-
-#if 0
-        DIR *d = opendir("/");
-        if (d) {
-            struct dirent *pent;
-            while ((pent = readdir(d))) {
-                subScreen->text.printf("%s\n", pent->d_name);
-            }
-        }
-#endif
 
     while (1) {
         switch (game->run() & SBTHALT_MASK_CODE) {

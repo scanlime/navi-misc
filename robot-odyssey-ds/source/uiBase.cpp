@@ -315,7 +315,10 @@ void UIFade::updateState() {
 UISpriteButton::UISpriteButton(MSpriteAllocator *sprAlloc,
                                SpriteImages *images,
                                MSpriteRange range,
-                               bool autoDoubleSize) : sprite(sprAlloc) {
+                               bool autoDoubleSize)
+    : sprite(sprAlloc),
+      hotkey(0)
+{
     this->images = images;
     this->autoDoubleSize = autoDoubleSize;
 
@@ -337,7 +340,7 @@ void UISpriteButton::setImageIndex(int id) {
 }
 
 void UISpriteButton::handleInput(const UIInputState &input) {
-    if (input.keysPressed & hotkey) {
+    if (hotkey && (input.keysPressed & hotkey)) {
         activate();
     } else if ((input.keysPressed & KEY_TOUCH) &&
                sprite.hitTest(input.touchX, input.touchY)) {

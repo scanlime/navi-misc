@@ -362,9 +362,10 @@ UIListWithRobot::UIListWithRobot(RORobotId robotId)
      * and it needs to be from the main game (so we have 4 robots).
      * This is the only option that meets both criteria.
      */
-    DOSFilesystem dos;
-    int fd = dos.open("sewer.wor");
-    dos.read(fd, (void*)roData.world, sizeof *roData.world);
+    DOSFilesystem *dos = new DOSFilesystem();
+    int fd = dos->open("sewer.wor");
+    dos->read(fd, (void*)roData.world, sizeof *roData.world);
+    delete dos;
 
     robot.setupRenderer(&roData);
     robot.sprite.moveTo(robotPositionUnset, robotPositionUnset);
