@@ -64,11 +64,31 @@ def patch(b):
     # and unnecessary for us. Replace it with a call to
     # consoleBlitToScreen(), and read directly from the game's backbuffer.
 
+    b.decl("static bool noBlit = false;")
     b.patchAndHook(b.findCode(':803e____01 7503 e95a05 c43e____'
                               'bb2800 a1____ 8cda 8ed8 be0020 33 c0'),
                    'ret', '''
-        hw->drawScreen(proc, proc->memSeg(proc->peek16(r.ds, 0x3AD5)));
+        if (!noBlit) {
+            hw->drawScreen(proc, proc->memSeg(proc->peek16(r.ds, 0x3AD5)));
+        }
     ''')
+
+    # Avoid calling the blitter during initialization. Normally the
+    # game clears the screen during initialization, but for us this is
+    # inconvenient- it means if we want to capture the screen after
+    # loading a game, we can't just wait for the first blit. To ensure
+    # that the first blitted frame is a 'real' frame, remove this blit
+    # call.
+    #
+    # Note that we can't just stub out the call, since other parts
+    # of the initialization rely on pointers that are set here.
+
+    b.hook(b.findCode('c3 :e8____ b500 b100 8bf9 8a85ac05 a2____'
+                      'e8____ e8____ c3'),
+           'noBlit = true;')
+    b.hook(b.findCode('c3 e8____: b500 b100 8bf9 8a85ac05 a2____'
+                      'e8____ e8____ c3'),
+           'noBlit = false;')
 
     # Object intersection tests make use of a callback function that tests
     # whether the object is allowed to be picked up. There are at least

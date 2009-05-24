@@ -36,6 +36,7 @@
 #include <string.h>
 #include "rect.h"
 #include "gfx_box.h"
+#include "uiBase.h"
 
 
 /*
@@ -135,7 +136,7 @@ public:
  */
 class VScrollLayer {
 public:
-    VScrollLayer();
+    VScrollLayer(Screen screen = SUB);
     virtual ~VScrollLayer();
 
     static const int width = 256;
@@ -148,6 +149,9 @@ public:
     int getScroll() {
         return yScroll;
     }
+
+    static const int OPACITY_MAX = 16;
+    void setOpacity(int opacity);
 
     void blit();
     void clear();
@@ -231,6 +235,7 @@ private:
     uint32_t backbuffer[width * height / sizeof(uint32_t)];
     DirtyRectTracker dirty;
     int yScroll;
+    Screen screen;
 };
 
 
@@ -241,7 +246,7 @@ private:
 class UITextLayer : public VScrollLayer
 {
  public:
-    UITextLayer();
+    UITextLayer(Screen screen = SUB);
 
     enum Alignment { LEFT, CENTER, RIGHT };
 
@@ -269,7 +274,14 @@ class UITextLayer : public VScrollLayer
     void printf(const char *format, ...);
     void vprintf(const char *format, va_list v);
     void draw(const char *text);
-    int measureWidth(const char *text);
+    void drawTextBox(int x, int y, const char *text);
+    void measure(const char *text, int &width, int &height);
+
+    int measureWidth(const char *text) {
+        int width, height;
+        measure(text, width, height);
+        return width;
+    }
 
     TextColors colors;
     DefaultFont font;

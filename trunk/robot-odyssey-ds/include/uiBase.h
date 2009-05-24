@@ -37,6 +37,15 @@
 
 
 /*
+ * One of the two screens.
+ */
+enum Screen {
+    MAIN,
+    SUB,
+};
+
+
+/*
  * The current state of all input devices.
  * Passed to each UIObject when it's polled every frame.
  */
@@ -161,11 +170,6 @@ public:
     enum Color {
         BLACK,
         WHITE
-    };
-
-    enum Screen {
-        MAIN,
-        SUB,
     };
 
     static const Fixed16 DEFAULT_SPEED = 2500;

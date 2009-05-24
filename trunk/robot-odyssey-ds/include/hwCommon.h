@@ -36,6 +36,11 @@
 #include "sbt86.h"
 #include "roData.h"
 
+SBT_DECL_PROCESS(MenuEXE);
+SBT_DECL_PROCESS(LabEXE);
+SBT_DECL_PROCESS(GameEXE);
+SBT_DECL_PROCESS(TutorialEXE);
+
 
 /*
  * DOSFilesystem --

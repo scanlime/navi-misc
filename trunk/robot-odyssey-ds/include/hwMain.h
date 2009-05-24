@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-basic-offset: 4 -*-
  *
- * Main implementation of SBTHardware, which emulates video using the
+ * Implementations of SBTHardware which emulate video using the
  * Nintendo DS's primary screen.
  *
  * Copyright (c) 2009 Micah Dowty <micah@navi.cx>
@@ -31,8 +31,13 @@
 #define _HWMAIN_H_
 
 #include "hwCommon.h"
+#include "uiText.h"
 
 
+/*
+ * Basic double-buffered video using the main screen.
+ * Supports optional text overlays and blending the screen with a specified color.
+ */
 class HwMain : public HwCommon
 {
  public:
@@ -40,16 +45,29 @@ class HwMain : public HwCommon
 
     virtual void drawScreen(SBTProcess *proc, uint8_t *framebuffer);
 
- protected:
+    static const int OPACITY_MAX = 16;
+    void setOpacity(int opacity, uint16_t bgColor=0);
+
+    UITextLayer text;
+
+protected:
     static const unsigned MAP_BASE_OFFSET =
         (SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(uint16_t)) / (16 * 1024);
 
     int bg;
     uint16_t *backbuffer;
+};
 
+
+/*
+ * Video on the main screen, plus sound and input.
+ */
+class HwMainInteractive : public HwMain
+{
+protected:
     virtual void writeSpeakerTimestamp(uint32_t timestamp);
     virtual void pollKeys(SBTProcess *proc);
 };
 
 
-#endif // _SBTHARDWAREMAIN_H_
+#endif // _HWMAIN_H_

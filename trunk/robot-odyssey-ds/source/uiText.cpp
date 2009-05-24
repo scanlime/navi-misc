@@ -81,15 +81,32 @@ Glyph DefaultFont::getGlyph(char c) {
 //********************************************************** VScrollLayer
 
 
-VScrollLayer::VScrollLayer() {
+VScrollLayer::VScrollLayer(Screen _screen)
+    : screen(_screen)
+{
     /*
-     * Initialize BG2.  Use 4 banks of memory in VRAM C, starting at
-     * bank 3.  (We use the first 3 banks for background 3.)
+     * Initialize BG2.
+     *
+     * For the sub-screen, use 4 banks of memory in VRAM C, starting
+     * at bank 3.  (We use the first 3 banks for background 3.)
+     *
+     * For the main screen, we need to situate this right after the
+     * two 16-bit HwMain buffers.
+     *
+     * No blending by default. Some layers use this for fading effects.
      */
-    bg = bgInitSub(2, BgType_Bmp8, BgSize_B8_256x256, 3, 0);
+    switch (screen) {
 
-    /* No blending by default. Some layers use this for fading effects. */
-    REG_BLDCNT = BLEND_NONE;
+    case SUB:
+        bg = bgInitSub(2, BgType_Bmp8, BgSize_B8_256x256, 3, 0);
+        REG_BLDCNT_SUB = BLEND_NONE;
+        break;
+
+    case MAIN:
+        bg = bgInit(2, BgType_Bmp8, BgSize_B8_256x256, 12, 0);
+        REG_BLDCNT_SUB = BLEND_NONE;
+        break;
+    }
 
     yScroll = 0;
     resetClip();
@@ -163,6 +180,28 @@ void VScrollLayer::clear() {
     }
 }
 
+void VScrollLayer::setOpacity(int opacity) {
+    uint32_t ctrlValue = (BLEND_ALPHA |
+                          BLEND_SRC_BG2 |
+                          BLEND_DST_BG3 |
+                          BLEND_DST_BACKDROP);
+
+    uint32_t bldAlpha = opacity | (OPACITY_MAX - opacity) << 8;
+
+    switch (screen) {
+
+    case MAIN:
+        REG_BLDCNT = ctrlValue;
+        REG_BLDALPHA = bldAlpha;
+        break;
+
+    case SUB:
+        REG_BLDCNT_SUB = ctrlValue;
+        REG_BLDALPHA_SUB = bldAlpha;
+        break;
+    }
+}
+
 void VScrollLayer::blit() {
     /*
      * Draw all dirty rectangles to the screen.
@@ -224,7 +263,9 @@ void VScrollLayer::blitRect(Rect r) {
 //********************************************************** UITextLayer
 
 
-UITextLayer::UITextLayer() {
+UITextLayer::UITextLayer(Screen _screen)
+    : VScrollLayer(_screen)
+{
     setWrapWidth(SCREEN_WIDTH);
     setAlignment(LEFT);
     setAutoclear(false);
@@ -422,10 +463,22 @@ void UITextLayer::draw(const char *text) {
     }
 }
 
-int UITextLayer::measureWidth(const char *text) {
+void UITextLayer::drawTextBox(int x, int y, const char *text) {
+    const int margin = 1;
+    int width, height;
+
+    measure(text, width, height);
+    drawBox(Rect(x, y, width + margin*2, height + margin*2));
+    moveTo(x + margin, y + margin);
+    draw(text);
+}
+
+void UITextLayer::measure(const char *text, int &width, int &height) {
     int lineWidth = 0;
-    int maxWidth = 0;
     char c;
+
+    width = 0;
+    height = font.getLineSpacing();
 
     /*
      * This may be a multi-line string. Measure the longest line.
@@ -433,19 +486,18 @@ int UITextLayer::measureWidth(const char *text) {
     while ((c = *text)) {
         if (c == '\n') {
             lineWidth = 0;
+            height += font.getLineSpacing();
         } else {
             /*
              * Include the width of the last glyph, and the escapement
              * of all others.
              */
             Glyph g = font.getGlyph(c);
-            maxWidth = std::max(maxWidth, lineWidth + g.getWidth());
+            width = std::max(width, lineWidth + g.getWidth());
             lineWidth += g.getEscapement();
         }
         text++;
     }
-
-    return maxWidth;
 }
 
 int UITextLayer::measureNextWordWidth(const char *text) {

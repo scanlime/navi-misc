@@ -179,6 +179,10 @@ bool SaveType::operator ==(const SaveType &other) const {
 //********************************************************** SaveFile
 
 
+void SaveFile::getTimestamp(char *buf, size_t bufSize) {
+    strftime(buf, bufSize, "%Y-%m-%d %H:%M", gmtime(&timestamp));
+}
+
 bool SaveFile::write(void *buffer, size_t size) {
     std::string fullName = name + st->extension;
 
@@ -218,4 +222,16 @@ bool SaveFile::read(void *buffer, size_t size) {
 
 bool SaveFile::operator ==(const SaveFile &other) const {
     return *st == *other.st && name == other.name;
+}
+
+bool SaveFile::loadGame(SBTProcess *game, HwCommon *hw) {
+    if (isNew()) {
+        game->exec();
+    } else {
+        if (!read(&hw->fs)) {
+            return false;
+        }
+        game->exec("99");
+    }
+    return true;
 }
