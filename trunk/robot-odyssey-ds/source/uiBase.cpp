@@ -301,6 +301,8 @@ UIFade::UIFade(Screen screen, bool startOutFaded,
         break;
 
     }
+
+    updateState();
 }
 
 void UIFade::updateState() {

@@ -37,9 +37,7 @@
 //********************************************************** HWMain
 
 
-HwMain::HwMain()
-    : text(MAIN)
-{
+HwMain::HwMain() {
     bg = bgInit(3, BgType_Bmp16, BgSize_B16_256x256, 0, 0);
     backbuffer = bgGetGfxPtr(bg);
     bgSetMapBase(bg, MAP_BASE_OFFSET);

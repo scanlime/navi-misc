@@ -297,4 +297,21 @@ private:
 };
 
 
+/*
+ * A text layer that displays a title label at the top of the screen.
+ */
+class UITitleTextLayer : public UITextLayer
+{
+public:
+    UITitleTextLayer(const char *_text, Screen screen = MAIN)
+        : UITextLayer(screen),
+          text(_text) {}
+
+    virtual void paint();
+
+protected:
+    const char *text;
+};
+
+
 #endif // _UITEXT_H_
