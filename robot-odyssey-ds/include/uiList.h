@@ -204,10 +204,17 @@ public:
     SaveFile run();
 
 protected:
+    virtual void updateState();
+
+    static const int previewAlpha = 6;
+    static const uint16_t previewColor = RGB8(0x5F, 0x5F, 0x53);
+
+    UITitleTextLayer text;
     HwMain hw;
     GameEXE game;
     SaveType gameSaves;
     SaveFileList saves;
+    UIFade fader;
 };
 
 

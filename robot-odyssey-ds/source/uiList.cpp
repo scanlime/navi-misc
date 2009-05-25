@@ -461,14 +461,18 @@ UISavedGameItem::UISavedGameItem(SaveFile *_file)
 
 UISavedGameList::UISavedGameList(SaveData *sd, const char *title, bool showNewFile)
     : UIListWithRobot(),
+      text(title),
       hw(),
       game(&hw),
       gameSaves(sd, ".gsv"),
-      saves()
+      saves(),
+      fader(MAIN)
 {
-    hw.setOpacity(6, RGB8(0x5f, 0x5F, 0x53));
-    hw.text.drawTextBox(2, 2, title);
-    hw.text.blit();
+    // Don't show the main screen until run()
+    hw.setOpacity(0);
+
+    objects.push_back(&fader);
+    fader.hide();
 
     gameSaves.listFiles(saves, showNewFile);
 
@@ -488,13 +492,32 @@ SaveFile UISavedGameList::run() {
 
         if (item != current) {
             item = current;
-
             item->file->loadGame(&game, &hw);
             while (game.run() != SBTHALT_FRAME_DRAWN);
+
+            if (state != HIDING) {
+                // Show the screen we just rendered. The main screen
+                // remains black until the first save preview is fully
+                // loaded.
+                hw.setOpacity(previewAlpha, previewColor);
+            }
         }
     }
 
     deactivate();
 
     return *item->file;
+}
+
+void UISavedGameList::updateState() {
+    if (state == HIDING) {
+        /*
+         * Fade from preview to live game
+         */
+        hw.setOpacity(interpVisibility(16, previewAlpha), previewColor);
+    }
+
+    text.scrollTo(interpVisibility(30, 0));
+
+    UIListWithRobot::updateState();
 }

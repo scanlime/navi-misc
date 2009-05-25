@@ -36,7 +36,6 @@
 
 /*
  * Basic double-buffered video using the main screen.
- * Supports optional text overlays and blending the screen with a specified color.
  */
 class HwMain : public HwCommon
 {
@@ -47,8 +46,6 @@ class HwMain : public HwCommon
 
     static const int OPACITY_MAX = 16;
     void setOpacity(int opacity, uint16_t bgColor=0);
-
-    UITextLayer text;
 
 protected:
     static const unsigned MAP_BASE_OFFSET =

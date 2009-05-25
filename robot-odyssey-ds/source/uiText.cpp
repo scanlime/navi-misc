@@ -92,19 +92,15 @@ VScrollLayer::VScrollLayer(Screen _screen)
      *
      * For the main screen, we need to situate this right after the
      * two 16-bit HwMain buffers.
-     *
-     * No blending by default. Some layers use this for fading effects.
      */
     switch (screen) {
 
     case SUB:
         bg = bgInitSub(2, BgType_Bmp8, BgSize_B8_256x256, 3, 0);
-        REG_BLDCNT_SUB = BLEND_NONE;
         break;
 
     case MAIN:
         bg = bgInit(2, BgType_Bmp8, BgSize_B8_256x256, 12, 0);
-        REG_BLDCNT_SUB = BLEND_NONE;
         break;
     }
 
@@ -535,3 +531,12 @@ void UITextLayer::drawBorderRects(Rect r, uint8_t paletteIndex, int thickness) {
     drawRect(r.adjacentBelow(thickness).adjacentRight(thickness), paletteIndex);
 }
 
+
+//********************************************************** UITitleTextLayer
+
+
+void UITitleTextLayer::paint() {
+    clear();
+    drawTextBox(2, 2, text);
+    blit();
+}

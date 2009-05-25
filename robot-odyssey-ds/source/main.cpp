@@ -44,8 +44,7 @@ int main() {
 
     SaveData sd;
 
-    HwMainInteractive *hwMain = new HwMainInteractive();
-    SBTProcess *game = new GameEXE(hwMain);
+    SBTProcess *game = NULL;
 
     if (!sd.init()) {
         UIMessageBox *mb = new UIMessageBox(sd.getInitErrorMessage());
@@ -56,22 +55,28 @@ int main() {
         delete mb;
     }
 
-    UISavedGameList *games = new UISavedGameList(&sd, "Load Game");
-    if (games->isEmpty()) {
-        UIMessageBox *mb = new UIMessageBox("Can't find any saved games!");
-        mb->run();
-        delete mb;
-    } else {
-        SaveFile file = games->run();
-        delete games;
-        file.loadGame(game, hwMain);
+    UISavedGameList *games;
+    while (1) {
+        games = new UISavedGameList(&sd, "  Load Game  ");
+        if (games->isEmpty()) {
+            UIMessageBox *mb = new UIMessageBox("Can't find any saved games!");
+            mb->run();
+            delete mb;
+            delete games;
+        } else {
+            break;
+        }
     }
 
+    SaveFile file = games->run();
+    delete games;
+
+    HwCommon *hw = new HwMainInteractive;
+    game = new GameEXE(hw);
+    file.loadGame(game, hw);
+
     ROData gameData(game);
-    UISubScreen *subScreen = new UISubScreen(&gameData, hwMain);
-    UIFade gameFader(MAIN);
-    subScreen->objects.push_back(&gameFader);
-    gameFader.hide();
+    UISubScreen *subScreen = new UISubScreen(&gameData, hw);
     subScreen->activate();
 
     while (1) {
