@@ -1,0 +1,149 @@
+version 0.5 final (20-June-2009):
+	* Final release of Djblets 0.5.
+
+	  This release was made to go alongside Review Board 1.0. While Djblets
+	  works its way to its own 1.0, we will attempt to not break any existing
+	  API. However, it is important to note that Djblets is not API frozen
+	  at all yet.
+
+	  We advise developers to continue to work against Djblets SVN/nightlies,
+	  but to base production applications on 0.5.
+
+
+version 0.5 rc2 (13-June-2009):
+	* General:
+		* Properly list the license as MIT, not GPL, in setup.py.
+		  (Bug #1120)
+
+	* JavaScript:
+		* Prevent funcQueue.start() from being called when the queue is
+		  already started.
+
+	* djblets.datagrid:
+		* Added speedups when sorting columns. We used to generate an SQL
+		  query that pulled in all information in the order specified by
+		  the columns, but this could be slow for large data sets. We now
+		  do the minimal query, retrieving only the object IDs, and then
+		  fetch data on those specific IDs in a second query. The end result
+		  is a significant speedup in rendering datagrids when used with
+		  large amounts of data.
+
+	* djblets.log:
+		* Fix logging when we're unable to write to the log file. We now
+		  fall back on stderr. Patch by Paolo Borelli.
+
+	* djblets.util.fields:
+		* Fixed a typo in a variable name that caused problems in JSONField
+		  when getting data in an unexpected format.
+
+
+version 0.5 rc1 (3-May-2009):
+	* JavaScript:
+		* Clicking the edit icons for inlineEditors no longer causes the
+		  page to scroll in some browsers. (Bug #1057)
+
+	* djblets.datagrids:
+		* Sped up the datagrids in some cases by always including related
+		  objects (up to one depth level) in the query for the datagrid.
+
+	* djblets.siteconfig:
+		* Prepended the site's domain to the siteconfig cache key, making it
+		  possible to use multiple siteconfig-based apps on the same server.
+		  (Bug #986)
+
+		* Saving a SiteConfig didn't always cause other instances of that
+		  SiteConfig on the server to reload, meaning that people would
+		  sometimes have to restart the server to get settings to apply.
+		  This is now fixed.
+		  (Bug #734)
+
+		* Removed a redundant key for the timezone.
+
+	* djblets.util.templatetags.djblets_utils:
+		* The ageid filter now returns an empty string if passed 'None' as
+		  the timestamp.
+
+
+version 0.5 beta 1 (28-March-2009):
+	* JavaScript:
+		* Moved to using jQuery 1.3.2.
+
+		* Small performance improvements in tooltip and modalBox.
+
+		* The edit icons in an inlineEditor are now accessible, so they can
+		  be activated by pressing the Enter key in Firefox. Patch by
+		  Brad Taylor. (Bug #965)
+
+	* djblets.util.fields:
+		* JSONField and Base64Field now properly serialize to a JSON file,
+		  so long as the patch at http://code.djangoproject.com/ticket/9522
+		  is applied.
+
+		* Objects saved in the admin UI that have a Base64Field no longer
+		  causes garbage in the field. The fields are now saved properly.
+		  (Bug #918)
+
+	* djblets.gravatars:
+		* Added an "alt" attribute for the generated gravatar image, in order
+		  to fix XHTML compliance.
+
+	* djblets.datagrids:
+		* Fixed some XHTML validation errors. Patch by Onkar Shinde.
+		  (Bug #932)
+
+
+version 0.5 alpha 3 (15-February-2009):
+	* JavaScript Bugs Fixed:
+		* Fixed some major performance issues in autoSizeTextArea.
+
+		* Fixed a bug with Safari and inlineEditor where Safari would
+		  sometimes crash due to autoSizeTextArea. We now just disable
+		  the autoSizeTextArea functionality.
+
+		* inlineEditor no longer allows startEdit to be called when editing
+		  is already enabled.
+
+	* New Features:
+		* Added new set_etag, etag_if_none_match, etag_if_match functions
+		  for working with ETags.
+
+		* Added a new jQuery.fn.html() method that works around IE's broken
+		  innerHTML implementation. innerHTML in IE would strip whitespace,
+		  which was bad when inserting into <pre> and <textarea> tags.
+
+
+
+version 0.5 alpha 2 (3-February-2009):
+	* JavaScript:
+		* We now include and require jQuery 1.3.1 and jQueyr-ui 1.6rc5.
+
+		* Added support for starting an inlineEditor in the opened state,
+		  and prevent animations when starting or forcing it to be open.
+
+		* Disabled keypress propagation for inlineEditor. This fixes a bug
+		  in Review Board's diff viewer (bug #838).
+
+	* djblets.gravatars (new):
+		* Added basic support for gravatars. This provides a {% gravatars %}
+		  template tag for displaying a gravatar based on a User object.
+		  See http://www.gravatar.com/ for more information on Gravatars.
+
+	* djblets.util:
+		* Added a {% include_as_string %} tag for including a template
+		  as a JavaScript string.
+
+		* Added the ability to generate media and AJAX serial numbers based
+		  on the media files and template files. These can be appended to
+		  the media and AJAX URLs which, in combination with aggressive
+		  Expires headers, can drastically speed up load times of sites.
+
+		  See djblets.util.context_processors and
+		  djblets.util.misc.generate_cache_serials.
+
+	* djblets.webapi:
+		* Set the mime type for JSON responses to application/json,
+		  except when responding to an upload, in which case text/plain
+		  is used.
+
+		* Fixed a bug where WebAPIResponse._get_content was called too
+		  frequently and in some cases generated a 500 error.
