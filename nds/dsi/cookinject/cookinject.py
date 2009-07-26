@@ -84,5 +84,5 @@ if __name__ == "__main__":
     import patchlib
     data = patchlib.BinaryPatcher().load()
 
-    exploitName(data)
+    exploitName(data.offset(8))
     updateChecksum(data, 0x378)
