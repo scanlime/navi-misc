@@ -84,12 +84,5 @@ if __name__ == "__main__":
     import patchlib
     data = patchlib.BinaryPatcher().load()
 
-    # The actual save EEPROM is 8kB, but NDS Backup Tool likes to
-    # think it's 64K. Apply the patch to every 8kB block of the save
-    # if there's more than one.
-
-    for i in range(0, len(data) / 0x2000):
-        copy = data.offset(0x2000 * i)
-
-        exploitName(copy.offset(8))
-        updateChecksum(copy, 0x378)
+    exploitName(data)
+    updateChecksum(data, 0x378)
