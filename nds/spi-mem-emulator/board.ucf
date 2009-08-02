@@ -1,0 +1,105 @@
+NET "spi_clk"  LOC = "C10";
+NET "spi_mosi" LOC = "E10";
+NET "spi_miso" LOC = "C11";
+NET "spi_cs"   LOC = "D11";
+
+NET "ledseg_a<0>"  LOC = "E13"  ;
+NET "ledseg_a<1>"  LOC = "F14"  ;
+NET "ledseg_a<2>"  LOC = "G14"  ;
+NET "ledseg_a<3>"  LOC = "d14"  ;
+
+NET "ledseg_c<0>"  LOC = "E14"  ;
+NET "ledseg_c<1>"  LOC = "G13"  ;
+NET "ledseg_c<2>"  LOC = "N15"  ;
+NET "ledseg_c<3>"  LOC = "P15"  ;
+NET "ledseg_c<4>"  LOC = "R16"  ;
+NET "ledseg_c<5>"  LOC = "F13"  ;
+NET "ledseg_c<6>"  LOC = "N16"  ;
+NET "ledseg_c<7>"  LOC = "P16"  ;
+
+NET "led<0>"  LOC = "K12"  ;
+NET "led<1>"  LOC = "P14"  ;
+NET "led<2>"  LOC = "L12"  ;
+NET "led<3>"  LOC = "N14"  ;
+NET "led<4>"  LOC = "P13"  ;
+NET "led<5>"  LOC = "N12"  ;
+NET "led<6>"  LOC = "P12"  ;
+NET "led<7>"  LOC = "P11"  ;
+
+NET "button<0>"  LOC = "M13"  ;
+NET "button<1>"  LOC = "M14"  ;
+NET "button<2>"  LOC = "L13"  ;
+NET "button<3>"  LOC = "L14"  ;
+
+NET "mclk"  LOC = "T9"  ;
+
+NET "switch<0>"  LOC = "F12"  ;
+NET "switch<1>"  LOC = "G12"  ;
+NET "switch<2>"  LOC = "H14"  ;
+NET "switch<3>"  LOC = "H13"  ;
+NET "switch<4>"  LOC = "J14"  ;
+NET "switch<5>"  LOC = "J13"  ;
+NET "switch<6>"  LOC = "K14"  ;
+NET "switch<7>"  LOC = "K13"  ;
+
+NET "sram_a<0>"   LOC = "L5";
+NET "sram_a<1>"   LOC = "N3";
+NET "sram_a<2>"   LOC = "M4";
+NET "sram_a<3>"   LOC = "M3";
+NET "sram_a<4>"   LOC = "L4";
+NET "sram_a<5>"   LOC = "G4";
+NET "sram_a<6>"   LOC = "F3";
+NET "sram_a<7>"   LOC = "F4";
+NET "sram_a<8>"   LOC = "E3";
+NET "sram_a<9>"   LOC = "E4";
+NET "sram_a<10>"  LOC = "G5";
+NET "sram_a<11>"  LOC = "H3";
+NET "sram_a<12>"  LOC = "H4";
+NET "sram_a<13>"  LOC = "J4";
+NET "sram_a<14>"  LOC = "J3";
+NET "sram_a<15>"  LOC = "K3";
+NET "sram_a<16>"  LOC = "K5";
+NET "sram_a<17>"  LOC = "L3";
+
+NET "sram_oe"     LOC = "K4";
+NET "sram_we"     LOC = "G3";
+
+NET "sram1_io<0>"  LOC = "N7";
+NET "sram1_io<1>"  LOC = "T8";
+NET "sram1_io<2>"  LOC = "R6";
+NET "sram1_io<3>"  LOC = "T5";
+NET "sram1_io<4>"  LOC = "R5";
+NET "sram1_io<5>"  LOC = "C2";
+NET "sram1_io<6>"  LOC = "C1";
+NET "sram1_io<7>"  LOC = "B1";
+NET "sram1_io<8>"  LOC = "D3";
+NET "sram1_io<9>"  LOC = "P8";
+NET "sram1_io<10>" LOC = "F2";
+NET "sram1_io<11>" LOC = "H1";
+NET "sram1_io<12>" LOC = "J2";
+NET "sram1_io<13>" LOC = "L2";
+NET "sram1_io<14>" LOC = "P1";
+NET "sram1_io<15>" LOC = "R1";
+NET "sram1_ce"     LOC = "P7";
+NET "sram1_ub"     LOC = "T4";
+NET "sram1_lb"     LOC = "P6";
+
+NET "sram2_io<0>"  LOC = "P2";
+NET "sram2_io<1>"  LOC = "N2";
+NET "sram2_io<2>"  LOC = "M2";
+NET "sram2_io<3>"  LOC = "K1";
+NET "sram2_io<4>"  LOC = "J1";
+NET "sram2_io<5>"  LOC = "G2";
+NET "sram2_io<6>"  LOC = "E1";
+NET "sram2_io<7>"  LOC = "D1";
+NET "sram2_io<8>"  LOC = "D2";
+NET "sram2_io<9>"  LOC = "E2";
+NET "sram2_io<10>" LOC = "G1";
+NET "sram2_io<11>" LOC = "F5";
+NET "sram2_io<12>" LOC = "C3";
+NET "sram2_io<13>" LOC = "K2";
+NET "sram2_io<14>" LOC = "M1";
+NET "sram2_io<15>" LOC = "N1";
+NET "sram2_ce"     LOC = "N5";
+NET "sram2_ub"     LOC = "R4";
+NET "sram2_lb"     LOC = "P5";
