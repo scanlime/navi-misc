@@ -3,6 +3,9 @@ NET "spi_mosi" LOC = "E10";
 NET "spi_miso" LOC = "C11";
 NET "spi_cs"   LOC = "D11";
 
+NET "serial_txd"  LOC = "R13";
+NET "serial_rxd"  LOC = "T13";
+
 NET "ledseg_a<0>"  LOC = "E13"  ;
 NET "ledseg_a<1>"  LOC = "F14"  ;
 NET "ledseg_a<2>"  LOC = "G14"  ;
@@ -31,7 +34,9 @@ NET "button<1>"  LOC = "M14"  ;
 NET "button<2>"  LOC = "L13"  ;
 NET "button<3>"  LOC = "L14"  ;
 
-NET "mclk"  LOC = "T9"  ;
+NET "mclk"  LOC = "T9" ;
+NET "mclk"  TNM_NET = mclk ;
+TIMESPEC TS_mclk = PERIOD "mclk" 60 MHz HIGH 50%;
 
 NET "switch<0>"  LOC = "F12"  ;
 NET "switch<1>"  LOC = "G12"  ;
@@ -103,3 +108,5 @@ NET "sram2_io<15>" LOC = "N1";
 NET "sram2_ce"     LOC = "N5";
 NET "sram2_ub"     LOC = "R4";
 NET "sram2_lb"     LOC = "P5";
+
+
