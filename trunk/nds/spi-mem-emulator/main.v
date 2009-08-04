@@ -87,6 +87,24 @@ module main(mclk, switch, button,
     * High-speed RS-232 Serial Port
     */
 
+   wire         baud_x4, baud_x1;
+   wire         sio_tx_ready;
+//   wire         sio_rx_strobe;
+//   wire [7:0]   sio_rx_data;
+   reg          sio_tx_strobe;
+   reg [7:0]    sio_tx_data;
+
+   serial_brg sio_brg(mclk, reset, baud_x4, baud_x1);
+   serial_uart_tx sio_tx(mclk, reset, baud_x1, serial_txd,
+                         sio_tx_ready, sio_tx_data, sio_tx_strobe);
+//   serial_uart_rx sio_rx(mclk, reset, baud_x4, serial_rxd,
+//                         sio_rx_data, sio_rx_strobe);
+
+   always @(posedge mclk) begin
+      sio_tx_data <= 8'h55;
+      sio_tx_strobe <= button[1];
+   end
+
 
    /************************************************
     * SRAM
@@ -122,7 +140,7 @@ module main(mclk, switch, button,
    pulse_stretcher s4(mclk, reset, spi_mem_begin_wr, pulse_wr);
 
    assign led = { pulse_clk, pulse_cs,
-                  4'b0000,
+                  3'b0, sio_tx_ready,
                   pulse_wr, pulse_rd };
    led_hex display(clkdiv[14], reset, spi_mem_addr, ledseg_c, ledseg_a);
 
