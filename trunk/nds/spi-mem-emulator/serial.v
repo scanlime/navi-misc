@@ -219,11 +219,9 @@ module serial_uart_tx_testbench;
       $monitor("t = %t  (bit %d) -- ser %b -- ready %b",
                $time, bit_tick, serial, ready);
 
-      #1 reset = 0;
+      #5 reset = 0;
 
-      #1000 data = 8'h55;
-      strobe = 1;
-      #5 strobe = 0;
+      #1000 data = 8'h55; strobe = 1; #10 strobe = 0;
 
       #10000 $finish;
    end
@@ -408,6 +406,14 @@ module serial_escape(mclk, reset,
         u_data_strobe <= 0;
         h_ready <= 0;
      end
+     else if (u_data_strobe) begin
+        /*
+         * Delay for one clock after sending a byte,
+         * so that u_ready can go low.
+         */
+        u_data_strobe <= 0;
+        h_ready <= 0;
+     end
      else if (stuff_en) begin
         /* Stuff an extra byte in. */
         u_data <= stuff_byte;
@@ -462,7 +468,7 @@ module serial_escape_testbench;
    reg         clock;
    reg         reset;
 
-   reg         u_ready;
+   wire        u_ready;
    wire [7:0]  u_data;
    wire        u_data_strobe;
 
@@ -471,36 +477,42 @@ module serial_escape_testbench;
    reg         h_data_strobe;
    reg         h_flag;
 
+   wire        baud_x1, baud_x4, txd;
+
    serial_escape esc(clock, reset,
                      u_ready, u_data, u_data_strobe,
                      h_ready, h_data, h_data_strobe, h_flag);
 
+   /*
+    * Include a transmitter just to simulate the 'ready' signal
+    * and make sure the transmitter is responding to our output.
+    */
+   serial_brg brg(clock, reset, baud_x4, baud_x1);
+   serial_uart_tx uart_tx(clock, reset, baud_x1,
+                          txd, u_ready, u_data, u_data_strobe);
+
    initial begin
       clock = 0;
       reset = 1;
-      u_ready = 0;
       h_data = 0;
       h_data_strobe = 0;
       h_flag = 0;
 
-      $monitor("t = %t -- UART: data %02x s%b r%b -- Host: data %02x s%b f%b r%b",
-               $time, u_data, u_data_strobe, u_ready,
+      $monitor("t = %t -- UART: data %02x s%b r%b txd %b -- Host: data %02x s%b f%b r%b",
+               $time, u_data, u_data_strobe, u_ready, txd,
                h_data, h_data_strobe, h_flag, h_ready);
 
       #5 reset = 0;
 
-      #100 u_ready = 1;
-
-      #100 h_data = 8'h01;  h_data_strobe = 1;  #10 h_data_strobe = 0;
-      #100 h_data = 8'h02;  h_data_strobe = 1;  #10 h_data_strobe = 0;
-      #100 h_data = 8'h03;  h_data_strobe = 1;  #10 h_data_strobe = 0;
-      #100 h_data = 8'h7d;  h_data_strobe = 1;  #10 h_data_strobe = 0;
-      u_ready = 0; #200 u_ready = 1;
-      #100 h_data = 8'h7e;  h_data_strobe = 1;  #10 h_data_strobe = 0;
-      #100 h_data = 8'h7f;  h_data_strobe = 1;  #10 h_data_strobe = 0;
-      #100 h_flag = 1; #10 h_flag = 0;
-      #100 h_flag = 1; #10 h_flag = 0;
-      #100 h_data = 8'h55;  h_data_strobe = 1;  #10 h_data_strobe = 0;
+      #10000 h_data = 8'h01;  h_data_strobe = 1;  #10 h_data_strobe = 0;
+      #10000 h_data = 8'h02;  h_data_strobe = 1;  #10 h_data_strobe = 0;
+      #10000 h_data = 8'h03;  h_data_strobe = 1;  #10 h_data_strobe = 0;
+      #10000 h_data = 8'h7d;  h_data_strobe = 1;  #10 h_data_strobe = 0;
+      #10000 h_data = 8'h7e;  h_data_strobe = 1;  #10 h_data_strobe = 0;
+      #10000 h_data = 8'h7f;  h_data_strobe = 1;  #10 h_data_strobe = 0;
+      #10000 h_flag = 1; #10 h_flag = 0;
+      #10000 h_flag = 1; #10 h_flag = 0;
+      #10000 h_data = 8'h55;  h_data_strobe = 1;  #10 h_data_strobe = 0;
 
       #10 $finish;
    end
@@ -631,6 +643,108 @@ module serial_unescape_testbench;
       #100 u_data = 8'h5e;  u_data_strobe = 1;  #10 u_data_strobe = 0;
 
       #10 $finish;
+   end
+
+   always begin
+      #5 clock = !clock;
+   end
+endmodule
+
+
+/*
+ * Top-level module for a 3 MBit UART plus RFC1622-like packet framing.
+ */
+
+module serial_escaped_uart(mclk, reset, txd, rxd,
+                           tx_ready, tx_data, tx_data_strobe, tx_flag,
+                           rx_data, rx_data_strobe, rx_flag);
+   input mclk, reset;
+
+   output txd;
+   input  rxd;
+
+   output      tx_ready;
+   input [7:0] tx_data;
+   input       tx_data_strobe;
+   input       tx_flag;
+
+   output [7:0] rx_data;
+   output       rx_data_strobe;
+   output       rx_flag;
+
+   wire         baud_x4, baud_x1;
+
+   wire         txu_ready;
+   wire [7:0]   txu_data;
+   wire         txu_data_strobe;
+
+   wire [7:0]   rxu_data;
+   wire         rxu_data_strobe;
+
+   serial_brg brg(mclk, reset, baud_x4, baud_x1);
+
+   serial_uart_tx uart_tx(mclk, reset, baud_x1,
+                          txd, txu_ready, txu_data, txu_data_strobe);
+
+   serial_uart_rx uart_rx(mclk, reset, baud_x4,
+                          rxd, rxu_data, rxu_data_strobe);
+
+   serial_escape escape(mclk, reset,
+                        txu_ready, txu_data, txu_data_strobe,
+                        tx_ready, tx_data, tx_data_strobe, tx_flag);
+
+   serial_unescape unescape(mclk, reset,
+                            rxu_data, rxu_data_strobe,
+                            rx_data, rx_data_strobe, rx_flag);
+endmodule
+
+module serial_escaped_uart_testbench;
+   /*
+    * Test bench for the entire escaped UART. (Loopback test)
+    *
+    * iverilog serial.v util.v -s serial_escaped_uart_testbench -o foo.vvp && vvp foo.vvp
+    */
+
+   reg         clock;
+   reg         reset;
+
+   wire        serial;
+
+   wire        tx_ready;
+   reg [7:0]   tx_data;
+   reg         tx_data_strobe;
+   reg         tx_flag;
+
+   wire [7:0]  rx_data;
+   wire        rx_data_strobe;
+   wire        rx_flag;
+
+   serial_escaped_uart uart(clock, reset, serial, serial,
+                            tx_ready, tx_data, tx_data_strobe, tx_flag,
+                            rx_data, rx_data_strobe, rx_flag);
+
+   initial begin
+      clock = 0;
+      reset = 1;
+      tx_data = 0;
+      tx_data_strobe = 0;
+      tx_flag = 0;
+
+      $monitor("t = %t -- TX: r%b data %02x s%b f%b -- Serial: %b -- RX: data %02x s%b f%b",
+               $time, tx_ready, tx_data, tx_data_strobe, tx_flag,
+               serial, rx_data, rx_data_strobe, rx_flag);
+
+      #5 reset = 0;
+
+      #10000 tx_data = 8'h01;  tx_data_strobe = 1;  #10 tx_data_strobe = 0;
+      #10000 tx_data = 8'h42;  tx_data_strobe = 1;  #10 tx_data_strobe = 0;
+      #10000 tx_data = 8'h7d;  tx_data_strobe = 1;  #10 tx_data_strobe = 0;
+      #10000 tx_data = 8'h7e;  tx_data_strobe = 1;  #10 tx_data_strobe = 0;
+      #10000 tx_data = 8'h7f;  tx_data_strobe = 1;  #10 tx_data_strobe = 0;
+      #10000 tx_flag = 1;  #10 tx_flag = 0;
+      #10000 tx_data = 8'hFF;  tx_data_strobe = 1;  #10 tx_data_strobe = 0;
+
+      #10000 $finish;
    end
 
    always begin
