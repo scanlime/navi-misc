@@ -38,26 +38,6 @@
       <association xil_pn:name="BehavioralSimulation"/>
       <association xil_pn:name="Implementation"/>
     </file>
-    <file xil_pn:name="sasc_brg.v" xil_pn:type="FILE_VERILOG">
-      <association xil_pn:name="Implementation"/>
-      <association xil_pn:name="BehavioralSimulation"/>
-      <library xil_pn:name="verilog"/>
-    </file>
-    <file xil_pn:name="sasc_fifo4.v" xil_pn:type="FILE_VERILOG">
-      <association xil_pn:name="Implementation"/>
-      <association xil_pn:name="BehavioralSimulation"/>
-      <library xil_pn:name="verilog"/>
-    </file>
-    <file xil_pn:name="sasc_top.v" xil_pn:type="FILE_VERILOG">
-      <association xil_pn:name="Implementation"/>
-      <association xil_pn:name="BehavioralSimulation"/>
-      <library xil_pn:name="verilog"/>
-    </file>
-    <file xil_pn:name="timescale.v" xil_pn:type="FILE_VERILOG">
-      <association xil_pn:name="Implementation"/>
-      <association xil_pn:name="BehavioralSimulation"/>
-      <library xil_pn:name="verilog"/>
-    </file>
   </files>
 
   <properties>
