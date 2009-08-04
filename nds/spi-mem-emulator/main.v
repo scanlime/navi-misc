@@ -84,71 +84,8 @@ module main(mclk, switch, button,
 
 
    /************************************************
-    * RS-232 Serial Port
+    * High-speed RS-232 Serial Port
     */
-
-   wire         sio_ce, sio_ce_x4;
-   wire         sio_rts_o;
-   wire         sio_cts_i = 0;
-   wire         sio_txfull, sio_rxempty;
-   wire [7:0]   sio_rxd;
-   reg [7:0]    sio_txd;
-   reg          sio_rxe, sio_txe;
-
-   /*
-    * 115200 baud with a 50 MHz master clock:
-    *    Baud x4 clock is 460.8 kHz.
-    *    50 MHz / 460.8 kHz = 108.507 ~ 4*27
-    */
-   sasc_brg sio_brg(mclk, !reset, 8'd2, 8'd27, sio_ce, sio_ce_x4);
-
-   sasc_top sio_uart(mclk, !reset, serial_rxd, serial_txd,
-                     sio_cts_i, sio_rts_o, sio_ce, sio_ce_x4,
-                     sio_txd, sio_rxd, sio_rxe, sio_txe,
-                     sio_txfull, sio_rxempty);
-
-   parameter S_IDLE = 0;
-   parameter S_RX_BYTE = 1;
-   reg       state;
-
-   /*
-    * XXX TODO:
-    *   - Protocol for reading/writing memory
-    *   - Move to separate module
-    */
-
-   always @(posedge mclk or posedge reset)
-     if (reset) begin
-        state <= S_IDLE;
-        sio_txd <= 0;
-        sio_rxe <= 0;
-        sio_txe <= 0;
-     end
-     else case (state)
-
-            S_IDLE: begin
-               if (!sio_rxempty) begin
-                  state <= S_RX_BYTE;
-                  sio_txd <= 0;
-                  sio_rxe <= 1;
-                  sio_txe <= 0;
-               end
-               else begin
-                  state <= S_IDLE;
-                  sio_txd <= 0;
-                  sio_rxe <= 0;
-                  sio_txe <= 0;
-               end
-            end
-
-            S_RX_BYTE: begin
-               state <= S_IDLE;
-               sio_txd <= sio_rxd + 1;
-               sio_rxe <= 0;
-               sio_txe <= 1;
-            end
-
-          endcase
 
 
    /************************************************
@@ -185,7 +122,7 @@ module main(mclk, switch, button,
    pulse_stretcher s4(mclk, reset, spi_mem_begin_wr, pulse_wr);
 
    assign led = { pulse_clk, pulse_cs,
-                  sio_rxe, sio_txe, sio_txfull, sio_rxempty,
+                  4'b0000,
                   pulse_wr, pulse_rd };
    led_hex display(clkdiv[14], reset, spi_mem_addr, ledseg_c, ledseg_a);
 
