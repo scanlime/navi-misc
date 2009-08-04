@@ -1,6 +1,6 @@
  /*
   * serial.v - High-speed serial support. Includes a baud generator, UART,
-  *            and a simple PPP-derived packet framing protocol.
+  *            and a simple RFC1662-inspired packet framing protocol.
   *
   *            This module is designed for a 50 MHz clock, and a 3 Mbaud
   *            serial port. This is the highest data rate supported by
@@ -346,5 +346,166 @@ module serial_uart_rx_testbench;
       #5 clock = !clock;
       if (clock && baud_x1)
         bit_tick <= bit_tick + 1;
+   end
+endmodule
+
+
+/*
+ * RFC1662 byte stuffing (escaping) module.
+ *
+ * This is a simple packet framing mechanism, as used by PPP.
+ * We insert a 'flag' byte (0x7e) between packets. Any data bytes
+ * that would have been interpreted as flags are XOR'ed with 0x20
+ * and prefixed with an escape byte (0x7d). Any escape bytes
+ * in the data are also XOR'ed with 0x20 and prefixed with an
+ * escape.
+ *
+ * This module can be used as a tranparent addition to serial_uart_tx.
+ * When we have to stuff an escape byte into the stream, the only
+ * side-effect is that twice as much time elapses before the 'ready'
+ * signal is asserted.
+ *
+ * The UART side of our interface is prefixed with "u_", and the
+ * other (host) side is prefixed with "h_". The host may send
+ * a flag instead of a data byte by pulsing h_flag. Both h_flag
+ * and h_data_strobe must only be pulsed when h_ready is 1.
+ */
+
+module serial_escape(mclk, reset,
+                     u_ready, u_data, u_data_strobe,
+                     h_ready, h_data, h_data_strobe, h_flag);
+
+   parameter FLAG    = 8'h7e;
+   parameter ESCAPE  = 8'h7d;
+   parameter ESC_XOR = 8'h20;
+
+   input mclk, reset;
+
+   input        u_ready;
+   output [7:0] u_data;
+   output       u_data_strobe;
+
+   output       h_ready;
+   input [7:0]  h_data;
+   input        h_data_strobe, h_flag;
+
+   reg [7:0]    u_data;
+   reg          u_data_strobe;
+   reg          h_ready;
+   reg          stuff_en;
+   reg [7:0]    stuff_byte;
+
+   always @(posedge mclk or posedge reset)
+     if (reset) begin
+        u_data <= 0;
+        u_data_strobe <= 0;
+        h_ready <= 0;
+        stuff_en <= 0;
+        stuff_byte <= 0;
+     end
+     else if (!u_ready) begin
+        /* UART busy- stall until it's ready. */
+        u_data_strobe <= 0;
+        h_ready <= 0;
+     end
+     else if (stuff_en) begin
+        /* Stuff an extra byte in. */
+        u_data <= stuff_byte;
+        u_data_strobe <= 1;
+        h_ready <= 0;
+        stuff_en <= 0;
+        stuff_byte <= 8'hXX;
+     end
+     else if (h_flag) begin
+        /* Host is writing a flag byte */
+        u_data <= FLAG;
+        u_data_strobe <= 1;
+        h_ready <= 0;
+        stuff_en <= 0;
+        stuff_byte <= 8'hXX;
+     end
+     else if (h_data_strobe) begin
+        if (h_data == FLAG || h_data == ESCAPE) begin
+           /* Writing a byte that needs to be escaped */
+           u_data <= ESCAPE;
+           u_data_strobe <= 1;
+           h_ready <= 0;
+           stuff_en <= 1;
+           stuff_byte <= h_data ^ ESC_XOR;
+        end
+        else begin
+           /* Writing a normal byte */
+           u_data <= h_data;
+           u_data_strobe <= 1;
+           h_ready <= 0;
+           stuff_en <= 0;
+           stuff_byte <= 8'hXX;
+        end
+     end
+     else begin
+        /* Ready! */
+        u_data <= 8'hXX;
+        u_data_strobe <= 0;
+        h_ready <= 1;
+        stuff_en <= 0;
+        stuff_byte <= 8'hXX;
+     end
+endmodule
+
+module serial_escape_testbench;
+   /*
+    * Test bench for byte stuffing.
+    *
+    * iverilog serial.v util.v -s serial_escape_testbench -o brg.vvp && vvp brg.vvp
+    */
+
+   reg         clock;
+   reg         reset;
+
+   reg         u_ready;
+   wire [7:0]  u_data;
+   wire        u_data_strobe;
+
+   wire        h_ready;
+   reg [7:0]   h_data;
+   reg         h_data_strobe;
+   reg         h_flag;
+
+   serial_escape esc(clock, reset,
+                     u_ready, u_data, u_data_strobe,
+                     h_ready, h_data, h_data_strobe, h_flag);
+
+   initial begin
+      clock = 0;
+      reset = 1;
+      u_ready = 0;
+      h_data = 0;
+      h_data_strobe = 0;
+      h_flag = 0;
+
+      $monitor("t = %t -- UART: data %02x s%b r%b -- Host: data %02x s%b f%b r%b",
+               $time, u_data, u_data_strobe, u_ready,
+               h_data, h_data_strobe, h_flag, h_ready);
+
+      #5 reset = 0;
+
+      #100 u_ready = 1;
+
+      #100 h_data = 8'h01;  h_data_strobe = 1;  #10 h_data_strobe = 0;
+      #100 h_data = 8'h02;  h_data_strobe = 1;  #10 h_data_strobe = 0;
+      #100 h_data = 8'h03;  h_data_strobe = 1;  #10 h_data_strobe = 0;
+      #100 h_data = 8'h7d;  h_data_strobe = 1;  #10 h_data_strobe = 0;
+      u_ready = 0; #200 u_ready = 1;
+      #100 h_data = 8'h7e;  h_data_strobe = 1;  #10 h_data_strobe = 0;
+      #100 h_data = 8'h7f;  h_data_strobe = 1;  #10 h_data_strobe = 0;
+      #100 h_flag = 1; #10 h_flag = 0;
+      #100 h_flag = 1; #10 h_flag = 0;
+      #100 h_data = 8'h55;  h_data_strobe = 1;  #10 h_data_strobe = 0;
+
+      #10 $finish;
+   end
+
+   always begin
+      #5 clock = !clock;
    end
 endmodule
