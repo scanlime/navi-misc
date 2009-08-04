@@ -88,7 +88,7 @@ module serial_brg_testbench;
    /*
     * Test bench: Run the BRG, measure its average pulse frequency.
     *
-    * iverilog serial.v util.v -s serial_brg_testbench -o brg.vvp && vvp brg.vvp
+    * iverilog serial.v util.v -s serial_brg_testbench -o foo.vvp && vvp foo.vvp
     *
     * Should converge to X4 at 12 MHz, X1 at 3 MHz.
     */
@@ -194,7 +194,7 @@ module serial_uart_tx_testbench;
    /*
     * Test bench: Transmit a byte.
     *
-    * iverilog serial.v util.v -s serial_uart_tx_testbench -o brg.vvp && vvp brg.vvp
+    * iverilog serial.v util.v -s serial_uart_tx_testbench -o foo.vvp && vvp foo.vvp
     */
 
    reg clock;
@@ -306,7 +306,7 @@ module serial_uart_rx_testbench;
    /*
     * Test bench: Loopback test, for exercising the receiver.
     *
-    * iverilog serial.v util.v -s serial_uart_rx_testbench -o brg.vvp && vvp brg.vvp
+    * iverilog serial.v util.v -s serial_uart_rx_testbench -o foo.vvp && vvp foo.vvp
     */
 
    integer     bit_tick;
@@ -456,7 +456,7 @@ module serial_escape_testbench;
    /*
     * Test bench for byte stuffing.
     *
-    * iverilog serial.v util.v -s serial_escape_testbench -o brg.vvp && vvp brg.vvp
+    * iverilog serial.v util.v -s serial_escape_testbench -o foo.vvp && vvp foo.vvp
     */
 
    reg         clock;
@@ -501,6 +501,134 @@ module serial_escape_testbench;
       #100 h_flag = 1; #10 h_flag = 0;
       #100 h_flag = 1; #10 h_flag = 0;
       #100 h_data = 8'h55;  h_data_strobe = 1;  #10 h_data_strobe = 0;
+
+      #10 $finish;
+   end
+
+   always begin
+      #5 clock = !clock;
+   end
+endmodule
+
+
+/*
+ * RFC1622 byte un-stuffing (unescaping) module.
+ *
+ * This is the inverse of the 'serial_escape' module. Bytes
+ * come in from a UART, we remove escape sequences, and any
+ * flag bytes cause the 'h_flag' output to be asserted for
+ * one clock.
+ */
+
+module serial_unescape(mclk, reset,
+                       u_data, u_data_strobe,
+                       h_data, h_data_strobe, h_flag);
+
+   parameter FLAG    = 8'h7e;
+   parameter ESCAPE  = 8'h7d;
+   parameter ESC_XOR = 8'h20;
+
+   input mclk, reset;
+
+   input [7:0] u_data;
+   input       u_data_strobe;
+
+   output [7:0] h_data;
+   output       h_data_strobe;
+   output       h_flag;
+
+   reg [7:0]    h_data;
+   reg          h_data_strobe;
+   reg          h_flag;
+   reg          esc_state;
+
+   always @(posedge mclk or posedge reset)
+     if (reset) begin
+        h_data <= 0;
+        h_data_strobe <= 0;
+        h_flag <= 0;
+        esc_state <= 0;
+     end
+     else if (!u_data_strobe) begin
+        /* Idle, waiting for bytes. */
+        h_data <= 8'hXX;
+        h_data_strobe <= 0;
+        h_flag <= 0;
+     end
+     else if (u_data == FLAG) begin
+        /* Receiving a flag byte (high priority) */
+        h_data <= 8'hXX;
+        h_data_strobe <= 0;
+        h_flag <= 1;
+        esc_state <= 0;
+     end
+     else if (u_data == ESCAPE) begin
+        /* Starting an escape sequence */
+        h_data <= 8'hXX;
+        h_data_strobe <= 0;
+        h_flag <= 0;
+        esc_state <= 1;
+     end
+     else if (esc_state) begin
+        /* Receiving an escaped byte */
+        h_data <= u_data ^ ESC_XOR;
+        h_data_strobe <= 1;
+        h_flag <= 0;
+        esc_state <= 0;
+     end
+     else begin
+        /* Normal byte */
+        h_data <= u_data;
+        h_data_strobe <= 1;
+        h_flag <= 0;
+        esc_state <= 0;
+     end
+endmodule
+
+module serial_unescape_testbench;
+   /*
+    * Test bench for byte unstuffing.
+    *
+    * iverilog serial.v util.v -s serial_unescape_testbench -o foo.vvp && vvp foo.vvp
+    */
+
+   reg         clock;
+   reg         reset;
+
+   reg [7:0]   u_data;
+   reg         u_data_strobe;
+
+   wire [7:0]  h_data;
+   wire        h_data_strobe;
+   wire        h_flag;
+
+   serial_unescape unesc(clock, reset,
+                         u_data, u_data_strobe,
+                         h_data, h_data_strobe, h_flag);
+
+   initial begin
+      clock = 0;
+      reset = 1;
+      u_data = 0;
+      u_data_strobe = 0;
+
+      $monitor("t = %t -- UART: data %02x s%b -- Host: data %02x s%b f%b",
+               $time, u_data, u_data_strobe, h_data, h_data_strobe, h_flag);
+
+      #5 reset = 0;
+
+      #100 u_data = 8'h01;  u_data_strobe = 1;  #10 u_data_strobe = 0;
+      #100 u_data = 8'h02;  u_data_strobe = 1;  #10 u_data_strobe = 0;
+      #100 u_data = 8'h03;  u_data_strobe = 1;  #10 u_data_strobe = 0;
+      #100 u_data = 8'h7e;  u_data_strobe = 1;  #10 u_data_strobe = 0;
+      #100 u_data = 8'h7e;  u_data_strobe = 1;  #10 u_data_strobe = 0;
+      #100 u_data = 8'h42;  u_data_strobe = 1;  #10 u_data_strobe = 0;
+      #100 u_data = 8'h7d;  u_data_strobe = 1;  #10 u_data_strobe = 0;
+      #100 u_data = 8'h7d;  u_data_strobe = 1;  #10 u_data_strobe = 0;
+      #100 u_data = 8'h7d;  u_data_strobe = 1;  #10 u_data_strobe = 0;
+      #100 u_data = 8'h42;  u_data_strobe = 1;  #10 u_data_strobe = 0;
+      #100 u_data = 8'h7d;  u_data_strobe = 1;  #10 u_data_strobe = 0;
+      #100 u_data = 8'h5e;  u_data_strobe = 1;  #10 u_data_strobe = 0;
 
       #10 $finish;
    end
