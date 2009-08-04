@@ -3,8 +3,8 @@ NET "spi_mosi" LOC = "E10";
 NET "spi_miso" LOC = "C11";
 NET "spi_cs"   LOC = "D11";
 
-NET "serial_txd"  LOC = "D6";
-NET "serial_rxd"  LOC = "D5";
+NET "serial_rxd"  LOC = "E6";
+NET "serial_txd"  LOC = "C5";
 
 NET "ledseg_a<0>"  LOC = "E13"  ;
 NET "ledseg_a<1>"  LOC = "F14"  ;
