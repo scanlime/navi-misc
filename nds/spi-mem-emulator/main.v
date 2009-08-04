@@ -89,22 +89,19 @@ module main(mclk, switch, button,
 
    wire         baud_x4, baud_x1;
    wire         sio_tx_ready;
-//   wire         sio_rx_strobe;
-//   wire [7:0]   sio_rx_data;
-   reg          sio_tx_strobe;
-   reg [7:0]    sio_tx_data;
+   wire         sio_rx_strobe;
+   wire [7:0]   sio_rx_data;
+   wire         sio_tx_strobe;
+   wire [7:0]   sio_tx_data;
 
    serial_brg sio_brg(mclk, reset, baud_x4, baud_x1);
    serial_uart_tx sio_tx(mclk, reset, baud_x1, serial_txd,
                          sio_tx_ready, sio_tx_data, sio_tx_strobe);
-//   serial_uart_rx sio_rx(mclk, reset, baud_x4, serial_rxd,
-//                         sio_rx_data, sio_rx_strobe);
+   serial_uart_rx sio_rx(mclk, reset, baud_x4, serial_rxd,
+                         sio_rx_data, sio_rx_strobe);
 
-   always @(posedge mclk) begin
-      sio_tx_data <= 8'h55;
-      sio_tx_strobe <= button[1];
-   end
-
+   assign sio_tx_strobe = sio_rx_strobe;
+   assign sio_tx_data = sio_rx_data ^ 8'h20;
 
    /************************************************
     * SRAM
