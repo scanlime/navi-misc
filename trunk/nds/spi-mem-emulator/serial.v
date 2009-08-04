@@ -44,25 +44,25 @@ module serial_brg(mclk, reset, baud_x4, baud_x1);
    input mclk, reset;
    output baud_x4, baud_x1;
 
-   reg [4:0] accumulator;
+   reg [4:0] delta;
    reg [1:0] div4;
    reg       baud_x4;
    reg       baud_x1;
 
    /* Ratio: add 6, subtract 25 */
-   wire [4:0] accum_p = accumulator + 5'd6;
-   wire [5:0] accum_m = {1'b0, accum_p} - 6'd25;
+   wire [4:0] delta_p = delta + 5'd6;
+   wire [5:0] delta_m = {1'b0, delta_p} - 6'd25;
 
-   wire       underflow = accum_m[5];
-   wire [4:0] accum_next = underflow ? accum_p : accum_m[4:0];
+   wire       underflow = delta_m[5];
+   wire [4:0] delta_next = underflow ? delta_p : delta_m[4:0];
 
    always @(posedge mclk or posedge reset)
       if (reset) begin
-         accumulator <= 0;
+         delta <= 0;
          baud_x4 <= 0;
       end
       else begin
-         accumulator <= accum_next;
+         delta <= delta_next;
          baud_x4 <= !underflow;
       end
 
