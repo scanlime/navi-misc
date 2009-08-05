@@ -241,19 +241,51 @@ def hexDump(src, dest=sys.stdout, bytesPerLine=16, wordSize=4, addr=0):
         dest.write("\n")
 
 
+def actionDiff(p):
+    print "Polling for differences..."
+    prev = Read64K().send(p)
+    while True:
+        next = Read64K().send(p)
+        if next != prev:
+            for i, (a, b) in enumerate(zip(prev, next)):
+                if a != b:
+                    print "%04x: %02x -> %02x" % (i, ord(a), ord(b))
+        prev = next
+
+
+def main():
+    parser = optparse.OptionParser();
+    parser.add_option("-p", "--port", dest="port",
+                      help="Serial port name", metavar="PORT", default="/dev/ttyUSB0")
+    parser.add_option("-d", "--dump", dest="dump", action="store_true",
+                      help="Action: Hex dump the first 1 KB of memory")
+    parser.add_option("-s", "--save", dest="save", metavar="FILE",
+                      help="Action: Save the first 64 KB of memory to FILE")
+    parser.add_option("-l", "--load", dest="load", metavar="FILE",
+                      help="Action: Load memory from FILE")
+    parser.add_option("--diff", dest="diff", action="store_true",
+                      help="Action: Poll the first 64 KB for changes, print differences")
+
+    (options, args) = parser.parse_args()
+
+    p = PacketPort(options.port)
+    Ping().send(p)
+    print "Connected to emulator."
+
+    if options.dump:
+        hexDump(Read1K().send(p))
+
+    if options.save:
+        open(options.save, 'wb').write(Read64K().send(p))
+        print "Saved to %r" % options.save
+
+    if options.load:
+        Write().send(p, open(options.load, 'rb').read())
+        print "Loaded from %r" % options.load
+
+    if options.diff:
+        actionDiff(p)
+
 
 if __name__ == "__main__":
-    p = PacketPort("/dev/ttyUSB0")
-    Ping().send(p)
-
-    Write(0).send(p, open("/home/micah/cookinject/VCKE.sav", 'rb').read())
-
-    Ping().send(p)
-
-    prev = None
-    while True:
-        next = Read1K().send(p)
-        if next != prev:
-            prev = next
-            print "\n"
-            hexDump(next[:512])
+    main()
