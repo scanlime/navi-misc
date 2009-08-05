@@ -29,23 +29,24 @@ NET "led<5>"  LOC = "N12"  ;
 NET "led<6>"  LOC = "P12"  ;
 NET "led<7>"  LOC = "P11"  ;
 
-NET "button<0>"  LOC = "M13"  ;
-NET "button<1>"  LOC = "M14"  ;
-NET "button<2>"  LOC = "L13"  ;
-NET "button<3>"  LOC = "L14"  ;
+NET "reset"  LOC = "M13"  ;
+#NET "button<0>"  LOC = "M13"  ;
+#NET "button<1>"  LOC = "M14"  ;
+#NET "button<2>"  LOC = "L13"  ;
+#NET "button<3>"  LOC = "L14"  ;
 
 NET "mclk"  LOC = "T9" ;
 NET "mclk"  TNM_NET = mclk ;
 TIMESPEC TS_mclk = PERIOD "mclk" 60 MHz HIGH 50%;
 
-NET "switch<0>"  LOC = "F12"  ;
-NET "switch<1>"  LOC = "G12"  ;
-NET "switch<2>"  LOC = "H14"  ;
-NET "switch<3>"  LOC = "H13"  ;
-NET "switch<4>"  LOC = "J14"  ;
-NET "switch<5>"  LOC = "J13"  ;
-NET "switch<6>"  LOC = "K14"  ;
-NET "switch<7>"  LOC = "K13"  ;
+#NET "switch<0>"  LOC = "F12"  ;
+#NET "switch<1>"  LOC = "G12"  ;
+#NET "switch<2>"  LOC = "H14"  ;
+#NET "switch<3>"  LOC = "H13"  ;
+#NET "switch<4>"  LOC = "J14"  ;
+#NET "switch<5>"  LOC = "J13"  ;
+#NET "switch<6>"  LOC = "K14"  ;
+#NET "switch<7>"  LOC = "K13"  ;
 
 NET "sram_a<0>"   LOC = "L5";
 NET "sram_a<1>"   LOC = "N3";
