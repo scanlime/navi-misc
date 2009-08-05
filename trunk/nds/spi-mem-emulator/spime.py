@@ -48,7 +48,7 @@ class PacketPort:
        """
 
     def __init__(self, device, baud=3000000):
-        self.serial = serial.Serial(device, baud, timeout=1)
+        self.serial = serial.Serial(device, baud, timeout=2)
         self._rxBuffer = []
         self._escBuffer = ''
 
@@ -141,11 +141,76 @@ class PacketPort:
             self._rxBuffer.extend(chunks[1:])
 
 
-def hexDump(src, dest, bytesPerLine=16, wordSize=4):
-    """A pretty standard hex dumper routine.
-       Dumps the stream 'src' to the stream 'dest'
+class ProtocolError(Exception):
+    pass
+
+
+class Packet:
+    """Abstract base class for one protocol packet that the emulator understands.
        """
-    addr = 0
+    _type = None
+    _replyDataLen = 0
+
+    def __init__(self, address=0):
+        self.address = address & 0xFFFFF
+
+    def __repr__(self):
+        return "%s<0x%05x>" % (self.__class__.__name__, self.address)
+
+    def _getHeader(self):
+        return struct.pack(">I", self._type | self.address)[1:4]
+
+    def send(self, port, data=''):
+        """Send this packet on the provided port, optionally with some payload
+           data, and wait for the response. Returns the response data, if any.
+           If there is no response or the header is corrupted, raises a ProtocolError.
+           """
+        header = self._getHeader()
+        port.write(header + data)
+
+        reply = port.read(len(header) + self._replyDataLen)
+        if not reply:
+            raise ProtocolError("Timed out while sending %r" % self)
+        if reply[:len(header)] != header:
+            raise ProtocolError("Incorrect response header for %r" % self)
+
+        replyData = reply[len(header):]
+        if len(replyData) != self._replyDataLen:
+            raise ProtocolError("Incorrect response length for %r" % self)
+
+        return replyData
+
+
+class Ping(Packet):
+    """Ping packet. Tests our connection with the emulator, does nothing else."""
+    _type = 0x000000
+
+class Write(Packet):
+    """Write a variable-length block of data into memory."""
+    _type = 0x100000
+
+class Read16(Packet):
+    """Read 16 bytes"""
+    _type = 0x200000
+    _replyDataLen = 16
+
+class Read1K(Packet):
+    """Read 1 kilobyte"""
+    _type = 0x300000
+    _replyDataLen = 0x400
+
+class Read64K(Packet):
+    """Read 64 kilobytes"""
+    _type = 0x400000
+    _replyDataLen = 0x10000
+
+
+def hexDump(src, dest=sys.stdout, bytesPerLine=16, wordSize=4, addr=0):
+    """A pretty standard hex dumper routine.
+       Dumps the stream or string 'src' to the stream 'dest'
+       """
+    if isinstance(src, str):
+        src = cStringIO.StringIO(src)
     while 1:
         srcLine = src.read(bytesPerLine)
         if not srcLine:
@@ -179,18 +244,16 @@ def hexDump(src, dest, bytesPerLine=16, wordSize=4):
 
 if __name__ == "__main__":
     p = PacketPort("/dev/ttyUSB0")
+    Ping().send(p)
 
-    p.write(struct.pack(">I", 0x001230)[1:4])
-    hexDump(cStringIO.StringIO(p.read(3)), sys.stdout)
+    Write(0).send(p, open("/home/micah/cookinject/VCKE.sav", 'rb').read())
 
-    if 1:
-        p.write(struct.pack(">I", 0x100020)[1:4] + 'wobblz')
-        hexDump(cStringIO.StringIO(p.read(3)), sys.stdout)
-        p.write(struct.pack(">I", 0x200000)[1:4])
-        hexDump(cStringIO.StringIO(p.read(3)), sys.stdout)
+    Ping().send(p)
 
-    if 0:
-        p.write(struct.pack(">I", 0x300000)[1:4])
-        hexDump(cStringIO.StringIO(p.read(3+0x400)[3:3+512]), sys.stdout)
-
-
+    prev = None
+    while True:
+        next = Read1K().send(p)
+        if next != prev:
+            prev = next
+            print "\n"
+            hexDump(next[:512])
