@@ -115,13 +115,20 @@ module main(mclk, reset,
     * Debug
     */
 
-   wire         pulse_clk, pulse_wr, pulse_rd;
+   wire         pulse_clk;
+   wire         pulse_spi_rd, pulse_spi_wr;
+      wire      pulse_ser_rd, pulse_ser_wr;
+
    pulse_stretcher s1(mclk, reset, !spi_cs, pulse_cs);
    pulse_stretcher s2(mclk, reset, !spi_clk, pulse_clk);
-   pulse_stretcher s3(mclk, reset, spi_mem_begin_rd, pulse_rd);
-   pulse_stretcher s4(mclk, reset, spi_mem_begin_wr, pulse_wr);
+   pulse_stretcher s3(mclk, reset, spi_mem_begin_rd, pulse_spi_rd);
+   pulse_stretcher s4(mclk, reset, spi_mem_begin_wr, pulse_spi_wr);
+   pulse_stretcher s5(mclk, reset, ser_mem_begin_rd, pulse_ser_rd);
+   pulse_stretcher s6(mclk, reset, ser_mem_begin_wr, pulse_ser_wr);
 
-   assign led = { pulse_clk, pulse_cs, 4'b0, pulse_wr, pulse_rd };
+   assign led = { pulse_clk, pulse_cs, 2'b0,
+                  pulse_ser_wr, pulse_ser_rd,
+                  pulse_spi_wr, pulse_spi_rd };
    led_hex display(clkdiv[14], reset, ser_mem_addr[15:0], ledseg_c, ledseg_a);
 
 endmodule
@@ -208,6 +215,7 @@ module sio_protocol(mclk, reset, txd, rxd,
    reg [2:0]     rx_state;
    reg [3:0]     cmd_id;       // Current/last command
    reg [19:0]    cmd_address;  // Address being received / address of RX data
+   reg [7:0]     cmd_reply_data;
 
    parameter CMD_PING      = 0;
    parameter CMD_WRITE     = 1;
@@ -215,18 +223,24 @@ module sio_protocol(mclk, reset, txd, rxd,
    parameter CMD_READ_1K   = 3;
    parameter CMD_READ_64K  = 4;
 
-   wire          cmd_is_write   = (cmd_id == CMD_WRITE);
-   wire          cmd_is_read    = (cmd_id == CMD_READ_16 ||
-                                   cmd_id == CMD_READ_1K ||
-                                   cmd_id == CMD_READ_64K);
+   wire          cmd_valid      = (rx_state == RX_S_ADDR_2 ||
+                                   rx_state == RX_S_ADDR_3 ||
+                                   rx_state == RX_S_DATA);
+   wire          cmd_is_write   = cmd_valid && cmd_id == CMD_WRITE;
+   wire          cmd_is_read    = cmd_valid && (cmd_id == CMD_READ_16 ||
+                                                cmd_id == CMD_READ_1K ||
+                                                cmd_id == CMD_READ_64K);
    wire [16:0]   cmd_reply_len  = (cmd_id == CMD_READ_16 ? 17'h10 :
                                    cmd_id == CMD_READ_1K ? 17'h400 :
                                    cmd_id == CMD_READ_64K ? 17'h10000 :
                                    17'h0);
 
-   wire [7:0]    cmd_reply_data = mem_data_rd;
-
-   /* Note: cmd_address isn't ready until the clock cycle after cmd_header_strobe */
+   /*
+    * Note: cmd_address isn't ready until the clock cycle after cmd_header_strobe.
+    *       To read the address of the upcoming command during cmd_header_strobe,
+    *       use cmd_next_address.
+    */
+   wire [19:0]   cmd_next_address = { cmd_address[19:8], rx_data };
    wire          cmd_header_strobe = (rx_state == RX_S_ADDR_3 && rx_data_strobe);
    wire          cmd_data_strobe = (rx_state == RX_S_DATA && rx_data_strobe);
 
@@ -263,8 +277,9 @@ module sio_protocol(mclk, reset, txd, rxd,
          end
 
          RX_S_ADDR_3: begin
+            /* This is cmd_header_strobe */
             rx_state <= RX_S_DATA;
-            cmd_address[7:0] <= rx_data;
+            cmd_address <= cmd_next_address;
          end
 
          RX_S_DATA: begin
@@ -303,7 +318,7 @@ module sio_protocol(mclk, reset, txd, rxd,
         tx_data_strobe <= 0;
         tx_flag <= 0;
         tx_reply_len <= cmd_reply_len;
-        tx_address <= cmd_address;
+        tx_address <= cmd_next_address;
      end
      else if (tx_ready && !tx_data_strobe && !tx_flag)
         case (tx_state)
@@ -324,21 +339,21 @@ module sio_protocol(mclk, reset, txd, rxd,
 
           TX_S_COMMAND: begin
              tx_state <= TX_S_ADDR_2;
-             tx_data <= { cmd_id, cmd_address[19:16] };
+             tx_data <= { cmd_id, tx_address[19:16] };
              tx_data_strobe <= 1;
              tx_flag <= 0;
           end
 
           TX_S_ADDR_2: begin
              tx_state <= TX_S_ADDR_3;
-             tx_data <= cmd_address[15:8];
+             tx_data <= tx_address[15:8];
              tx_data_strobe <= 1;
              tx_flag <= 0;
           end
 
           TX_S_ADDR_3: begin
              tx_state <= TX_S_DATA;
-             tx_data <= cmd_address[7:0];
+             tx_data <= tx_address[7:0];
              tx_data_strobe <= 1;
              tx_flag <= 0;
           end
@@ -353,7 +368,7 @@ module sio_protocol(mclk, reset, txd, rxd,
                 tx_address <= tx_address + 1;
              end
              else begin
-                tx_state <= TX_S_DATA;
+                tx_state <= TX_S_IDLE;
                 tx_data <= 8'hXX;
                 tx_data_strobe <= 0;
                 tx_flag <= 0;
@@ -372,19 +387,73 @@ module sio_protocol(mclk, reset, txd, rxd,
     * Memory control state machine
     */
 
-   assign mem_addr = tx_address;
-   assign mem_begin_rd = cmd_is_read && (cmd_header_strobe || cmd_data_strobe);
-   
-   parameter 
+   parameter MEM_S_IDLE      = 0;
+   parameter MEM_S_READ      = 1;
+   parameter MEM_S_WRITE     = 2;
 
-   parameter TX_S_IDLE    = 0;
-   parameter TX_S_FLAG    = 1;
-   parameter TX_S_COMMAND = 2;
-   parameter TX_S_ADDR_2  = 3;
-   parameter TX_S_ADDR_3  = 4;
-   parameter TX_S_DATA    = 5;
-   
-   reg           mem_begin_wr;
-   reg [7:0]     mem_data_wr;
+   reg [2:0]   mem_state;
+   reg [19:0]  mem_addr;
+   reg         mem_begin_rd;
+   reg         mem_begin_wr;
+   reg [7:0]   mem_data_wr;
+
+   always @(posedge mclk or posedge reset)
+     if (reset) begin
+        mem_state <= MEM_S_IDLE;
+        mem_addr <= 0;
+        mem_begin_rd <= 0;
+        mem_begin_wr <= 0;
+        mem_data_wr <= 0;
+        cmd_reply_data <= 0;
+     end
+     else case (mem_state)
+
+            MEM_S_IDLE: begin
+               if (cmd_is_write && cmd_data_strobe) begin
+                  /* Starting a write */
+                  mem_state <= MEM_S_WRITE;
+                  mem_begin_rd <= 0;
+                  mem_begin_wr <= 1;
+                  mem_addr <= cmd_address;
+                  mem_data_wr <= rx_data;
+               end
+               else if (cmd_is_read && tx_state == TX_S_DATA && tx_data_strobe) begin
+                  /* Starting a read */
+                  mem_state <= MEM_S_READ;
+                  mem_begin_rd <= 1;
+                  mem_begin_wr <= 0;
+                  mem_addr <= tx_address;
+               end
+               else begin
+                  /* Still idle */
+                  mem_state <= MEM_S_IDLE;
+                  mem_begin_rd <= 0;
+                  mem_begin_wr <= 0;
+               end
+            end
+
+            MEM_S_READ: begin
+               if (mem_finish) begin
+                  /* Read is complete */
+                  cmd_reply_data <= mem_data_rd;
+                  mem_state <= MEM_S_IDLE;
+               end
+               else begin
+                  /* Keep waiting */
+                  mem_state <= MEM_S_READ;
+               end
+
+               mem_begin_rd <= 0;
+               mem_begin_wr <= 0;
+            end
+
+            MEM_S_WRITE: begin
+               /* Fixed 1-cycle wait for writes */
+               mem_state <= MEM_S_IDLE;
+               mem_begin_rd <= 0;
+               mem_begin_wr <= 0;
+            end
+
+          endcase
 
 endmodule
