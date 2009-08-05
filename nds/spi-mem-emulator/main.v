@@ -182,10 +182,6 @@ module sio_protocol(mclk, reset, txd, rxd,
    output [7:0]  mem_data_wr;
    input [7:0]   mem_data_rd;
 
-   reg           mem_begin_wr, mem_begin_rd;
-   reg [19:0]    mem_addr;
-   reg [7:0]     mem_data_wr;
-
    wire          tx_ready;
    reg [7:0]     tx_data;
    reg           tx_data_strobe;
@@ -200,7 +196,7 @@ module sio_protocol(mclk, reset, txd, rxd,
                             rx_data, rx_data_strobe, rx_flag);
 
    /*
-    * Packet header receive state machine
+    * Command packet receive state machine
     */
 
    parameter RX_S_ERROR   = 0;
@@ -210,9 +206,29 @@ module sio_protocol(mclk, reset, txd, rxd,
    parameter RX_S_DATA    = 5;
 
    reg [2:0]     rx_state;
-   reg [3:0]     cmd_id;
-   reg [19:0]    cmd_address;
-   wire          cmd_strobe = (rx_state == RX_S_DATA && rx_data_strobe);
+   reg [3:0]     cmd_id;       // Current/last command
+   reg [19:0]    cmd_address;  // Address being received / address of RX data
+
+   parameter CMD_PING      = 0;
+   parameter CMD_WRITE     = 1;
+   parameter CMD_READ_16   = 2;
+   parameter CMD_READ_1K   = 3;
+   parameter CMD_READ_64K  = 4;
+
+   wire          cmd_is_write   = (cmd_id == CMD_WRITE);
+   wire          cmd_is_read    = (cmd_id == CMD_READ_16 ||
+                                   cmd_id == CMD_READ_1K ||
+                                   cmd_id == CMD_READ_64K);
+   wire [16:0]   cmd_reply_len  = (cmd_id == CMD_READ_16 ? 17'h10 :
+                                   cmd_id == CMD_READ_1K ? 17'h400 :
+                                   cmd_id == CMD_READ_64K ? 17'h10000 :
+                                   17'h0);
+
+   wire [7:0]    cmd_reply_data = mem_data_rd;
+
+   /* Note: cmd_address isn't ready until the clock cycle after cmd_header_strobe */
+   wire          cmd_header_strobe = (rx_state == RX_S_ADDR_3 && rx_data_strobe);
+   wire          cmd_data_strobe = (rx_state == RX_S_DATA && rx_data_strobe);
 
    always @(posedge mclk or posedge reset)
      if (reset) begin
@@ -259,16 +275,19 @@ module sio_protocol(mclk, reset, txd, rxd,
        endcase
 
    /*
-    * Packet header transmit state machine
+    * Packet transmit state machine
     */
 
    parameter TX_S_IDLE    = 0;
-   parameter TX_S_COMMAND = 1;
+   parameter TX_S_FLAG    = 1;
+   parameter TX_S_COMMAND = 2;
    parameter TX_S_ADDR_2  = 3;
    parameter TX_S_ADDR_3  = 4;
    parameter TX_S_DATA    = 5;
 
    reg [2:0]  tx_state;
+   reg [16:0] tx_reply_len;
+   reg [19:0] tx_address;     // Address of TX data
 
    always @(posedge mclk or posedge reset)
      if (reset) begin
@@ -277,22 +296,30 @@ module sio_protocol(mclk, reset, txd, rxd,
         tx_data_strobe <= 0;
         tx_flag <= 0;
      end
-     else if (tx_ready)
+     else if (cmd_header_strobe) begin
+        /* Wait until transmitter is ready for flag */
+        tx_state <= TX_S_FLAG;
+        tx_data <= 8'hXX;
+        tx_data_strobe <= 0;
+        tx_flag <= 0;
+        tx_reply_len <= cmd_reply_len;
+        tx_address <= cmd_address;
+     end
+     else if (tx_ready && !tx_data_strobe && !tx_flag)
         case (tx_state)
 
           TX_S_IDLE: begin
-             if (cmd_strobe) begin
-                tx_state <= TX_S_COMMAND;
-                tx_data <= 8'hXX;
-                tx_data_strobe <= 0;
-                tx_flag <= 1;
-             end
-             else begin
-                tx_state <= TX_S_IDLE;
-                tx_data <= 8'hXX;
-                tx_data_strobe <= 0;
-                tx_flag <= 0;
-             end
+             tx_state <= TX_S_IDLE;
+             tx_data <= 8'hXX;
+             tx_data_strobe <= 0;
+             tx_flag <= 0;
+          end
+
+          TX_S_FLAG: begin
+             tx_state <= TX_S_COMMAND;
+             tx_data <= 8'hXX;
+             tx_data_strobe <= 0;
+             tx_flag <= 1;
           end
 
           TX_S_COMMAND: begin
@@ -317,11 +344,21 @@ module sio_protocol(mclk, reset, txd, rxd,
           end
 
           TX_S_DATA: begin
-             /* XXX */
-             tx_state <= TX_S_DATA;
-             tx_data <= 8'hXX;
-             tx_data_strobe <= 0;
-             tx_flag <= 0;
+             if (tx_reply_len) begin
+                tx_state <= TX_S_DATA;
+                tx_data <= cmd_reply_data;
+                tx_data_strobe <= 1;
+                tx_flag <= 0;
+                tx_reply_len <= tx_reply_len - 1;
+                tx_address <= tx_address + 1;
+             end
+             else begin
+                tx_state <= TX_S_DATA;
+                tx_data <= 8'hXX;
+                tx_data_strobe <= 0;
+                tx_flag <= 0;
+                tx_reply_len <= 0;
+             end
           end
 
         endcase
@@ -331,9 +368,23 @@ module sio_protocol(mclk, reset, txd, rxd,
         tx_flag <= 0;
      end
 
+   /*
+    * Memory control state machine
+    */
 
-   /* XXX */
-   always @(posedge mclk)
-     mem_addr <= cmd_address;
+   assign mem_addr = tx_address;
+   assign mem_begin_rd = cmd_is_read && (cmd_header_strobe || cmd_data_strobe);
+   
+   parameter 
+
+   parameter TX_S_IDLE    = 0;
+   parameter TX_S_FLAG    = 1;
+   parameter TX_S_COMMAND = 2;
+   parameter TX_S_ADDR_2  = 3;
+   parameter TX_S_ADDR_3  = 4;
+   parameter TX_S_DATA    = 5;
+   
+   reg           mem_begin_wr;
+   reg [7:0]     mem_data_wr;
 
 endmodule
