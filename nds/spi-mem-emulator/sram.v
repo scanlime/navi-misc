@@ -152,7 +152,7 @@ module sram_ctrl(clk, reset,
    parameter S_C2_WR2 = 7;
    parameter S_C2_WR3 = 8;
 
-   reg [2:0]     state;
+   reg [3:0]     state;
 
    assign c1_finish_rd = (state == S_C1_RD);
    assign c1_finish_wr = (state == S_C1_WR3);
