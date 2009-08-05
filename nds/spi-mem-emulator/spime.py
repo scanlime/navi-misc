@@ -167,7 +167,7 @@ def hexDump(src, dest, bytesPerLine=16, wordSize=4):
 
         # ASCII representation
         for byte in srcLine:
-            if ord(byte) >= 32 and ord(byte) < 128:
+            if ord(byte) >= 32 and ord(byte) < 127:
                 dest.write(byte)
             else:
                 dest.write(".")
@@ -180,10 +180,17 @@ def hexDump(src, dest, bytesPerLine=16, wordSize=4):
 if __name__ == "__main__":
     p = PacketPort("/dev/ttyUSB0")
 
-    p.write(struct.pack(">I", 0x000001)[1:4])
+    p.write(struct.pack(">I", 0x001230)[1:4])
     hexDump(cStringIO.StringIO(p.read(3)), sys.stdout)
 
-    p.write(struct.pack(">I", 0x400000)[1:4])
-    hexDump(cStringIO.StringIO(p.read(3+0x10000)), sys.stdout)
+    if 1:
+        p.write(struct.pack(">I", 0x100020)[1:4] + 'wobblz')
+        hexDump(cStringIO.StringIO(p.read(3)), sys.stdout)
+        p.write(struct.pack(">I", 0x200000)[1:4])
+        hexDump(cStringIO.StringIO(p.read(3)), sys.stdout)
+
+    if 0:
+        p.write(struct.pack(">I", 0x300000)[1:4])
+        hexDump(cStringIO.StringIO(p.read(3+0x400)[3:3+512]), sys.stdout)
 
 
