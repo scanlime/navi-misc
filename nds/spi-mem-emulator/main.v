@@ -129,7 +129,7 @@ module main(mclk, reset,
    assign led = { pulse_clk, pulse_cs, 2'b0,
                   pulse_ser_wr, pulse_ser_rd,
                   pulse_spi_wr, pulse_spi_rd };
-   led_hex display(clkdiv[14], reset, ser_mem_addr[15:0], ledseg_c, ledseg_a);
+   led_hex display(clkdiv[14], reset, spi_mem_addr, ledseg_c, ledseg_a);
 
 endmodule
 
