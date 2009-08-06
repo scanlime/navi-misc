@@ -1,6 +1,41 @@
 /*
- * spi_mem_emu.v - Module for an SPI memory emulator, compatible with
- *                 ST Microelectronics SPI EEPROMs.
+ * spi_mem_emu.v - Module for an SPI memory emulator.
+ *
+ *    This module emulates a typical 64 KB SPI EEPROM, like the ST
+ *    Microelectronics memories used on most DS cartridges.
+ *
+ *    Normal SPI memory commands. These always access the bottom
+ *    64KB of memory. Note that addresses may still auto-increment
+ *    past the 64KB boundary, so it is possible to read upper memory
+ *    using these commands if you start from below 64KB.
+ *
+ *       (02) WRITE, write memory
+ *       (03) READ, read memory
+ *
+ *    We don't have any real write protection, writes are
+ *    always allowed. So the following commands are emulated,
+ *    but mostly fake:
+ *
+ *       (01) WRSR, write status register
+ *       (04) WRDI, write disable
+ *       (05) RDSR, read status register
+ *       (06) WREN, write enable
+ *
+ *    Like a physical 64K EEPROM, we don't support the JEDEC RDID
+ *    command. Like any other unsupported commands, it returns FF:
+ *
+ *       (9F) RDID, read JEDEC ID (returns all FF)
+ *
+ *    Since the emulator has a full 1 MByte of RAM, we have new
+ *    commands that use a 16+4 addressing scheme. These have two
+ *    address bytes, just like WRITE and READ above, but they also
+ *    encode bits 19..16 of a 20-bit address in the low nybble of
+ *    the command ID:
+ *
+ *       (Ax) WRITE20, write memory with 20-bit address
+ *       (Bx) READ20, read memory with 20-bit address
+ *
+ *    That is all.
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -51,7 +86,7 @@ module spi_mem_emu(mclk, reset,
     */
    output mem_begin_wr, mem_begin_rd;
    input  mem_finish;
-   output [15:0] mem_addr;
+   output [19:0] mem_addr;
    output [7:0]  mem_data_wr;
    input [7:0]   mem_data_rd;
 
@@ -144,12 +179,14 @@ module spi_mem_emu(mclk, reset,
    /*
     * Instruction set
     */
-   parameter I_WRSR  = 8'h01;  // Write status register
-   parameter I_WRITE = 8'h02;  // Write memory
-   parameter I_READ  = 8'h03;  // Read memory
-   parameter I_WRDI  = 8'h04;  // Write disable
-   parameter I_RDSR  = 8'h05;  // Read status register
-   parameter I_WREN  = 8'h06;  // Write enable
+   parameter I_WRSR     = 8'h01;  // Write status register
+   parameter I_WRITE    = 8'h02;  // Write memory
+   parameter I_READ     = 8'h03;  // Read memory
+   parameter I_WRDI     = 8'h04;  // Write disable
+   parameter I_RDSR     = 8'h05;  // Read status register
+   parameter I_WREN     = 8'h06;  // Write enable
+   parameter I_WRITE20  = 8'hA0;  // Write with 20-bit address
+   parameter I_READ20   = 8'hB0;  // Read with 20-bit address
 
    /*
     * States
@@ -166,7 +203,7 @@ module spi_mem_emu(mclk, reset,
 
    reg [3:0]    state;
    reg          mem_begin_wr, mem_begin_rd;
-   reg [15:0]   mem_addr;
+   reg [19:0]   mem_addr;
    reg [7:0]    mem_data_wr;
    reg          write_enable;
 
@@ -220,7 +257,14 @@ module spi_mem_emu(mclk, reset,
                             mosi_reg == I_WRDI  ? S_DONE :
                             mosi_reg == I_RDSR  ? S_CMD_RDSR :
                             mosi_reg == I_WREN  ? S_DONE :
+                            mosi_reg[7:4] == I_READ20[7:4]  ? S_CMD_READ_ADDR1 :
+                            mosi_reg[7:4] == I_WRITE20[7:4] ? S_CMD_WRITE_ADDR1 :
                             S_DONE);                              // Unsupported command
+
+                  // Initial read/write address
+                  mem_addr <= ( (mosi_reg[7:4] == I_READ20[7:4] ||
+                                 mosi_reg[7:4] == I_WRITE20[7:4])
+                                ? { mosi_reg[3:0], 16'h0000 } : 20'h00000 );
                end
                else begin
                   state <= S_WAIT_FOR_CMD;
@@ -297,7 +341,7 @@ module spi_mem_emu(mclk, reset,
                    * on the first written byte, subtract one from the
                    * address.
                    */
-                  mem_addr <= { mem_addr[15:8], mosi_reg } - 16'h1;
+                  mem_addr <= { mem_addr[19:8], mosi_reg } - 20'h1;
                   state <= S_CMD_WRITE_DATA;
                end
 
