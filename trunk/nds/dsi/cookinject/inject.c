@@ -29,13 +29,14 @@
 
 static void setupLogo();
 
+int foo[1024];
 
 void main()
 {
    setupLogo();
 
    /* RAM dump */
-   spimeWrite(0x10000, MAINRAM8 + 0x150000, 0xF0000);
+   //spimeWrite(0x10000, MAINRAM8 + 0x150000, 0xF0000);
 }
 
 
@@ -48,6 +49,16 @@ void setupLogo()
     */
    decompress(logoPal, BG_PALETTE, RLEVram);
    decompress(logoBitmap, BG_GFX, RLEVram);
+
+   /*
+    * After we return, the game is going to try and display a
+    * "Welcome" message on the screen. That message is mostly
+    * garbage at this point, since it contained our player name
+    * from the save file- and we'd rather it not scribble all
+    * over our pretty logo. So stub out the beginning of the
+    * buffer that holds the welcome message.
+    */
+   MAINRAM8[0x20c310] = '\0';
 
    /*
     * Make the logo visible immediately. We don't have to do this,
