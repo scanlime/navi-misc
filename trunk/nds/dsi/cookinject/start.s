@@ -11,17 +11,16 @@
 	.global _start
 	.section .boot
 
-	/*
 _start:
 	eor	r1, r1
 	ldr	r2, =__bss_start
 	ldr	r3, =_end
 _memclr:
-	str	r1, [r2]!
+	str	r1, [r2]
+	add	r2, #4
 	cmp	r2, r3
 	bne	_memclr
-*/
-	
+
 	b main
 
 	.pool
