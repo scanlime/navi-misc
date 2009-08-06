@@ -24,6 +24,7 @@
 
 #include <string.h>
 #include <nds.h>
+#include "spime.h"
 #include "logo.h"
 
 static void setupLogo();
@@ -32,6 +33,9 @@ static void setupLogo();
 void main()
 {
    setupLogo();
+
+   /* RAM dump */
+   spimeWrite(0x10000, MAINRAM8 + 0x150000, 0xF0000);
 }
 
 

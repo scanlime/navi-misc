@@ -11,15 +11,17 @@
 	.global _start
 	.section .boot
 
+	/*
 _start:
 	eor	r1, r1
 	ldr	r2, =__bss_start
 	ldr	r3, =_end
-loop:
-	strb	r1, [r2]!
+_memclr:
+	str	r1, [r2]!
 	cmp	r2, r3
-	bne	loop
-
+	bne	_memclr
+*/
+	
 	b main
 
 	.pool
