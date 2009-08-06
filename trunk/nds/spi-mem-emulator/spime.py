@@ -299,6 +299,10 @@ def action_diff(port, address, count):
                                      % (address + i, ord(a), ord(b)))
         prev = next
 
+def action_clear(port):
+    memWrite(port, 0, '\xFF' * 0x100000)
+    sys.stderr.write("Memory cleared.\n")
+
 
 def main():
     parser = optparse.OptionParser();
@@ -317,6 +321,8 @@ def main():
                       help="Action: Load memory from FILE")
     parser.add_option("--diff", dest="diff", action="store_true",
                       help="Action: Poll memory for changes, print differences")
+    parser.add_option("--clear", dest="clear", action="store_true",
+                      help="Action: Clear memory to 0xFF")
 
     (options, args) = parser.parse_args()
 
@@ -334,6 +340,9 @@ def main():
 
     if options.diff:
         action_diff(port, options.address, options.count)
+
+    if options.clear:
+        action_clear(port)
 
 if __name__ == "__main__":
     main()
