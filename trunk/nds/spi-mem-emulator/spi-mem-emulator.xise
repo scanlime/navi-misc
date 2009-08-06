@@ -43,6 +43,10 @@
       <association xil_pn:name="Implementation"/>
       <library xil_pn:name="verilog"/>
     </file>
+    <file xil_pn:name="protocol.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="Implementation"/>
+      <association xil_pn:name="BehavioralSimulation"/>
+    </file>
   </files>
 
   <properties>

@@ -205,6 +205,35 @@ class Read64K(Packet):
     _replyDataLen = 0x10000
 
 
+def memRead(port, offset, length):
+    """Read device memory. Automatically selects the proper
+       packet length(s) to use.
+       """
+    data = []
+    while length > 0:
+
+        if length > 1024:
+            block = Read64K(offset).send(port)
+        elif length > 16:
+            block = Read1K(offset).send(port)
+        else:
+            block = Read16(offset).send(port)
+
+        block = block[:length]
+        data.append(block)
+        length -= len(block)
+        offset += len(block)
+
+    return ''.join(data)
+
+def memWrite(port, offset, data):
+    """Write device memory.
+       This always sends a single kind of packet,
+       but it's here for consistency with memRead.
+       """
+    Write(offset).send(port, data)
+
+
 def hexDump(src, dest=sys.stdout, bytesPerLine=16, wordSize=4, addr=0):
     """A pretty standard hex dumper routine.
        Dumps the stream or string 'src' to the stream 'dest'
@@ -217,7 +246,7 @@ def hexDump(src, dest=sys.stdout, bytesPerLine=16, wordSize=4, addr=0):
             break
 
         # Address
-        dest.write("%04X: " % addr)
+        dest.write("%05X: " % addr)
         addr += len(srcLine)
 
         # Hex values
@@ -241,15 +270,33 @@ def hexDump(src, dest=sys.stdout, bytesPerLine=16, wordSize=4, addr=0):
         dest.write("\n")
 
 
-def actionDiff(p):
-    print "Polling for differences..."
-    prev = Read64K().send(p)
+def action_ping(port):
+    Ping().send(port)
+    sys.stderr.write("Connected to emulator.\n")
+
+def action_dump(port, address, count):
+    hexDump(memRead(port, address, count), addr=address)
+
+def action_save(port, address, count, file):
+    open(file, 'wb').write(memRead(port, address, count))
+    sys.stderr.write("Saved %d bytes at 0x%05x to %r\n" % (count, address, file))
+
+def action_load(port, address, file):
+    data = open(file, 'rb').read()
+    memWrite(port, address, data)
+    sys.stderr.write("Loaded %d bytes at 0x%05x from %r\n" % (len(data), address, file))
+
+def action_diff(port, address, count):
+    sys.stderr.write("Polling %d bytes for differences, at 0x%05x ...\n"
+                     % (count, address))
+    prev = memRead(port, address, count)
     while True:
-        next = Read64K().send(p)
+        next = memRead(port, address, count)
         if next != prev:
             for i, (a, b) in enumerate(zip(prev, next)):
                 if a != b:
-                    print "%04x: %02x -> %02x" % (i, ord(a), ord(b))
+                    sys.stdout.write("%05x: %02x -> %02x\n"
+                                     % (address + i, ord(a), ord(b)))
         prev = next
 
 
@@ -257,35 +304,36 @@ def main():
     parser = optparse.OptionParser();
     parser.add_option("-p", "--port", dest="port",
                       help="Serial port name", metavar="PORT", default="/dev/ttyUSB0")
+    parser.add_option("-c", "--count", dest="count", type="int", default="8192",
+                      help="Number of bytes to operate on")
+    parser.add_option("-a", "--address", dest="address", type="int", default="0",
+                      help="Memory address to start at")
+
     parser.add_option("-d", "--dump", dest="dump", action="store_true",
-                      help="Action: Hex dump the first 1 KB of memory")
+                      help="Action: Hex dump memory")
     parser.add_option("-s", "--save", dest="save", metavar="FILE",
-                      help="Action: Save the first 64 KB of memory to FILE")
+                      help="Action: Save memory to FILE")
     parser.add_option("-l", "--load", dest="load", metavar="FILE",
                       help="Action: Load memory from FILE")
     parser.add_option("--diff", dest="diff", action="store_true",
-                      help="Action: Poll the first 64 KB for changes, print differences")
+                      help="Action: Poll memory for changes, print differences")
 
     (options, args) = parser.parse_args()
 
-    p = PacketPort(options.port)
-    Ping().send(p)
-    print "Connected to emulator."
+    port = PacketPort(options.port)
+    action_ping(port)
 
     if options.dump:
-        hexDump(Read1K().send(p))
+        action_dump(port, options.address, options.count)
 
     if options.save:
-        open(options.save, 'wb').write(Read64K().send(p))
-        print "Saved to %r" % options.save
+        action_save(port, options.address, options.count, options.save)
 
     if options.load:
-        Write().send(p, open(options.load, 'rb').read())
-        print "Loaded from %r" % options.load
+        action_load(port, options.address, options.load)
 
     if options.diff:
-        actionDiff(p)
-
+        action_diff(port, options.address, options.count)
 
 if __name__ == "__main__":
     main()

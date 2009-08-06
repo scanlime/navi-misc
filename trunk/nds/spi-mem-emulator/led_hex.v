@@ -3,6 +3,11 @@
  *             7-segment multiplexed LED display, like the
  *             one on the Digilent Spartan 3 board.
  *
+ *             Displays a 20-bit value. The low 16 bits
+ *             are displayed in hex on the 4 display digits,
+ *             the upper 4 bits show up on the four decimal
+ *             points.
+ *
  * Copyright (C) 2009 Micah Dowty
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,18 +29,17 @@
  * THE SOFTWARE.
  */
 
-module led_hex(sclk, reset, number, led_c, led_a);
-   input sclk, reset;
-   input [15:0] number;
+module led_hex(mclk, reset, number, led_c, led_a);
+   input mclk, reset;
+   input [19:0] number;
    output [7:0] led_c;
    output [3:0] led_a;
 
-   reg [6:0]    led_c_r;
+   reg [7:0]    led_c;
    reg [3:0]    led_a;
-   reg [1:0]    digit;
+   reg [13:0]   clkdiv;
 
-   wire         decimal = 1'b1;
-   assign       led_c = {decimal, led_c_r};
+   wire [1:0]   digit = clkdiv[13:12];
 
    wire [3:0]   hex = (digit == 0 ? number[15:12] :
                        digit == 1 ? number[11:8] :
@@ -46,6 +50,11 @@ module led_hex(sclk, reset, number, led_c, led_a);
                          digit == 1 ? 4'b1101 :
                          digit == 2 ? 4'b1011 :
                          digit == 3 ? 4'b0111 : 4'hX);
+
+   wire         decimal = !(digit == 0 ? number[19] :
+                            digit == 1 ? number[18] :
+                            digit == 2 ? number[17] :
+                            digit == 3 ? number[16] : 1'bX);
 
    wire [6:0]   seg = (hex == 4'h0 ? 7'b1000000 :
                        hex == 4'h1 ? 7'b1111001 :
@@ -64,15 +73,15 @@ module led_hex(sclk, reset, number, led_c, led_a);
                        hex == 4'hE ? 7'b0000110 :
                        hex == 4'hF ? 7'b0001110 : 7'hXX);
 
-   always @(posedge sclk or posedge reset)
+   always @(posedge mclk or posedge reset)
      if (reset) begin
-        digit <= 0;
+        clkdiv <= 0;
         led_a <= 4'b1111;
-        led_c_r <= 7'b1111111;
+        led_c <= 8'b11111111;
      end
      else begin
-        digit <= digit + 1;
+        clkdiv <= clkdiv + 1;
         led_a <= anode;
-        led_c_r <= seg;
+        led_c <= {decimal, seg};
      end
 endmodule
