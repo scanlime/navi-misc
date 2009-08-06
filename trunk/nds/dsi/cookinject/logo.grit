@@ -1,0 +1,8 @@
+# 256 color
+-gB8
+
+# lz77 compression
+-Zr
+
+# Bitmap format
+-gb
