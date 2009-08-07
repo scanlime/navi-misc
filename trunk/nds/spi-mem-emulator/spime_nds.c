@@ -92,6 +92,7 @@ spimeSendCommand(uint32 cmd, uint32 addr)
 void
 spimeRead(uint32 addr, uint8 *data, uint32 count)
 {
+   spiInit();
    spiBeginTransfer();
    spimeSendCommand(SPIME_CMD_READ20, addr);
 
@@ -111,6 +112,7 @@ spimeRead(uint32 addr, uint8 *data, uint32 count)
 void
 spimeWrite(uint32 addr, uint8 *data, uint32 count)
 {
+   spiInit();
    spiBeginTransfer();
    spimeSendCommand(SPIME_CMD_WRITE20, addr);
 
