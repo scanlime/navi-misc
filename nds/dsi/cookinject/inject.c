@@ -27,16 +27,34 @@
 #include "spime_nds.h"
 #include "logo.h"
 
+#define  DTCM             ((u8*)0x027c0000)
+#define  ITCM             ((u8*)0x01ff8000)
+#define  DTCM32(offset)   (*(u32*)(DTCM + (offset)))
+#define  ITCM32(offset)   (*(u32*)(ITCM + (offset)))
+
+extern void isr_trampoline(void);
+extern void fifo_tx_trampoline(void);
+extern uint32 isr_original;
+
 static void setupLogo();
 
-int foo[1024];
 
 void main()
 {
    setupLogo();
 
-   /* RAM dump */
-   //spimeWrite(0x10000, MAINRAM8 + 0x150000, 0xF0000);
+   /*
+    * Overwrite the player name from the in-memory saved game.
+    * This prevents the game from crashing when it tries to access this in the future.
+    */
+   MAINRAM8[0x1798c0] = '\0';
+
+   /* Redirect the main interrupt vector through a trampoline that calls isr_hook() */
+   isr_original = DTCM32(0x3FFC);
+   DTCM32(0x3FFC) = (uint32) isr_trampoline;
+
+   /* Hook the ARM9 FIFO transmit code */
+   memcpy((void*)0x20D4a90, &fifo_tx_trampoline, 8);
 }
 
 
@@ -66,4 +84,69 @@ void setupLogo()
     * debugging.
     */
    REG_MASTER_BRIGHT = 0;
+}
+
+void flash_line(int y)
+{
+   static vu16 c[192];
+   vu16 *a = BG_GFX_SUB + 128 * y;
+   vu16 *b = a + 128;
+   vu16 x, *p;
+
+   x = ++c[y];
+   for (p = a; p < b; p++) {
+      *p = x;
+   }
+}
+
+static vblank_hook()
+{
+   //   flash_line(0);
+}
+
+void isr_hook()
+{
+   if (REG_IF & 1) {
+      vblank_hook();
+   }
+}
+
+u32 fifo_tx_hook(u32 word)
+{
+   u8 cmd = word >> 24;
+   flash_line(cmd & 0x7F);
+
+   /*
+    * Buffer FIFO words to system memory first
+    */
+
+#if 0
+   static struct {
+      u32 data[1024];
+      u32 count;
+   } buf;
+
+   if (buf.count < 1024) {
+      buf.data[buf.count++] = word;
+   }
+#endif
+
+   /*
+    * Flush when we get to a 'safe' command
+    */
+
+   if (word == 0x060000c0) {
+      static u32 addr = 0x10000;
+
+      spimeWrite(addr, &addr, 4);
+      addr += 4;
+
+      /*
+      spimeWrite(addr, (void*)buf.data, buf.count << 2);
+      addr += buf.count << 2;
+      buf.count = 0;
+      */
+   }
+
+   return word;
 }

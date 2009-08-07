@@ -25,3 +25,56 @@ _memclrDone:
 	b main
 
 	.pool
+
+	#################################################
+	# Interrupt Trampoline
+
+	.global isr_trampoline
+	.global isr_original
+
+isr_trampoline:
+	push	{r0-r7, lr}
+	bl	isr_hook
+	pop	{r0-r7, lr}
+	ldr	pc, isr_original
+
+isr_original:
+	.long   0
+
+
+	#################################################
+	# Fifo TX trampoline
+
+	.global fifo_tx_trampoline
+
+	# This 8-byte trampoline is copied over the original code
+	.thumb
+fifo_tx_trampoline:
+	ldr	r2, =fifo_tx_trampoline_2
+	bx	r2
+	.pool
+
+	# And it branches here:
+
+	.arm
+fifo_tx_trampoline_2:
+	ldr	r1, [sp]	@ Load FIFO TX value
+
+	push	{r0, r2-r7, lr}	@ Invoke hook
+	mov	r0, r1
+	bl	fifo_tx_hook
+	mov	r1, r0
+	pop 	{r0, r2-r7, lr}
+
+	str	r1, [r3, #4]	@ Store to TX register
+
+	mrs	r1, cpsr	@ Begin irq_restore
+	bic	r2, r1, #0x80
+	orr	r2, r2, r0
+	msr	CPSR_c, r2
+	and	r0, r1, #0x80	@ End irq_restore
+
+	movs	r0, #0
+	add	sp, sp, #4
+	pop	{r3, r4, pc}
+	
