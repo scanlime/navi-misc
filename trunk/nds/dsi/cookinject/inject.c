@@ -38,6 +38,8 @@ extern void mainloop_trampoline(void);
 extern uint32 isr_original;
 
 static void setupLogo();
+static void fifoTX(u32 word);
+static void cameraTest();
 
 
 void main()
@@ -59,6 +61,8 @@ void main()
 
    /* Hook the main loop */
    memcpy((void*)0x2006560, &mainloop_trampoline, 8);
+
+   cameraTest();
 }
 
 
@@ -126,12 +130,15 @@ u32 fifo_tx_hook(u32 word)
    /*
     * Low byte appears to be major opcode:
     *
-    *   06: ??? Occurrs very frequently, might be touchscreen
-    *   07: ???
-    *   18: ???
+    *   06: ??? Occurrs very frequently, might be touchscreen?
+    *   07: Sound
+    *   18: ??? Doesn't seem to be important...
     *   d5: Camera (setup?)
     *   55: Camera (out?)
     *   95: Camera (in?)
+    *
+    * Top byte might be flags? Bit 31 looks like it could be transfer
+    * direction.
     */
 
    flash_line(word & 0x7F);
@@ -154,8 +161,56 @@ u32 fifo_tx_hook(u32 word)
 #endif
 
    if ((word & 0xFF) == 0x55) {
-      word ^= 0x10000;
+      /*
+       * Fuzz up the camera commands from the game...
+       */
+      word ^= 0x100000;
    }
 
    return word;
 }
+
+static void fifoTX(u32 word)
+{
+   while (REG_IPC_FIFO_CR & IPC_FIFO_SEND_FULL);
+   REG_IPC_FIFO_TX = word;
+}
+
+static void cameraTest()
+{
+   /*
+    * XXX: Doesn't work. There is almost certainly some data in main memory
+    *      that goes along with these command words...
+    */
+   u32 cmds[] = {
+      0x804000d5,
+      0x80ccc055,
+      0x00c08095,
+      0x80ccc095,
+      0x00c00095,
+      0x80cc8055,
+      0x00c00095,
+      0x80cc8095,
+      0x00c00095,
+      0x80cc0055,
+      0x00c14095,
+      0x80cc0095,
+      0x00c14095,
+      0x808c4055,
+      0x00038095,
+      0x808c4095,
+      0x00038095,
+      0x808d0055,
+      0x00438095,
+      0x808d0095,
+      0x00438095,
+      0x80440055,
+      0x00800018,
+   };
+   int i;
+
+   for (i = 0; i < sizeof cmds / sizeof cmds[0]; i++) {
+      fifoTX(cmds[i]);
+   }
+}
+
