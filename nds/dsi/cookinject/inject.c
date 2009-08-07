@@ -123,12 +123,24 @@ void mainloop_hook()
 
 u32 fifo_tx_hook(u32 word)
 {
+   /*
+    * Low byte appears to be major opcode:
+    *
+    *   06: ??? Occurrs very frequently, might be touchscreen
+    *   07: ???
+    *   18: ???
+    *   d5: Camera (setup?)
+    *   55: Camera (out?)
+    *   95: Camera (in?)
+    */
+
    flash_line(word & 0x7F);
 
    /*
     * Buffer FIFO words to system memory first
     */
 
+#if 0
    static struct {
       u32 data[0x4000];
       u32 count;
@@ -138,6 +150,11 @@ u32 fifo_tx_hook(u32 word)
       buf.data[buf.count++] = word;
    } else {
       spimeWrite(0x10000, (void*)buf.data, buf.count << 2);
+   }
+#endif
+
+   if ((word & 0xFF) == 0x55) {
+      word ^= 0x10000;
    }
 
    return word;
