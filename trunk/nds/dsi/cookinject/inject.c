@@ -24,7 +24,7 @@
 
 #include <string.h>
 #include <nds.h>
-#include "spime.h"
+#include "spime_nds.h"
 #include "logo.h"
 
 static void setupLogo();

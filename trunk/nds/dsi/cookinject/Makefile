@@ -25,7 +25,7 @@ LDFLAGS  = -ffreestanding -nostdlib -Wl,-T,inject.ld
 INCLUDES = -I$(LIBNDS)/include
 LIBS     = -L$(LIBNDS)/lib -lnds9 -lc
 
-STAGE2_SRC = start.s logo.s inject.c spime.c
+STAGE2_SRC = start.s logo.s inject.c spime_nds.c
 
 
 ###########################################

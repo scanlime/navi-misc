@@ -1,9 +1,6 @@
 /*
- * Thin library for accessing the FPGA SPI memory emulator.
- *
- * The emulator is a separate project, at:
- *   http://svn.navi.cx/misc/trunk/nds/spi-mem-emulator/
- *
+ * Thin library for accessing the FPGA SPI memory
+ * emulator from the Nintendo DS.
  */
 
 #ifndef SPIME_H
