@@ -16,10 +16,11 @@ _start:
 	ldr	r2, =__bss_start
 	ldr	r3, =_end
 _memclr:
-	str	r1, [r2]
-	add	r2, #4
 	cmp	r2, r3
-	bne	_memclr
+	beq	_memclrDone
+	str	r1, [r2], #4
+	b	_memclr
+_memclrDone:
 
 	b main
 
