@@ -34,6 +34,7 @@
 
 extern void isr_trampoline(void);
 extern void fifo_tx_trampoline(void);
+extern void mainloop_trampoline(void);
 extern uint32 isr_original;
 
 static void setupLogo();
@@ -55,6 +56,9 @@ void main()
 
    /* Hook the ARM9 FIFO transmit code */
    memcpy((void*)0x20D4a90, &fifo_tx_trampoline, 8);
+
+   /* Hook the main loop */
+   memcpy((void*)0x2006560, &mainloop_trampoline, 8);
 }
 
 
@@ -101,7 +105,7 @@ void flash_line(int y)
 
 static vblank_hook()
 {
-   //   flash_line(0);
+   /* XXX: Seems to hit much more often than once per VBL? */
 }
 
 void isr_hook()
@@ -111,41 +115,29 @@ void isr_hook()
    }
 }
 
+void mainloop_hook()
+{
+   /* XXX: Not working yet */
+   flash_line(0);
+}
+
 u32 fifo_tx_hook(u32 word)
 {
-   u8 cmd = word >> 24;
-   flash_line(cmd & 0x7F);
+   flash_line(word & 0x7F);
 
    /*
     * Buffer FIFO words to system memory first
     */
 
-#if 0
    static struct {
-      u32 data[1024];
+      u32 data[0x4000];
       u32 count;
    } buf;
 
-   if (buf.count < 1024) {
+   if (buf.count < sizeof buf.data / sizeof buf.data[0]) {
       buf.data[buf.count++] = word;
-   }
-#endif
-
-   /*
-    * Flush when we get to a 'safe' command
-    */
-
-   if (word == 0x060000c0) {
-      static u32 addr = 0x10000;
-
-      spimeWrite(addr, &addr, 4);
-      addr += 4;
-
-      /*
-      spimeWrite(addr, (void*)buf.data, buf.count << 2);
-      addr += buf.count << 2;
-      buf.count = 0;
-      */
+   } else {
+      spimeWrite(0x10000, (void*)buf.data, buf.count << 2);
    }
 
    return word;
