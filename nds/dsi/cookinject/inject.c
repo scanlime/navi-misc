@@ -109,10 +109,8 @@ void main()
     * support in the ARM7. Hook it. The hook will be invoked
     * when the game tries to load or save.
     *
-    * The easiest way to trigger this: just open up the list of all
-    * recipes. It's a couple of taps, and the game will read its save
-    * file immediately (probably to determine which recipes have notes
-    * on them).
+    * The easiest way to trigger this: just tap "recipes", then "all
+    * recipes". Pow.
     */
    memcpy((void*)0x2fe0370, &arm7_trampoline, 8);
 
@@ -232,8 +230,9 @@ void arm7_hook()
 {
    char cmd;
    uint32 args[3];
+   uint32 running = 1;
 
-   while (1) {
+   while (running) {
       /* Wait for command */
       do {
          spimeRead(0, &cmd, sizeof cmd);
@@ -261,6 +260,11 @@ void arm7_hook()
          /* 32-bit write */
       case 'L':
          *(vu32*)args[0] = args[1];
+         break;
+
+         /* Continue execution */
+      case 'C':
+         running = 0;
          break;
       }
 
