@@ -114,12 +114,17 @@ void main()
    memcpy((void*)0x2fe0370, &arm7_trampoline, 8);
 
    /*
-    * Shotgun approach to triggering the hook above :)
+    * XXX: Trying to trigger the hook immediately, but this doesn't work yet.
     */
-   int i;
-   for (i = 0; i < 0x100; i++) {
-      fifoTX(i);
-   }
+#if 0
+   fifoTX(0x22B);
+   fifoTX(0x26B);
+   fifoTX(0x1AB);
+   REG_IPC_SYNC = (REG_IPC_SYNC & 0xF) << 8;
+#endif
+
+   /* Give SPI over to the ARM7 */
+   sysSetCardOwner(BUS_OWNER_ARM7);
 
    REG_IE = old_ie;
    REG_IME = old_ime;
@@ -190,6 +195,7 @@ int writePowerManagement(int reg, int command) {
 
 void arm7_hook()
 {
+   spimeWrite(0, "Hello World", 12);
    writePowerManagement(0, 0xFF);
 
    /*
@@ -202,21 +208,19 @@ void arm7_hook()
 u32 fifo_tx_hook(u32 word)
 {
    /*
-    * Low byte appears to be major opcode:
+    * Low nybble appears to be major opcode:
     *
-    *   06: ??? Occurrs very frequently, might be touchscreen?
-    *   07: Sound
-    *   0B: SPI?
-    *   18: ??? Doesn't seem to be important...
-    *   d5: Camera (setup?)
-    *   55: Camera (out?)
-    *   95: Camera (in?)
+    *   5: Camera
+    *   6: ??? Occurrs very frequently, might be touchscreen?
+    *   7: Sound
+    *   8: ??? Doesn't seem to be important...
+    *   B: SPI EEPROM
     *
     * Top byte might be flags? Bit 31 looks like it could be transfer
     * direction.
     */
 
-   //flash_line(word & 0x7F);
+   flash_line(word & 0x7F);
 
    /*
     * Buffer FIFO words to system memory first
@@ -235,6 +239,7 @@ u32 fifo_tx_hook(u32 word)
    }
 #endif
 
+#if 0
    if ((word & 0xFF) == 0x55) {
       /*
        * Camera command
@@ -243,6 +248,7 @@ u32 fifo_tx_hook(u32 word)
       /* This breaks the camera */
       word ^= 0x100000;
    }
+#endif
 
    return word;
 }
