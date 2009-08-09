@@ -36,8 +36,6 @@ extern void arm7_trampoline(void);
 static void setupLogo();
 static void fifoTX(u32 word);
 
-static volatile uint32 shared;
-
 
 void main()
 {
@@ -195,14 +193,18 @@ int writePowerManagement(int reg, int command) {
 
 void arm7_hook()
 {
-   spimeWrite(0, "Hello World", 12);
-   writePowerManagement(0, 0xFF);
-
    /*
-   while (1) {
-      shared++;
-   }
-   */
+    * Stack dump
+    */
+#if 0
+   u32 sp;
+   asm ("mov %0, sp" : "=r" (sp));
+   spimeWrite(0, &sp, 4);
+   spimeWrite(0x10, sp, 0x1000);
+#endif
+
+
+   writePowerManagement(0, 0xFF);
 }
 
 u32 fifo_tx_hook(u32 word)
