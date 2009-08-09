@@ -80,32 +80,20 @@ fifo_tx_trampoline_2:
 	
 
 	#################################################
-	# Main loop trampoline
+	# ARM7 trampoline
 
-	.global	mainloop_trampoline
-	.thumb
-mainloop_trampoline:
-	ldr	r0, =mainloop_trampoline_2
-	bx	r0
+	.global	arm7_trampoline
+	.arm
+arm7_trampoline:
+	ldr	pc, =arm7_trampoline_2
 	.pool
 
-	.arm
-mainloop_trampoline_2:
-
-	b mainloop_trampoline_2
-	
+arm7_trampoline_2:
 	push	{r0-r7, lr}	@ Invoke hook
-	bl	mainloop_hook
-	pop 	{r2-r7, lr}
+	bl	arm7_hook
+	pop 	{r0-r7, lr}
 
-	# This hook overwrites four instructions, but three
-	# of them are no-ops, since they're calling a stub
-	# function. This is the one potentially meaningful
-	# instruction.
-
-	ldr	r0, =0x217b820
-
-	# Jump back
-
-	ldr	pc, =0x2006570
+	push	{r4, lr}	@ Back to hooked function
+	cmp	r2, #0
+	ldr	pc, =0x2fe0378
 	.pool

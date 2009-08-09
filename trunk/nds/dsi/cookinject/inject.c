@@ -1,6 +1,9 @@
 /*
  * Payload for the 'cookinject' exploit.
  *
+ * XXX: Work in progress. This isn't currently designed to do anything
+ *      specific, it's just a playground for reverse-engineering the DSi.
+ *
  * This code is loaded from SPI memory by the bootstrapper in
  * 'exploit.s'.  Our main() is called. When it returns, we return
  * control to the game.
@@ -27,6 +30,7 @@
 #include "spime_nds.h"
 #include "logo.h"
 
+/* XXX: Proabably not the real DTCM, since this is right in the middle of system RAM! */
 #define  DTCM             ((u8*)0x027c0000)
 #define  ITCM             ((u8*)0x01ff8000)
 #define  DTCM32(offset)   (*(u32*)(DTCM + (offset)))
@@ -34,16 +38,22 @@
 
 extern void isr_trampoline(void);
 extern void fifo_tx_trampoline(void);
-extern void mainloop_trampoline(void);
+extern void arm7_trampoline(void);
 extern uint32 isr_original;
 
 static void setupLogo();
 static void fifoTX(u32 word);
-static void cameraTest();
+
+static volatile uint32 shared;
 
 
 void main()
 {
+   u32 old_ime = REG_IME;
+   u32 old_ie = REG_IE;
+   REG_IME = 0;
+   REG_IE = 0;
+
    setupLogo();
 
    /*
@@ -59,12 +69,73 @@ void main()
    /* Hook the ARM9 FIFO transmit code */
    memcpy((void*)0x20D4a90, &fifo_tx_trampoline, 8);
 
-   /* Hook the main loop */
-   memcpy((void*)0x2006560, &mainloop_trampoline, 8);
+   /*
+    * Hook the ARM7 processor's main loop, via a call it makes into main RAM.
+    *
+    * XXX: This page of memory appears to be protected normally. Just reading
+    *      from it will crash the ARM9!
+    *
+    * The protection range appears to start at 0x2F80000. In other words,
+    * the last megabyte of the 16MB system RAM is not normally accessible.
+    *
+    * Normal memory protection settings on the DSi, according to the
+    * CP15 registers.  The DSi seems to only use privileged mode, so
+    * there are no permissions for user mode.
+    *
+    * Flag legend:
+    *   UC = Uncached, no data/instruction read cache
+    *   UB = Unbuffered, no data write buffer
+    *   NR = No read or write access
+    *   NX = Cannot execute from
+    *   RO = Read-only
+    *
+    * Region  Addrs                     Special Flags     Description
+    * -----------------------------------------------------------------------
+    *
+    *   0     0x04000000 - 0x05FFFFFF   UC UB             Memory-mapped I/O
+    *   1     0x02000000 - 0x02FFFFFF                     System RAM (16MB)
+    *   2     0x02F80000 - 0x02FBFFFF   UC UB NR          Protected memory
+    *   3     0x08000000 - 0x09FFFFFF                     Unknown
+    *   4     0x027C0000 - 0x027C1FFF   UC UB    NX       Protected memory
+    *   5     0x01000000 - 0x017FFFFF   UC UB             Unknown
+    *   6     0xFFFF0000 - 0xFFFF3FFF      UB RO          Unknown
+    *   7     0x02FFC000 - 0x02FFDFFF   UC UB    NX       Protected memory
+    *
+    * XXX: not sure the size on region (2) makes sense?
+    *
+    * The protected memory in region (2) is ARM7 code, normally
+    * unaccessable to the ARM9. Looks like this is lesser-used ARM7
+    * code, like the Wifi stack and SPI support.
+    *
+    * Looks like there are still only 8 protection registers in CP15.
+    */
 
-   cameraTest();
+   /*
+    * Unprotect all memory regions.
+    */
+   asm volatile ("mcr p15, 0, %0, c5, c0, 0" :: "r" (0x0000FFFF));
+   asm volatile ("mcr p15, 0, %0, c5, c0, 1" :: "r" (0x0000FFFF));
+   asm volatile ("mcr p15, 0, %0, c5, c0, 2" :: "r" (0x33333333));
+   asm volatile ("mcr p15, 0, %0, c5, c0, 3" :: "r" (0x33333333));
+
+   /*
+    * There is a function at 0x2FE0370 which is part of the SPI
+    * support in the ARM7. Hook it. The hook will be invoked
+    * when the game tries to load or save.
+    */
+   memcpy((void*)0x2fe0370, &arm7_trampoline, 8);
+
+   /*
+    * Shotgun approach to triggering the hook above :)
+    */
+   int i;
+   for (i = 0; i < 0x100; i++) {
+      fifoTX(i);
+   }
+
+   REG_IE = old_ie;
+   REG_IME = old_ime;
 }
-
 
 void setupLogo()
 {
@@ -119,10 +190,36 @@ void isr_hook()
    }
 }
 
-void mainloop_hook()
+#define ARM7
+#include <nds/arm7/serial.h>
+
+int writePowerManagement(int reg, int command) {
+   // Write the register / access mode (bit 7 sets access mode)
+  while (REG_SPICNT & SPI_BUSY);
+  REG_SPICNT = SPI_ENABLE | SPI_BAUD_1MHZ | SPI_BYTE_MODE |
+     SPI_CONTINUOUS | SPI_DEVICE_POWER;
+  REG_SPIDATA = reg;
+
+  // Write the command / start a read
+  while (REG_SPICNT & SPI_BUSY);
+  REG_SPICNT = SPI_ENABLE | SPI_BAUD_1MHZ | SPI_BYTE_MODE | SPI_DEVICE_POWER;
+  REG_SPIDATA = command;
+
+  // Read the result
+  while (REG_SPICNT & SPI_BUSY);
+  return REG_SPIDATA & 0xFF;
+}
+
+
+void arm7_hook()
 {
-   /* XXX: Not working yet */
-   flash_line(0);
+   writePowerManagement(0, 0xFF);
+
+   /*
+   while (1) {
+      shared++;
+   }
+   */
 }
 
 u32 fifo_tx_hook(u32 word)
@@ -132,6 +229,7 @@ u32 fifo_tx_hook(u32 word)
     *
     *   06: ??? Occurrs very frequently, might be touchscreen?
     *   07: Sound
+    *   0B: SPI?
     *   18: ??? Doesn't seem to be important...
     *   d5: Camera (setup?)
     *   55: Camera (out?)
@@ -141,7 +239,7 @@ u32 fifo_tx_hook(u32 word)
     * direction.
     */
 
-   flash_line(word & 0x7F);
+   //flash_line(word & 0x7F);
 
    /*
     * Buffer FIFO words to system memory first
@@ -162,8 +260,10 @@ u32 fifo_tx_hook(u32 word)
 
    if ((word & 0xFF) == 0x55) {
       /*
-       * Fuzz up the camera commands from the game...
+       * Camera command
        */
+
+      /* This breaks the camera */
       word ^= 0x100000;
    }
 
@@ -174,43 +274,5 @@ static void fifoTX(u32 word)
 {
    while (REG_IPC_FIFO_CR & IPC_FIFO_SEND_FULL);
    REG_IPC_FIFO_TX = word;
-}
-
-static void cameraTest()
-{
-   /*
-    * XXX: Doesn't work. There is almost certainly some data in main memory
-    *      that goes along with these command words...
-    */
-   u32 cmds[] = {
-      0x804000d5,
-      0x80ccc055,
-      0x00c08095,
-      0x80ccc095,
-      0x00c00095,
-      0x80cc8055,
-      0x00c00095,
-      0x80cc8095,
-      0x00c00095,
-      0x80cc0055,
-      0x00c14095,
-      0x80cc0095,
-      0x00c14095,
-      0x808c4055,
-      0x00038095,
-      0x808c4095,
-      0x00038095,
-      0x808d0055,
-      0x00438095,
-      0x808d0095,
-      0x00438095,
-      0x80440055,
-      0x00800018,
-   };
-   int i;
-
-   for (i = 0; i < sizeof cmds / sizeof cmds[0]; i++) {
-      fifoTX(cmds[i]);
-   }
 }
 
