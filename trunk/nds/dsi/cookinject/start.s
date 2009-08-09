@@ -26,21 +26,6 @@ _memclrDone:
 
 	.pool
 
-	#################################################
-	# Interrupt Trampoline
-
-	.global isr_trampoline
-	.global isr_original
-
-isr_trampoline:
-	push	{r0-r7, lr}
-	bl	isr_hook
-	pop	{r0-r7, lr}
-	ldr	pc, isr_original
-
-isr_original:
-	.long   0
-
 
 	#################################################
 	# Fifo TX trampoline

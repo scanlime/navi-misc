@@ -30,16 +30,8 @@
 #include "spime_nds.h"
 #include "logo.h"
 
-/* XXX: Proabably not the real DTCM, since this is right in the middle of system RAM! */
-#define  DTCM             ((u8*)0x027c0000)
-#define  ITCM             ((u8*)0x01ff8000)
-#define  DTCM32(offset)   (*(u32*)(DTCM + (offset)))
-#define  ITCM32(offset)   (*(u32*)(ITCM + (offset)))
-
-extern void isr_trampoline(void);
 extern void fifo_tx_trampoline(void);
 extern void arm7_trampoline(void);
-extern uint32 isr_original;
 
 static void setupLogo();
 static void fifoTX(u32 word);
@@ -61,10 +53,6 @@ void main()
     * This prevents the game from crashing when it tries to access this in the future.
     */
    MAINRAM8[0x1798c0] = '\0';
-
-   /* Redirect the main interrupt vector through a trampoline that calls isr_hook() */
-   isr_original = DTCM32(0x3FFC);
-   DTCM32(0x3FFC) = (uint32) isr_trampoline;
 
    /* Hook the ARM9 FIFO transmit code */
    memcpy((void*)0x20D4a90, &fifo_tx_trampoline, 8);
@@ -178,17 +166,6 @@ void flash_line(int y)
    }
 }
 
-static vblank_hook()
-{
-   /* XXX: Seems to hit much more often than once per VBL? */
-}
-
-void isr_hook()
-{
-   if (REG_IF & 1) {
-      vblank_hook();
-   }
-}
 
 #define ARM7
 #include <nds/arm7/serial.h>
