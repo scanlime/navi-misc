@@ -165,23 +165,29 @@ module sram_ctrl(clk, reset,
     */
 
    parameter S_IDLE   = 0;
-   parameter S_C1_RD  = 1;
+
+   parameter S_C1_RD1 = 1;
    parameter S_C1_RD2 = 2;
-   parameter S_C1_WR  = 3;
-   parameter S_C1_WR2 = 4;
-   parameter S_C1_WR3 = 5;
-   parameter S_C2_RD  = 6;
-   parameter S_C2_RD2 = 7;
-   parameter S_C2_WR  = 8;
-   parameter S_C2_WR2 = 9;
-   parameter S_C2_WR3 = 10;
+   parameter S_C1_RD3 = 3;
+   parameter S_C1_WR1 = 4;
+   parameter S_C1_WR2 = 5;
+   parameter S_C1_WR3 = 6;
+   parameter S_C1_WR4 = 7;
+
+   parameter S_C2_RD1 = 9;
+   parameter S_C2_RD2 = 10;
+   parameter S_C2_RD3 = 11;
+   parameter S_C2_WR1 = 12;
+   parameter S_C2_WR2 = 13;
+   parameter S_C2_WR3 = 14;
+   parameter S_C2_WR4 = 15;
 
    reg [3:0]     state;
 
-   assign c1_finish_rd = (state == S_C1_RD2);
-   assign c1_finish_wr = (state == S_C1_WR3);
-   assign c2_finish_rd = (state == S_C2_RD2);
-   assign c2_finish_wr = (state == S_C2_WR3);
+   assign c1_finish_rd = (state == S_C1_RD3);
+   assign c1_finish_wr = (state == S_C1_WR4);
+   assign c2_finish_rd = (state == S_C2_RD3);
+   assign c2_finish_wr = (state == S_C2_WR4);
 
    always @(posedge clk or posedge reset)
      if (reset) begin
@@ -212,10 +218,10 @@ module sram_ctrl(clk, reset,
                oe <= (c1_pending_wr || c1_pending_rd ||
                       c2_pending_wr || c2_pending_rd);
 
-               state <= (c1_pending_rd ? S_C1_RD :
-                         c1_pending_wr ? S_C1_WR :
-                         c2_pending_rd ? S_C2_RD :
-                         c2_pending_wr ? S_C2_WR :
+               state <= (c1_pending_rd ? S_C1_RD1 :
+                         c1_pending_wr ? S_C1_WR1 :
+                         c2_pending_rd ? S_C2_RD1 :
+                         c2_pending_wr ? S_C2_WR1 :
                          S_IDLE);
 
                sram_out <= 16'hXXXX;
@@ -225,21 +231,19 @@ module sram_ctrl(clk, reset,
 
             /*
              * First read cycle.
-             *
-             * End the read. Data will be delivered to
-             * clients via the 'finish' signals above.
+             * Wait state to let address propagate through the SRAM.
              */
 
-            S_C1_RD: begin
-               oe <= 0;
+            S_C1_RD1: begin
+               oe <= 1;
                state <= S_C1_RD2;
                sram_out <= 16'hXXXX;
                sram_out_drv <= 0;
                we <= 0;
             end
 
-            S_C2_RD: begin
-               oe <= 0;
+            S_C2_RD1: begin
+               oe <= 1;
                state <= S_C2_RD2;
                sram_out <= 16'hXXXX;
                sram_out_drv <= 0;
@@ -249,10 +253,33 @@ module sram_ctrl(clk, reset,
             /*
              * Second read cycle.
              *
-             * Data is now available on our sram_io_r latches.
+             * End the read. Data will be delivered to
+             * clients via the 'finish' signals above.
              */
 
             S_C1_RD2: begin
+               oe <= 0;
+               state <= S_C1_RD3;
+               sram_out <= 16'hXXXX;
+               sram_out_drv <= 0;
+               we <= 0;
+            end
+
+            S_C2_RD2: begin
+               oe <= 0;
+               state <= S_C2_RD3;
+               sram_out <= 16'hXXXX;
+               sram_out_drv <= 0;
+               we <= 0;
+            end
+
+            /*
+             * Third read cycle.
+             *
+             * Data is now available on our sram_io_r latches.
+             */
+
+            S_C1_RD3: begin
                oe <= 0;
                state <= S_IDLE;
                sram_out <= 16'hXXXX;
@@ -260,7 +287,7 @@ module sram_ctrl(clk, reset,
                we <= 0;
             end
 
-            S_C2_RD2: begin
+            S_C2_RD3: begin
                oe <= 0;
                state <= S_IDLE;
                sram_out <= 16'hXXXX;
@@ -269,15 +296,36 @@ module sram_ctrl(clk, reset,
             end
 
             /*
-             * First write cycle:
+             * First write cycle.
+             * Wait state to let address propagate through the SRAM.
+             */
+
+            S_C1_WR1: begin
+               oe <= 1;
+               state <= S_C1_WR2;
+               sram_out <= 16'hXXXX;
+               sram_out_drv <= 0;
+               we <= 0;
+            end
+
+            S_C2_WR1: begin
+               oe <= 1;
+               state <= S_C2_WR2;
+               sram_out <= 16'hXXXX;
+               sram_out_drv <= 0;
+               we <= 0;
+            end
+
+            /*
+             * Second write cycle:
              *
              * The read is done. Substitute in our new data, and
              * drive it onto the bus.
              */
 
-            S_C1_WR: begin
+            S_C1_WR2: begin
                oe <= 0;
-               state <= S_C1_WR2;
+               state <= S_C1_WR3;
                sram_out_drv <= 1;
                we <= 0;
                if (byte_index[0])
@@ -286,9 +334,9 @@ module sram_ctrl(clk, reset,
                  sram_out <= { word_rd[15:8], c1_data_wr };
             end
 
-            S_C2_WR: begin
+            S_C2_WR2: begin
                oe <= 0;
-               state <= S_C2_WR2;
+               state <= S_C2_WR3;
                sram_out_drv <= 1;
                we <= 0;
                if (byte_index[0])
@@ -298,39 +346,39 @@ module sram_ctrl(clk, reset,
             end
 
             /*
-             * Second write cycle:
+             * Third write cycle:
              *
              * Strobe the WE line high.
              */
 
-            S_C1_WR2: begin
+            S_C1_WR3: begin
                oe <= 0;
-               state <= S_C1_WR3;
+               state <= S_C1_WR4;
                sram_out_drv <= 1;
                we <= 1;
             end
 
-            S_C2_WR2: begin
+            S_C2_WR3: begin
                oe <= 0;
-               state <= S_C2_WR3;
+               state <= S_C2_WR4;
                sram_out_drv <= 1;
                we <= 1;
             end
 
             /*
-             * Third write cycle:
+             * Fourth write cycle:
              *
              * Keep the data stable, but bring WE low.
              */
 
-            S_C1_WR3: begin
+            S_C1_WR4: begin
                oe <= 0;
                state <= S_IDLE;
                sram_out_drv <= 1;
                we <= 0;
             end
 
-            S_C2_WR3: begin
+            S_C2_WR4: begin
                oe <= 0;
                state <= S_IDLE;
                sram_out_drv <= 1;
