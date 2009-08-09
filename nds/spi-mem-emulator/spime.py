@@ -234,7 +234,7 @@ def memWrite(port, offset, data):
     Write(offset).send(port, data)
 
 
-def hexDump(src, dest=sys.stdout, bytesPerLine=16, wordSize=4, addr=0):
+def hexDump(src, dest=sys.stdout, bytesPerLine=16, wordSize=4, wordLE=False, addr=0):
     """A pretty standard hex dumper routine.
        Dumps the stream or string 'src' to the stream 'dest'
        """
@@ -251,10 +251,17 @@ def hexDump(src, dest=sys.stdout, bytesPerLine=16, wordSize=4, addr=0):
 
         # Hex values
         for i in xrange(bytesPerLine):
-            if i < len(srcLine):
-                dest.write("%02X" % ord(srcLine[i]))
+            # Little-endian word swap
+            if wordLE:
+                byte = i + wordSize - 1 - 2 * (i % wordSize)
+            else:
+                byte = i
+
+            if byte < len(srcLine):
+                dest.write("%02X" % ord(srcLine[byte]))
             else:
                 dest.write("  ")
+
             if not (i+1) % wordSize:
                 dest.write(" ")
         dest.write(" ")
@@ -274,8 +281,8 @@ def action_ping(port):
     Ping().send(port)
     sys.stderr.write("Connected to emulator.\n")
 
-def action_dump(port, address, count):
-    hexDump(memRead(port, address, count), addr=address)
+def action_dump(port, address, count, little_endian=False):
+    hexDump(memRead(port, address, count), addr=address, wordLE=little_endian)
 
 def action_save(port, address, count, file):
     open(file, 'wb').write(memRead(port, address, count))
@@ -312,7 +319,9 @@ def main():
                       help="Number of bytes to operate on")
     parser.add_option("-a", "--address", dest="address", type="int", default="0",
                       help="Memory address to start at")
-
+    parser.add_option("-L", "--little-endian", dest="little_endian", action="store_true",
+                      help="Hex dump words in little-endian byte order, instead of"
+                           "in order of increasing address.")
     parser.add_option("-d", "--dump", dest="dump", action="store_true",
                       help="Action: Hex dump memory")
     parser.add_option("-s", "--save", dest="save", metavar="FILE",
@@ -330,7 +339,7 @@ def main():
     action_ping(port)
 
     if options.dump:
-        action_dump(port, options.address, options.count)
+        action_dump(port, options.address, options.count, options.little_endian)
 
     if options.save:
         action_save(port, options.address, options.count, options.save)
