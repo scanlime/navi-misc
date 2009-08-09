@@ -108,6 +108,11 @@ void main()
     * There is a function at 0x2FE0370 which is part of the SPI
     * support in the ARM7. Hook it. The hook will be invoked
     * when the game tries to load or save.
+    *
+    * The easiest way to trigger this: just open up the list of all
+    * recipes. It's a couple of taps, and the game will read its save
+    * file immediately (probably to determine which recipes have notes
+    * on them).
     */
    memcpy((void*)0x2fe0370, &arm7_trampoline, 8);
 
@@ -169,44 +174,6 @@ void flash_line(int y)
    }
 }
 
-
-#define ARM7
-#include <nds/arm7/serial.h>
-
-int writePowerManagement(int reg, int command) {
-   // Write the register / access mode (bit 7 sets access mode)
-  while (REG_SPICNT & SPI_BUSY);
-  REG_SPICNT = SPI_ENABLE | SPI_BAUD_1MHZ | SPI_BYTE_MODE |
-     SPI_CONTINUOUS | SPI_DEVICE_POWER;
-  REG_SPIDATA = reg;
-
-  // Write the command / start a read
-  while (REG_SPICNT & SPI_BUSY);
-  REG_SPICNT = SPI_ENABLE | SPI_BAUD_1MHZ | SPI_BYTE_MODE | SPI_DEVICE_POWER;
-  REG_SPIDATA = command;
-
-  // Read the result
-  while (REG_SPICNT & SPI_BUSY);
-  return REG_SPIDATA & 0xFF;
-}
-
-
-void arm7_hook()
-{
-   /*
-    * Stack dump
-    */
-#if 0
-   u32 sp;
-   asm ("mov %0, sp" : "=r" (sp));
-   spimeWrite(0, &sp, 4);
-   spimeWrite(0x10, sp, 0x1000);
-#endif
-
-
-   writePowerManagement(0, 0xFF);
-}
-
 u32 fifo_tx_hook(u32 word)
 {
    /*
@@ -261,3 +228,44 @@ static void fifoTX(u32 word)
    REG_IPC_FIFO_TX = word;
 }
 
+void arm7_hook()
+{
+   char cmd;
+   uint32 args[3];
+
+   while (1) {
+      /* Wait for command */
+      do {
+         spimeRead(0, &cmd, sizeof cmd);
+      } while (cmd == 0);
+
+      spimeRead(4, (u8*)args, sizeof args);
+
+      switch (cmd) {
+
+         /* Read bytes */
+      case 'R':
+         spimeWrite(args[0], (u8*)args[1], args[2]);
+         break;
+
+         /* Write bytes */
+      case 'W':
+         spimeRead(args[0], (u8*)args[1], args[2]);
+         break;
+
+         /* 16-bit write */
+      case 'H':
+         *(vu16*)args[0] = args[1];
+         break;
+
+         /* 32-bit write */
+      case 'L':
+         *(vu32*)args[0] = args[1];
+         break;
+      }
+
+      /* Signal end-of-command */
+      cmd = 0;
+      spimeWrite(0, &cmd, sizeof cmd);
+   }
+}
