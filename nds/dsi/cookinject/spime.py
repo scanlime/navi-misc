@@ -48,7 +48,7 @@ class PacketPort:
        """
 
     def __init__(self, device, baud=3000000):
-        self.serial = serial.Serial(device, baud)
+        self.serial = serial.Serial(device, baud, timeout=2)
         self._rxBuffer = []
         self._escBuffer = ''
 

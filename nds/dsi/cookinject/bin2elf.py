@@ -16,27 +16,19 @@ for file in sys.argv[1:]:
     addr = int(file.split('.')[0], 16)
     files.append((file, addr))
 
-args = ['arm-eabi-objcopy',
-        '-O', 'elf32-littlearm',
-        '-I', 'binary']
+# Sort files by address
+files.sort()
 
-# First file is converted as a data segment
-args.extend([
-        files[0][0],
-        '--change-section-address',
-        '.data=0x%x' % files[0][1],
-        ])
+objcopy = 'arm-eabi-objcopy -S -O elf32-littlearm'
 
-# Other files are added sections.
-# Objcopy seems to reverse them, so we'll reverse again.
-for i, (file, addr) in reversed(list(enumerate(files[1:]))):
-    args.extend([
-            '--add-section', '.sec%d=%s' % (i, file),
-            '--change-section-address', '.sec%d=0x%x' % (i, addr),
-            ])
+# Make an empty ELF file by adding a dummy Binary section, then removing it.
+os.system('%s -B arm -I binary %s memory.elf --remove-section .data'
+          % (objcopy, files[0][0]))
 
-# Output file
-args.append("memory.elf")
+# Add sections one at a time- objcopy chokes on long lists of added sections.
 
-# XXX: No quoting, I'm lazy..
-os.system(' '.join(args))
+for i, (file, addr) in enumerate(files):
+    os.system(('%s -I elf32-littlearm memory.elf memory.elf ' +
+               '--add-section .data.%d=%s --change-section-address .data.%d=0x%x ' +
+               '--set-section-flags .data.%d=CONTENTS,ALLOC,LOAD,DATA')
+              % (objcopy, i, file, i, addr, i))
