@@ -262,6 +262,49 @@ void arm7_hook()
          *(vu32*)args[0] = args[1];
          break;
 
+         /* Read 16-bit words */
+      case 'r':
+         while (args[2] >= 2) {
+            u16 reg = *(vu16*)args[1];
+            spimeWrite(args[0], (u8*)&reg, sizeof reg);
+            args[0] += 2;
+            args[1] += 2;
+            args[2] -= 2;
+         }
+         break;
+
+         /*
+          * Memory Bitmap:
+          * Figure out which memory pages aren't all zeros, and write
+          * a bitmap of them to SPI memory. The bitmap is 128 kB, written
+          * starting at args[0]. Number of pages to scan is in args[1].
+          */
+      case 'B': {
+         int page = 0;
+         uint32 bitmap = 0;
+
+         for (page = 0; page < args[1]; page++) {
+            int allZero = 1;
+            int byte;
+
+            for (byte = 0; byte < 0x1000; byte+=4) {
+               if (*(vu32*)((page << 12) + byte)) {
+                  allZero = 0;
+                  break;
+               }
+            }
+
+            if (!allZero)
+               bitmap |= 1 << (page & 31);
+
+            if ((page & 31) == 31) {
+               spimeWrite(args[0] + ((page >> 5) << 2), (u8*)&bitmap, sizeof bitmap);
+               bitmap = 0;
+            }
+         }
+         break;
+      }
+
          /* Continue execution */
       case 'C':
          running = 0;
