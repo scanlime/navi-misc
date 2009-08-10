@@ -174,7 +174,13 @@ def dumpAll(numPages=0x10000, minHoleSize=0x10000):
 
     for addr, length in ranges:
         print "Dumping 0x%08x ..." % addr
-        dump(addr, length)
+
+        # Break up long ranges, just so we don't have as much chance for failure...
+        while length > 0:
+            blockSize = min(length, 0x400000)
+            dump(addr, blockSize)
+            length -= blockSize
+            addr += blockSize
 
 
 hd = spime.hexDump
