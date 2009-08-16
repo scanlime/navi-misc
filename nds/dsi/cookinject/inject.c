@@ -273,6 +273,15 @@ void arm7_hook()
          }
          break;
 
+         /* Fill 16-bit words */
+      case 'f':
+         while (args[2] >= 2) {
+            *(vu16*)args[1] = args[0];
+            args[1] += 2;
+            args[2] -= 2;
+         }
+         break;
+
          /*
           * Memory Bitmap:
           * Figure out which memory pages aren't all zeros, and write
