@@ -9,10 +9,19 @@
 import sys
 
 
+def calc_crc7(value, bits):
+    # CRC7 algorithm, based on section 6.4 of Samsung's MMC data sheet.
+    reg = 0
+    while bits > 0:
+        bits -= 1
+        reg = (reg << 1) ^ (0, 9)[((reg >> 6) ^ (value >> bits)) & 1]
+    return reg & 0x7F
+
+
 class MMCDecoder:
     # Response length tables
     R1 = 6 + 32 + 7
-    R2 = 6 + 127
+    R2 = 6 + 120 + 7
     R3 = 6 + 32 + 7
 
     cmdLengths = {
@@ -54,6 +63,7 @@ class MMCDecoder:
         self.replyLen = None
         self.bitsLeft = None
         self.data = None
+        self.clock = 0
 
     def decodeFile(self, filename):
         self.decodeBytes(open(filename, 'rb').read())
@@ -67,6 +77,7 @@ class MMCDecoder:
 
     def decodeBit(self, bit):
         self.state(bit)
+        self.clock += 1
 
     def s_idle(self, bit):
         # Wait for start bit
@@ -102,26 +113,41 @@ class MMCDecoder:
             print "*** Stop bit missing!"
         self.state = self.s_idle
 
+    def checkCRC7(self, crc7, crcLen):
+        # Add start and T bits
+        data = (self.data >> 7) | (self.t << (crcLen - 2))
+
+        myCRC = calc_crc7(data, crcLen)
+        if crc7 != myCRC:
+            sys.stdout.write(" *** CRC7 error! calculated %02x ***" % myCRC)
+
     def command(self, data):
         cmd = (data >> 39) & 0x3F
         arg = (data >> 7) & 0xFFFFFFFF
         crc7 = data & 0x7F
         self.replyLen = self.cmdLengths[cmd]
 
-        sys.stdout.write("\n[CMD%2d] arg=%08x crc7=%02x" % (cmd, arg, crc7))
+        sys.stdout.write("\n(#%8d) [CMD%2d] %08x crc7=%02x"
+                         % (self.clock, cmd, arg, crc7))
+        self.checkCRC7(crc7, 40)
+        self.clock = 0
 
     def reply(self, data):
+        crc7 = self.data & 0x7F
+        reply6 = self.data >> (self.replyLen - 6)
+        argLen = self.replyLen - 7 - 6
+        arg = (self.data >> 7) & ((1 << argLen) - 1)
+        argDigits = (argLen + 3) / 4
+
+        sys.stdout.write(" -- (#%%4d) %%02x %%0%dx crc7=%%02x"
+                         % argDigits % (self.clock,reply6, arg, crc7))
+
         if self.replyLen == self.R2:
-            reply = "%032x crc7=%02x" % (self.data >> 7, self.data & 0x7F)
-        elif self.replyLen == self.R1:
-            reply = "%02x %08x crc7=%02x" % ((self.data >> 39) & 0x3F,
-                                             (self.data >> 7) & 0xFFFFFFFF,
-                                             self.data & 0x7F)
+            self.checkCRC7(crc7, 120)
         else:
-            assert False
+            self.checkCRC7(crc7, 40)
 
-        sys.stdout.write(" -- %s" % reply)
-
+        self.clock = 0
 
 if __name__ == '__main__':
     MMCDecoder().decodeFile(sys.argv[1])
