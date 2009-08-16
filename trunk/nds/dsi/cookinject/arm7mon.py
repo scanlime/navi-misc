@@ -31,7 +31,7 @@ import spime
 import struct
 import random
 
-port = spime.PacketPort("/dev/ttyUSB1")
+port = spime.PacketPort("/dev/ttyUSB2")
 spime.action_ping(port)
 
 def command(cmd, arg0=0, arg1=0, arg2=0):
@@ -67,6 +67,9 @@ def write16(addr, word):
 
 def write32(addr, word):
     command('L', addr, word)
+
+def fill16(addr, word, length):
+    command('f', word, addr, length)
 
 def cont():
     command('C')
