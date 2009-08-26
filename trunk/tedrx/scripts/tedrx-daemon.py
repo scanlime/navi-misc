@@ -109,8 +109,10 @@ def main(dataDir):
         channels = {}
         for packet in packets:
             hc = packet['HC']
-            channels.setdefault("tedrx-hc%03d-volts" % hc, []).append((packet['timestamp'],
-                                                                       packet['V']))
+            if 0:
+                # XXX: Voltage temporarily disabled, it's causing floating point exceptions in rrdtool
+                channels.setdefault("tedrx-hc%03d-volts" % hc, []).append((packet['timestamp'],
+                                                                           packet['V']))
             channels.setdefault("tedrx-hc%03d-kw" % hc, []).append((packet['timestamp'],
                                                                     packet['KW']))
 

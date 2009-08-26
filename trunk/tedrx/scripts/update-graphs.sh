@@ -3,10 +3,11 @@
 THERM_DIR=~/src/navi-misc/therm
 TEDRX_DIR=~/src/navi-misc/tedrx/scripts
 GRAPHS_DIR=~/graphs
+WWW_DIR=/var/www
 
 POWER_INTERVALS="1h 1d 1w 1m"
 TEMP_INTERVALS="1d 1w 1m"
-URL_BASE="http://192.168.1.77/graphs"
+URL_BASE="http://192.168.1.77"
 RSSFILE="index.rss"
 
 ####### Restart Daemons
@@ -74,10 +75,10 @@ cat <<EOF
 EOF
 done
 
-echo "</channel></rss>" ) > $RSSFILE.temp
+echo "</channel></rss>" ) > $WWW_DIR/$RSSFILE.temp
 
 # Atomically update the RSS file
-mv $RSSFILE.temp $RSSFILE
+mv $WWW_DIR/$RSSFILE.temp $WWW_DIR/$RSSFILE
 
 ####### Temperature graphs
 
@@ -86,7 +87,7 @@ for interval in $TEMP_INTERVALS; do
 imgName=temp-$interval
 graphTitle="Temperature Data ($interval) - `date`"
 
-rrdtool graph $imgName.png -a PNG -w 900 -h 350 \
+nice rrdtool graph $WWW_DIR/$imgName.png -a PNG -w 900 -h 350 \
 	--font DEFAULT:12:Vera.ttf \
 	-t "$graphTitle" \
 	--end now --start end-$interval \
@@ -104,8 +105,8 @@ rrdtool graph $imgName.png -a PNG -w 900 -h 350 \
 	LINE2:rf8f#798634:"Upstairs Hall" GPRINT:vrf8f:"%0.1lf F\n" \
 	LINE2:rf9f#f76115:"Downstairs Thermostat" GPRINT:vrf9f:"%0.1lf F\n" \
 
-convert $imgName.png $imgName.tmp.jpeg
-mv $imgName.tmp.jpeg $imgName.jpeg
+nice convert $WWW_DIR/$imgName.png $WWW_DIR/$imgName.tmp.jpeg
+mv $WWW_DIR/$imgName.tmp.jpeg $WWW_DIR/$imgName.jpeg
 
 done
 
@@ -116,7 +117,7 @@ for interval in $POWER_INTERVALS; do
 imgName=kw-$interval
 graphTitle="Power Usage ($interval) - `date`"
 
-rrdtool graph $imgName.png -a PNG -w 900 -h 455 \
+nice rrdtool graph $WWW_DIR/$imgName.png -a PNG -w 900 -h 455 \
 	--font DEFAULT:12:Vera.ttf \
 	-t "$graphTitle" \
 	--end now --start end-$interval \
@@ -128,32 +129,32 @@ rrdtool graph $imgName.png -a PNG -w 900 -h 455 \
         AREA:kwmin#ffffff \
 	LINE:kw#000000:"Current power usage" GPRINT:vkw:"%0.3lf kW\n" \
 
-convert $imgName.png $imgName.tmp.jpeg
-mv $imgName.tmp.jpeg $imgName.jpeg
+nice convert $WWW_DIR/$imgName.png $WWW_DIR/$imgName.tmp.jpeg
+mv $WWW_DIR/$imgName.tmp.jpeg $WWW_DIR/$imgName.jpeg
 
 done
 
 ####### Voltage graphs (Not in RSS feed)
 
-for interval in $POWER_INTERVALS; do
+# for interval in $POWER_INTERVALS; do
 
-imgName=volts-$interval
-graphTitle="Line Voltage ($interval) - `date`"
+# imgName=volts-$interval
+# graphTitle="Line Voltage ($interval) - `date`"
 
-rrdtool graph $imgName.png -a PNG -w 900 -h 455 \
-	-A --font DEFAULT:12:Vera.ttf \
-	-t "$graphTitle" \
-	--end now --start end-$interval \
-	-v "Volts" \
-	DEF:v=tedrx-hc245-volts.rrd:value:AVERAGE VDEF:vv=v,AVERAGE \
-        DEF:vmin=tedrx-hc245-volts.rrd:value:MIN \
-        DEF:vmax=tedrx-hc245-volts.rrd:value:MAX \
-        AREA:vmax#8888cc \
-        AREA:vmin#ffffff \
-	LINE:v#000000:"Current line voltage" GPRINT:vv:"%0.3lf V\n" \
+# nice rrdtool graph $WWW_DIR/$imgName.png -a PNG -w 900 -h 455 \
+# 	-A --font DEFAULT:12:Vera.ttf \
+# 	-t "$graphTitle" \
+# 	--end now --start end-$interval \
+# 	-v "Volts" \
+# 	DEF:v=tedrx-hc245-volts.rrd:value:AVERAGE VDEF:vv=v,AVERAGE \
+#         DEF:vmin=tedrx-hc245-volts.rrd:value:MIN \
+#         DEF:vmax=tedrx-hc245-volts.rrd:value:MAX \
+#         AREA:vmax#8888cc \
+#         AREA:vmin#ffffff \
+# 	LINE:v#000000:"Current line voltage" GPRINT:vv:"%0.3lf V\n" \
    
 
-convert $imgName.png $imgName.tmp.jpeg
-mv $imgName.tmp.jpeg $imgName.jpeg
+# nice convert $WWW_DIR/$imgName.png $WWW_DIR/$imgName.tmp.jpeg
+# mv $WWW_DIR/$imgName.tmp.jpeg $WWW_DIR/$imgName.jpeg
 
-done
+# done
