@@ -1,0 +1,429 @@
+
+Hexadecimal
+
+Area                               Addr   Size   Decimal Bytes (Attributes)
+--------------------------------   ----   ----   ------- ----- ------------
+CABS                               0000   0000 =      0. bytes (ABS,CON,CODE)
+
+      Value  Global
+   --------  --------------------------------
+  0C:FFFFFF00    s_BSEG
+  0C:0000    l_BIT_BANK
+  0C:0000    l_BSEG
+  0C:0000    l_BSEG_BYTES
+  0C:0000    l_CABS
+  0C:0000    l_CONST
+  0C:0000    l_GSINIT
+  0C:0000    l_GSINIT1
+  0C:0000    l_GSINIT5
+  0C:0000    l_IABS
+  0C:0000    l_ISEG
+  0C:0000    l_OSEG
+  0C:0000    l_PSEG
+  0C:0000    l_REG_BANK_1
+  0C:0000    l_REG_BANK_2
+  0C:0000    l_REG_BANK_3
+  0C:0000    l_RSEG
+  0C:0000    l_XABS
+  0C:0000    l_XINIT
+  0C:0000    l_XISEG
+  0C:0000    l_XSEG
+  0C:0000    l__CODE
+  0C:0000    s_BSEG_BYTES
+  0C:0000    s_CABS
+  0C:0000    s_DSEG
+  0C:0000    s_HOME
+  0C:0000    s_IABS
+  0C:0000    s_ISEG
+  0C:0000    s_PSEG
+  0C:0000    s_REG_BANK_0
+  0C:0000    s_XABS
+  0C:0000    s_XISEG
+  0C:0000    s_XSEG
+  0C:0003    l_GSFINAL
+  0C:0003    l_GSINIT0
+  0C:0008    l_HOME
+  0C:0008    l_REG_BANK_0
+  0C:0008    s_GSINIT0
+  0C:0008    s_REG_BANK_1
+  0C:0008    s_RSEG
+  0C:0008    s_SSEG
+  0C:000A    l_GSINIT2
+  0C:000B    s_GSINIT1
+  0C:000B    s_GSINIT2
+  0C:0010    s_REG_BANK_2
+  0C:0015    s_GSINIT3
+  0C:0018    s_BIT_BANK
+  0C:0018    s_OSEG
+  0C:0018    s_REG_BANK_3
+  0C:0020    s__CODE
+  0C:0022    l_GSINIT3
+  0C:002A    l_GSINIT4
+  0C:0037    s_GSINIT4
+  0C:0061    s_GSFINAL
+  0C:0061    s_GSINIT
+  0C:0061    s_GSINIT5
+  0C:0064    s_CSEG
+  0C:0080    l_DSEG
+  0C:00F8    l_SSEG
+  0C:0100    l_IRAM
+  0C:034B    l_CSEG
+  0C:03AF    s_CONST
+  0C:03AF    s_XINIT
+
+
+
+Hexadecimal
+
+Area                               Addr   Size   Decimal Bytes (Attributes)
+--------------------------------   ----   ----   ------- ----- ------------
+.  .ABS.                           0000   0000 =      0. bytes (ABS,CON)
+
+      Value  Global
+   --------  --------------------------------
+     0080    _IOA
+     0081    _SP
+     0082    _DPL
+     0083    _DPH
+     0084    _DPL1
+     0085    _DPH1
+     0086    _DPS
+     0087    _PCON
+     0088    _TCON
+     0089    _TMOD
+     008A    _TL0
+     008B    _TL1
+     008C    _TH0
+     008D    _TH1
+     008E    _CKCO
+     008F    _SPC_
+     0090    _IOB
+     0091    _EXIF
+     0092    _MPA
+     0098    _SCO
+     0099    _SBU
+     009A    _APTR1H
+     009B    _APTR1L
+     009C    _AUTODAT1
+     009D    _AUTOPTRH2
+     009E    _AUTOPTRL2
+     009F    _AUTODAT2
+     00A0    _IOC
+     00A0    __XPAGE
+     00A1    _INT2CLR
+     00A2    _INT4CLR
+     00A8    _IE
+     00AA    _EP2468STAT
+     00AB    _EP24FIFOFLGS
+     00AC    _EP68FIFOFLGS
+     00AF    _AUTOPTRSETUP
+     00B0    _IOD
+     00B1    _IOE
+     00B2    _OEA
+     00B3    _OEB
+     00B4    _OEC
+     00B5    _OED
+     00B6    _OEE
+     00B8    _IP
+     00BA    _EP01STAT
+     00BB    _GPIFTRIG
+     00BD    _GPIFSGLDATH
+     00BE    _GPIFSGLDATLX
+     00BF    _GPIFSGLDATLNOX
+     00C0    _SCON1
+     00C1    _SBUF1
+     00C8    _T2CON
+     00CA    _RCAP2L
+     00CB    _RCAP2H
+     00CC    _TL2
+     00CD    _TH2
+     00D0    _PSW
+     00D8    _EICON
+     00E0    _ACC
+     00E8    _EIE
+     00F0    _B
+     00F8    _EIP
+     E400    _GPIF_WAVE_DATA
+     E480    _RES_WAVEDATA_END
+     E600    _CPUCS
+     E601    _IFCONFIG
+     E602    _PINFLAGSAB
+     E603    _PINFLAGSCD
+     E604    _FIFORESET
+     E605    _BREAKPT
+     E606    _BPADDRH
+     E607    _BPADDRL
+     E608    _UART230
+     E609    _FIFOPINPOLAR
+     E60A    _REVID
+     E60B    _REVCTL
+     E60C    _GPIFHOLDAMOUNT
+     E610    _EP1OUTCFG
+     E611    _EP1INCFG
+     E612    _EP2CFG
+     E613    _EP4CFG
+     E614    _EP6CFG
+     E615    _EP8CFG
+     E618    _EP2FIFOCFG
+     E619    _EP4FIFOCFG
+     E61A    _EP6FIFOCFG
+     E61B    _EP8FIFOCFG
+     E620    _EP2AUTOINLENH
+     E621    _EP2AUTOINLENL
+     E622    _EP4AUTOINLENH
+     E623    _EP4AUTOINLENL
+     E624    _EP6AUTOINLENH
+     E625    _EP6AUTOINLENL
+     E626    _EP8AUTOINLENH
+     E627    _EP8AUTOINLENL
+     E630    _EP2FIFOPFH
+     E631    _EP2FIFOPFL
+     E632    _EP4FIFOPFH
+     E633    _EP4FIFOPFL
+     E634    _EP6FIFOPFH
+     E635    _EP6FIFOPFL
+     E636    _EP8FIFOPFH
+     E637    _EP8FIFOPFL
+     E640    _EP2ISOINPKTS
+     E641    _EP4ISOINPKTS
+     E642    _EP6ISOINPKTS
+     E643    _EP8ISOINPKTS
+     E648    _INPKTEND
+     E649    _OUTPKTEND
+     E650    _EP2FIFOIE
+     E651    _EP2FIFOIRQ
+     E652    _EP4FIFOIE
+     E653    _EP4FIFOIRQ
+     E654    _EP6FIFOIE
+     E655    _EP6FIFOIRQ
+     E656    _EP8FIFOIE
+     E657    _EP8FIFOIRQ
+     E658    _IBNIE
+     E659    _IBNIRQ
+     E65A    _NAKIE
+     E65B    _NAKIRQ
+     E65C    _USBIE
+     E65D    _USBIRQ
+     E65E    _EPIE
+     E65F    _EPIRQ
+     E660    _GPIFIE
+     E661    _GPIFIRQ
+     E662    _USBERRIE
+     E663    _USBERRIRQ
+     E664    _ERRCNTLIM
+     E665    _CLRERRCNT
+     E666    _INT2IVEC
+     E667    _INT4IVEC
+     E668    _INTSETUP
+     E670    _PORTACFG
+     E671    _PORTCCFG
+     E672    _PORTECFG
+     E678    _I2CS
+     E679    _I2DAT
+     E67A    _I2CTL
+     E67B    _XAUTODAT1
+     E67C    _XAUTODAT2
+     E67D    _UDMACRCH
+     E67E    _UDMACRCL
+     E67F    _UDMACRCQUAL
+     E680    _USBCS
+     E681    _SUSPEND
+     E682    _WAKEUPCS
+     E683    _TOGCTL
+     E684    _USBFRAMEH
+     E685    _USBFRAMEL
+     E686    _MICROFRAME
+     E687    _FNADDR
+     E68A    _EP0BCH
+     E68B    _EP0BCL
+     E68D    _EP1OUTBC
+     E68F    _EP1INBC
+     E690    _EP2BCH
+     E691    _EP2BCL
+     E694    _EP4BCH
+     E695    _EP4BCL
+     E698    _EP6BCH
+     E699    _EP6BCL
+     E69C    _EP8BCH
+     E69D    _EP8BCL
+     E6A0    _EP0CS
+     E6A1    _EP1OUTCS
+     E6A2    _EP1INCS
+     E6A3    _EP2CS
+     E6A4    _EP4CS
+     E6A5    _EP6CS
+     E6A6    _EP8CS
+     E6A7    _EP2FIFOFLGS
+     E6A8    _EP4FIFOFLGS
+     E6A9    _EP6FIFOFLGS
+     E6AA    _EP8FIFOFLGS
+     E6AB    _EP2FIFOBCH
+     E6AC    _EP2FIFOBCL
+     E6AD    _EP4FIFOBCH
+     E6AE    _EP4FIFOBCL
+     E6AF    _EP6FIFOBCH
+     E6B0    _EP6FIFOBCL
+     E6B1    _EP8FIFOBCH
+     E6B2    _EP8FIFOBCL
+     E6B3    _SUDPTRH
+     E6B4    _SUDPTRL
+     E6B5    _SUDPTRCTL
+     E6B8    _SETUPDAT
+     E6C0    _GPIFWFSELECT
+     E6C1    _GPIFIDLECS
+     E6C2    _GPIFIDLECTL
+     E6C3    _GPIFCTLCFG
+     E6C4    _GPIFADRH
+     E6C5    _GPIFADRL
+     E6C6    _FLOWSTATE
+     E6C7    _FLOWLOGIC
+     E6C8    _FLOWEQ0CTL
+     E6C9    _FLOWEQ1CTL
+     E6CA    _FLOWHOLDOFF
+     E6CB    _FLOWSTB
+     E6CC    _FLOWSTBEDGE
+     E6CD    _FLOWSTBHPERIOD
+     E6CE    _GPIFTCB3
+     E6CF    _GPIFTCB2
+     E6D0    _GPIFTCB1
+     E6D1    _GPIFTCB0
+     E6D2    _EP2GPIFFLGSEL
+     E6D3    _EP2GPIFPFSTOP
+     E6D4    _EP2GPIFTRIG
+     E6DA    _EP4GPIFFLGSEL
+     E6DB    _EP4GPIFPFSTOP
+     E6DC    _EP4GPIFTRIG
+     E6E2    _EP6GPIFFLGSEL
+     E6E3    _EP6GPIFPFSTOP
+     E6E4    _EP6GPIFTRIG
+     E6EA    _EP8GPIFFLGSEL
+     E6EB    _EP8GPIFPFSTOP
+     E6EC    _EP8GPIFTRIG
+     E6F0    _XGPIFSGLDATH
+     E6F1    _XGPIFSGLDATLX
+     E6F2    _XGPIFSGLDATLNOX
+     E6F3    _GPIFREADYCFG
+     E6F4    _GPIFREADYSTAT
+     E6F5    _GPIFABORT
+     E6F8    _DBUG
+     E6F9    _TESTCFG
+     E6FA    _USBTEST
+     E6FB    _CT1
+     E6FC    _CT2
+     E6FD    _CT3
+     E6FE    _CT4
+     E740    _EP0BUF
+     E780    _EP1OUTBUF
+     E7C0    _EP1INBUF
+     F000    _EP2FIFOBUF
+     F400    _EP4FIFOBUF
+     F800    _EP6FIFOBUF
+     FC00    _EP8FIFOBUF
+
+
+
+
+
+
+
+
+
+
+
+
+Hexadecimal
+
+Area                               Addr   Size   Decimal Bytes (Attributes)
+--------------------------------   ----   ----   ------- ----- ------------
+SSEG                               0008   00F8 =    248. bytes (REL,OVR)
+
+      Value  Global
+   --------  --------------------------------
+     0008    __start__stack
+
+
+
+
+
+Hexadecimal
+
+Area                               Addr   Size   Decimal Bytes (Attributes)
+--------------------------------   ----   ----   ------- ----- ------------
+HOME                               0000   0008 =      8. bytes (REL,CON,CODE)
+
+      Value  Global
+   --------  --------------------------------
+  0C:0003    __sdcc_program_startup
+
+Hexadecimal
+
+Area                               Addr   Size   Decimal Bytes (Attributes)
+--------------------------------   ----   ----   ------- ----- ------------
+GSINIT0                            0008   0003 =      3. bytes (REL,CON,CODE)
+
+      Value  Global
+   --------  --------------------------------
+  0C:0008    __sdcc_gsinit_startup
+
+
+
+Hexadecimal
+
+Area                               Addr   Size   Decimal Bytes (Attributes)
+--------------------------------   ----   ----   ------- ----- ------------
+GSINIT3                            0015   0022 =     34. bytes (REL,CON,CODE)
+
+      Value  Global
+   --------  --------------------------------
+  0C:0015    __mcs51_genXINIT
+
+Hexadecimal
+
+Area                               Addr   Size   Decimal Bytes (Attributes)
+--------------------------------   ----   ----   ------- ----- ------------
+GSINIT4                            0037   002A =     42. bytes (REL,CON,CODE)
+
+      Value  Global
+   --------  --------------------------------
+  0C:0037    __mcs51_genRAMCLEAR
+  0C:003D    __mcs51_genXRAMCLEAR
+
+
+
+
+Hexadecimal
+
+Area                               Addr   Size   Decimal Bytes (Attributes)
+--------------------------------   ----   ----   ------- ----- ------------
+CSEG                               0064   034B =    843. bytes (REL,CON,CODE)
+
+      Value  Global
+   --------  --------------------------------
+  0C:03A6    _main
+  0C:03AB    __sdcc_external_startup
+
+
+ASxxxx Linker V01.75 + NoICE + SDCC Feb 1999,  page 1.
+
+Files Linked      [ module(s) ]
+
+fx2pipe.rel     
+
+Libraries Linked            [   object  file   ]
+
+/usr/bin/../share/sdcc/lib/small/mcs51.lib    [     crtclear.rel ]
+/usr/bin/../share/sdcc/lib/small/mcs51.lib    [     crtxinit.rel ]
+/usr/bin/../share/sdcc/lib/small/mcs51.lib    [    crtxclear.rel ]
+/usr/bin/../share/sdcc/lib/small/mcs51.lib    [   crtpagesfr.rel ]
+/usr/bin/../share/sdcc/lib/small/mcs51.lib    [     crtstart.rel ]
+/usr/bin/../share/sdcc/lib/small/libsdcc.lib    [         _startup ]
+
+ASxxxx Linker V01.75 + NoICE + SDCC Feb 1999,  page 2.
+
+User Base Address Definitions
+
+HOME = 0x0000
+ISEG = 0x0000
+BSEG = 0x0000
+
+
