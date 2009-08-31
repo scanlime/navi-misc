@@ -27,9 +27,10 @@ module main(mclk, reset,
             ledseg_c, ledseg_a, led,
             sram_oe, sram_we,
             usb_d, usb_slwr, usb_slrd, usb_pktend,
-            usb_sloe, usb_fifoadr, usb_flagb,
+            usb_sloe, usb_fifoadr, usb_flagb, usb_ifclk,
             ram_a, ram_d, ram_oe, ram_we, ram_ce1, ram_ce2,
-            ram_ub, ram_lb, ram_adv, ram_clk, ram_clk_debug);
+            ram_ub, ram_lb, ram_adv, ram_clk,
+            ram_buf_debug, ram_clk_debug);
 
    input mclk, reset;
 
@@ -43,15 +44,14 @@ module main(mclk, reset,
    output [1:0]  usb_fifoadr;
    output        usb_slwr, usb_slrd;
    output        usb_pktend, usb_sloe;
+   output        usb_ifclk;
    input         usb_flagb;
 
    input [22:0] ram_a;
    input [15:0] ram_d;
    input        ram_oe, ram_we, ram_ce1, ram_ce2;
    input        ram_ub, ram_lb, ram_adv, ram_clk;
-   output       ram_clk_debug;
-
-   assign ram_clk_debug = ram_clk;
+   output       ram_clk_debug, ram_buf_debug;
 
    // Disable SRAM, we're using the same pins for USB
    assign sram_oe = 1;
@@ -75,10 +75,10 @@ module main(mclk, reset,
     */
 
    // Positive-logic read/write enables
-   wire         ram_enable = !ram_ce1 && !ram_ce2;
-   wire         ram_read = ram_enable && !ram_oe;
-   wire         ram_write = ram_enable && !ram_we;
-   wire         ram_addr_latch = ram_enable && !ram_adv;
+   // XXX: Ignoring CE for now
+   wire         ram_read = !ram_oe;
+   wire         ram_write = !ram_we;
+   wire         ram_addr_latch = !ram_adv;
 
    // Synchronize to our clock domain with two flip-flops
 
@@ -87,23 +87,25 @@ module main(mclk, reset,
    wire         ram_read_sync;
    wire         ram_write_sync;
    wire         ram_addr_latch_sync;
-   wire         ram_clk_sync;
 
    d_flipflop_pair dffp1(mclk, reset, ram_read, ram_read_sync);
    d_flipflop_pair dffp2(mclk, reset, ram_write, ram_write_sync);
    d_flipflop_pair_bus #(23) dffp3(mclk, reset, ram_a, ram_a_sync);
    d_flipflop_pair_bus #(16) dffp4(mclk, reset, ram_d, ram_d_sync);
    d_flipflop_pair dffp5(mclk, reset, ram_addr_latch, ram_addr_latch_sync);
-   d_flipflop_pair dffp6(mclk, reset, ram_clk, ram_clk_sync);
 
-   // Edge detector and 1-cycle debouncer/delay for CLK
+   // Shift register for synchronization, edge detection,
+   //  and 1-cycle debouncer/delay on CLK
 
-   wire [2:0]  ram_clk_shiftreg;
-   assign      ram_clk_shiftreg[0] = ram_clk_sync;
-   d_flipflop dffwr1(mclk, reset, ram_clk_shiftreg[0], ram_clk_shiftreg[1]);
-   d_flipflop dffwr2(mclk, reset, ram_clk_shiftreg[1], ram_clk_shiftreg[2]);
+   reg [4:0]    ram_clk_shiftreg;
+   wire         ram_clk_posedge = ram_clk_shiftreg[4:2] == 3'b011;
+   wire         ram_clk_sync = ram_clk_shiftreg[1];
 
-   wire        ram_clk_posedge = ram_clk_shiftreg == 3'b011;
+   always @(posedge mclk or posedge reset)
+     if (reset)
+       ram_clk_shiftreg <= 0;
+     else
+       ram_clk_shiftreg <= { ram_clk_shiftreg[3:0], ram_clk };
 
    // Packet buffer.
    //
@@ -127,45 +129,71 @@ module main(mclk, reset,
 
 
    /************************************************
-    * FIFO State Machine
+    * USB FIFO State Machine
     *
     * Above, we collect 3-byte data/address packets.
     * Now we stream them out over a byte-wide USB FIFO.
+    *
+    * The USB interface clock runs at 25 MHz (1/2 mclk)
     */
 
-   reg [3:0]   state;
-   wire [1:0]  s_byte = state[3:2];
-   wire        s_cycle = state[1];
-   wire        s_last = 4'b1011;
+   reg [23:0]  usb_reg;
+   reg [1:0]   usb_bytecnt;
+   reg         usb_ifclk;
 
    always @(posedge mclk or posedge reset)
      if (reset) begin
-        state <= 0;
+        usb_reg <= 0;
+        usb_bytecnt <= 0;
         usb_d <= 0;
         usb_wr_strobe <= 0;
         pktbuf_reset <= 0;
+        usb_ifclk <= 0;
      end
-     else if (!pktbuf_full) begin
-        state <= 0;
-        usb_d <= 0;
-        usb_wr_strobe <= 0;
-        pktbuf_reset <= 0;
+     else if (!usb_ifclk) begin
+        // FX2 will latch on positive edge
+        usb_ifclk <= 1;
      end
      else begin
-        state <= state + 1;
-        usb_wr_strobe <= s_cycle;
-        pktbuf_reset <= state == s_last;
+        usb_ifclk <= 0;
 
-        usb_d <= s_byte == 0 ? pktbuf[23:16] :
-                 s_byte == 1 ? pktbuf[23:16] :
-                 s_byte == 2 ? pktbuf[23:16] :
-                 8'h55;
+        if (usb_bytecnt == 0) begin
+           // Idle. Do we have another packet to send?
+           if (pktbuf_full) begin
+              // Put first byte on the bus
+              usb_reg <= pktbuf;
+              usb_bytecnt <= 3;
+              usb_d <= pktbuf[23:16];
+              usb_wr_strobe <= 1;
+              pktbuf_reset <= 1;
+           end
+           else begin
+              // Sit idle
+              usb_bytecnt <= 0;
+              usb_wr_strobe <= 0;
+              pktbuf_reset <= 0;
+           end
+        end
+        else begin
+           // Next byte
+           usb_reg <= { usb_reg[15:0], 8'hXX };
+           usb_bytecnt <= usb_bytecnt - 1;
+           usb_d <= usb_reg[23:16];
+           usb_wr_strobe <= 1;
+           pktbuf_reset <= 0;
+        end
      end
-
 
    /************************************************
     * Debug
     */
+
+   assign ram_clk_debug = ram_clk;
+
+   reg ram_buf_debug;
+   always @(posedge mclk)
+     if (pktbuf_set)
+       ram_buf_debug <= !ram_buf_debug;
 
    wire         pulse_read, pulse_write, pulse_overflow, pulse_pktbuf_overflow;
 
