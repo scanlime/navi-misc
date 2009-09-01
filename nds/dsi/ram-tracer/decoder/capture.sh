@@ -1,2 +1,2 @@
-sudo fx2pipe -ifclk=xi -i8s > ../boot-log.raw
+sudo fx2pipe -ifclk=48oi -i8s > capture.raw
 

@@ -31,7 +31,14 @@ NET "reset"  LOC = "M13"  ;
 #NET "button<2>"  LOC = "L13"  ;
 #NET "button<3>"  LOC = "L14"  ;
 
-NET "mclk"  LOC = "T9" ;
+
+
+# Normal onboard clock (50MHz)
+#NET "mclk"  LOC = "T9" ;
+
+# Flying lead for IFCLK from FX2 chip
+NET "mclk"  LOC = "D9" ;
+
 NET "mclk"  TNM_NET = mclk ;
 TIMESPEC TS_mclk = PERIOD "mclk" 60 MHz HIGH 50%;
 
@@ -69,7 +76,7 @@ NET "usb_flagb" LOC = "J3";
 #NET "usb_flagc" LOC = "J4";
 #NET "usb_rdy0" LOC = "K5";
 
-NET "usb_ifclk" LOC = "R5";
+#NET "usb_ifclk" LOC = "R5";
 NET "usb_slwr" LOC = "N8";
 NET "usb_slrd" LOC = "K5";
 NET "usb_sloe" LOC = "T8";
