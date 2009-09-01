@@ -59,12 +59,12 @@ int main(void)
          }
 
          printf("0x%08x = 0x%04x %c%c %s b=%d\n", addr, data,
-                isprint(data >> 8) ? data >> 8 : '.',
                 isprint(data & 0xFF) ? data & 0xFF : '.',
+                isprint(data >> 8) ? data >> 8 : '.',
                 label, burst_cnt);
 
          // XXX Huge hack for burst writes!
-         if (burst_cnt >= 1 && burst_cnt <= 16) {
+         if (burst_cnt < 16) {
             fseek(memcontent, va, SEEK_SET);
             fwrite(&data, width, 1, memcontent);
          }
