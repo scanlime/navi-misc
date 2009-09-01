@@ -3,9 +3,15 @@
 
 int main(void)
 {
-   uint32_t addr;
-   uint16_t data;
+   uint32_t addr = 0;
+   uint16_t data = 0;
    uint32_t sync_offset = 0;
+
+   FILE *memcontent = fopen("mem-content.bin", "wb");
+   if (!memcontent) {
+      perror("open");
+      return 1;
+   }
 
    /*
     * Look for the first sync byte.
@@ -36,6 +42,9 @@ int main(void)
          data = (packet[1] << 8) | packet[2];
 
          printf("0x%08x = 0x%04x\n", addr, data);
+
+         fseek(memcontent, addr << 1, SEEK_SET);
+         fwrite(&data, sizeof data, 1, memcontent);
 
          addr++;
 

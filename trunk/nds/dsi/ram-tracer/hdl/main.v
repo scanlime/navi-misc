@@ -27,7 +27,7 @@ module main(mclk, reset,
             ledseg_c, ledseg_a, led,
             sram_oe, sram_we,
             usb_d, usb_slwr, usb_slrd, usb_pktend,
-            usb_sloe, usb_fifoadr, usb_flagb, usb_ifclk,
+            usb_sloe, usb_fifoadr, usb_flagb,
             ram_a, ram_d, ram_oe, ram_we, ram_ce1, ram_ce2,
             ram_ub, ram_lb, ram_adv, ram_clk,
             ram_buf_debug, ram_clk_debug);
@@ -44,7 +44,6 @@ module main(mclk, reset,
    output [1:0]  usb_fifoadr;
    output        usb_slwr, usb_slrd;
    output        usb_pktend, usb_sloe;
-   output        usb_ifclk;
    input         usb_flagb;
 
    input [22:0] ram_a;
@@ -132,14 +131,12 @@ module main(mclk, reset,
     * USB FIFO State Machine
     *
     * Above, we collect 3-byte data/address packets.
-    * Now we stream them out over a byte-wide USB FIFO.
-    *
-    * The USB interface clock runs at 25 MHz (1/2 mclk)
+    * Now we stream them out over the synchronous
+    * byte-wide USB FIFO.
     */
 
    reg [23:0]  usb_reg;
    reg [1:0]   usb_bytecnt;
-   reg         usb_ifclk;
 
    always @(posedge mclk or posedge reset)
      if (reset) begin
@@ -148,23 +145,15 @@ module main(mclk, reset,
         usb_d <= 0;
         usb_wr_strobe <= 0;
         pktbuf_reset <= 0;
-        usb_ifclk <= 0;
-     end
-     else if (!usb_ifclk) begin
-        // FX2 will latch on positive edge
-        usb_ifclk <= 1;
      end
      else begin
-        usb_ifclk <= 0;
-
         if (usb_bytecnt == 0) begin
            // Idle. Do we have another packet to send?
            if (pktbuf_full) begin
-              // Put first byte on the bus
+              // Start a write
               usb_reg <= pktbuf;
               usb_bytecnt <= 3;
-              usb_d <= pktbuf[23:16];
-              usb_wr_strobe <= 1;
+              usb_wr_strobe <= 0;
               pktbuf_reset <= 1;
            end
            else begin
