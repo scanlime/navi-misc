@@ -130,18 +130,10 @@ module main(mclk, reset,
     * Tracing state machine
     */
 
-   parameter S_NORMAL = 0;
-   parameter S_READ = 1;
-
    parameter READ_LATENCY = 4;
    parameter WRITE_LATENCY = 3;
 
-   reg        state;
    reg [22:0] timestamp_counter;
-   reg [7:0]  read_checksum;
-   reg [1:0]  read_ublb;
-
-   wire [7:0] read_count = burst_cycle - (READ_LATENCY - 1);
 
    // Split the timestamp into a piece that we can represent in 5 bits, and the remainder
    wire [4:0] timestamp5 = timestamp_counter > 5'b11111
@@ -150,54 +142,17 @@ module main(mclk, reset,
 
    always @(posedge mclk or posedge reset)
      if (reset) begin
-        state <= S_NORMAL;
         timestamp_counter <= 0;
-        read_checksum <= 0;
-        read_ublb <= 0;
         packet_type <= 0;
         packet_payload <= 0;
         packet_strobe <= 0;
-     end
-     else if (state == S_READ) begin
-        /*
-         * We're in the middle of a read burst.
-         *
-         * As long as the read is still going, count cycles
-         * and keep a packet checksum. During the first idle
-         * cycle after the read, we'll send a packet.
-         */
-
-        if (filter_read) begin
-           if (filter_strobe) begin
-              timestamp_counter <= timestamp_counter + 1;
-              read_checksum <= read_checksum + filter_d[15:8] + filter_d[7:0];
-              read_ublb <= read_ublb & filter_ublb;
-           end
-
-           state <= S_READ;
-           packet_type <= 2'bXX;
-           packet_payload <= 8'hXX;
-           packet_strobe <= 0;
-        end
-        else begin
-           state <= S_NORMAL;
-           timestamp_counter <= timestamp5_remainder;
-           read_checksum <= 8'hXX;
-           read_ublb <= 2'bXX;
-           packet_type <= 2'b01;
-           packet_payload <= { timestamp5, read_ublb, read_checksum, read_count };
-           packet_strobe <= 1;
-        end
      end
      else if (filter_strobe && filter_addr_latch) begin
         /*
          * Send an address packet
          */
 
-        state <= S_NORMAL;
         timestamp_counter <= timestamp_counter + 1;
-        read_checksum <= 8'hXX;
-        read_ublb <= 2'bXX;
         packet_type <= 2'b00;
         packet_payload <= filter_a;
         packet_strobe <= 1;
@@ -207,26 +162,20 @@ module main(mclk, reset,
          * Send a write word packet
          */
 
-        state <= S_NORMAL;
         timestamp_counter <= timestamp5_remainder;
-        read_checksum <= 8'hXX;
-        read_ublb <= 2'bXX;
         packet_type <= 2'b10;
         packet_payload <= { timestamp5, filter_ublb, filter_d };
         packet_strobe <= 1;
      end
-     else if (filter_strobe && filter_read && burst_cycle == (READ_LATENCY - 1)) begin
+     else if (filter_strobe && filter_read && burst_cycle >= (READ_LATENCY - 1)) begin
         /*
-         * Begin a read burst
+         * Send a read word packet
          */
 
-        state <= S_READ;
-        timestamp_counter <= timestamp_counter + 1;
-        read_checksum <= filter_d[15:8] + filter_d[7:0];
-        read_ublb <= filter_ublb;
-        packet_type <= 2'bXX;
-        packet_payload <= 23'hXXXXXX;
-        packet_strobe <= 0;
+        timestamp_counter <= timestamp5_remainder;
+        packet_type <= 2'b01;
+        packet_payload <= { timestamp5, filter_ublb, filter_d };
+        packet_strobe <= 1;
      end
      else if (filter_strobe && burst_cycle == 1 && timestamp5_remainder) begin
         /*
@@ -242,10 +191,7 @@ module main(mclk, reset,
          * (which is what matters) will always have an up-to-date timestamp.
          */
 
-        state <= S_NORMAL;
         timestamp_counter <= 0;
-        read_checksum <= 8'hXX;
-        read_ublb <= 2'bXX;
         packet_type <= 2'b11;
         packet_payload <= timestamp_counter;
         packet_strobe <= 1;
@@ -258,9 +204,6 @@ module main(mclk, reset,
         if (filter_strobe)
           timestamp_counter <= timestamp_counter + 1;
 
-        state <= S_NORMAL;
-        read_checksum <= 8'hXX;
-        read_ublb <= 2'bXX;
         packet_type <= 2'bXX;
         packet_payload <= 23'hXXXXXX;
         packet_strobe <= 0;

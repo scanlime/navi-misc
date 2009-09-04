@@ -76,19 +76,19 @@ module ram_sampler(mclk, reset,
    // Clock shift register.
    // For edge detection, filtering, and clock domain sync.
 
-   reg [5:0]    clk_shift;
+   reg [9:0]    clk_shift;
 
    always @(posedge mclk or posedge reset)
      if (reset)
        clk_shift <= 0;
      else
-       clk_shift <= {clk_shift[4:0], ram_clk};
+       clk_shift <= {clk_shift[8:0], ram_clk};
 
    // Taps which detect positive edges N clocks ago relative to *_sync.
 
-   wire         clk_posedge_0 = clk_shift[3:2] == 2'b01;
-   wire         clk_posedge_1 = clk_shift[4:2] == 4'b011;
-   wire         clk_posedge_2 = clk_shift[5:2] == 6'b0111;
+   wire         clk_posedge_0 = clk_shift[5:2] == 3'b011;     // 1 clock
+   wire         clk_posedge_1 = clk_shift[7:2] == 5'b01111;   // 3 clocks
+   wire         clk_posedge_2 = clk_shift[9:2] == 7'b0111111; // 5 clocks
 
    // Majority-detect: Latch clocks 1/3, generate output on 5
 

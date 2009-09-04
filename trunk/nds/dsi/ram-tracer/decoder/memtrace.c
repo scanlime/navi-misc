@@ -30,10 +30,7 @@
  * Local functions
  */
 
-void MemTraceReadWrite(MemTraceState *state, MemOp *op, uint32_t payload);
-bool MemTraceWrite(MemTraceState *state, MemOp *op, uint32_t payload,
-                   MemTraceResult *result);
-bool MemTraceRead(MemTraceState *state, MemOp *op, uint32_t payload,
+bool MemTraceData(MemTraceState *state, MemOp *op, uint32_t payload,
                   MemTraceResult *result);
 
 
@@ -185,7 +182,7 @@ MemTrace_Next(MemTraceState *state, MemOp *nextOp)
             return MEMTR_ERR_BADBURST;
          }
          op.type = MEMOP_READ;
-         done = MemTraceRead(state, &op, payload, &result);
+         done = MemTraceData(state, &op, payload, &result);
          break;
 
       case TYPE_WRITE:
@@ -193,7 +190,7 @@ MemTrace_Next(MemTraceState *state, MemOp *nextOp)
             return MEMTR_ERR_BADBURST;
          }
          op.type = MEMOP_WRITE;
-         done = MemTraceWrite(state, &op, payload, &result);
+         done = MemTraceData(state, &op, payload, &result);
          break;
 
       default:
@@ -214,31 +211,9 @@ MemTrace_Next(MemTraceState *state, MemOp *nextOp)
 
 
 /*
- * MemTraceReadWrite --
+ * MemTraceData --
  *
- *    Common operations for both read and write packets.
- *    Increments the timestamp, and sets the MemOp address.
- */
-
-void
-MemTraceReadWrite(MemTraceState *state, MemOp *op, uint32_t payload)
-{
-   uint32_t timestamp = payload >> 18;
-
-   if (op->length == 0) {
-      // Initial address
-      op->addr = state->nextAddr << 1;
-   }
-
-   state->timestamp.clocks += timestamp + 1;
-   state->nextAddr++;
-}
-
-
-/*
- * MemTraceWrite --
- *
- *    Internal function for processing word write packets.
+ *    Internal function for processing word read/write packets.
  *
  *    We split the packet into timestamp, UB/LB, and data,
  *    and use the data to update 'state' and 'op'.
@@ -248,15 +223,22 @@ MemTraceReadWrite(MemTraceState *state, MemOp *op, uint32_t payload)
  */
 
 bool
-MemTraceWrite(MemTraceState *state, MemOp *op, uint32_t payload,
-              MemTraceResult *result)
+MemTraceData(MemTraceState *state, MemOp *op, uint32_t payload,
+             MemTraceResult *result)
 {
+   uint32_t timestamp = payload >> 18;
    uint32_t ub = (payload >> 17) & 1;
    uint32_t lb = (payload >> 16) & 1;
    uint32_t word = payload & 0xFFFF;
    bool byteWide = !(ub && lb);
 
-   MemTraceReadWrite(state, op, payload);
+   if (op->length == 0) {
+      // Initial address
+      op->addr = state->nextAddr << 1;
+   }
+
+   state->timestamp.clocks += timestamp + 1;
+   state->nextAddr++;
 
    if (byteWide && op->length) {
       // We don't support byte and word access in the same burst
@@ -277,72 +259,6 @@ MemTraceWrite(MemTraceState *state, MemOp *op, uint32_t payload,
    state->memory[MEM_MASK & (op->addr + op->length++)] = word >> 8;
 
    return false;
-}
-
-
-/*
- * MemTraceRead --
- *
- *    Internal function for processing burst read packets.
- *
- *    We split the packet into timestamp, UB/LB, data checksum,
- *    and word count. Read packets do not include the actual
- *    data read, and we have only one of them per burst transfer.
- *
- *    If this function returns 'true', the current burst
- *    ends after this packet.
- */
-
-bool
-MemTraceRead(MemTraceState *state, MemOp *op, uint32_t payload,
-              MemTraceResult *result)
-{
-   uint32_t ub = (payload >> 17) & 1;
-   uint32_t lb = (payload >> 16) & 1;
-   uint32_t checksum = (payload >> 8) & 0xFF;
-   uint32_t count = payload & 0xFF;
-   bool byteWide = !(ub && lb);
-   uint8_t calcChecksum = 0;
-   int i;
-
-   printf("pld = %08x  ublb = %d %d\n", payload, ub, lb);
-
-   MemTraceReadWrite(state, op, payload);
-
-   if (op->length) {
-      // Reads should come immediately after an address packet
-      *result = MEMTR_ERR_BADBURST;
-      return true;
-   }
-
-   if (byteWide) {
-      if (count != 1) {
-         // We don't support byte-wide bursts longer than a byte.
-         printf("Byte-wide burst, count=%d\n", count);
-         //*result = MEMTR_ERR_BADBURST;
-         //         return true;
-      }
-
-      op->length = 1;
-
-      if (ub) {
-         op->addr++;
-      }
-   }
-
-   op->length = count << 1;
-
-   /*
-    * Test the memory checksum
-    */
-
-   for (i = 0; i < op->length; i++) {
-      calcChecksum += state->memory[MEM_MASK & (op->addr + i)];
-   }
-
-   printf("%02x %02x\n", calcChecksum, checksum);
-
-   return true;
 }
 
 
