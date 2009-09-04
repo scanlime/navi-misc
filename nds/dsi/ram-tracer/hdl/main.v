@@ -1,5 +1,5 @@
 /*
- * main.v - DS RAM Write Tracer.
+ * main.v - Top-level module for the RAM Tracer.
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -30,7 +30,7 @@ module main(mclk, reset,
             usb_sloe, usb_fifoadr, usb_flagb,
             ram_a, ram_d, ram_oe, ram_we, ram_ce1, ram_ce2,
             ram_ub, ram_lb, ram_adv, ram_clk,
-            ram_buf_debug, ram_clk_debug);
+            switch, ds_osc_out);
 
    input mclk, reset;
 
@@ -50,153 +50,274 @@ module main(mclk, reset,
    input [15:0] ram_d;
    input        ram_oe, ram_we, ram_ce1, ram_ce2;
    input        ram_ub, ram_lb, ram_adv, ram_clk;
-   output       ram_clk_debug, ram_buf_debug;
+
+   input [0:0]  switch;
+   output       ds_osc_out;
 
    // Disable SRAM, we're using the same pins for USB
    assign sram_oe = 1;
    assign sram_we = 1;
 
-   // USB setup
-   assign usb_fifoadr = 2'b10;  // EP6
-   assign usb_sloe = 1;
-   assign usb_slrd = 1;
-   assign usb_pktend = !reset;
-   wire   usb_full = !usb_flagb;
 
-   // USB write registers, positive logic
-   reg [7:0]  usb_d;
-   reg        usb_wr_strobe;
-   assign usb_slwr = !usb_wr_strobe;
+   /************************************************
+    * USB FIFO
+    */
+
+   wire [31:0]   packet_data;
+   reg           packet_strobe;
+   wire          err_overflow;
+
+   usb_comm usbc(mclk, reset,
+                 usb_d, usb_slwr, usb_slrd, usb_pktend,
+                 usb_sloe, usb_fifoadr, usb_flagb,
+                 packet_data, packet_strobe,
+                 err_overflow);
+
+   reg [1:0]     packet_type;
+   reg [22:0]    packet_payload;
+
+   usb_packet_assemble usbpa(packet_data, packet_type, packet_payload);
+
+
+   /************************************************
+    * Oscillator Simulator
+    *
+    * Switch 0 is a 'turbo' switch.
+    */
+
+   osc_sim dsosc(mclk, reset, switch[0], ds_osc_out);
 
 
    /************************************************
     * RAM Bus
     */
 
-   // Positive-logic read/write enables
-   // XXX: Ignoring CE for now
-   wire         ram_read = !ram_oe;
-   wire         ram_write = !ram_we;
-   wire         ram_addr_latch = !ram_adv;
+   wire [22:0] filter_a;
+   wire [15:0] filter_d;
+   wire [1:0]  filter_ublb;
+   wire        filter_read;
+   wire        filter_write;
+   wire        filter_addr_latch;
+   wire        filter_strobe;
 
-   // Synchronize to our clock domain with two flip-flops
+   ram_sampler ramsam(mclk, reset,
+                      ram_a, ram_d, ram_oe, ram_we, ram_ce1, ram_ce2,
+                      ram_ub, ram_lb, ram_adv, ram_clk,
+                      filter_a, filter_d, filter_ublb, filter_read,
+                      filter_write, filter_addr_latch, filter_strobe);
 
-   wire [22:0]  ram_a_sync;
-   wire [15:0]  ram_d_sync;
-   wire         ram_read_sync;
-   wire         ram_write_sync;
-   wire         ram_addr_latch_sync;
+   /*
+    * Which cycle are we on in this read/write burst?
+    *
+    * We need this to check for RAM latency later on, plus
+    * we use it to report read burst length back to the host.
+    */
 
-   d_flipflop_pair dffp1(mclk, reset, ram_read, ram_read_sync);
-   d_flipflop_pair dffp2(mclk, reset, ram_write, ram_write_sync);
-   d_flipflop_pair_bus #(23) dffp3(mclk, reset, ram_a, ram_a_sync);
-   d_flipflop_pair_bus #(16) dffp4(mclk, reset, ram_d, ram_d_sync);
-   d_flipflop_pair dffp5(mclk, reset, ram_addr_latch, ram_addr_latch_sync);
-
-   // Shift register for synchronization, edge detection,
-   //  and 1-cycle debouncer/delay on CLK
-
-   reg [4:0]    ram_clk_shiftreg;
-   wire         ram_clk_posedge = ram_clk_shiftreg[4:2] == 3'b011;
-   wire         ram_clk_sync = ram_clk_shiftreg[1];
+   reg [7:0]   burst_cycle;
 
    always @(posedge mclk or posedge reset)
      if (reset)
-       ram_clk_shiftreg <= 0;
-     else
-       ram_clk_shiftreg <= { ram_clk_shiftreg[3:0], ram_clk };
-
-   // Packet buffer.
-   //
-   // This is a 3-byte packet that holds either an address or
-   // a data byte, differentiated by the high bit of the first byte.
-
-   reg [23:0]  pktbuf;
-   wire        pktbuf_full;
-   reg         pktbuf_reset;
-
-   wire        pktbuf_set = ram_clk_posedge && (ram_write_sync || ram_addr_latch_sync);
-   wire        pktbuf_overflow = pktbuf_set && pktbuf_full;
-
-   set_reset_flipflop pktff(mclk, reset, pktbuf_set, pktbuf_reset, pktbuf_full);
-
-   always @(posedge mclk or posedge reset)
-     if (reset)
-       pktbuf <= 0;
-     else if (pktbuf_set)
-       pktbuf <= ram_write_sync ? { 8'hAA, ram_d_sync } : { 1'b0, ram_a_sync };
+       burst_cycle <= 0;
+     else if (filter_strobe) begin
+        if (filter_addr_latch)
+          burst_cycle <= 0;
+        else if ((filter_write || filter_read) && !(&burst_cycle))
+          burst_cycle <= burst_cycle + 1;
+     end
 
 
    /************************************************
-    * USB FIFO State Machine
-    *
-    * Above, we collect 3-byte data/address packets.
-    * Now we stream them out over the synchronous
-    * byte-wide USB FIFO.
+    * Tracing state machine
     */
 
-   reg [23:0]  usb_reg;
-   reg [1:0]   usb_bytecnt;
+   parameter S_NORMAL = 0;
+   parameter S_READ = 1;
+
+   parameter READ_LATENCY = 4;
+   parameter WRITE_LATENCY = 3;
+
+   reg        state;
+   reg [22:0] timestamp_counter;
+   reg [7:0]  read_checksum;
+   reg [1:0]  read_ublb;
+
+   wire [7:0] read_count = burst_cycle - (READ_LATENCY - 1);
+
+   // Split the timestamp into a piece that we can represent in 5 bits, and the remainder
+   wire [4:0] timestamp5 = timestamp_counter > 5'b11111
+                           ? 5'b11111 : timestamp_counter[4:0];
+   wire [22:0] timestamp5_remainder = timestamp_counter - { 18'b0, timestamp5 };
 
    always @(posedge mclk or posedge reset)
      if (reset) begin
-        usb_reg <= 0;
-        usb_bytecnt <= 0;
-        usb_d <= 0;
-        usb_wr_strobe <= 0;
-        pktbuf_reset <= 0;
+        state <= S_NORMAL;
+        timestamp_counter <= 0;
+        read_checksum <= 0;
+        read_ublb <= 0;
+        packet_type <= 0;
+        packet_payload <= 0;
+        packet_strobe <= 0;
      end
-     else begin
-        if (usb_bytecnt == 0) begin
-           // Idle. Do we have another packet to send?
-           if (pktbuf_full) begin
-              // Start a write
-              usb_reg <= pktbuf;
-              usb_bytecnt <= 3;
-              usb_wr_strobe <= 0;
-              pktbuf_reset <= 1;
+     else if (state == S_READ) begin
+        /*
+         * We're in the middle of a read burst.
+         *
+         * As long as the read is still going, count cycles
+         * and keep a packet checksum. During the first idle
+         * cycle after the read, we'll send a packet.
+         */
+
+        if (filter_read) begin
+           if (filter_strobe) begin
+              timestamp_counter <= timestamp_counter + 1;
+              read_checksum <= read_checksum + filter_d[15:8] + filter_d[7:0];
+              read_ublb <= read_ublb & filter_ublb;
            end
-           else begin
-              // Sit idle
-              usb_bytecnt <= 0;
-              usb_wr_strobe <= 0;
-              pktbuf_reset <= 0;
-           end
+
+           state <= S_READ;
+           packet_type <= 2'bXX;
+           packet_payload <= 8'hXX;
+           packet_strobe <= 0;
         end
         else begin
-           // Next byte
-           usb_reg <= { usb_reg[15:0], 8'hXX };
-           usb_bytecnt <= usb_bytecnt - 1;
-           usb_d <= usb_reg[23:16];
-           usb_wr_strobe <= 1;
-           pktbuf_reset <= 0;
+           state <= S_NORMAL;
+           timestamp_counter <= timestamp5_remainder;
+           read_checksum <= 8'hXX;
+           read_ublb <= 2'bXX;
+           packet_type <= 2'b01;
+           packet_payload <= { timestamp5, read_ublb, read_checksum, read_count };
+           packet_strobe <= 1;
         end
      end
+     else if (filter_strobe && filter_addr_latch) begin
+        /*
+         * Send an address packet
+         */
+
+        state <= S_NORMAL;
+        timestamp_counter <= timestamp_counter + 1;
+        read_checksum <= 8'hXX;
+        read_ublb <= 2'bXX;
+        packet_type <= 2'b00;
+        packet_payload <= filter_a;
+        packet_strobe <= 1;
+     end
+     else if (filter_strobe && filter_write && burst_cycle >= (WRITE_LATENCY - 1)) begin
+        /*
+         * Send a write word packet
+         */
+
+        state <= S_NORMAL;
+        timestamp_counter <= timestamp5_remainder;
+        read_checksum <= 8'hXX;
+        read_ublb <= 2'bXX;
+        packet_type <= 2'b10;
+        packet_payload <= { timestamp5, filter_ublb, filter_d };
+        packet_strobe <= 1;
+     end
+     else if (filter_strobe && filter_read && burst_cycle == (READ_LATENCY - 1)) begin
+        /*
+         * Begin a read burst
+         */
+
+        state <= S_READ;
+        timestamp_counter <= timestamp_counter + 1;
+        read_checksum <= filter_d[15:8] + filter_d[7:0];
+        read_ublb <= filter_ublb;
+        packet_type <= 2'bXX;
+        packet_payload <= 23'hXXXXXX;
+        packet_strobe <= 0;
+     end
+     else if (filter_strobe && burst_cycle == 1 && timestamp5_remainder) begin
+        /*
+         * Our RAM is otherwise idle, and we have a timestamp remainder-
+         * send a timestamp packet to sync up the host with our clock.
+         *
+         * We only do this during the latency clocks in a read or write,
+         * not while the RAM is completely idle. If we did it while totally
+         * idle, we'd send a packet every 32 clocks, which would just waste
+         * space. But we still want every packet to have an accurate timestamp.
+         * By sending it during this latency cycle, we end up with an address
+         * packet that may have an outdated timestamp, but the end of the burst
+         * (which is what matters) will always have an up-to-date timestamp.
+         */
+
+        state <= S_NORMAL;
+        timestamp_counter <= 0;
+        read_checksum <= 8'hXX;
+        read_ublb <= 2'bXX;
+        packet_type <= 2'b11;
+        packet_payload <= timestamp_counter;
+        packet_strobe <= 1;
+     end
+     else begin
+        /*
+         * Idle. Just count cycles.
+         */
+
+        if (filter_strobe)
+          timestamp_counter <= timestamp_counter + 1;
+
+        state <= S_NORMAL;
+        read_checksum <= 8'hXX;
+        read_ublb <= 2'bXX;
+        packet_type <= 2'bXX;
+        packet_payload <= 23'hXXXXXX;
+        packet_strobe <= 0;
+     end
+
 
    /************************************************
     * Debug
     */
 
-   assign ram_clk_debug = ram_clk;
-
-   reg ram_buf_debug;
-   always @(posedge mclk)
-     if (pktbuf_set)
-       ram_buf_debug <= !ram_buf_debug;
-
-   wire         pulse_read, pulse_write, pulse_overflow, pulse_pktbuf_overflow;
-
-   pulse_stretcher s1(mclk, reset, ram_read_sync, pulse_read);
-   pulse_stretcher s2(mclk, reset, ram_write_sync, pulse_write);
-   pulse_stretcher s3(mclk, reset, usb_full, pulse_fifo_overflow);
-   pulse_stretcher s4(mclk, reset, pktbuf_overflow, pulse_pktbuf_overflow);
-
    /* 8 individual status LEDs */
-   assign led = { pulse_read, pulse_write, pktbuf_full, 3'b0,
-                  pulse_fifo_overflow, pulse_pktbuf_overflow };
+   pulse_stretcher_arr led_ps(mclk, reset,
+                              {filter_read, filter_write,
+                               5'b0, err_overflow },
+                              led);
 
    /* LED display: Current memory address, high 16 bits. */
-   led_hex display(mclk, reset, ram_a_sync[22:7], ledseg_c, ledseg_a);
+   led_hex display(mclk, reset, filter_a[22:7], ledseg_c, ledseg_a);
 
 endmodule // main
 
+
+/*
+ * DS Oscillator Simulator --
+ *
+ *   mclk is 48 MHz.
+ *
+ *   Generates a 1 MHz clock (near the minimum for PLL startup) when turbo=0.
+ *   Generates an approximate 16.756 MHz clock (the normal frequency) when turbo=1.
+ */
+
+module osc_sim(mclk, reset, turbo, osc_out);
+
+   parameter MCLK_KHZ_DIV2 = 16'd24000;
+   parameter SLOW_KHZ = 16'd1000;
+   parameter FAST_KHZ = 16'd16756;
+
+   input mclk, reset, turbo;
+   output osc_out;
+   reg    osc_out;
+
+   reg [15:0] accum;
+
+   wire [15:0] accum_next_fast = accum + FAST_KHZ;
+   wire [15:0] accum_next_slow = accum + SLOW_KHZ;
+   wire [15:0] accum_next = turbo ? accum_next_fast : accum_next_slow;
+
+   always @(posedge mclk or posedge reset)
+     if (reset) begin
+        accum <= 0;
+        osc_out <= 0;
+     end
+     else if (accum_next > MCLK_KHZ_DIV2) begin
+        accum <= accum_next - MCLK_KHZ_DIV2;
+        osc_out <= !osc_out;
+     end
+     else begin
+        accum <= accum_next;
+     end
+endmodule

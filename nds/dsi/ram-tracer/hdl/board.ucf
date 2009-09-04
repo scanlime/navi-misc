@@ -31,8 +31,6 @@ NET "reset"  LOC = "M13"  ;
 #NET "button<2>"  LOC = "L13"  ;
 #NET "button<3>"  LOC = "L14"  ;
 
-
-
 # Normal onboard clock (50MHz)
 #NET "mclk"  LOC = "T9" ;
 
@@ -42,7 +40,7 @@ NET "mclk"  LOC = "D9" ;
 NET "mclk"  TNM_NET = mclk ;
 TIMESPEC TS_mclk = PERIOD "mclk" 60 MHz HIGH 50%;
 
-#NET "switch<0>"  LOC = "F12"  ;
+NET "switch<0>"  LOC = "F12"  ;
 #NET "switch<1>"  LOC = "G12"  ;
 #NET "switch<2>"  LOC = "H14"  ;
 #NET "switch<3>"  LOC = "H13"  ;
@@ -143,5 +141,12 @@ NET "ram_ub" LOC = "B8";
 NET "ram_lb" LOC = "A8";
 NET "ram_adv" LOC = "A9";
 
-NET "ram_clk_debug" LOC = "D6";
-NET "ram_buf_debug" LOC = "D5";
+#NET "ram_clk_debug" LOC = "D6";
+#NET "ram_buf_debug" LOC = "D5";
+
+#
+# DS clock output.
+# This replaces the normal 16.756 MHz crystal.
+#
+
+NET "ds_osc_out" LOC = "T3";
