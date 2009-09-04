@@ -34,16 +34,26 @@ main(int argc, char **argv)
    static MemTraceState state;
    MemTraceResult result;
    MemOp op;
+   const char *memImageFile = NULL;
+   bool quiet = false;
 
-   if (argc != 2) {
+   /*
+    * Command line gook...
+    */
+
+   if (argc < 2 || argc > 3) {
       fprintf(stderr,
               "\n"
               "RAM Trace Decoder, for new 32-bit trace logs.\n"
               "-- Micah Dowty <micah@navi.cx>\n"
               "\n"
-              "usage: %s <trace.raw>\n"
+              "usage: %s <trace.raw> [<mem-image.bin>]\n"
               "\n", argv[0]);
       return 1;
+   }
+   if (argc >= 3) {
+      memImageFile = argv[2];
+      quiet = true;
    }
 
    if (!MemTrace_Open(&state, argv[1])) {
@@ -51,37 +61,63 @@ main(int argc, char **argv)
       return 1;
    }
 
+   /*
+    * Main loop- ask MemTrace to fetch us one burst at a time.
+    */
+
    while ((result = MemTrace_Next(&state, &op)) == MEMTR_SUCCESS) {
-      const char *label;
-      int i;
+      if (!quiet) {
+         const char *label;
+         int i;
 
-      assert(op.type == MEMOP_READ || op.type == MEMOP_WRITE);
-      label = op.type == MEMOP_WRITE ? "WRITE" : "read";
+         assert(op.type == MEMOP_READ || op.type == MEMOP_WRITE);
+         label = op.type == MEMOP_WRITE ? "WRITE" : "read";
 
-      printf("%11.06fs %-5s [%2d] %08x: ", state.timestamp.seconds,
-             label, op.length, op.addr);
+         printf("%11.06fs %-5s [%2d] %08x: ", state.timestamp.seconds,
+                label, op.length, op.addr);
 
-      for (i = 0; i < op.length || i < 32; i++) {
-         const char *pad = (i & 1) ? "" : " ";
-         if (i < op.length)
-            printf("%s%02x", pad, state.memory[op.addr + i]);
-         else
-            printf("%s  ", pad);
+         for (i = 0; i < op.length || i < 32; i++) {
+            const char *pad = (i & 1) ? "" : " ";
+            if (i < op.length)
+               printf("%s%02x", pad, state.memory[op.addr + i]);
+            else
+               printf("%s  ", pad);
+         }
+
+         printf("  ");
+
+         for (i = 0; i < op.length || i < 32; i++) {
+            char c = i < op.length ? (char)state.memory[op.addr + i] : ' ';
+            printf("%c", isprint(c) ? c : '.');
+         }
+
+         printf("\n");
       }
-
-      printf("  ");
-
-      for (i = 0; i < op.length || i < 32; i++) {
-         char c = i < op.length ? (char)state.memory[op.addr + i] : ' ';
-         printf("%c", isprint(c) ? c : '.');
-      }
-
-      printf("\n");
    }
 
    if (result != MEMTR_EOF) {
       fprintf(stderr, "Error: %s\n", MemTrace_ErrorString(result));
       return 1;
+   }
+
+   /*
+    * Finished successfully. Write out a memory image, if we were asked to.
+    */
+
+   if (memImageFile) {
+      FILE *img = fopen(memImageFile, "wb");
+
+      if (!img) {
+         perror("open");
+         return 1;
+      }
+
+      if (fwrite(state.memory, sizeof state.memory, 1, img) != 1) {
+         perror("write");
+         return 1;
+      }
+
+      fclose(img);
    }
 
    return 0;

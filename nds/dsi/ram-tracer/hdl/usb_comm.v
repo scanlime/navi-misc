@@ -52,21 +52,7 @@
  * Address Packets (0):
  *   Payload consists of only a 23-bit address.
  *
- * Read data burst (1):
- *
- *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *    t t t t t u l c c c c c c c c n n n n n n n n
- *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *    4 3 2 1 0     7 6 5 4 3 2 1 0 7 6 5 4 3 2 1 0
- *
- *    t: 5-bit count of how many RAM clock cycles were skipped
- *       since the last packet that contained a timestamp.
- *    u: AND of upper byte valid flags on all words in the burst
- *    l: AND of lower byte valid flags on all words in the burst
- *    c: 8-bit checksum of all read words
- *    n: number of words in burst
- *
- * Write data word (2):
+ * Read data word (1) / Write data word (2):
  *
  *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *    t t t t t u l d d d d d d d d d d d d d d d d
@@ -110,9 +96,11 @@ endmodule
 
 /*
  * This module is in charge of USB communications through the
- * FX2's byte-wide FIFO. It provides a single-entry writeable 32-bit
- * packet buffer. If either that packet buffer or the external FIFO
- * overflows, an error pulse is generated.
+ * FX2's byte-wide FIFO. It provides a fast on-chip 32-bit-wide
+ * FIFO buffer that feeds the off-chip 8-bit-wide FIFO.
+ *
+ * We handle flow control between the two FIFOs, but if the
+ * on-chip FIFO fills up, we raise the 'overflow' signal.
  */
 
 module usb_comm(mclk, reset,
@@ -121,8 +109,11 @@ module usb_comm(mclk, reset,
                 packet_data, packet_strobe,
                 overflow);
 
-   // Size of the local FIFO buffer
-   parameter LOG_BUF_SIZE = 6;
+   /*
+    * Size of the local FIFO buffer.
+    * Make this as big as you can afford!
+    */
+   parameter LOG_BUF_SIZE = 8;
    parameter BUF_SIZE = 2**LOG_BUF_SIZE;
    parameter BUF_MSB = LOG_BUF_SIZE - 1;
 
