@@ -1,92 +1,88 @@
+/*
+ * decoder.c - Simple command-line decoder for memory trace logs.
+ *             (Only for the new 32-bit log format)
+ *
+ * Copyright (C) 2009 Micah Dowty
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include <stdio.h>
-#include <stdint.h>
-#include <ctype.h>
-
-const int RL = 4;   // Read latency, set in the CR on startup
-const int WL = 3;   // Write latency, automatically RL-1.
+#include <assert.h>
+#include "memtrace.h"
 
 
-int main(void)
+int
+main(int argc, char **argv)
 {
-   uint32_t addr = 0;
-   int burst_cnt = 0;
-   int skip_cycles = 0;
+   static MemTraceState state;
+   MemTraceResult result;
+   MemOp op;
 
-   FILE *memcontent = fopen("mem-content.bin", "wb");
-   if (!memcontent) {
+   if (argc != 2) {
+      fprintf(stderr,
+              "\n"
+              "RAM Trace Decoder, for new 32-bit trace logs.\n"
+              "-- Micah Dowty <micah@navi.cx>\n"
+              "\n"
+              "usage: %s <trace.raw>\n"
+              "\n", argv[0]);
+      return 1;
+   }
+
+   if (!MemTrace_Open(&state, argv[1])) {
       perror("open");
       return 1;
    }
 
-   while (!feof(stdin)) {
-      uint8_t packet[3];
+   while ((result = MemTrace_Next(&state, &op)) == MEMTR_SUCCESS) {
+      const char *label;
+      int i;
 
-      if (fread(packet, sizeof packet, 1, stdin) != 1) {
-         perror("read");
-         return 1;
+      assert(op.type == MEMOP_READ || op.type == MEMOP_WRITE);
+      label = op.type == MEMOP_WRITE ? "WRITE" : "read";
+
+      printf("%11.06fs %-5s [%2d] %08x: ", state.timestamp.seconds,
+             label, op.length, op.addr);
+
+      for (i = 0; i < op.length || i < 32; i++) {
+         const char *pad = (i & 1) ? "" : " ";
+         if (i < op.length)
+            printf("%s%02x", pad, state.memory[op.addr + i]);
+         else
+            printf("%s  ", pad);
       }
 
-      if (packet[0] & 0x80) {
-         /* Data packet */
+      printf("  ");
 
-         if (skip_cycles) {
-            /* Skip data cycles that fall within the Write Latency. */
-            skip_cycles--;
-         } else {
-
-            uint16_t data = (packet[1] << 8) | packet[2];
-            const char *label;
-            int width;
-            uint32_t va = addr << 1;
-
-            switch (packet[0]) {
-
-            case 0xA0:
-               label = "w_word";
-               width = 2;
-               break;
-
-            case 0xA1:
-               label = "w_upper";
-               va++;
-               width = 1;
-               break;
-
-            case 0xA2:
-               label = "w_lower";
-               width = 1;
-               break;
-
-            case 0xA3:
-               label = "w_none";
-               width = 0;
-               break;
-
-            default:
-               label = "w_ERROR";
-               width = 0;
-               break;
-            }
-
-            printf("0x%08x = 0x%04x %c%c %s b=%d\n", addr, data,
-                   isprint(data & 0xFF) ? data & 0xFF : '.',
-                   isprint(data >> 8) ? data >> 8 : '.',
-                   label, burst_cnt);
-
-            fseek(memcontent, va, SEEK_SET);
-            fwrite(&data, width, 1, memcontent);
-
-            addr++;
-            burst_cnt++;
-         }
-
-      } else {
-         /* Address packet */
-         addr = (packet[0] << 16) | (packet[1] << 8) | packet[2];
-         burst_cnt = 0;
-         skip_cycles = WL-1;
+      for (i = 0; i < op.length || i < 32; i++) {
+         char c = i < op.length ? (char)state.memory[op.addr + i] : ' ';
+         printf("%c", isprint(c) ? c : '.');
       }
-    }
 
-    return 0;
+      printf("\n");
+   }
+
+   if (result != MEMTR_EOF) {
+      fprintf(stderr, "Error: %s\n", MemTrace_ErrorString(result));
+      return 1;
+   }
+
+   return 0;
 }

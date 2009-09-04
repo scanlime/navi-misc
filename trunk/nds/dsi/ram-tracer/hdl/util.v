@@ -58,6 +58,39 @@ endmodule
 
 
 /*
+ * Majority detect: Outputs a 1 if two of the three inputs are 1.
+ */
+
+module mdetect_3(a, b, c, out);
+   input a, b, c;
+   output out;
+
+   assign out = (a && b) || (a && c) || (b && c);
+endmodule
+
+
+/*
+ * An array of majority detect modules.
+ */
+module mdetect_3_arr(a, b, c, out);
+   parameter COUNT = 8;
+
+   input [COUNT-1:0] a;
+   input [COUNT-1:0] b;
+   input [COUNT-1:0] c;
+   output [COUNT-1:0] out;
+
+   genvar i;
+
+   generate for (i = 0; i < COUNT; i = i+1)
+     begin: inst
+        mdetect_3 md3_i(a[i], b[i], c[i], out[i]);
+     end
+   endgenerate
+endmodule
+
+
+/*
  * A set/reset flipflop which is set on sync_set and reset by sync_reset.
  */
 module set_reset_flipflop(clk, reset, sync_set, sync_reset, out);
@@ -116,3 +149,23 @@ module pulse_stretcher(clk, reset, in, out);
      end
 endmodule
 
+
+/*
+ * An array of independent pulse stretchers.
+ */
+module pulse_stretcher_arr(clk, reset, in, out);
+   parameter COUNT = 8;
+   parameter BITS = 20;
+
+   input clk, reset;
+   input [COUNT-1:0] in;
+   output [COUNT-1:0] out;
+
+   genvar i;
+
+   generate for (i = 0; i < COUNT; i = i+1)
+     begin: inst
+       pulse_stretcher ps_i(clk, reset, in[i] , out[i]);
+     end
+   endgenerate
+endmodule
