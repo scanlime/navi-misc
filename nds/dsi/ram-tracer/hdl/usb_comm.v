@@ -121,6 +121,11 @@ module usb_comm(mclk, reset,
                 packet_data, packet_strobe,
                 overflow);
 
+   // Size of the local FIFO buffer
+   parameter LOG_BUF_SIZE = 6;
+   parameter BUF_SIZE = 2**LOG_BUF_SIZE;
+   parameter BUF_MSB = LOG_BUF_SIZE - 1;
+
    input mclk, reset;
 
    output [7:0]  usb_d;
@@ -152,30 +157,35 @@ module usb_comm(mclk, reset,
 
 
    /************************************************
-    * Packet buffer
+    * Packet FIFO buffer
     */
 
-   reg [31:0]  packet_buf;
-   reg         packet_reset;
-   wire        packet_full;
+   // Synthesized as dual-port block RAM
+   reg [31:0]       fifo_mem[BUF_SIZE-1:0];
 
-   set_reset_flipflop pktbuf(mclk, reset, packet_strobe, packet_reset, packet_full);
+   reg [BUF_MSB:0]  fifo_write_ptr;
+   reg [BUF_MSB:0]  fifo_read_ptr;
 
-   assign overflow = packet_full && packet_strobe;
+   wire [BUF_MSB:0] next_write_ptr = fifo_write_ptr + 1;
+
+   assign overflow = (next_write_ptr == fifo_read_ptr) && packet_strobe;
 
    always @(posedge mclk or posedge reset)
-     if (reset)
-       packet_buf <= 0;
-     else if (packet_strobe)
-       packet_buf <= packet_data;
+     if (reset) begin
+        fifo_write_ptr <= 0;
+     end
+     else if (packet_strobe && !overflow) begin
+        fifo_write_ptr <= next_write_ptr;
+        fifo_mem[fifo_write_ptr] <= packet_data;
+     end
 
 
    /************************************************
     * USB FIFO State Machine
     */
 
-   reg [31:0]  usb_reg;
-   reg [3:0]   usb_bytecnt;
+   reg [31:0]        usb_reg;
+   reg [3:0]         usb_bytecnt;
 
    always @(posedge mclk or posedge reset)
      if (reset) begin
@@ -183,7 +193,7 @@ module usb_comm(mclk, reset,
         usb_bytecnt <= 0;
         usb_d <= 0;
         usb_wr_strobe <= 0;
-        packet_reset <= 0;
+        fifo_read_ptr <= 0;
      end
      else if (usb_wr_strobe) begin
         /*
@@ -191,29 +201,26 @@ module usb_comm(mclk, reset,
          * a chance to report whether it's full or not.
          */
         usb_wr_strobe <= 0;
-        packet_reset <= 0;
      end
      else if (usb_full) begin
         /*
          * Wait for room in the USB FIFO
          */
         usb_wr_strobe <= 0;
-        packet_reset <= 0;
      end
      else if (usb_bytecnt == 0) begin
         // Idle. Do we have another packet to send?
-        if (packet_full) begin
+        if (fifo_read_ptr != fifo_write_ptr) begin
            // Start a write. Load our shift register, clear the packet buffer.
-           usb_reg <= packet_buf;
+           usb_reg <= fifo_mem[fifo_read_ptr];
            usb_bytecnt <= 4;
            usb_wr_strobe <= 0;
-           packet_reset <= 1;
+           fifo_read_ptr <= fifo_read_ptr + 1;
         end
         else begin
            // Sit idle
            usb_bytecnt <= 0;
            usb_wr_strobe <= 0;
-           packet_reset <= 0;
         end
      end
      else begin
@@ -222,7 +229,6 @@ module usb_comm(mclk, reset,
         usb_bytecnt <= usb_bytecnt - 1;
         usb_d <= usb_reg[31:24];
         usb_wr_strobe <= 1;
-        packet_reset <= 0;
      end
 
 endmodule // usb_comm
