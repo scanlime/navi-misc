@@ -22,6 +22,8 @@
  * THE SOFTWARE.
  */
 
+#define _FILE_OFFSET_BITS 64
+
 #include <string.h>
 #include "memtrace.h"
 
