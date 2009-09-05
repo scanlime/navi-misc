@@ -169,3 +169,47 @@ module pulse_stretcher_arr(clk, reset, in, out);
      end
    endgenerate
 endmodule
+
+
+/*
+ * A debouncer for any number of switches.
+ * Uses only one counter register.
+ *
+ * Includes a built-in synchronization flip-flop pair.
+ */
+module debouncer_arr(clk, reset, in, out);
+   parameter COUNT = 1;
+   parameter BITS = 18;
+
+   input clk, reset;
+   input [COUNT-1:0]  in;
+   output [COUNT-1:0] out;
+
+   wire [COUNT-1:0]   in_sync;
+
+   d_flipflop_pair_bus #(COUNT) dffp(clk, reset, in, in_sync);
+
+   reg [COUNT-1:0]    out;
+   reg [COUNT-1:0]    next;
+   reg [BITS-1:0]     counter;
+
+   always @(posedge clk or posedge reset)
+     if (reset) begin
+        out <= 0;
+        next <= 0;
+        counter <= 0;
+     end
+     else if (in_sync == next) begin
+        // Input is stable. Update a timer, and when the timer expires latch the inputs.
+
+        if (&counter)
+           out <= next;
+        else
+           counter <= counter + 1;
+     end
+     else begin
+        // Input changed, start the counter over
+        next <= in_sync;
+        counter <= 0;
+     end
+endmodule
