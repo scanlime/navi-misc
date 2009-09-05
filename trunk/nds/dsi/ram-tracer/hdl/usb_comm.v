@@ -176,7 +176,7 @@ module usb_comm(mclk, reset,
     */
 
    reg [31:0]        usb_reg;
-   reg [3:0]         usb_bytecnt;
+   reg [2:0]         usb_bytecnt;
 
    always @(posedge mclk or posedge reset)
      if (reset) begin

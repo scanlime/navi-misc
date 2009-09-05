@@ -33,7 +33,8 @@ module ram_sampler(mclk, reset,
                    ram_a, ram_d, ram_oe, ram_we, ram_ce1, ram_ce2,
                    ram_ub, ram_lb, ram_adv, ram_clk,
                    filter_a, filter_d, filter_ublb, filter_read,
-                   filter_write, filter_addr_latch, filter_strobe);
+                   filter_write, filter_addr_latch, filter_strobe,
+                   nfilter_d, nfilter_strobe);
 
    input mclk, reset;
 
@@ -42,6 +43,7 @@ module ram_sampler(mclk, reset,
    input        ram_oe, ram_we, ram_ce1, ram_ce2;
    input        ram_ub, ram_lb, ram_adv, ram_clk;
 
+   // Positive edge filter
    output [22:0] filter_a;
    output [15:0] filter_d;
    output [1:0]  filter_ublb;
@@ -49,6 +51,10 @@ module ram_sampler(mclk, reset,
    output        filter_write;
    output        filter_addr_latch;
    output        filter_strobe;
+
+   // Negative edge filter
+   output [15:0] nfilter_d;
+   output        nfilter_strobe;
 
    // Positive-logic control signals
    wire         ram_enable = !ram_ce1 && ram_ce2;
@@ -76,21 +82,25 @@ module ram_sampler(mclk, reset,
    // Clock shift register.
    // For edge detection, filtering, and clock domain sync.
 
-   reg [9:0]    clk_shift;
+   reg [5:0]    clk_shift;
 
    always @(posedge mclk or posedge reset)
      if (reset)
        clk_shift <= 0;
      else
-       clk_shift <= {clk_shift[8:0], ram_clk};
+       clk_shift <= {clk_shift[4:0], ram_clk};
 
-   // Taps which detect positive edges N clocks ago relative to *_sync.
+   // Taps which detect positive and negative edges N clocks ago relative to *_sync.
 
-   wire         clk_posedge_0 = clk_shift[5:2] == 3'b011;     // 1 clock
-   wire         clk_posedge_1 = clk_shift[7:2] == 5'b01111;   // 3 clocks
-   wire         clk_posedge_2 = clk_shift[9:2] == 7'b0111111; // 5 clocks
+   wire         clk_posedge_0 = clk_shift[3:2] == 2'b01;
+   wire         clk_posedge_1 = clk_shift[4:2] == 3'b011;
+   wire         clk_posedge_2 = clk_shift[5:2] == 4'b0111;
 
-   // Majority-detect: Latch clocks 1/3, generate output on 5
+   wire         clk_negedge_0 = clk_shift[3:2] == 2'b10;
+   wire         clk_negedge_1 = clk_shift[4:2] == 3'b100;
+   wire         clk_negedge_2 = clk_shift[5:2] == 4'b1000;
+
+   // Majority-detect filter: Latch clocks 1/3, generate output on 5
 
    reg [43:0]   filter_lat_0;
    reg [43:0]   filter_lat_1;
@@ -129,6 +139,44 @@ module ram_sampler(mclk, reset,
      end
      else begin
         filter_strobe <= 0;
+     end
+
+   // Secondary majority-detect filter for negative edges
+
+   reg [15:0]   nfilter_lat_0;
+   reg [15:0]   nfilter_lat_1;
+   wire [15:0]  nfilter_cur = ram_d_sync;
+
+   wire [15:0]  nfilter_detect;
+   reg [15:0]   nfilter_out;
+   reg          nfilter_strobe;
+
+   assign nfilter_d = nfilter_out;
+
+   mdetect_3_arr #(16) filter_mdet_n(nfilter_lat_0, nfilter_lat_1,
+                                     nfilter_cur, nfilter_detect);
+
+   always @(posedge mclk or posedge reset)
+     if (reset) begin
+        nfilter_lat_0 <= 0;
+        nfilter_lat_1 <= 0;
+        nfilter_out <= 0;
+        nfilter_strobe <= 0;
+     end
+     else if (clk_negedge_0) begin
+        nfilter_lat_0 <= nfilter_cur;
+        nfilter_strobe <= 0;
+     end
+     else if (clk_negedge_1) begin
+        nfilter_lat_1 <= nfilter_cur;
+        nfilter_strobe <= 0;
+     end
+     else if (clk_negedge_2) begin
+        nfilter_out <= nfilter_detect;
+        nfilter_strobe <= 1;
+     end
+     else begin
+        nfilter_strobe <= 0;
      end
 
 endmodule // ram_sampler
