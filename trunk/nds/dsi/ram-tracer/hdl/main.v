@@ -53,8 +53,12 @@ module main(mclk, reset, gndout,
    input        ram_oe, ram_we, ram_ce1, ram_ce2;
    input        ram_ub, ram_lb, ram_adv, ram_clk;
 
-   input [0:0]  switch;
+   input [1:0]  switch;
    output       ds_osc_out;
+
+   // Switches
+   d_flipflop_pair_bus #(2) switch_dffp(mclk, reset, switch,
+                                        { trace_reads, turbo });
 
    assign gndout = 0;
 
@@ -85,11 +89,9 @@ module main(mclk, reset, gndout,
 
    /************************************************
     * Oscillator Simulator
-    *
-    * Switch 0 is a 'turbo' switch.
     */
 
-   osc_sim dsosc(mclk, reset, switch[0], ds_osc_out);
+   osc_sim dsosc(mclk, reset, turbo, ds_osc_out);
 
 
    /************************************************
@@ -175,7 +177,8 @@ module main(mclk, reset, gndout,
         packet_payload <= { timestamp5, filter_ublb, filter_d };
         packet_strobe <= 1;
      end
-     else if (nfilter_strobe && filter_read && burst_cycle >= READ_LATENCY) begin
+     else if (trace_reads && nfilter_strobe && filter_read &&
+              burst_cycle >= READ_LATENCY) begin
         /*
          * Send a read word packet.
          * Note that data is latched on the negative clock edge,
@@ -227,12 +230,22 @@ module main(mclk, reset, gndout,
     * Debug
     */
 
+   /* Error latch- stays on if an error ever happens */
+
+   reg err_latch;
+
+   always @(posedge mclk or posedge reset)
+     if (reset)
+       err_latch <= 0;
+     else if (err_overflow)
+       err_latch <= 1;
+
    /* 8 individual status LEDs */
    pulse_stretcher_arr led_ps(mclk, reset,
                               {ram_clk,
                                filter_strobe, nfilter_strobe,
                                filter_read, filter_write,
-                               2'b0, err_overflow },
+                               1'b0, err_overflow, err_latch },
                               led);
 
    /* LED display: Current memory address, high 16 bits in hex, low 4 bits in dots */
