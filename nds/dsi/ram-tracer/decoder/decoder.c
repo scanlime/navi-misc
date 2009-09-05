@@ -65,7 +65,13 @@ main(int argc, char **argv)
     * Main loop- ask MemTrace to fetch us one burst at a time.
     */
 
-   while ((result = MemTrace_Next(&state, &op)) == MEMTR_SUCCESS) {
+   while ((result = MemTrace_Next(&state, &op)) != MEMTR_EOF) {
+      if (result != MEMTR_SUCCESS) {
+	 fprintf(stderr, "*** Error at offset %llx: %s\n", state.fileOffset,
+		 MemTrace_ErrorString(result));
+         continue;
+      }
+
       if (!quiet) {
          const char *label;
          int i;
@@ -93,11 +99,6 @@ main(int argc, char **argv)
 
          printf("\n");
       }
-   }
-
-   if (result != MEMTR_EOF) {
-      fprintf(stderr, "Error: %s\n", MemTrace_ErrorString(result));
-      return 1;
    }
 
    /*
