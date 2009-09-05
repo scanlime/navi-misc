@@ -41,7 +41,7 @@ NET "mclk"  TNM_NET = mclk ;
 TIMESPEC TS_mclk = PERIOD "mclk" 60 MHz HIGH 50%;
 
 NET "switch<0>"  LOC = "F12"  ;
-#NET "switch<1>"  LOC = "G12"  ;
+NET "switch<1>"  LOC = "G12"  ;
 #NET "switch<2>"  LOC = "H14"  ;
 #NET "switch<3>"  LOC = "H13"  ;
 #NET "switch<4>"  LOC = "J14"  ;
