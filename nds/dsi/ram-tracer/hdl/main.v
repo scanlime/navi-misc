@@ -53,12 +53,16 @@ module main(mclk, reset, gndout,
    input        ram_oe, ram_we, ram_ce1, ram_ce2;
    input        ram_ub, ram_lb, ram_adv, ram_clk;
 
-   input [1:0]  switch;
+   input [2:0]  switch;
    output       ds_osc_out;
 
-   // Switches
-   d_flipflop_pair_bus #(2) switch_dffp(mclk, reset, switch,
-                                        { trace_reads, turbo });
+   // Configuration switches
+   wire         trace_enable;
+   wire         trace_reads;
+   wire         turbo;
+
+   debouncer_arr #(3) switch_db(mclk, reset, switch,
+                                { trace_enable, trace_reads, turbo });
 
    assign gndout = 0;
 
@@ -157,7 +161,7 @@ module main(mclk, reset, gndout,
         packet_payload <= 0;
         packet_strobe <= 0;
      end
-     else if (filter_strobe && filter_addr_latch) begin
+     else if (trace_enable && filter_strobe && filter_addr_latch) begin
         /*
          * Send an address packet
          */
@@ -167,7 +171,8 @@ module main(mclk, reset, gndout,
         packet_payload <= filter_a;
         packet_strobe <= 1;
      end
-     else if (filter_strobe && filter_write && burst_cycle >= (WRITE_LATENCY - 1)) begin
+     else if (trace_enable && filter_strobe && filter_write &&
+              burst_cycle >= (WRITE_LATENCY - 1)) begin
         /*
          * Send a write word packet
          */
@@ -177,7 +182,7 @@ module main(mclk, reset, gndout,
         packet_payload <= { timestamp5, filter_ublb, filter_d };
         packet_strobe <= 1;
      end
-     else if (trace_reads && nfilter_strobe && filter_read &&
+     else if (trace_enable && trace_reads && nfilter_strobe && filter_read &&
               burst_cycle >= READ_LATENCY) begin
         /*
          * Send a read word packet.
@@ -193,7 +198,8 @@ module main(mclk, reset, gndout,
         packet_payload <= { timestamp5, filter_ublb, nfilter_d };
         packet_strobe <= 1;
      end
-     else if (filter_strobe && burst_cycle == 1 && timestamp5_remainder) begin
+     else if (trace_enable && filter_strobe &&
+              burst_cycle == 1 && timestamp5_remainder) begin
         /*
          * Our RAM is otherwise idle, and we have a timestamp remainder-
          * send a timestamp packet to sync up the host with our clock.
@@ -245,7 +251,8 @@ module main(mclk, reset, gndout,
                               {ram_clk,
                                filter_strobe, nfilter_strobe,
                                filter_read, filter_write,
-                               1'b0, err_overflow, err_latch },
+                               packet_strobe,
+                               err_overflow, err_latch },
                               led);
 
    /* LED display: Current memory address, high 16 bits in hex, low 4 bits in dots */
