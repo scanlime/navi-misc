@@ -52,6 +52,10 @@ NET "switch<0>"  LOC = "F12"  ;
 NET "sram_oe" LOC = "K4";
 NET "sram_we" LOC = "G3";
 
+# Unused pins set to GND as shielding
+NET "gndout<0>" LOC = "A12";
+NET "gndout<1>" LOC = "A13";
+
 #
 # USB2 board on connector A1.
 #
@@ -91,7 +95,7 @@ NET "usb_fifoadr<1>" LOC = "R6";
 #      stuck using 2.5v logic thresholds. Close enough?
 #
 
-NET "ram_a<0>" LOC = "M11";
+NET "ram_a<0>" LOC = "M6";
 NET "ram_a<1>" LOC = "B11";
 NET "ram_a<2>" LOC = "G15";
 NET "ram_a<3>" LOC = "E11";
@@ -115,7 +119,7 @@ NET "ram_a<20>" LOC = "B7";
 NET "ram_a<21>" LOC = "H16";
 NET "ram_a<22>" LOC = "G16";
 
-NET "ram_d<0>" LOC = "A12";
+NET "ram_d<0>" LOC = "R7";
 NET "ram_d<1>" LOC = "J16";
 NET "ram_d<2>" LOC = "D16";
 NET "ram_d<3>" LOC = "C16";
@@ -123,7 +127,7 @@ NET "ram_d<4>" LOC = "B5";
 NET "ram_d<5>" LOC = "C8";
 NET "ram_d<6>" LOC = "A4";
 NET "ram_d<7>" LOC = "A3";
-NET "ram_d<8>" LOC = "A13";
+NET "ram_d<8>" LOC = "N6";
 NET "ram_d<9>" LOC = "B12";
 NET "ram_d<10>" LOC = "D12";
 NET "ram_d<11>" LOC = "A10";
