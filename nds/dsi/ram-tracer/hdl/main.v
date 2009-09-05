@@ -23,7 +23,7 @@
  */
 
 
-module main(mclk, reset,
+module main(mclk, reset, gndout,
             ledseg_c, ledseg_a, led,
             sram_oe, sram_we,
             usb_d, usb_slwr, usb_slrd, usb_pktend,
@@ -33,6 +33,8 @@ module main(mclk, reset,
             switch, ds_osc_out);
 
    input mclk, reset;
+
+   output [1:0] gndout;
 
    output [7:0] ledseg_c;
    output [3:0] ledseg_a;
@@ -53,6 +55,8 @@ module main(mclk, reset,
 
    input [0:0]  switch;
    output       ds_osc_out;
+
+   assign gndout = 0;
 
    // Disable SRAM, we're using the same pins for USB
    assign sram_oe = 1;
