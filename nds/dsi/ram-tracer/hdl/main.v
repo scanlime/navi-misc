@@ -100,11 +100,15 @@ module main(mclk, reset,
    wire        filter_addr_latch;
    wire        filter_strobe;
 
+   wire [15:0] nfilter_d;
+   wire        nfilter_strobe;
+
    ram_sampler ramsam(mclk, reset,
                       ram_a, ram_d, ram_oe, ram_we, ram_ce1, ram_ce2,
                       ram_ub, ram_lb, ram_adv, ram_clk,
                       filter_a, filter_d, filter_ublb, filter_read,
-                      filter_write, filter_addr_latch, filter_strobe);
+                      filter_write, filter_addr_latch, filter_strobe,
+                      nfilter_d, nfilter_strobe);
 
    /*
     * Which cycle are we on in this read/write burst?
@@ -167,14 +171,19 @@ module main(mclk, reset,
         packet_payload <= { timestamp5, filter_ublb, filter_d };
         packet_strobe <= 1;
      end
-     else if (filter_strobe && filter_read && burst_cycle >= (READ_LATENCY - 1)) begin
+     else if (nfilter_strobe && filter_read && burst_cycle >= READ_LATENCY) begin
         /*
-         * Send a read word packet
+         * Send a read word packet.
+         * Note that data is latched on the negative clock edge,
+         * but all control signals are taken from the last positive edge.
+         *
+         * This also gives us no -1 above, since burst_cycle has
+         * already been incremented.
          */
 
         timestamp_counter <= timestamp5_remainder;
         packet_type <= 2'b01;
-        packet_payload <= { timestamp5, filter_ublb, filter_d };
+        packet_payload <= { timestamp5, filter_ublb, nfilter_d };
         packet_strobe <= 1;
      end
      else if (filter_strobe && burst_cycle == 1 && timestamp5_remainder) begin
@@ -216,12 +225,14 @@ module main(mclk, reset,
 
    /* 8 individual status LEDs */
    pulse_stretcher_arr led_ps(mclk, reset,
-                              {filter_read, filter_write,
-                               5'b0, err_overflow },
+                              {ram_clk,
+                               filter_strobe, nfilter_strobe,
+                               filter_read, filter_write,
+                               2'b0, err_overflow },
                               led);
 
-   /* LED display: Current memory address, high 16 bits. */
-   led_hex display(mclk, reset, filter_a[22:7], ledseg_c, ledseg_a);
+   /* LED display: Current memory address, high 16 bits in hex, low 4 bits in dots */
+   led_hex display(mclk, reset, {filter_a[3:0], filter_a[22:7]}, ledseg_c, ledseg_a);
 
 endmodule // main
 
