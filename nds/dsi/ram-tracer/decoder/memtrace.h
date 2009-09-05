@@ -58,15 +58,20 @@ typedef struct {
 #define RAM_CLOCK_HZ  4350000
 
 typedef struct {
-   FILE *file;
-   uint32_t nextAddr;   // In words
-
    struct {
       uint64_t  clocks;
       double    seconds;
    } timestamp;
 
    uint8_t  memory[MEM_SIZE_BYTES];
+
+   /* Private */
+
+   FILE *file;
+   uint32_t fileBufHead;
+   uint32_t fileBufTail;
+   uint8_t fileBuf[64 * 1024];
+   uint32_t nextAddr;             // In words
 } MemTraceState;
 
 

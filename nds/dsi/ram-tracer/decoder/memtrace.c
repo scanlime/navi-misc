@@ -79,7 +79,58 @@ MemTrace_Close(MemTraceState *state)
 
 
 /*
- * MemTrace_Next --
+ * MemTraceReadBuffered --
+ *
+ *    Internal function for buffered reads. Should be a little faster
+ *    than calling fread repeatedly. Returns true on success, false on
+ *    EOF. (Does not differentiate EOF from other errors currently!)
+ */
+
+static inline bool
+MemTraceReadBuffered(MemTraceState *state, uint8_t *bytes, uint32_t size)
+{
+   int i;
+   uint8_t *src;
+
+   if (size + state->fileBufHead > state->fileBufTail) {
+      /* Not enough data in the buffer. */
+
+      size_t result;
+
+      /* Relocate any existing data to the beginning of the buffer */
+      state->fileBufTail -= state->fileBufHead;
+      memmove(state->fileBuf, state->fileBuf + state->fileBufHead, state->fileBufTail);
+      state->fileBufHead = 0;
+
+      /* Fill the rest of the buffer from disk (well, from stdio's buffer) */
+      result = fread(state->fileBuf + state->fileBufTail, 1,
+                     sizeof state->fileBuf - state->fileBufTail,
+                     state->file);
+      if (result < 1) {
+         return false;
+      }
+      state->fileBufTail += result;
+   }
+
+   /*
+    * This is such a small copy that the function call overhead on
+    * memcpy isn't likely to make it worthwhile. Also, this loop can
+    * be unrolled by a smart compiler when 'size' is constant.
+    */
+
+   src = state->fileBuf + state->fileBufHead;
+   for (i = 0; i < size; i++) {
+      *(bytes++) = *(src++);
+   }
+   state->fileBufHead += size;
+
+   return true;
+}
+
+
+
+/*
+ * MemTrace --
  *
  *    Advance to the next memory operation in the log.
  *    The current timestamp and memory contents in 'state'
