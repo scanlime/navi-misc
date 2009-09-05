@@ -123,6 +123,7 @@ MemTraceReadBuffered(MemTraceState *state, uint8_t *bytes, uint32_t size)
       *(bytes++) = *(src++);
    }
    state->fileBufHead += size;
+   state->fileOffset += size;
 
    return true;
 }
@@ -159,10 +160,9 @@ MemTrace_Next(MemTraceState *state, MemOp *nextOp)
    while (!done) {
       uint8_t packetBytes[4];
       uint32_t packet, payload, typecode, check, computedCheck;
-      size_t nItems = fread(packetBytes, sizeof packetBytes, 1, state->file);
 
-      if (nItems < 1) {
-         return MEMTR_EOF;
+      if (!MemTraceReadBuffered(state, packetBytes, sizeof packetBytes)) {
+	 return MEMTR_EOF;
       }
 
       // Reassemble a 32-bit big-endian packet from the bytes
@@ -176,7 +176,9 @@ MemTrace_Next(MemTraceState *state, MemOp *nextOp)
       if ((packet & 0x80808080) != 0x80000000) {
          // Half-hearted attempt to recover from sync errors.
          // We could do better than this...
-         fgetc(state->file);
+	 if (!MemTraceReadBuffered(state, packetBytes, 1)) {
+	    return MEMTR_EOF;
+	 }
 
          return MEMTR_ERR_SYNC;
       }

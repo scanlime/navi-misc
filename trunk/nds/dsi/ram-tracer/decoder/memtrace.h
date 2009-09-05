@@ -63,6 +63,8 @@ typedef struct {
       double    seconds;
    } timestamp;
 
+   uint64_t  fileOffset;
+
    uint8_t  memory[MEM_SIZE_BYTES];
 
    /* Private */
