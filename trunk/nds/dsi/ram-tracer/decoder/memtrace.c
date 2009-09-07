@@ -25,6 +25,7 @@
 #define _FILE_OFFSET_BITS 64
 
 #include <string.h>
+#include <assert.h>
 #include "memtrace.h"
 
 
@@ -92,6 +93,8 @@ MemTraceReadBuffered(MemTraceState *state, uint8_t *bytes, uint32_t size)
    int i;
    uint8_t *src;
 
+   assert(state->fileBufHead <= state->fileBufTail);
+
    if (size + state->fileBufHead > state->fileBufTail) {
       /* Not enough data in the buffer. */
 
@@ -107,9 +110,15 @@ MemTraceReadBuffered(MemTraceState *state, uint8_t *bytes, uint32_t size)
                      sizeof state->fileBuf - state->fileBufTail,
                      state->file);
       if (result < 1) {
+         /* Nothing to read */
          return false;
       }
       state->fileBufTail += result;
+   }
+
+   if (size + state->fileBufHead > state->fileBufTail) {
+      /* We read something, but not enough. EOF. */
+      return false;
    }
 
    /*
@@ -124,6 +133,7 @@ MemTraceReadBuffered(MemTraceState *state, uint8_t *bytes, uint32_t size)
    }
    state->fileBufHead += size;
    state->fileOffset += size;
+   assert(state->fileBufHead <= state->fileBufTail);
 
    return true;
 }
