@@ -24,7 +24,9 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
+#include <errno.h>
 #include "memtrace.h"
 
 
@@ -36,24 +38,36 @@ main(int argc, char **argv)
    MemOp op;
    const char *memImageFile = NULL;
    bool quiet = false;
+   bool limit = false;
+   double limit_time = 0.0;
 
    /*
     * Command line gook...
     */
 
-   if (argc < 2 || argc > 3) {
+   if (argc < 2 || argc > 4) {
       fprintf(stderr,
               "\n"
               "RAM Trace Decoder, for new 32-bit trace logs.\n"
               "-- Micah Dowty <micah@navi.cx>\n"
               "\n"
-              "usage: %s <trace.raw> [<mem-image.bin>]\n"
+              "usage: %s <trace.raw> [<mem-image.bin>  [limit_time] ]\n"
               "\n", argv[0]);
       return 1;
    }
    if (argc >= 3) {
       memImageFile = argv[2];
       quiet = true;
+   }
+
+   if (argc >= 4) {
+      limit = true;
+      errno = 0;
+      limit_time = strtod(argv[3], NULL);
+      if(errno != 0) {
+         perror("strtod");
+         return -1;
+      }
    }
 
    if (!MemTrace_Open(&state, argv[1])) {
@@ -70,6 +84,12 @@ main(int argc, char **argv)
 	 fprintf(stderr, "*** Error at offset %llx: %s\n", state.fileOffset,
 		 MemTrace_ErrorString(result));
          continue;
+      }
+
+      if(limit && state.timestamp.seconds > limit_time) {
+         fprintf(stderr, "Exiting per user request before entry @ %11.06f\n", state.timestamp.seconds);
+         result = MEMTR_EOF;
+         break;
       }
 
       if (!quiet) {
