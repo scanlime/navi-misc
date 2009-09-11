@@ -1,15 +1,27 @@
 #include "fastftdi.h"
+#include <stdio.h>
+
 
 int main(int argc, char **argv)
 {
   FTDIDevice dev;
+  int err;
 
-  FTDIDevice_Open(&dev);
+  err = FTDIDevice_Open(&dev);
+  if (err)
+    return 1;
+
+  err = FPGAConfig_LoadFile(&dev, argv[1]);
+  if (err) {
+    fprintf(stderr, "FPGA: err=%d\n", err);
+  }
+  return 0;
+
 
   //  FTDIDevice_SetBitmode(&dev, FTDI_BITMODE_SYNC_FIFO);
 
   FTDIDevice_SetMode(&dev, FTDI_INTERFACE_A,
-		     FTDI_BITMODE_BITBANG, 0xFF,
+		     FTDI_BITMODE_SYNC_FIFO, 0xFF,
 		     1000000);
   
   /*
