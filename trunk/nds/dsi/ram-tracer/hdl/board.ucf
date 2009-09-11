@@ -1,6 +1,62 @@
 #
-# S3BOARD peripherals
+# RAM Tracer revision 2, constraints and wiring information.
 #
+# This file contains both the FPGA constraints and some
+# human-readable notes about other necessary hookups.
+#
+# This is designed for use with a bare Spartan 3E chip in the
+# PQ208 package. I used the breakout board from Spark Fun electronics:
+#
+#  http://www.sparkfun.com/commerce/product_info.php?products_id=8458
+#
+# This design may be adaptable to other FPGAs, but please pay special
+# attention to the I/O standards. All DSi memory bus connections must
+# use 1.8v logic. In this design, those connections are all made on
+# a separate bank (Bank 3) which takes its VccO from the DSi's 1.8v
+# power rail.
+# 
+# -- Micah Dowty <micah@navi.cx>
+
+########################################################
+#
+# USB interface: FTDI FT2232H Mini Module
+#
+# http://www.ftdichip.com/Products/EvaluationKits/FT2232H_MiniModule.htm
+#
+
+# This module is configured as USB Self-Powered, drawing its 5V
+# power from the FPGA board.
+#
+#    CN2 pins 1,3,5 = V3V3
+#    CN2 pins 11,21 + CN3 pins 12,22 = VIO
+#    Connect V3V3 and VIO together.
+#
+#    Ground:    CN3-2
+#    VCC (+5v): CN3-3
+
+# All FT2232H connections are made on Bank 2 of the FPGA,
+# configured with 3.3v I/O. Port B of the FT2232H is unused,
+# since it is unavailable when using the high-speed synchronous
+# FIFO. Port A is used in synchronous FIFO mode during normal
+# operation, but we also use the FT2232H to configure the FPGA.
+#
+# During configuration:
+#
+#    D0-7:     Parallel configuration data from FT2232H to FPGA
+#    CSI_B:    Chip select, must be low during configuration
+#    RDWR_B:   Read/write, must be  low during configuration
+#    CCLK:     Data clock (data latched on rising edge)
+#    PROG_B:   Pulse low to reset FPGA. Must be high during config.
+#
+# We can map D0-7 and CCLK to Port A in asynchronous bit-bang mode.
+# The other
+# 
+# 
+
+
+
+
+
 
 NET "ledseg_a<0>"  LOC = "E13"  ;
 NET "ledseg_a<1>"  LOC = "F14"  ;
