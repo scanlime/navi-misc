@@ -47,11 +47,37 @@
 #    RDWR_B:   Read/write, must be  low during configuration
 #    CCLK:     Data clock (data latched on rising edge)
 #    PROG_B:   Pulse low to reset FPGA. Must be high during config.
+#    DONE:     Configuration successful?
 #
-# We can map D0-7 and CCLK to Port A in asynchronous bit-bang mode.
-# The other
-# 
-# 
+# We'll use interface A in asynchronous bit-bang mode to actually
+# clock out the configuration bitstream. The other relevant pins
+# (CSI, RDWR, PROG, DONE) are connected to port B, also in bit-bang mode.
+# These pins are connected via 1K series current-limiting resistors.
+#
+#    FT2232H Name     Pin#     FPGA Name   Pin#
+#    ------------------------------------------
+#
+#    AD0              CN2-7    D0          P87   
+#    AD1              CN2-10   D1          P83
+#    AD2              CN2-9    D2          P82
+#    AD3              CN2-12   D3          P78
+#    AD4              CN2-14   D4          P77
+#    AD5              CN2-13   D5          P76
+#    AD6              CN2-16   D6          P75
+#    AD7              CN2-15   D7          P74
+#    AC0/RXF#         CN2-18   IO          P63
+#    AC1/TXE#/WRSTB#  CN2-17   CCLK        P103
+#    AC2/RD#          CN2-20   IO          P62
+#    AC3/WR#          CN2-19   IO          P65
+#    AC5/CLKOUT       CN2-24   GCLK        P81
+#    BD0              CN3-26*  CSI         P61
+#    BD1              CN3-25*  RDWR        P80
+#    BD2              CN3-24*  PROG        P104
+#    BD3              CN3-23*  DONE        P1
+#
+#  * = Series ~1K resistor
+#
+
 
 
 

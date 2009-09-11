@@ -40,7 +40,7 @@ FTDIDevice_Open(FTDIDevice *dev)
     return err;
   }
 
-  libusb_set_debug(dev->libusb, 2);
+  libusb_set_debug(dev->libusb, 3);
 
   dev->handle = libusb_open_device_with_vid_pid(dev->libusb,
 						FTDI_VENDOR,
@@ -49,15 +49,18 @@ FTDIDevice_Open(FTDIDevice *dev)
     return LIBUSB_ERROR_NO_DEVICE;
   }
 
+  for (interface = 0; interface < 2; interface++) {
+    libusb_detach_kernel_driver(dev->handle, interface);
+  }
+
   if ((err = libusb_set_configuration(dev->handle, 1))) {
+    perror("Error setting configuration");
     return err;
   }
 
   for (interface = 0; interface < 2; interface++) {
-    if ((err = libusb_detach_kernel_driver(dev->handle, interface))) {
-      return err;
-    }
     if ((err = libusb_claim_interface(dev->handle, interface))) {
+      perror("Error claiming interface");
       return err;
     }
   }
@@ -116,4 +119,54 @@ FTDIDevice_SetMode(FTDIDevice *dev, FTDIInterface interface,
     if (err)
       return err;
   }
+}
+
+
+int
+FTDIDevice_WriteSync(FTDIDevice *dev, FTDIInterface interface,
+		     uint8_t *data, size_t length)
+{
+  int err, transferred;
+
+  err = libusb_bulk_transfer(dev->handle, FTDI_EP_OUT(interface),
+			     data, length, &transferred,
+			     FTDI_COMMAND_TIMEOUT);
+  if (err < 0)
+    return err;
+  else
+    return 0;
+}
+
+
+int
+FTDIDevice_WriteByteSync(FTDIDevice *dev, FTDIInterface interface, uint8_t byte)
+{
+  return FTDIDevice_WriteSync(dev, interface, &byte, sizeof byte);
+}
+
+
+int
+FTDIDevice_ReadByteSync(FTDIDevice *dev, FTDIInterface interface, uint8_t *byte)
+{
+  /*
+   * This is a simplified synchronous read, intended for bit-banging mode.
+   * Ignores the modem/buffer status bytes, returns just the data.
+   */
+  
+  uint8_t packet[FTDI_PACKET_SIZE];
+  int transferred, err;
+
+  err = libusb_bulk_transfer(dev->handle, FTDI_EP_IN(interface),
+			     packet, sizeof packet, &transferred,
+			     FTDI_COMMAND_TIMEOUT);
+  if (err < 0) {
+    return err;
+  }
+  if (transferred != sizeof packet) {
+    return -1;
+  }
+
+  *byte = packet[FTDI_HEADER_SIZE];
+
+  return 0;
 }

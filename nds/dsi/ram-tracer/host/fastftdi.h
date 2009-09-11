@@ -70,11 +70,11 @@ typedef struct {
 #define FTDI_SET_BAUD_REQUEST     0x03
 #define FTDI_SET_BITMODE_REQUEST  0x0B
 
-#define FTDI_EP_IFA_IN            0x81
-#define FTDI_EP_IFA_OUT           0x02
-#define FTDI_EP_IFB_IN            0x83
-#define FTDI_EP_IFB_OUT           0x04
+#define FTDI_EP_IN(i)             (0x81 + (i-1)*2)
+#define FTDI_EP_OUT(i)            (0x02 + (i-1)*2)
 
+#define FTDI_PACKET_SIZE          512   // Specific to FT2232H
+#define FTDI_HEADER_SIZE          2
 
 
 /*
@@ -87,6 +87,12 @@ void FTDIDevice_Close(FTDIDevice *dev);
 int FTDIDevice_SetMode(FTDIDevice *dev, FTDIInterface interface,
 		       FTDIBitmode mode, uint8_t pinDirections,
 		       int baudRate);
+
+int FTDIDevice_WriteSync(FTDIDevice *dev, FTDIInterface interface,
+			 uint8_t *data, size_t length);
+
+int FTDIDevice_WriteByteSync(FTDIDevice *dev, FTDIInterface interface, uint8_t byte);
+int FTDIDevice_ReadByteSync(FTDIDevice *dev, FTDIInterface interface, uint8_t *byte);
 
 
 #endif /* __FASTFTDI_H */
