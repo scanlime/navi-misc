@@ -23,52 +23,32 @@
  */
 
 
-module main(mclk, reset, gndout,
-            ledseg_c, ledseg_a, led,
-            sram_oe, sram_we,
-            usb_d, usb_slwr, usb_slrd, usb_pktend,
-            usb_sloe, usb_fifoadr, usb_flagb,
-            ram_a, ram_d, ram_oe, ram_we, ram_ce1, ram_ce2,
-            ram_ub, ram_lb, ram_adv, ram_clk,
-            switch, ds_osc_out);
+module main(mclk,
+            usb_d, usb_rxf_n, usb_txe_n, usb_rd_n, usb_wr_n,
+            ram_a, ram_d, ram_oe, ram_we, ram_ce1_in,
+            ram_ce1_out, ram_ce2, ram_ub, ram_lb, ram_adv, ram_clk,
+            dsi_sysclk);
 
-   input mclk, reset;
+   input mclk;
+   wire  reset = 1'b0;   // Placeholder- no need for reset yet
 
-   output [1:0] gndout;
-
-   output [7:0] ledseg_c;
-   output [3:0] ledseg_a;
-   output [7:0] led;
-
-   output       sram_oe, sram_we;
-
-   output [7:0]  usb_d;
-   output [1:0]  usb_fifoadr;
-   output        usb_slwr, usb_slrd;
-   output        usb_pktend, usb_sloe;
-   input         usb_flagb;
+   inout [7:0] usb_d;
+   input       usb_rxf_n, usb_txe_n;
+   output      usb_rd_n, usb_wr_n;
 
    input [22:0] ram_a;
    input [15:0] ram_d;
-   input        ram_oe, ram_we, ram_ce1, ram_ce2;
+   input        ram_oe, ram_we, ram_ce1_in, ram_ce2;
    input        ram_ub, ram_lb, ram_adv, ram_clk;
+   output       ram_ce1_out;
 
-   input [2:0]  switch;
-   output       ds_osc_out;
+   assign ram_ce1_out = ram_ce1_in;  // Placeholder for RAM injection
 
-   // Configuration switches
-   wire         trace_enable;
-   wire         trace_reads;
-   wire         turbo;
+   output       dsi_sysclk;
 
-   debouncer_arr #(3) switch_db(mclk, reset, switch,
-                                { trace_enable, trace_reads, turbo });
-
-   assign gndout = 0;
-
-   // Disable SRAM, we're using the same pins for USB
-   assign sram_oe = 1;
-   assign sram_we = 1;
+   // FIXME: Config options
+   wire         trace_enable = 1;
+   wire         trace_reads = 1;
 
 
    /************************************************
@@ -77,16 +57,14 @@ module main(mclk, reset, gndout,
 
    wire [31:0]   packet_data;
    reg           packet_strobe;
-   wire          err_overflow;
-
-   usb_comm usbc(mclk, reset,
-                 usb_d, usb_slwr, usb_slrd, usb_pktend,
-                 usb_sloe, usb_fifoadr, usb_flagb,
-                 packet_data, packet_strobe,
-                 err_overflow);
-
    reg [1:0]     packet_type;
    reg [22:0]    packet_payload;
+
+   usb_comm usbc(mclk, reset,
+                 usb_d, usb_rxf_n, usb_txe_n, usb_rd_n, usb_wr_n,
+                 //packet_data, packet_strobe);
+                 32'hCAFEBEEF, 1);
+
 
    usb_packet_assemble usbpa(packet_data, packet_type, packet_payload);
 
@@ -95,7 +73,10 @@ module main(mclk, reset, gndout,
     * Oscillator Simulator
     */
 
-   osc_sim dsosc(mclk, reset, turbo, ds_osc_out);
+   // XXX: FIXME
+   assign dsi_sysclk = 1;
+
+   //osc_sim dsosc(mclk, reset, turbo, ds_osc_out);
 
 
    /************************************************
@@ -230,33 +211,6 @@ module main(mclk, reset, gndout,
         packet_payload <= 23'hXXXXXX;
         packet_strobe <= 0;
      end
-
-
-   /************************************************
-    * Debug
-    */
-
-   /* Error latch- stays on if an error ever happens */
-
-   reg err_latch;
-
-   always @(posedge mclk or posedge reset)
-     if (reset)
-       err_latch <= 0;
-     else if (err_overflow)
-       err_latch <= 1;
-
-   /* 8 individual status LEDs */
-   pulse_stretcher_arr led_ps(mclk, reset,
-                              {ram_clk,
-                               filter_strobe, nfilter_strobe,
-                               filter_read, filter_write,
-                               packet_strobe,
-                               err_overflow, err_latch },
-                              led);
-
-   /* LED display: Current memory address, high 16 bits in hex, low 4 bits in dots */
-   led_hex display(mclk, reset, {filter_a[3:0], filter_a[22:7]}, ledseg_c, ledseg_a);
 
 endmodule // main
 

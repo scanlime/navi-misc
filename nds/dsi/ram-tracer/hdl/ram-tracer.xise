@@ -45,14 +45,14 @@
   <properties>
     <property xil_pn:name="Command line syntax" xil_pn:value="emacs $1"/>
     <property xil_pn:name="Constraints Entry" xil_pn:value="Constraints Editor"/>
-    <property xil_pn:name="Device" xil_pn:value="xc3s200"/>
-    <property xil_pn:name="Device Family" xil_pn:value="Spartan3"/>
+    <property xil_pn:name="Device" xil_pn:value="xc3s500e"/>
+    <property xil_pn:name="Device Family" xil_pn:value="Spartan3E"/>
     <property xil_pn:name="Editor" xil_pn:value="Custom"/>
     <property xil_pn:name="Fitter Report Format" xil_pn:value="HTML"/>
     <property xil_pn:name="Implementation Top" xil_pn:value="Module|main"/>
     <property xil_pn:name="Implementation Top Instance Path" xil_pn:value="/main"/>
     <property xil_pn:name="PROP_DesignName" xil_pn:value="spi-mem-emulator"/>
-    <property xil_pn:name="Package" xil_pn:value="ft256"/>
+    <property xil_pn:name="Package" xil_pn:value="pq208"/>
     <property xil_pn:name="Preferred Language" xil_pn:value="Verilog"/>
     <property xil_pn:name="Simulator" xil_pn:value="ISim (VHDL/Verilog)"/>
     <property xil_pn:name="Speed Grade" xil_pn:value="-4"/>

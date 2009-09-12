@@ -12,9 +12,8 @@
 # This design may be adaptable to other FPGAs, but please pay special
 # attention to the I/O standards. All DSi memory bus connections must
 # use 1.8v logic. In this design, those connections are all made on
-# a separate bank (Bank 3) which takes its VccO from the DSi's 1.8v
-# power rail.
-# 
+# separate I/O banks which take their VccO from the DSi's 1.8v power rail.
+#
 # -- Micah Dowty <micah@navi.cx>
 
 
@@ -58,7 +57,7 @@
 #    FT2232H Name     Pin#     FPGA Name   Pin#
 #    ------------------------------------------
 #
-#    AD0              CN2-7    D0          P87   
+#    AD0              CN2-7    D0          P87
 #    AD1              CN2-10   D1          P83
 #    AD2              CN2-9    D2          P82
 #    AD3              CN2-12   D3          P78
@@ -116,44 +115,42 @@ NET "usb_wr_n"  LOC = "P65"  | IOSTANDARD = LVCMOS33 ;
 # VccO connected to DSi VCC18 rail.
 #
 
-NET "" LOC = "P159" | IOSTANDARD = LVCMOS18 ;  # Input only
-NET "" LOC = "P160" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P161" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P162" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P163" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P164" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P165" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P167" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P168" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P169" | IOSTANDARD = LVCMOS18 ;  # Input only
-NET "" LOC = "P171" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P172" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P174" | IOSTANDARD = LVCMOS18 ;  # Input only
-NET "" LOC = "P175" | IOSTANDARD = LVCMOS18 ;  # Input only
-NET "" LOC = "P177" | IOSTANDARD = LVCMOS18 ;  # GCLK
-NET "" LOC = "P178" | IOSTANDARD = LVCMOS18 ;  # GCLK
-NET "" LOC = "P179" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P180" | IOSTANDARD = LVCMOS18 ;  # GCLK
-NET "" LOC = "P181" | IOSTANDARD = LVCMOS18 ;  # GCLK
-NET "" LOC = "P183" | IOSTANDARD = LVCMOS18 ;  # GCLK, Input only
-NET "" LOC = "P184" | IOSTANDARD = LVCMOS18 ;  # GCLK, Input only
-NET "" LOC = "P185" | IOSTANDARD = LVCMOS18 ;  # GCLK
-NET "" LOC = "P186" | IOSTANDARD = LVCMOS18 ;  # GCLK
-NET "" LOC = "P187" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P189" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P190" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P192" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P193" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P194" | IOSTANDARD = LVCMOS18 ;  # Input only
-NET "" LOC = "P196" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P197" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P199" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P200" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P202" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P203" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P204" | IOSTANDARD = LVCMOS18 ;  # Input only
-NET "" LOC = "P205" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P206" | IOSTANDARD = LVCMOS18 ;
+##### Global glock I/O pins
+
+NET "ram_clk" LOC = "P177" | IOSTANDARD = LVCMOS18 ;
+NET "dsi_sysclk" LOC = "P178" | IOSTANDARD = LVCMOS18 ;
+#NET "" LOC = "P180" | IOSTANDARD = LVCMOS18 ;
+#NET "" LOC = "P181" | IOSTANDARD = LVCMOS18 ;
+#NET "" LOC = "P185" | IOSTANDARD = LVCMOS18 ;
+#NET "" LOC = "P186" | IOSTANDARD = LVCMOS18 ;
+
+##### I/O pins
+
+#NET "" LOC = "P160" | IOSTANDARD = LVCMOS18 ;
+#NET "" LOC = "P161" | IOSTANDARD = LVCMOS18 ;
+#NET "" LOC = "P162" | IOSTANDARD = LVCMOS18 ;
+#NET "" LOC = "P163" | IOSTANDARD = LVCMOS18 ;
+#NET "" LOC = "P164" | IOSTANDARD = LVCMOS18 ;
+#NET "" LOC = "P165" | IOSTANDARD = LVCMOS18 ;
+#NET "" LOC = "P167" | IOSTANDARD = LVCMOS18 ;
+#NET "" LOC = "P168" | IOSTANDARD = LVCMOS18 ;
+#NET "" LOC = "P171" | IOSTANDARD = LVCMOS18 ;
+#NET "" LOC = "P172" | IOSTANDARD = LVCMOS18 ;
+
+NET "ram_ce1_out" LOC = "P179" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<0>"    LOC = "P187" | IOSTANDARD = LVCMOS18 ;
+NET "ram_oe"      LOC = "P189" | IOSTANDARD = LVCMOS18 ;
+NET "ram_ce1_in"  LOC = "P190" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<15>"   LOC = "P192" | IOSTANDARD = LVCMOS18 ;
+NET "ram_d<1>"    LOC = "P193" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<21>"   LOC = "P196" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<4>"    LOC = "P197" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<22>"   LOC = "P199" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<2>"    LOC = "P200" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<14>"   LOC = "P202" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<6>"    LOC = "P203" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<16>"   LOC = "P205" | IOSTANDARD = LVCMOS18 ;
+NET "ram_d<2>"    LOC = "P206" | IOSTANDARD = LVCMOS18 ;
 
 
 ########################################################
@@ -163,108 +160,38 @@ NET "" LOC = "P206" | IOSTANDARD = LVCMOS18 ;
 # VccO connected to DSi VCC18 rail.
 #
 
-NET "" LOC = "P2" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P3" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P4" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P5" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P6" | IOSTANDARD = LVCMOS18 ;  # Input only
-NET "" LOC = "P8" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P9" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P11" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P12" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P14" | IOSTANDARD = LVCMOS18 ;  # Input only
-NET "" LOC = "P15" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P16" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P18" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P19" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P20" | IOSTANDARD = LVCMOS18 ;  # Input only
-NET "" LOC = "P22" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P23" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P24" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P25" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P26" | IOSTANDARD = LVCMOS18 ;  # Input only
-NET "" LOC = "P28" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P29" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P30" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P31" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P32" | IOSTANDARD = LVCMOS18 ;  # Input only
-NET "" LOC = "P33" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P34" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P35" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P36" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P39" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P40" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P41" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P42" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P43" | IOSTANDARD = LVCMOS18 ;  # Input only
-NET "" LOC = "P45" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P47" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P48" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P49" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P50" | IOSTANDARD = LVCMOS18 ;
-NET "" LOC = "P51" | IOSTANDARD = LVCMOS18 ;  # Input only
-
-
-
+NET "ram_d<15>" LOC = "P2" | IOSTANDARD = LVCMOS18 ;
+NET "ram_d<3>"  LOC = "P3" | IOSTANDARD = LVCMOS18 ;
+NET "ram_d<14>" LOC = "P4" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<3>"  LOC = "P5" | IOSTANDARD = LVCMOS18 ;
+NET "ram_d<12>" LOC = "P8" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<5>"  LOC = "P9" | IOSTANDARD = LVCMOS18 ;
+NET "ram_d<10>" LOC = "P11" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<18>" LOC = "P12" | IOSTANDARD = LVCMOS18 ;
+NET "ram_d<8>"  LOC = "P15" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<7>"  LOC = "P16" | IOSTANDARD = LVCMOS18 ;
+NET "ram_d<0>"  LOC = "P18" | IOSTANDARD = LVCMOS18 ;
+NET "ram_d<9>"  LOC = "P19" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<1>"  LOC = "P22" | IOSTANDARD = LVCMOS18 ;
+NET "ram_d<11>" LOC = "P23" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<17>" LOC = "P24" | IOSTANDARD = LVCMOS18 ;
+NET "ram_adv"   LOC = "P25" | IOSTANDARD = LVCMOS18 ;
+NET "ram_lb"    LOC = "P28" | IOSTANDARD = LVCMOS18 ;
+NET "ram_ub"    LOC = "P29" | IOSTANDARD = LVCMOS18 ;
+NET "ram_d<13>" LOC = "P30" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<20>" LOC = "P31" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<10>" LOC = "P33" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<9>"  LOC = "P34" | IOSTANDARD = LVCMOS18 ;
+NET "ram_d<4>"  LOC = "P35" | IOSTANDARD = LVCMOS18 ;
+NET "ram_d<6>"  LOC = "P36" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<12>" LOC = "P39" | IOSTANDARD = LVCMOS18 ;
+NET "ram_d<7>"  LOC = "P40" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<8>"  LOC = "P41" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<11>" LOC = "P42" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<19>" LOC = "P45" | IOSTANDARD = LVCMOS18 ;
+NET "ram_d<5>"  LOC = "P47" | IOSTANDARD = LVCMOS18 ;
+NET "ram_a<13>" LOC = "P48" | IOSTANDARD = LVCMOS18 ;
+NET "ram_ce2"   LOC = "P49" | IOSTANDARD = LVCMOS18 ;
+NET "ram_we"    LOC = "P50" | IOSTANDARD = LVCMOS18 ;
 
 ####
-
-NET "ram_a<0>" LOC = "M6";
-NET "ram_a<1>" LOC = "B11";
-NET "ram_a<2>" LOC = "G15";
-NET "ram_a<3>" LOC = "E11";
-NET "ram_a<4>" LOC = "H15";
-NET "ram_a<5>" LOC = "C12";
-NET "ram_a<6>" LOC = "E16";
-NET "ram_a<7>" LOC = "B13";
-NET "ram_a<8>" LOC = "D10";
-NET "ram_a<9>" LOC = "A5";
-NET "ram_a<10>" LOC = "B6";
-NET "ram_a<11>" LOC = "C9";
-NET "ram_a<12>" LOC = "B4";
-NET "ram_a<13>" LOC = "D7";
-NET "ram_a<14>" LOC = "F15";
-NET "ram_a<15>" LOC = "K16";
-NET "ram_a<16>" LOC = "E15";
-NET "ram_a<17>" LOC = "B10";
-NET "ram_a<18>" LOC = "B14";
-NET "ram_a<19>" LOC = "D8";
-NET "ram_a<20>" LOC = "B7";
-NET "ram_a<21>" LOC = "H16";
-NET "ram_a<22>" LOC = "G16";
-
-NET "ram_d<0>" LOC = "R7";
-NET "ram_d<1>" LOC = "J16";
-NET "ram_d<2>" LOC = "D16";
-NET "ram_d<3>" LOC = "C16";
-NET "ram_d<4>" LOC = "B5";
-NET "ram_d<5>" LOC = "C8";
-NET "ram_d<6>" LOC = "A4";
-NET "ram_d<7>" LOC = "A3";
-NET "ram_d<8>" LOC = "N6";
-NET "ram_d<9>" LOC = "B12";
-NET "ram_d<10>" LOC = "D12";
-NET "ram_d<11>" LOC = "A10";
-NET "ram_d<12>" LOC = "B16";
-NET "ram_d<13>" LOC = "A7";
-NET "ram_d<14>" LOC = "C15";
-NET "ram_d<15>" LOC = "D15";
-
-NET "ram_clk" LOC = "C6";
-NET "ram_oe" LOC = "L15";
-NET "ram_we" LOC = "E7";
-NET "ram_ce1" LOC = "K15";
-NET "ram_ce2" LOC = "C7";
-NET "ram_ub" LOC = "B8";
-NET "ram_lb" LOC = "A8";
-NET "ram_adv" LOC = "A9";
-
-#NET "ram_clk_debug" LOC = "D6";
-#NET "ram_buf_debug" LOC = "D5";
-
-#
-# DS clock output.
-# This replaces the normal 16.756 MHz crystal.
-#
-
-NET "ds_osc_out" LOC = "T3";

@@ -95,19 +95,18 @@ endmodule
 
 
 /*
- * This module is in charge of USB communications through the
- * FX2's byte-wide FIFO. It provides a fast on-chip 32-bit-wide
- * FIFO buffer that feeds the off-chip 8-bit-wide FIFO.
+ * This module is in charge of USB communications through an
+ * FT2232H in synchronous FIFO mode. It provides a fast on-chip
+ * 32-bit-wide FIFO buffer that feeds the off-chip 8-bit-wide FIFO.
  *
  * We handle flow control between the two FIFOs, but if the
- * on-chip FIFO fills up, we raise the 'overflow' signal.
+ * on-chip FIFO fills up, we signal an overflow error back to
+ * the host.
  */
 
 module usb_comm(mclk, reset,
-                usb_d, usb_slwr, usb_slrd, usb_pktend,
-                usb_sloe, usb_fifoadr, usb_flagb,
-                packet_data, packet_strobe,
-                overflow);
+                usb_d, usb_rxf_n, usb_txe_n, usb_rd_n, usb_wr_n,
+                packet_data, packet_strobe);
 
    /*
     * Size of the local FIFO buffer.
@@ -119,39 +118,35 @@ module usb_comm(mclk, reset,
 
    input mclk, reset;
 
-   output [7:0]  usb_d;
-   output [1:0]  usb_fifoadr;
-   output        usb_slwr, usb_slrd;
-   output        usb_pktend, usb_sloe;
-   input         usb_flagb;
+   inout [7:0] usb_d;
+   input       usb_rxf_n, usb_txe_n;
+   output      usb_rd_n, usb_wr_n;
 
    input [31:0]  packet_data;
    input         packet_strobe;
-
-   output        overflow;
 
 
    /************************************************
     * USB Setup
     */
 
-   assign usb_fifoadr = 2'b10;     // EP6
-   assign usb_sloe = 1;            // FIFO outputs always disabled
-   assign usb_slrd = 1;            // We don't read yet
-   assign usb_pktend = !reset;     // Flush the packet buffer on reset
-   wire   usb_full = !usb_flagb;   // External FIFO is full
+   wire          rx_full = !usb_rxf_n;
+   wire          tx_empty = !usb_txe_n;
 
-   // USB write registers, positive logic
-   reg [7:0]  usb_d;
-   reg        usb_wr_strobe;
-   assign usb_slwr = !usb_wr_strobe;
+   reg           read_request;
+   reg           write_request;
+   reg [7:0]     write_data;
+
+   assign usb_rd_n = !read_request;
+   assign usb_wr_n = !write_request;
+   assign usb_d = write_request ? write_data : 8'hZZ;
 
 
    /************************************************
     * Packet FIFO buffer
     */
 
-   // Synthesized as dual-port block RAM
+   // XXX: This gets synchronized as distributed RAM. Block RAM would be more efficient.
    reg [31:0]       fifo_mem[BUF_SIZE-1:0];
 
    reg [BUF_MSB:0]  fifo_write_ptr;
@@ -182,22 +177,24 @@ module usb_comm(mclk, reset,
      if (reset) begin
         usb_reg <= 0;
         usb_bytecnt <= 0;
-        usb_d <= 0;
-        usb_wr_strobe <= 0;
-        fifo_read_ptr <= 0;
+        write_data <= 0;
+        write_request <= 0;
+        read_request <= 0;
      end
-     else if (usb_wr_strobe) begin
+     else if (write_request) begin
         /*
          * We just wrote a byte. Wait one cycle, to give the FIFO
          * a chance to report whether it's full or not.
          */
-        usb_wr_strobe <= 0;
+        write_request <= 0;
+        read_request <= 0;
      end
-     else if (usb_full) begin
+     else if (rx_full) begin
         /*
          * Wait for room in the USB FIFO
          */
-        usb_wr_strobe <= 0;
+        write_request <= 0;
+        read_request <= 0;
      end
      else if (usb_bytecnt == 0) begin
         // Idle. Do we have another packet to send?
@@ -205,21 +202,23 @@ module usb_comm(mclk, reset,
            // Start a write. Load our shift register, clear the packet buffer.
            usb_reg <= fifo_mem[fifo_read_ptr];
            usb_bytecnt <= 4;
-           usb_wr_strobe <= 0;
            fifo_read_ptr <= fifo_read_ptr + 1;
         end
         else begin
            // Sit idle
            usb_bytecnt <= 0;
-           usb_wr_strobe <= 0;
         end
+
+        write_request <= 0;
+        read_request <= 0;
      end
      else begin
         // Next byte
         usb_reg <= { usb_reg[23:0], 8'hXX };
         usb_bytecnt <= usb_bytecnt - 1;
-        usb_d <= usb_reg[31:24];
-        usb_wr_strobe <= 1;
+        write_data <= usb_reg[31:24];
+        write_request <= 1;
+        read_request <= 0;
      end
 
 endmodule // usb_comm

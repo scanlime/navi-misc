@@ -2,6 +2,27 @@
 #include <stdio.h>
 
 
+FILE *outputFile;
+
+
+static int
+readCallback(uint8_t *buffer, int length, FTDIProgressInfo *progress, void *userdata)
+{
+   if (length)
+      fwrite(buffer, length, 1, outputFile);
+
+   if (progress)
+      fprintf(stderr, "  %3d:%02d [ %9.3f MB captured ] %7.1f kB/s current, "
+              "%7.1f kB/s average\r",
+              (int)progress->totalTime / 60, (int)progress->totalTime % 60,
+              progress->current.totalBytes / (1024.0 * 1024.0),
+              progress->currentRate / 1024.0,
+              progress->totalRate / 1024.0);
+
+   return 0;
+}
+
+
 int main(int argc, char **argv)
 {
   FTDIDevice dev;
@@ -15,22 +36,23 @@ int main(int argc, char **argv)
   if (err)
     return 1;
 
-  FTDIDevice_SetMode(&dev, FTDI_INTERFACE_A,
-		     FTDI_BITMODE_SYNC_FIFO, 0xFF,
-		     1000000);
-
-  if (1) {
-    uint8_t buf[256];
-    int i;
-    
-    for (i = 0; i < 256; i++)
-      buf[i] = 0;
-
-    i = sizeof buf;
-    libusb_bulk_transfer(dev.handle, 2, buf, sizeof buf, &i, 1000);
+  outputFile = fopen(argv[2], "wb");
+  if (!outputFile) {
+     perror("opening output file");
+     return 1;
   }
 
+  err = FTDIDevice_SetMode(&dev, FTDI_INTERFACE_A,
+                           FTDI_BITMODE_SYNC_FIFO, 0xFF, 0);
+  if (err)
+    return 1;
+
+  err = FTDIDevice_ReadStream(&dev, FTDI_INTERFACE_A, readCallback, NULL, 64, 16);
+  if (err < 0)
+     return 1;
+
   FTDIDevice_Close(&dev);
-  
+  fclose(outputFile);
+
   return 0;
 }
