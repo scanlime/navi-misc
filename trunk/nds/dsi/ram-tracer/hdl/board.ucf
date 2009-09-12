@@ -137,8 +137,8 @@ NET "dsi_sysclk" LOC = "P178" | IOSTANDARD = LVCMOS18 ;
 #NET "" LOC = "P167" | IOSTANDARD = LVCMOS18 ;
 #NET "" LOC = "P168" | IOSTANDARD = LVCMOS18 ;
 #NET "" LOC = "P171" | IOSTANDARD = LVCMOS18 ;
-#NET "" LOC = "P172" | IOSTANDARD = LVCMOS18 ;
 
+NET "ram_d<2>"    LOC = "P172" | IOSTANDARD = LVCMOS18 ;
 NET "ram_ce1_out" LOC = "P179" | IOSTANDARD = LVCMOS18 ;
 NET "ram_a<0>"    LOC = "P187" | IOSTANDARD = LVCMOS18 ;
 NET "ram_oe"      LOC = "P189" | IOSTANDARD = LVCMOS18 ;
@@ -152,7 +152,6 @@ NET "ram_a<2>"    LOC = "P200" | IOSTANDARD = LVCMOS18 ;
 NET "ram_a<14>"   LOC = "P202" | IOSTANDARD = LVCMOS18 ;
 NET "ram_a<6>"    LOC = "P203" | IOSTANDARD = LVCMOS18 ;
 NET "ram_a<16>"   LOC = "P205" | IOSTANDARD = LVCMOS18 ;
-NET "ram_d<2>"    LOC = "P206" | IOSTANDARD = LVCMOS18 ;
 
 
 ########################################################
