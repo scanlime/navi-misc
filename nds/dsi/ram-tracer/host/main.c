@@ -1,8 +1,10 @@
 #include "fastftdi.h"
 #include <stdio.h>
-
+#include <stdbool.h>
+#include <signal.h>
 
 FILE *outputFile;
+bool exitRequested;
 
 
 static int
@@ -19,7 +21,14 @@ readCallback(uint8_t *buffer, int length, FTDIProgressInfo *progress, void *user
               progress->currentRate / 1024.0,
               progress->totalRate / 1024.0);
 
-   return 0;
+   return exitRequested ? 1 : 0;
+}
+
+
+static void
+sigintHandler(int signum)
+{
+   exitRequested = true;
 }
 
 
@@ -49,12 +58,16 @@ int main(int argc, char **argv)
   if (err)
     return 1;
 
+  signal(SIGINT, sigintHandler);
+
   err = FTDIDevice_ReadStream(&dev, FTDI_INTERFACE_A, readCallback, NULL, 64, 16);
-  if (err < 0)
+  if (err < 0 && !exitRequested)
      return 1;
 
   FTDIDevice_Close(&dev);
   fclose(outputFile);
+
+  fprintf(stderr, "\nCapture ended.\n");
 
   return 0;
 }
