@@ -26,6 +26,7 @@
 
 #include <string.h>
 #include <malloc.h>
+#include <stdbool.h>
 #include "fastftdi.h"
 
 typedef struct {
@@ -33,7 +34,8 @@ typedef struct {
    void *userdata;
    int result;
    FTDIProgressInfo progress;
-} FTDIStreamClosure;
+   bool junkPacketIgnored;
+} FTDIStreamState;
 
 
 static int
@@ -218,10 +220,10 @@ FTDIDevice_ReadByteSync(FTDIDevice *dev, FTDIInterface interface, uint8_t *byte)
 static void
 ReadStreamCallback(struct libusb_transfer *transfer)
 {
-   FTDIStreamClosure *closure = transfer->user_data;
+   FTDIStreamState *state = transfer->user_data;
    int err;
 
-   if (closure->result == 0) {
+   if (state->result == 0) {
       if (transfer->status == LIBUSB_TRANSFER_COMPLETED) {
 
          int i;
@@ -238,24 +240,33 @@ ReadStreamCallback(struct libusb_transfer *transfer)
                packetLen = FTDI_PACKET_SIZE;
 
             payloadLen = packetLen - FTDI_HEADER_SIZE;
-            closure->progress.current.totalBytes += payloadLen;
+            state->progress.current.totalBytes += payloadLen;
 
-            closure->result = closure->callback(ptr + FTDI_HEADER_SIZE, payloadLen,
-                                                NULL, closure->userdata);
-            if (closure->result)
-               break;
+            /*
+             * XXX: I don't know why, but there seems to be a junk packet
+             *      at the beginning of the stream that has two headers
+             *      rather than one. Ignore this packet (only once per stream)
+             */
+            if (state->junkPacketIgnored || payloadLen > FTDI_HEADER_SIZE) {
+               state->result = state->callback(ptr + FTDI_HEADER_SIZE, payloadLen,
+                                               NULL, state->userdata);
+               if (state->result)
+                  break;
+            } else {
+               state->junkPacketIgnored = true;
+            }
 
             ptr += packetLen;
             length -= packetLen;
          }
 
       } else {
-         closure->result = LIBUSB_ERROR_IO;
+         state->result = LIBUSB_ERROR_IO;
       }
    }
 
-   if (closure->result == 0) {
-      closure->result = libusb_submit_transfer(transfer);
+   if (state->result == 0) {
+      state->result = libusb_submit_transfer(transfer);
    }
 }
 
@@ -284,7 +295,7 @@ FTDIDevice_ReadStream(FTDIDevice *dev, FTDIInterface interface,
                       int packetsPerTransfer, int numTransfers)
 {
    struct libusb_transfer **transfers;
-   FTDIStreamClosure closure = { callback, userdata, 0 };
+   FTDIStreamState state = { callback, userdata };
    int bufferSize = packetsPerTransfer * FTDI_PACKET_SIZE;
    int xferIndex;
    int err = 0;
@@ -311,7 +322,7 @@ FTDIDevice_ReadStream(FTDIDevice *dev, FTDIInterface interface,
 
       libusb_fill_bulk_transfer(transfer, dev->handle, FTDI_EP_IN(interface),
                                 malloc(bufferSize), bufferSize, ReadStreamCallback,
-                                &closure, 0);
+                                &state, 0);
 
       if (!transfer->buffer) {
          err = LIBUSB_ERROR_NO_MEM;
@@ -327,17 +338,17 @@ FTDIDevice_ReadStream(FTDIDevice *dev, FTDIInterface interface,
     * Run the transfers, and periodically assess progress.
     */
 
-   gettimeofday(&closure.progress.first.time, NULL);
+   gettimeofday(&state.progress.first.time, NULL);
 
    do {
-      FTDIProgressInfo  *progress = &closure.progress;
+      FTDIProgressInfo  *progress = &state.progress;
       const double progressInterval = 0.1;
       struct timeval timeout = { 0, 10000 };
       struct timeval now;
 
       int err = libusb_handle_events_timeout(dev->libusb, &timeout);
-      if (!closure.result) {
-         closure.result = err;
+      if (!state.result) {
+         state.result = err;
       }
 
       // If enough time has elapsed, update the progress
@@ -361,10 +372,10 @@ FTDIDevice_ReadStream(FTDIDevice *dev, FTDIInterface interface,
                                      progress->prev.totalBytes) / currentTime;
          }
 
-         closure.result = closure.callback(NULL, 0, progress, closure.userdata);
+         state.result = state.callback(NULL, 0, progress, state.userdata);
          progress->prev = progress->current;
       }
-   } while (!closure.result);
+   } while (!state.result);
 
    /*
     * Cancel any outstanding transfers, and free memory.
@@ -387,5 +398,5 @@ FTDIDevice_ReadStream(FTDIDevice *dev, FTDIInterface interface,
    if (err)
       return err;
    else
-      return closure.result;
+      return state.result;
 }
