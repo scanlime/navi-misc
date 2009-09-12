@@ -3,7 +3,7 @@ CFLAGS += $(shell pkg-config --cflags $(PACKAGES))
 LDFLAGS += $(shell pkg-config --libs $(PACKAGES))
 
 BIN := memhost
-OBJS := main.o fastftdi.o fpgaconfig.o
+OBJS := main.o fastftdi.o fpgaconfig.o bit_file.o
 
 CFLAGS += -O3 -g
 

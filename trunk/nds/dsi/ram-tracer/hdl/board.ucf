@@ -69,13 +69,20 @@
 #    AC1/TXE#/WRSTB#  CN2-17   CCLK        P103
 #    AC2/RD#          CN2-20   IO          P62
 #    AC3/WR#          CN2-19   IO          P65
-#    AC5/CLKOUT       CN2-24   GCLK        P81
-#    BD0              CN3-26*  CSI         P61
-#    BD1              CN3-25*  RDWR        P80
-#    BD2              CN3-24*  PROG        P104
-#    BD3              CN3-23*  DONE        P1
+#    AC5/CLKOUT       CN2-24   M2/GCLK1    P81
+#    BD0              CN3-26   CSI         P61
+#    BD1              CN3-25   RDWR        P80
+#    BD2              CN3-24*  DONE        P104
+#    BD3              CN3-23*  PROG        P1
 #
-#  * = Series ~1K resistor
+#  * = Series 330 ohm resistor
+#
+#  NOTE: All of the GCLK pins on bank 2 are shared with either
+#        a data bit or with M2. We can't share with a data bit,
+#        so we choose the lesser of two evils.. since M2 needs
+#        to be 1 to select slave parallel configuration mode,
+#        it's important that our CLKOUT pin is 1 or high-Z when
+#        the FPGA starts up. This should be the case.
 #
 
 
