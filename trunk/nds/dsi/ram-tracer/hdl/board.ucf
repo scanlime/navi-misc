@@ -17,6 +17,7 @@
 # 
 # -- Micah Dowty <micah@navi.cx>
 
+
 ########################################################
 #
 # USB interface: FTDI FT2232H Mini Module
@@ -85,104 +86,128 @@
 #        the FPGA starts up. This should be the case.
 #
 
+# Master clock, provided by the FT2232H. Runs at 60 MHz, but
+# give ourselves some headroom...
+
+NET "mclk"  LOC = "P81" | IOSTANDARD = LVCMOS33 | TNM_NET = mclk ;
+TIMESPEC TS_mclk = PERIOD "mclk" 80 MHz HIGH 50%;
+
+# Synchronous FIFO
+
+NET "usb_d<0>" LOC = "P87" | IOSTANDARD = LVCMOS33 ;
+NET "usb_d<1>" LOC = "P83" | IOSTANDARD = LVCMOS33 ;
+NET "usb_d<2>" LOC = "P82" | IOSTANDARD = LVCMOS33 ;
+NET "usb_d<3>" LOC = "P78" | IOSTANDARD = LVCMOS33 ;
+NET "usb_d<4>" LOC = "P77" | IOSTANDARD = LVCMOS33 ;
+NET "usb_d<5>" LOC = "P76" | IOSTANDARD = LVCMOS33 ;
+NET "usb_d<6>" LOC = "P75" | IOSTANDARD = LVCMOS33 ;
+NET "usb_d<7>" LOC = "P74" | IOSTANDARD = LVCMOS33 ;
+
+NET "usb_rxf_n" LOC = "P63"  | IOSTANDARD = LVCMOS33 ;
+NET "usb_txe_n" LOC = "P103" | IOSTANDARD = LVCMOS33 ;
+NET "usb_rd_n"  LOC = "P62"  | IOSTANDARD = LVCMOS33 ;
+NET "usb_wr_n"  LOC = "P65"  | IOSTANDARD = LVCMOS33 ;
 
 
-
-
-
-
-NET "ledseg_a<0>"  LOC = "E13"  ;
-NET "ledseg_a<1>"  LOC = "F14"  ;
-NET "ledseg_a<2>"  LOC = "G14"  ;
-NET "ledseg_a<3>"  LOC = "d14"  ;
-
-NET "ledseg_c<0>"  LOC = "E14"  ;
-NET "ledseg_c<1>"  LOC = "G13"  ;
-NET "ledseg_c<2>"  LOC = "N15"  ;
-NET "ledseg_c<3>"  LOC = "P15"  ;
-NET "ledseg_c<4>"  LOC = "R16"  ;
-NET "ledseg_c<5>"  LOC = "F13"  ;
-NET "ledseg_c<6>"  LOC = "N16"  ;
-NET "ledseg_c<7>"  LOC = "P16"  ;
-
-NET "led<0>"  LOC = "K12"  ;
-NET "led<1>"  LOC = "P14"  ;
-NET "led<2>"  LOC = "L12"  ;
-NET "led<3>"  LOC = "N14"  ;
-NET "led<4>"  LOC = "P13"  ;
-NET "led<5>"  LOC = "N12"  ;
-NET "led<6>"  LOC = "P12"  ;
-NET "led<7>"  LOC = "P11"  ;
-
-NET "reset"  LOC = "M13"  ;
-#NET "button<0>"  LOC = "M13"  ;
-#NET "button<1>"  LOC = "M14"  ;
-#NET "button<2>"  LOC = "L13"  ;
-#NET "button<3>"  LOC = "L14"  ;
-
-# Normal onboard clock (50MHz)
-#NET "mclk"  LOC = "T9" ;
-
-# Flying lead for IFCLK from FX2 chip
-NET "mclk"  LOC = "D9" ;
-
-NET "mclk"  TNM_NET = mclk ;
-TIMESPEC TS_mclk = PERIOD "mclk" 60 MHz HIGH 50%;
-
-NET "switch<0>"  LOC = "F12"  ;
-NET "switch<1>"  LOC = "G12"  ;
-NET "switch<2>"  LOC = "H14"  ;
-#NET "switch<3>"  LOC = "H13"  ;
-#NET "switch<4>"  LOC = "J14"  ;
-#NET "switch<5>"  LOC = "J13"  ;
-#NET "switch<6>"  LOC = "K14"  ;
-#NET "switch<7>"  LOC = "K13"  ;
-
-NET "sram_oe" LOC = "K4";
-NET "sram_we" LOC = "G3";
-
-# Unused pins set to GND as shielding
-NET "gndout<0>" LOC = "A12";
-NET "gndout<1>" LOC = "A13";
-
+########################################################
 #
-# USB2 board on connector A1.
+# DSi 1.8 volt I/O -- Bank 0
 #
-# The standard Digilent USB2 pinout is garbage, this
-# one has been modified to bring out all of the pins
-# necessary for using the FX2 in Slave FIFO mode.
+# VccO connected to DSi VCC18 rail.
 #
 
-NET "usb_d<0>" LOC = "M10";
-NET "usb_d<1>" LOC = "F3";
-NET "usb_d<2>" LOC = "G4";
-NET "usb_d<3>" LOC = "E3";
-NET "usb_d<4>" LOC = "F4";
-NET "usb_d<5>" LOC = "G5";
-NET "usb_d<6>" LOC = "E4";
-NET "usb_d<7>" LOC = "H4";
+NET "" LOC = "P159" | IOSTANDARD = LVCMOS18 ;  # Input only
+NET "" LOC = "P160" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P161" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P162" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P163" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P164" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P165" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P167" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P168" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P169" | IOSTANDARD = LVCMOS18 ;  # Input only
+NET "" LOC = "P171" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P172" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P174" | IOSTANDARD = LVCMOS18 ;  # Input only
+NET "" LOC = "P175" | IOSTANDARD = LVCMOS18 ;  # Input only
+NET "" LOC = "P177" | IOSTANDARD = LVCMOS18 ;  # GCLK
+NET "" LOC = "P178" | IOSTANDARD = LVCMOS18 ;  # GCLK
+NET "" LOC = "P179" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P180" | IOSTANDARD = LVCMOS18 ;  # GCLK
+NET "" LOC = "P181" | IOSTANDARD = LVCMOS18 ;  # GCLK
+NET "" LOC = "P183" | IOSTANDARD = LVCMOS18 ;  # GCLK, Input only
+NET "" LOC = "P184" | IOSTANDARD = LVCMOS18 ;  # GCLK, Input only
+NET "" LOC = "P185" | IOSTANDARD = LVCMOS18 ;  # GCLK
+NET "" LOC = "P186" | IOSTANDARD = LVCMOS18 ;  # GCLK
+NET "" LOC = "P187" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P189" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P190" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P192" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P193" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P194" | IOSTANDARD = LVCMOS18 ;  # Input only
+NET "" LOC = "P196" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P197" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P199" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P200" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P202" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P203" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P204" | IOSTANDARD = LVCMOS18 ;  # Input only
+NET "" LOC = "P205" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P206" | IOSTANDARD = LVCMOS18 ;
 
-#NET "usb_flaga" LOC = "H3";
-NET "usb_flagb" LOC = "J3";
-#NET "usb_flagc" LOC = "J4";
-#NET "usb_rdy0" LOC = "K5";
 
-#NET "usb_ifclk" LOC = "R5";
-NET "usb_slwr" LOC = "N8";
-NET "usb_slrd" LOC = "K5";
-NET "usb_sloe" LOC = "T8";
-NET "usb_pktend" LOC = "T5";
-NET "usb_fifoadr<0>" LOC = "N7";
-NET "usb_fifoadr<1>" LOC = "R6";
-
-
+########################################################
 #
-# DS RAM on A2 and B1
+# DSi 1.8 volt I/O -- Bank 3
 #
-# XXX: These are really LVCMOS18 I/Os, but I don't have a good
-#      way to put them in their own bank right now, so they're
-#      stuck using 2.5v logic thresholds. Close enough?
+# VccO connected to DSi VCC18 rail.
 #
+
+NET "" LOC = "P2" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P3" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P4" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P5" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P6" | IOSTANDARD = LVCMOS18 ;  # Input only
+NET "" LOC = "P8" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P9" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P11" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P12" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P14" | IOSTANDARD = LVCMOS18 ;  # Input only
+NET "" LOC = "P15" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P16" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P18" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P19" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P20" | IOSTANDARD = LVCMOS18 ;  # Input only
+NET "" LOC = "P22" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P23" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P24" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P25" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P26" | IOSTANDARD = LVCMOS18 ;  # Input only
+NET "" LOC = "P28" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P29" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P30" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P31" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P32" | IOSTANDARD = LVCMOS18 ;  # Input only
+NET "" LOC = "P33" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P34" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P35" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P36" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P39" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P40" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P41" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P42" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P43" | IOSTANDARD = LVCMOS18 ;  # Input only
+NET "" LOC = "P45" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P47" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P48" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P49" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P50" | IOSTANDARD = LVCMOS18 ;
+NET "" LOC = "P51" | IOSTANDARD = LVCMOS18 ;  # Input only
+
+
+
+
+####
 
 NET "ram_a<0>" LOC = "M6";
 NET "ram_a<1>" LOC = "B11";
