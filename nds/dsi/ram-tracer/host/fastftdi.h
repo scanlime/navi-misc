@@ -92,6 +92,7 @@ typedef int (FTDIStreamCallback)(uint8_t *buffer, int length,
 
 int FTDIDevice_Open(FTDIDevice *dev);
 void FTDIDevice_Close(FTDIDevice *dev);
+int FTDIDevice_Reset(FTDIDevice *dev);
 
 int FTDIDevice_SetMode(FTDIDevice *dev, FTDIInterface interface,
                        FTDIBitmode mode, uint8_t pinDirections,

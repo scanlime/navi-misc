@@ -36,29 +36,18 @@ typedef struct {
 } FTDIStreamClosure;
 
 
-int
-FTDIDevice_Open(FTDIDevice *dev)
+static int
+DeviceInit(FTDIDevice *dev)
 {
-  int err;
-  int interface;
-
-  memset(dev, 0, sizeof *dev);
-
-  if ((err = libusb_init(&dev->libusb))) {
-    return err;
-  }
-
-  libusb_set_debug(dev->libusb, 3);
-
-  dev->handle = libusb_open_device_with_vid_pid(dev->libusb,
-                                                FTDI_VENDOR,
-                                                FTDI_PRODUCT_FT2232H);
-  if (!dev->handle) {
-    return LIBUSB_ERROR_NO_DEVICE;
-  }
+  int err, interface;
 
   for (interface = 0; interface < 2; interface++) {
-    libusb_detach_kernel_driver(dev->handle, interface);
+    if (libusb_kernel_driver_active(dev->handle, interface) == 1) {
+      if ((err = libusb_detach_kernel_driver(dev->handle, interface))) {
+        perror("Error detaching kernel driver");
+        return err;
+      }
+    }
   }
 
   if ((err = libusb_set_configuration(dev->handle, 1))) {
@@ -77,11 +66,48 @@ FTDIDevice_Open(FTDIDevice *dev)
 }
 
 
+int
+FTDIDevice_Open(FTDIDevice *dev)
+{
+  int err;
+
+  memset(dev, 0, sizeof *dev);
+
+  if ((err = libusb_init(&dev->libusb))) {
+    return err;
+  }
+
+  libusb_set_debug(dev->libusb, 3);
+
+  dev->handle = libusb_open_device_with_vid_pid(dev->libusb,
+                                                FTDI_VENDOR,
+                                                FTDI_PRODUCT_FT2232H);
+  if (!dev->handle) {
+    return LIBUSB_ERROR_NO_DEVICE;
+  }
+
+  return DeviceInit(dev);
+}
+
+
 void
 FTDIDevice_Close(FTDIDevice *dev)
 {
   libusb_close(dev->handle);
   libusb_exit(dev->libusb);
+}
+
+
+int
+FTDIDevice_Reset(FTDIDevice *dev)
+{
+  int err;
+
+  err = libusb_reset_device(dev->handle);
+  if (err)
+    return err;
+
+  return DeviceInit(dev);
 }
 
 
@@ -333,10 +359,9 @@ FTDIDevice_ReadStream(FTDIDevice *dev, FTDIInterface interface,
             progress->totalRate = progress->current.totalBytes / progress->totalTime;
             progress->currentRate = (progress->current.totalBytes -
                                      progress->prev.totalBytes) / currentTime;
-
-            closure.result = closure.callback(NULL, 0, progress, closure.userdata);
          }
 
+         closure.result = closure.callback(NULL, 0, progress, closure.userdata);
          progress->prev = progress->current;
       }
    } while (!closure.result);
