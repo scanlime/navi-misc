@@ -60,9 +60,14 @@ module main(mclk,
    reg [1:0]     packet_type;
    reg [22:0]    packet_payload;
 
+   wire [15:0]   config_addr;
+   wire [15:0]   config_data;
+   wire          config_strobe;
+
    usb_comm usbc(mclk, reset,
                  usb_d, usb_rxf_n, usb_txe_n, usb_rd_n, usb_wr_n, usb_oe_n,
-                 packet_data, packet_strobe);
+                 packet_data, packet_strobe,
+                 config_addr, config_data, config_strobe);
 
    usb_packet_assemble usbpa(packet_data, packet_type, packet_payload);
 

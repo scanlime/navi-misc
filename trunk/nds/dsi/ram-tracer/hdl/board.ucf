@@ -131,42 +131,47 @@ NET "usb_oe_n"  LOC = "P64"  | IOSTANDARD = LVCMOS33 ;
 #     ce1_out high-Z and rely on a 330 ohm resistor which
 #     was placed between ce1_in and ce1_out. The resistor
 #     should be located physically near to the break.
+#
+# XXX: I should probably include termination resistors for
+#      all of these signals, but so far I'm not. If this was
+#      a Spartan 3 rather than a 3E, I could use DCI for
+#      on-die termination...
 
 ##### Global glock I/O pins
 
-NET "ram_clk" LOC = "P177" | IOSTANDARD = LVCMOS18 ;
+NET "ram_clk" LOC = "P177" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
 NET "dsi_sysclk" LOC = "P178" | IOSTANDARD = LVCMOS18 ;
-#NET "" LOC = "P180" | IOSTANDARD = LVCMOS18 ;
-#NET "" LOC = "P181" | IOSTANDARD = LVCMOS18 ;
-#NET "" LOC = "P185" | IOSTANDARD = LVCMOS18 ;
-#NET "" LOC = "P186" | IOSTANDARD = LVCMOS18 ;
+#NET "" LOC = "P180" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+#NET "" LOC = "P181" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+#NET "" LOC = "P185" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+#NET "" LOC = "P186" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
 
 ##### I/O pins
 
-#NET "" LOC = "P160" | IOSTANDARD = LVCMOS18 ;
-#NET "" LOC = "P161" | IOSTANDARD = LVCMOS18 ;
-#NET "" LOC = "P162" | IOSTANDARD = LVCMOS18 ;
-#NET "" LOC = "P163" | IOSTANDARD = LVCMOS18 ;
-#NET "" LOC = "P164" | IOSTANDARD = LVCMOS18 ;
-#NET "" LOC = "P165" | IOSTANDARD = LVCMOS18 ;
-#NET "" LOC = "P167" | IOSTANDARD = LVCMOS18 ;
-#NET "" LOC = "P168" | IOSTANDARD = LVCMOS18 ;
-#NET "" LOC = "P171" | IOSTANDARD = LVCMOS18 ;
+#NET "" LOC = "P160" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+#NET "" LOC = "P161" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+#NET "" LOC = "P162" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+#NET "" LOC = "P163" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+#NET "" LOC = "P164" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+#NET "" LOC = "P165" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+#NET "" LOC = "P167" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+#NET "" LOC = "P168" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+#NET "" LOC = "P171" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
 
-NET "ram_d<2>"    LOC = "P172" | IOSTANDARD = LVCMOS18 ;
-NET "ram_ce1_out" LOC = "P179" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<0>"    LOC = "P187" | IOSTANDARD = LVCMOS18 ;
-NET "ram_oe"      LOC = "P189" | IOSTANDARD = LVCMOS18 ;
-NET "ram_ce1_in"  LOC = "P190" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<15>"   LOC = "P192" | IOSTANDARD = LVCMOS18 ;
-NET "ram_d<1>"    LOC = "P193" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<21>"   LOC = "P196" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<4>"    LOC = "P197" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<22>"   LOC = "P199" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<2>"    LOC = "P200" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<14>"   LOC = "P202" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<6>"    LOC = "P203" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<16>"   LOC = "P205" | IOSTANDARD = LVCMOS18 ;
+NET "ram_d<2>"    LOC = "P172" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_ce1_out" LOC = "P179" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<0>"    LOC = "P187" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_oe"      LOC = "P189" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_ce1_in"  LOC = "P190" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<15>"   LOC = "P192" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_d<1>"    LOC = "P193" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<21>"   LOC = "P196" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<4>"    LOC = "P197" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<22>"   LOC = "P199" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<2>"    LOC = "P200" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<14>"   LOC = "P202" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<6>"    LOC = "P203" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<16>"   LOC = "P205" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
 
 
 ########################################################
@@ -176,38 +181,38 @@ NET "ram_a<16>"   LOC = "P205" | IOSTANDARD = LVCMOS18 ;
 # VccO connected to DSi VCC18 rail.
 #
 
-NET "ram_d<15>" LOC = "P2" | IOSTANDARD = LVCMOS18 ;
-NET "ram_d<3>"  LOC = "P3" | IOSTANDARD = LVCMOS18 ;
-NET "ram_d<14>" LOC = "P4" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<3>"  LOC = "P5" | IOSTANDARD = LVCMOS18 ;
-NET "ram_d<12>" LOC = "P8" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<5>"  LOC = "P9" | IOSTANDARD = LVCMOS18 ;
-NET "ram_d<10>" LOC = "P11" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<18>" LOC = "P12" | IOSTANDARD = LVCMOS18 ;
-NET "ram_d<8>"  LOC = "P15" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<7>"  LOC = "P16" | IOSTANDARD = LVCMOS18 ;
-NET "ram_d<0>"  LOC = "P18" | IOSTANDARD = LVCMOS18 ;
-NET "ram_d<9>"  LOC = "P19" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<1>"  LOC = "P22" | IOSTANDARD = LVCMOS18 ;
-NET "ram_d<11>" LOC = "P23" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<17>" LOC = "P24" | IOSTANDARD = LVCMOS18 ;
-NET "ram_adv"   LOC = "P25" | IOSTANDARD = LVCMOS18 ;
-NET "ram_lb"    LOC = "P28" | IOSTANDARD = LVCMOS18 ;
-NET "ram_ub"    LOC = "P29" | IOSTANDARD = LVCMOS18 ;
-NET "ram_d<13>" LOC = "P30" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<20>" LOC = "P31" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<10>" LOC = "P33" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<9>"  LOC = "P34" | IOSTANDARD = LVCMOS18 ;
-NET "ram_d<4>"  LOC = "P35" | IOSTANDARD = LVCMOS18 ;
-NET "ram_d<6>"  LOC = "P36" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<12>" LOC = "P39" | IOSTANDARD = LVCMOS18 ;
-NET "ram_d<7>"  LOC = "P40" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<8>"  LOC = "P41" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<11>" LOC = "P42" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<19>" LOC = "P45" | IOSTANDARD = LVCMOS18 ;
-NET "ram_d<5>"  LOC = "P47" | IOSTANDARD = LVCMOS18 ;
-NET "ram_a<13>" LOC = "P48" | IOSTANDARD = LVCMOS18 ;
-NET "ram_ce2"   LOC = "P49" | IOSTANDARD = LVCMOS18 ;
-NET "ram_we"    LOC = "P50" | IOSTANDARD = LVCMOS18 ;
+NET "ram_d<15>" LOC = "P2" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_d<3>"  LOC = "P3" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_d<14>" LOC = "P4" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<3>"  LOC = "P5" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_d<12>" LOC = "P8" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<5>"  LOC = "P9" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_d<10>" LOC = "P11" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<18>" LOC = "P12" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_d<8>"  LOC = "P15" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<7>"  LOC = "P16" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_d<0>"  LOC = "P18" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_d<9>"  LOC = "P19" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<1>"  LOC = "P22" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_d<11>" LOC = "P23" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<17>" LOC = "P24" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_adv"   LOC = "P25" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_lb"    LOC = "P28" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_ub"    LOC = "P29" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_d<13>" LOC = "P30" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<20>" LOC = "P31" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<10>" LOC = "P33" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<9>"  LOC = "P34" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_d<4>"  LOC = "P35" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_d<6>"  LOC = "P36" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<12>" LOC = "P39" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_d<7>"  LOC = "P40" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<8>"  LOC = "P41" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<11>" LOC = "P42" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<19>" LOC = "P45" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_d<5>"  LOC = "P47" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_a<13>" LOC = "P48" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_ce2"   LOC = "P49" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+NET "ram_we"    LOC = "P50" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
 
 ####
