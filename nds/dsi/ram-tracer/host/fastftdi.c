@@ -151,9 +151,13 @@ FTDIDevice_ReadByteSync(FTDIDevice *dev, FTDIInterface interface, uint8_t *byte)
   /*
    * This is a simplified synchronous read, intended for bit-banging mode.
    * Ignores the modem/buffer status bytes, returns just the data.
+   *
+   * To make sure we have fresh data (and not the last state that was
+   * hanging out in the chip's read buffer) we'll read many packets
+   * and discard all but the last read.
    */
   
-  uint8_t packet[FTDI_PACKET_SIZE];
+  uint8_t packet[FTDI_PACKET_SIZE * 16];
   int transferred, err;
 
   err = libusb_bulk_transfer(dev->handle, FTDI_EP_IN(interface),
@@ -166,7 +170,7 @@ FTDIDevice_ReadByteSync(FTDIDevice *dev, FTDIInterface interface, uint8_t *byte)
     return -1;
   }
 
-  *byte = packet[FTDI_HEADER_SIZE];
+  *byte = packet[sizeof packet - 1];
 
   return 0;
 }
