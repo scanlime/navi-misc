@@ -7,34 +7,8 @@
  ************************************************************************/
 
 
-module d_flipflop(clk, reset, d_in, d_out);
-   input clk, reset, d_in;
-   output d_out;
-
-   reg    d_out;
-
-   always @(posedge clk or posedge reset)
-     if (reset) begin
-         d_out   <= 0;
-     end
-     else begin
-         d_out   <= d_in;
-     end
-endmodule
-
-
-module d_flipflop_pair(clk, reset, d_in, d_out);
-   input  clk, reset, d_in;
-   output d_out;
-   wire   intermediate;
-
-   d_flipflop dff1(clk, reset, d_in, intermediate);
-   d_flipflop dff2(clk, reset, intermediate, d_out);
-endmodule
-
-
 /*
- * A d_flipflop_pair for busses.
+ * A pair of flip-flops for each line on a bus.
  */
 module d_flipflop_pair_bus(clk, reset, d_in, d_out);
    parameter WIDTH = 1;
@@ -87,22 +61,4 @@ module mdetect_3_arr(a, b, c, out);
         mdetect_3 md3_i(a[i], b[i], c[i], out[i]);
      end
    endgenerate
-endmodule
-
-
-/*
- * A set/reset flipflop which is set on sync_set and reset by sync_reset.
- */
-module set_reset_flipflop(clk, reset, sync_set, sync_reset, out);
-   input clk, reset, sync_set, sync_reset;
-   output out;
-   reg    out;
-
-   always @(posedge clk or posedge reset)
-     if (reset)
-       out   <= 0;
-     else if (sync_set)
-       out   <= 1;
-     else if (sync_reset)
-       out   <= 0;
 endmodule
