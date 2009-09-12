@@ -2,6 +2,9 @@ PACKAGES := libusb-1.0
 CFLAGS += $(shell pkg-config --cflags $(PACKAGES))
 LDFLAGS += $(shell pkg-config --libs $(PACKAGES))
 
+# Large file support
+CFLAGS += $(shell getconf LFS_CFLAGS)
+
 BIN := memhost
 OBJS := main.o fastftdi.o fpgaconfig.o bit_file.o
 

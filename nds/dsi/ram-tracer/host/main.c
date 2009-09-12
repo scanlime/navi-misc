@@ -10,8 +10,12 @@ bool exitRequested;
 static int
 readCallback(uint8_t *buffer, int length, FTDIProgressInfo *progress, void *userdata)
 {
-   if (length)
-      fwrite(buffer, length, 1, outputFile);
+   if (length) {
+      if (fwrite(buffer, length, 1, outputFile) != 1) {
+         perror("Write error");
+         return 1;
+      }
+   }
 
    if (progress)
       fprintf(stderr, "  %3d:%02d [ %9.3f MB captured ] %7.1f kB/s current, "
