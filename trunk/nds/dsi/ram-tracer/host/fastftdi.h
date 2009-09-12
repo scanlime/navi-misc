@@ -47,15 +47,20 @@ typedef enum {
 } FTDIInterface;
 
 typedef struct {
-  int size, head, tail;
-} FTDIQueue;
-
-typedef struct {
   libusb_context *libusb;
   libusb_device_handle *handle;
-  FTDIQueue txQueue;
-  FTDIQueue rxQueue;
 } FTDIDevice;
+
+typedef struct {
+   struct {
+      uint64_t       totalBytes;
+      struct timeval time;
+   } first, prev, current;
+
+   double totalTime;
+   double totalRate;
+   double currentRate;
+} FTDIProgressInfo;
 
 
 /*
@@ -74,7 +79,11 @@ typedef struct {
 #define FTDI_EP_OUT(i)            (0x02 + (i-1)*2)
 
 #define FTDI_PACKET_SIZE          512   // Specific to FT2232H
+#define FTDI_LOG_PACKET_SIZE      9     // 512 == 1 << 9
 #define FTDI_HEADER_SIZE          2
+
+typedef int (FTDIStreamCallback)(uint8_t *buffer, int length,
+                                 FTDIProgressInfo *progress, void *userdata);
 
 
 /*
@@ -85,14 +94,18 @@ int FTDIDevice_Open(FTDIDevice *dev);
 void FTDIDevice_Close(FTDIDevice *dev);
 
 int FTDIDevice_SetMode(FTDIDevice *dev, FTDIInterface interface,
-		       FTDIBitmode mode, uint8_t pinDirections,
-		       int baudRate);
+                       FTDIBitmode mode, uint8_t pinDirections,
+                       int baudRate);
 
 int FTDIDevice_WriteSync(FTDIDevice *dev, FTDIInterface interface,
-			 uint8_t *data, size_t length);
+                         uint8_t *data, size_t length);
 
 int FTDIDevice_WriteByteSync(FTDIDevice *dev, FTDIInterface interface, uint8_t byte);
 int FTDIDevice_ReadByteSync(FTDIDevice *dev, FTDIInterface interface, uint8_t *byte);
+
+int FTDIDevice_ReadStream(FTDIDevice *dev, FTDIInterface interface,
+                          FTDIStreamCallback *callback, void *userdata,
+                          int packetsPerTransfer, int numTransfers);
 
 
 #endif /* __FASTFTDI_H */
