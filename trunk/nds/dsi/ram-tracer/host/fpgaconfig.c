@@ -114,13 +114,13 @@ ConfigBegin(FTDIDevice *dev)
    * as a configuration mode pin and it must be 1 for the slave
    * parallel mode we're using.
    *
-   * XXX: This is a hack, and its slow. Some day I'll be bothered to
-   *      set it explicitly using MPSSE GPIOs commands...
+   * This is overkill, but it gets the job done. Some day I'll be
+   * bothered to set it explicitly using MPSSE GPIOs commands...
    */
 
-  err = libusb_reset_device(dev->handle);
+  err = FTDIDevice_Reset(dev);
   if (err)
-    return err;
+     return err;
 
   /*
    * Initialize the FTDI chip using both interfaces as bit-bang.
