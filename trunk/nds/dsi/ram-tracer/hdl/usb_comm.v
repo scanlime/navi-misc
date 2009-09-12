@@ -105,7 +105,7 @@ endmodule
  */
 
 module usb_comm(mclk, reset,
-                usb_d, usb_rxf_n, usb_txe_n, usb_rd_n, usb_wr_n,
+                usb_d, usb_rxf_n, usb_txe_n, usb_rd_n, usb_wr_n, usb_oe_n,
                 packet_data, packet_strobe);
 
    /*
@@ -120,25 +120,29 @@ module usb_comm(mclk, reset,
 
    inout [7:0] usb_d;
    input       usb_rxf_n, usb_txe_n;
-   output      usb_rd_n, usb_wr_n;
+   output      usb_rd_n, usb_wr_n, usb_oe_n;
 
    input [31:0]  packet_data;
    input         packet_strobe;
 
 
    /************************************************
-    * USB Setup
+    * Control signals
+    *
+    * Make positive-logic signals with nice names.
     */
 
-   wire          rx_full = !usb_rxf_n;
-   wire          tx_empty = !usb_txe_n;
+   wire          write_ready = !usb_txe_n;
+   wire          read_ready = !usb_rxf_n;
 
    reg           read_request;
    reg           write_request;
+   reg           read_oe;
    reg [7:0]     write_data;
 
    assign usb_rd_n = !read_request;
    assign usb_wr_n = !write_request;
+   assign usb_oe_n = !read_oe;
    assign usb_d = write_request ? write_data : 8'hZZ;
 
 
@@ -154,7 +158,8 @@ module usb_comm(mclk, reset,
 
    wire [BUF_MSB:0] next_write_ptr = fifo_write_ptr + 1;
 
-   assign overflow = (next_write_ptr == fifo_read_ptr) && packet_strobe;
+   // XXX: Report these errors
+   wire overflow = (next_write_ptr == fifo_read_ptr) && packet_strobe;
 
    always @(posedge mclk or posedge reset)
      if (reset) begin
@@ -180,6 +185,7 @@ module usb_comm(mclk, reset,
         write_data <= 0;
         write_request <= 0;
         read_request <= 0;
+        read_oe <= 0;
      end
      else if (write_request) begin
         /*
@@ -189,7 +195,7 @@ module usb_comm(mclk, reset,
         write_request <= 0;
         read_request <= 0;
      end
-     else if (rx_full) begin
+     else if (!write_ready) begin
         /*
          * Wait for room in the USB FIFO
          */
