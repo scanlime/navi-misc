@@ -117,6 +117,21 @@ NET "usb_oe_n"  LOC = "P64"  | IOSTANDARD = LVCMOS33 ;
 # VccO connected to DSi VCC18 rail.
 #
 
+# Special notes on DSi I/O:
+#
+#   - ram_clk needs a 330 ohm series resistor.
+#     Otherwise, ringing on the clock line can interfere
+#     with the RAM's normal operation, and the DSi won't boot.
+#
+#   - The CE1 line was separated between the RAM and CPU.
+#     ram_ce1_in is from the CPU, ram_ce1_out is to the RAM.
+#
+#   - The FPGA isn't fast enough to forward CE1 from CPU
+#     to RAM 100% of the time, so we normally leave
+#     ce1_out high-Z and rely on a 330 ohm resistor which
+#     was placed between ce1_in and ce1_out. The resistor
+#     should be located physically near to the break.
+
 ##### Global glock I/O pins
 
 NET "ram_clk" LOC = "P177" | IOSTANDARD = LVCMOS18 ;
