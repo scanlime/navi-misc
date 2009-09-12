@@ -103,6 +103,10 @@ endmodule
  *    delivery of 32-bit packets. This module has an on-die FIFO
  *    which feeds the FT2232H's fifo.
  *
+ *    Normally we're sending 32-bit packets to the PC, in the format
+ *    described above. If an overflow occurs, we send 0xFFFFFFFF
+ *    until reset.
+ *
  *  - Communication from the PC is used for lower-bandwidth
  *    configuration info. This channel emulates a write-only
  *    register space with 16-bit data and 16-bit address. Writes
@@ -187,7 +191,7 @@ module usb_comm(mclk, reset,
 
    assign fifo_empty = fifo_read_ptr == fifo_write_ptr;
    assign fifo_full = next_write_ptr == fifo_read_ptr;
-   assign overflow = fifo_full && packet_strobe;
+   assign fifo_overflow = fifo_full && packet_strobe;
 
    always @(posedge mclk or posedge reset)
      if (reset) begin
@@ -209,13 +213,14 @@ module usb_comm(mclk, reset,
    // Latch any overflow errors. If an overflow occurs, we continue
    // reporting an error condition until reset.
 
-   reg         overflow_latch;
+   //synthesis attribute INIT of error_latch is "R"
+   reg         error_latch;
 
    always @(posedge mclk or posedge reset)
      if (reset)
-       overflow_latch <= 0;
+       error_latch <= 0;
      else if (fifo_overflow)
-       overflow_latch <= 1;
+       error_latch <= 1;
 
 
    /************************************************
@@ -257,7 +262,7 @@ module usb_comm(mclk, reset,
    reg [1:0]         state;
 
    wire              write_next_packet = packet_cnt == 0;
-   wire              write_avail = !(write_next_packet && fifo_empty);
+   wire              write_avail = error_latch || !(write_next_packet && fifo_empty);
 
    wire              c0 = state == S_C0;
    wire              c0_read = c0 && read_ready;
@@ -270,7 +275,8 @@ module usb_comm(mclk, reset,
    assign read_request = c0_read;
    assign write_request = c1_write;
 
-   assign write_data = write_next_packet ? fifo_dout[31:24] : packet_reg[23:16];
+   assign write_data = error_latch ? 8'hFF :
+                       write_next_packet ? fifo_dout[31:24] : packet_reg[23:16];
    assign fifo_rd_en = c0_write && write_next_packet;
 
    always @(posedge mclk or posedge reset)
