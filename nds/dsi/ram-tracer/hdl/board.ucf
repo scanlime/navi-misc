@@ -70,6 +70,7 @@
 #    AC2/RD#          CN2-20   IO          P62
 #    AC3/WR#          CN2-19   IO          P65
 #    AC5/CLKOUT       CN2-24   M2/GCLK1    P81
+#    AC6/OE#          CN2-23   IO          P64
 #    BD0              CN3-26   CSI         P61
 #    BD1              CN3-25   RDWR        P80
 #    BD2              CN3-24*  DONE        P104
@@ -106,6 +107,7 @@ NET "usb_rxf_n" LOC = "P63"  | IOSTANDARD = LVCMOS33 ;
 NET "usb_txe_n" LOC = "P103" | IOSTANDARD = LVCMOS33 ;
 NET "usb_rd_n"  LOC = "P62"  | IOSTANDARD = LVCMOS33 ;
 NET "usb_wr_n"  LOC = "P65"  | IOSTANDARD = LVCMOS33 ;
+NET "usb_oe_n"  LOC = "P64"  | IOSTANDARD = LVCMOS33 ;
 
 
 ########################################################

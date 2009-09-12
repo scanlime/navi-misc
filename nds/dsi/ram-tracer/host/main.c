@@ -29,8 +29,10 @@ int main(int argc, char **argv)
   int err;
 
   err = FTDIDevice_Open(&dev);
-  if (err)
-    return 1;
+  if (err) {
+     fprintf(stderr, "USB: Error opening device\n");
+     return 1;
+  }
 
   err = FPGAConfig_LoadFile(&dev, argv[1]);
   if (err)

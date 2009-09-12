@@ -24,7 +24,7 @@
 
 
 module main(mclk,
-            usb_d, usb_rxf_n, usb_txe_n, usb_rd_n, usb_wr_n,
+            usb_d, usb_rxf_n, usb_txe_n, usb_rd_n, usb_wr_n, usb_oe_n,
             ram_a, ram_d, ram_oe, ram_we, ram_ce1_in,
             ram_ce1_out, ram_ce2, ram_ub, ram_lb, ram_adv, ram_clk,
             dsi_sysclk);
@@ -34,7 +34,7 @@ module main(mclk,
 
    inout [7:0] usb_d;
    input       usb_rxf_n, usb_txe_n;
-   output      usb_rd_n, usb_wr_n;
+   output      usb_rd_n, usb_wr_n, usb_oe_n;
 
    input [22:0] ram_a;
    input [15:0] ram_d;
@@ -61,10 +61,8 @@ module main(mclk,
    reg [22:0]    packet_payload;
 
    usb_comm usbc(mclk, reset,
-                 usb_d, usb_rxf_n, usb_txe_n, usb_rd_n, usb_wr_n,
-                 //packet_data, packet_strobe);
-                 32'hCAFEBEEF, 1);
-
+                 usb_d, usb_rxf_n, usb_txe_n, usb_rd_n, usb_wr_n, usb_oe_n,
+                 packet_data, packet_strobe);
 
    usb_packet_assemble usbpa(packet_data, packet_type, packet_payload);
 
@@ -74,9 +72,9 @@ module main(mclk,
     */
 
    // XXX: FIXME
-   assign dsi_sysclk = 1;
+   wire          turbo = 0;
 
-   //osc_sim dsosc(mclk, reset, turbo, ds_osc_out);
+   osc_sim dsosc(mclk, reset, turbo, dsi_sysclk);
 
 
    /************************************************
