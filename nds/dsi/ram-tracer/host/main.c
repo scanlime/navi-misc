@@ -7,10 +7,38 @@ FILE *outputFile;
 bool exitRequested;
 
 
+static bool
+detectOverrun(uint8_t *buffer, int length)
+{
+   while (length) {
+      if (*buffer != 0xFF)
+         return false;
+      buffer++;
+      length--;
+   }
+   return true;
+}
+
+
 static int
 readCallback(uint8_t *buffer, int length, FTDIProgressInfo *progress, void *userdata)
 {
    if (length) {
+      /*
+       * We don't actually parse the received data, but do check for
+       * buffer overflows.  If the hardware buffer overruns, the FPGA
+       * will start sending 0xFF bytes as fast as it can.
+       */
+      if (detectOverrun(buffer, length)) {
+         fprintf(stderr,
+                 "\n\n"
+                 "*** Hardware buffer overrun! ***\n"
+                 "The USB bus or PC can't keep up with the incoming "
+                 "data. Capture has been aborted.\n"
+                 "\n");
+         return 1;
+      }
+
       if (fwrite(buffer, length, 1, outputFile) != 1) {
          perror("Write error");
          return 1;
