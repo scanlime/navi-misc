@@ -37,13 +37,11 @@ module main(mclk,
    output      usb_rd_n, usb_wr_n, usb_oe_n;
 
    input [22:0] ram_a;
-   input [15:0] ram_d;
+   inout [15:0] ram_d;
    input        ram_oe, ram_we, ram_ce1_in, ram_ce2;
    input        ram_ub, ram_lb, ram_adv, ram_clk;
+
    output       ram_ce1_out;
-
-   assign ram_ce1_out = 0;
-
    output       dsi_sysclk;
 
 
@@ -222,6 +220,51 @@ module main(mclk,
         packet_type <= 2'bXX;
         packet_payload <= 23'hXXXXXX;
         packet_strobe <= 0;
+     end
+
+
+   /************************************************
+    * Injection state machine
+    */
+
+   reg ram_ce1_out;  // 0=normal, 1=override RAM
+
+   reg [15:0] ram_d_out;
+   wire       ram_enable_nodelay = !ram_ce1_in && ram_ce2;
+   wire       ram_d_out_enable = ram_enable_nodelay && !ram_oe && ram_ce1_out;
+   assign     ram_d = ram_d_out_enable ? ram_d_out : 16'hZZZZ;
+
+   wire [23:0] inject_trigger_addr = 24'h8729e0;
+   reg         inject_trigger;
+
+   always @(posedge mclk or posedge reset)
+     if (reset) begin
+        ram_ce1_out <= 0;
+        ram_d_out <= 0;
+        inject_trigger <= 0;
+     end
+     else if (!ram_enable_nodelay) begin
+        /*
+         * RAM chip enables are no longer active. Reset.
+         */
+        ram_ce1_out <= 0;
+        inject_trigger <= 0;
+     end
+     else if (filter_strobe && filter_addr_latch) begin
+        /*
+         * Beginning a read/write burst. Latch the address,
+         * and figure out whether to enable injection.
+         */
+        inject_trigger <= filter_a == inject_trigger_addr[23:1];
+     end
+     else if (inject_trigger && filter_strobe && filter_read) begin
+        /*
+         * Patched read cycle. The first actual data word is sent out in time
+         * for the cycle at READ_LATENCY. But we disable the real RAM
+         * and start driving the bus immediately.
+         */
+        ram_ce1_out <= 1;
+        ram_d_out <= 16'h0078;
      end
 
 endmodule
