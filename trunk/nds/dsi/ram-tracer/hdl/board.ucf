@@ -114,8 +114,39 @@ NET "usb_oe_n"  LOC = "P64"  | IOSTANDARD = LVCMOS33 ;
 # DSi 3.3 volt I/O
 #
 
-# NOTE: 470 ohm series resistor to oscillator input
 NET "dsi_sysclk"  LOC = "P69"  | IOSTANDARD = LVCMOS33 ;
+
+# CE1 Override
+#
+# The CE1 line was separated between the RAM and CPU.
+# ram_ce1_in is from the CPU, ram_ce1_out is to the RAM.
+# However, the FPGA isn't fast enough to forward CE1 from
+# CPU to RAM 100% of the time. Additionally, it can cause
+# occasional crashes if we leave ce1_out high-Z all the
+# time, since the long unterminated wire back to the FPGA
+# will cause signal integrity problems.
+#
+# The easiest solution seemed to be:
+#
+#   - A 330 ohm resistor between the RAM CE1 pin and CPU
+#     CE1 pin. This lets the CPU control the RAM CE1
+#     directly most of the time.
+#
+#   - Two silicon diodes in series with the FPGA's ram_ce1_out
+#     pin and the RAM's CE1. When we drive ram_ce1_out
+#     to zero, the diodes are off and we have negligible
+#     effect on the CE1 signal. When we drive ram_ce1_out
+#     high, we pull the RAM CE1 pin high through the diodes.
+#
+# To work around the diode voltage drop, it seemed easiest
+# to use two back-to-back diodes (1.2v drop) and use a 3.3v
+# output even though the signals are 1.8v. So when we drive
+# ram_ce1_out high, the actual CE1 pin to about 2.1v, which
+# should be close enough to the 1.8v logic levels. This
+# voltage is also not outside the RAM's absolute maximum
+# rating of 2.5v.
+
+NET "ram_ce1_out"  LOC = "P68"  | IOSTANDARD = LVCMOS33 ;
 
 
 ########################################################
@@ -130,15 +161,6 @@ NET "dsi_sysclk"  LOC = "P69"  | IOSTANDARD = LVCMOS33 ;
 #   - ram_clk needs a 330 ohm series resistor.
 #     Otherwise, ringing on the clock line can interfere
 #     with the RAM's normal operation, and the DSi won't boot.
-#
-#   - The CE1 line was separated between the RAM and CPU.
-#     ram_ce1_in is from the CPU, ram_ce1_out is to the RAM.
-#
-#   - The FPGA isn't fast enough to forward CE1 from CPU
-#     to RAM 100% of the time, so we normally leave
-#     ce1_out high-Z and rely on a 330 ohm resistor which
-#     was placed between ce1_in and ce1_out. The resistor
-#     should be located physically near to the break.
 #
 # XXX: I should probably include termination resistors for
 #      all of these signals, but so far I'm not. If this was
@@ -165,9 +187,9 @@ NET "ram_clk" LOC = "P177" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
 #NET "" LOC = "P167" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
 #NET "" LOC = "P168" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
 #NET "" LOC = "P171" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
+#NET "" LOC = "P179" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
 
 NET "ram_d<2>"    LOC = "P172" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
-NET "ram_ce1_out" LOC = "P179" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
 NET "ram_a<0>"    LOC = "P187" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
 NET "ram_oe"      LOC = "P189" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
 NET "ram_ce1_in"  LOC = "P190" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
