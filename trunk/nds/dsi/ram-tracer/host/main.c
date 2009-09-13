@@ -30,18 +30,26 @@
 #include <string.h>
 #include "fastftdi.h"
 
+
 /*
  * Hardware configuration registers
  */
 
-#define REG_SYSCLK  0x0000
+#define REG_SYSCLK       0x0000
+#define REG_TRACEFLAGS   0x0001
+
+#define TRACEFLAG_READS   (1 << 0)
+#define TRACEFLAG_WRITES  (1 << 1)
+
 
 /*
  * Global data
-*/
+ */
 
 static FILE *outputFile;
 static bool exitRequested;
+static bool streamStartFound;
+
 
 /*
  * Private functions
@@ -53,6 +61,7 @@ static int readCallback(uint8_t *buffer, int length,
 static void sigintHandler(int signum);
 static void configWrite(FTDIDevice *dev, uint16_t addr, uint16_t data);
 static void setSysClock(FTDIDevice *dev, float mhz);
+
 
 int main(int argc, char **argv)
 {
@@ -73,28 +82,48 @@ int main(int argc, char **argv)
      return;
   }
 
-  err = FPGAConfig_LoadFile(&dev, argv[1]);
-  if (err)
-    return 1;
-
   outputFile = fopen(argv[3], "wb");
   if (!outputFile) {
      perror("opening output file");
      return 1;
   }
 
+  /*
+   * Hardware Setup
+   */
+
+  err = FPGAConfig_LoadFile(&dev, argv[1]);
+  if (err)
+    return 1;
+
   err = FTDIDevice_SetMode(&dev, FTDI_INTERFACE_A,
                            FTDI_BITMODE_SYNC_FIFO, 0xFF, 0);
   if (err)
     return 1;
 
-  signal(SIGINT, sigintHandler);
-
+  // Set the DSi's oscillator frequency using our FPGA's clock synthesizer
   setSysClock(&dev, atof(argv[2]));
 
+  /*
+   * Drain any junk out of the read buffer and discard it before
+   * enabling memory traces.
+   */
+
+  while (FTDIDevice_ReadByteSync(&dev, FTDI_INTERFACE_A, NULL) >= 0);
+  configWrite(&dev, REG_TRACEFLAGS, TRACEFLAG_WRITES | TRACEFLAG_READS);
+
+  /*
+   * Stream the captured data to disk
+   */
+
+  signal(SIGINT, sigintHandler);
   err = FTDIDevice_ReadStream(&dev, FTDI_INTERFACE_A, readCallback, NULL, 64, 16);
   if (err < 0 && !exitRequested)
      return 1;
+
+  /*
+   * Cleanup
+   */
 
   FTDIDevice_Close(&dev);
   fclose(outputFile);
@@ -122,6 +151,27 @@ static int
 readCallback(uint8_t *buffer, int length, FTDIProgressInfo *progress, void *userdata)
 {
    if (length) {
+      if (!streamStartFound) {
+         /*
+          * This is the beginning of the stream. Look for the first flag byte,
+          * and skip anything prior to it. This synchronizes us to the first packet.
+          *
+          * XXX: This shouldn't be necessary, since we flush all buffers before
+          *      starting the capture. I don't know whether this is here because
+          *      of a bug in the FPGA RTL, this program, or some quirk of the
+          *       FTDI chip.
+          */
+
+         while (length) {
+            if (0x80 & *buffer) {
+               streamStartFound = true;
+               break;
+            }
+            length--;
+            buffer++;
+         }
+      }
+
       /*
        * We don't actually parse the received data, but do check for
        * buffer overflows.  If the hardware buffer overruns, the FPGA

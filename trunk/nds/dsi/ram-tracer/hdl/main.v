@@ -46,10 +46,6 @@ module main(mclk,
 
    output       dsi_sysclk;
 
-   // FIXME: Config options
-   wire         trace_enable = 1;
-   wire         trace_reads = 1;
-
 
    /************************************************
     * USB FIFO
@@ -122,6 +118,19 @@ module main(mclk,
 
 
    /************************************************
+    * Configuration
+    */
+
+   wire [15:0] trace_flags;
+   wire        trace_reads = trace_flags[0];
+   wire        trace_writes = trace_flags[1];
+   wire        trace_any = trace_reads || trace_writes;
+
+   usb_config #(16'h0001) trace_cfg(mclk, reset, config_addr, config_data,
+                                    config_strobe, trace_flags);
+
+
+   /************************************************
     * Tracing state machine
     */
 
@@ -142,7 +151,7 @@ module main(mclk,
         packet_payload <= 0;
         packet_strobe <= 0;
      end
-     else if (trace_enable && filter_strobe && filter_addr_latch) begin
+     else if (trace_any && filter_strobe && filter_addr_latch) begin
         /*
          * Send an address packet
          */
@@ -152,7 +161,7 @@ module main(mclk,
         packet_payload <= filter_a;
         packet_strobe <= 1;
      end
-     else if (trace_enable && filter_strobe && filter_write &&
+     else if (trace_writes && filter_strobe && filter_write &&
               burst_cycle >= (WRITE_LATENCY - 1)) begin
         /*
          * Send a write word packet
@@ -163,7 +172,7 @@ module main(mclk,
         packet_payload <= { timestamp5, filter_ublb, filter_d };
         packet_strobe <= 1;
      end
-     else if (trace_enable && trace_reads && filter_strobe && filter_read &&
+     else if (trace_reads && filter_strobe && filter_read &&
               burst_cycle >= (READ_LATENCY - 1)) begin
         /*
          * Send a read word packet.
@@ -178,8 +187,9 @@ module main(mclk,
         packet_payload <= { timestamp5, filter_ublb, nfilter_d };
         packet_strobe <= 1;
      end
-     else if (trace_enable && filter_strobe &&
-              burst_cycle == 1 && timestamp5_remainder) begin
+     else if (trace_any && filter_strobe &&
+              ( (burst_cycle == 1 && timestamp5_remainder) ||
+                timestamp_counter[22] )) begin
         /*
          * Our RAM is otherwise idle, and we have a timestamp remainder-
          * send a timestamp packet to sync up the host with our clock.
@@ -191,6 +201,9 @@ module main(mclk,
          * By sending it during this latency cycle, we end up with an address
          * packet that may have an outdated timestamp, but the end of the burst
          * (which is what matters) will always have an up-to-date timestamp.
+         *
+         * We'll also send a timestamp packet if the timestamp counter is
+         * in danger of overflowing soon.
          */
 
         timestamp_counter <= 0;
