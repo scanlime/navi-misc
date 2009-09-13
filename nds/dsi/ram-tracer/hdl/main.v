@@ -42,7 +42,7 @@ module main(mclk,
    input        ram_ub, ram_lb, ram_adv, ram_clk;
    output       ram_ce1_out;
 
-   assign ram_ce1_out = 1'bZ;
+   assign ram_ce1_out = 0;
 
    output       dsi_sysclk;
 
