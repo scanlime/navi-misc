@@ -95,6 +95,30 @@ endmodule
 
 
 /*
+ * Convenience module for implementing configuration registers:
+ * Attaches to the configuration bus, monitors a single address,
+ * and provides a latched output for that address.
+ */
+
+module usb_config(mclk, reset, config_addr, config_data, config_strobe, reg_out);
+   parameter ADDRESS = 0;
+
+   input mclk, reset;
+   input [15:0] config_addr;
+   input [15:0] config_data;
+   input        config_strobe;
+   output [15:0] reg_out;
+   reg [15:0]    reg_out;
+
+   always @(posedge mclk or posedge reset)
+     if (reset)
+       reg_out <= 0;
+     else if (config_strobe && config_addr == ADDRESS)
+       reg_out <= config_data;
+endmodule
+
+
+/*
  * This module is in charge of USB communications through an
  * FT2232H in synchronous FIFO mode. Communications to and from
  * the PC are handled somewhat differently:
@@ -162,12 +186,13 @@ module usb_comm(mclk, reset,
    wire          read_ready = !usb_rxf_n;
 
    wire          read_request;
+   wire          read_oe;
    wire          write_request;
    wire [7:0]    write_data;
 
    assign usb_rd_n = !read_request;
    assign usb_wr_n = !write_request;
-   assign usb_oe_n = !read_request;
+   assign usb_oe_n = !read_oe;
    assign usb_d = write_request ? write_data : 8'hZZ;
 
 
@@ -257,9 +282,13 @@ module usb_comm(mclk, reset,
 
    reg [23:0]        packet_reg;
    reg [1:0]         packet_cnt;
-   reg [34:0]        cmd_reg;     // Lower 7 bits from each byte
+   reg [27:0]        cmd_reg;     // Lower 7 bits from first 4 bytes
    reg [2:0]         cmd_cnt;
    reg [1:0]         state;
+
+   reg [15:0]        config_addr;
+   reg [15:0]        config_data;
+   reg               config_strobe;
 
    wire              write_next_packet = packet_cnt == 0;
    wire              write_avail = error_latch || !(write_next_packet && fifo_empty);
@@ -273,6 +302,7 @@ module usb_comm(mclk, reset,
    wire              read_sync_bit = usb_d[7];
 
    assign read_request = c0_read;
+   assign read_oe = c0_read || c1_read;
    assign write_request = c1_write;
 
    assign write_data = error_latch ? 8'hFF :
@@ -286,6 +316,10 @@ module usb_comm(mclk, reset,
         cmd_reg <= 0;
         cmd_cnt <= 0;
         state <= 0;
+
+        config_addr <= 0;
+        config_data <= 0;
+        config_strobe <= 0;
      end
      else
        case (state)
@@ -295,6 +329,7 @@ module usb_comm(mclk, reset,
               state <= S_C1_READ;
             else if (c0_write)
               state <= S_C1_WRITE;
+            config_strobe <= 0;
          end
 
          S_C1_WRITE: begin
@@ -304,14 +339,36 @@ module usb_comm(mclk, reset,
               packet_reg <= { packet_reg[16:0], 8'hXX };
             packet_cnt <= packet_cnt - 1;   // Rolls over at zero
             state <= S_C0;
+            config_strobe <= 0;
          end
 
          S_C1_READ: begin
-            if (read_sync_bit)    // First byte of command
-              cmd_cnt <= 0;
-            else
-              cmd_cnt <= cmd_cnt + 1;
-            cmd_reg <= {  cmd_reg[27:0], usb_d[6:0] };  // Save the low 7 bits
+
+            if (read_sync_bit) begin
+               // First byte of command (reset)
+               cmd_cnt <= 1;
+            end
+            else if (cmd_cnt == 0) begin
+               // Not in a command yet
+            end
+            else if (&cmd_cnt) begin
+               // Overrun past the end of the command
+            end
+            else begin
+               cmd_cnt <= cmd_cnt + 1;
+
+               if (cmd_cnt == 4) begin
+                  // Last byte of 5-byte command
+
+                  config_addr <= { cmd_reg[24:23], cmd_reg[20:7] };
+                  config_data <= { cmd_reg[22:21], cmd_reg[6:0], usb_d[6:0] };
+
+                  // cmd_reg[27:25] is reserved, must be zero.
+                  config_strobe <= cmd_reg[27:25] == 0;
+               end
+            end
+
+            cmd_reg <= { cmd_reg[20:0], usb_d[6:0] };  // Save the low 7 bits
             state <= S_C0;
          end
        endcase
