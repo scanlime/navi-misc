@@ -163,15 +163,14 @@ module main(mclk,
         packet_payload <= { timestamp5, filter_ublb, filter_d };
         packet_strobe <= 1;
      end
-     else if (trace_enable && trace_reads && nfilter_strobe && filter_read &&
-              burst_cycle >= READ_LATENCY) begin
+     else if (trace_enable && trace_reads && filter_strobe && filter_read &&
+              burst_cycle >= (READ_LATENCY - 1)) begin
         /*
          * Send a read word packet.
-         * Note that data is latched on the negative clock edge,
-         * but all control signals are taken from the last positive edge.
          *
-         * This also gives us no -1 above, since burst_cycle has
-         * already been incremented.
+         * Note that data is latched on the negative clock edge,
+         * but we send the packet on the positive edge and all control
+         * signals are sampled at the next positive edge.
          */
 
         timestamp_counter <= timestamp5_remainder;
@@ -212,7 +211,7 @@ module main(mclk,
         packet_strobe <= 0;
      end
 
-endmodule // main
+endmodule
 
 
 /*
