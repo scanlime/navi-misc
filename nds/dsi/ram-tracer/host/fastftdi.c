@@ -34,7 +34,6 @@ typedef struct {
    void *userdata;
    int result;
    FTDIProgressInfo progress;
-   bool junkPacketIgnored;
 } FTDIStreamState;
 
 
@@ -206,7 +205,9 @@ FTDIDevice_ReadByteSync(FTDIDevice *dev, FTDIInterface interface, uint8_t *byte)
     return -1;
   }
 
-  *byte = packet[sizeof packet - 1];
+  if (byte) {
+     *byte = packet[sizeof packet - 1];
+  }
 
   return 0;
 }
@@ -242,19 +243,10 @@ ReadStreamCallback(struct libusb_transfer *transfer)
             payloadLen = packetLen - FTDI_HEADER_SIZE;
             state->progress.current.totalBytes += payloadLen;
 
-            /*
-             * XXX: I don't know why, but there seems to be a junk packet
-             *      at the beginning of the stream that has two headers
-             *      rather than one. Ignore this packet (only once per stream)
-             */
-            if (state->junkPacketIgnored || payloadLen > FTDI_HEADER_SIZE) {
-               state->result = state->callback(ptr + FTDI_HEADER_SIZE, payloadLen,
-                                               NULL, state->userdata);
-               if (state->result)
-                  break;
-            } else {
-               state->junkPacketIgnored = true;
-            }
+            state->result = state->callback(ptr + FTDI_HEADER_SIZE, payloadLen,
+                                            NULL, state->userdata);
+            if (state->result)
+               break;
 
             ptr += packetLen;
             length -= packetLen;
