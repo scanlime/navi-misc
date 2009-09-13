@@ -86,11 +86,10 @@
 #        the FPGA starts up. This should be the case.
 #
 
-# Master clock, provided by the FT2232H. Runs at 60 MHz, but
-# give ourselves some headroom...
+# Master clock, provided by the FT2232H. Runs at 60 MHz.
 
 NET "mclk"  LOC = "P81" | IOSTANDARD = LVCMOS33 | TNM_NET = mclk ;
-TIMESPEC TS_mclk = PERIOD "mclk" 80 MHz HIGH 50%;
+TIMESPEC TS_mclk = PERIOD "mclk" 60 MHz HIGH 50%;
 
 # Synchronous FIFO
 
@@ -108,6 +107,15 @@ NET "usb_txe_n" LOC = "P103" | IOSTANDARD = LVCMOS33 ;
 NET "usb_rd_n"  LOC = "P62"  | IOSTANDARD = LVCMOS33 ;
 NET "usb_wr_n"  LOC = "P65"  | IOSTANDARD = LVCMOS33 ;
 NET "usb_oe_n"  LOC = "P64"  | IOSTANDARD = LVCMOS33 ;
+
+
+########################################################
+#
+# DSi 3.3 volt I/O
+#
+
+# NOTE: 470 ohm series resistor to oscillator input
+NET "dsi_sysclk"  LOC = "P69"  | IOSTANDARD = LVCMOS33 ;
 
 
 ########################################################
@@ -140,7 +148,7 @@ NET "usb_oe_n"  LOC = "P64"  | IOSTANDARD = LVCMOS33 ;
 ##### Global glock I/O pins
 
 NET "ram_clk" LOC = "P177" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
-NET "dsi_sysclk" LOC = "P178" | IOSTANDARD = LVCMOS18 ;
+#NET "" LOC = "P178" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
 #NET "" LOC = "P180" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
 #NET "" LOC = "P181" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
 #NET "" LOC = "P185" | IOSTANDARD = LVCMOS18 | KEEPER = true ;

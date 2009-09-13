@@ -26,10 +26,83 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <signal.h>
+#include <stdlib.h>
+#include <string.h>
 #include "fastftdi.h"
+
+/*
+ * Hardware configuration registers
+ */
+
+#define REG_SYSCLK  0x0000
+
+/*
+ * Global data
+*/
 
 static FILE *outputFile;
 static bool exitRequested;
+
+/*
+ * Private functions
+ */
+
+static bool detectOverrun(uint8_t *buffer, int length);
+static int readCallback(uint8_t *buffer, int length,
+                        FTDIProgressInfo *progress, void *userdata);
+static void sigintHandler(int signum);
+static void configWrite(FTDIDevice *dev, uint16_t addr, uint16_t data);
+static void setSysClock(FTDIDevice *dev, float mhz);
+
+int main(int argc, char **argv)
+{
+  FTDIDevice dev;
+  int err;
+
+  if (argc != 4) {
+     fprintf(stderr, "usage: %s <fpga bitstream> <sysclock mhz> <output file>\n"
+             " Note that the normal sysclock frequency is 16.756 MHz, and\n"
+             " it is necessary to underclock to around 2 MHz for RAM tracing.\n",
+             argv[0]);
+     return 1;
+  }
+
+  err = FTDIDevice_Open(&dev);
+  if (err) {
+     fprintf(stderr, "USB: Error opening device\n");
+     return;
+  }
+
+  err = FPGAConfig_LoadFile(&dev, argv[1]);
+  if (err)
+    return 1;
+
+  outputFile = fopen(argv[3], "wb");
+  if (!outputFile) {
+     perror("opening output file");
+     return 1;
+  }
+
+  err = FTDIDevice_SetMode(&dev, FTDI_INTERFACE_A,
+                           FTDI_BITMODE_SYNC_FIFO, 0xFF, 0);
+  if (err)
+    return 1;
+
+  signal(SIGINT, sigintHandler);
+
+  setSysClock(&dev, atof(argv[2]));
+
+  err = FTDIDevice_ReadStream(&dev, FTDI_INTERFACE_A, readCallback, NULL, 64, 16);
+  if (err < 0 && !exitRequested)
+     return 1;
+
+  FTDIDevice_Close(&dev);
+  fclose(outputFile);
+
+  fprintf(stderr, "\nCapture ended.\n");
+
+  return 0;
+}
 
 
 static bool
@@ -89,47 +162,65 @@ sigintHandler(int signum)
 }
 
 
-int main(int argc, char **argv)
+/*
+ * configWrite --
+ *
+ *    Write to a configuration register on the FPGA. These
+ *    registers are used for global settings and for storing
+ *    RAM patches. Registers are 16 bits wide, and they exist
+ *    in a 16-bit virtual address space.
+ */
+
+static void
+configWrite(FTDIDevice *dev, uint16_t addr, uint16_t data)
 {
-  FTDIDevice dev;
-  int err;
+   /*
+    * Note that the hardware supports receiving many config packets
+    * per USB packet, but so far we send just one at a time for simplicity.
+    */
 
-  if (argc != 3) {
-     fprintf(stderr, "usage: %s <fpga bitstream> <output file>\n", argv[0]);
-     return 1;
-  }
+   uint8_t packet[6];
 
-  err = FTDIDevice_Open(&dev);
-  if (err) {
-     fprintf(stderr, "USB: Error opening device\n");
-     return 1;
-  }
+   // XXX: One padding byte. The FT2232H and/or the FPGA seem to eat the
+   //      first byte sometimes?
+   packet[0] = 0x00;
 
-  err = FPGAConfig_LoadFile(&dev, argv[1]);
-  if (err)
-    return 1;
+   // Pack the data as described in usb_comm.v
+   packet[1] = 0x80 | ((addr & 0xC000) >> 12) | ((data & 0xC000) >> 14);
+   packet[2] = (addr & 0x3F80) >> 7;
+   packet[3] = addr & 0x007F;
+   packet[4] = (data & 0x3F80) >> 7;
+   packet[5] = data & 0x007F;
 
-  outputFile = fopen(argv[2], "wb");
-  if (!outputFile) {
-     perror("opening output file");
-     return 1;
-  }
+   if (FTDIDevice_WriteSync(dev, FTDI_INTERFACE_A, packet, sizeof packet)) {
+      perror("Error writing configuration register");
+      exit(1);
+   }
+}
 
-  err = FTDIDevice_SetMode(&dev, FTDI_INTERFACE_A,
-                           FTDI_BITMODE_SYNC_FIFO, 0xFF, 0);
-  if (err)
-    return 1;
 
-  signal(SIGINT, sigintHandler);
+/*
+ * setSysClock --
+ *
+ *    Set the system clock to an approximation of the given frequency, in MHz.
+ *    We'll display a message with the actual frequency being set.
+ */
 
-  err = FTDIDevice_ReadStream(&dev, FTDI_INTERFACE_A, readCallback, NULL, 64, 16);
-  if (err < 0 && !exitRequested)
-     return 1;
+static void
+setSysClock(FTDIDevice *dev, float mhz)
+{
+   const double synthStep = 240.0 / 0x80000;
+   int regValue = (mhz / synthStep) + 0.5;
+   double actual = regValue * synthStep;
 
-  FTDIDevice_Close(&dev);
-  fclose(outputFile);
+   if (regValue > 0xffff) {
+      fprintf(stderr, "CLOCK: Frequency %.06f (0x%04x) is out of range\n",
+              actual, regValue);
+      exit(1);
+   }
 
-  fprintf(stderr, "\nCapture ended.\n");
+   fprintf(stderr, "CLOCK: Setting system clock to %.06f MHz (0x%04x)\n",
+           actual, regValue);
 
-  return 0;
+   configWrite(dev, REG_SYSCLK, regValue);
 }

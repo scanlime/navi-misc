@@ -76,10 +76,7 @@ module main(mclk,
     * Oscillator Simulator
     */
 
-   // XXX: FIXME
-   wire          turbo = 0;
-
-   osc_sim dsosc(mclk, reset, turbo, dsi_sysclk);
+   osc_sim dsosc(mclk, reset, config_addr, config_data, config_strobe, dsi_sysclk);
 
 
    /************************************************
@@ -219,40 +216,72 @@ endmodule // main
 
 
 /*
- * DS Oscillator Simulator --
+ * Configurable Oscillator Simulator --
  *
- *   mclk is 48 MHz.
+ *   This is a configurable frequency generator. We use a Xilinx DCM to
+ *   multiply the incoming clock frequency (to achieve better clock resolution),
+ *   then we use an accumulator to divide the clock by a 16-bit fixed-point value.
  *
- *   Generates a 1 MHz clock (near the minimum for PLL startup) when turbo=0.
- *   Generates an approximate 16.756 MHz clock (the normal frequency) when turbo=1.
+ *   This oscillator can synthesize frequencies up to 29.9995 MHz, with a
+ *   resolution of 457.8 kHz.
  */
 
-module osc_sim(mclk, reset, turbo, osc_out);
+module osc_sim(mclk, reset, config_addr, config_data, config_strobe, osc_out);
 
-   parameter MCLK_KHZ_DIV2 = 16'd24000;
-   parameter SLOW_KHZ = 16'd1000;
-   parameter FAST_KHZ = 16'd16756;
-
-   input mclk, reset, turbo;
+   input mclk, reset;
    output osc_out;
-   reg    osc_out;
 
-   reg [15:0] accum;
+   input [15:0] config_addr;
+   input [15:0] config_data;
+   input        config_strobe;
 
-   wire [15:0] accum_next_fast = accum + FAST_KHZ;
-   wire [15:0] accum_next_slow = accum + SLOW_KHZ;
-   wire [15:0] accum_next = turbo ? accum_next_fast : accum_next_slow;
+   reg [18:0]  accum;
+   reg         accum_out;
+   reg         accum_out_buf;
+   reg         osc_out;
 
-   always @(posedge mclk or posedge reset)
+   reg [15:0]  cfg_rate_buf1;
+   reg [15:0]  cfg_rate_buf2;
+   wire [15:0] cfg_rate;
+
+   usb_config #(16'h0000) cfg(mclk, reset, config_addr, config_data,
+                              config_strobe, cfg_rate);
+
+   wire clk4x;
+
+   DCM #(.CLKDV_DIVIDE(2.0),
+         .CLKFX_DIVIDE(1),
+         .CLKFX_MULTIPLY(4),
+         .CLKIN_DIVIDE_BY_2("FALSE"),
+         .CLKOUT_PHASE_SHIFT("NONE"),
+         .CLK_FEEDBACK("NONE")
+         ) dcm4x (.CLKFX(clk4x),
+                  .CLKIN(mclk),
+                  .RST(reset));
+
+   /*
+    * Performance is critical here, as this adder will be running at 240 MHz!
+    * We double-register the input (cfg_rate) and output (osc_out) in order
+    * to help isolate this accumulator from the placement of other logic elements.
+    *
+    * Also, it's a good idea to double-register the input since we're
+    * crossing clock domains.
+    */
+
+   always @(posedge clk4x or posedge reset)
      if (reset) begin
         accum <= 0;
+        accum_out_buf <= 0;
         osc_out <= 0;
-     end
-     else if (accum_next > MCLK_KHZ_DIV2) begin
-        accum <= accum_next - MCLK_KHZ_DIV2;
-        osc_out <= !osc_out;
+        cfg_rate_buf1 <= 0;
+        cfg_rate_buf2 <= 0;
      end
      else begin
-        accum <= accum_next;
+        accum <= accum + { 3'b000, cfg_rate_buf2 };
+        accum_out_buf <= accum[18];
+        osc_out <= accum_out_buf;
+        cfg_rate_buf1 <= cfg_rate;
+        cfg_rate_buf2 <= cfg_rate_buf1;
      end
+
 endmodule
