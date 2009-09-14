@@ -230,42 +230,68 @@ module main(mclk, clk50,
 
    reg ram_ce1_out;  // 0=normal, 1=override RAM
 
-   reg [15:0] ram_d_out;
+   wire        patch_trigger;
+   wire        patch_data_next;
+   wire [15:0] patch_data;
+
+   reg  [15:0] ram_d_latch;
+
    wire       ram_enable_nodelay = !ram_ce1_in && ram_ce2;
    wire       ram_d_out_enable = ram_enable_nodelay && !ram_oe && ram_ce1_out;
-   assign     ram_d = ram_d_out_enable ? ram_d_out : 16'hZZZZ;
+   assign     ram_d = ram_d_out_enable ? ram_d_latch : 16'hZZZZ;
 
-   wire [23:0] inject_trigger_addr = 24'h8729e0;
-   reg         inject_trigger;
+   /*
+    * Patch storage module. We give it addresses, it tells us whether
+    * to inject and it provides the data for each word.
+    */
+   patch_store pstore(mclk, reset,
+                      config_addr, config_data, config_strobe,
+                      filter_a, filter_strobe && filter_addr_latch,
+                      patch_trigger, patch_data, patch_data_next);
+
+   /*
+    * Triggering latch. Patch is active when the patch store
+    * says it is, goes inactive when the current burst ends.
+    */
+
+   reg  patch_active;
+
+   always @(posedge mclk or posedge reset)
+     if (reset)
+       patch_active <= 0;
+     else if (!ram_enable_nodelay)
+       patch_active <= 0;
+     else if (patch_trigger)
+       patch_active <= 1;
+
+   /*
+    * Read burst injection, using the bus state maintained above for tracing.
+    *
+    * In a patched read cycle. The first actual data word is sent
+    * out in time for the cycle at READ_LATENCY. But we disable the
+    * real RAM and start driving the bus immediately.
+    *
+    * In order to make the RAM data available for cycle N, we must write
+    * it here when burst_cycle is N-1. Also, the READ_LATENCY is 1-based,
+    * like in the data sheet. So we actually need to write the first
+    * data word when burst_cycle is READ_LATENCY - 2.
+    */
+
+   wire patched_read = patch_active && filter_strobe && filter_read;
+   assign patch_data_next = patched_read && (burst_cycle >= (READ_LATENCY - 2));
 
    always @(posedge mclk or posedge reset)
      if (reset) begin
         ram_ce1_out <= 0;
-        ram_d_out <= 0;
-        inject_trigger <= 0;
+        ram_d_latch <= 0;
      end
      else if (!ram_enable_nodelay) begin
-        /*
-         * RAM chip enables are no longer active. Reset.
-         */
         ram_ce1_out <= 0;
-        inject_trigger <= 0;
+        ram_d_latch <= 0;
      end
-     else if (filter_strobe && filter_addr_latch) begin
-        /*
-         * Beginning a read/write burst. Latch the address,
-         * and figure out whether to enable injection.
-         */
-        inject_trigger <= filter_a == inject_trigger_addr[23:1];
-     end
-     else if (inject_trigger && filter_strobe && filter_read) begin
-        /*
-         * Patched read cycle. The first actual data word is sent out in time
-         * for the cycle at READ_LATENCY. But we disable the real RAM
-         * and start driving the bus immediately.
-         */
+     else if (patched_read) begin
         ram_ce1_out <= 1;
-        ram_d_out <= 16'h0078;
+        ram_d_latch <= patch_data;
      end
 
 endmodule
