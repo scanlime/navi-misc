@@ -321,7 +321,6 @@ module osc_sim(mclk, reset, config_addr, config_data, config_strobe, clk50, osc_
    input        config_strobe;
 
    reg [18:0]  accum;
-   reg         accum_out;
    reg         accum_out_buf;
    reg         osc_out;
 

@@ -41,6 +41,13 @@
       <association xil_pn:name="BehavioralSimulation"/>
       <library xil_pn:name="verilog"/>
     </file>
+    <file xil_pn:name="camdp_23_64.xco" xil_pn:type="FILE_COREGEN">
+      <association xil_pn:name="Implementation"/>
+      <association xil_pn:name="BehavioralSimulation"/>
+    </file>
+    <file xil_pn:name="camdp_23_64.ise" xil_pn:type="FILE_COREGENISE">
+      <association xil_pn:name="Implementation"/>
+    </file>
   </files>
 
   <properties>

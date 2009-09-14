@@ -35,8 +35,15 @@
  * Hardware configuration registers
  */
 
-#define REG_SYSCLK       0x0000
-#define REG_TRACEFLAGS   0x0001
+#define REG_SYSCLK         0x0000
+#define REG_TRACEFLAGS     0x0001
+#define REG_CAM_ADDR_LOW   0x7000
+#define REG_CAM_ADDR_HIGH  0x7001
+#define REG_CAM_MASK_LOW   0x7002
+#define REG_CAM_MASK_HIGH  0x7003
+#define REG_CAM_INDEX      0x7004
+#define REG_PATCH_OFFSETS  0x7800
+#define REG_PATCH_CONTENT  0x8000
 
 #define TRACEFLAG_READS   (1 << 0)
 #define TRACEFLAG_WRITES  (1 << 1)
@@ -61,7 +68,10 @@ static int readCallback(uint8_t *buffer, int length,
 static void sigintHandler(int signum);
 static void configWrite(FTDIDevice *dev, uint16_t addr, uint16_t data);
 static void setSysClock(FTDIDevice *dev, float mhz);
-
+static void patchCAMWrite(FTDIDevice *dev, uint32_t address,
+                          uint32_t mask, uint16_t index);
+static void patchOffsetWrite(FTDIDevice *dev, uint16_t index,
+                             uint32_t ramAddress, uint32_t patchAddress);
 
 int main(int argc, char **argv)
 {
@@ -103,6 +113,15 @@ int main(int argc, char **argv)
 
   // Set the DSi's oscillator frequency using our FPGA's clock synthesizer
   setSysClock(&dev, atof(argv[2]));
+
+  // XXX: Patch testing
+  //  patchCAMWrite(&dev, 0xffffff >> 1, 0, 0);
+  //  patchOffsetWrite(&dev, 0, 0xffffff >> 1, 1);
+  patchCAMWrite(&dev, 0xffff8c >> 1, 0, 0);
+  patchOffsetWrite(&dev, 0, 0xffff8c >> 1, 0);
+  configWrite(&dev, REG_PATCH_CONTENT, 0xBEEF);
+  configWrite(&dev, REG_PATCH_CONTENT+1, 0xFACE);
+  configWrite(&dev, REG_PATCH_CONTENT+2, 0xABCD);
 
   /*
    * Drain any junk out of the read buffer and discard it before
@@ -273,4 +292,41 @@ setSysClock(FTDIDevice *dev, float mhz)
            actual, regValue);
 
    configWrite(dev, REG_SYSCLK, regValue);
+}
+
+
+/*
+ * patchCAMWrite --
+ *
+ *    Write an address and mask to a particular patch index in the
+ *    FPGA's Content Addressable Memory (CAM). Any '1' bits in the
+ *    mask are "dont care" bits. When a burst read address matches
+ *    the address and mask, a patch with the specified index is
+ *    applied.
+ */
+
+static void
+patchCAMWrite(FTDIDevice *dev, uint32_t address, uint32_t mask, uint16_t index)
+{
+   configWrite(dev, REG_CAM_ADDR_LOW, address);
+   configWrite(dev, REG_CAM_ADDR_HIGH, address >> 16);
+   configWrite(dev, REG_CAM_MASK_LOW, mask);
+   configWrite(dev, REG_CAM_MASK_HIGH, mask >> 16);
+   configWrite(dev, REG_CAM_INDEX, index);  // Must be last, triggers the write
+}
+
+
+/*
+ * patchOffsetWrite --
+ *
+ *    Calculate and write a patch offset to the patch offset table.
+ */
+
+static void
+patchOffsetWrite(FTDIDevice *dev, uint16_t index,
+                 uint32_t ramAddress, uint32_t patchAddress)
+{
+   uint32_t offset = patchAddress - ramAddress;
+   configWrite(dev, REG_PATCH_OFFSETS + (index << 1), offset);
+   configWrite(dev, REG_PATCH_OFFSETS + (index << 1) + 1, offset >> 16);
 }
