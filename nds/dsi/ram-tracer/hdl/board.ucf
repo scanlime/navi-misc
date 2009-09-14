@@ -23,13 +23,17 @@
 #
 
 # RS-232 port and line drivers
+
 #NET "serial_cts" LOC = "P109" | IOSTANDARD = LVCMOS33 ;
 #NET "serial_txd" LOC = "P107" | IOSTANDARD = LVCMOS33 ;
 #NET "serial_rxd" LOC = "P106" | IOSTANDARD = LVCMOS33 ;
 #NET "serial_dtr" LOC = "P108" | IOSTANDARD = LVCMOS33 ;
 
 # 50 MHz oscillator
-#NET "clk50" LOC = "P181" | IOSTANDARD = LVCMOS33 ;
+# XXX: It's on a 1.8v bank, but the oscillator is 3.3v. Oops.
+
+NET "clk50" LOC = "P181" | IOSTANDARD = LVCMOS18 | TNM_NET = clk50 ;
+TIMESPEC TS_clk50 = PERIOD "clk50" 50 MHz HIGH 50%;
 
 
 ########################################################
