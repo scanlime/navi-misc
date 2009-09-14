@@ -1,0 +1,56 @@
+##############################################################
+#
+# Xilinx Core Generator version 11.1
+# Date: Mon Sep 14 08:19:49 2009
+#
+##############################################################
+#
+#  This file contains the customisation parameters for a
+#  Xilinx CORE Generator IP GUI. It is strongly recommended
+#  that you do not manually alter this file as it may cause
+#  unexpected and unsupported behavior.
+#
+##############################################################
+#
+# BEGIN Project Options
+SET addpads = False
+SET asysymbol = True
+SET busformat = BusFormatAngleBracketNotRipped
+SET createndf = False
+SET designentry = Verilog
+SET device = xc3s500e
+SET devicefamily = spartan3e
+SET flowvendor = Foundation_ISE
+SET formalverification = False
+SET foundationsym = False
+SET implementationfiletype = Ngc
+SET package = pq208
+SET removerpms = False
+SET simulationfiles = Behavioral
+SET speedgrade = -4
+SET verilogsim = True
+SET vhdlsim = False
+# END Project Options
+# BEGIN Select
+SELECT Content_Addressable_Memory family Xilinx,_Inc. 6.1
+# END Select
+# BEGIN Parameters
+CSET address_resolution=Lowest
+CSET coefficient_file=no_coe_file_loaded
+CSET component_name=camdp_23_64
+CSET data_width=23
+CSET depth=64
+CSET enable=true
+CSET load_initialization_file=false
+CSET match_address_type=Binary_Encoded
+CSET memory_type=SRL16E
+CSET multiple_match_flag=false
+CSET read_only_cam=false
+CSET read_warning_flag=false
+CSET register_outputs=false
+CSET simultaneous_read_write=true
+CSET single_match_flag=false
+CSET ternary_mode=Ternary_Mode_Standard
+# END Parameters
+GENERATE
+# CRC:  8654d04
