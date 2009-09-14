@@ -259,7 +259,7 @@ configWrite(FTDIDevice *dev, uint16_t addr, uint16_t data)
 static void
 setSysClock(FTDIDevice *dev, float mhz)
 {
-   const double synthStep = 240.0 / 0x80000;
+   const double synthStep = 200.0 / 0x80000;
    int regValue = (mhz / synthStep) + 0.5;
    double actual = regValue * synthStep;
 

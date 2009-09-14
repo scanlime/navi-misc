@@ -23,13 +23,13 @@
  */
 
 
-module main(mclk,
+module main(mclk, clk50,
             usb_d, usb_rxf_n, usb_txe_n, usb_rd_n, usb_wr_n, usb_oe_n,
             ram_a, ram_d, ram_oe, ram_we, ram_ce1_in,
             ram_ce1_out, ram_ce2, ram_ub, ram_lb, ram_adv, ram_clk,
             dsi_sysclk);
 
-   input mclk;
+   input mclk, clk50;
    wire  reset = 1'b0;   // Placeholder- no need for reset yet
 
    inout [7:0] usb_d;
@@ -70,7 +70,8 @@ module main(mclk,
     * Oscillator Simulator
     */
 
-   osc_sim dsosc(mclk, reset, config_addr, config_data, config_strobe, dsi_sysclk);
+   osc_sim dsosc(mclk, reset, config_addr, config_data, config_strobe,
+                 clk50, dsi_sysclk);
 
 
    /************************************************
@@ -277,13 +278,16 @@ endmodule
  *   multiply the incoming clock frequency (to achieve better clock resolution),
  *   then we use an accumulator to divide the clock by a 16-bit fixed-point value.
  *
- *   This oscillator can synthesize frequencies up to 29.9995 MHz, with a
- *   resolution of 457.8 kHz.
+ *   This oscillator can synthesize frequencies up to 24.9996 MHz, with a
+ *   resolution of 381.5 kHz.
+ *
+ *   Note: mclk is the master system clock, to which config_* is synchronous.
+ *         clk50 is the auxiliary clock that we use to drive the oscillator.
  */
 
-module osc_sim(mclk, reset, config_addr, config_data, config_strobe, osc_out);
+module osc_sim(mclk, reset, config_addr, config_data, config_strobe, clk50, osc_out);
 
-   input mclk, reset;
+   input mclk, reset, clk50;
    output osc_out;
 
    input [15:0] config_addr;
@@ -311,11 +315,11 @@ module osc_sim(mclk, reset, config_addr, config_data, config_strobe, osc_out);
          .CLKOUT_PHASE_SHIFT("NONE"),
          .CLK_FEEDBACK("NONE")
          ) dcm4x (.CLKFX(clk4x),
-                  .CLKIN(mclk),
+                  .CLKIN(clk50),
                   .RST(reset));
 
    /*
-    * Performance is critical here, as this adder will be running at 240 MHz!
+    * Performance is critical here, as this adder will be running at 200 MHz!
     * We double-register the input (cfg_rate) and output (osc_out) in order
     * to help isolate this accumulator from the placement of other logic elements.
     *
