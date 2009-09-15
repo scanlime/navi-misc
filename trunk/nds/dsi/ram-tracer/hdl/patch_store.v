@@ -44,8 +44,8 @@
  *
  * Patches are configured over USB, using the config bus. The 16-bit
  * data memory is mapped directly onto the config bus starting at
- * address 0x8000. Addresses are mapped at 0x7800, in little-endian
- * byte order.
+ * address 0x8000. Addresses are mapped at 0x7800. The addresses only
+ * need to be 13 bits wide, so they're stored in 16-bit registers.
  *
  * Writing to the CAM is more complex since the write cycle requires
  * 46 bits of data in addition to an address, and write operations
@@ -64,8 +64,24 @@
  *    7002       CAM address mask, low
  *    7003       CAM address mask, high
  *    7004       CAM patch index / write trigger
- *    7800-787f  Patch buffer offsets
+ *    7800-783f  Patch buffer offsets (16-bit)
  *    8000-9fff  Patch content
+ *
+ * Notes on latency:
+ *
+ *   - We have up to one full RAM clock after patch_data_next to
+ *     provide new data on patch_data, and we have about 2 RAM clocks
+ *     from burst_addr_strobe to when we must trigger the patch
+ *     (but triggering earlier may help signal integrity).
+ *
+ *   - At the slowest sysclock speeds, we have about 12 master clock
+ *     cycles per RAM clock cycle. So we actually have a fair amount
+ *     of time to crunch on each word.
+ *
+ *   - To avoid timing problems, this implementation is currently pretty
+ *     heavily pipelined. It should still be plenty fast enough for 2 MHz
+ *     sysclock speeds (~4MHz RAM clock), but we might need to optimize it
+ *     if runnign at higher frequencies.
  */
 
 module patch_store(mclk, reset,
@@ -94,27 +110,65 @@ module patch_store(mclk, reset,
    //synthesis attribute ram_style of offset_mem is block
    reg [15:0]    content_mem[8191:0];
 
-   always @(posedge mclk)
-     if (config_strobe && config_addr[15])
-       content_mem[config_addr[12:0]] <= config_data;
+   reg           content_wr_enable;
+   reg [15:0]    content_wr_data;
+   reg [12:0]    content_wr_addr;
+
+   reg [15:0]    content_rd_data;
+   reg [12:0]    content_rd_addr;
+
+   always @(posedge mclk or posedge reset)
+     if (reset) begin
+        content_wr_enable <= 0;
+        content_wr_data <= 0;
+        content_wr_addr <= 0;
+        content_rd_data <= 0;
+     end
+     else begin
+        content_wr_enable <= config_strobe && config_addr[15];
+        content_wr_data <= config_data;
+        content_wr_addr <= config_addr[12:0];
+        content_rd_data <= content_mem[content_rd_addr];
+
+        if (content_wr_enable)
+          content_mem[content_wr_addr] <= content_wr_data;
+     end
 
 
    /************************************************
     * Patch buffer offset memory
     */
 
-   //synthesis attribute ram_style of offset_mem_low is block
-   reg [15:0]    offset_mem_low[63:0];
+   //synthesis attribute ram_style of offset_mem is block
+   reg [12:0]    offset_mem[63:0];
 
-   //synthesis attribute ram_style of offset_mem_high is block
-   reg [15:0]    offset_mem_high[63:0];
+   reg           offset_wr_enable;
+   reg [12:0]    offset_wr_data;
+   reg [5:0]     offset_wr_addr;
 
-   always @(posedge mclk)
-     if (config_strobe && config_addr[15:8] == 8'h78) begin
-       if (config_addr[0])
-         offset_mem_high[config_addr[6:1]] <= config_data;
-       else
-         offset_mem_low[config_addr[6:1]] <= config_data;
+   reg           offset_rd_strobe_in;
+   reg           offset_rd_strobe_out;
+   reg [12:0]    offset_rd_data;
+   reg [5:0]     offset_rd_addr;
+
+   always @(posedge mclk or posedge reset)
+     if (reset) begin
+        offset_wr_enable <= 0;
+        offset_wr_data <= 0;
+        offset_wr_addr <= 0;
+        offset_rd_strobe_out <= 0;
+        offset_rd_data <= 0;
+     end
+     else begin
+        offset_wr_enable <= config_strobe && config_addr[15:8] == 8'h78;
+        offset_wr_data <= config_data[12:0];
+        offset_wr_addr <= config_addr[5:0];
+
+        offset_rd_strobe_out <= offset_rd_strobe_in;
+        offset_rd_data <= offset_mem[offset_rd_addr];
+
+        if (offset_wr_enable)
+          offset_mem[offset_wr_addr] <= offset_wr_data;
      end
 
 
@@ -122,77 +176,100 @@ module patch_store(mclk, reset,
     * Content Addressable Memory
     */
 
-   wire [31:0]   cfg_cam_addr;
-   wire [31:0]   cfg_cam_mask;
+   reg           cam_wr_enable;
+   reg [22:0]    cam_wr_addr;
+   reg [22:0]    cam_wr_mask;
+   reg [5:0]     cam_wr_index;
 
-   wire          cam_write_strobe = config_strobe && (config_addr == 16'h7004);
-   wire [5:0]    cam_write_index = config_data[5:0];
+   reg           cam_rd_enable;
+   reg [22:0]    cam_rd_addr;
+   reg [5:0]     cam_rd_index;
+   reg           cam_rd_match;
 
-   usb_config #(16'h7000) cfg1(mclk, reset, config_addr, config_data,
-                               config_strobe, cfg_cam_addr[15:0]);
-   usb_config #(16'h7001) cfg2(mclk, reset, config_addr, config_data,
-                               config_strobe, cfg_cam_addr[31:16]);
-
-   usb_config #(16'h7002) cfg3(mclk, reset, config_addr, config_data,
-                               config_strobe, cfg_cam_mask[15:0]);
-   usb_config #(16'h7003) cfg4(mclk, reset, config_addr, config_data,
-                               config_strobe, cfg_cam_mask[31:16]);
+   reg           cam_rd_enable_out;
+   wire [5:0]    cam_rd_index_out;
+   wire          cam_rd_match_out;
 
    camdp_23_64 cam(.clk(mclk),
                    .cmp_data_mask(23'h000000),
-                   .cmp_din(burst_addr),
-                   .data_mask(cfg_cam_mask[22:0]),
-                   .din(cfg_cam_addr[22:0]),
+                   .cmp_din(cam_rd_addr),
+                   .data_mask(cam_wr_mask),
+                   .din(cam_wr_addr),
                    .en(1),
-                   .we(cam_write_strobe),
-                   .wr_addr(cam_write_index),
+                   .we(cam_wr_enable),
+                   .wr_addr(cam_wr_index),
                    .busy(),
-                   .match(cam_match),
-                   .match_addr(cam_match_addr));
+                   .match(cam_rd_match_out),
+                   .match_addr(cam_rd_index_out));
+
+   wire          cfg_cam_addr_low  = config_strobe && (config_addr == 16'h7000);
+   wire          cfg_cam_addr_high = config_strobe && (config_addr == 16'h7001);
+   wire          cfg_cam_mask_low  = config_strobe && (config_addr == 16'h7002);
+   wire          cfg_cam_mask_high = config_strobe && (config_addr == 16'h7003);
+   wire          cfg_cam_index     = config_strobe && (config_addr == 16'h7004);
+
+   always @(posedge mclk or posedge reset)
+     if (reset) begin
+        cam_wr_enable <= 0;
+        cam_wr_addr <= 0;
+        cam_wr_mask <= 0;
+        cam_wr_index <= 0;
+
+        cam_rd_enable <= 0;
+        cam_rd_addr <= 0;
+        cam_rd_index <= 0;
+        cam_rd_match <= 0;
+
+        cam_rd_enable_out <= 0;
+     end
+     else begin
+        if (cfg_cam_addr_low)   cam_wr_addr[15:0] <= config_data;
+        if (cfg_cam_addr_high)  cam_wr_addr[22:16] <= config_data[6:0];
+        if (cfg_cam_mask_low)   cam_wr_mask[15:0] <= config_data;
+        if (cfg_cam_mask_high)  cam_wr_mask[22:16] <= config_data[6:0];
+        if (cfg_cam_index)      cam_wr_index <= config_data[5:0];
+        cam_wr_enable <= cfg_cam_index;
+
+        cam_rd_enable <= burst_addr_strobe;
+        cam_rd_addr <= burst_addr;
+        cam_rd_index <= cam_rd_index_out;
+        cam_rd_match <= cam_rd_match_out && cam_rd_enable_out;
+
+        cam_rd_enable_out <= cam_rd_enable;
+     end
 
 
    /************************************************
     * Patch control
     */
 
-   // Delay burst_addr and burst_addr_strobe by one cycle, to match the CAM's latency
+   assign patch_trigger = cam_rd_match;   // Trigger as soon as the CAM matches
+   assign patch_data = content_rd_data;   // Patch data comes straight from content RAM
 
-   reg           burst_strobe_1;
-   reg [22:0]    burst_addr_1;
+   reg [12:0] burst_offset;
 
    always @(posedge mclk or posedge reset)
      if (reset) begin
-        burst_strobe_1 <= 0;
-        burst_addr_1 <= 0;
+        burst_offset <= 0;
+        content_rd_addr <= 0;
+        offset_rd_addr <= 0;
+        offset_rd_strobe_in <= 0;
      end
      else begin
-        burst_strobe_1 <= burst_addr_strobe;
-        burst_addr_1 <= burst_addr;
+
+        if (burst_addr_strobe)
+          burst_offset <= burst_addr[12:0];
+
+        // Read offset after the CAM matches
+        offset_rd_addr <= cam_rd_index;
+        offset_rd_strobe_in <= cam_rd_match;
+
+        // After offset read, latch new content addr
+        if (offset_rd_strobe_out)
+          content_rd_addr <= offset_rd_data + burst_offset;
+        else if (patch_data_next)
+          content_rd_addr <= content_rd_addr + 1;
+
      end
-
-   // Trigger when the CAM matches, and latch the patch index.
-
-   assign patch_trigger = burst_strobe_1 && cam_match;
-
-   // Patch data comes straight from content RAM
-
-   reg [12:0] content_addr;
-   assign patch_data = content_mem[content_addr];
-
-   // Memory addresses for the current patch index, valid on patch_trigger.
-
-   wire [31:0] current_patch_offset = { offset_mem_high[cam_match_addr],
-                                        offset_mem_low[cam_match_addr] };
-   wire [22:0] current_patch_ptr = current_patch_offset[22:0] + burst_addr_1;
-
-   // Content address control
-
-   always @(posedge mclk or posedge reset)
-     if (reset)
-       content_addr <= 0;
-     else if (patch_trigger)
-       content_addr <= content_addr[12:0];
-     else if (patch_data_next)
-       content_addr <= content_addr + 1;
 
 endmodule
