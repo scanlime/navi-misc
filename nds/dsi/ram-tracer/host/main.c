@@ -70,8 +70,6 @@ static void configWrite(FTDIDevice *dev, uint16_t addr, uint16_t data);
 static void setSysClock(FTDIDevice *dev, float mhz);
 static void patchCAMWrite(FTDIDevice *dev, uint32_t address,
                           uint32_t mask, uint16_t index);
-static void patchOffsetWrite(FTDIDevice *dev, uint16_t index,
-                             uint32_t ramAddress, uint32_t patchAddress);
 
 int main(int argc, char **argv)
 {
@@ -114,14 +112,35 @@ int main(int argc, char **argv)
   // Set the DSi's oscillator frequency using our FPGA's clock synthesizer
   setSysClock(&dev, atof(argv[2]));
 
-  // XXX: Patch testing
-  //  patchCAMWrite(&dev, 0xffffff >> 1, 0, 0);
-  //  patchOffsetWrite(&dev, 0, 0xffffff >> 1, 1);
-  patchCAMWrite(&dev, 0xffff8c >> 1, 0, 0);
-  patchOffsetWrite(&dev, 0, 0xffff8c >> 1, 0);
-  configWrite(&dev, REG_PATCH_CONTENT, 0xBEEF);
-  configWrite(&dev, REG_PATCH_CONTENT+1, 0xFACE);
-  configWrite(&dev, REG_PATCH_CONTENT+2, 0xABCD);
+  //  patchCAMWrite(&dev, 0x51d000 >> 1, 0x7fe0, 0);
+  patchCAMWrite(&dev, 0x8729e0 >> 1, 0, 0);
+  configWrite(&dev, REG_PATCH_OFFSETS + 0, 0x0000 - (0x51d000 >> 1));
+  {
+     int i;
+     const uint8_t patch[32] = {
+        'B',0,
+        'o',0,
+        'i',0,
+        'n',0,
+        'g',0,
+        ' ',0,
+        ' ',0,
+        ' ',0,
+        ' ',0,
+        ' ',0,
+        ' ',0,
+        ' ',0,
+        ' ',0,
+        ' ',0,
+        ' ',0,
+        0xa,0,
+     };
+
+     for (i = 0; i < 8192; i++) {
+        uint16_t value = patch[(i & 15) << 1] | (patch[((i & 15) << 1) + 1 ] << 8);
+        configWrite(&dev, REG_PATCH_CONTENT + i, value);
+     }
+  }
 
   /*
    * Drain any junk out of the read buffer and discard it before
@@ -313,20 +332,4 @@ patchCAMWrite(FTDIDevice *dev, uint32_t address, uint32_t mask, uint16_t index)
    configWrite(dev, REG_CAM_MASK_LOW, mask);
    configWrite(dev, REG_CAM_MASK_HIGH, mask >> 16);
    configWrite(dev, REG_CAM_INDEX, index);  // Must be last, triggers the write
-}
-
-
-/*
- * patchOffsetWrite --
- *
- *    Calculate and write a patch offset to the patch offset table.
- */
-
-static void
-patchOffsetWrite(FTDIDevice *dev, uint16_t index,
-                 uint32_t ramAddress, uint32_t patchAddress)
-{
-   uint32_t offset = patchAddress - ramAddress;
-   configWrite(dev, REG_PATCH_OFFSETS + (index << 1), offset);
-   configWrite(dev, REG_PATCH_OFFSETS + (index << 1) + 1, offset >> 16);
 }
