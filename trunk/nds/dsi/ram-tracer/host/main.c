@@ -113,31 +113,37 @@ int main(int argc, char **argv)
   setSysClock(&dev, atof(argv[2]));
 
   //  patchCAMWrite(&dev, 0x51d000 >> 1, 0x7fe0, 0);
-  patchCAMWrite(&dev, 0x8729e0 >> 1, 0, 0);
-  configWrite(&dev, REG_PATCH_OFFSETS + 0, 0x0000 - (0x51d000 >> 1));
+  patchCAMWrite(&dev, 0x872800 >> 1, 0x7ff >> 1, 0);
+  configWrite(&dev, REG_PATCH_OFFSETS + 0, 0x0000 - (0x8729e0 >> 1));
   {
      int i;
-     const uint8_t patch[32] = {
-        'B',0,
+     const uint8_t patch[16384] = {
+        'T',0,
+        'h',0,
+        'e',0,
+        ' ',0,
+        'H',0,
         'o',0,
-        'i',0,
-        'n',0,
-        'g',0,
-        ' ',0,
-        ' ',0,
-        ' ',0,
-        ' ',0,
-        ' ',0,
-        ' ',0,
-        ' ',0,
-        ' ',0,
-        ' ',0,
-        ' ',0,
+        'm',0,
+        'e',0,
+        'b',0,
+        'r',0,
+        'e',0,
+        'w',0,
         0xa,0,
+        'C',0,
+        'h',0,
+
+        'a',0,
+        'n',0,
+        'n',0,
+        'e',0,
+        'l',0,
+        0,0,
      };
 
      for (i = 0; i < 8192; i++) {
-        uint16_t value = patch[(i & 15) << 1] | (patch[((i & 15) << 1) + 1 ] << 8);
+        uint16_t value = patch[i << 1] | (patch[(i << 1) + 1 ] << 8);
         configWrite(&dev, REG_PATCH_CONTENT + i, value);
      }
   }
