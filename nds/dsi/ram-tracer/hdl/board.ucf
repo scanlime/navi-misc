@@ -264,4 +264,29 @@ NET "ram_a<13>" LOC = "P48" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
 NET "ram_ce2"   LOC = "P49" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
 NET "ram_we"    LOC = "P50" | IOSTANDARD = LVCMOS18 | KEEPER = true ;
 
+
+########################################################
+#
+# Additional options for outputs we're driving during patching
+#
+
+NET "ram_ce1_out" SLEW = fast | DRIVE = 16 ;
+
+NET "ram_d<0>" SLEW = fast | DRIVE = 8 ;
+NET "ram_d<1>" SLEW = fast | DRIVE = 8 ;
+NET "ram_d<2>" SLEW = fast | DRIVE = 8 ;
+NET "ram_d<3>" SLEW = fast | DRIVE = 8 ;
+NET "ram_d<4>" SLEW = fast | DRIVE = 8 ;
+NET "ram_d<5>" SLEW = fast | DRIVE = 8 ;
+NET "ram_d<6>" SLEW = fast | DRIVE = 8 ;
+NET "ram_d<7>" SLEW = fast | DRIVE = 8 ;
+NET "ram_d<8>" SLEW = fast | DRIVE = 8 ;
+NET "ram_d<9>" SLEW = fast | DRIVE = 8 ;
+NET "ram_d<10>" SLEW = fast | DRIVE = 8 ;
+NET "ram_d<11>" SLEW = fast | DRIVE = 8 ;
+NET "ram_d<12>" SLEW = fast | DRIVE = 8 ;
+NET "ram_d<13>" SLEW = fast | DRIVE = 8 ;
+NET "ram_d<14>" SLEW = fast | DRIVE = 8 ;
+NET "ram_d<15>" SLEW = fast | DRIVE = 8 ;
+
 ####
