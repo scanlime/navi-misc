@@ -31,33 +31,21 @@
 
 #include "fastftdi.h"
 #include "hw_common.h"
-
-
-/*
- * Global data
- */
-
-static FILE *outputFile;
-static FILE *patchFile;
-static bool exitRequested;
-static bool streamStartFound;
-
+#include "hw_trace.h"
 
 /*
  * Private functions
  */
 
-static bool detectOverrun(uint8_t *buffer, int length);
-static int readCallback(uint8_t *buffer, int length,
-                        FTDIProgressInfo *progress, void *userdata);
-static void sigintHandler(int signum);
 static void patchCAMWrite(FTDIDevice *dev, uint32_t address,
                           uint32_t mask, uint16_t index);
+
 
 int main(int argc, char **argv)
 {
   FTDIDevice dev;
   int err;
+  static FILE *patchFile;
 
   if (argc < 3 || argc > 5) {
      fprintf(stderr, "usage: %s <fpga bitstream> <sysclock mhz> "
@@ -74,17 +62,9 @@ int main(int argc, char **argv)
      return;
   }
 
-  if (argc >= 4) {
-     outputFile = fopen(argv[3], "wb");
-     if (!outputFile) {
-        perror("opening output file");
-        return 1;
-     }
-  }
-
   if (argc >= 5) {
      patchFile = fopen(argv[4], "rb");
-     if (!outputFile) {
+     if (!patchFile) {
         perror("opening patch file");
         return 1;
      }
@@ -129,114 +109,11 @@ int main(int argc, char **argv)
      }
   }
 
-  if (outputFile) {
-     /*
-      * Drain any junk out of the read buffer and discard it before
-      * enabling memory traces.
-      */
-
-     while (FTDIDevice_ReadByteSync(&dev, FTDI_INTERFACE_A, NULL) >= 0);
-     HW_ConfigWrite(&dev, REG_TRACEFLAGS, TRACEFLAG_WRITES | TRACEFLAG_READS);
-
-     /*
-      * Stream the captured data to disk
-      */
-
-     signal(SIGINT, sigintHandler);
-     err = FTDIDevice_ReadStream(&dev, FTDI_INTERFACE_A, readCallback, NULL, 64, 16);
-     if (err < 0 && !exitRequested)
-        return 1;
-  }
-
-  /*
-   * Cleanup
-   */
+  if (argc >= 4)
+     HW_TraceToFile(&dev, argv[3]);
 
   FTDIDevice_Close(&dev);
-  if (outputFile)
-     fclose(outputFile);
-
-  fprintf(stderr, "\nCapture ended.\n");
-
   return 0;
-}
-
-
-static bool
-detectOverrun(uint8_t *buffer, int length)
-{
-   while (length) {
-      if (*buffer != 0xFF)
-         return false;
-      buffer++;
-      length--;
-   }
-   return true;
-}
-
-
-static int
-readCallback(uint8_t *buffer, int length, FTDIProgressInfo *progress, void *userdata)
-{
-   if (length) {
-      if (!streamStartFound) {
-         /*
-          * This is the beginning of the stream. Look for the first flag byte,
-          * and skip anything prior to it. This synchronizes us to the first packet.
-          *
-          * XXX: This shouldn't be necessary, since we flush all buffers before
-          *      starting the capture. I don't know whether this is here because
-          *      of a bug in the FPGA RTL, this program, or some quirk of the
-          *       FTDI chip.
-          */
-
-         while (length) {
-            if (0x80 & *buffer) {
-               streamStartFound = true;
-               break;
-            }
-            length--;
-            buffer++;
-         }
-      }
-
-      /*
-       * We don't actually parse the received data, but do check for
-       * buffer overflows.  If the hardware buffer overruns, the FPGA
-       * will start sending 0xFF bytes as fast as it can.
-       */
-      if (detectOverrun(buffer, length)) {
-         fprintf(stderr,
-                 "\n\n"
-                 "*** Hardware buffer overrun! ***\n"
-                 "The USB bus or PC can't keep up with the incoming "
-                 "data. Capture has been aborted.\n"
-                 "\n");
-         return 1;
-      }
-
-      if (fwrite(buffer, length, 1, outputFile) != 1) {
-         perror("Write error");
-         return 1;
-      }
-   }
-
-   if (progress)
-      fprintf(stderr, "  %3d:%02d [ %9.3f MB captured ] %7.1f kB/s current, "
-              "%7.1f kB/s average\r",
-              (int)progress->totalTime / 60, (int)progress->totalTime % 60,
-              progress->current.totalBytes / (1024.0 * 1024.0),
-              progress->currentRate / 1024.0,
-              progress->totalRate / 1024.0);
-
-   return exitRequested ? 1 : 0;
-}
-
-
-static void
-sigintHandler(int signum)
-{
-   exitRequested = true;
 }
 
 

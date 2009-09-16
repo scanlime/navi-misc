@@ -43,11 +43,8 @@ HW_SetSystemClock(FTDIDevice *dev, float mhz)
    int regValue = (mhz / synthStep) + 0.5;
    double actual = regValue * synthStep;
 
-   if (regValue > 0xffff) {
-      fprintf(stderr, "CLOCK: Frequency %.06f (0x%04x) is out of range\n",
-              actual, regValue);
-      exit(1);
-   }
+   if (regValue > 0xffff)
+      regValue = 0xffff;
 
    fprintf(stderr, "CLOCK: Setting system clock to %.06f MHz (0x%04x)\n",
            actual, regValue);
