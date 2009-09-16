@@ -28,25 +28,9 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "fastftdi.h"
-
-
-/*
- * Hardware configuration registers
- */
-
-#define REG_SYSCLK         0x0000
-#define REG_TRACEFLAGS     0x0001
-#define REG_CAM_ADDR_LOW   0x7000
-#define REG_CAM_ADDR_HIGH  0x7001
-#define REG_CAM_MASK_LOW   0x7002
-#define REG_CAM_MASK_HIGH  0x7003
-#define REG_CAM_INDEX      0x7004
-#define REG_PATCH_OFFSETS  0x7800
-#define REG_PATCH_CONTENT  0x8000
-
-#define TRACEFLAG_READS   (1 << 0)
-#define TRACEFLAG_WRITES  (1 << 1)
+#include "hw_common.h"
 
 
 /*
@@ -67,8 +51,6 @@ static bool detectOverrun(uint8_t *buffer, int length);
 static int readCallback(uint8_t *buffer, int length,
                         FTDIProgressInfo *progress, void *userdata);
 static void sigintHandler(int signum);
-static void configWrite(FTDIDevice *dev, uint16_t addr, uint16_t data);
-static void setSysClock(FTDIDevice *dev, float mhz);
 static void patchCAMWrite(FTDIDevice *dev, uint32_t address,
                           uint32_t mask, uint16_t index);
 
@@ -122,17 +104,20 @@ int main(int argc, char **argv)
     return 1;
 
   // Set the DSi's oscillator frequency using our FPGA's clock synthesizer
-  setSysClock(&dev, atof(argv[2]));
+  HW_SetSystemClock(&dev, atof(argv[2]));
 
   if (patchFile) {
-     uint32_t addr = 0x280200;
-     uint32_t mask = 0x1ff;
+     uint32_t addr = 0x280200;   // arm7
+     //uint32_t addr = 0x3fee00;   // arm9
 
      static uint8_t patch[16384];
      int size, i;
 
-     patchCAMWrite(&dev, addr >> 1, mask >> 1, 0);
-     configWrite(&dev, REG_PATCH_OFFSETS + 0, 0x0000 - (addr >> 1));
+     // XXX: hardcoded two 512-byte patches
+     patchCAMWrite(&dev, addr >> 1, 0x1ff >> 1, 0);
+     HW_ConfigWrite(&dev, REG_PATCH_OFFSETS + 0, 0x0000 - (addr >> 1));
+     patchCAMWrite(&dev, (addr + 0x200) >> 1, 0x1ff >> 1, 1);
+     HW_ConfigWrite(&dev, REG_PATCH_OFFSETS + 1, 0x0000 - (addr >> 1));
 
      size = fread(patch, 1, sizeof patch, patchFile);
      fprintf(stderr, "PATCH: Loaded %d bytes from disk, patching at 0x%08x\n",
@@ -140,7 +125,7 @@ int main(int argc, char **argv)
 
      for (i = 0; i < 8192; i++) {
         uint16_t value = patch[i << 1] | (patch[(i << 1) + 1 ] << 8);
-        configWrite(&dev, REG_PATCH_CONTENT + i, value);
+        HW_ConfigWrite(&dev, REG_PATCH_CONTENT + i, value);
      }
   }
 
@@ -151,7 +136,7 @@ int main(int argc, char **argv)
       */
 
      while (FTDIDevice_ReadByteSync(&dev, FTDI_INTERFACE_A, NULL) >= 0);
-     configWrite(&dev, REG_TRACEFLAGS, TRACEFLAG_WRITES | TRACEFLAG_READS);
+     HW_ConfigWrite(&dev, REG_TRACEFLAGS, TRACEFLAG_WRITES | TRACEFLAG_READS);
 
      /*
       * Stream the captured data to disk
@@ -256,70 +241,6 @@ sigintHandler(int signum)
 
 
 /*
- * configWrite --
- *
- *    Write to a configuration register on the FPGA. These
- *    registers are used for global settings and for storing
- *    RAM patches. Registers are 16 bits wide, and they exist
- *    in a 16-bit virtual address space.
- */
-
-static void
-configWrite(FTDIDevice *dev, uint16_t addr, uint16_t data)
-{
-   /*
-    * Note that the hardware supports receiving many config packets
-    * per USB packet, but so far we send just one at a time for simplicity.
-    */
-
-   uint8_t packet[6];
-
-   // XXX: One padding byte. The FT2232H and/or the FPGA seem to eat the
-   //      first byte sometimes?
-   packet[0] = 0x00;
-
-   // Pack the data as described in usb_comm.v
-   packet[1] = 0x80 | ((addr & 0xC000) >> 12) | ((data & 0xC000) >> 14);
-   packet[2] = (addr & 0x3F80) >> 7;
-   packet[3] = addr & 0x007F;
-   packet[4] = (data & 0x3F80) >> 7;
-   packet[5] = data & 0x007F;
-
-   if (FTDIDevice_WriteSync(dev, FTDI_INTERFACE_A, packet, sizeof packet)) {
-      perror("Error writing configuration register");
-      exit(1);
-   }
-}
-
-
-/*
- * setSysClock --
- *
- *    Set the system clock to an approximation of the given frequency, in MHz.
- *    We'll display a message with the actual frequency being set.
- */
-
-static void
-setSysClock(FTDIDevice *dev, float mhz)
-{
-   const double synthStep = 200.0 / 0x80000;
-   int regValue = (mhz / synthStep) + 0.5;
-   double actual = regValue * synthStep;
-
-   if (regValue > 0xffff) {
-      fprintf(stderr, "CLOCK: Frequency %.06f (0x%04x) is out of range\n",
-              actual, regValue);
-      exit(1);
-   }
-
-   fprintf(stderr, "CLOCK: Setting system clock to %.06f MHz (0x%04x)\n",
-           actual, regValue);
-
-   configWrite(dev, REG_SYSCLK, regValue);
-}
-
-
-/*
  * patchCAMWrite --
  *
  *    Write an address and mask to a particular patch index in the
@@ -332,9 +253,9 @@ setSysClock(FTDIDevice *dev, float mhz)
 static void
 patchCAMWrite(FTDIDevice *dev, uint32_t address, uint32_t mask, uint16_t index)
 {
-   configWrite(dev, REG_CAM_ADDR_LOW, address);
-   configWrite(dev, REG_CAM_ADDR_HIGH, address >> 16);
-   configWrite(dev, REG_CAM_MASK_LOW, mask);
-   configWrite(dev, REG_CAM_MASK_HIGH, mask >> 16);
-   configWrite(dev, REG_CAM_INDEX, index);  // Must be last, triggers the write
+   HW_ConfigWrite(dev, REG_CAM_ADDR_LOW, address);
+   HW_ConfigWrite(dev, REG_CAM_ADDR_HIGH, address >> 16);
+   HW_ConfigWrite(dev, REG_CAM_MASK_LOW, mask);
+   HW_ConfigWrite(dev, REG_CAM_MASK_HIGH, mask >> 16);
+   HW_ConfigWrite(dev, REG_CAM_INDEX, index);  // Must be last, triggers the write
 }
