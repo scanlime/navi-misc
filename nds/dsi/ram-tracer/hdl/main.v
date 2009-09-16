@@ -85,16 +85,14 @@ module main(mclk, clk50,
    wire        filter_write;
    wire        filter_addr_latch;
    wire        filter_strobe;
-
    wire [15:0] nfilter_d;
-   wire        nfilter_strobe;
 
    ram_sampler ramsam(mclk, reset,
                       ram_a, ram_d, ram_oe, ram_we, ram_ce1_in, ram_ce2,
                       ram_ub, ram_lb, ram_adv, ram_clk,
                       filter_a, filter_d, filter_ublb, filter_read,
                       filter_write, filter_addr_latch, filter_strobe,
-                      nfilter_d, nfilter_strobe);
+                      nfilter_d);
 
    /*
     * Which cycle are we on in this read/write burst?

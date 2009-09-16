@@ -34,7 +34,7 @@ module ram_sampler(mclk, reset,
                    ram_ub, ram_lb, ram_adv, ram_clk,
                    filter_a, filter_d, filter_ublb, filter_read,
                    filter_write, filter_addr_latch, filter_strobe,
-                   nfilter_d, nfilter_strobe);
+                   nfilter_d);
 
    input mclk, reset;
 
@@ -54,7 +54,6 @@ module ram_sampler(mclk, reset,
 
    // Negative edge filter
    output [15:0] nfilter_d;
-   output        nfilter_strobe;
 
    // Positive-logic control signals
    wire         ram_enable = !ram_ce1 && ram_ce2;
@@ -149,7 +148,6 @@ module ram_sampler(mclk, reset,
 
    wire [15:0]  nfilter_detect;
    reg [15:0]   nfilter_out;
-   reg          nfilter_strobe;
 
    assign nfilter_d = nfilter_out;
 
@@ -161,22 +159,15 @@ module ram_sampler(mclk, reset,
         nfilter_lat_0 <= 0;
         nfilter_lat_1 <= 0;
         nfilter_out <= 0;
-        nfilter_strobe <= 0;
      end
      else if (clk_negedge_0) begin
         nfilter_lat_0 <= nfilter_cur;
-        nfilter_strobe <= 0;
      end
      else if (clk_negedge_1) begin
         nfilter_lat_1 <= nfilter_cur;
-        nfilter_strobe <= 0;
      end
      else if (clk_negedge_2) begin
         nfilter_out <= nfilter_detect;
-        nfilter_strobe <= 1;
-     end
-     else begin
-        nfilter_strobe <= 0;
      end
 
 endmodule // ram_sampler
