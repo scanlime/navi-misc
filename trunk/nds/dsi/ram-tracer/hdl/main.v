@@ -234,15 +234,7 @@ module main(mclk, clk50,
 
    reg  [15:0] ram_d_latch;
 
-   /*
-    * XXX: We should be disabling the RAM when CE2 goes low or when
-    *      OE goes high too, but it looks like one of these two
-    *      (probably CE2) is picking up noise when we are outputting
-    *      data words with a lot of '1' bits. So for the moment at least,
-    *      we always drive the RAM bus if our patching is active, and we
-    *      only cancel a patch when CE1 goes high.
-    */
-   wire        ram_enable_nodelay = !ram_ce1_in;
+   // Drive ram_d any time we're overriding RAM.
    assign      ram_d = ram_ce1_out ? ram_d_latch : 16'hZZZZ;
 
    /*
@@ -264,7 +256,7 @@ module main(mclk, clk50,
    always @(posedge mclk or posedge reset)
      if (reset)
        patch_active <= 0;
-     else if (!ram_enable_nodelay)
+     else if (filter_strobe && !filter_read)
        patch_active <= 0;
      else if (patch_trigger)
        patch_active <= 1;
@@ -290,7 +282,16 @@ module main(mclk, clk50,
         ram_ce1_out <= 0;
         ram_d_latch <= 0;
      end
-     else if (!ram_enable_nodelay) begin
+     else if (filter_strobe && !filter_read) begin
+        /*
+         * End of a read- cancel the burst and give the RAM bus back.
+         *
+         * XXX: There is a somewhat annoying amount of latency between
+         *      when the CPU deasserts OE and when we actually give the
+         *      bus back- hopefully this doesn't cause too many problems
+         *      with contention if we haven't given the bus back by the
+         *      time the CPU starts using it.
+         */
         ram_ce1_out <= 0;
         ram_d_latch <= 0;
      end
