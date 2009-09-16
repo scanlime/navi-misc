@@ -234,9 +234,16 @@ module main(mclk, clk50,
 
    reg  [15:0] ram_d_latch;
 
-   wire       ram_enable_nodelay = !ram_ce1_in && ram_ce2;
-   wire       ram_d_out_enable = ram_enable_nodelay && !ram_oe && ram_ce1_out;
-   assign     ram_d = ram_d_out_enable ? ram_d_latch : 16'hZZZZ;
+   /*
+    * XXX: We should be disabling the RAM when CE2 goes low or when
+    *      OE goes high too, but it looks like one of these two
+    *      (probably CE2) is picking up noise when we are outputting
+    *      data words with a lot of '1' bits. So for the moment at least,
+    *      we always drive the RAM bus if our patching is active, and we
+    *      only cancel a patch when CE1 goes high.
+    */
+   wire        ram_enable_nodelay = !ram_ce1_in;
+   assign      ram_d = ram_ce1_out ? ram_d_latch : 16'hZZZZ;
 
    /*
     * Patch storage module. We give it addresses, it tells us whether
