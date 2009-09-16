@@ -6,7 +6,8 @@ LDFLAGS += $(shell pkg-config --libs $(PACKAGES))
 CFLAGS += $(shell getconf LFS_CFLAGS)
 
 BIN := memhost
-OBJS := main.o fastftdi.o fpgaconfig.o bit_file.o
+OBJS := main.o fastftdi.o fpgaconfig.o bit_file.o \
+        hw_common.o
 
 CFLAGS += -O3 -g
 
