@@ -128,7 +128,7 @@ int main(int argc, char **argv)
      uint32_t addr = 0x280200;
      uint32_t mask = 0x1ff;
 
-     uint8_t patch[16384];
+     static uint8_t patch[16384];
      int size, i;
 
      patchCAMWrite(&dev, addr >> 1, mask >> 1, 0);
