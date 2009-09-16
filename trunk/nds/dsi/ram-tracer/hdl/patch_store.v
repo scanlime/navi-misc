@@ -107,15 +107,27 @@ module patch_store(mclk, reset,
     * Patch content memory
     */
 
-   //synthesis attribute ram_style of offset_mem is block
-   reg [15:0]    content_mem[8191:0];
-
    reg           content_wr_enable;
    reg [15:0]    content_wr_data;
    reg [12:0]    content_wr_addr;
 
+   wire [15:0]   content_rd_data_out;
    reg [15:0]    content_rd_data;
    reg [12:0]    content_rd_addr;
+
+   // Use 8 block RAMs, each 2 bits wide by 8192 addresses deep.
+   genvar        cmemIdx;
+   generate for (cmemIdx = 0; cmemIdx < 8; cmemIdx = cmemIdx + 1)
+     begin: inst
+       RAMB16_S2_S2 cmem_cmemIdx(.ENA(1'b1), .SSRA(1'b0), .CLKA(mclk),
+                                 .WEB(1'b0), .ENB(1'b1), .SSRB(1'b0), .CLKB(mclk),
+                                 .WEA(content_wr_enable),
+                                 .ADDRA(content_wr_addr),
+                                 .ADDRB(content_rd_addr),
+                                 .DIA(content_wr_data[cmemIdx*2+1:cmemIdx*2]),
+                                 .DOB(content_rd_data_out[cmemIdx*2+1:cmemIdx*2]));
+     end
+   endgenerate
 
    always @(posedge mclk or posedge reset)
      if (reset) begin
@@ -128,10 +140,7 @@ module patch_store(mclk, reset,
         content_wr_enable <= config_strobe && config_addr[15];
         content_wr_data <= config_data;
         content_wr_addr <= config_addr[12:0];
-        content_rd_data <= content_mem[content_rd_addr];
-
-        if (content_wr_enable)
-          content_mem[content_wr_addr] <= content_wr_data;
+        content_rd_data <= content_rd_data_out;
      end
 
 

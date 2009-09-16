@@ -54,6 +54,7 @@
  */
 
 static FILE *outputFile;
+static FILE *patchFile;
 static bool exitRequested;
 static bool streamStartFound;
 
@@ -76,8 +77,9 @@ int main(int argc, char **argv)
   FTDIDevice dev;
   int err;
 
-  if (argc != 4) {
-     fprintf(stderr, "usage: %s <fpga bitstream> <sysclock mhz> <output file>\n"
+  if (argc < 3 || argc > 5) {
+     fprintf(stderr, "usage: %s <fpga bitstream> <sysclock mhz> "
+             "[<output file> [<patch binary>]]\n"
              " Note that the normal sysclock frequency is 16.756 MHz, and\n"
              " it is necessary to underclock to around 2 MHz for RAM tracing.\n",
              argv[0]);
@@ -90,10 +92,20 @@ int main(int argc, char **argv)
      return;
   }
 
-  outputFile = fopen(argv[3], "wb");
-  if (!outputFile) {
-     perror("opening output file");
-     return 1;
+  if (argc >= 4) {
+     outputFile = fopen(argv[3], "wb");
+     if (!outputFile) {
+        perror("opening output file");
+        return 1;
+     }
+  }
+
+  if (argc >= 5) {
+     patchFile = fopen(argv[4], "rb");
+     if (!outputFile) {
+        perror("opening patch file");
+        return 1;
+     }
   }
 
   /*
@@ -112,35 +124,19 @@ int main(int argc, char **argv)
   // Set the DSi's oscillator frequency using our FPGA's clock synthesizer
   setSysClock(&dev, atof(argv[2]));
 
-  //  patchCAMWrite(&dev, 0x51d000 >> 1, 0x7fe0, 0);
-  patchCAMWrite(&dev, 0x872800 >> 1, 0x7ff >> 1, 0);
-  configWrite(&dev, REG_PATCH_OFFSETS + 0, 0x0000 - (0x8729e0 >> 1));
-  {
-     int i;
-     const uint8_t patch[16384] = {
-        'T',0,
-        'h',0,
-        'e',0,
-        ' ',0,
-        'H',0,
-        'o',0,
-        'm',0,
-        'e',0,
-        'b',0,
-        'r',0,
-        'e',0,
-        'w',0,
-        0xa,0,
-        'C',0,
-        'h',0,
+  if (patchFile) {
+     uint32_t addr = 0x280200;
+     uint32_t mask = 0x1ff;
 
-        'a',0,
-        'n',0,
-        'n',0,
-        'e',0,
-        'l',0,
-        0,0,
-     };
+     uint8_t patch[16384];
+     int size, i;
+
+     patchCAMWrite(&dev, addr >> 1, mask >> 1, 0);
+     configWrite(&dev, REG_PATCH_OFFSETS + 0, 0x0000 - (addr >> 1));
+
+     size = fread(patch, 1, sizeof patch, patchFile);
+     fprintf(stderr, "PATCH: Loaded %d bytes from disk, patching at 0x%08x\n",
+             size, addr);
 
      for (i = 0; i < 8192; i++) {
         uint16_t value = patch[i << 1] | (patch[(i << 1) + 1 ] << 8);
@@ -148,29 +144,32 @@ int main(int argc, char **argv)
      }
   }
 
-  /*
-   * Drain any junk out of the read buffer and discard it before
-   * enabling memory traces.
-   */
+  if (outputFile) {
+     /*
+      * Drain any junk out of the read buffer and discard it before
+      * enabling memory traces.
+      */
 
-  while (FTDIDevice_ReadByteSync(&dev, FTDI_INTERFACE_A, NULL) >= 0);
-  configWrite(&dev, REG_TRACEFLAGS, TRACEFLAG_WRITES | TRACEFLAG_READS);
+     while (FTDIDevice_ReadByteSync(&dev, FTDI_INTERFACE_A, NULL) >= 0);
+     configWrite(&dev, REG_TRACEFLAGS, TRACEFLAG_WRITES | TRACEFLAG_READS);
 
-  /*
-   * Stream the captured data to disk
-   */
+     /*
+      * Stream the captured data to disk
+      */
 
-  signal(SIGINT, sigintHandler);
-  err = FTDIDevice_ReadStream(&dev, FTDI_INTERFACE_A, readCallback, NULL, 64, 16);
-  if (err < 0 && !exitRequested)
-     return 1;
+     signal(SIGINT, sigintHandler);
+     err = FTDIDevice_ReadStream(&dev, FTDI_INTERFACE_A, readCallback, NULL, 64, 16);
+     if (err < 0 && !exitRequested)
+        return 1;
+  }
 
   /*
    * Cleanup
    */
 
   FTDIDevice_Close(&dev);
-  fclose(outputFile);
+  if (outputFile)
+     fclose(outputFile);
 
   fprintf(stderr, "\nCapture ended.\n");
 
