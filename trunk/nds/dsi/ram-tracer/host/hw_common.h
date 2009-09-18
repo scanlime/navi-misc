@@ -51,6 +51,7 @@
  * Public functions
  */
 
+void HW_Init(FTDIDevice *dev, const char *bitstream);
 void HW_SetSystemClock(FTDIDevice *dev, float mhz);
 
 void HW_ConfigWriteMultiple(FTDIDevice *dev, uint16_t *addrArray,

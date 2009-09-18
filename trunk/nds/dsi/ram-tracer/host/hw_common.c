@@ -30,6 +30,31 @@
 
 
 /*
+ * HW_Init --
+ *
+ *    One-time initialization for the hardware.
+ *    'bitstream' is optional. If non-NULL, the FPGA is reconfigured.
+ */
+
+void
+HW_Init(FTDIDevice *dev, const char *bitstream)
+{
+   int err;
+
+   if (bitstream) {
+      err = FPGAConfig_LoadFile(dev, bitstream);
+      if (err)
+         exit(1);
+   }
+
+   err = FTDIDevice_SetMode(dev, FTDI_INTERFACE_A,
+                            FTDI_BITMODE_SYNC_FIFO, 0xFF, 0);
+   if (err)
+      exit(1);
+}
+
+
+/*
  * HW_SetSystemClock --
  *
  *    Set the system clock to an approximation of the given frequency, in MHz.

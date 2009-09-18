@@ -1,6 +1,5 @@
 /*
- * Main file for 'memhost', the host-side component of the RAM Tracer.
- * This tool configures the hardware and streams captured data to disk.
+ * hw_patch.h - Client program for the RAM patching hardware.
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -23,49 +22,44 @@
  * THE SOFTWARE.
  */
 
-#include <stdio.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <string.h>
+#ifndef __HW_PATCH_H
+#define __HW_PATCH_H
 
-#include "fastftdi.h"
+#include <stdint.h>
 #include "hw_common.h"
-#include "hw_trace.h"
-#include "hw_patch.h"
 
 
-int main(int argc, char **argv)
-{
-   HWPatch p;
-   FTDIDevice dev;
-   int err;
-   static FILE *patchFile;
+#define PATCH_CONTENT_SIZE  (16 * 1024)
+#define PATCH_CONTENT_WORDS (PATCH_CONTENT_SIZE >> 1)
+#define PATCH_NUM_BLOCKS    64
 
-   if (argc < 3 || argc > 5) {
-      fprintf(stderr, "usage: %s <fpga bitstream> <sysclock mhz> "
-              "[<output file> [<patch binary>]]\n"
-              " Note that the normal sysclock frequency is 16.756 MHz, and\n"
-              " it is necessary to underclock to around 2 MHz for RAM tracing.\n",
-              argv[0]);
-      return 1;
-   }
 
-   err = FTDIDevice_Open(&dev);
-   if (err) {
-      fprintf(stderr, "USB: Error opening device\n");
-      return;
-   }
+/*
+ * HWPatch -- A container for the entire state of the hardware patching engine,
+ *            plus some metadata that we use for allocating patch memory.
+ */
 
-   HW_Init(&dev, argv[1]);
-   HW_SetSystemClock(&dev, atof(argv[2]));
+typedef struct {
+   // Hardware data.
+   uint32_t camAddrs[PATCH_NUM_BLOCKS];
+   uint32_t camMasks[PATCH_NUM_BLOCKS];
+   uint16_t blockOffsets[PATCH_NUM_BLOCKS];
+   uint8_t  content[PATCH_CONTENT_SIZE];
 
-   HWPatch_Init(&p);
-   HWPatch_AllocRegion(&p, 0xffd7bc, 0x20);
-   HW_LoadPatch(&dev, &p);
+   // Amount of allocated space
+   int numBlocks;
+   int contentSize;
+} HWPatch;
 
-   if (argc >= 4)
-      HW_TraceToFile(&dev, argv[3]);
 
-   FTDIDevice_Close(&dev);
-   return 0;
-}
+/*
+ * Public functions
+ */
+
+void HWPatch_Init(HWPatch *patch);
+uint8_t *HWPatch_AllocRegion(HWPatch *patch, uint32_t baseAddr, uint32_t size);
+
+void HW_LoadPatch(FTDIDevice *dev, HWPatch *patch);
+
+
+#endif // __HW_PATCH_H
