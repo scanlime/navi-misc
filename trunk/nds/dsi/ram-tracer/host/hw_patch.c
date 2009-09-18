@@ -189,3 +189,190 @@ HW_LoadPatch(FTDIDevice *dev, HWPatch *patch)
    assert(reg == numRegs);
    HW_ConfigWriteMultiple(dev, regAddr, regData, numRegs);
 }
+
+
+/*
+ * HWPatch_ParseString --
+ *
+ *    Parse a patch specification in one of the formats accepted by
+ *    our command line interface, and load the patch.
+ */
+
+void
+HWPatch_ParseString(HWPatch *patch, const char *patchString)
+{
+   char *tokSave;
+   char *str = strdup(patchString);
+   char *delim1 = strchr(str, ':');
+   char *delim2 = delim1 ? strchr(delim1 + 1, ':') : NULL;
+
+   if (delim1) {
+      unsigned long addr;
+
+      *delim1 = '\0';
+      if (delim2) {
+         *delim2 = '\0';
+         addr = strtoul(delim1 + 1, NULL, 16);
+      }
+
+      if (!strcmp(str, "flat") && delim2) {
+         HWPatch_LoadFlat(patch, addr, delim2 + 1);
+         goto done;
+      }
+
+      if (!strcmp(str, "ascii") && delim2) {
+         char *string = delim2 + 1;
+         HWPatch_LoadString(patch, addr, string, strlen(string));
+         goto done;
+      }
+
+      if (!strcmp(str, "asciiz") && delim2) {
+         char *string = delim2 + 1;
+         HWPatch_LoadString(patch, addr, string, strlen(string) + 1);
+         goto done;
+      }
+
+      if (!strcmp(str, "utf16") && delim2) {
+         char *string = delim2 + 1;
+         HWPatch_LoadStringUTF16(patch, addr, string, strlen(string));
+         goto done;
+      }
+
+      if (!strcmp(str, "utf16z") && delim2) {
+         char *string = delim2 + 1;
+         HWPatch_LoadStringUTF16(patch, addr, string, strlen(string) + 1);
+         goto done;
+      }
+
+      if (!strcmp(str, "hex") && delim2) {
+         HWPatch_LoadHex(patch, addr, delim2 + 1);
+         goto done;
+      }
+
+      if (!strcmp(str, "elf")) {
+         HWPatch_LoadELF(patch, delim1 + 1);
+         goto done;
+      }
+   }
+
+   fprintf(stderr, "Can't parse patch string \"%s\".\n", patchString);
+   exit(1);
+
+ done:
+   free(str);
+}
+
+
+void
+HWPatch_LoadFlat(HWPatch *patch, uint32_t addr, const char *fileName)
+{
+   FILE *f = fopen(fileName, "rb");
+   uint8_t *buffer;
+   int length;
+
+   if (!f) {
+      perror("Error opening patch file");
+      exit(1);
+   }
+
+   fseek(f, 0, SEEK_END);
+   length = ftell(f);
+   fseek(f, 0, SEEK_SET);
+
+   buffer = HWPatch_AllocRegion(patch, addr, length);
+
+   if (fread(buffer, length, 1, f) != 1) {
+      perror("Error reading patch file");
+      exit(1);
+   }
+
+   fclose(f);
+}
+
+
+void
+HWPatch_LoadString(HWPatch *patch, uint32_t addr,
+                   const char *string, int length)
+{
+   memcpy(HWPatch_AllocRegion(patch, addr, length),
+          string, length);
+}
+
+
+void
+HWPatch_LoadStringUTF16(HWPatch *patch, uint32_t addr,
+                        const char *string, int length)
+{
+   uint8_t *wide = HWPatch_AllocRegion(patch, addr, length << 1);
+
+   while (length--) {
+      wide[0] = *(string++);
+      wide[1] = 0;
+      wide += 2;
+   }
+}
+
+
+/*
+ * parseHex --
+ *
+ *    Convert hex to binary, ignoring whitespace. If buffer==NULL,
+ *    calculates length only. Exits on error.
+ */
+
+static int
+parseHex(const char *string, uint8_t *buffer)
+{
+   int length = 0;
+   char c;
+   uint8_t byte = 0;
+   int nybble = 0;
+
+   while ((c = *string)) {
+      if (!isblank(c)) {
+         c = tolower(c);
+
+         byte <<= 4;
+
+         if (c >= '0' && c <= '9')
+            byte |= c - '0';
+         else if (c >= 'a' && c <= 'f')
+            byte |= c - 'a' + 10;
+         else {
+            fprintf(stderr, "Error: Illegal byte in hexadecimal patch: '%c'\n", c);
+            exit(1);
+         }
+
+         if (nybble) {
+            printf("%02x\n", byte);
+            if (buffer)
+               *(buffer++) = byte;
+            length++;
+         }
+         nybble = !nybble;
+      }
+      string++;
+   }
+   if (nybble) {
+      fprintf(stderr, "Error: Hexadecimal patch has odd length!\n");
+      exit(1);
+   }
+
+   return length;
+}
+
+
+void
+HWPatch_LoadHex(HWPatch *patch, uint32_t addr, const char *string)
+{
+   int length = parseHex(string, NULL);
+   parseHex(string, HWPatch_AllocRegion(patch, addr, length));
+}
+
+
+void
+HWPatch_LoadELF(HWPatch *patch, const char *fileName)
+{
+   fprintf(stderr, "XXX: Not implemented yet\n");
+   exit(1);
+}

@@ -59,6 +59,15 @@ typedef struct {
 void HWPatch_Init(HWPatch *patch);
 uint8_t *HWPatch_AllocRegion(HWPatch *patch, uint32_t baseAddr, uint32_t size);
 
+void HWPatch_ParseString(HWPatch *patch, const char *str);
+void HWPatch_LoadFlat(HWPatch *patch, uint32_t addr, const char *fileName);
+void HWPatch_LoadELF(HWPatch *patch, const char *fileName);
+void HWPatch_LoadString(HWPatch *patch, uint32_t addr,
+                        const char *string, int length);
+void HWPatch_LoadStringUTF16(HWPatch *patch, uint32_t addr,
+                             const char *string, int length);
+void HWPatch_LoadHex(HWPatch *patch, uint32_t addr, const char *string);
+
 void HW_LoadPatch(FTDIDevice *dev, HWPatch *patch);
 
 

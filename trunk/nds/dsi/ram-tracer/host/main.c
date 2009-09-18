@@ -1,6 +1,5 @@
 /*
- * Main file for 'memhost', the host-side component of the RAM Tracer.
- * This tool configures the hardware and streams captured data to disk.
+ * Main file for 'memhost', the command-line frontend for RAM tracing and patching.
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -24,48 +23,148 @@
  */
 
 #include <stdio.h>
-#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
+#include <getopt.h>
+#include <stdbool.h>
 
 #include "fastftdi.h"
 #include "hw_common.h"
 #include "hw_trace.h"
 #include "hw_patch.h"
 
+#define DEFAULT_FPGA_BITSTREAM   "stable.bit"
+#define CLOCK_FAST               16.756
+#define CLOCK_SLOW               2.0
+
+
+static void
+usage(const char *argv0)
+{
+   fprintf(stderr,
+           "Usage: %s [options...] [trace file]\n"
+           "Command-line frontend for RAM tracing and patching.\n"
+           "\n"
+           "If a trace file is given, we trace RAM to that file until interrupted\n"
+           "by the user. If no trace file is given, the hardware is configured\n"
+           "according to the given options, then the tool exits immediately.\n"
+           "\n"
+           "Options:\n"
+           "  -R, --no-reset        Do not reset the FPGA and the USB interface\n"
+           "                          before starting. Not recommended when tracing,\n"
+           "                          but this can be useful for patching or adjusting\n"
+           "                          clock frequency without glitches.\n"
+           "  -b, --bitstream=FILE  Load an FPGA bitstream from the provided file.\n"
+           "                          By default, loads \"%s\".\n"
+           "  -f, --fast            Run the DSi at full speed (%.3f MHz) instead of\n"
+           "                          the default speed of %.3f MHz. Currently\n"
+           "                          incompatible with tracing and patching.\n"
+           "  -c, --clock=MHZ       Set a custom clock frequency, in MHz.\n"
+           "  -p, --patch=PATCH     Apply a patch to RAM reads. May be specified\n"
+           "                          times. See the accepted PATCH formats below.\n"
+           "\n"
+           "About patch options:\n"
+           "  * All addresses are in hexadecimal.\n"
+           "  * If a patch affects the first word of a memory burst, the entire burst\n"
+           "    will be modified. If the burst is longer than the patch, the data read\n"
+           "    is undefined.\n"
+           "  * If the first word of a memory burst is not patched, no part of the\n"
+           "    burst may be patched.\n"
+           "\n"
+           "Patch formats:\n"
+           "  -p flat:ADDR:FILE        Load a flat binary file at the address ADDR.\n"
+           "  -p ascii:ADDR:\"TEXT\"     Write an ASCII string at ADDR.\n"
+           "  -p asciiz:ADDR:\"TEXT\"    Write an ASCII string with trailing 0 at ADDR.\n"
+           "  -p utf16:ADDR:\"TEXT\"     Write a UTF-16 string at ADDR.\n"
+           "  -p utf16z:ADDR:\"TEXT\"    Write a UTF-16 string with trailing 0 at ADDR.\n"
+           "  -p hex:ADDR:\"01 23 ...\"  Write a string of hexadecimal bytes at ADDR.\n"
+           "                             Whitespace in the string is ignored.\n"
+           "  -p elf:FILE              Load each loadable segment from an ELF object.\n"
+           "\n"
+           "Copyright (C) 2009 Micah Dowty <micah@navi.cx>\n",
+           argv0,
+           DEFAULT_FPGA_BITSTREAM,
+           CLOCK_FAST, CLOCK_SLOW);
+   exit(1);
+}
+
 
 int main(int argc, char **argv)
 {
-   HWPatch p;
+   const char *bitstream = DEFAULT_FPGA_BITSTREAM;
+   const char *tracefile = NULL;
+   double clock = CLOCK_SLOW;
+   HWPatch patch;
    FTDIDevice dev;
-   int err;
-   static FILE *patchFile;
+   bool reset = true;
+   int err, c;
 
-   if (argc < 3 || argc > 5) {
-      fprintf(stderr, "usage: %s <fpga bitstream> <sysclock mhz> "
-              "[<output file> [<patch binary>]]\n"
-              " Note that the normal sysclock frequency is 16.756 MHz, and\n"
-              " it is necessary to underclock to around 2 MHz for RAM tracing.\n",
-              argv[0]);
-      return 1;
+   HWPatch_Init(&patch);
+
+   while (1) {
+      int option_index;
+      static struct option long_options[] = {
+         {"no-reset", 0, NULL, 'R'},
+         {"bitstream", 1, NULL, 'b'},
+         {"fast", 0, NULL, 'f'},
+         {"clock", 1, NULL, 'c'},
+         {"patch", 1, NULL, 'p'},
+         {NULL},
+      };
+
+      c = getopt_long(argc, argv, "Rb:fc:p:", long_options, &option_index);
+      if (c == -1)
+         break;
+
+      switch (c) {
+
+      case 'R':
+         reset = false;
+         break;
+
+      case 'b':
+         bitstream = strdup(optarg);
+         break;
+
+      case 'f':
+         clock = CLOCK_FAST;
+         break;
+
+      case 'c':
+         clock = atof(optarg);
+         break;
+
+      case 'p':
+         HWPatch_ParseString(&patch, optarg);
+         break;
+
+      default:
+         usage(argv[0]);
+      }
+   }
+
+   if (optind == argc - 1) {
+      // Exactly one extra argument- a trace file
+      tracefile = argv[optind];
+   } else if (optind < argc) {
+      // Too many extra args
+      usage(argv[0]);
    }
 
    err = FTDIDevice_Open(&dev);
    if (err) {
       fprintf(stderr, "USB: Error opening device\n");
-      return;
+      return 1;
    }
 
-   HW_Init(&dev, argv[1]);
-   HW_SetSystemClock(&dev, atof(argv[2]));
+   HW_Init(&dev, reset ? bitstream : NULL);
+   HW_SetSystemClock(&dev, clock);
+   HW_LoadPatch(&dev, &patch);
 
-   HWPatch_Init(&p);
-   HWPatch_AllocRegion(&p, 0xffd7bc, 0x20);
-   HW_LoadPatch(&dev, &p);
-
-   if (argc >= 4)
-      HW_TraceToFile(&dev, argv[3]);
+   if (tracefile)
+      HW_TraceToFile(&dev, tracefile);
 
    FTDIDevice_Close(&dev);
+
    return 0;
 }
