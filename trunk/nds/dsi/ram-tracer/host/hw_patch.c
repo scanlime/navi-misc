@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <elf.h>
 
 #include "hw_patch.h"
 
@@ -271,7 +272,7 @@ HWPatch_LoadFlat(HWPatch *patch, uint32_t addr, const char *fileName)
    int length;
 
    if (!f) {
-      perror("Error opening patch file");
+      perror(fileName);
       exit(1);
    }
 
@@ -370,9 +371,94 @@ HWPatch_LoadHex(HWPatch *patch, uint32_t addr, const char *string)
 }
 
 
+/*
+ * HWPatch_LoadELF --
+ *
+ *    Load all segments from an ELF32 file.
+ *    Assumes both this machine and the ELF file are little-endian.
+ */
+
 void
 HWPatch_LoadELF(HWPatch *patch, const char *fileName)
 {
-   fprintf(stderr, "XXX: Not implemented yet\n");
-   exit(1);
+   FILE *f = fopen(fileName, "rb");
+   Elf32_Ehdr ehdr;
+   int phOffset;
+   int i;
+
+   if (!f) {
+      perror(fileName);
+      exit(1);
+   }
+
+   /*
+    * Read the ELF header
+    */
+
+   if (fread(&ehdr, sizeof ehdr, 1, f) != 1) {
+      perror("ELF: Error reading ELF header");
+      exit(1);
+   }
+
+   if (ehdr.e_ident[EI_MAG0] != ELFMAG0 ||
+       ehdr.e_ident[EI_MAG1] != ELFMAG1 ||
+       ehdr.e_ident[EI_MAG2] != ELFMAG2 ||
+       ehdr.e_ident[EI_MAG3] != ELFMAG3) {
+      fprintf(stderr, "ELF: Bad magic, not an ELF file?\n");
+      exit(1);
+   }
+
+   if (ehdr.e_ident[EI_CLASS] != ELFCLASS32 ||
+       ehdr.e_ident[EI_DATA] != ELFDATA2LSB) {
+      fprintf(stderr, "ELF: Not a 32-bit little-endian ELF file\n");
+      exit(1);
+   }
+
+   if (ehdr.e_ident[EI_VERSION] != EV_CURRENT) {
+      fprintf(stderr, "ELF: Bad ELF version (%d)\n", ehdr.e_ident[EI_VERSION]);
+      exit(1);
+   }
+
+   /*
+    * Read the program header
+    */
+
+   phOffset = ehdr.e_phoff;
+   for (i = 0; i < ehdr.e_phnum; i++) {
+      Elf32_Phdr phdr;
+
+      fseek(f, phOffset, SEEK_SET);
+      phOffset += ehdr.e_phentsize;
+      if (fread(&phdr, sizeof phdr, 1, f) != 1) {
+         perror("ELF: Error reading program header");
+         exit(1);
+      }
+
+      // We only care about loadable segments
+      if (phdr.p_type == PT_LOAD) {
+         // Use the physical address
+         uint32_t addr = phdr.p_paddr;
+         uint8_t *buffer;
+
+         fprintf(stderr, "ELF: Segment at 0x%08x memsz=%d filesz=%d\n",
+                 addr, phdr.p_memsz, phdr.p_filesz);
+
+         if (phdr.p_filesz > phdr.p_memsz) {
+            fprintf(stderr, "ELF: Error, file size greater than memory size\n");
+            exit(1);
+         }
+
+         buffer = HWPatch_AllocRegion(patch, addr, phdr.p_memsz);
+
+         if (phdr.p_filesz > 0) {
+            fseek(f, phdr.p_offset, SEEK_SET);
+            if (fread(buffer, phdr.p_filesz, 1, f) != 1) {
+               perror("ELF: Error reading segment data");
+               exit(1);
+            }
+         }
+      }
+   }
+
+   fclose(f);
 }

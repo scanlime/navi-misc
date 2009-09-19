@@ -6,7 +6,7 @@ arm7_start:
 
 	.section .text.launcher_arm9_entry
 arm9_start:
-	b 	arm9_start
+#	b 	arm9_start
 
 	/************************************/
 
