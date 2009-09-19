@@ -345,7 +345,6 @@ parseHex(const char *string, uint8_t *buffer)
          }
 
          if (nybble) {
-            printf("%02x\n", byte);
             if (buffer)
                *(buffer++) = byte;
             length++;
