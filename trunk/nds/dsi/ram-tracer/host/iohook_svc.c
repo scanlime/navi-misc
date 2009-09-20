@@ -107,8 +107,16 @@ IOH_HandlePacket(uint8_t service, void *data, uint8_t length)
       int i;
       eraseLine();
       fprintf(stderr, "LOG:");
-      for (i = 0; i < length/4; i++) {
-         fprintf(stderr, " %08x", ((uint32_t*)data)[i]);
+      if (length & 3) {
+         // Byte alignment
+         for (i = 0; i < length; i++) {
+            fprintf(stderr, " %02x", ((uint8_t*)data)[i]);
+         }
+      } else {
+         // 32-bit alignment
+         for (i = 0; i < length/4; i++) {
+            fprintf(stderr, " %08x", ((uint32_t*)data)[i]);
+         }
       }
       fprintf(stderr, "\n");
       return 0;
