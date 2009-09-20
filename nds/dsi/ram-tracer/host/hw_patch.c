@@ -490,7 +490,7 @@ HWPatch_LoadELF(HWPatch *patch, const char *fileName)
          uint32_t addr = phdr.p_paddr;
          uint8_t *buffer;
 
-         fprintf(stderr, "ELF: Segment at 0x%08x memsz=%d filesz=%d\n",
+         fprintf(stderr, "ELF: Segment at %08x memsz=%d filesz=%d\n",
                  addr, phdr.p_memsz, phdr.p_filesz);
 
          if (phdr.p_filesz > phdr.p_memsz) {
