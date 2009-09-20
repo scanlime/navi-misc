@@ -269,8 +269,7 @@ ReadStreamCallback(struct libusb_transfer *transfer)
          int i;
          uint8_t *ptr = transfer->buffer;
          int length = transfer->actual_length;
-         int numPackets = (transfer->actual_length +
-                           FTDI_PACKET_SIZE - 1) >> FTDI_LOG_PACKET_SIZE;
+         int numPackets = (length + FTDI_PACKET_SIZE - 1) >> FTDI_LOG_PACKET_SIZE;
 
          for (i = 0; i < numPackets; i++) {
             int payloadLen;
