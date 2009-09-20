@@ -54,9 +54,6 @@ typedef struct {
 #define MEM_SIZE_BYTES (16 * 1024 * 1024)
 #define MEM_MASK       (MEM_SIZE_BYTES - 1)
 
-// Approximate frequency of RAM bus when underclocked.
-#define RAM_CLOCK_HZ  4350000
-
 typedef struct {
    struct {
       uint64_t  clocks;
