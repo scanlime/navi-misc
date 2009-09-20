@@ -20,7 +20,7 @@ main()
 
    IOHook_LogStr("Hello World");
 
-   IOHook_FOpenW("sample-output.bin\0\0");
+   IOHook_FOpenW("sample-output.bin");
 
    for (i = 0; i < sizeof buffer; i++) {
       buffer[i] = i;
