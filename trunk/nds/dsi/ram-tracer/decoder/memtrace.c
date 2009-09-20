@@ -27,26 +27,15 @@
 #include <string.h>
 #include <assert.h>
 #include "memtrace.h"
+#include "memtrace_fmt.h"
 
 
 /*
  * Local functions
  */
 
-bool MemTraceData(MemTraceState *state, MemOp *op, uint32_t payload,
+bool MemTraceData(MemTraceState *state, MemOp *op, MemPacket packet,
                   MemTraceResult *result);
-
-
-/*
- * Internal definitions for the hardware's raw format:
- */
-
-enum {
-   TYPE_ADDR = 0,
-   TYPE_READ,
-   TYPE_WRITE,
-   TYPE_TIMESTAMP
-};
 
 
 /*
@@ -168,104 +157,58 @@ MemTrace_Next(MemTraceState *state, MemOp *nextOp)
    op.type = MEMOP_INVALID;
 
    while (!done) {
-      uint8_t packetBytes[4];
-      uint32_t packet, payload, typecode, check, computedCheck;
+      MemPacket packet;
+      uint8_t packetBytes[sizeof packet];
 
       if (!MemTraceReadBuffered(state, packetBytes, sizeof packetBytes)) {
-	 return MEMTR_EOF;
+         return MEMTR_EOF;
       }
+      packet = MemPacket_FromBytes(packetBytes);
 
-      // Reassemble a 32-bit big-endian packet from the bytes
-      packet = (packetBytes[0] << 24) | (packetBytes[1] << 16) |
-         (packetBytes[2] << 8) | packetBytes[3];
-
-      /*
-      * Check the alignment. Each byte's MSB is a flag byte,
-      * and the flag is only 1 for the first byte in a packet.
-      */
-      if ((packet & 0x80808080) != 0x80000000) {
+      if (!MemPacket_IsAligned(packet)) {
          // Half-hearted attempt to recover from sync errors.
          // We could do better than this...
-	 if (!MemTraceReadBuffered(state, packetBytes, 1)) {
-	    return MEMTR_EOF;
-	 }
+         if (!MemTraceReadBuffered(state, packetBytes, 1)) {
+            return MEMTR_EOF;
+         }
 
          return MEMTR_ERR_SYNC;
       }
 
-      /*
-      * Unpack into its component pieces. Each packet has a 23-bit
-      * payload, a 2-bit type code, and a 3-bit checksum.
-      */
-
-      typecode = (packet >> 29) & 0x03;
-      payload = ((packet >> 3) & 0x0F) |
-         ((packet >> 4) & 0x7F0) |
-         ((packet >> 5) & 0x3F800) |
-         ((packet >> 6) & 0x7C0000);
-      check = packet & 0x07;
-
-      /*
-      * The check bits are a 3-bit checksum over the payload and typecode.
-      */
-
-      computedCheck = 0x7 & (typecode +
-                             (payload & 0x7) +
-                             ((payload >> 3) & 0x7) +
-                             ((payload >> 6) & 0x7) +
-                             ((payload >> 9) & 0x7) +
-                             ((payload >> 12) & 0x7) +
-                             ((payload >> 15) & 0x7) +
-                             ((payload >> 18) & 0x7) +
-                             ((payload >> 21) & 0x7));
-
-      if (check != computedCheck) {
+      if (!MemPacket_IsChecksumCorrect(packet)) {
          return MEMTR_ERR_CHECKSUM;
       }
 
-      /*
-      * Type-specific actions...
-      */
+      state->timestamp.clocks += MemPacket_GetDuration(packet);
+      state->timestamp.seconds = state->timestamp.clocks / (double)RAM_CLOCK_HZ;
 
-      switch (typecode) {
+      switch (MemPacket_GetType(packet)) {
 
-      case TYPE_ADDR:
+      case MEMPKT_ADDR:
          // Addresses end this burst, but we store the address for next time.
-         state->nextAddr = payload;
-         state->timestamp.clocks++;
+         state->nextAddr = MemPacket_GetPayload(packet);
          if (op.length) {
             done = true;
          }
          break;
 
-      case TYPE_TIMESTAMP:
-         state->timestamp.clocks += payload;
-         break;
-
-      case TYPE_READ:
+      case MEMPKT_READ:
          if (op.type == MEMOP_WRITE) {
             return MEMTR_ERR_BADBURST;
          }
          op.type = MEMOP_READ;
-         done = MemTraceData(state, &op, payload, &result);
+         done = MemTraceData(state, &op, packet, &result);
          break;
 
-      case TYPE_WRITE:
+      case MEMPKT_WRITE:
          if (op.type == MEMOP_READ) {
             return MEMTR_ERR_BADBURST;
          }
          op.type = MEMOP_WRITE;
-         done = MemTraceData(state, &op, payload, &result);
-         break;
-
-      default:
-         // Can't happen, this is a 2-bit field.
+         done = MemTraceData(state, &op, packet, &result);
          break;
       }
    }
-
-   // Calculate seconds from clock cycles
-   state->timestamp.seconds = state->timestamp.clocks / (double)RAM_CLOCK_HZ;
 
    if (nextOp) {
       *nextOp = op;
@@ -288,13 +231,12 @@ MemTrace_Next(MemTraceState *state, MemOp *nextOp)
  */
 
 bool
-MemTraceData(MemTraceState *state, MemOp *op, uint32_t payload,
+MemTraceData(MemTraceState *state, MemOp *op, MemPacket packet,
              MemTraceResult *result)
 {
-   uint32_t timestamp = payload >> 18;
-   uint32_t ub = (payload >> 17) & 1;
-   uint32_t lb = (payload >> 16) & 1;
-   uint32_t word = payload & 0xFFFF;
+   bool ub = MemPacket_RW_UpperByte(packet);
+   bool lb = MemPacket_RW_LowerByte(packet);
+   uint16_t word = MemPacket_RW_Word(packet);
    bool byteWide = !(ub && lb);
 
    if (op->length == 0) {
@@ -302,7 +244,6 @@ MemTraceData(MemTraceState *state, MemOp *op, uint32_t payload,
       op->addr = state->nextAddr << 1;
    }
 
-   state->timestamp.clocks += timestamp + 1;
    state->nextAddr++;
 
    if (byteWide && op->length) {
