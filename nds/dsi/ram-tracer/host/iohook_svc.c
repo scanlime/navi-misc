@@ -138,7 +138,6 @@ IOH_HandlePacket(uint8_t service, void *data, uint8_t length)
          return 0;
       }
 
-      fprintf(stderr, "FILE: Seek to 0x%08x\n", offset);
       if (fseek(currentFile, offset, SEEK_SET)) {
          perror("seek");
          exit(1);
@@ -160,8 +159,6 @@ IOH_HandlePacket(uint8_t service, void *data, uint8_t length)
          perror("fwrite");
          exit(1);
       }
-
-      fprintf(stderr, "FILE: Read %d bytes\n", actual);
       return actual;
    }
 
@@ -171,7 +168,6 @@ IOH_HandlePacket(uint8_t service, void *data, uint8_t length)
          return 0;
       }
 
-      fprintf(stderr, "FILE: Writing %d bytes\n", length);
       if (fwrite(data, length, 1, currentFile) != 1) {
          perror("fwrite");
          exit(1);
