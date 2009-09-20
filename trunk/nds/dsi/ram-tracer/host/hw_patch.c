@@ -132,6 +132,19 @@ HWPatch_AllocRegion(HWPatch *patch, uint32_t baseAddr, uint32_t size)
 
 
 /*
+ * patchContentWord --
+ *
+ *    Inline function to retrieve one word from a patch's content buffer.
+ */
+
+static inline uint16_t
+patchContentWord(HWPatch *patch, int i)
+{
+   return patch->content[i << 1] + (patch->content[1 + (i << 1)] << 8);
+}
+
+
+/*
  * HWPatch_Load --
  *
  *    Load the contents of a HWPatch into the hardware.
@@ -155,7 +168,7 @@ HW_LoadPatch(FTDIDevice *dev, HWPatch *patch)
 
    for (i = 0; i < PATCH_CONTENT_SIZE/2; i++) {
       regAddr[reg] = REG_PATCH_CONTENT + i;
-      regData[reg] = patch->content[i << 1] + (patch->content[1 + (i << 1)] << 8);
+      regData[reg] = patchContentWord(patch, i);
       reg++;
    }
 
@@ -188,7 +201,45 @@ HW_LoadPatch(FTDIDevice *dev, HWPatch *patch)
    }
 
    assert(reg == numRegs);
-   HW_ConfigWriteMultiple(dev, regAddr, regData, numRegs);
+   HW_ConfigWriteMultiple(dev, regAddr, regData, numRegs, false);
+}
+
+
+/*
+ * HW_UpdatePatchRegion --
+ *
+ *    Send updated contents into the hardware for part of an HWPatch.
+ *    'buf' can be any word-aligned pointer in a buffer returned
+ *    by a previous call to HWPatch_AllocRegion for this patch.
+ *
+ *    Each 16-bit word in the region will be written in order.
+ *    16-bit words are atomic, but the write as a whole isn't.
+ *
+ *    The new patch takes effect asynchronously.
+ */
+
+void
+HW_UpdatePatchRegion(FTDIDevice *dev, HWPatch *patch,
+                     uint8_t *buf, uint32_t size)
+{
+   uint16_t regAddr[PATCH_CONTENT_SIZE / 2];
+   uint16_t regData[PATCH_CONTENT_SIZE / 2];
+   uint32_t offset = buf - patch->content;
+   int i, numWords, wordOffset;
+
+   assert(offset < PATCH_CONTENT_SIZE);
+   assert((offset & 1) == 0);
+
+   // Round size up to a whole word
+   wordOffset = offset >> 1;
+   numWords = (size + 1) >> 1;
+
+   for (i = 0; i < numWords; i++) {
+      regAddr[i] = REG_PATCH_CONTENT + i + wordOffset;
+      regData[i] = patchContentWord(patch, i + wordOffset);
+   }
+
+   HW_ConfigWriteMultiple(dev, regAddr, regData, numWords, true);
 }
 
 

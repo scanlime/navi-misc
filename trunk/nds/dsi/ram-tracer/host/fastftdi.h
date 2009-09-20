@@ -29,6 +29,7 @@
 
 #include <libusb.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef enum {
   FTDI_BITMODE_RESET        = 0,
@@ -98,8 +99,8 @@ int FTDIDevice_SetMode(FTDIDevice *dev, FTDIInterface interface,
                        FTDIBitmode mode, uint8_t pinDirections,
                        int baudRate);
 
-int FTDIDevice_WriteSync(FTDIDevice *dev, FTDIInterface interface,
-                         uint8_t *data, size_t length);
+int FTDIDevice_Write(FTDIDevice *dev, FTDIInterface interface,
+                     uint8_t *data, size_t length, bool async);
 
 int FTDIDevice_WriteByteSync(FTDIDevice *dev, FTDIInterface interface, uint8_t byte);
 int FTDIDevice_ReadByteSync(FTDIDevice *dev, FTDIInterface interface, uint8_t *byte);

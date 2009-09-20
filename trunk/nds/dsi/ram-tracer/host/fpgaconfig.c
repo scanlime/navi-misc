@@ -93,7 +93,7 @@ ConfigSendBuffer(FTDIDevice *dev, uint8_t *data, size_t length)
     data += chunk;
     length -= chunk;
 
-    err = FTDIDevice_WriteSync(dev, FTDI_INTERFACE_A, buffer, chunk);
+    err = FTDIDevice_Write(dev, FTDI_INTERFACE_A, buffer, chunk, false);
     if (err)
       return err;
   }
@@ -192,7 +192,7 @@ ConfigEnd(FTDIDevice *dev)
    */
 
   memset(zeroes, 0, sizeof zeroes);
-  err = FTDIDevice_WriteSync(dev, FTDI_INTERFACE_A, zeroes, sizeof zeroes);
+  err = FTDIDevice_Write(dev, FTDI_INTERFACE_A, zeroes, sizeof zeroes, false);
   if (err)
     return err;
 

@@ -62,6 +62,8 @@ usage(const char *argv0)
            "  -c, --clock=MHZ       Set a custom clock frequency, in MHz.\n"
            "  -p, --patch=PATCH     Apply a patch to RAM reads. May be specified\n"
            "                          times. See the accepted PATCH formats below.\n"
+           "  -i, --iohook          Enable I/O hooks which allow patches to log data\n"
+           "                          to the PC and to read and write data files.\n"
            "\n"
            "About patch options:\n"
            "  * All addresses are in hexadecimal.\n"
@@ -97,6 +99,7 @@ int main(int argc, char **argv)
    HWPatch patch;
    FTDIDevice dev;
    bool reset = true;
+   bool iohook = false;
    int err, c;
 
    HWPatch_Init(&patch);
@@ -109,10 +112,11 @@ int main(int argc, char **argv)
          {"fast", 0, NULL, 'f'},
          {"clock", 1, NULL, 'c'},
          {"patch", 1, NULL, 'p'},
+         {"iohook", 0, NULL, 'i'},
          {NULL},
       };
 
-      c = getopt_long(argc, argv, "Rb:fc:p:", long_options, &option_index);
+      c = getopt_long(argc, argv, "Rb:fc:p:i", long_options, &option_index);
       if (c == -1)
          break;
 
@@ -138,6 +142,10 @@ int main(int argc, char **argv)
          HWPatch_ParseString(&patch, optarg);
          break;
 
+      case 'i':
+         iohook = true;
+         break;
+
       default:
          usage(argv[0]);
       }
@@ -157,14 +165,18 @@ int main(int argc, char **argv)
       return 1;
    }
 
+   if (iohook)
+      HWTrace_InitIOHookPatch(&patch);
+
    HW_Init(&dev, reset ? bitstream : NULL);
    HW_SetSystemClock(&dev, clock);
    HW_LoadPatch(&dev, &patch);
 
-   if (tracefile)
-      HW_TraceToFile(&dev, tracefile);
+   if (tracefile || iohook)
+      HW_Trace(&dev, &patch, tracefile, iohook);
 
    FTDIDevice_Close(&dev);
+   IOH_Exit();
 
    return 0;
 }
