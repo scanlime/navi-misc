@@ -88,17 +88,16 @@ packetString(void *data, uint8_t length)
 uint8_t
 IOH_HandlePacket(uint8_t service, void *data, uint8_t length)
 {
-   // Temporarily erase the trace status line
-   eraseLine();
-
    switch (service) {
 
    case IOH_SVC_LOG_STR: {
+      eraseLine();
       fprintf(stderr, "LOG: %s\n", packetString(data, length));
       return 0;
    }
 
    case IOH_SVC_QUIT: {
+      eraseLine();
       fprintf(stderr, "QUIT: %s\n", packetString(data, length));
       exit(1);
       return 0;
@@ -106,6 +105,7 @@ IOH_HandlePacket(uint8_t service, void *data, uint8_t length)
 
    case IOH_SVC_LOG_HEX: {
       int i;
+      eraseLine();
       fprintf(stderr, "LOG:");
       for (i = 0; i < length/4; i++) {
          fprintf(stderr, " %08x", ((uint32_t*)data)[i]);
@@ -121,6 +121,7 @@ IOH_HandlePacket(uint8_t service, void *data, uint8_t length)
       if (currentFile)
          fclose(currentFile);
 
+      eraseLine();
       fprintf(stderr, "FILE: Opening \"%s\" (%s)\n", filename, mode);
       currentFile = fopen(filename, mode);
       if (!currentFile) {
@@ -134,11 +135,13 @@ IOH_HandlePacket(uint8_t service, void *data, uint8_t length)
       uint32_t offset = *(uint32_t*)data;
 
       if (!currentFile) {
+         eraseLine();
          fprintf(stderr, "FILE: Seek attempt with no open file!\n");
          return 0;
       }
 
       if (fseek(currentFile, offset, SEEK_SET)) {
+         eraseLine();
          perror("seek");
          exit(1);
       }
@@ -150,12 +153,14 @@ IOH_HandlePacket(uint8_t service, void *data, uint8_t length)
       int actual;
 
       if (!currentFile) {
+         eraseLine();
          fprintf(stderr, "FILE: Read attempt with no open file!\n");
          return 0;
       }
 
       actual = fread(data, 1, MIN(requested, IOH_DATA_LEN), currentFile);
       if (requested && actual <= 0) {
+         eraseLine();
          perror("fwrite");
          exit(1);
       }
@@ -164,11 +169,13 @@ IOH_HandlePacket(uint8_t service, void *data, uint8_t length)
 
    case IOH_SVC_FWRITE: {
       if (!currentFile) {
+         eraseLine();
          fprintf(stderr, "FILE: Write attempt with no open file!\n");
          return 0;
       }
 
       if (fwrite(data, length, 1, currentFile) != 1) {
+         eraseLine();
          perror("fwrite");
          exit(1);
       }
