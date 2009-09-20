@@ -35,6 +35,7 @@
 
 #define REG_SYSCLK         0x0000
 #define REG_TRACEFLAGS     0x0001
+#define REG_POWERFLAGS     0x0002
 #define REG_CAM_ADDR_LOW   0x7000
 #define REG_CAM_ADDR_HIGH  0x7001
 #define REG_CAM_MASK_LOW   0x7002
@@ -43,12 +44,14 @@
 #define REG_PATCH_OFFSETS  0x7800
 #define REG_PATCH_CONTENT  0x8000
 
-#define TRACEFLAG_READS   (1 << 0)
-#define TRACEFLAG_WRITES  (1 << 1)
+#define TRACEFLAG_READS       (1 << 0)
+#define TRACEFLAG_WRITES      (1 << 1)
+
+#define POWERFLAG_DSI_RESET   (1 << 0)
 
 
 /*
- * Public functions
+ * Public
  */
 
 void HW_Init(FTDIDevice *dev, const char *bitstream);
