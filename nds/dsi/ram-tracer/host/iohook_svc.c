@@ -41,24 +41,6 @@ static FILE *currentFile;
 
 
 /*
- * eraseLine --
- *
- *    Erase the status information on the current line, and go back to the beginning
- *    of the line. This must be used before displaying any log info that should appear
- *    above the status line on the console.
- */
-
-static void
-eraseLine(void)
-{
-   char spaces[110];
-   memset(spaces, ' ', sizeof spaces);
-   spaces[sizeof spaces - 1] = '\0';
-   fprintf(stderr, "%s\r", spaces);
-}
-
-
-/*
  * packetString --
  *
  *    A convenience function to convert packet data to a NUL-terminated
@@ -91,13 +73,13 @@ IOH_HandlePacket(uint8_t service, void *data, uint8_t length)
    switch (service) {
 
    case IOH_SVC_LOG_STR: {
-      eraseLine();
+      HWTrace_HideStatus();
       fprintf(stderr, "LOG: %s\n", packetString(data, length));
       return 0;
    }
 
    case IOH_SVC_QUIT: {
-      eraseLine();
+      HWTrace_HideStatus();
       fprintf(stderr, "QUIT: %s\n", packetString(data, length));
       exit(1);
       return 0;
@@ -105,7 +87,7 @@ IOH_HandlePacket(uint8_t service, void *data, uint8_t length)
 
    case IOH_SVC_LOG_HEX: {
       int i;
-      eraseLine();
+      HWTrace_HideStatus();
       fprintf(stderr, "LOG:");
       if (length & 3) {
          // Byte alignment
@@ -129,7 +111,7 @@ IOH_HandlePacket(uint8_t service, void *data, uint8_t length)
       if (currentFile)
          fclose(currentFile);
 
-      eraseLine();
+      HWTrace_HideStatus();
       fprintf(stderr, "FILE: Opening \"%s\" (%s)\n", filename, mode);
       currentFile = fopen(filename, mode);
       if (!currentFile) {
@@ -143,13 +125,13 @@ IOH_HandlePacket(uint8_t service, void *data, uint8_t length)
       uint32_t offset = *(uint32_t*)data;
 
       if (!currentFile) {
-         eraseLine();
+         HWTrace_HideStatus();
          fprintf(stderr, "FILE: Seek attempt with no open file!\n");
          return 0;
       }
 
       if (fseek(currentFile, offset, SEEK_SET)) {
-         eraseLine();
+         HWTrace_HideStatus();
          perror("seek");
          exit(1);
       }
@@ -161,14 +143,14 @@ IOH_HandlePacket(uint8_t service, void *data, uint8_t length)
       int actual;
 
       if (!currentFile) {
-         eraseLine();
+         HWTrace_HideStatus();
          fprintf(stderr, "FILE: Read attempt with no open file!\n");
          return 0;
       }
 
       actual = fread(data, 1, MIN(requested, IOH_DATA_LEN), currentFile);
       if (requested && actual <= 0) {
-         eraseLine();
+         HWTrace_HideStatus();
          perror("fwrite");
          exit(1);
       }
@@ -177,13 +159,13 @@ IOH_HandlePacket(uint8_t service, void *data, uint8_t length)
 
    case IOH_SVC_FWRITE: {
       if (!currentFile) {
-         eraseLine();
+         HWTrace_HideStatus();
          fprintf(stderr, "FILE: Write attempt with no open file!\n");
          return 0;
       }
 
       if (fwrite(data, length, 1, currentFile) != 1) {
-         eraseLine();
+         HWTrace_HideStatus();
          perror("fwrite");
          exit(1);
       }
