@@ -46,29 +46,48 @@ uint32_t IOHook_Send(uint8_t service, const uint32_t *data, uint32_t len);
 uint32_t IOHook_Recv(uint32_t cookie, uint32_t *data, uint32_t len);
 
 /*
- * Higher-level I/O
- */
-
-/*
+ * Buffered version of IOHook_Send, for string data.
+ *
  * XXX: It's a bit wasteful to have string literals in the binary just so we can
  *      send copies of them back to the PC. If there was an easy way to keep string
  *      literals in a separate section, we could just send a pointer which the host
  *      could look up from our ELF file.
  */
+uint32_t IOHook_SendStr(uint8_t service, const char *str);
 
-#define IOHook_LogStr(str)    IOHook_Send(IOH_SVC_LOG_STR, (uint32_t*)str, sizeof(str))
-#define IOHook_FOpenR(name)   IOHook_Send(IOH_SVC_FOPEN_R, (uint32_t*)name, sizeof(name))
-#define IOHook_FOpenW(name)   IOHook_Send(IOH_SVC_FOPEN_W, (uint32_t*)name, sizeof(name))
+/*
+ * Higher-level I/O
+ */
 
-#define IOHook_Quit(msg) do { \
-      IOHook_Send(IOH_SVC_QUIT, (uint32_t*)msg, sizeof(msg));   \
-      while (1);                                                \
-   } while (0);
+static inline void
+IOHook_LogStr(const char *str)
+{
+   IOHook_SendStr(IOH_SVC_LOG_STR, str);
+}
 
 static inline void
 IOHook_LogHex(const uint32_t *data, uint32_t len)
 {
    IOHook_Send(IOH_SVC_LOG_HEX, data, len);
+}
+
+static inline void
+IOHook_Quit(const char *str)
+{
+   IOHook_SendStr(IOH_SVC_QUIT, str);
+   while (1);
+}
+
+static inline void
+IOHook_FOpenW(const char *str)
+{
+   IOHook_SendStr(IOH_SVC_FOPEN_W, str);
+}
+
+static inline void
+IOHook_FOpenR(const char *str)
+{
+   IOHook_SendStr(IOH_SVC_FOPEN_R, str);
 }
 
 static inline void
@@ -88,5 +107,6 @@ IOHook_FRead(uint32_t *data, uint32_t len)
 {
    return IOHook_Recv(IOHook_Send(IOH_SVC_FREAD, &len, sizeof len), data, len);
 }
+
 
 #endif /* __IOHOOK_H */

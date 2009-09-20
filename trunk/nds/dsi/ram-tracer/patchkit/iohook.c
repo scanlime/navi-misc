@@ -37,7 +37,7 @@ IOHook_Init(void)
 }
 
 
-uint32_t
+uint32_t __attribute__ ((noinline))
 IOHook_Send(uint8_t service, const uint32_t *data, uint32_t len)
 {
    uint32_t cookie;
@@ -87,7 +87,7 @@ IOHook_Send(uint8_t service, const uint32_t *data, uint32_t len)
 }
 
 
-uint32_t
+uint32_t __attribute__ ((noinline))
 IOHook_Recv(uint32_t cookie, uint32_t *data, uint32_t len)
 {
    len = MIN(IOH_DATA_LEN, len);
@@ -127,4 +127,18 @@ IOHook_Recv(uint32_t cookie, uint32_t *data, uint32_t len)
                   "r6", "r7", "r8", "r12");
 
    return len & 0xFF;
+}
+
+
+uint32_t
+IOHook_SendStr(uint8_t service, const char *str)
+{
+   uint8_t len = 0;
+   uint32_t buf[8];
+   uint8_t *dest = (uint8_t*) buf;
+
+   while ((*(dest++) = *(str++)))
+      len++;
+
+   return IOHook_Send(service, buf, len);
 }

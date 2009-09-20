@@ -5,12 +5,12 @@ COMMON_SRC := iohook.c
 
 CC := arm-eabi-gcc
 OBJDUMP := arm-eabi-objdump
-CFLAGS := -g -Os
+CFLAGS := -g -Os -combine -fwhole-program
 LDFLAGS := -nostdlib -Wl,-T,$(LDSCRIPT)
 
 all: $(PATCHES)
 
-# Compile and link in one step. This can improve size optimization,
+# Compile and link in one step. This improves size optimization,
 # since all source files can be optimized as a single unit.
 
 %.elf: %.c $(COMMON_SRC) $(LDSCRIPT) Makefile *.h
