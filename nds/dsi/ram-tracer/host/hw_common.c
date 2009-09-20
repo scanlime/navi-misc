@@ -88,7 +88,7 @@ HW_SetSystemClock(FTDIDevice *dev, float mhz)
 
 void
 HW_ConfigWriteMultiple(FTDIDevice *dev, uint16_t *addrArray,
-                       uint16_t *dataArray, int count)
+                       uint16_t *dataArray, int count, bool async)
 {
    /*
     * Config writes are 5 bytes long, but pad them to 8 bytes.
@@ -132,7 +132,7 @@ HW_ConfigWriteMultiple(FTDIDevice *dev, uint16_t *addrArray,
       packet += writeSize;
    }
 
-   if (FTDIDevice_WriteSync(dev, FTDI_INTERFACE_A, buffer, bufferSize)) {
+   if (FTDIDevice_Write(dev, FTDI_INTERFACE_A, buffer, bufferSize, async)) {
       perror("Error writing configuration registers");
       exit(1);
    }
@@ -159,5 +159,5 @@ HW_ConfigWriteMultiple(FTDIDevice *dev, uint16_t *addrArray,
 void
 HW_ConfigWrite(FTDIDevice *dev, uint16_t addr, uint16_t data)
 {
-   HW_ConfigWriteMultiple(dev, &addr, &data, 1);
+   HW_ConfigWriteMultiple(dev, &addr, &data, 1, false);
 }

@@ -157,26 +157,65 @@ FTDIDevice_SetMode(FTDIDevice *dev, FTDIInterface interface,
 }
 
 
-int
-FTDIDevice_WriteSync(FTDIDevice *dev, FTDIInterface interface,
-                     uint8_t *data, size_t length)
-{
-  int err, transferred;
+/*
+ * Internal callback for cleaning up async writes.
+ */
 
-  err = libusb_bulk_transfer(dev->handle, FTDI_EP_OUT(interface),
-                             data, length, &transferred,
-                             FTDI_COMMAND_TIMEOUT);
-  if (err < 0)
-    return err;
-  else
-    return 0;
+static void
+WriteAsyncCallback(struct libusb_transfer *transfer)
+{
+   free(transfer->buffer);
+   libusb_free_transfer(transfer);
+}
+
+
+/*
+ * Write to an FTDI interface, either synchronously or asynchronously.
+ * Async writes have no completion callback, they finish 'eventually'.
+ */
+
+int
+FTDIDevice_Write(FTDIDevice *dev, FTDIInterface interface,
+                 uint8_t *data, size_t length, bool async)
+{
+   int err;
+
+   if (async) {
+      struct libusb_transfer *transfer = libusb_alloc_transfer(0);
+
+      if (!transfer) {
+         return LIBUSB_ERROR_NO_MEM;
+      }
+
+      libusb_fill_bulk_transfer(transfer, dev->handle, FTDI_EP_OUT(interface),
+                                malloc(length), length, WriteAsyncCallback, 0, 0);
+
+      if (!transfer->buffer) {
+         libusb_free_transfer(transfer);
+         return LIBUSB_ERROR_NO_MEM;
+      }
+
+      memcpy(transfer->buffer, data, length);
+      err = libusb_submit_transfer(transfer);
+
+   } else {
+      int transferred;
+      err = libusb_bulk_transfer(dev->handle, FTDI_EP_OUT(interface),
+                                 data, length, &transferred,
+                                 FTDI_COMMAND_TIMEOUT);
+   }
+
+   if (err < 0)
+      return err;
+   else
+      return 0;
 }
 
 
 int
 FTDIDevice_WriteByteSync(FTDIDevice *dev, FTDIInterface interface, uint8_t byte)
 {
-  return FTDIDevice_WriteSync(dev, interface, &byte, sizeof byte);
+   return FTDIDevice_Write(dev, interface, &byte, sizeof byte, false);
 }
 
 
@@ -216,7 +255,7 @@ FTDIDevice_ReadByteSync(FTDIDevice *dev, FTDIInterface interface, uint8_t *byte)
 /*
  * Internal callback for one transfer's worth of stream data.
  * Split it into packets and invoke the callbacks.
-*/
+ */
 
 static void
 ReadStreamCallback(struct libusb_transfer *transfer)

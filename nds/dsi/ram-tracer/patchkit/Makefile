@@ -1,20 +1,21 @@
 PATCHES := sample-patch.elf
+
 LDSCRIPT := patch.ld
+COMMON_SRC := iohook.c
 
 CC := arm-eabi-gcc
 OBJDUMP := arm-eabi-objdump
-
-ASFLAGS := -c
+CFLAGS := -g -Os
 LDFLAGS := -nostdlib -Wl,-T,$(LDSCRIPT)
 
 all: $(PATCHES)
 
-%.elf: %.o $(LDSCRIPT)
-	$(CC) $(LDFLAGS) -o $@ $<
-	$(OBJDUMP) -x $@
+# Compile and link in one step. This can improve size optimization,
+# since all source files can be optimized as a single unit.
 
-%.o: %.s
-	$(CC) $(ASFLAGS) -o $@ $<
+%.elf: %.c $(COMMON_SRC) $(LDSCRIPT) Makefile *.h
+	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $< $(COMMON_SRC)
+	$(OBJDUMP) -d $@
 
 clean:
-	rm -f *.o *.elf
+	rm -f $(PATCHES)

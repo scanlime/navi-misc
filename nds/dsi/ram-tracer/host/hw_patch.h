@@ -69,6 +69,8 @@ void HWPatch_LoadStringUTF16(HWPatch *patch, uint32_t addr,
 void HWPatch_LoadHex(HWPatch *patch, uint32_t addr, const char *string);
 
 void HW_LoadPatch(FTDIDevice *dev, HWPatch *patch);
+void HW_UpdatePatchRegion(FTDIDevice *dev, HWPatch *patch,
+                          uint8_t *buf, uint32_t size);
 
 
 #endif // __HW_PATCH_H

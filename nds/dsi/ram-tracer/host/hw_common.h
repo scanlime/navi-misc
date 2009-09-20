@@ -55,7 +55,7 @@ void HW_Init(FTDIDevice *dev, const char *bitstream);
 void HW_SetSystemClock(FTDIDevice *dev, float mhz);
 
 void HW_ConfigWriteMultiple(FTDIDevice *dev, uint16_t *addrArray,
-                            uint16_t *dataArray, int count);
+                            uint16_t *dataArray, int count, bool async);
 void HW_ConfigWrite(FTDIDevice *dev, uint16_t addr, uint16_t data);
 
 

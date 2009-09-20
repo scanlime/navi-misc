@@ -1,5 +1,5 @@
 /*
- * hw_trace.h - Client program for the RAM tracing hardware.
+ * iohook_svc.h - Service handlers for the I/O Hook
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -22,14 +22,11 @@
  * THE SOFTWARE.
  */
 
-#ifndef __HW_TRACE_H
-#define __HW_TRACE_H
-
-#include "hw_common.h"
-#include "hw_patch.h"
-
-void HWTrace_InitIOHookPatch(HWPatch *patch);
-void HW_Trace(FTDIDevice *dev, HWPatch *patch, const char *filename, bool iohook);
+#ifndef __IOHOOK_SVC_H
+#define __IOHOOK_SVC_H
 
 
-#endif // __HW_TRACE_H
+uint8_t IOH_HandlePacket(uint8_t service, void *data, uint8_t length);
+void IOH_Exit(void);
+
+#endif // __IOHOOK_SVC_H
