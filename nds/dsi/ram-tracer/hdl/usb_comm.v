@@ -187,8 +187,9 @@ module usb_comm(mclk, reset,
 
    wire          read_request;
    wire          read_oe;
-   wire          write_request;
-   wire [7:0]    write_data;
+
+   reg           write_request;  // Write data is registered. See below.
+   reg [7:0]     write_data;
 
    assign usb_rd_n = !read_request;
    assign usb_wr_n = !write_request;
@@ -274,6 +275,18 @@ module usb_comm(mclk, reset,
     *    Cycle 1, reads:
     *        - usb_d is valid now. Shift it into the read buffer
     *        - If we have a complete packet, strobes a command
+    *
+    * To improve timing, we register all outgoing USB data. This means that even
+    * though we're committing to strobing a write on cycle 1 of the write, it
+    * actually appears on the bus at the following cycle 0. This means we can
+    * burst write at 30 MB/s, but we do need to insert an additional wait cycle
+    * if we're switching from write to read.
+    *
+    * XXX: This also ends up inserting an extra wait on back-to-back writes in
+    *      most cases so that we can check for a full FIFO. This limits our
+    *      bandwidth to 20 MB/s. We might want to redesign this state machine to
+    *      improve throughput later. This is the '!write_request' term in
+    *      c0_write below.
     */
 
    parameter S_C0 = 0;
@@ -294,8 +307,9 @@ module usb_comm(mclk, reset,
    wire              write_avail = error_latch || !(write_next_packet && fifo_empty);
 
    wire              c0 = state == S_C0;
-   wire              c0_read = c0 && read_ready;
-   wire              c0_write = c0 && !read_ready && write_avail && write_ready;
+   wire              c0_read = c0 && read_ready && !write_request;
+   wire              c0_write = c0 && !read_ready && write_avail
+                                && write_ready && !write_request;
    wire              c1_write = state == S_C1_WRITE;
    wire              c1_read = state == S_C1_READ;
 
@@ -303,10 +317,6 @@ module usb_comm(mclk, reset,
 
    assign read_request = c0_read;
    assign read_oe = c0_read || c1_read;
-   assign write_request = c1_write;
-
-   assign write_data = error_latch ? 8'hFF :
-                       write_next_packet ? fifo_dout[31:24] : packet_reg[23:16];
    assign fifo_rd_en = c0_write && write_next_packet;
 
    always @(posedge mclk or posedge reset)
@@ -320,9 +330,16 @@ module usb_comm(mclk, reset,
         config_addr <= 0;
         config_data <= 0;
         config_strobe <= 0;
+
+        write_data <= 0;
+        write_request <= 0;
      end
-     else
-       case (state)
+     else begin
+        write_request <= c1_write;
+        write_data <= error_latch ? 8'hFF :
+                      write_next_packet ? fifo_dout[31:24] : packet_reg[23:16];
+
+        case (state)
 
          S_C0: begin
             if (c0_read)
@@ -371,6 +388,7 @@ module usb_comm(mclk, reset,
             cmd_reg <= { cmd_reg[20:0], usb_d[6:0] };  // Save the low 7 bits
             state <= S_C0;
          end
-       endcase
+        endcase
+     end
 
-endmodule // usb_comm
+endmodule
