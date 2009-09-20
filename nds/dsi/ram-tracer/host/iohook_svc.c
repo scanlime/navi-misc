@@ -53,6 +53,7 @@ eraseLine(void)
 {
    char spaces[110];
    memset(spaces, ' ', sizeof spaces);
+   spaces[sizeof spaces - 1] = '\0';
    fprintf(stderr, "%s\r", spaces);
 }
 
