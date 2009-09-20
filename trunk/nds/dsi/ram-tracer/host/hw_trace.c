@@ -186,8 +186,8 @@ HWTrace_InitIOHookPatch(HWPatch *patch)
 static void
 dataError(const char *title, const char *description)
 {
+   HWTrace_HideStatus();
    fprintf(stderr,
-           "\n\n"
            "*** %s! ***\n"
            "%s\n\n",
            title, description);
@@ -287,6 +287,7 @@ parsePacket(uint8_t *buffer)
    MemPacketType type = MemPacket_GetType(packet);
    uint16_t word = MemPacket_RW_Word(packet);
 
+   // Overflow errors are always fatal
    if (MemPacket_IsOverflow(packet)) {
       dataError("Hardware buffer overrun",
                 "The USB bus or PC can't keep up with the incoming "
@@ -294,18 +295,18 @@ parsePacket(uint8_t *buffer)
       return false;
    }
 
+   // Complain about serious but non-fatal data errors.
    if (!MemPacket_IsAligned(packet)) {
       dataError("Packet alignment error",
                 "A trace packet is not properly aligned. Some USB data "
                 "has been dropped or corrupted.");
-      return false;
+      return true;
    }
-
    if (!MemPacket_IsChecksumCorrect(packet)) {
       dataError("Packet checksum error",
                 "A trace packet has an incorrect checksum. Some USB data "
                 "has been dropped or corrupted.");
-      return false;
+      return true;
    }
 
    timestamp += MemPacket_GetDuration(packet);
@@ -456,4 +457,20 @@ static void
 sigintHandler(int signum)
 {
    exitRequested = true;
+}
+
+
+/*
+ * HWTrace_HideStatus --
+ *
+ *    Temporarily hide (erase) the status line on stderr.
+ */
+
+void
+HWTrace_HideStatus(void)
+{
+   char spaces[110];
+   memset(spaces, ' ', sizeof spaces);
+   spaces[sizeof spaces - 1] = '\0';
+   fprintf(stderr, "%s\r", spaces);
 }
