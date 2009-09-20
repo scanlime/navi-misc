@@ -145,10 +145,15 @@ HW_Trace(FTDIDevice *dev, HWPatch *patch, const char *filename,
 
    /*
     * Capture data until we're interrupted.
+    *
+    * XXX: We'd like to use more than one FTDI packet per transfer, but
+    *      currently there's a bug somewhere which is causing us to get copies
+    *      of the FTDI packet header embedded in our data. Until that's fixed,
+    *      compensate by using lots of concurrent transfers.
     */
 
    signal(SIGINT, sigintHandler);
-   err = FTDIDevice_ReadStream(dev, FTDI_INTERFACE_A, readCallback, NULL, 64, 32);
+   err = FTDIDevice_ReadStream(dev, FTDI_INTERFACE_A, readCallback, NULL, 1, 256);
    if (err < 0 && !exitRequested)
       exit(1);
 
