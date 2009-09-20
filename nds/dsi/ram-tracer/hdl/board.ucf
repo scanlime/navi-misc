@@ -134,6 +134,7 @@ NET "usb_oe_n"  LOC = "P64"  | IOSTANDARD = LVCMOS33 ;
 #
 
 NET "dsi_sysclk"  LOC = "P69"  | IOSTANDARD = LVCMOS33 ;
+NET "dsi_reset"  LOC = "P90"  | IOSTANDARD = LVCMOS33 ;
 
 # CE1 Override
 #

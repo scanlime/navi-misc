@@ -50,10 +50,11 @@ usage(const char *argv0)
            "according to the given options, then the tool exits immediately.\n"
            "\n"
            "Options:\n"
-           "  -R, --no-reset        Do not reset the FPGA and the USB interface\n"
+           "  -F, --no-fpga-reset   Do not reset the FPGA and the USB interface\n"
            "                          before starting. Not recommended when tracing,\n"
            "                          but this can be useful for patching or adjusting\n"
            "                          clock frequency without glitches.\n"
+           "  -D, --no-dsi-reset    Do not reset the DSi's CPUs when starting a trace.\n"
            "  -b, --bitstream=FILE  Load an FPGA bitstream from the provided file.\n"
            "                          By default, loads \"%s\".\n"
            "  -f, --fast            Run the DSi at full speed (%.3f MHz) instead of\n"
@@ -98,7 +99,8 @@ int main(int argc, char **argv)
    double clock = CLOCK_SLOW;
    HWPatch patch;
    FTDIDevice dev;
-   bool reset = true;
+   bool resetFPGA = true;
+   bool resetDSI = true;
    bool iohook = false;
    int err, c;
 
@@ -107,7 +109,8 @@ int main(int argc, char **argv)
    while (1) {
       int option_index;
       static struct option long_options[] = {
-         {"no-reset", 0, NULL, 'R'},
+         {"no-fpga-reset", 0, NULL, 'F'},
+         {"no-dsi-reset", 0, NULL, 'D'},
          {"bitstream", 1, NULL, 'b'},
          {"fast", 0, NULL, 'f'},
          {"clock", 1, NULL, 'c'},
@@ -116,14 +119,18 @@ int main(int argc, char **argv)
          {NULL},
       };
 
-      c = getopt_long(argc, argv, "Rb:fc:p:i", long_options, &option_index);
+      c = getopt_long(argc, argv, "FDb:fc:p:i", long_options, &option_index);
       if (c == -1)
          break;
 
       switch (c) {
 
-      case 'R':
-         reset = false;
+      case 'F':
+         resetFPGA = false;
+         break;
+
+      case 'D':
+         resetDSI = false;
          break;
 
       case 'b':
@@ -168,12 +175,12 @@ int main(int argc, char **argv)
    if (iohook)
       HWTrace_InitIOHookPatch(&patch);
 
-   HW_Init(&dev, reset ? bitstream : NULL);
+   HW_Init(&dev, resetFPGA ? bitstream : NULL);
    HW_SetSystemClock(&dev, clock);
    HW_LoadPatch(&dev, &patch);
 
    if (tracefile || iohook)
-      HW_Trace(&dev, &patch, tracefile, iohook);
+      HW_Trace(&dev, &patch, tracefile, iohook, resetDSI);
 
    FTDIDevice_Close(&dev);
    IOH_Exit();

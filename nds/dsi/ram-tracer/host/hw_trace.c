@@ -85,12 +85,18 @@ static FTDIDevice *hwDev;
  *
  *    A very high-level function to trace memory activity.
  *    Writes progress to stderr. If 'filename' is non-NULL, writes
- *    the output to disk. If iohook is true, enables I/O hooks when
- *    magic RAM addresses are written.
+ *    the output to disk.
+ *
+ *    If iohook is true, enables I/O hooks when magic RAM addresses
+ *    are written.
+ *
+ *    If resetDSI is true, resets the DSi's CPUs synchronously with
+ *    the beginning of the trace.
  */
 
 void
-HW_Trace(FTDIDevice *dev, HWPatch *patch, const char *filename, bool iohook)
+HW_Trace(FTDIDevice *dev, HWPatch *patch, const char *filename,
+         bool iohook, bool resetDSI)
 {
    int err;
    uint32_t traceFlags;
@@ -130,8 +136,12 @@ HW_Trace(FTDIDevice *dev, HWPatch *patch, const char *filename, bool iohook)
     */
 
    HW_ConfigWrite(dev, REG_TRACEFLAGS, 0);
+   if (resetDSI)
+      HW_ConfigWrite(dev, REG_POWERFLAGS, POWERFLAG_DSI_RESET);
    while (FTDIDevice_ReadByteSync(dev, FTDI_INTERFACE_A, NULL) >= 0);
    HW_ConfigWrite(dev, REG_TRACEFLAGS, traceFlags);
+   if (resetDSI)
+      HW_ConfigWrite(dev, REG_POWERFLAGS, 0);
 
    /*
     * Capture data until we're interrupted.
