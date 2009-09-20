@@ -14,7 +14,8 @@ int
 main()
 {
    int i;
-   uint8_t buffer[256];
+   const int count = 256;
+   uint32_t buffer[count + IOH_PAD32];
 
    IOHook_Init();
 
@@ -22,13 +23,14 @@ main()
 
    IOHook_FOpenW("sample-output.bin");
 
-   for (i = 0; i < sizeof buffer; i++) {
+   for (i = 0; i < count; i++) {
       buffer[i] = i;
    }
-   IOHook_FWrite(buffer, sizeof buffer);
+   IOHook_FWrite(buffer, count * sizeof buffer[0]);
 
    IOHook_FSeek(0);
-   IOHook_LogHex(buffer, IOHook_FRead(buffer, sizeof buffer));
+   IOHook_FRead(buffer, count * sizeof buffer[0]);
+   IOHook_LogHex(buffer, count * sizeof buffer[0]);
 
    IOHook_Quit("Done!");
 }

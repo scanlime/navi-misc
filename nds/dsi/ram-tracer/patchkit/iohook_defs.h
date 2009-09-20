@@ -50,6 +50,15 @@
 #define IOH_DATA_LEN        (IOH_PACKET_LEN - 4)
 
 /*
+ * When reading from the host, we always write to memory
+ * in units of IOH_DATA_LEN. So in any buffer where alignment
+ * can't be guaranteed, extra padding must be added.
+*/
+#define IOH_PAD8            IOH_DATA_LEN
+#define IOH_PAD16           (IOH_DATA_LEN / 2)
+#define IOH_PAD32           (IOH_DATA_LEN / 4)
+
+/*
  * Parts of a message footer
  *
  * Notes:

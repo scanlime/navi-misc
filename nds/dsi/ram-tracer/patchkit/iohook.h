@@ -102,11 +102,12 @@ IOHook_FWrite(const uint32_t *data, uint32_t len)
    IOHook_Send(IOH_SVC_FWRITE, data, len);
 }
 
-static inline uint32_t
-IOHook_FRead(uint32_t *data, uint32_t len)
-{
-   return IOHook_Recv(IOHook_Send(IOH_SVC_FREAD, &len, sizeof len), data, len);
-}
+/*
+ * Read data from file, using multiple packets if necessary.
+ * May write up to IOH_DATA_LEN bytes past the end of the
+ * buffer.
+ */
+void IOHook_FRead(uint32_t *data, uint32_t len);
 
 
 #endif /* __IOHOOK_H */

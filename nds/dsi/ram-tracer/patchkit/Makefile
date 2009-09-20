@@ -1,11 +1,22 @@
-PATCHES := sample-patch.elf
+PATCHES := \
+	sample-patch.elf \
+	nvram-dump.elf \
+	nvram-write.elf \
 
+# Common files for all patches
 LDSCRIPT := patch.ld
 COMMON_SRC := iohook.c
 
+# We use headers from libnds
+ifeq ($(strip $(DEVKITPRO)),)
+$(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>devkitPro")
+endif
+
+LIBNDS := $(DEVKITPRO)/libnds
 CC := arm-eabi-gcc
 OBJDUMP := arm-eabi-objdump
-CFLAGS := -g -Os -combine -fwhole-program
+
+CFLAGS := -g -Os -combine -fwhole-program -I$(LIBNDS)/include -Werror
 LDFLAGS := -nostdlib -Wl,-T,$(LDSCRIPT)
 
 all: $(PATCHES)
@@ -15,7 +26,6 @@ all: $(PATCHES)
 
 %.elf: %.c $(COMMON_SRC) $(LDSCRIPT) Makefile *.h
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $< $(COMMON_SRC)
-	$(OBJDUMP) -d $@
 
 clean:
 	rm -f $(PATCHES)

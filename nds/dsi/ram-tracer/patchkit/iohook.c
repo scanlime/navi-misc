@@ -142,3 +142,15 @@ IOHook_SendStr(uint8_t service, const char *str)
 
    return IOHook_Send(service, buf, len);
 }
+
+
+void
+IOHook_FRead(uint32_t *data, uint32_t len)
+{
+   while (len) {
+      uint32_t actual = IOHook_Recv(IOHook_Send(IOH_SVC_FREAD,
+                                                &len, sizeof len), data, len);
+      len -= actual;
+      data = (uint32_t*) (actual + (uint8_t*)data);
+   }
+}
