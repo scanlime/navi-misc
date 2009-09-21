@@ -86,6 +86,8 @@ main()
       IOHook_Quit("Bad JEDEC ID");
    }
 
+   IOHook_LogStr("Programming pages...");
+
    // Program one page (256 bytes) at a time.
    for (address = 0; address < 0x20000; address += 0x100) {
       const int pageSize = 256;
@@ -98,7 +100,6 @@ main()
 
       // Program the page using Page Write mode
 
-      IOHook_LogStr("Programming page");
       IOHook_LogHex(&address, sizeof address);
 
       spiWriteWait();
@@ -113,15 +114,13 @@ main()
 
       // Verify the page
 
-      IOHook_LogStr("verifying...");
-
       spiBegin();
       spiTransfer(0x03);
       spiAddress(address);
       for (i = 0; i < pageSize; i++)
          if (spiTransfer(0) != bytes[i]) {
             IOHook_LogHex(&i, sizeof i);
-            IOHook_Quit("Verify error");
+            IOHook_LogStr("*** Verify error! ***");
          }
       spiEnd();
    }
