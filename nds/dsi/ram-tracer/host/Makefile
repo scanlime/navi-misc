@@ -6,7 +6,7 @@ LDFLAGS += $(shell pkg-config --libs $(PACKAGES))
 CFLAGS += -I../decoder
 
 # And we use iohook.h from patchkit
-CFLAGS += -I../patchkit
+CFLAGS += -I../patchkit/include
 
 # Large file support
 CFLAGS += $(shell getconf LFS_CFLAGS)
