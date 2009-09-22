@@ -490,22 +490,39 @@ HWPatch_LoadELF(HWPatch *patch, const char *fileName)
          uint32_t addr = phdr.p_paddr;
          uint8_t *buffer;
 
-         fprintf(stderr, "ELF: Segment at %08x memsz=%d filesz=%d\n",
-                 addr, phdr.p_memsz, phdr.p_filesz);
+         fprintf(stderr, "ELF: Segment at %08x %c%c%c memsz=%d filesz=%d\n",
+                 addr,
+                 phdr.p_flags & PF_R ? 'r' : '-',
+                 phdr.p_flags & PF_W ? 'w' : '-',
+                 phdr.p_flags & PF_X ? 'x' : '-',
+                 phdr.p_memsz, phdr.p_filesz);
 
          if (phdr.p_filesz > phdr.p_memsz) {
             fprintf(stderr, "ELF: Error, file size greater than memory size\n");
             exit(1);
          }
 
-         buffer = HWPatch_AllocRegion(patch, addr, phdr.p_memsz);
+         // Examine read/write flags:
+         switch (phdr.p_flags & (PF_R | PF_W)) {
 
-         if (phdr.p_filesz > 0) {
-            fseek(f, phdr.p_offset, SEEK_SET);
-            if (fread(buffer, phdr.p_filesz, 1, f) != 1) {
-               perror("ELF: Error reading segment data");
-               exit(1);
+         case PF_R:  // Read-only. We can patch this.
+            buffer = HWPatch_AllocRegion(patch, addr, phdr.p_memsz);
+            if (phdr.p_filesz > 0) {
+               fseek(f, phdr.p_offset, SEEK_SET);
+               if (fread(buffer, phdr.p_filesz, 1, f) != 1) {
+                  perror("ELF: Error reading segment data");
+                  exit(1);
+               }
             }
+            break;
+
+         case 0:     // No-access. This is a dummy segment, ignore it.
+            break;
+
+         default:    // Other. Not allowed- patched memory is read-only.
+            fprintf(stderr, "ELF: Patched segments must be read-only or no-access.\n");
+            exit(1);
+            break;
          }
       }
    }
