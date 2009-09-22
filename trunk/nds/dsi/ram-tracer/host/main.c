@@ -36,7 +36,7 @@
 
 #define DEFAULT_FPGA_BITSTREAM   "stable.bit"
 #define CLOCK_FAST               16.756
-#define CLOCK_SLOW               2.0
+#define CLOCK_SLOW               3.5
 
 static void usage(const char *argv0);
 static const char *getDefaultBitstreamPath(void);
