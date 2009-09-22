@@ -57,6 +57,9 @@ uint32_t IOHook_SendStr(uint8_t service, const char *str);
 
 /*
  * Higher-level I/O
+ *
+ * All non-string functions require 32-bit aligned buffers,
+ * and may read/write past the end of the buffer. See above.
  */
 
 static inline void
@@ -66,7 +69,7 @@ IOHook_LogStr(const char *str)
 }
 
 static inline void
-IOHook_LogHex(const uint32_t *data, uint32_t len)
+IOHook_LogHex(const void *data, uint32_t len)
 {
    IOHook_Send(IOH_SVC_LOG_HEX, data, len);
 }
@@ -97,7 +100,7 @@ IOHook_FSeek(uint32_t offset)
 }
 
 static inline void
-IOHook_FWrite(const uint32_t *data, uint32_t len)
+IOHook_FWrite(const void *data, uint32_t len)
 {
    IOHook_Send(IOH_SVC_FWRITE, data, len);
 }
@@ -107,7 +110,7 @@ IOHook_FWrite(const uint32_t *data, uint32_t len)
  * May write up to IOH_DATA_LEN bytes past the end of the
  * buffer.
  */
-void IOHook_FRead(uint32_t *data, uint32_t len);
+void IOHook_FRead(void *data, uint32_t len);
 
 
 #endif /* __IOHOOK_H */
