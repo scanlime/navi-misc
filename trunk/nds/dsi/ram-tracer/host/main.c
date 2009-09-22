@@ -36,7 +36,7 @@
 
 #define DEFAULT_FPGA_BITSTREAM   "stable.bit"
 #define CLOCK_FAST               16.756
-#define CLOCK_DEFAULT            3.5
+#define CLOCK_DEFAULT            3.0
 #define CLOCK_SLOW               1.0
 
 static void usage(const char *argv0);
