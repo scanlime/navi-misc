@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
+#include <unistd.h>
 #include <stdbool.h>
 
 #include "fastftdi.h"
@@ -36,6 +37,9 @@
 #define DEFAULT_FPGA_BITSTREAM   "stable.bit"
 #define CLOCK_FAST               16.756
 #define CLOCK_SLOW               2.0
+
+static void usage(const char *argv0);
+static const char *getDefaultBitstreamPath(void);
 
 
 static void
@@ -94,7 +98,7 @@ usage(const char *argv0)
 
 int main(int argc, char **argv)
 {
-   const char *bitstream = DEFAULT_FPGA_BITSTREAM;
+   const char *bitstream = getDefaultBitstreamPath();
    const char *tracefile = NULL;
    double clock = CLOCK_SLOW;
    HWPatch patch;
@@ -186,4 +190,44 @@ int main(int argc, char **argv)
    IOH_Exit();
 
    return 0;
+}
+
+
+static const char *
+getDefaultBitstreamPath(void)
+{
+   /*
+    * The default bitstream is loaded from the same directory this
+    * program is in.  There's no sane way to get this directory
+    * portably, and argv[0] is worse than useless. Currently we just
+    * use the very Linux-only /proc/self/exe symlink. On other
+    * platforms, this should harmlessly fail and search in the current
+    * directory only.
+    */
+
+   static char buf[PATH_MAX];
+   const int basenameMax = sizeof buf - sizeof DEFAULT_FPGA_BITSTREAM - 1;
+   ssize_t size;
+
+   size = readlink("/proc/self/exe", buf, basenameMax);
+   if (size > 0) {
+      char *sep;
+
+      buf[size] = '\0';
+
+      sep = strrchr(buf, '/');
+
+      if (sep) {
+         sep[1] = '\0';
+      } else {
+         buf[0] = '\0';
+      }
+
+   } else {
+      buf[0] = '\0';
+   }
+
+   strcat(buf, DEFAULT_FPGA_BITSTREAM);
+
+   return buf;
 }

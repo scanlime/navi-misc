@@ -203,7 +203,7 @@ ConfigEnd(FTDIDevice *dev)
   err = FTDIDevice_ReadByteSync(dev, FTDI_INTERFACE_B, &byte);
   if (err)
     return err;
-    
+
   if (byte & PORTB_DONE_BIT) {
     fprintf(stderr, "FPGA: configured\n");
     return 0;
@@ -222,13 +222,13 @@ FPGAConfig_LoadFile(FTDIDevice *dev, const char *filename)
 
   bf = bitfile_new_from_path(filename);
   if (!bf) {
-    perror("FPGA: Error opening bitstream");
+     perror(filename);
     return -1;
   }
 
   if (strcmp(bf->part_number, FPGA_PART)) {
-    fprintf(stderr, "FPGA: Bitstream has incorrect part number '%s'. Our hardware is '%s'.\n",
-	    bf->part_number, FPGA_PART);
+    fprintf(stderr, "FPGA: Bitstream has incorrect part number '%s'."
+            " Our hardware is '%s'.\n", bf->part_number, FPGA_PART);
     goto done;
   }
 
