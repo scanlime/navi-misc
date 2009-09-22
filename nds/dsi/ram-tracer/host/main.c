@@ -36,7 +36,8 @@
 
 #define DEFAULT_FPGA_BITSTREAM   "stable.bit"
 #define CLOCK_FAST               16.756
-#define CLOCK_SLOW               3.5
+#define CLOCK_DEFAULT            3.5
+#define CLOCK_SLOW               1.0
 
 static void usage(const char *argv0);
 static const char *getDefaultBitstreamPath(void);
@@ -64,6 +65,8 @@ usage(const char *argv0)
            "  -f, --fast            Run the DSi at full speed (%.3f MHz) instead of\n"
            "                          the default speed of %.3f MHz. Currently\n"
            "                          incompatible with tracing and patching.\n"
+           "  -s, --slow            Run the DSi at the lowest speed (%.3f MHz).\n"
+           "                          May help prevent buffer overflows.\n"
            "  -c, --clock=MHZ       Set a custom clock frequency, in MHz.\n"
            "  -p, --patch=PATCH     Apply a patch to RAM reads. May be specified\n"
            "                          times. See the accepted PATCH formats below.\n"
@@ -91,7 +94,7 @@ usage(const char *argv0)
            "Copyright (C) 2009 Micah Dowty <micah@navi.cx>\n",
            argv0,
            DEFAULT_FPGA_BITSTREAM,
-           CLOCK_FAST, CLOCK_SLOW);
+           CLOCK_FAST, CLOCK_DEFAULT, CLOCK_SLOW);
    exit(1);
 }
 
@@ -100,7 +103,7 @@ int main(int argc, char **argv)
 {
    const char *bitstream = getDefaultBitstreamPath();
    const char *tracefile = NULL;
-   double clock = CLOCK_SLOW;
+   double clock = CLOCK_DEFAULT;
    HWPatch patch;
    FTDIDevice dev;
    bool resetFPGA = true;
@@ -117,13 +120,14 @@ int main(int argc, char **argv)
          {"no-dsi-reset", 0, NULL, 'D'},
          {"bitstream", 1, NULL, 'b'},
          {"fast", 0, NULL, 'f'},
+         {"slow", 0, NULL, 's'},
          {"clock", 1, NULL, 'c'},
          {"patch", 1, NULL, 'p'},
          {"iohook", 0, NULL, 'i'},
          {NULL},
       };
 
-      c = getopt_long(argc, argv, "FDb:fc:p:i", long_options, &option_index);
+      c = getopt_long(argc, argv, "FDb:fsc:p:i", long_options, &option_index);
       if (c == -1)
          break;
 
@@ -143,6 +147,10 @@ int main(int argc, char **argv)
 
       case 'f':
          clock = CLOCK_FAST;
+         break;
+
+      case 's':
+         clock = CLOCK_SLOW;
          break;
 
       case 'c':
