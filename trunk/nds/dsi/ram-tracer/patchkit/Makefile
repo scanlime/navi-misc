@@ -2,6 +2,7 @@ PATCHES := \
 	sample-patch.elf \
 	nvram-dump.elf \
 	nvram-write.elf \
+	register-dump.elf \
 
 # Common files for all patches
 LDSCRIPT := patch.ld
