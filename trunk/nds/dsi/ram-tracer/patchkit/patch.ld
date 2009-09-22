@@ -2,26 +2,18 @@ OUTPUT_FORMAT(elf32-littlearm)
 
 PHDRS
 {
+  /* Ignored by patcher */
   headers PT_PHDR FILEHDR PHDRS ;
-  seg1 PT_LOAD;
-  seg2 PT_LOAD;
-  seg3 PT_LOAD;
+  seg_none PT_LOAD FLAGS(0);
+
+  /* Read-only PT_LOAD segments are patched into RAM */
+  seg1 PT_LOAD FLAGS(5);
+  seg2 PT_LOAD FLAGS(5);
+  seg3 PT_LOAD FLAGS(5);
 }
 
 SECTIONS
 {
-
-  /*
-   * Unpatched scratch region: initialized memory (data and bss).
-   * No segment is defined for these sections.
-   *
-   * XXX: Shouldn't be uninitialized, but we're cheating...
-   */
-  .unp_scratch 0x02ef8000 : {
-    *(.data .data.*);
-    *(.bss .bss.*);
-  }
-
   .launcher_arm7_entry 0x02280200 : { *(.text.launcher_arm7_entry); } :seg1
   .launcher_arm9_entry 0x023fee00 : { *(.text.launcher_arm9_entry); } :seg2
 
@@ -34,4 +26,13 @@ SECTIONS
     *(.text .text.*);
     *(.rodata .rodata.*);
   } :seg3
+
+  /*
+   * Unpatched scratch region: initialized memory (data and bss)
+   * XXX: Shouldn't be uninitialized, but we're cheating...
+   */
+  .unp_scratch 0x02ef8000 : {
+    *(.data .data.*);
+    *(.bss .bss.*);
+  } :seg_none
 }
