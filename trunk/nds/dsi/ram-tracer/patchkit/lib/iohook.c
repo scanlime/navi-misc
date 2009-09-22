@@ -92,7 +92,7 @@ IOHook_Recv(uint32_t cookie, uint32_t *data, uint32_t len)
 {
    len = MIN(IOH_DATA_LEN, len);
 
-   asm volatile("0:"
+   asm volatile("0: \n"
                 "ldm %1, {r2-r8,r12} \n"      // Read patch buffer
                 "and r1, r12, %2 \n"          // Check SVC/SEQ
                 "cmp r1, %3 \n"
@@ -145,12 +145,13 @@ IOHook_SendStr(uint8_t service, const char *str)
 
 
 void
-IOHook_FRead(uint32_t *data, uint32_t len)
+IOHook_FRead(void *data, uint32_t len)
 {
    while (len) {
       uint32_t actual = IOHook_Recv(IOHook_Send(IOH_SVC_FREAD,
-                                                &len, sizeof len), data, len);
+                                                &len, sizeof len),
+                                    (uint32_t *)data, len);
       len -= actual;
-      data = (uint32_t*) (actual + (uint8_t*)data);
+      data = actual + (uint8_t*)data;
    }
 }
