@@ -72,6 +72,7 @@ usage(const char *argv0)
            "                          times. See the accepted PATCH formats below.\n"
            "  -i, --iohook          Enable I/O hooks which allow patches to log data\n"
            "                          to the PC and to read and write data files.\n"
+           "  -S, --stop=COND       Stop when the specified condition (below) is met\n"
            "\n"
            "About patch options:\n"
            "  * All addresses are in hexadecimal.\n"
@@ -90,6 +91,11 @@ usage(const char *argv0)
            "  -p hex:ADDR:\"01 23 ...\"  Write a string of hexadecimal bytes at ADDR.\n"
            "                             Whitespace in the string is ignored.\n"
            "  -p elf:FILE              Load each loadable segment from an ELF object.\n"
+           "\n"
+           "Stop conditions:\n"
+           "  -S time:SECONDS          Stop after SECONDS elapsed on the trace clock.\n"
+           "  -S size:MB               Stop after MB megabytes of trace data received.\n"
+           "  -S addr:ADDR             Stop when a hexadecimal address is touched.\n"
            "\n"
            "Copyright (C) 2009 Micah Dowty <micah@navi.cx>\n",
            argv0,
@@ -124,10 +130,11 @@ int main(int argc, char **argv)
          {"clock", 1, NULL, 'c'},
          {"patch", 1, NULL, 'p'},
          {"iohook", 0, NULL, 'i'},
+         {"stop", 1, NULL, 'S'},
          {NULL},
       };
 
-      c = getopt_long(argc, argv, "FDb:fsc:p:i", long_options, &option_index);
+      c = getopt_long(argc, argv, "FDb:fsc:p:iS:", long_options, &option_index);
       if (c == -1)
          break;
 
@@ -163,6 +170,10 @@ int main(int argc, char **argv)
 
       case 'i':
          iohook = true;
+         break;
+
+      case 'S':
+         HWTrace_ParseStopCondition(optarg);
          break;
 
       default:

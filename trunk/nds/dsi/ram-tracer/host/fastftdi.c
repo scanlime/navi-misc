@@ -296,6 +296,7 @@ ReadStreamCallback(struct libusb_transfer *transfer)
    }
 
    if (state->result == 0) {
+      transfer->status = -1;
       state->result = libusb_submit_transfer(transfer);
    }
 }
@@ -359,6 +360,7 @@ FTDIDevice_ReadStream(FTDIDevice *dev, FTDIInterface interface,
          goto cleanup;
       }
 
+      transfer->status = -1;
       err = libusb_submit_transfer(transfer);
       if (err)
          goto cleanup;
@@ -417,10 +419,11 @@ FTDIDevice_ReadStream(FTDIDevice *dev, FTDIInterface interface,
          struct libusb_transfer *transfer = transfers[xferIndex];
 
          if (transfer) {
-            libusb_cancel_transfer(transfer);
+            if (transfer->status == -1)
+               libusb_cancel_transfer(transfer);
             free(transfer->buffer);
             libusb_free_transfer(transfer);
-         };
+         }
       }
       free(transfers);
    }
