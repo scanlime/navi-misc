@@ -28,13 +28,15 @@
 #include <signal.h>
 #include <string.h>
 #include <assert.h>
-
+#include <math.h>
 #include "hw_trace.h"
 #include "memtrace_fmt.h"
 #include "iohook_defs.h"
 #include "iohook_svc.h"
 
 #define MIN(a,b)  ((a) > (b) ? (b) : (a))
+
+#define RAM_ADDR_MASK  0x00FFFFFF
 
 typedef union {
    uint16_t words[IOH_PACKET_LEN / sizeof(uint16_t)];
@@ -78,6 +80,16 @@ static uint8_t ioHookSequence;
 static HWPatch *hwPatch;
 static uint8_t *ioHookPatch;
 static FTDIDevice *hwDev;
+
+static struct {
+   double   time;
+   double   size;
+   uint32_t addr;
+} stop = {
+   .time = HUGE_VAL,
+   .size = HUGE_VAL,
+   .addr = (uint32_t)-1,
+};
 
 
 /*
@@ -157,7 +169,8 @@ HW_Trace(FTDIDevice *dev, HWPatch *patch, const char *filename,
       outputFile = NULL;
    }
 
-   fprintf(stderr, "\nCapture ended.\n");
+   HWTrace_HideStatus();
+   fprintf(stderr, "Capture ended.\n");
 }
 
 
@@ -321,6 +334,13 @@ parsePacket(uint8_t *buffer)
    case MEMPKT_READ:
       lastReadAddr = lastAddr + (burstIndex << 1);
       burstIndex++;
+
+      if (lastReadAddr == stop.addr) {
+         HWTrace_HideStatus();
+         fprintf(stderr, "STOP: Requested stop at address 0x%08x "
+                 "(read burst at 0x%08x)\n", stop.addr, lastAddr);
+         return false;
+      }
       break;
 
    case MEMPKT_WRITE:
@@ -330,6 +350,13 @@ parsePacket(uint8_t *buffer)
             return false;
       }
       burstIndex++;
+
+      if (lastReadAddr == stop.addr) {
+         HWTrace_HideStatus();
+         fprintf(stderr, "STOP: Requested stop at address 0x%08x "
+                 "(write burst at 0x%08x)\n", stop.addr, lastAddr);
+         return false;
+      }
       break;
    }
 
@@ -434,14 +461,29 @@ readCallback(uint8_t *buffer, int length, FTDIProgressInfo *progress, void *user
       }
    }
 
-   if (progress)
+   if (progress) {
+      double seconds = timestamp / (double)RAM_CLOCK_HZ;
+      double mb = progress->current.totalBytes / (1024.0 * 1024.0);
+
       fprintf(stderr, "%10.02fs [ %9.3f MB captured ] %7.1f kB/s current, "
               "%7.1f kB/s average - RD:%08x WR:%08x\r",
-              timestamp / (double)RAM_CLOCK_HZ,
-              progress->current.totalBytes / (1024.0 * 1024.0),
+              seconds, mb,
               progress->currentRate / 1024.0,
               progress->totalRate / 1024.0,
               lastReadAddr, lastWriteAddr);
+
+      if (seconds > stop.time) {
+         HWTrace_HideStatus();
+         fprintf(stderr, "STOP: Requested stop at %.02fs\n", stop.time);
+         return 1;
+      }
+
+      if (mb > stop.size) {
+         HWTrace_HideStatus();
+         fprintf(stderr, "STOP: Requested stop at %.02f MB\n", stop.size);
+         return 1;
+      }
+   }
 
    return exitRequested ? 1 : 0;
 }
@@ -473,4 +515,46 @@ HWTrace_HideStatus(void)
    memset(spaces, ' ', sizeof spaces);
    spaces[sizeof spaces - 1] = '\0';
    fprintf(stderr, "%s\r", spaces);
+}
+
+
+/*
+ * HWTrace_ParseStopCondition --
+ *
+ *    Parse a user-supplied stop condition for the trace.
+ *    Exits on error.
+ */
+
+void
+HWTrace_ParseStopCondition(const char *stopCond)
+{
+   char *tokSave;
+   char *str = strdup(stopCond);
+   char *delim1 = strchr(str, ':');
+
+   if (delim1) {
+      const char *arg1 = delim1 + 1;
+      *delim1 = '\0';
+
+      if (!strcmp(str, "time")) {
+         stop.time = atof(arg1);
+         goto done;
+      }
+
+      if (!strcmp(str, "size")) {
+         stop.size = atof(arg1);
+         goto done;
+      }
+
+      if (!strcmp(str, "addr")) {
+         stop.addr = strtoul(arg1, NULL, 16) & RAM_ADDR_MASK;
+         goto done;
+      }
+   }
+
+   fprintf(stderr, "Can't parse stop condition string \"%s\".\n", stopCond);
+   exit(1);
+
+ done:
+   free(str);
 }

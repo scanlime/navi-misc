@@ -30,6 +30,8 @@
 
 void HWTrace_InitIOHookPatch(HWPatch *patch);
 void HWTrace_HideStatus(void);
+void HWTrace_ParseStopCondition(const char *stopCond);
+
 void HW_Trace(FTDIDevice *dev, HWPatch *patch, const char *filename,
               bool iohook, bool resetDSI);
 
