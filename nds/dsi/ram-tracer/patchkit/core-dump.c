@@ -15,6 +15,8 @@
  *   TODO:
  *     - Finish implementing PT_NOTE, with saved register state.
  *     - Dump both arm7 and arm9 state at once.
+ *     - Fix zeroing of unused parts of ELF headers?
+ *     - Write a section for each segment
  *
  * Copyright (C) 2009 Micah Dowty
  *
