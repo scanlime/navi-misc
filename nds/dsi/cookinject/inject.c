@@ -231,6 +231,7 @@ void arm7_hook()
    char cmd;
    uint32 args[3];
    uint32 running = 1;
+   typedef uint32 (*fn)(uint32 arg0, uint32 arg2);
 
    while (running) {
       /* Wait for command */
@@ -241,6 +242,12 @@ void arm7_hook()
       spimeRead(4, (u8*)args, sizeof args);
 
       switch (cmd) {
+
+         /* Call function */
+      case 'F':
+         args[0] = ((fn)args[0])(args[1], args[2]);
+         spimeWrite(4, (u8*)args, sizeof args);
+         break;
 
          /* Read bytes */
       case 'R':
@@ -270,6 +277,17 @@ void arm7_hook()
             args[0] += 2;
             args[1] += 2;
             args[2] -= 2;
+         }
+         break;
+
+         /* Read 32-bit words */
+      case 'l':
+         while (args[2] >= 4) {
+            u32 reg = *(vu32*)args[1];
+            spimeWrite(args[0], (u8*)&reg, sizeof reg);
+            args[0] += 4;
+            args[1] += 4;
+            args[2] -= 4;
          }
          break;
 
