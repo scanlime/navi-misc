@@ -4,6 +4,7 @@ PATCHES := \
 	nvram-write.elf \
 	register-dump.elf \
 	core-dump.elf \
+	stub.elf \
 
 # Common files for all patches
 LDSCRIPT := lib/patch.ld
