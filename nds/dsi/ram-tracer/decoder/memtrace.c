@@ -161,6 +161,14 @@ MemTrace_Next(MemTraceState *state, MemOp *nextOp)
       uint8_t packetBytes[sizeof packet];
 
       if (!MemTraceReadBuffered(state, packetBytes, sizeof packetBytes)) {
+         /*
+          * If we've reached EOF and we're in the middle of a burst,
+          * flush the burst before exiting.
+          */
+         if (op.length) {
+            break;
+         }
+
          return MEMTR_EOF;
       }
       packet = MemPacket_FromBytes(packetBytes);
