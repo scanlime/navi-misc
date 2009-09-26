@@ -25,8 +25,9 @@
 #ifndef __IOHOOK_SVC_H
 #define __IOHOOK_SVC_H
 
+#include "hw_common.h"
 
-uint8_t IOH_HandlePacket(uint8_t service, void *data, uint8_t length);
+uint8_t IOH_HandlePacket(FTDIDevice *hwDev, uint8_t service, void *data, uint8_t length);
 void IOH_Exit(void);
 
 #endif // __IOHOOK_SVC_H

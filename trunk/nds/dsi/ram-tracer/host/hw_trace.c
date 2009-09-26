@@ -147,13 +147,13 @@ HW_Trace(FTDIDevice *dev, HWPatch *patch, const char *filename,
     * enabling memory traces.
     */
 
-   HW_ConfigWrite(dev, REG_TRACEFLAGS, 0);
+   HW_ConfigWrite(dev, REG_TRACEFLAGS, 0, false);
    if (resetDSI)
-      HW_ConfigWrite(dev, REG_POWERFLAGS, POWERFLAG_DSI_RESET);
+      HW_ConfigWrite(dev, REG_POWERFLAGS, POWERFLAG_DSI_RESET, false);
    while (FTDIDevice_ReadByteSync(dev, FTDI_INTERFACE_A, NULL) >= 0);
-   HW_ConfigWrite(dev, REG_TRACEFLAGS, traceFlags);
+   HW_ConfigWrite(dev, REG_TRACEFLAGS, traceFlags, false);
    if (resetDSI)
-      HW_ConfigWrite(dev, REG_POWERFLAGS, 0);
+      HW_ConfigWrite(dev, REG_POWERFLAGS, 0, false);
 
    /*
     * Capture data until we're interrupted.
@@ -266,7 +266,7 @@ ioHookTrace(uint32_t index, uint16_t word)
       }
 
       // Handle the hook packet. This returns the response length.
-      txLen = IOH_HandlePacket(rxSvc, buf.data, rxLen);
+      txLen = IOH_HandlePacket(hwDev, rxSvc, buf.data, rxLen);
 
       if (txLen) {
          // Build a response packet, and send it to the hardware.
