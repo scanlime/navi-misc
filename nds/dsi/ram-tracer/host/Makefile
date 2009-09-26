@@ -2,11 +2,7 @@ PACKAGES := libusb-1.0
 CFLAGS += $(shell pkg-config --cflags $(PACKAGES))
 LDFLAGS += $(shell pkg-config --libs $(PACKAGES))
 
-# We use memtrace_fmt.h from the decoder
-CFLAGS += -I../decoder
-
-# And we use iohook.h from patchkit
-CFLAGS += -I../patchkit/include
+CFLAGS += -I../include
 
 # Large file support
 CFLAGS += $(shell getconf LFS_CFLAGS)

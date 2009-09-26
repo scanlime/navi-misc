@@ -19,7 +19,8 @@ LIBNDS := $(DEVKITPRO)/libnds
 CC := arm-eabi-gcc
 OBJDUMP := arm-eabi-objdump
 
-CFLAGS := -g -Os -combine -fwhole-program -Iinclude -I$(LIBNDS)/include -Werror
+CFLAGS := -g -Os -combine -fwhole-program -Werror
+CFLAGS += -Iinclude -I../include -I$(LIBNDS)/include
 LDFLAGS := -nostdlib -Wl,-T,$(LDSCRIPT)
 
 all: $(PATCHES)
