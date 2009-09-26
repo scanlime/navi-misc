@@ -68,7 +68,7 @@ packetString(void *data, uint8_t length)
  */
 
 uint8_t
-IOH_HandlePacket(uint8_t service, void *data, uint8_t length)
+IOH_HandlePacket(FTDIDevice *dev, uint8_t service, void *data, uint8_t length)
 {
    switch (service) {
 
@@ -169,6 +169,13 @@ IOH_HandlePacket(uint8_t service, void *data, uint8_t length)
          perror("fwrite");
          exit(1);
       }
+      return 0;
+   }
+
+   case IOH_SVC_SETCLOCK: {
+      uint32_t khz = *(uint32_t*)data;
+      HWTrace_HideStatus();
+      HW_SetSystemClock(dev, khz / 1000.0);
       return 0;
    }
 

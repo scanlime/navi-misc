@@ -74,7 +74,7 @@ HW_SetSystemClock(FTDIDevice *dev, float mhz)
    fprintf(stderr, "CLOCK: Setting system clock to %.06f MHz (0x%04x)\n",
            actual, regValue);
 
-   HW_ConfigWrite(dev, REG_SYSCLK, regValue);
+   HW_ConfigWrite(dev, REG_SYSCLK, regValue, true);
 }
 
 
@@ -157,7 +157,7 @@ HW_ConfigWriteMultiple(FTDIDevice *dev, uint16_t *addrArray,
  */
 
 void
-HW_ConfigWrite(FTDIDevice *dev, uint16_t addr, uint16_t data)
+HW_ConfigWrite(FTDIDevice *dev, uint16_t addr, uint16_t data, bool async)
 {
-   HW_ConfigWriteMultiple(dev, &addr, &data, 1, false);
+   HW_ConfigWriteMultiple(dev, &addr, &data, 1, async);
 }
