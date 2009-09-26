@@ -1,4 +1,4 @@
-CFLAGS := -O3 -g
+CFLAGS := -O3 -g -I../include
 
 BINS        := decoder
 OBJ_DECODER := decoder.o memtrace.o
