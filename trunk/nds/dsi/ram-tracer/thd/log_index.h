@@ -1,7 +1,6 @@
 /*
- * log_reader.h -- Encapsulates the details of reading the low-level log file format.
- *                 To add new file formats, this is the only object that should need
- *                 to change at all.
+ * log_index.h -- Maintains an 'index' database for each log file, and performs
+ *                queries using this database.
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -24,40 +23,47 @@
  * THE SOFTWARE.
  */
 
-#ifndef __LOG_READER_H
-#define __LOG_READER_H
+#ifndef __LOG_INDEX_H
+#define __LOG_INDEX_H
 
-#include <wx/filename.h>
+#include <wx/thread.h>
 
-#include "file_buffer.h"
+#include "sqlite3x.h"
 #include "mem_transfer.h"
+#include "log_reader.h"
 
-class LogReader {
+
+class LogIndex {
  public:
-
-  void Open(const wxChar *path);
+  void Open(LogReader *reader);
   void Close();
 
-  wxFileName FileName() {
-    return fileName;
-  }
-
-  uint64_t MemSize() {
-    return 16 * 1024 * 1024;
-  }
-
-  // Read the transfer at mt.logOffset
-  bool Read(MemTransfer &mt);
-
-  // Seek to the previous transfer (don't read it)
-  bool Next(MemTransfer &mt);
-
-  // Seek to the next transfer (don't read it)
-  bool Prev(MemTransfer &mt);
-
  private:
-  wxFileName fileName;
-  FileBuffer file;
+  static const int TIMESTEP_SIZE = 128 * 1024;     // Timestep duration, in bytes
+  static const int BLOCK_SHIFT = 16;
+  static const int BLOCK_SIZE = 1 << BLOCK_SHIFT;  // Spatial block size
+  static const int BLOCK_MASK = BLOCK_SIZE - 1;
+
+  void InitDB();
+  void InitBlockTables();
+  void Finish();
+  bool isFinished();
+  void StartIndexing();
+  static std::string BlockTableName(char type, int blockNum);
+
+  class IndexerThread : public wxThread {
+  public:
+     IndexerThread(LogIndex *_index) : index(_index) {}  
+     virtual ExitCode Entry();
+
+  private:
+     LogIndex *index;
+  };
+
+  LogReader *reader;  
+  sqlite3x::sqlite3_connection db;
+  IndexerThread *indexer;
+  int numBlocks;
 };
 
-#endif /* __LOG_READER_H */
+#endif /* __LOG_INDEX_H */

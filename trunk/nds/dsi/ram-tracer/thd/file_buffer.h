@@ -40,13 +40,16 @@ class FileBuffer {
   static const int NUM_BLOCKS = 2;
 
  public:
-  bool Open(const wxChar *filename) {
+  void Open(const wxChar *filename) {
     bHint = 0;
     for (int i = 0; i < NUM_BLOCKS; i++) {
       bPosition[i] = wxInvalidOffset;
     }
+    file.Open(filename);
+  }
 
-    return file.Open(filename);
+  void Close() {
+    file.Close();
   }
 
   /*

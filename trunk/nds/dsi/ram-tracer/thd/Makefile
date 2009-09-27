@@ -9,9 +9,18 @@ LDFLAGS += $(shell wx-config --libs)
 CXXFLAGS += -I../include
 
 BIN := thd
-OBJS := main.o log_reader.o
+OBJS := \
+	main.o \
+	log_reader.o \
+	log_index.o \
+	sqlite3x_command.o \
+	sqlite3x_connection.o \
+	sqlite3x_cursor.o \
+	sqlite3x_exception.o \
+	sqlite3x_transaction.o \
 
-CXXFLAGS += -O3 -g
+
+CXXFLAGS += -O2 -g
 
 all: $(BIN)
 
