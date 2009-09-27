@@ -64,7 +64,7 @@ MemPacket_FromBytes(uint8_t *bytes)
 static inline MemPacketType
 MemPacket_GetType(MemPacket p)
 {
-   return (p >> 29) & 0x03;
+   return (MemPacketType) ((p >> 29) & 0x03);
 }
 
 static inline uint32_t
