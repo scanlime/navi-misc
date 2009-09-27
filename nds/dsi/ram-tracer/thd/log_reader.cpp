@@ -28,6 +28,21 @@
 #include "memtrace_fmt.h"
 
 
+void
+LogReader::Open(const wxChar *path)
+{
+  fileName.Assign(path);
+  fileName.MakeAbsolute();
+  file.Open(fileName.GetFullPath());
+}
+
+void
+LogReader::Close()
+{
+  file.Close();
+}
+
+
 /*
  * Decode the burst at mt.logOffset, storing the results in mt.
  */

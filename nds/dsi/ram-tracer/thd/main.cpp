@@ -1,24 +1,20 @@
 #include <iostream>
+#include <wx/wx.h>
 #include "log_reader.h"
+#include "log_index.h"
 
 using namespace std;
 
-int
-main()
-{
-  MemTransfer mt;
+
+class MyApp : public wxApp {
+
   LogReader reader;
-  wxString fileName(wxT("datamgmt-sd-insert.trace.raw"));
-
-  if (!reader.Open(fileName)) {
-    cerr << "Error opening input file: " << fileName.c_str() << endl;
-    return 1;
+  LogIndex index;
+  
+  virtual bool OnInit() {
+    reader.Open(wxT("datamgmt-sd-insert.trace.raw"));
+    index.Open(&reader);
   }
+};
 
-  while (reader.Read(mt)) {
-    cout << "offs = " << mt.LogOffset() << " t = " << mt.type << " len = " << mt.byteCount << endl;
-    reader.Next(mt);
-  }
-
-  return 0;
-}
+IMPLEMENT_APP(MyApp);
