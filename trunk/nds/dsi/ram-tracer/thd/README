@@ -1,0 +1,12 @@
+Temporal Hex Dump (THD)
+-----------------------
+
+This is still in the early stages of development, but this project
+is intended to become a graphical analysis tool for memory access
+traces. It is designed to handle very large log files efficiently.
+
+The current plan is to implement it in C++ using wxWidgets for the
+GUI, and an sqlite3 database to index the log data.
+
+--Micah
+
