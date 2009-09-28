@@ -34,8 +34,13 @@
 class MemTransfer {
  public:
   static const int MAX_LENGTH = 4096;
+  
+  typedef uint64_t OffsetType;
+  typedef uint32_t AddressType;
+  typedef uint32_t LengthType;
+  typedef uint32_t DurationType;
 
-  MemTransfer(uint64_t offset = 0) {
+  MemTransfer(OffsetType offset = 0) {
     Seek(0);
   }   
 
@@ -45,20 +50,21 @@ class MemTransfer {
    * the position of the next packet- so we must invalidate it in
    * transfers that have been seeked but not read.)
    */
-  void Seek(uint64_t offset) {
+  void Seek(OffsetType offset) {
     logOffset = offset;
-    address = (uint32_t) -1;
+    address = (AddressType) -1;
     byteCount = 0;
     duration = 0;
   }   
 
-  uint64_t LogOffset() {
+  OffsetType LogOffset() {
     return logOffset;
   }
 
-  uint32_t address;
-  uint32_t byteCount;
-  uint32_t duration;
+
+  AddressType address;
+  LengthType byteCount;
+  DurationType duration;
   
   enum {
     READ,
@@ -74,7 +80,7 @@ class MemTransfer {
   uint8_t buffer[MAX_LENGTH];
 
 private:
-  uint64_t logOffset;
+  OffsetType logOffset;
 };
 
 
