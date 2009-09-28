@@ -12,9 +12,10 @@ BIN := thd
 OBJS := \
 	thd_app.o \
 	thd_mainwindow.o \
+	thd_timeline.o \
+	progress_status_bar.o \
 	log_reader.o \
 	log_index.o \
-	progress_status_bar.o \
 	sqlite3x_command.o \
 	sqlite3x_connection.o \
 	sqlite3x_cursor.o \

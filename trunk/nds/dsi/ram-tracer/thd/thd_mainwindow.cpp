@@ -22,8 +22,9 @@
  * THE SOFTWARE.
  */
 
+#include <wx/sizer.h>
 #include "thd_mainwindow.h"
-
+#include "thd_timeline.h"
 
 BEGIN_EVENT_TABLE(THDMainWindow, wxFrame)
 END_EVENT_TABLE()
@@ -38,6 +39,13 @@ THDMainWindow::THDMainWindow()
 
   statusBar = new ProgressStatusBar(this);
   SetStatusBar(statusBar);
+
+  wxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+
+  vbox->Add(new THDTimeline(this, &index), 0, wxGROW);
+
+  SetSizer(vbox);
+  vbox->Fit(this);
 }
 
 
