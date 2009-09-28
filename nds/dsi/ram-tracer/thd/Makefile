@@ -10,9 +10,11 @@ CXXFLAGS += -I../include
 
 BIN := thd
 OBJS := \
-	main.o \
+	thd_app.o \
+	thd_mainwindow.o \
 	log_reader.o \
 	log_index.o \
+	progress_status_bar.o \
 	sqlite3x_command.o \
 	sqlite3x_connection.o \
 	sqlite3x_cursor.o \

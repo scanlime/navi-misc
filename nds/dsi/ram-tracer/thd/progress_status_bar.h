@@ -1,7 +1,5 @@
 /*
- * log_reader.h -- Encapsulates the details of reading the low-level log file format.
- *                 To add new file formats, this is the only object that should need
- *                 to change at all.
+ * progress_status_bar.h -- A wxStatusBar subclass that includes a progress bar.
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -24,42 +22,34 @@
  * THE SOFTWARE.
  */
 
-#ifndef __LOG_READER_H
-#define __LOG_READER_H
+#ifndef __PROGRESS_STATUS_BAR_H
+#define __PROGRESS_STATUS_BAR_H
 
-#include <wx/filename.h>
+#include <wx/statusbr.h>
+#include <wx/gauge.h>
 
-#include "file_buffer.h"
-#include "mem_transfer.h"
 
-class LogReader {
+class ProgressStatusBar : public wxStatusBar {
  public:
+  ProgressStatusBar(wxWindow *parent);
 
-  void Open(const wxChar *path);
-  void Close();
+  void SetProgress(double progress);
+  void SetDuration(double seconds);
 
-  wxFileName FileName() {
-    return fileName;
-  }
+  void OnSize(wxSizeEvent& event);
 
-  uint64_t MemSize() {
-    return 16 * 1024 * 1024;
-  }
-
-  // Read the transfer at mt.logOffset
-  bool Read(MemTransfer &mt);
-
-  // Seek to the previous transfer (don't read it)
-  bool Next(MemTransfer &mt);
-
-  // Seek to the next transfer (don't read it)
-  bool Prev(MemTransfer &mt);
-
-  static double GetDefaultClockHZ();
+  DECLARE_EVENT_TABLE();
 
  private:
-  wxFileName fileName;
-  FileBuffer file;
+  enum {
+    FIELD_MAIN = 0,
+    FIELD_DURATION,
+    FIELD_PROGRESS,
+    FIELDCOUNT,  // Must be last
+  };
+
+  wxGauge gauge;
+  static const int RANGE_MAX = 0x10000;
 };
 
-#endif /* __LOG_READER_H */
+#endif /* __PROGRESS_STATUS_BAR_H */

@@ -1,7 +1,5 @@
 /*
- * log_reader.h -- Encapsulates the details of reading the low-level log file format.
- *                 To add new file formats, this is the only object that should need
- *                 to change at all.
+ * progress_status_bar.h -- A wxStatusBar subclass that includes a progress bar.
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -24,42 +22,48 @@
  * THE SOFTWARE.
  */
 
-#ifndef __LOG_READER_H
-#define __LOG_READER_H
+#include <math.h>
+#include "progress_status_bar.h"
 
-#include <wx/filename.h>
 
-#include "file_buffer.h"
-#include "mem_transfer.h"
+BEGIN_EVENT_TABLE(ProgressStatusBar, wxStatusBar)
+  EVT_SIZE(ProgressStatusBar::OnSize)
+END_EVENT_TABLE()
 
-class LogReader {
- public:
 
-  void Open(const wxChar *path);
-  void Close();
+ProgressStatusBar::ProgressStatusBar(wxWindow *parent)
+: wxStatusBar(parent),
+  gauge(this, wxID_ANY, RANGE_MAX)
+{
+  int widths[] = { -1, 96, 200 };
 
-  wxFileName FileName() {
-    return fileName;
-  }
+  SetFieldsCount(FIELDCOUNT, widths);
+  gauge.Show();
+}
 
-  uint64_t MemSize() {
-    return 16 * 1024 * 1024;
-  }
 
-  // Read the transfer at mt.logOffset
-  bool Read(MemTransfer &mt);
+void
+ProgressStatusBar::OnSize(wxSizeEvent& event)
+{
+  wxRect rect;
+  GetFieldRect(FIELD_PROGRESS, rect);
+  gauge.SetSize(rect);
 
-  // Seek to the previous transfer (don't read it)
-  bool Next(MemTransfer &mt);
+  event.Skip();
+}
 
-  // Seek to the next transfer (don't read it)
-  bool Prev(MemTransfer &mt);
 
-  static double GetDefaultClockHZ();
+void
+ProgressStatusBar::SetProgress(double progress)
+{
+  gauge.SetValue((int)(RANGE_MAX * progress));
+}
 
- private:
-  wxFileName fileName;
-  FileBuffer file;
-};
 
-#endif /* __LOG_READER_H */
+void
+ProgressStatusBar::SetDuration(double seconds)
+{
+  SetStatusText(wxString::Format(wxT("%d:%05.2f"),
+				 (int) (seconds / 60.0), fmod(seconds, 60.0)),
+		FIELD_DURATION);
+}

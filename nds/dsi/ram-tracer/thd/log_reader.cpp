@@ -234,3 +234,10 @@ LogReader::Prev(MemTransfer &mt)
     }
   }
 }
+
+
+double
+LogReader::GetDefaultClockHZ()
+{
+  return RAM_CLOCK_HZ;
+}
