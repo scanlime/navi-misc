@@ -33,7 +33,8 @@ wxEventType LogIndex::progressEvent = 0;
 
 
 LogIndex::LogIndex()
-  : progressReceiver(NULL)
+  : progressReceiver(NULL),
+    duration(0)
 {
   if (!progressEvent)
     progressEvent = wxNewEventType();
@@ -62,7 +63,7 @@ LogIndex::Open(LogReader *reader)
    * TODO: In the future we may want to store indexing progress, so we
    *       can stop indexing partway through and resume later.
    */
-  if (isFinished()) {
+  if (checkFinished()) {
     SetProgress(1.0, COMPLETE);
   } else {
     db.close();
@@ -89,9 +90,9 @@ LogIndex::InitDB()
   db.executenonquery("PRAGMA journal_mode = OFF");
   db.executenonquery("PRAGMA cache_size = 10000");
 
-  // Stores state for Finish()/isFinished().
+  // Stores state for Finish()/checkinished().
   db.executenonquery("CREATE TABLE IF NOT EXISTS logInfo ("
-		     "name, mtime, timestepSize, blockSize)");
+		     "name, mtime, timestepSize, blockSize, duration)");
 }
 
 
@@ -116,7 +117,7 @@ LogIndex::InitBlockTables()
    *   - Number of elapsed clock ticks at the end of the timestep
    *   - A file offset for the beginning and end of the transfers
    *     that affect this block during the indicated timestep
-
+   *
    *   - Cumulative read byte count
    *
    * The write index has a row for all timesteps in which the block
@@ -125,10 +126,10 @@ LogIndex::InitBlockTables()
    *   - Number of elapsed clock ticks at the end of the timestep
    *   - A file offset for the beginning and end of the transfers
    *     that affect this block during the indicated timestep
-
+   *
    *   - Cumulative write byte count
    *   - Cumulative count of the number of zero bytes
-
+   *
    *   - Block contents at the end of the timestep
    */
 
@@ -159,25 +160,34 @@ LogIndex::InitBlockTables()
 /*
  * Mark the database as complete, and stamp it with
  * the name and modification time of the raw log.
+ *
+ * Also saves the log's duration, for loading later by
+ * checkFinished().
  */
 
 void
 LogIndex::Finish()
 {
   wxFileName indexFile = reader->FileName();
-  sqlite3_command cmd(db, "INSERT INTO logInfo VALUES(?,?,?,?)");
+  sqlite3_command cmd(db, "INSERT INTO logInfo VALUES(?,?,?,?,?)");
 
   cmd.bind(1, indexFile.GetName().fn_str());
   cmd.bind(2, (sqlite3x::int64_t) indexFile.GetModificationTime().GetTicks());
   cmd.bind(3, TIMESTEP_SIZE);
   cmd.bind(4, BLOCK_SIZE);
+  cmd.bind(5, (sqlite3x::int64_t) duration);
 
   cmd.executenonquery();
 }
 
 
+/*
+ * Check whether an existing index is correct and finished.
+ * If so, return true and load the log's final duration. If not, returns false.
+ */
+
 bool
-LogIndex::isFinished()
+LogIndex::checkFinished()
 {
   wxFileName indexFile = reader->FileName();
   sqlite3_command cmd(db, "SELECT * FROM logInfo");
@@ -192,11 +202,16 @@ LogIndex::isFinished()
   sqlite3x::int64_t mtime = reader.getint64(1);
   int timestepSize = reader.getint(2);
   int blockSize = reader.getint(3);
+  sqlite3x::int64_t savedDuration = reader.getint(4);
 
-  return (name == indexFile.GetName() &&
-	  mtime == indexFile.GetModificationTime().GetTicks() &&
-	  timestepSize == TIMESTEP_SIZE &&
-	  blockSize == BLOCK_SIZE);
+  if (name == indexFile.GetName() &&
+      mtime == indexFile.GetModificationTime().GetTicks() &&
+      timestepSize == TIMESTEP_SIZE &&
+      blockSize == BLOCK_SIZE) {
+    duration = (MemTransfer::ClockType) savedDuration;
+  } else {
+    duration = 0;
+  }
 }
 
 
@@ -254,7 +269,7 @@ LogIndex::IndexerThread::Entry()
   MemTransfer::OffsetType tsBegin = 0;
 
   /* Current timestamp, in clock cycles */
-  MemTransfer::DurationType clock = 0;
+  MemTransfer::ClockType clock = 0;
 
   /* State of each block */
   struct BlockState {
@@ -304,82 +319,83 @@ LogIndex::IndexerThread::Entry()
   LogReader *reader = index->reader;
   mt.Seek(tsBegin);
 
-  while (reader->Read(mt)) {
+  while (true) {
+    bool eof = !reader->Read(mt);
 
-    /*
-     * Iterate over each block that this transfer touches.  It is
-     * uncommon for a transfer to touch more than one block, but this
-     * needs to be generic.
-     */
+    if (!eof) {
+      /*
+       * Iterate over each block that this transfer touches.  It is
+       * uncommon for a transfer to touch more than one block, but this
+       * needs to be generic.
+       */
 
-    if (mt.byteCount > 0) {
-      // Range of blocks that this transfer touches
-      MemTransfer::AddressType addrFirst = mt.address;
-      MemTransfer::AddressType addrLast = mt.address + mt.byteCount - 1;
-      MemTransfer::AddressType blockFirst = addrFirst >> BLOCK_SHIFT;
-      MemTransfer::AddressType blockLast = addrLast >> BLOCK_SHIFT;
+      if (mt.byteCount > 0) {
+	// Range of blocks that this transfer touches
+	MemTransfer::AddressType addrFirst = mt.address;
+	MemTransfer::AddressType addrLast = mt.address + mt.byteCount - 1;
+	MemTransfer::AddressType blockFirst = addrFirst >> BLOCK_SHIFT;
+	MemTransfer::AddressType blockLast = addrLast >> BLOCK_SHIFT;
 
-      // Range of bytes that intersects the first block
-      MemTransfer::LengthType mtOffset = 0;
-      MemTransfer::LengthType blockOffset = addrFirst & BLOCK_MASK;
+	// Range of bytes that intersects the first block
+	MemTransfer::LengthType mtOffset = 0;
+	MemTransfer::LengthType blockOffset = addrFirst & BLOCK_MASK;
 
-      MemTransfer::AddressType blockId = blockFirst;
-      while (true) {
-	BlockState *block = &blocks[blockId];
-	MemTransfer::LengthType len = std::min<MemTransfer::LengthType>
-	  (BLOCK_SIZE - blockOffset, mt.byteCount - mtOffset);
+	MemTransfer::AddressType blockId = blockFirst;
+	while (true) {
+	  BlockState *block = &blocks[blockId];
+	  MemTransfer::LengthType len = std::min<MemTransfer::LengthType>
+	    (BLOCK_SIZE - blockOffset, mt.byteCount - mtOffset);
      
-	printf("%x\n", blockId);
+	  switch (mt.type) {
 
-	switch (mt.type) {
+	  case MemTransfer::READ:
+	    block->lastReadOffset = mt.LogOffset();
+	    block->readTotal += len;
 
-	case MemTransfer::READ:
-	  block->lastReadOffset = mt.LogOffset();
-	  block->readTotal += len;
+	    if (!block->rDirty) {
+	      block->firstReadOffset = block->lastReadOffset;
+	      block->rDirty = true;
+	    }
+	    break;
 
-	  if (!block->rDirty) {
-	    block->firstReadOffset = block->lastReadOffset;
-	    block->rDirty = true;
+	  case MemTransfer::WRITE:
+	    block->lastWriteOffset = mt.LogOffset();
+	    block->writeTotal += len;
+
+	    if (!block->wDirty) {
+	      block->firstWriteOffset = block->lastWriteOffset;
+	      block->wDirty = true;
+	    }
+
+	    for (MemTransfer::LengthType i = 0; i < len; i++) {
+	      uint8_t byte = mt.buffer[i + mtOffset];
+	      block->data[i + blockOffset] = byte;
+	      if (!byte)
+		block->zeroTotal++;
+	    }
+	    break;
+
+	  default:
+	    break;
 	  }
-	  break;
 
-	case MemTransfer::WRITE:
-	  block->lastWriteOffset = mt.LogOffset();
-	  block->writeTotal += len;
-
-	  if (!block->wDirty) {
-	    block->firstWriteOffset = block->lastWriteOffset;
-	    block->wDirty = true;
+	  // Next block. (Uncommon case)
+	  if (blockId == blockLast) {
+	    break;
 	  }
-
-	  for (MemTransfer::LengthType i = 0; i < len; i++) {
-	    uint8_t byte = mt.buffer[i + mtOffset];
-	    block->data[i + blockOffset] = byte;
-	    if (!byte)
-	      block->zeroTotal++;
-	  }
-	  break;
-
-	default:
-	  break;
+	  blockId++;
+	  mtOffset += len;
+	  blockOffset = 0;
 	}
-
-	// Next block. (Uncommon case)
-	if (blockId == blockLast) {
-	  break;
-	}
-	blockId++;
-	mtOffset += len;
-	blockOffset = 0;
       }
+
+      clock += mt.duration;
+      reader->Next(mt);
     }
 
-    clock += mt.duration;
-    reader->Next(mt);
-
-    if (mt.LogOffset() >= tsBegin + TIMESTEP_SIZE) {
+    if (eof || mt.LogOffset() >= tsBegin + TIMESTEP_SIZE) {
       /*
-       * End of timestep.
+       * End of timestep, or end of file.
        * Flush all blocks that have been touched.
        */
 
@@ -413,13 +429,18 @@ LogIndex::IndexerThread::Entry()
       /*
        * Periodic actions: Report progress, check for abort.
        */
-      
+
+      index->duration = clock;
       index->SetProgress(tsBegin / index->logFileSize, INDEXING);
 
       if (TestDestroy()) {
 	aborted = true;
 	break;
       }
+    }
+
+    if (eof) {
+      break;
     }
   }
 

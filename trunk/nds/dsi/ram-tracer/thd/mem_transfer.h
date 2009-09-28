@@ -38,7 +38,8 @@ class MemTransfer {
   typedef uint64_t OffsetType;
   typedef uint32_t AddressType;
   typedef uint32_t LengthType;
-  typedef uint32_t DurationType;
+  typedef uint32_t DurationType;   // Duration of one command
+  typedef uint64_t ClockType;      // Global clock values
 
   MemTransfer(OffsetType offset = 0) {
     Seek(0);

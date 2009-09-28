@@ -62,6 +62,14 @@ class LogIndex {
   wxEventType GetProgressEvent() { return progressEvent; }
   void SetProgressReceiver(wxEvtHandler *handler);
 
+  /*
+   * We keep a running total of the log's duration during
+   * indexing, and after indexing is complete this is an
+   * accurate representation of the log's total length in
+   * clock ticks.
+   */
+  double GetDuration() { return duration; }
+
  private:
   static const int TIMESTEP_SIZE = 256 * 1024;     // Timestep duration, in bytes
   static const int BLOCK_SHIFT = 14;
@@ -71,7 +79,7 @@ class LogIndex {
   void InitDB();
   void InitBlockTables();
   void Finish();
-  bool isFinished();
+  bool checkFinished();
   void SetProgress(double progress, State state);
   void StartIndexing();
   static std::string BlockTableName(char type, int blockNum);
@@ -90,6 +98,7 @@ class LogIndex {
   IndexerThread *indexer;
   int numBlocks;
   double logFileSize;
+  MemTransfer::ClockType duration;
 
   State state;
   double progress;

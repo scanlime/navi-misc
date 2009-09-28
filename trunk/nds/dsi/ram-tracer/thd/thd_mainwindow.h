@@ -1,7 +1,5 @@
 /*
- * log_reader.h -- Encapsulates the details of reading the low-level log file format.
- *                 To add new file formats, this is the only object that should need
- *                 to change at all.
+ * thd_mainwindow.h -- Main UI window for Temporal Hex Dump
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -24,42 +22,32 @@
  * THE SOFTWARE.
  */
 
-#ifndef __LOG_READER_H
-#define __LOG_READER_H
+#ifndef __THD_MAINWINDOW_H
+#define __THD_MAINWINDOW_H
 
-#include <wx/filename.h>
+#include <wx/frame.h>
 
-#include "file_buffer.h"
-#include "mem_transfer.h"
+#include "log_reader.h"
+#include "log_index.h"
+#include "progress_status_bar.h"
 
-class LogReader {
+
+class THDMainWindow : public wxFrame {
  public:
+  THDMainWindow();
+  virtual ~THDMainWindow();
 
-  void Open(const wxChar *path);
-  void Close();
+  void Open(wxString fileName);
 
-  wxFileName FileName() {
-    return fileName;
-  }
+  void OnIndexProgress(wxCommandEvent &event);
 
-  uint64_t MemSize() {
-    return 16 * 1024 * 1024;
-  }
-
-  // Read the transfer at mt.logOffset
-  bool Read(MemTransfer &mt);
-
-  // Seek to the previous transfer (don't read it)
-  bool Next(MemTransfer &mt);
-
-  // Seek to the next transfer (don't read it)
-  bool Prev(MemTransfer &mt);
-
-  static double GetDefaultClockHZ();
+  DECLARE_EVENT_TABLE();
 
  private:
-  wxFileName fileName;
-  FileBuffer file;
+  LogReader reader;
+  LogIndex index;
+  ProgressStatusBar *statusBar;
+  double clockHz;
 };
 
-#endif /* __LOG_READER_H */
+#endif /* __THD_MAINWINDOW_H */
