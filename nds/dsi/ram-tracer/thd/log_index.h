@@ -27,6 +27,7 @@
 #define __LOG_INDEX_H
 
 #include <wx/thread.h>
+#include <wx/event.h>
 
 #include "sqlite3x.h"
 #include "mem_transfer.h"
@@ -35,12 +36,35 @@
 
 class LogIndex {
  public:
+  enum State {
+    IDLE,
+    INDEXING,
+    COMPLETE,
+    ERROR,
+  };
+
+  LogIndex();
+
+  /*
+   * Opening/closing a log file automatically starts/stops
+   * indexing. The indexer runs in a background thread.
+   */
   void Open(LogReader *reader);
   void Close();
 
+  /*
+   * Anyone can ask about the current state of our index.  You can
+   * also request that we send a wxWidgets event (with the ID returned
+   * by GetProgressEvent()) by calling SetProgressReceiver.
+   */
+  State GetState() { return state; }
+  double GetProgress() { return progress; }
+  wxEventType GetProgressEvent() { return progressEvent; }
+  void SetProgressReceiver(wxEvtHandler *handler);
+
  private:
-  static const int TIMESTEP_SIZE = 128 * 1024;     // Timestep duration, in bytes
-  static const int BLOCK_SHIFT = 16;
+  static const int TIMESTEP_SIZE = 256 * 1024;     // Timestep duration, in bytes
+  static const int BLOCK_SHIFT = 14;
   static const int BLOCK_SIZE = 1 << BLOCK_SHIFT;  // Spatial block size
   static const int BLOCK_MASK = BLOCK_SIZE - 1;
 
@@ -48,6 +72,7 @@ class LogIndex {
   void InitBlockTables();
   void Finish();
   bool isFinished();
+  void SetProgress(double progress, State state);
   void StartIndexing();
   static std::string BlockTableName(char type, int blockNum);
 
@@ -64,6 +89,12 @@ class LogIndex {
   sqlite3x::sqlite3_connection db;
   IndexerThread *indexer;
   int numBlocks;
+  double logFileSize;
+
+  State state;
+  double progress;
+  static wxEventType progressEvent;
+  wxEvtHandler *progressReceiver;
 };
 
 #endif /* __LOG_INDEX_H */

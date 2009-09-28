@@ -29,17 +29,28 @@
 
 using namespace sqlite3x;
 
+wxEventType LogIndex::progressEvent = 0;
+
+
+LogIndex::LogIndex()
+  : progressReceiver(NULL)
+{
+  if (!progressEvent)
+    progressEvent = wxNewEventType();
+
+  SetProgress(0.0, IDLE);
+}
 
 void
 LogIndex::Open(LogReader *reader)
 {
   this->reader = reader;
+  logFileSize = std::max<double>(1.0, reader->FileName().GetSize().ToDouble());
+  numBlocks = (reader->MemSize() + BLOCK_MASK) >> BLOCK_SHIFT;
 
   wxFileName indexFile = reader->FileName();
   indexFile.SetExt(wxT("index"));
   wxString indexPath = indexFile.GetFullPath();
-
-  numBlocks = (reader->MemSize() + BLOCK_MASK) >> BLOCK_SHIFT;
 
   db.open(indexPath.fn_str());
   InitDB();
@@ -51,7 +62,9 @@ LogIndex::Open(LogReader *reader)
    * TODO: In the future we may want to store indexing progress, so we
    *       can stop indexing partway through and resume later.
    */
-  if (!isFinished()) {
+  if (isFinished()) {
+    SetProgress(1.0, COMPLETE);
+  } else {
     db.close();
     wxRemoveFile(indexPath);
     db.open(indexPath.fn_str());
@@ -73,7 +86,8 @@ void
 LogIndex::InitDB()
 {
   // Our index database can be regenerated at any time, so trade reliability for speed.
-  db.executenonquery("PRAGMA journal_mode=memory");
+  db.executenonquery("PRAGMA journal_mode = OFF");
+  db.executenonquery("PRAGMA cache_size = 10000");
 
   // Stores state for Finish()/isFinished().
   db.executenonquery("CREATE TABLE IF NOT EXISTS logInfo ("
@@ -90,8 +104,7 @@ void
 LogIndex::InitBlockTables()
 {
   int i;
-
-  db.executenonquery("BEGIN TRANSACTION");
+  sqlite3_transaction transaction(db);
 
   /*
    * For each spatial block, we have two separate index tables:
@@ -100,18 +113,23 @@ LogIndex::InitBlockTables()
    * The read index has a row for all timesteps in which the block is
    * read. The row contains:
    *
-   *   - The first timestamp in this timestep
-   *   - A file offset for the beginning and end of this timestep
+   *   - Number of elapsed clock ticks at the end of the timestep
+   *   - A file offset for the beginning and end of the transfers
+   *     that affect this block during the indicated timestep
+
    *   - Cumulative read byte count
    *
    * The write index has a row for all timesteps in which the block
    * was modified. Each row contains:
    *
-   *   - The first timestamp in this timestep
-   *   - A file offset for the beginning and end of this timestep
+   *   - Number of elapsed clock ticks at the end of the timestep
+   *   - A file offset for the beginning and end of the transfers
+   *     that affect this block during the indicated timestep
+
    *   - Cumulative write byte count
    *   - Cumulative count of the number of zero bytes
-   *   - Block contents at the beginning of the timestep
+
+   *   - Block contents at the end of the timestep
    */
 
   for (i = 0; i < numBlocks; i++) {
@@ -134,7 +152,7 @@ LogIndex::InitBlockTables()
 		       ")");
   }
 
-  db.executenonquery("COMMIT TRANSACTION");
+  transaction.commit();
 }
 
 
@@ -147,7 +165,7 @@ void
 LogIndex::Finish()
 {
   wxFileName indexFile = reader->FileName();
-  sqlite3_command cmd(db, "INSERT INTO logInfo VALUES(?,?)");
+  sqlite3_command cmd(db, "INSERT INTO logInfo VALUES(?,?,?,?)");
 
   cmd.bind(1, indexFile.GetName().fn_str());
   cmd.bind(2, (sqlite3x::int64_t) indexFile.GetModificationTime().GetTicks());
@@ -185,11 +203,31 @@ LogIndex::isFinished()
 void
 LogIndex::StartIndexing()
 {
-  InitBlockTables();
-
+  SetProgress(0.0, INDEXING);
   indexer = new IndexerThread(this);
   indexer->Create();
   indexer->Run();
+}
+
+
+void
+LogIndex::SetProgressReceiver(wxEvtHandler *handler)
+{
+  progressReceiver = handler;
+  SetProgress(progress, state);
+}
+
+
+void
+LogIndex::SetProgress(double _progress, State _state)
+{
+  state = _state;
+  progress = _progress;
+
+  if (progressReceiver) {
+    wxCommandEvent event(progressEvent);
+    progressReceiver->AddPendingEvent(event);
+  }
 }
 
 
@@ -210,21 +248,53 @@ wxThread::ExitCode
 LogIndex::IndexerThread::Entry()
 {
   MemTransfer mt;
+  bool aborted = false;
 
   /* Current timestep */
-  uint64_t tsBegin = 0;
+  MemTransfer::OffsetType tsBegin = 0;
+
+  /* Current timestamp, in clock cycles */
+  MemTransfer::DurationType clock = 0;
 
   /* State of each block */
   struct BlockState {
-    uint8_t data[BLOCK_SIZE];
+    uint64_t firstReadOffset;
+    uint64_t firstWriteOffset;
     uint64_t lastReadOffset;
     uint64_t lastWriteOffset;
     uint64_t readTotal;
     uint64_t writeTotal;
     uint64_t zeroTotal;
+
+    bool rDirty, wDirty;
+
+    uint8_t data[BLOCK_SIZE];
+    sqlite3_command *rCmd;
+    sqlite3_command *wCmd;
+
   };
+
   BlockState *blocks = new BlockState[index->numBlocks];
-    
+  memset(blocks, 0, sizeof blocks[0] * index->numBlocks);
+
+  index->InitBlockTables();
+  sqlite3_transaction transaction(index->db);
+
+  /*
+   * Initialize parsed SQL queries for inserting into each block's
+   * read/write tables.
+   */
+
+  for (MemTransfer::AddressType blockId = 0; blockId < index->numBlocks; blockId++) {
+    BlockState *block = &blocks[blockId];
+    block->rCmd = new sqlite3_command(index->db, "INSERT INTO "
+				      + BlockTableName('r', blockId)
+				      + " VALUES(?,?,?,?)");
+    block->wCmd = new sqlite3_command(index->db, "INSERT INTO "
+				      + BlockTableName('w', blockId)
+				      + " VALUES(?,?,?,?,?,?)");
+  }
+
   /*
    * Index the log. Read transactions, keeping track of the state of
    * each memory block. When we cross a timestep boundary, flush any
@@ -236,14 +306,139 @@ LogIndex::IndexerThread::Entry()
 
   while (reader->Read(mt)) {
 
+    /*
+     * Iterate over each block that this transfer touches.  It is
+     * uncommon for a transfer to touch more than one block, but this
+     * needs to be generic.
+     */
+
+    if (mt.byteCount > 0) {
+      // Range of blocks that this transfer touches
+      MemTransfer::AddressType addrFirst = mt.address;
+      MemTransfer::AddressType addrLast = mt.address + mt.byteCount - 1;
+      MemTransfer::AddressType blockFirst = addrFirst >> BLOCK_SHIFT;
+      MemTransfer::AddressType blockLast = addrLast >> BLOCK_SHIFT;
+
+      // Range of bytes that intersects the first block
+      MemTransfer::LengthType mtOffset = 0;
+      MemTransfer::LengthType blockOffset = addrFirst & BLOCK_MASK;
+
+      MemTransfer::AddressType blockId = blockFirst;
+      while (true) {
+	BlockState *block = &blocks[blockId];
+	MemTransfer::LengthType len = std::min<MemTransfer::LengthType>
+	  (BLOCK_SIZE - blockOffset, mt.byteCount - mtOffset);
+     
+	printf("%x\n", blockId);
+
+	switch (mt.type) {
+
+	case MemTransfer::READ:
+	  block->lastReadOffset = mt.LogOffset();
+	  block->readTotal += len;
+
+	  if (!block->rDirty) {
+	    block->firstReadOffset = block->lastReadOffset;
+	    block->rDirty = true;
+	  }
+	  break;
+
+	case MemTransfer::WRITE:
+	  block->lastWriteOffset = mt.LogOffset();
+	  block->writeTotal += len;
+
+	  if (!block->wDirty) {
+	    block->firstWriteOffset = block->lastWriteOffset;
+	    block->wDirty = true;
+	  }
+
+	  for (MemTransfer::LengthType i = 0; i < len; i++) {
+	    uint8_t byte = mt.buffer[i + mtOffset];
+	    block->data[i + blockOffset] = byte;
+	    if (!byte)
+	      block->zeroTotal++;
+	  }
+	  break;
+
+	default:
+	  break;
+	}
+
+	// Next block. (Uncommon case)
+	if (blockId == blockLast) {
+	  break;
+	}
+	blockId++;
+	mtOffset += len;
+	blockOffset = 0;
+      }
+    }
+
+    clock += mt.duration;
     reader->Next(mt);
 
     if (mt.LogOffset() >= tsBegin + TIMESTEP_SIZE) {
-      /* End of timestep */
+      /*
+       * End of timestep.
+       * Flush all blocks that have been touched.
+       */
+
+      for (MemTransfer::AddressType blockId = 0; blockId < index->numBlocks; blockId++) {
+	BlockState *block = &blocks[blockId];
+
+	if (block->rDirty) {
+	  block->rCmd->bind(1, (sqlite3x::int64_t) clock);
+	  block->rCmd->bind(2, (sqlite3x::int64_t) block->firstReadOffset);
+	  block->rCmd->bind(3, (sqlite3x::int64_t) block->lastReadOffset);
+	  block->rCmd->bind(4, (sqlite3x::int64_t) block->readTotal);
+	  block->rCmd->executenonquery();
+	}
+
+	if (block->wDirty) {
+	  block->wCmd->bind(1, (sqlite3x::int64_t) clock);
+	  block->wCmd->bind(2, (sqlite3x::int64_t) block->firstReadOffset);
+	  block->wCmd->bind(3, (sqlite3x::int64_t) block->lastReadOffset);
+	  block->wCmd->bind(4, (sqlite3x::int64_t) block->writeTotal);
+	  block->wCmd->bind(5, (sqlite3x::int64_t) block->zeroTotal);
+	  block->wCmd->bind(6, block->data, sizeof block->data);
+	  block->wCmd->executenonquery();
+	}
+
+	block->rDirty = false;
+	block->wDirty = false;
+      }
+
       tsBegin = mt.LogOffset();
-      printf("%lld\n", mt.LogOffset());
+
+      /*
+       * Periodic actions: Report progress, check for abort.
+       */
+      
+      index->SetProgress(tsBegin / index->logFileSize, INDEXING);
+
+      if (TestDestroy()) {
+	aborted = true;
+	break;
+      }
     }
   }
 
+  /*
+   * Clean up
+   */
+
+  for (MemTransfer::AddressType blockId = 0; blockId < index->numBlocks; blockId++) {
+    BlockState *block = &blocks[blockId];
+    delete block->rCmd;
+    delete block->wCmd;
+  }
   delete[] blocks;
+  transaction.commit();
+
+  if (aborted) {
+    index->SetProgress(tsBegin / index->logFileSize, ERROR);
+  } else {
+    index->Finish();
+    index->SetProgress(1.0, COMPLETE);
+  }
 }

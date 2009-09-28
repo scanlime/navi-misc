@@ -50,7 +50,7 @@ LogReader::Close()
 bool
 LogReader::Read(MemTransfer &mt)
 {
-  uint64_t offset = mt.LogOffset();
+  MemTransfer::OffsetType offset = mt.LogOffset();
   bool haveAddress = false;
 
   mt.duration = 0;
@@ -176,7 +176,7 @@ LogReader::Next(MemTransfer &mt)
    * (like timestamp packets) we'll skip over them.
    */
 
-  uint64_t offset = mt.LogOffset();
+  MemTransfer::OffsetType offset = mt.LogOffset();
   uint32_t wordCount = (mt.byteCount + 1) >> 1;
   uint32_t minPackets = 1 + wordCount;
   offset += minPackets * sizeof(MemPacket);
@@ -209,7 +209,7 @@ LogReader::Next(MemTransfer &mt)
 bool
 LogReader::Prev(MemTransfer &mt)
 {
-  uint64_t offset = mt.LogOffset();
+  MemTransfer::OffsetType offset = mt.LogOffset();
 
   while (true) {
     if (offset < sizeof(MemPacket)) {
