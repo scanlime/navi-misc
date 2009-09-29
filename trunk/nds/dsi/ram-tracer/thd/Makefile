@@ -1,3 +1,14 @@
+#
+# Makefile for Temporal Hex Dump.
+#
+# Library prerequisites:
+#
+#    boost
+#    sqlite3
+#    wxWidgets
+#
+
+
 PACKAGES := sqlite3
 CXXFLAGS += $(shell pkg-config --cflags $(PACKAGES))
 LDFLAGS += $(shell pkg-config --libs $(PACKAGES))

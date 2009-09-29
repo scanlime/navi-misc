@@ -34,6 +34,8 @@ class ProgressStatusBar : public wxStatusBar {
   ProgressStatusBar(wxWindow *parent);
 
   void SetProgress(double progress);
+  void HideProgress();
+
   void SetDuration(double seconds);
 
   void OnSize(wxSizeEvent& event);

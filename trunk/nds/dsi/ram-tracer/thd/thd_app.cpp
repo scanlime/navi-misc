@@ -32,8 +32,7 @@ THDApp::OnInit()
   frame->Show();
   SetTopWindow(frame);
 
-  frame->Open(wxT("mem-20090905-browser-install-1.raw.part00"));
-  //frame->Open(wxT("datamgmt-sd-insert.trace.raw"));
+  frame->Open(argv[1]);
 
   return true;
 }

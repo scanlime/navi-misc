@@ -46,8 +46,19 @@ THDTimeline::OnPaint(wxPaintEvent &event)
   GetSize(&width, &height);
 
   for (int x = 0; x < width; x++) {
-    int value = x & 63;
+    LogIndex::ClockType scale = 10000;
+    LogIndex::ClockType time = x * scale;
+    boost::shared_ptr<LogInstant> instant = index->GetInstant(time, scale/4);
+
+    int readTotal = 0;
+    for (int block = 0; block < index->GetNumBlocks(); block++) {
+      readTotal += instant->blockReadTotals[block];
+    }
+
+    int value = readTotal & 63;
     dc.DrawLine(x, height - value, x, height);
+
+    printf("x = %d\n", x);
   }
 
   event.Skip();

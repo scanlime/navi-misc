@@ -28,17 +28,23 @@
 
 #include <wx/thread.h>
 #include <wx/event.h>
+#include <boost/shared_ptr.hpp>
 
 #include "sqlite3x.h"
 #include "mem_transfer.h"
 #include "log_reader.h"
 
+class LogInstant;
+
 
 class LogIndex {
  public:
+  typedef MemTransfer::ClockType ClockType;
+
   enum State {
     IDLE,
     INDEXING,
+    FINISHING,
     COMPLETE,
     ERROR,
   };
@@ -68,21 +74,37 @@ class LogIndex {
    * accurate representation of the log's total length in
    * clock ticks.
    */
-  double GetDuration() { return duration; }
+  ClockType GetDuration() { return duration; }  
+
+  /*
+   * Information about the (fixed) geometry of the log index.
+   */
+  int GetBlockSize() const { return BLOCK_SIZE; }
+  int GetNumBlocks() const { return numBlocks; }
+
+  /*
+   * Get a summary of the state of the log at a particular instant.
+   * An instant is identified by a particular clock cycle.
+   *
+   * It's possible to look up the log state for any given clock cycle,
+   * but in most applications it isn't important to find exactly a
+   * particular cycle. So, the lookup can often be 'fuzzy'. We'll
+   * return an instant that's no farther than 'distance' from the
+   * specified time.
+   */
+  boost::shared_ptr<LogInstant> GetInstant(ClockType time, ClockType distance=0);
 
  private:
   static const int TIMESTEP_SIZE = 256 * 1024;     // Timestep duration, in bytes
-  static const int BLOCK_SHIFT = 14;
+  static const int BLOCK_SHIFT = 10;
   static const int BLOCK_SIZE = 1 << BLOCK_SHIFT;  // Spatial block size
   static const int BLOCK_MASK = BLOCK_SIZE - 1;
 
   void InitDB();
-  void InitBlockTables();
   void Finish();
   bool checkFinished();
   void SetProgress(double progress, State state);
   void StartIndexing();
-  static std::string BlockTableName(char type, int blockNum);
 
   class IndexerThread : public wxThread {
   public:
@@ -93,17 +115,42 @@ class LogIndex {
      LogIndex *index;
   };
 
-  LogReader *reader;  
+  LogReader *reader; 
+  wxCriticalSection dbLock;
   sqlite3x::sqlite3_connection db;
   IndexerThread *indexer;
   int numBlocks;
   double logFileSize;
-  MemTransfer::ClockType duration;
+  ClockType duration;
 
   State state;
   double progress;
   static wxEventType progressEvent;
   wxEvtHandler *progressReceiver;
 };
+
+
+/*
+ * A summary of the log's state at a particular instant. LogInstants
+ * can be retrieved from a LogIndex, and the LogIndex internally
+ * caches them.
+ */
+
+class LogInstant {
+ public:
+  ~LogInstant();
+  
+  LogIndex::ClockType time;
+
+  uint64_t *blockReadTotals;
+  uint64_t *blockWriteTotals;
+  uint64_t *blockZeroTotals;
+
+ private:
+  // Can only be created by LogIndex.
+  LogInstant(LogIndex::ClockType time, int numBlocks);
+  friend class LogIndex;
+};
+
 
 #endif /* __LOG_INDEX_H */
