@@ -69,25 +69,33 @@ THDMainWindow::Open(wxString fileName)
 void
 THDMainWindow::OnIndexProgress(wxCommandEvent& WXUNUSED(event))
 {
-  statusBar->SetProgress(index.GetProgress());
   statusBar->SetDuration(index.GetDuration() / (double)clockHz);
 
   switch (index.GetState()) {
 
   case LogIndex::IDLE:
     statusBar->SetStatusText(wxT("Idle"));
+    statusBar->SetProgress(index.GetProgress());
     break;
 
   case LogIndex::INDEXING:
     statusBar->SetStatusText(wxT("Building index..."));
+    statusBar->SetProgress(index.GetProgress());
+    break;
+
+  case LogIndex::FINISHING:
+    statusBar->SetStatusText(wxT("Finishing index..."));
+    statusBar->SetProgress(index.GetProgress());
     break;
 
   case LogIndex::COMPLETE:
     statusBar->SetStatusText(wxT("Index complete."));
+    statusBar->HideProgress();
     break;
 
   case LogIndex::ERROR:
     statusBar->SetStatusText(wxT("Indexing error!"));
+    statusBar->SetProgress(index.GetProgress());
     break;
 
   }

@@ -38,7 +38,6 @@ ProgressStatusBar::ProgressStatusBar(wxWindow *parent)
   int widths[] = { -1, 96, 200 };
 
   SetFieldsCount(FIELDCOUNT, widths);
-  gauge.Show();
 }
 
 
@@ -57,6 +56,14 @@ void
 ProgressStatusBar::SetProgress(double progress)
 {
   gauge.SetValue((int)(RANGE_MAX * progress));
+  gauge.Show();
+}
+
+
+void
+ProgressStatusBar::HideProgress()
+{
+  gauge.Hide();
 }
 
 
