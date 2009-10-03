@@ -26,6 +26,7 @@
 #include <wx/string.h>
 #include <assert.h>
 #include "log_index.h"
+#include "varint.h"
 
 using namespace sqlite3x;
 
@@ -49,7 +50,6 @@ LogIndex::Open(LogReader *reader)
 
   this->reader = reader;
   logFileSize = std::max<double>(1.0, reader->FileName().GetSize().ToDouble());
-  numBlocks = (reader->MemSize() + BLOCK_MASK) >> BLOCK_SHIFT;
 
   wxFileName indexFile = reader->FileName();
   indexFile.SetExt(wxT("index"));
@@ -98,53 +98,74 @@ LogIndex::InitDB()
 
   // Stores state for Finish()/checkinished().
   db.executenonquery("CREATE TABLE IF NOT EXISTS logInfo ("
-		     "name, mtime, timestepSize, blockSize, duration)");
+		     "name, mtime, timestepSize, blockSize, stratumSize, duration)");
 
-  // Information about the end of each timeslice, for each block that was read
-  db.executenonquery("CREATE TABLE IF NOT EXISTS rblocks ("
- 		     "time,"
-		     "block,"
-		     "firstReadOffset,"
-		     "lastReadOffset,"
-		     "readTotal"
+  /*
+   * The strata- thick layers of coarse but quick spatial stats.
+   * Every single timeslice in the log has a row in this table. The
+   * counters for each stratum are stored as a packed list of varints
+   * in a BLOB.
+   */
+
+  db.executenonquery("CREATE TABLE IF NOT EXISTS strata ("
+ 		     "time INTEGER PRIMARY KEY ASC,"
+		     "offset,"
+		     "readTotals,"
+		     "writeTotals,"
+		     "zeroTotals"
 		     ")");
 
-  // Information about the end of each timeslice, for each block that was written
+  // Snapshots of modified blocks at each timeslice
   db.executenonquery("CREATE TABLE IF NOT EXISTS wblocks ("
  		     "time,"
 		     "block,"
-		     "firstWriteOffset,"
-		     "lastWriteOffset,"
-		     "writeTotal,"
-		     "zeroTotal,"
+		     "firstOffset,"
+		     "lastOffset,"
 		     "data"
 		     ")");
 }
 
 
 /*
- * Mark the database as complete, and stamp it with
- * the name and modification time of the raw log.
- *
- * Also saves the log's duration, for loading later by
- * checkFinished().
+ * Perform all of the final steps for completing the index, and mark
+ * it as complete.
  */
-
 void
 LogIndex::Finish()
 {
-  // Assumes dbLock is already locked.
+  SetProgress(1.0, FINISHING);
+
+  wxCriticalSectionLocker locker(dbLock);
+  sqlite3_transaction transaction(db);
+
+#if 0
+  db.executenonquery("CREATE INDEX IF NOT EXISTS rblockIdx1 "
+		     "on rblocks (time)");
+  db.executenonquery("CREATE UNIQUE INDEX IF NOT EXISTS rblockIdx2 "
+		     "on rblocks (block, time)");
+    
+  db.executenonquery("CREATE INDEX IF NOT EXISTS wblockIdx1 "
+		     "on wblocks (time)");
+  db.executenonquery("CREATE UNIQUE INDEX IF NOT EXISTS wblockIdx2 "
+		     "on wblocks (block, time)");
+#endif
+
+  db.executenonquery("ANALYZE");
 
   wxFileName indexFile = reader->FileName();
-  sqlite3_command cmd(db, "INSERT INTO logInfo VALUES(?,?,?,?,?)");
+  sqlite3_command cmd(db, "INSERT INTO logInfo VALUES(?,?,?,?,?,?)");
 
   cmd.bind(1, indexFile.GetName().fn_str());
   cmd.bind(2, (sqlite3x::int64_t) indexFile.GetModificationTime().GetTicks());
   cmd.bind(3, TIMESTEP_SIZE);
   cmd.bind(4, BLOCK_SIZE);
-  cmd.bind(5, (sqlite3x::int64_t) duration);
+  cmd.bind(5, STRATUM_SIZE);
+  cmd.bind(6, (sqlite3x::int64_t) duration);
 
   cmd.executenonquery();
+
+  transaction.commit();
+  SetProgress(1.0, COMPLETE);
 }
 
 
@@ -171,12 +192,14 @@ LogIndex::checkFinished()
   sqlite3x::int64_t mtime = reader.getint64(1);
   int timestepSize = reader.getint(2);
   int blockSize = reader.getint(3);
-  sqlite3x::int64_t savedDuration = reader.getint(4);
+  int stratumSize = reader.getint(4);
+  sqlite3x::int64_t savedDuration = reader.getint(5);
 
   if (name == indexFile.GetName() &&
       mtime == indexFile.GetModificationTime().GetTicks() &&
       timestepSize == TIMESTEP_SIZE &&
-      blockSize == BLOCK_SIZE) {
+      blockSize == BLOCK_SIZE &&
+      stratumSize == STRATUM_SIZE) {
     duration = (MemTransfer::ClockType) savedDuration;
   } else {
     duration = 0;
@@ -215,6 +238,34 @@ LogIndex::SetProgress(double _progress, State _state)
 }
 
 
+void
+LogIndex::StoreInstant(LogInstant &instant)
+{
+  /*
+   * Store a LogInstant to the strata index.
+   * The caller must have already locked the database and started a transaction.
+   */
+
+  sqlite3_command cmd(db, "INSERT INTO strata VALUES(?,?,?,?,?)");
+
+  cmd.bind(1, (sqlite3x::int64_t) instant.time);
+  cmd.bind(2, (sqlite3x::int64_t) instant.offset);
+
+  uint8_t buffer[GetNumStrata() * 8];   // Worst-case packed size
+
+  instant.readTotals.pack(buffer);
+  cmd.bind(3, buffer, instant.readTotals.getPackedLen());
+
+  instant.writeTotals.pack(buffer);
+  cmd.bind(4, buffer, instant.writeTotals.getPackedLen());
+
+  instant.zeroTotals.pack(buffer);
+  cmd.bind(5, buffer, instant.zeroTotals.getPackedLen());
+
+  cmd.executenonquery();
+}
+
+
 wxThread::ExitCode
 LogIndex::IndexerThread::Entry()
 {
@@ -222,27 +273,23 @@ LogIndex::IndexerThread::Entry()
   bool aborted = false;
   bool running = true;
 
-  /* Current timestep */
-  MemTransfer::OffsetType tsBegin = 0;
+  // Beginning of this timestep, end of previous timestep
+  MemTransfer::OffsetType prevOffset = 0;
+  ClockType prevTime = 0;
 
-  /* Current timestamp, in clock cycles */
-  MemTransfer::ClockType clock = 0;
-
+  /* Data about the current log instant */
+  LogInstant instant(index->GetNumStrata());
+  
   /* State of each block */
   struct BlockState {
-    uint64_t firstReadOffset;
     uint64_t firstWriteOffset;
-    uint64_t lastReadOffset;
     uint64_t lastWriteOffset;
-    uint64_t readTotal;
-    uint64_t writeTotal;
-    uint64_t zeroTotal;
-    bool rDirty, wDirty;
+    bool wDirty;
     uint8_t data[BLOCK_SIZE];
   };
 
-  BlockState *blocks = new BlockState[index->numBlocks];
-  memset(blocks, 0, sizeof blocks[0] * index->numBlocks);
+  BlockState *blocks = new BlockState[index->GetNumBlocks()];
+  memset(blocks, 0, sizeof blocks[0] * index->GetNumBlocks());
 
   /*
    * Index the log. Read transactions, keeping track of the state of
@@ -251,7 +298,7 @@ LogIndex::IndexerThread::Entry()
    */
 
   LogReader *reader = index->reader;
-  mt.Seek(tsBegin);
+  mt.Seek(prevOffset);
 
   /*
    * Periodically we should release our locks, commit the transaction,
@@ -273,8 +320,7 @@ LogIndex::IndexerThread::Entry()
 
     wxCriticalSectionLocker locker(index->dbLock);
     sqlite3_transaction transaction(index->db);
-    sqlite3_command rblockInsert(index->db, "INSERT INTO rblocks VALUES(?,?,?,?,?)");
-    sqlite3_command wblockInsert(index->db, "INSERT INTO wblocks VALUES(?,?,?,?,?,?,?)");
+    sqlite3_command wblockInsert(index->db, "INSERT INTO wblocks VALUES(?,?,?,?,?)");
     wxDateTime now;
 
     // Loop over timesteps between one progress update
@@ -291,6 +337,11 @@ LogIndex::IndexerThread::Entry()
 	   * Iterate over each block that this transfer touches.  It is
 	   * uncommon for a transfer to touch more than one block, but this
 	   * needs to be generic.
+	   *
+	   * Since blocks and strata are both powers of two, and
+	   * strata are larger, this also implicitly iterates over
+	   * regions that are each fully contained within a single
+	   * stratum.
 	   */
 
 	  if (mt.byteCount > 0) {
@@ -306,6 +357,7 @@ LogIndex::IndexerThread::Entry()
 
 	    MemTransfer::AddressType blockId = blockFirst;
 	    while (true) {
+	      MemTransfer::AddressType stratumId = blockId >> (STRATUM_SHIFT - BLOCK_SHIFT);
 	      BlockState *block = &blocks[blockId];
 	      MemTransfer::LengthType len = std::min<MemTransfer::LengthType>
 		(BLOCK_SIZE - blockOffset, mt.byteCount - mtOffset);
@@ -313,18 +365,12 @@ LogIndex::IndexerThread::Entry()
 	      switch (mt.type) {
 
 	      case MemTransfer::READ:
-		block->lastReadOffset = mt.LogOffset();
-		block->readTotal += len;
-
-		if (!block->rDirty) {
-		  block->firstReadOffset = block->lastReadOffset;
-		  block->rDirty = true;
-		}
+		instant.readTotals.add(stratumId, len);
 		break;
 
 	      case MemTransfer::WRITE:
 		block->lastWriteOffset = mt.LogOffset();
-		block->writeTotal += len;
+		instant.writeTotals.add(stratumId, len);
 
 		if (!block->wDirty) {
 		  block->firstWriteOffset = block->lastWriteOffset;
@@ -335,7 +381,7 @@ LogIndex::IndexerThread::Entry()
 		  uint8_t byte = mt.buffer[i + mtOffset];
 		  block->data[i + blockOffset] = byte;
 		  if (!byte)
-		    block->zeroTotal++;
+		    instant.zeroTotals.add(stratumId, 1);
 		}
 		break;
 
@@ -353,45 +399,38 @@ LogIndex::IndexerThread::Entry()
 	    }
 	  }
 
-	  clock += mt.duration;
+	  instant.time += mt.duration;
 	  reader->Next(mt);
 	}
 
 	// Loop until end of timestep, or end of file.
-      } while (!eof && mt.LogOffset() < tsBegin + TIMESTEP_SIZE);
+      } while (!eof && mt.LogOffset() < prevOffset + TIMESTEP_SIZE);
 
       // Flush all blocks that have been touched.
 
-      for (MemTransfer::AddressType blockId = 0; blockId < index->numBlocks; blockId++) {
+      for (MemTransfer::AddressType blockId = 0; blockId < index->GetNumBlocks(); blockId++) {
 	BlockState *block = &blocks[blockId];
 
-	if (block->rDirty) {
-	  rblockInsert.bind(1, (sqlite3x::int64_t) clock);
-	  rblockInsert.bind(2, (sqlite3x::int64_t) blockId);
-	  rblockInsert.bind(3, (sqlite3x::int64_t) block->firstReadOffset);
-	  rblockInsert.bind(4, (sqlite3x::int64_t) block->lastReadOffset);
-	  rblockInsert.bind(5, (sqlite3x::int64_t) block->readTotal);
-	  rblockInsert.executenonquery();
-	}
-
 	if (block->wDirty) {
-	  wblockInsert.bind(1, (sqlite3x::int64_t) clock);
+	  wblockInsert.bind(1, (sqlite3x::int64_t) instant.time);
 	  wblockInsert.bind(2, (sqlite3x::int64_t) blockId);
 	  wblockInsert.bind(3, (sqlite3x::int64_t) block->firstWriteOffset);
 	  wblockInsert.bind(4, (sqlite3x::int64_t) block->lastWriteOffset);
-	  wblockInsert.bind(5, (sqlite3x::int64_t) block->writeTotal);
-	  wblockInsert.bind(6, (sqlite3x::int64_t) block->zeroTotal);
-	  wblockInsert.bind(7, block->data, sizeof block->data);
+	  wblockInsert.bind(5, block->data, sizeof block->data);
 	  wblockInsert.executenonquery();
+	  block->wDirty = false;
 	}
-
-	block->rDirty = false;
-	block->wDirty = false;
       }
 
-      tsBegin = mt.LogOffset();
+      // Store a LogInstant for this timestep
 
-      // Are we finished with this group of timestamps?
+      instant.offset = mt.LogOffset();
+      if (instant.time != prevTime)
+	index->StoreInstant(instant);
+      prevTime = instant.time;
+      prevOffset = instant.offset;
+
+      // Are we finished with this group of timesteps?
       now = wxDateTime::UNow();
     } while ((now - lastUpdateTime).GetMilliseconds() < maxMillisecPerUpdate);
     lastUpdateTime = now;
@@ -403,8 +442,8 @@ LogIndex::IndexerThread::Entry()
      * Periodic actions: Report progress, check for abort.
      */
 
-    index->duration = clock;
-    index->SetProgress(tsBegin / index->logFileSize, INDEXING);
+    index->duration = instant.time;
+    index->SetProgress(instant.offset / index->logFileSize, INDEXING);
 
     if (TestDestroy()) {
       aborted = true;
@@ -419,25 +458,9 @@ LogIndex::IndexerThread::Entry()
   delete[] blocks;
 
   if (aborted) {
-    index->SetProgress(tsBegin / index->logFileSize, ERROR);
+    index->SetProgress(instant.offset / index->logFileSize, ERROR);
   } else {
-
-    index->SetProgress(1.0, FINISHING);
-
-    index->db.executenonquery("CREATE INDEX IF NOT EXISTS rblockIdx1 "
-			      "on rblocks (time)");
-    index->db.executenonquery("CREATE UNIQUE INDEX IF NOT EXISTS rblockIdx2 "
-			      "on rblocks (block, time)");
-    
-    index->db.executenonquery("CREATE INDEX IF NOT EXISTS wblockIdx1 "
-			      "on wblocks (time)");
-    index->db.executenonquery("CREATE UNIQUE INDEX IF NOT EXISTS wblockIdx2 "
-			      "on wblocks (block, time)");
-
-    index->db.executenonquery("ANALYZE");
-
     index->Finish();
-    index->SetProgress(1.0, COMPLETE);
   }
 }
 
@@ -445,41 +468,62 @@ LogIndex::IndexerThread::Entry()
 boost::shared_ptr<LogInstant>
 LogIndex::GetInstant(ClockType time, ClockType distance)
 {
-  /* XXX: BOGUS. */
+  /* XXX: Needs work. */
 
   wxCriticalSectionLocker locker(dbLock);
-  boost::shared_ptr<LogInstant> instant(new LogInstant(time, numBlocks));
+  boost::shared_ptr<LogInstant> instant(new LogInstant(GetNumStrata()));
 
-  sqlite3_command cmd(db, "SELECT readTotal FROM rblocks WHERE"
-		      " block == ? AND time < ? ORDER BY time DESC LIMIT 1");
+  sqlite3_command cmd(db, "SELECT * FROM strata WHERE time < ? ORDER BY time DESC LIMIT 1");
+  cmd.bind(1, (sqlite3x::int64_t) time);
+  sqlite3_cursor reader = cmd.executecursor();
 
-  cmd.bind(2, (sqlite3x::int64_t) time);
+  if (reader.step()) {
+    int size;
+    const void *blob;
 
-  for (int block = 0; block < 50; block++) {
-    cmd.bind(1, block);
+    instant->time = reader.getint64(0);
+    instant->offset = reader.getint64(1);
 
-    sqlite3_cursor reader = cmd.executecursor();
-    if (reader.step()) {
-      instant->blockReadTotals[block] = reader.getint64(0);
-    }
+    blob = reader.getblob(2, size);
+    instant->readTotals.unpack((const uint8_t *)blob, size);
+
+    blob = reader.getblob(3, size);
+    instant->writeTotals.unpack((const uint8_t *)blob, size);
+
+    blob = reader.getblob(4, size);
+    instant->zeroTotals.unpack((const uint8_t *)blob, size);
   }
 
   return instant;
 }
 
 
-LogInstant::LogInstant(LogIndex::ClockType _time, int numBlocks)
-  : time(_time)
+size_t
+LogStrata::getPackedLen()
 {
-  blockReadTotals = new uint64_t[numBlocks];
-  blockWriteTotals = new uint64_t[numBlocks];
-  blockZeroTotals = new uint64_t[numBlocks];
+  size_t len = 0;
+  for (int i = 0; i < count; i++) {
+    len += varint::len(values[i]);
+  }
+  return len;
 }
 
 
-LogInstant::~LogInstant()
+void
+LogStrata::pack(uint8_t *buffer)
 {
-  delete blockReadTotals;
-  delete blockWriteTotals;
-  delete blockZeroTotals;
+  for (int i = 0; i < count; i++) {
+    varint::write(values[i], buffer);
+    buffer += varint::len(values[i]);
+  }
+}
+
+
+void
+LogStrata::unpack(const uint8_t *buffer, size_t bufferLen)
+{
+  const uint8_t *fence = buffer + bufferLen;
+  for (int i = 0; i < count; i++) {
+    values[i] = varint::read(buffer, fence);
+  }
 }

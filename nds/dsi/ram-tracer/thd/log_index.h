@@ -80,7 +80,8 @@ class LogIndex {
    * Information about the (fixed) geometry of the log index.
    */
   int GetBlockSize() const { return BLOCK_SIZE; }
-  int GetNumBlocks() const { return numBlocks; }
+  int GetNumBlocks() const { return (reader->MemSize() + BLOCK_MASK) >> BLOCK_SHIFT; }
+  int GetNumStrata() const { return (reader->MemSize() + STRATUM_MASK) >> STRATUM_SHIFT; }
 
   /*
    * Get a summary of the state of the log at a particular instant.
@@ -95,16 +96,39 @@ class LogIndex {
   boost::shared_ptr<LogInstant> GetInstant(ClockType time, ClockType distance=0);
 
  private:
+  /*
+   * Definitions:
+   *
+   *   timestep -- A unit of time progress. Timestep boundaries are where we
+   *               write a snapshot of the current log state to the index.
+   *               Timesteps are spaced apart according to a maximum log length
+   *               between them, specified in bytes.
+   *
+   *   stratum -- A very coarse spatial division, for calculating quick metrics
+   *              used to navigate the log file.
+   *
+   *   block -- A fine spatial unit used for storing logged data in manageable
+   *            chunks. Any data that changes during a timestep is indexed with
+   *            block granularity.
+   */
+
   static const int TIMESTEP_SIZE = 256 * 1024;     // Timestep duration, in bytes
-  static const int BLOCK_SHIFT = 10;
-  static const int BLOCK_SIZE = 1 << BLOCK_SHIFT;  // Spatial block size
+
+  static const int BLOCK_SHIFT = 9;                // 512 bytes
+  static const int BLOCK_SIZE = 1 << BLOCK_SHIFT;
   static const int BLOCK_MASK = BLOCK_SIZE - 1;
+
+  static const int STRATUM_SHIFT = 14;             // 16 kB (4096 strata per 16MB)
+  static const int STRATUM_SIZE = 1 << STRATUM_SHIFT;
+  static const int STRATUM_MASK = STRATUM_SIZE - 1;
 
   void InitDB();
   void Finish();
   bool checkFinished();
   void SetProgress(double progress, State state);
   void StartIndexing();
+  void StoreInstant(LogInstant &instant);
+
 
   class IndexerThread : public wxThread {
   public:
@@ -119,7 +143,6 @@ class LogIndex {
   wxCriticalSection dbLock;
   sqlite3x::sqlite3_connection db;
   IndexerThread *indexer;
-  int numBlocks;
   double logFileSize;
   ClockType duration;
 
@@ -131,25 +154,65 @@ class LogIndex {
 
 
 /*
+ * An array of values, one per log strata. Each value can hold up to 56
+ * bits of data, and is serialized using a variable-length integer encoding.
+ */
+
+class LogStrata {
+ public:
+  LogStrata(int numStrata)
+    : count(numStrata), values(new uint64_t[numStrata])
+    {}
+
+  ~LogStrata() {
+    delete[] values;
+  }
+
+  uint64_t get(int index) {
+    return values[index];
+  }
+
+  void set(int index, uint64_t value) {
+    values[index] = value;
+  }
+
+  void add(int index, uint64_t value) {
+    values[index] += value;
+  }
+
+  size_t getPackedLen();
+  void pack(uint8_t *buffer);
+  void unpack(const uint8_t *buffer, size_t bufferLen);
+
+ private:
+  int count;
+  uint64_t *values;
+};
+
+
+/*
  * A summary of the log's state at a particular instant. LogInstants
  * can be retrieved from a LogIndex, and the LogIndex internally
  * caches them.
  */
 
-class LogInstant {
- public:
-  ~LogInstant();
-  
+struct LogInstant {
+   LogInstant(int numStrata,
+	      LogIndex::ClockType _time = 0,
+	      MemTransfer::OffsetType _offset = 0)
+   : readTotals(numStrata),
+     writeTotals(numStrata),
+     zeroTotals(numStrata),
+     time(_time),
+     offset(_offset)
+  {}
+
   LogIndex::ClockType time;
+  MemTransfer::OffsetType offset;
 
-  uint64_t *blockReadTotals;
-  uint64_t *blockWriteTotals;
-  uint64_t *blockZeroTotals;
-
- private:
-  // Can only be created by LogIndex.
-  LogInstant(LogIndex::ClockType time, int numBlocks);
-  friend class LogIndex;
+  LogStrata readTotals;
+  LogStrata writeTotals;
+  LogStrata zeroTotals;
 };
 
 

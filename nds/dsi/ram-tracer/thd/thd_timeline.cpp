@@ -46,13 +46,13 @@ THDTimeline::OnPaint(wxPaintEvent &event)
   GetSize(&width, &height);
 
   for (int x = 0; x < width; x++) {
-    LogIndex::ClockType scale = 10000;
+    LogIndex::ClockType scale = 100000;
     LogIndex::ClockType time = x * scale;
     boost::shared_ptr<LogInstant> instant = index->GetInstant(time, scale/4);
 
     int readTotal = 0;
-    for (int block = 0; block < index->GetNumBlocks(); block++) {
-      readTotal += instant->blockReadTotals[block];
+    for (int stratum = 0; stratum < index->GetNumStrata(); stratum++) {
+      readTotal += instant->readTotals.get(stratum);
     }
 
     int value = readTotal & 63;
