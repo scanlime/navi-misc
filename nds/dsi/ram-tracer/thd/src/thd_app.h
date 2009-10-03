@@ -1,5 +1,6 @@
-/*
- * thd_timeline.h -- A graphical timeline widget for Temporal Hex Dump
+/* -*- Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
+ *
+ * thd_app.h -- wxApplication for Temporal Hex Dump
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -22,23 +23,15 @@
  * THE SOFTWARE.
  */
 
-#ifndef __THD_TIMELINE_H
-#define __THD_TIMELINE_H
+#ifndef __THD_APP_H
+#define __THD_APP_H
 
-#include <wx/panel.h>
-#include "log_index.h"
+#include <wx/app.h>
 
 
-class THDTimeline : public wxPanel {
- public:
-  THDTimeline(wxWindow *parent, LogIndex *index);
-
-  void OnPaint(wxPaintEvent &event);
-
-  DECLARE_EVENT_TABLE();
-
- private:
-  LogIndex *index;
+class THDApp : public wxApp {
+public:
+    virtual bool OnInit();
 };
 
-#endif /* __THD_TIMELINE_H */
+#endif /* __THD_APP_H */

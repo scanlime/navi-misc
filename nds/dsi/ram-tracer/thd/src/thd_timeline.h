@@ -1,5 +1,6 @@
-/*
- * thd_timeline.cpp -- A graphical timeline widget for Temporal Hex Dump
+/* -*- Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
+ *
+ * thd_timeline.h -- A graphical timeline widget for Temporal Hex Dump
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -22,44 +23,23 @@
  * THE SOFTWARE.
  */
 
-#include <wx/dcbuffer.h>
-#include "thd_timeline.h"
+#ifndef __THD_TIMELINE_H
+#define __THD_TIMELINE_H
 
-BEGIN_EVENT_TABLE(THDTimeline, wxPanel)
-  EVT_PAINT(THDTimeline::OnPaint)
-END_EVENT_TABLE()
+#include <wx/panel.h>
+#include "log_index.h"
+#include "lazycache.h"
 
+class THDTimeline : public wxPanel {
+public:
+    THDTimeline(wxWindow *parent, LogIndex *index);
 
-THDTimeline::THDTimeline(wxWindow *_parent, LogIndex *_index)
-: wxPanel(_parent, wxID_ANY, wxPoint(0, 0), wxSize(800, 128)),
-  index(_index)
-{}
+    void OnPaint(wxPaintEvent &event);
 
+    DECLARE_EVENT_TABLE();
 
-void
-THDTimeline::OnPaint(wxPaintEvent &event)
-{
-  wxAutoBufferedPaintDC dc(this);
-  dc.Clear();
+private:
+    LogIndex *index;
+};
 
-  int width, height;
-  GetSize(&width, &height);
-
-  for (int x = 0; x < width; x++) {
-    LogIndex::ClockType scale = 100000;
-    LogIndex::ClockType time = x * scale;
-    boost::shared_ptr<LogInstant> instant = index->GetInstant(time, scale/4);
-
-    int readTotal = 0;
-    for (int stratum = 0; stratum < index->GetNumStrata(); stratum++) {
-      readTotal += instant->readTotals.get(stratum);
-    }
-
-    int value = readTotal & 63;
-    dc.DrawLine(x, height - value, x, height);
-
-    printf("x = %d\n", x);
-  }
-
-  event.Skip();
-}
+#endif /* __THD_TIMELINE_H */

@@ -1,19 +1,25 @@
-env = Environment(CPPPATH='#/../include')
+# -*- Mode: python -*-
+
+env = Environment(
+    CPPPATH = '#/../include',
+    CCFLAGS = '-g -O2',
+    )
+
 env.ParseConfig('wx-config --cflags --libs')
 env.ParseConfig('pkg-config --cflags --libs sqlite3')
 
 env.Program(
     target = 'thd',
     source = [
-        'thd_app.cpp',
-        'thd_mainwindow.cpp',
-        'thd_timeline.cpp',
-        'progress_status_bar.cpp',
-        'log_reader.cpp',
-        'log_index.cpp',
-        'sqlite3x_command.cpp',
-        'sqlite3x_connection.cpp',
-        'sqlite3x_cursor.cpp',
-        'sqlite3x_exception.cpp',
-        'sqlite3x_transaction.cpp',
+        'src/thd_app.cpp',
+        'src/thd_mainwindow.cpp',
+        'src/thd_timeline.cpp',
+        'src/progress_status_bar.cpp',
+        'src/log_reader.cpp',
+        'src/log_index.cpp',
+        'src/sqlite3x_command.cpp',
+        'src/sqlite3x_connection.cpp',
+        'src/sqlite3x_cursor.cpp',
+        'src/sqlite3x_exception.cpp',
+        'src/sqlite3x_transaction.cpp',
         ])

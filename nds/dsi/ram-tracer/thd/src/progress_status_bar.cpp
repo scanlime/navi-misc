@@ -1,5 +1,6 @@
-/*
- * thd_app.h -- wxApplication for Temporal Hex Dump
+/* -*- Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
+ *
+ * progress_status_bar.h -- A wxStatusBar subclass that includes a progress bar.
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -22,15 +23,55 @@
  * THE SOFTWARE.
  */
 
-#ifndef __THD_APP_H
-#define __THD_APP_H
-
-#include <wx/app.h>
+#include <math.h>
+#include "progress_status_bar.h"
 
 
-class THDApp : public wxApp {
- public:
-  virtual bool OnInit();
-};
+BEGIN_EVENT_TABLE(ProgressStatusBar, wxStatusBar)
+EVT_SIZE(ProgressStatusBar::OnSize)
+END_EVENT_TABLE()
 
-#endif /* __THD_APP_H */
+
+ProgressStatusBar::ProgressStatusBar(wxWindow *parent)
+: wxStatusBar(parent),
+    gauge(this, wxID_ANY, RANGE_MAX)
+{
+    int widths[] = { -1, 96, 200 };
+
+    SetFieldsCount(FIELDCOUNT, widths);
+}
+
+
+void
+ProgressStatusBar::OnSize(wxSizeEvent& event)
+{
+    wxRect rect;
+    GetFieldRect(FIELD_PROGRESS, rect);
+    gauge.SetSize(rect);
+
+    event.Skip();
+}
+
+
+void
+ProgressStatusBar::SetProgress(double progress)
+{
+    gauge.SetValue((int)(RANGE_MAX * progress));
+    gauge.Show();
+}
+
+
+void
+ProgressStatusBar::HideProgress()
+{
+    gauge.Hide();
+}
+
+
+void
+ProgressStatusBar::SetDuration(double seconds)
+{
+    SetStatusText(wxString::Format(wxT("%d:%05.2f"),
+                                   (int) (seconds / 60.0), fmod(seconds, 60.0)),
+                  FIELD_DURATION);
+}

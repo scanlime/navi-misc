@@ -1,4 +1,5 @@
-/*
+/* -*- Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
+ *
  * mem_transfer.h -- Data type for representing one basic memory
  *                   operation.  Our lowest-level memory operation is
  *                   a 'transfer', a read or write with an address,
@@ -32,56 +33,56 @@
 #include <stdint.h>
 
 class MemTransfer {
- public:
-  static const int MAX_LENGTH = 4096;
-  
-  typedef uint64_t OffsetType;
-  typedef uint32_t AddressType;
-  typedef uint32_t LengthType;
-  typedef uint32_t DurationType;   // Duration of one command
-  typedef uint64_t ClockType;      // Global clock values
+public:
+    static const int MAX_LENGTH = 4096;
 
-  MemTransfer(OffsetType offset = 0) {
-    Seek(0);
-  }   
+    typedef uint64_t OffsetType;
+    typedef uint32_t AddressType;
+    typedef uint32_t LengthType;
+    typedef uint32_t DurationType;   // Duration of one command
+    typedef uint64_t ClockType;      // Global clock values
 
-  /*
-   * Change the offset of this transfer. Seeking resets the
-   * transfer's metadata. (The LogReader can use byteCount to estimate
-   * the position of the next packet- so we must invalidate it in
-   * transfers that have been seeked but not read.)
-   */
-  void Seek(OffsetType offset) {
-    logOffset = offset;
-    address = (AddressType) -1;
-    byteCount = 0;
-    duration = 0;
-  }   
+    MemTransfer(OffsetType offset = 0) {
+        Seek(0);
+    }
 
-  OffsetType LogOffset() {
-    return logOffset;
-  }
+    /*
+     * Change the offset of this transfer. Seeking resets the
+     * transfer's metadata. (The LogReader can use byteCount to estimate
+     * the position of the next packet- so we must invalidate it in
+     * transfers that have been seeked but not read.)
+     */
+    void Seek(OffsetType offset) {
+        logOffset = offset;
+        address = (AddressType) -1;
+        byteCount = 0;
+        duration = 0;
+    }
+
+    OffsetType LogOffset() {
+        return logOffset;
+    }
 
 
-  AddressType address;
-  LengthType byteCount;
-  DurationType duration;
-  
-  enum {
-    READ,
-    WRITE,
+    AddressType address;
+    LengthType byteCount;
+    DurationType duration;
 
-    // Error types
-    ERROR_OVERFLOW,   // Buffer overflow indicator
-    ERROR_SYNC,       // Packet boundary sync problem
-    ERROR_CHECKSUM,   // Packet data checksum problem
-    ERROR_PROTOCOL,   // Higher-level memory protocol error
-  } type;
+    enum {
+        READ,
+        WRITE,
 
-  uint8_t buffer[MAX_LENGTH];
+        // Error types
+        ERROR_OVERFLOW,   // Buffer overflow indicator
+        ERROR_SYNC,       // Packet boundary sync problem
+        ERROR_CHECKSUM,   // Packet data checksum problem
+        ERROR_PROTOCOL,   // Higher-level memory protocol error
+    } type;
+
+    uint8_t buffer[MAX_LENGTH];
 
 private:
-  OffsetType logOffset;
+    OffsetType logOffset;
 };
 
 

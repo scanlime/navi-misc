@@ -1,5 +1,6 @@
-/*
- * progress_status_bar.h -- A wxStatusBar subclass that includes a progress bar.
+/* -*- Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
+ *
+ * thd_mainwindow.h -- Main UI window for Temporal Hex Dump
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -22,55 +23,32 @@
  * THE SOFTWARE.
  */
 
-#include <math.h>
+#ifndef __THD_MAINWINDOW_H
+#define __THD_MAINWINDOW_H
+
+#include <wx/frame.h>
+
+#include "log_reader.h"
+#include "log_index.h"
 #include "progress_status_bar.h"
 
 
-BEGIN_EVENT_TABLE(ProgressStatusBar, wxStatusBar)
-  EVT_SIZE(ProgressStatusBar::OnSize)
-END_EVENT_TABLE()
+class THDMainWindow : public wxFrame {
+public:
+    THDMainWindow();
+    virtual ~THDMainWindow();
 
+    void Open(wxString fileName);
 
-ProgressStatusBar::ProgressStatusBar(wxWindow *parent)
-: wxStatusBar(parent),
-  gauge(this, wxID_ANY, RANGE_MAX)
-{
-  int widths[] = { -1, 96, 200 };
+    void OnIndexProgress(wxCommandEvent &event);
 
-  SetFieldsCount(FIELDCOUNT, widths);
-}
+    DECLARE_EVENT_TABLE();
 
+private:
+    LogReader reader;
+    LogIndex index;
+    ProgressStatusBar *statusBar;
+    double clockHz;
+};
 
-void
-ProgressStatusBar::OnSize(wxSizeEvent& event)
-{
-  wxRect rect;
-  GetFieldRect(FIELD_PROGRESS, rect);
-  gauge.SetSize(rect);
-
-  event.Skip();
-}
-
-
-void
-ProgressStatusBar::SetProgress(double progress)
-{
-  gauge.SetValue((int)(RANGE_MAX * progress));
-  gauge.Show();
-}
-
-
-void
-ProgressStatusBar::HideProgress()
-{
-  gauge.Hide();
-}
-
-
-void
-ProgressStatusBar::SetDuration(double seconds)
-{
-  SetStatusText(wxString::Format(wxT("%d:%05.2f"),
-				 (int) (seconds / 60.0), fmod(seconds, 60.0)),
-		FIELD_DURATION);
-}
+#endif /* __THD_MAINWINDOW_H */
