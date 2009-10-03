@@ -1,5 +1,6 @@
-/*
- * thd_mainwindow.h -- Main UI window for Temporal Hex Dump
+/* -*- Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
+ *
+ * thd_timeline.cpp -- A graphical timeline widget for Temporal Hex Dump
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -22,32 +23,44 @@
  * THE SOFTWARE.
  */
 
-#ifndef __THD_MAINWINDOW_H
-#define __THD_MAINWINDOW_H
+#include <wx/dcbuffer.h>
+#include "thd_timeline.h"
 
-#include <wx/frame.h>
-
-#include "log_reader.h"
-#include "log_index.h"
-#include "progress_status_bar.h"
+BEGIN_EVENT_TABLE(THDTimeline, wxPanel)
+//  EVT_PAINT(THDTimeline::OnPaint)
+END_EVENT_TABLE()
 
 
-class THDMainWindow : public wxFrame {
- public:
-  THDMainWindow();
-  virtual ~THDMainWindow();
+THDTimeline::THDTimeline(wxWindow *_parent, LogIndex *_index)
+: wxPanel(_parent, wxID_ANY, wxPoint(0, 0), wxSize(800, 256)),
+    index(_index)
+{}
 
-  void Open(wxString fileName);
 
-  void OnIndexProgress(wxCommandEvent &event);
+void
+THDTimeline::OnPaint(wxPaintEvent &event)
+{
+    wxAutoBufferedPaintDC dc(this);
+    dc.Clear();
 
-  DECLARE_EVENT_TABLE();
+    int width, height;
+    GetSize(&width, &height);
 
- private:
-  LogReader reader;
-  LogIndex index;
-  ProgressStatusBar *statusBar;
-  double clockHz;
-};
+    for (int x = 0; x < width; x++) {
+        LogIndex::ClockType scale = 100000;
+        LogIndex::ClockType time = x * scale;
+        boost::shared_ptr<LogInstant> instant = index->GetInstant(time, scale/4);
 
-#endif /* __THD_MAINWINDOW_H */
+        int readTotal = 0;
+        for (int stratum = 0; stratum < index->GetNumStrata(); stratum++) {
+            readTotal += instant->readTotals.get(stratum);
+        }
+
+        int value = readTotal & 63;
+
+
+        dc.DrawLine(x, height - value, x, height);
+    }
+
+    event.Skip();
+}

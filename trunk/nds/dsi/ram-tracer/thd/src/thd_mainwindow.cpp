@@ -1,4 +1,5 @@
-/*
+/* -*- Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
+ *
  * thd_mainwindow.cpp -- Main UI window for Temporal Hex Dump
  *
  * Copyright (C) 2009 Micah Dowty
@@ -32,71 +33,72 @@ END_EVENT_TABLE()
 
 THDMainWindow::THDMainWindow()
 : wxFrame(NULL, -1, wxT("Temporal Hex Dump")),
-  clockHz(LogReader::GetDefaultClockHZ())
+    clockHz(LogReader::GetDefaultClockHZ())
 {
-  Connect(index.GetProgressEvent(), wxCommandEventHandler(THDMainWindow::OnIndexProgress));
-  index.SetProgressReceiver(this);
+    Connect(index.GetProgressEvent(),
+            wxCommandEventHandler(THDMainWindow::OnIndexProgress));
+    index.SetProgressReceiver(this);
 
-  statusBar = new ProgressStatusBar(this);
-  SetStatusBar(statusBar);
+    statusBar = new ProgressStatusBar(this);
+    SetStatusBar(statusBar);
 
-  wxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    wxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 
-  vbox->Add(new THDTimeline(this, &index), 0, wxGROW);
+    vbox->Add(new THDTimeline(this, &index), 0, wxGROW);
 
-  SetSizer(vbox);
-  vbox->Fit(this);
+    SetSizer(vbox);
+    vbox->Fit(this);
 }
 
 
 THDMainWindow::~THDMainWindow()
 {
-  SetStatusBar(NULL);
-  delete statusBar;
+    SetStatusBar(NULL);
+    delete statusBar;
 }
 
 
 void
 THDMainWindow::Open(wxString fileName)
 {
-  index.Close();
-  reader.Close();
-  reader.Open(fileName);
-  index.Open(&reader);
+    index.Close();
+    reader.Close();
+    reader.Open(fileName);
+    index.Open(&reader);
 }
 
 
 void
 THDMainWindow::OnIndexProgress(wxCommandEvent& WXUNUSED(event))
 {
-  statusBar->SetDuration(index.GetDuration() / (double)clockHz);
+    statusBar->SetDuration(index.GetDuration() / (double)clockHz);
 
-  switch (index.GetState()) {
+    switch (index.GetState()) {
 
-  case LogIndex::IDLE:
-    statusBar->SetStatusText(wxT("Idle"));
-    statusBar->SetProgress(index.GetProgress());
-    break;
+    case LogIndex::IDLE:
+        statusBar->SetStatusText(wxT("Idle"));
+        statusBar->SetProgress(index.GetProgress());
+        break;
 
-  case LogIndex::INDEXING:
-    statusBar->SetStatusText(wxT("Building index..."));
-    statusBar->SetProgress(index.GetProgress());
-    break;
+    case LogIndex::INDEXING:
+        statusBar->SetStatusText(wxT("Building index..."));
+        statusBar->SetProgress(index.GetProgress());
+        break;
 
-  case LogIndex::FINISHING:
-    statusBar->SetStatusText(wxT("Finishing index..."));
-    statusBar->SetProgress(index.GetProgress());
-    break;
+    case LogIndex::FINISHING:
+        statusBar->SetStatusText(wxT("Finishing index..."));
+        statusBar->SetProgress(index.GetProgress());
+        break;
 
-  case LogIndex::COMPLETE:
-    statusBar->SetStatusText(wxT("Index complete."));
-    statusBar->HideProgress();
-    break;
+    case LogIndex::COMPLETE:
+        statusBar->SetStatusText(wxT("Index complete."));
+        statusBar->HideProgress();
+        break;
 
-  case LogIndex::ERROR:
-    statusBar->SetStatusText(wxT("Indexing error!"));
-    statusBar->SetProgress(index.GetProgress());
-    break;
+    case LogIndex::ERROR:
+        statusBar->SetStatusText(wxT("Indexing error!"));
+        statusBar->SetProgress(index.GetProgress());
+        break;
 
-  }
+    }
 }

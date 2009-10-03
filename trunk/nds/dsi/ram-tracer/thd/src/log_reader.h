@@ -1,5 +1,8 @@
-/*
- * thd_app.cpp -- wxApplication for Temporal Hex Dump
+/* -*- Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
+ *
+ * log_reader.h -- Encapsulates the details of reading the low-level log file format.
+ *                 To add new file formats, this is the only object that should need
+ *                 to change at all.
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -22,19 +25,42 @@
  * THE SOFTWARE.
  */
 
-#include "thd_app.h"
-#include "thd_mainwindow.h"
+#ifndef __LOG_READER_H
+#define __LOG_READER_H
 
-bool
-THDApp::OnInit()
-{
-  THDMainWindow *frame = new THDMainWindow();
-  frame->Show();
-  SetTopWindow(frame);
+#include <wx/filename.h>
 
-  frame->Open(argv[1]);
+#include "file_buffer.h"
+#include "mem_transfer.h"
 
-  return true;
-}
+class LogReader {
+public:
 
-IMPLEMENT_APP(THDApp)
+    void Open(const wxChar *path);
+    void Close();
+
+    wxFileName FileName() {
+        return fileName;
+    }
+
+    uint64_t MemSize() {
+        return 16 * 1024 * 1024;
+    }
+
+    // Read the transfer at mt.logOffset
+    bool Read(MemTransfer &mt);
+
+    // Seek to the previous transfer (don't read it)
+    bool Next(MemTransfer &mt);
+
+    // Seek to the next transfer (don't read it)
+    bool Prev(MemTransfer &mt);
+
+    static double GetDefaultClockHZ();
+
+private:
+    wxFileName fileName;
+    FileBuffer file;
+};
+
+#endif /* __LOG_READER_H */
