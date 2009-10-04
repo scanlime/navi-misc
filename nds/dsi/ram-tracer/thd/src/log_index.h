@@ -119,7 +119,7 @@ private:
      *            block granularity.
      */
 
-    static const int TIMESTEP_SIZE = 256 * 1024;     // Timestep duration, in bytes
+    static const int TIMESTEP_SIZE = 128 * 1024;     // Timestep duration, in bytes
 
     static const int BLOCK_SHIFT = 9;                // 512 bytes
     static const int BLOCK_SIZE = 1 << BLOCK_SHIFT;
@@ -131,11 +131,11 @@ private:
 
     void InitDB();
     void Finish();
-    bool checkFinished();
+    bool CheckFinished();
     void SetProgress(double progress, State state);
     void StartIndexing();
     void StoreInstant(LogInstant &instant);
-
+    void AdvanceInstant(LogInstant &instant, MemTransfer &mt);
 
     class IndexerThread : public wxThread {
     public:
