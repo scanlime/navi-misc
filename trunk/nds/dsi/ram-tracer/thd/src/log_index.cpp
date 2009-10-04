@@ -66,7 +66,7 @@ LogIndex::Open(LogReader *reader)
      * TODO: In the future we may want to store indexing progress, so we
      *       can stop indexing partway through and resume later.
      */
-    if (checkFinished()) {
+    if (CheckFinished()) {
         SetProgress(1.0, COMPLETE);
     } else {
         db.close();
@@ -176,7 +176,7 @@ LogIndex::Finish()
  */
 
 bool
-LogIndex::checkFinished()
+LogIndex::CheckFinished()
 {
     // Assumes dbLock is already locked.
 
@@ -270,6 +270,44 @@ LogIndex::StoreInstant(LogInstant &instant)
 }
 
 
+void
+LogIndex::AdvanceInstant(LogInstant &instant, MemTransfer &mt)
+{
+    // Advance a LogInstant forward by processing one memory transfer
+
+    AlignedIterator<STRATUM_SHIFT> iter(mt);
+
+    instant.time += mt.duration;
+
+    do {
+        switch (mt.type) {
+
+        case MemTransfer::READ: {
+            instant.readTotals.add(iter.blockId, iter.len);
+            break;
+        }
+
+        case MemTransfer::WRITE: {
+            MemTransfer::LengthType numZeroes = 0;
+
+            for (MemTransfer::LengthType i = 0; i < iter.len; i++) {
+                uint8_t byte = mt.buffer[i + iter.mtOffset];
+                if (!byte)
+                    numZeroes++;
+            }
+
+            instant.writeTotals.add(iter.blockId, iter.len);
+            instant.zeroTotals.add(iter.blockId, numZeroes);
+            break;
+        }
+
+        default:
+            break;
+        }
+    } while (iter.next());
+}
+
+
 wxThread::ExitCode
 LogIndex::IndexerThread::Entry()
 {
@@ -337,75 +375,26 @@ LogIndex::IndexerThread::Entry()
                 if (eof) {
                     running = false;
                 } else {
-                    /*
-                     * Iterate over each block that this transfer touches.  It is
-                     * uncommon for a transfer to touch more than one block, but this
-                     * needs to be generic.
-                     *
-                     * Since blocks and strata are both powers of two, and
-                     * strata are larger, this also implicitly iterates over
-                     * regions that are each fully contained within a single
-                     * stratum.
-                     */
+                    index->AdvanceInstant(instant, mt);
 
-                    if (mt.byteCount > 0) {
-                        // Range of blocks that this transfer touches
-                        MemTransfer::AddressType addrFirst = mt.address;
-                        MemTransfer::AddressType addrLast = mt.address + mt.byteCount-1;
-                        MemTransfer::AddressType blockFirst = addrFirst >> BLOCK_SHIFT;
-                        MemTransfer::AddressType blockLast = addrLast >> BLOCK_SHIFT;
+                    if (mt.type == MemTransfer::WRITE) {
+                        AlignedIterator<BLOCK_SHIFT> iter(mt);
+                        do {
+                            BlockState *block = &blocks[iter.blockId];
 
-                        // Range of bytes that intersects the first block
-                        MemTransfer::LengthType mtOffset = 0;
-                        MemTransfer::LengthType blockOffset = addrFirst & BLOCK_MASK;
-
-                        MemTransfer::AddressType blockId = blockFirst;
-                        while (true) {
-                            MemTransfer::AddressType stratumId =
-                                blockId >> (STRATUM_SHIFT - BLOCK_SHIFT);
-                            BlockState *block = &blocks[blockId];
-                            MemTransfer::LengthType len =
-                                std::min<MemTransfer::LengthType>
-                                (BLOCK_SIZE - blockOffset, mt.byteCount - mtOffset);
-
-                            switch (mt.type) {
-
-                            case MemTransfer::READ:
-                                instant.readTotals.add(stratumId, len);
-                                break;
-
-                            case MemTransfer::WRITE:
-                                block->lastWriteOffset = mt.LogOffset();
-                                instant.writeTotals.add(stratumId, len);
-
-                                if (!block->wDirty) {
-                                    block->firstWriteOffset = block->lastWriteOffset;
-                                    block->wDirty = true;
-                                }
-
-                                for (MemTransfer::LengthType i = 0; i < len; i++) {
-                                    uint8_t byte = mt.buffer[i + mtOffset];
-                                    block->data[i + blockOffset] = byte;
-                                    if (!byte)
-                                        instant.zeroTotals.add(stratumId, 1);
-                                }
-                                break;
-
-                            default:
-                                break;
+                            block->lastWriteOffset = mt.LogOffset();
+                            if (!block->wDirty) {
+                                block->firstWriteOffset = block->lastWriteOffset;
+                                block->wDirty = true;
                             }
 
-                            // Next block. (Uncommon case)
-                            if (blockId == blockLast) {
-                                break;
+                            for (MemTransfer::LengthType i = 0; i < iter.len; i++) {
+                                uint8_t byte = mt.buffer[i + iter.mtOffset];
+                                block->data[i + iter.blockOffset] = byte;
                             }
-                            blockId++;
-                            mtOffset += len;
-                            blockOffset = 0;
-                        }
+                        } while (iter.next());
                     }
 
-                    instant.time += mt.duration;
                     reader->Next(mt);
                 }
 
@@ -486,23 +475,33 @@ LogIndex::GetInstant(ClockType time, ClockType distance)
         sqlite3_command cmd(db, "SELECT * FROM strata "
                             "WHERE time < ? ORDER BY time DESC LIMIT 1");
         cmd.bind(1, (sqlite3x::int64_t) time);
-        sqlite3_cursor reader = cmd.executecursor();
+        sqlite3_cursor crsr = cmd.executecursor();
 
-        if (reader.step()) {
+        if (crsr.step()) {
             int size;
             const void *blob;
 
-            instant->time = reader.getint64(0);
-            instant->offset = reader.getint64(1);
+            instant->time = crsr.getint64(0);
+            instant->offset = crsr.getint64(1);
 
-            blob = reader.getblob(2, size);
+            blob = crsr.getblob(2, size);
             instant->readTotals.unpack((const uint8_t *)blob, size);
 
-            blob = reader.getblob(3, size);
+            blob = crsr.getblob(3, size);
             instant->writeTotals.unpack((const uint8_t *)blob, size);
 
-            blob = reader.getblob(4, size);
+            blob = crsr.getblob(4, size);
             instant->zeroTotals.unpack((const uint8_t *)blob, size);
+
+            /*
+             * Now advance it forward to the actual requested time.
+             */
+
+            MemTransfer mt(instant->offset);
+            while (instant->time < time && reader->Read(mt)) {
+                AdvanceInstant(*instant, mt);
+                reader->Next(mt);
+            }
 
         } else {
             // Before the first recorded log entry

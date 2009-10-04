@@ -43,7 +43,7 @@ public:
     typedef uint64_t ClockType;      // Global clock values
 
     MemTransfer(OffsetType offset = 0) {
-        Seek(0);
+        Seek(offset);
     }
 
     /*
@@ -83,6 +83,79 @@ public:
 
 private:
     OffsetType logOffset;
+};
+
+
+/*
+ * An iterator that can walk over a single MemTransfer, segmenting it
+ * into chunks that are aligned on address boundaries of (1 << log2)
+ * bytes.
+ */
+
+template <int log2> class AlignedIterator {
+public:
+    static const int SIZE = 1 << log2;
+    static const int SHIFT = log2;
+    static const int MASK = SIZE - 1;
+
+    AlignedIterator(MemTransfer &mt)
+    {
+        mtByteCount = mt.byteCount;
+
+        // Calculate ranges
+        addrFirst = mt.address;
+        addrLast = mt.address + mt.byteCount - 1;
+        blockFirst = addrFirst >> SHIFT;
+        blockLast = addrLast >> SHIFT;
+
+        // Point to first block
+        mtOffset = 0;
+        blockOffset = addrFirst & MASK;
+        blockId = blockFirst;
+
+        updateLen();
+    }
+
+    /*
+     * Point to the next chunk and returns true if there are more
+     * chunks, returns false if the previous chunk was the last one.
+     */
+    bool next()
+    {
+        ++blockId;
+        if (blockId > blockLast)
+            return false;
+
+        mtOffset += len;
+        blockOffset = 0;
+        updateLen();
+        return true;
+    }
+
+    // Current offset within the MemTransfer
+    MemTransfer::LengthType mtOffset;
+
+    // Current offset within the current block
+    MemTransfer::LengthType blockOffset;
+
+    // Current block number
+    MemTransfer::LengthType blockId;
+
+    // Number of bytes within this block
+    MemTransfer::LengthType len;
+
+private:
+    void updateLen()
+    {
+        len = std::min<MemTransfer::LengthType>(SIZE - blockOffset,
+                                                mtByteCount - mtOffset);
+    }
+
+    MemTransfer::LengthType mtByteCount;
+    MemTransfer::AddressType addrFirst;
+    MemTransfer::AddressType addrLast;
+    MemTransfer::AddressType blockFirst;
+    MemTransfer::AddressType blockLast;
 };
 
 
