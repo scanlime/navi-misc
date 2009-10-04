@@ -90,8 +90,9 @@ struct varint {
         if (c & 0x40) {
             if (p + 1 >= fence)
                 return FENCE;
+            varint_t result = ((c & 0x3F) << 8) | p[1];
             p += 2;
-            return ((c & 0x3F) << 8) | p[1];
+            return result;
         }
 
         if (c == 0)
@@ -100,48 +101,54 @@ struct varint {
         if (c & 0x20) {
             if (p + 2 >= fence)
                 return FENCE;
+            varint_t result = ((c & 0x1F) << 16) | (p[1] << 8) | p[2];
             p += 3;
-            return ((c & 0x1F) << 16) | (p[1] << 8) | p[2];
+            return result;
         }
 
         if (c & 0x10) {
             if (p + 3 >= fence)
                 return FENCE;
+            varint_t result = ((c & 0x0F) << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
             p += 4;
-            return ((c & 0x0F) << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
+            return result;
         }
 
         if (c & 0x08) {
             if (p + 4 >= fence)
                 return FENCE;
-            p += 5;
-            return (((varint_t) c & 0x07) << 32) | (p[1] << 24) |
+            varint_t result = (((varint_t) c & 0x07) << 32) | (p[1] << 24) |
                 (p[2] << 16) | (p[3] << 8) | p[4];
+            p += 5;
+            return result;
         }
 
         if (c & 0x04) {
             if (p + 5 >= fence)
                 return FENCE;
-            p += 6;
-            return (((varint_t) c & 0x03) << 40) | (((varint_t) p[1]) << 32) |
+            varint_t result = (((varint_t) c & 0x03) << 40) | (((varint_t) p[1]) << 32) |
                 (p[2] << 24) | (p[3] << 16) | (p[4] << 8) | p[5];
+            p += 6;
+            return result;
         }
 
         if (c & 0x02) {
             if (p + 6 >= fence)
                 return FENCE;
-            p += 7;
-            return (((varint_t) c & 0x01) << 48) | (((varint_t) p[1]) << 40) |
+            varint_t result = (((varint_t) c & 0x01) << 48) | (((varint_t) p[1]) << 40) |
                 (((varint_t) p[2]) << 32) | (p[3] << 24) | (p[4] << 16) |
                 (p[5] << 8) | p[6];
+            p += 7;
+            return result;
         }
 
         if (p + 7 >= fence)
             return FENCE;
-        p += 8;
-        return (((varint_t) p[1]) << 48) | (((varint_t) p[2]) << 40) |
+        varint_t result = (((varint_t) p[1]) << 48) | (((varint_t) p[2]) << 40) |
             (((varint_t) p[3]) << 32) | (p[4] << 24) | (p[5] << 16) |
             (p[6] << 8) | p[7];
+        p += 8;
+        return result;
     }
 
     /*
@@ -164,8 +171,9 @@ struct varint {
         if (c & 0x40) {
             if (p - 1 <= fence)
                 return FENCE;
+            varint_t result = ((c & 0x3F) << 8) | p[-1];
             p -= 2;
-            return ((c & 0x3F) << 8) | p[-1];
+            return result;
         }
 
         if (c == 0)
@@ -174,48 +182,55 @@ struct varint {
         if (c & 0x20) {
             if (p - 2 <= fence)
                 return FENCE;
+            varint_t result = ((c & 0x1F) << 16) | (p[-1] << 8) | p[-2];
             p -= 3;
-            return ((c & 0x1F) << 16) | (p[-1] << 8) | p[-2];
+            return result;
         }
 
         if (c & 0x10) {
             if (p - 3 <= fence)
                 return FENCE;
+            varint_t result = ((c & 0x0F) << 24) | (p[-1] << 16) | (p[-2] << 8) | p[-3];
             p -= 4;
-            return ((c & 0x0F) << 24) | (p[-1] << 16) | (p[-2] << 8) | p[-3];
+            return result;
         }
 
         if (c & 0x08) {
             if (p - 4 <= fence)
                 return FENCE;
-            p -= 5;
-            return (((varint_t) c & 0x07) << 32) | (p[-1] << 24) |
+            varint_t result = (((varint_t) c & 0x07) << 32) | (p[-1] << 24) |
                 (p[-2] << 16) | (p[-3] << 8) | p[-4];
+            p -= 5;
+            return result;
         }
 
         if (c & 0x04) {
             if (p - 5 <= fence)
                 return FENCE;
+            varint_t result = (((varint_t) c & 0x03) << 40) |
+                (((varint_t) p[-1]) << 32) | (p[-2] << 24) | (p[-3] << 16) |
+                (p[-4] << 8) | p[-5];
             p -= 6;
-            return (((varint_t) c & 0x03) << 40) | (((varint_t) p[-1]) << 32) |
-                (p[-2] << 24) | (p[-3] << 16) | (p[-4] << 8) | p[-5];
+            return result;
         }
 
         if (c & 0x02) {
             if (p - 6 <= fence)
                 return FENCE;
+            varint_t result = (((varint_t) c & 0x01) << 48) |
+                (((varint_t) p[-1]) << 40) | (((varint_t) p[-2]) << 32) |
+                (p[-3] << 24) | (p[-4] << 16) | (p[-5] << 8) | p[-6];
             p -= 7;
-            return (((varint_t) c & 0x01) << 48) | (((varint_t) p[-1]) << 40) |
-                (((varint_t) p[-2]) << 32) | (p[-3] << 24) | (p[-4] << 16) |
-                (p[-5] << 8) | p[-6];
+            return result;
         }
 
         if (p - 7 <= fence)
             return FENCE;
-        p -= 8;
-        return (((varint_t) p[-1]) << 48) | (((varint_t) p[-2]) << 40) |
+        varint_t result = (((varint_t) p[-1]) << 48) | (((varint_t) p[-2]) << 40) |
             (((varint_t) p[-3]) << 32) | (p[-4] << 24) | (p[-5] << 16) |
             (p[-6] << 8) | p[-7];
+        p -= 8;
+        return result;
     }
 
     /*
