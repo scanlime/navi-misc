@@ -31,20 +31,31 @@
 
 
 /*
+ * An auxiliary class which defines a 'generator' function which knows
+ * how to generate a cache value when a miss occurs.
+ */
+
+template <typename Key, typename Value>
+struct CacheGenerator {
+    virtual void fn(Key &key, Value &value) = 0;
+};
+
+
+/*
  * Creates a fixed-size cache which maps Key to Value, storing 'size'
  * values. When a value is missing, we generate it using the provided
  * 'generator' class.
  */
 
-template <typename Key, typename Value> class LRUCache {
+template <typename Key, typename Value>
+class LRUCache {
 public:
-    struct generator_t {
-        virtual void fn(Key &key, Value &value) = 0;
-    };
+    typedef CacheGenerator<Key, Value> generator_t;
 
     LRUCache(int _size, generator_t *_generator)
         : size(_size),
           values(new Value[_size]),
+          keys(new Key[_size]),
           lru(new LRUNode[_size]),
           generator(_generator),
           head(LRU_NIL),
@@ -58,17 +69,21 @@ public:
 
     ~LRUCache() {
         delete[] values;
+        delete[] keys;
         delete[] lru;
     }
 
     Value& get(Key k) {
         int index;
 
-        if (!find(k, index)) {
-            generate(k, index);
+        if (find(k, index)) {
+            return retrieve(index);
+        } else {
+            Value &v = alloc(index);
+            generator->fn(k, v);
+            store(k, index);
+            return v;
         }
-
-        return retrieve(index);
     }
 
 protected:
@@ -81,10 +96,19 @@ protected:
         }
     }
 
-    void generate(Key k, int &index) {
+    // Allocate a fresh Value to fill in, freeing the oldest Value.
+    Value &alloc(int &index) {
         index = head;
+        map.erase(keys[index]);
+        LRURemove(index);
+        return values[index];
+    }
+
+    // After a value has been written to 'index', make it available to find.
+    void store(Key k, int index) {
         map[k] = index;
-        generator->fn(k, values[index]);
+        keys[index] = k;
+        LRUInsertTail(index);
     }
 
     Value& retrieve(int index) {
@@ -92,6 +116,8 @@ protected:
         LRUInsertTail(index);
         return values[index];
     }
+
+    generator_t *generator;
 
 private:
     static const int LRU_NIL = -1;
@@ -129,9 +155,9 @@ private:
     int size;
     int head, tail;
     Value *values;
+    Key *keys;
     LRUNode *lru;
     map_t map;
-    generator_t *generator;
 };
 
-#endif /* __LAZYCACHE_H */
+#endif /* __LRU_CACHE_H */

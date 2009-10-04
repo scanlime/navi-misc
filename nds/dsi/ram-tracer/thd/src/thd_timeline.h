@@ -28,8 +28,11 @@
 
 #include <wx/panel.h>
 #include <wx/bitmap.h>
+#include <wx/timer.h>
+#include <wx/rawbmp.h>
+
 #include "log_index.h"
-#include "lru_cache.h"
+#include "lazy_cache.h"
 
 
 /*
@@ -67,18 +70,21 @@ public:
     void OnPaint(wxPaintEvent &event);
     void OnSize(wxSizeEvent &event);
     void OnMouseEvent(wxMouseEvent &event);
+    void OnRefreshTimer(wxTimerEvent &event);
 
     DECLARE_EVENT_TABLE();
 
 private:
     static const int SLICE_HEIGHT      = 256;
     static const int SLICE_CACHE_SIZE  = 1 << 16;
+    static const int REFRESH_FPS       = 60;
 
     struct SliceValue {
         uint32_t pixels[256];
     };
 
-    typedef LRUCache<SliceKey, SliceValue> sliceCache_t;
+    typedef LazyCache<SliceKey, SliceValue> sliceCache_t;
+    typedef wxPixelData<wxBitmap, wxNativePixelFormat> pixelData_t;
 
     struct SliceGenerator : public sliceCache_t::generator_t {
         SliceGenerator(THDTimeline *_timeline) : timeline(_timeline) {}
@@ -88,13 +94,16 @@ private:
 
     void zoom(double factor, int xPivot);
     void clampView(void);
+    bool renderSlice(pixelData_t &data, int x);
 
     LogIndex *index;
     sliceCache_t sliceCache;
     SliceGenerator sliceGenerator;
     wxBitmap bufferBitmap;
+    wxTimer refreshTimer;
 
     wxPoint dragOrigin;
+    wxPoint cursor;
     TimelineView view;
     TimelineView savedView;
 
