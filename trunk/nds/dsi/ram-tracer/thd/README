@@ -8,8 +8,10 @@ traces. It is designed to handle very large log files efficiently.
 Prerequisites
 -------------
 
-Requires scons, wxWidgets, sqlite3, and Boost. If you're using Debian
-or Ubuntu, the packages you need are:
+To compile, requires scons, wxWidgets 2.8, sqlite3, and Boost 1.38 or
+later. Only requires wxWidgets and sqlite3 at runtime.
+
+If you're using Debian or Ubuntu, the packages you need are:
 
   scons
   libsqlite3-dev

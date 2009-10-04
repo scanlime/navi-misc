@@ -125,7 +125,7 @@ private:
     static const int BLOCK_SIZE = 1 << BLOCK_SHIFT;
     static const int BLOCK_MASK = BLOCK_SIZE - 1;
 
-    static const int STRATUM_SHIFT = 14;             // 16 kB (4096 strata per 16MB)
+    static const int STRATUM_SHIFT = 16;             // 64 kB (256 strata per 16MB)
     static const int STRATUM_SIZE = 1 << STRATUM_SHIFT;
     static const int STRATUM_MASK = STRATUM_SIZE - 1;
 
