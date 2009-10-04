@@ -42,6 +42,95 @@ struct CacheGenerator {
 
 
 /*
+ * This is a utility class which represents an ordered list of integer
+ * slots. It can be used as a fast linked list which can provide an
+ * ordering for an external array, without any extra memory allocation
+ * overhead.
+ *
+ * By default, the SlotList contains all items from 0..size-1.
+ */
+
+template <typename tn = int, tn nilValue = -1>
+class SlotList {
+public:
+    static const tn NIL = nilValue;
+
+    SlotList(tn size)
+        : nodes(new node_t[size]),
+          head(NIL),
+          tail(NIL)
+    {
+        for (tn i = 0; i < size; i++)
+            append(i);
+    }
+
+    ~SlotList()
+    {
+        delete[] nodes;
+    }
+
+    void remove(tn i)
+    {
+        if (nodes[i].prev == NIL)
+            head = nodes[i].next;
+        else
+            nodes[nodes[i].prev].next = nodes[i].next;
+
+        if (nodes[i].next == NIL)
+            tail = nodes[i].prev;
+        else
+            nodes[nodes[i].next].prev = nodes[i].prev;
+    }
+
+    void append(tn i)
+    {
+        nodes[i].next = NIL;
+        nodes[i].prev = tail;
+
+        if (tail == NIL)
+            head = tail = i;
+        else
+            nodes[tail].next = i;
+
+        tail = i;
+    }
+
+    void prepend(tn i)
+    {
+        nodes[i].next = head;
+        nodes[i].prev = NIL;
+
+        if (head == NIL)
+            head = tail = i;
+        else
+            nodes[head].prev = i;
+
+        head = i;
+    }
+
+    void moveToHead(tn i)
+    {
+        remove(i);
+        prepend(i);
+    }
+
+    void moveToTail(tn i)
+    {
+        remove(i);
+        append(i);
+    }
+
+    tn head, tail;
+
+private:
+    struct node_t {
+        tn prev, next;
+    };
+    node_t *nodes;
+};
+
+
+/*
  * Creates a fixed-size cache which maps Key to Value, storing 'size'
  * values. When a value is missing, we generate it using the provided
  * 'generator' class.
@@ -56,21 +145,13 @@ public:
         : size(_size),
           values(new Value[_size]),
           keys(new Key[_size]),
-          lru(new LRUNode[_size]),
-          generator(_generator),
-          head(LRU_NIL),
-          tail(LRU_NIL)
-    {
-        // Link the LRU list together in arbitrary order.
-        for (int i = 0; i < size; i++) {
-            LRUInsertTail(i);
-        }
-    }
+          lru(_size),
+          generator(_generator)
+    {}
 
     ~LRUCache() {
         delete[] values;
         delete[] keys;
-        delete[] lru;
     }
 
     Value& get(Key k) {
@@ -98,9 +179,9 @@ protected:
 
     // Allocate a fresh Value to fill in, freeing the oldest Value.
     Value &alloc(int &index) {
-        index = head;
+        index = lru.head;
         map.erase(keys[index]);
-        LRURemove(index);
+        lru.remove(index);
         return values[index];
     }
 
@@ -108,55 +189,23 @@ protected:
     void store(Key k, int index) {
         map[k] = index;
         keys[index] = k;
-        LRUInsertTail(index);
+        lru.append(index);
     }
 
     Value& retrieve(int index) {
-        LRURemove(index);
-        LRUInsertTail(index);
+        lru.moveToTail(index);
         return values[index];
     }
 
     generator_t *generator;
 
 private:
-    static const int LRU_NIL = -1;
-
     typedef boost::unordered_map<Key, int> map_t;
 
-    struct LRUNode {
-        int prev, next;
-    };
-
-    void LRURemove(int i) {
-        if (lru[i].prev == LRU_NIL)
-            head = lru[i].next;
-        else
-            lru[lru[i].prev].next = lru[i].next;
-
-        if (lru[i].next == LRU_NIL)
-            tail = lru[i].prev;
-        else
-            lru[lru[i].next].prev = lru[i].prev;
-    }
-
-    void LRUInsertTail(int i) {
-        lru[i].next = LRU_NIL;
-        lru[i].prev = tail;
-
-        if (tail == LRU_NIL)
-            head = tail = i;
-        else
-            lru[tail].next = i;
-
-        tail = i;
-    }
-
     int size;
-    int head, tail;
     Value *values;
     Key *keys;
-    LRUNode *lru;
+    SlotList<> lru;
     map_t map;
 };
 

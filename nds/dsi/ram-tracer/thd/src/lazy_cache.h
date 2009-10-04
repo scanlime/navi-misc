@@ -28,11 +28,107 @@
 #define __LAZY_CACHE_H
 
 #include <wx/thread.h>
+#include <boost/unordered_set.hpp>
 #include <list>
+
 #include "lru_cache.h"
 
 
+// An exception to throw on cache miss.
 struct LazyCacheMiss {};
+
+
+/*
+ * The WorkQueue is a bounded set of keys which are sorted by
+ * insertion order. When a duplicate key is inserted, that key is
+ * moved to the front of the queue as if it was just inserted for the
+ * first time. When the queue fills up, the oldest items are
+ * overwritten.
+ */
+
+template <typename Key>
+class WorkQueue
+{
+public:
+    WorkQueue(int _size)
+        : size(_size),
+          itemCount(0),
+          keys(new Key[_size]),
+          slots(_size)
+    {}
+
+    ~WorkQueue()
+    {
+        delete[] keys;
+    }
+
+    void insert(Key &k)
+    {
+        if (map.find(k) == map.end()) {
+            // Inserting 'k' for the first time.
+
+            // Oldest slot (may or may not be occupied)
+            int index = slots.head;
+
+            if (itemCount == size) {
+                // Remove oldest item from the map
+                map.erase(keys[index]);
+            } else {
+                // Oldest slot was empty
+                itemCount++;
+            }
+
+            // Make this the newest item
+            slots.moveToTail(index);
+
+            // Remember the item's current slot
+            map[k] = index;
+            keys[index] = k;
+
+        } else {
+            // 'k' is already in the list. Bump its priority
+
+            slots.moveToTail(map[k]);
+        }
+    }
+
+    bool empty()
+    {
+        return itemCount == 0;
+    }
+
+    Key &oldest()
+    {
+        return keys[slots.head];
+    }
+
+    Key &newest()
+    {
+        return keys[slots.tail];
+    }
+
+    void removeOldest()
+    {
+        map.erase(keys[slots.head]);
+        itemCount--;
+    }
+
+    void removeNewest()
+    {
+        // Make it the oldest, then remove it. This way we'll recycle the node next.
+        slots.moveToHead(slots.tail);
+        removeOldest();
+    }
+
+private:
+    typedef boost::unordered_map<Key, int> map_t;
+
+    int size;
+    int itemCount;
+    Key *keys;
+    SlotList<> slots;
+    map_t map;
+};
 
 
 template <typename Key, typename Value>
@@ -42,7 +138,8 @@ public:
     typedef CacheGenerator<Key, Value> generator_t;
 
     LazyCache(int _size, generator_t *_generator)
-        : LRUCache<Key, Value>(_size, _generator)
+        : LRUCache<Key, Value>(_size, _generator),
+          workQueue(_size)
     {
         thread = new Thread(this);
         thread->Create();
@@ -55,14 +152,15 @@ public:
     }
 
     // Throws LazyCacheMiss on miss
-    Value &get(Key k) {
+    Value &get(Key k)
+    {
         wxCriticalSectionLocker locker(lock);
         int index;
 
         if (find(k, index)) {
             return LRUCache<Key, Value>::retrieve(index);
         } else {
-            workQueue.push_back(k);
+            workQueue.insert(k);
             thread->wake();
             throw LazyCacheMiss();
         }
@@ -111,8 +209,8 @@ private:
                 return false;
             }
 
-            Key k = cache->workQueue.back();
-            cache->workQueue.pop_back();
+            Key k = cache->workQueue.newest();
+            cache->workQueue.removeNewest();
 
             int index;
             if (cache->find(k, index)) {
@@ -151,7 +249,7 @@ private:
 
     Thread *thread;
     wxCriticalSection lock;
-    std::list<Key> workQueue;
+    WorkQueue<Key> workQueue;
 };
 
 #endif /* __LAZY_CACHE_H */
