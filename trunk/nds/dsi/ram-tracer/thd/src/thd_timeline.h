@@ -78,6 +78,7 @@ private:
     static const int SLICE_HEIGHT      = 256;
     static const int SLICE_CACHE_SIZE  = 1 << 16;
     static const int REFRESH_FPS       = 60;
+    static const int INDEXING_FPS      = 5;
 
     struct SliceValue {
         uint32_t pixels[256];
@@ -95,6 +96,7 @@ private:
     void zoom(double factor, int xPivot);
     void clampView(void);
     bool renderSlice(pixelData_t &data, int x);
+    bool renderSliceRange(pixelData_t &data, int xMin, int xMax);
 
     LogIndex *index;
     sliceCache_t sliceCache;

@@ -113,21 +113,76 @@ THDTimeline::OnPaint(wxPaintEvent &event)
 
     {
         pixelData_t data(bufferBitmap);
-        bool incomplete = false;
 
-        for (int x = xMin; x <= xMax; x++) {
-            if (!renderSlice(data, x))
-                incomplete = true;
-        }
-
-        if (incomplete) {
+        if (!renderSliceRange(data, xMin, xMax))
             refreshTimer.Start(1000 / REFRESH_FPS, wxTIMER_ONE_SHOT);
-        }
+        else if (index->GetState() == index->INDEXING)
+            refreshTimer.Start(1000 / INDEXING_FPS, wxTIMER_ONE_SHOT);
     }
 
     dc.DrawBitmap(bufferBitmap, 0, 0, false);
 
     event.Skip();
+}
+
+
+bool
+THDTimeline::renderSliceRange(pixelData_t &data, int xMin, int xMax)
+{
+   /*
+    * The LazyThread will process the newest requests first. We'd
+    * like the first completed rendering to be near the mouse
+    * cursor, since that's likely to be where the user is paying
+    * the most attention.
+    *
+    * So, we'll carefully choose our rendering order so that we paint
+    * slices near cursor.x last. We alternate between left side and
+    * right side.
+    */
+
+    int focus = cursor.x;
+    bool complete = true;
+
+    if (focus >= xMax) {
+        // Focus past right edge: Render left to right
+
+        for (int x = xMin; x <= xMax; x++)
+            if (!renderSlice(data, x))
+                complete = false;
+
+    } else if (focus <= xMin) {
+        // Focus past left edge: Render right to left
+
+        for (int x = xMax; x >= xMin; x--)
+            if (!renderSlice(data, x))
+                complete = false;
+
+    } else {
+        // Inside range. Render out-to-in
+
+        int i = std::max<int>(focus - xMin, xMax - focus) + 1;
+
+        while (1) {
+            int x = focus - i;
+            if (x >= xMin && x <= xMax)
+                if (!renderSlice(data, x))
+                    complete = false;
+
+            if (i == 0) {
+                // Center slice has only one side.
+                break;
+            }
+
+            x = focus + i;
+            if (x >= xMin && x <= xMax)
+                if (!renderSlice(data, x))
+                    complete = false;
+
+            --i;
+        }
+    }
+
+    return complete;
 }
 
 
@@ -156,8 +211,12 @@ THDTimeline::renderSlice(pixelData_t &data, int x)
         uint32_t *pixIn = slice.pixels;
 
         for (int y = 0; y < SLICE_HEIGHT; y++) {
-            *(uint32_t*)pixOut.m_ptr = *pixIn;
-            ++pixIn;
+            uint32_t color = *pixIn;
+            pixIn++;
+
+            pixOut.Red() = (uint8_t) (color >> 16);
+            pixOut.Green() = (uint8_t) (color >> 8);
+            pixOut.Blue() = (uint8_t) color;
             pixOut.OffsetY(data, 1);
         }
 
@@ -175,8 +234,10 @@ THDTimeline::renderSlice(pixelData_t &data, int x)
          */
 
         for (int y = 0; y < SLICE_HEIGHT; y++) {
-            uint32_t color = (x ^ y) & 8 ? 0x222222 : 0x555555;
-            *(uint32_t*)pixOut.m_ptr = color;
+            uint8_t shade = (x ^ y) & 8 ? 0x22 : 0x55;
+            pixOut.Red() = shade;
+            pixOut.Green() = shade;
+            pixOut.Blue() = shade;
             pixOut.OffsetY(data, 1);
         }
 
@@ -244,11 +305,11 @@ THDTimeline::SliceGenerator::fn(SliceKey &key, SliceValue &value)
         uint32_t color = 0;
 
         if (zeroDelta && zeroDelta >= readDelta && zeroDelta >= writeDelta) {
-            color = 0x0000ff;
+            color = 0xff0000;
         } else if (writeDelta && writeDelta >= readDelta && writeDelta >= zeroDelta) {
             color = 0x00ff00;
         } else if (readDelta) {
-            color = 0xff0000;
+            color = 0x0000ff;
         }
 
         value.pixels[y] = color;
