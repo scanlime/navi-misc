@@ -87,6 +87,7 @@ private:
     };
 
     void zoom(double factor, int xPivot);
+    void clampView(void);
 
     LogIndex *index;
     sliceCache_t sliceCache;

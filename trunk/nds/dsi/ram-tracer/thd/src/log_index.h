@@ -190,6 +190,7 @@ public:
     size_t getPackedLen();
     void pack(uint8_t *buffer);
     void unpack(const uint8_t *buffer, size_t bufferLen);
+    void clear();
 
 private:
     int count;
@@ -213,6 +214,8 @@ struct LogInstant {
           time(_time),
           offset(_offset)
     {}
+
+    void clear();
 
     LogIndex::ClockType time;
     MemTransfer::OffsetType offset;

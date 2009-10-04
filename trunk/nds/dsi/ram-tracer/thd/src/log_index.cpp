@@ -201,9 +201,12 @@ LogIndex::checkFinished()
         timestepSize == TIMESTEP_SIZE &&
         blockSize == BLOCK_SIZE &&
         stratumSize == STRATUM_SIZE) {
+
         duration = (MemTransfer::ClockType) savedDuration;
+        return true;
     } else {
         duration = 0;
+        return false;
     }
 }
 
@@ -475,29 +478,39 @@ LogIndex::GetInstant(ClockType time, ClockType distance)
 {
     /* XXX: Needs work. */
 
-    wxCriticalSectionLocker locker(dbLock);
     boost::shared_ptr<LogInstant> instant(new LogInstant(GetNumStrata()));
 
-    sqlite3_command cmd(db, "SELECT * FROM strata "
-                        "WHERE time < ? ORDER BY time DESC LIMIT 1");
-    cmd.bind(1, (sqlite3x::int64_t) time);
-    sqlite3_cursor reader = cmd.executecursor();
+    if (time < GetDuration()) {
+        wxCriticalSectionLocker locker(dbLock);
 
-    if (reader.step()) {
-        int size;
-        const void *blob;
+        sqlite3_command cmd(db, "SELECT * FROM strata "
+                            "WHERE time < ? ORDER BY time DESC LIMIT 1");
+        cmd.bind(1, (sqlite3x::int64_t) time);
+        sqlite3_cursor reader = cmd.executecursor();
 
-        instant->time = reader.getint64(0);
-        instant->offset = reader.getint64(1);
+        if (reader.step()) {
+            int size;
+            const void *blob;
 
-        blob = reader.getblob(2, size);
-        instant->readTotals.unpack((const uint8_t *)blob, size);
+            instant->time = reader.getint64(0);
+            instant->offset = reader.getint64(1);
 
-        blob = reader.getblob(3, size);
-        instant->writeTotals.unpack((const uint8_t *)blob, size);
+            blob = reader.getblob(2, size);
+            instant->readTotals.unpack((const uint8_t *)blob, size);
 
-        blob = reader.getblob(4, size);
-        instant->zeroTotals.unpack((const uint8_t *)blob, size);
+            blob = reader.getblob(3, size);
+            instant->writeTotals.unpack((const uint8_t *)blob, size);
+
+            blob = reader.getblob(4, size);
+            instant->zeroTotals.unpack((const uint8_t *)blob, size);
+
+        } else {
+            // Before the first recorded log entry
+            instant->clear();
+        }
+    } else {
+        // After the last indexed log entry
+        instant->clear();
     }
 
     return instant;
@@ -532,4 +545,22 @@ LogStrata::unpack(const uint8_t *buffer, size_t bufferLen)
     for (int i = 0; i < count; i++) {
         values[i] = varint::read(buffer, fence);
     }
+}
+
+
+void
+LogStrata::clear()
+{
+    memset(values, 0, sizeof values[0] * count);
+}
+
+
+void
+LogInstant::clear()
+{
+    time = 0;
+    offset = 0;
+    readTotals.clear();
+    writeTotals.clear();
+    zeroTotals.clear();
 }

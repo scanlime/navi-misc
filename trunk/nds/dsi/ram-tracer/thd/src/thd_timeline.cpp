@@ -68,6 +68,7 @@ THDTimeline::OnMouseEvent(wxMouseEvent &event)
 
     if (event.Dragging()) {
         view.origin = savedView.origin - (pos.x - dragOrigin.x) * savedView.scale;
+        clampView();
         Refresh();
     }
 
@@ -94,6 +95,7 @@ THDTimeline::zoom(double factor, int xPivot)
 
     view.origin += xPivot * (view.scale - newScale);
     view.scale = newScale;
+    clampView();
     Refresh();
 }
 
@@ -157,9 +159,26 @@ THDTimeline::OnSize(wxSizeEvent &event)
         bufferBitmap.Create(roundedWidth, SLICE_HEIGHT);
     }
 
+    clampView();
     event.Skip();
 }
 
+
+void
+THDTimeline::clampView(void)
+{
+    /*
+     * Clamp the current TimelineView to the allowed range.
+     */
+
+    if ((int64_t)view.origin < 0)
+        view.origin = 0;
+
+    LogIndex::ClockType duration = index->GetDuration();
+
+    if (view.origin > duration)
+        view.origin = duration;
+}
 
 void
 THDTimeline::SliceGenerator::fn(SliceKey &key, SliceValue &value)
@@ -170,6 +189,19 @@ THDTimeline::SliceGenerator::fn(SliceKey &key, SliceValue &value)
     //    for (int stratum = 0; stratum < index->GetNumStrata(); stratum++) {
 
     for (int y = 0; y < SLICE_HEIGHT; y++) {
-        value.pixels[y] = begin->readTotals.get(y);
+        uint64_t readDelta = end->readTotals.get(y) - begin->readTotals.get(y);
+        uint64_t writeDelta = end->writeTotals.get(y) - begin->writeTotals.get(y);
+        uint64_t zeroDelta = end->zeroTotals.get(y) - begin->zeroTotals.get(y);
+        uint32_t color = 0;
+
+        if (zeroDelta && zeroDelta >= readDelta && zeroDelta >= writeDelta) {
+            color = 0x0000ff;
+        } else if (writeDelta && writeDelta >= readDelta && writeDelta >= zeroDelta) {
+            color = 0x00ff00;
+        } else if (readDelta) {
+            color = 0xff0000;
+        }
+
+        value.pixels[y] = color;
     }
 }
