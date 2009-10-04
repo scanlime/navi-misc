@@ -27,19 +27,76 @@
 #define __THD_TIMELINE_H
 
 #include <wx/panel.h>
+#include <wx/bitmap.h>
 #include "log_index.h"
-#include "lazycache.h"
+#include "lru_cache.h"
+
+
+/*
+ * Support for hashable slice keys, used in the slice cache.
+ */
+
+struct SliceKey {
+    LogIndex::ClockType begin;
+    LogIndex::ClockType end;
+};
+
+bool operator == (SliceKey const &a, SliceKey const &b);
+std::size_t hash_value(SliceKey const &k);
+
+
+/*
+ * View origin and scale for the timeline
+ */
+
+struct TimelineView {
+    TimelineView() : origin(0), scale(100000) {}
+    LogIndex::ClockType origin;
+    LogIndex::ClockType scale;
+};
+
+
+/*
+ * Timeline widget
+ */
 
 class THDTimeline : public wxPanel {
 public:
     THDTimeline(wxWindow *parent, LogIndex *index);
 
     void OnPaint(wxPaintEvent &event);
+    void OnSize(wxSizeEvent &event);
+    void OnMouseEvent(wxMouseEvent &event);
 
     DECLARE_EVENT_TABLE();
 
 private:
+    static const int SLICE_HEIGHT      = 256;
+    static const int SLICE_CACHE_SIZE  = 1 << 16;
+
+    struct SliceValue {
+        uint32_t pixels[256];
+    };
+
+    typedef LRUCache<SliceKey, SliceValue> sliceCache_t;
+
+    struct SliceGenerator : public sliceCache_t::generator_t {
+        SliceGenerator(THDTimeline *_timeline) : timeline(_timeline) {}
+        virtual void fn(SliceKey &key, SliceValue &value);
+        THDTimeline *timeline;
+    };
+
+    void zoom(double factor, int xPivot);
+
     LogIndex *index;
+    sliceCache_t sliceCache;
+    SliceGenerator sliceGenerator;
+    wxBitmap bufferBitmap;
+
+    wxPoint dragOrigin;
+    TimelineView view;
+    TimelineView savedView;
+
 };
 
 #endif /* __THD_TIMELINE_H */
