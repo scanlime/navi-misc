@@ -273,11 +273,14 @@ LogIndex::StoreInstant(LogInstant &instant)
 void
 LogIndex::AdvanceInstant(LogInstant &instant, MemTransfer &mt)
 {
-    // Advance a LogInstant forward by processing one memory transfer
+    /*
+     * Advance a LogInstant forward by processing one memory transfer.
+     */
 
     AlignedIterator<STRATUM_SHIFT> iter(mt);
 
     instant.time += mt.duration;
+    instant.offset = mt.LogOffset();
 
     do {
         switch (mt.type) {
@@ -311,7 +314,7 @@ LogIndex::AdvanceInstant(LogInstant &instant, MemTransfer &mt)
 wxThread::ExitCode
 LogIndex::IndexerThread::Entry()
 {
-    MemTransfer mt;
+    MemTransfer mt(0);
     bool aborted = false;
     bool running = true;
 
@@ -321,6 +324,7 @@ LogIndex::IndexerThread::Entry()
 
     /* Data about the current log instant */
     LogInstant instant(index->GetNumStrata());
+    instant.clear();
 
     /* State of each block */
     struct BlockState {
@@ -375,7 +379,6 @@ LogIndex::IndexerThread::Entry()
                 if (eof) {
                     running = false;
                 } else {
-                    index->AdvanceInstant(instant, mt);
 
                     if (mt.type == MemTransfer::WRITE) {
                         AlignedIterator<BLOCK_SHIFT> iter(mt);
@@ -395,6 +398,7 @@ LogIndex::IndexerThread::Entry()
                         } while (iter.next());
                     }
 
+                    index->AdvanceInstant(instant, mt);
                     reader->Next(mt);
                 }
 
@@ -421,7 +425,6 @@ LogIndex::IndexerThread::Entry()
 
             // Store a LogInstant for this timestep
 
-            instant.offset = mt.LogOffset();
             if (instant.time != prevTime)
                 index->StoreInstant(instant);
             prevTime = instant.time;

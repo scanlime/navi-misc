@@ -176,14 +176,17 @@ public:
     }
 
     uint64_t get(int index) {
+        assert(index < count);
         return values[index];
     }
 
     void set(int index, uint64_t value) {
+        assert(index < count);
         values[index] = value;
     }
 
     void add(int index, uint64_t value) {
+        assert(index < count);
         values[index] += value;
     }
 
