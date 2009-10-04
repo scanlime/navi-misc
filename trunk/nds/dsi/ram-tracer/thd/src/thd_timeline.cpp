@@ -24,14 +24,15 @@
  */
 
 #include <wx/dcbuffer.h>
-#include <wx/rawbmp.h>
 #include "thd_timeline.h"
 
+#define ID_REFRESH_TIMER  1
 
 BEGIN_EVENT_TABLE(THDTimeline, wxPanel)
     EVT_PAINT(THDTimeline::OnPaint)
     EVT_SIZE(THDTimeline::OnSize)
     EVT_MOUSE_EVENTS(THDTimeline::OnMouseEvent)
+    EVT_TIMER(ID_REFRESH_TIMER, THDTimeline::OnRefreshTimer)
 END_EVENT_TABLE()
 
 
@@ -51,23 +52,23 @@ THDTimeline::THDTimeline(wxWindow *_parent, LogIndex *_index)
   : wxPanel(_parent, wxID_ANY, wxPoint(0, 0), wxSize(800, SLICE_HEIGHT)),
     index(_index),
     sliceGenerator(this),
-    sliceCache(SLICE_CACHE_SIZE, &sliceGenerator)
+    sliceCache(SLICE_CACHE_SIZE, &sliceGenerator),
+    refreshTimer(this, ID_REFRESH_TIMER)
 {}
 
 
 void
 THDTimeline::OnMouseEvent(wxMouseEvent &event)
 {
-    wxPoint pos;
-    event.GetPosition(&pos.x, &pos.y);
+    event.GetPosition(&cursor.x, &cursor.y);
 
     if (event.LeftDown()) {
-        dragOrigin = pos;
+        dragOrigin = cursor;
         savedView = view;
     }
 
     if (event.Dragging()) {
-        view.origin = savedView.origin - (pos.x - dragOrigin.x) * savedView.scale;
+        view.origin = savedView.origin - (cursor.x - dragOrigin.x) * savedView.scale;
         clampView();
         Refresh();
     }
@@ -75,10 +76,10 @@ THDTimeline::OnMouseEvent(wxMouseEvent &event)
     static const double ZOOM_FACTOR = 1.2;
 
     if (event.GetWheelRotation() < 0) {
-        zoom(ZOOM_FACTOR, pos.x);
+        zoom(ZOOM_FACTOR, cursor.x);
     }
     if (event.GetWheelRotation() > 0) {
-        zoom(1 / ZOOM_FACTOR, pos.x);
+        zoom(1 / ZOOM_FACTOR, cursor.x);
     }
 
     event.Skip();
@@ -111,33 +112,76 @@ THDTimeline::OnPaint(wxPaintEvent &event)
     const int xMax = xMin + width - 1;
 
     {
-        typedef wxPixelData<wxBitmap, wxNativePixelFormat> PixelData;
-        PixelData data(bufferBitmap);
-        LogIndex::ClockType clk = view.origin;
-        PixelData::Iterator column(data);
-
-        column.MoveTo(data, xMin, 0);
+        pixelData_t data(bufferBitmap);
+        bool incomplete = false;
 
         for (int x = xMin; x <= xMax; x++) {
-            SliceKey key = { clk, clk + view.scale };
-            SliceValue &slice = sliceCache.get(key);
-            clk = key.end;
+            if (!renderSlice(data, x))
+                incomplete = true;
+        }
 
-            PixelData::Iterator pixOut = column;
-            uint32_t *pixIn = slice.pixels;
-            ++column;
-
-            for (int y = 0; y < SLICE_HEIGHT; y++) {
-                *(uint32_t*)pixOut.m_ptr = *pixIn;
-                ++pixIn;
-                pixOut.OffsetY(data, 1);
-            }
+        if (incomplete) {
+            refreshTimer.Start(1000 / REFRESH_FPS, wxTIMER_ONE_SHOT);
         }
     }
 
     dc.DrawBitmap(bufferBitmap, 0, 0, false);
 
     event.Skip();
+}
+
+
+bool
+THDTimeline::renderSlice(pixelData_t &data, int x)
+{
+    /*
+     * Render one vertical slice to the provided data buffer.
+     * If the slice is available, returns true. If no data
+     * is ready yet, draws placeholder data and returns false.
+     */
+
+    LogIndex::ClockType clk = view.origin + view.scale * x;
+    SliceKey key = { clk, clk + view.scale };
+
+    pixelData_t::Iterator pixOut(data);
+    pixOut.OffsetX(data, x);
+
+    try {
+        /*
+         * Get this slice's image from the cache, and copy it
+         * to the bufferBitmap.
+         */
+
+        SliceValue &slice = sliceCache.get(key);
+        uint32_t *pixIn = slice.pixels;
+
+        for (int y = 0; y < SLICE_HEIGHT; y++) {
+            *(uint32_t*)pixOut.m_ptr = *pixIn;
+            ++pixIn;
+            pixOut.OffsetY(data, 1);
+        }
+
+        return true;
+
+    } catch (LazyCacheMiss &e) {
+        /*
+         * If no data is ready yet, our cache will start
+         * generating it asynchronously, but for now we'll
+         * display a placeholder checkerboard pattern.
+         *
+         * If any slices are incomplete, we'll remember to
+         * retry later, so the display progressively updates
+         * as slices become available.
+         */
+
+        for (int y = 0; y < SLICE_HEIGHT; y++) {
+            uint32_t color = (x ^ y) & 8 ? 0x222222 : 0x555555;
+            *(uint32_t*)pixOut.m_ptr = color;
+            pixOut.OffsetY(data, 1);
+        }
+
+        return false;
+    }
 }
 
 
@@ -165,6 +209,13 @@ THDTimeline::OnSize(wxSizeEvent &event)
 
 
 void
+THDTimeline::OnRefreshTimer(wxTimerEvent &event)
+{
+    Refresh();
+}
+
+
+void
 THDTimeline::clampView(void)
 {
     /*
@@ -185,8 +236,6 @@ THDTimeline::SliceGenerator::fn(SliceKey &key, SliceValue &value)
 {
     boost::shared_ptr<LogInstant> begin = timeline->index->GetInstant(key.begin);
     boost::shared_ptr<LogInstant> end = timeline->index->GetInstant(key.end);
-
-    //    for (int stratum = 0; stratum < index->GetNumStrata(); stratum++) {
 
     for (int y = 0; y < SLICE_HEIGHT; y++) {
         uint64_t readDelta = end->readTotals.get(y) - begin->readTotals.get(y);
