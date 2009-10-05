@@ -52,9 +52,18 @@ typedef enum {
 static inline MemPacket
 MemPacket_FromBytes(uint8_t *bytes)
 {
-   // Reassemble a 32-bit big-endian packet from the bytes
+   /*
+    * Reassemble a 32-bit big-endian packet from the bytes. There's a
+    * generic C implementation and a faster x86/gcc implementation.
+    */
+#if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
+   uint32_t r = *(uint32_t*)bytes;
+   asm ("bswap %0" : "+r" (r));
+   return r;
+#else
    return (bytes[0] << 24) | (bytes[1] << 16) |
       (bytes[2] << 8) | bytes[3];
+#endif
 }
 
 /*
