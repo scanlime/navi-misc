@@ -79,8 +79,11 @@ LogIndex::Open(LogReader *reader)
         SetProgress(1.0, COMPLETE);
     } else {
         db.close();
+        DeleteCommands();
+
         wxRemoveFile(indexPath);
         db.open(indexPath.fn_str());
+
         InitDB();
         StartIndexing();
     }
@@ -88,14 +91,23 @@ LogIndex::Open(LogReader *reader)
 
 
 void
-LogIndex::Close()
+LogIndex::DeleteCommands()
 {
+    // Assumes dbLock is already locked.
+
     if (cmd_getInstantForTimestep) {
         delete cmd_getInstantForTimestep;
         cmd_getInstantForTimestep = NULL;
     }
+}
 
+
+void
+LogIndex::Close()
+{
+    wxCriticalSectionLocker locker(dbLock);
     db.close();
+    DeleteCommands();
     reader = NULL;
 }
 
@@ -180,6 +192,10 @@ LogIndex::Finish()
     cmd.executenonquery();
 
     transaction.commit();
+
+    // Reset all cached commands
+    DeleteCommands();
+
     SetProgress(1.0, COMPLETE);
 }
 
