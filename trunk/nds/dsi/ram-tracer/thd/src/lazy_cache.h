@@ -151,8 +151,10 @@ public:
         thread->Delete();
     }
 
-    // Throws LazyCacheMiss on miss
-    Value &get(Key k)
+    // Throws LazyCacheMiss on miss.
+    // If 'insert' is true, inserts/repositions the work item in our thread's queue.
+
+    Value &get(Key k, bool insert=true)
     {
         wxCriticalSectionLocker locker(lock);
         int index;
@@ -160,8 +162,10 @@ public:
         if (find(k, index)) {
             return LRUCache<Key, Value>::retrieve(index);
         } else {
-            workQueue.insert(k);
-            thread->wake();
+            if (insert) {
+                workQueue.insert(k);
+                thread->wake();
+            }
             throw LazyCacheMiss();
         }
     }

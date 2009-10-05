@@ -69,8 +69,7 @@ THDTimeline::OnMouseEvent(wxMouseEvent &event)
 
     if (event.Dragging()) {
         view.origin = savedView.origin - (cursor.x - dragOrigin.x) * savedView.scale;
-        clampView();
-        Refresh();
+        viewChanged();
     }
 
     static const double ZOOM_FACTOR = 1.2;
@@ -96,9 +95,9 @@ THDTimeline::zoom(double factor, int xPivot)
 
     view.origin += xPivot * (view.scale - newScale);
     view.scale = newScale;
-    clampView();
-    Refresh();
+    viewChanged();
 }
+
 
 void
 THDTimeline::OnPaint(wxPaintEvent &event)
@@ -121,6 +120,19 @@ THDTimeline::OnPaint(wxPaintEvent &event)
     }
 
     dc.DrawBitmap(bufferBitmap, 0, 0, false);
+
+    /*
+     * We only enqueue new slices on the first paint after user
+     * interaction.  If we're refreshing due to our REFRESH or
+     * INDEXING timers, enqueueing slices will just waste CPU time and
+     * draw the slices in an unintended order.
+     *
+     * (If we enqueued slices on every render, we'd be continuously
+     * changing the order in which slices are queued- so every time
+     * the work thread picks a new slice to work on, it will be
+     * effectively random.)
+     */
+    needSliceEnqueue = false;
 
     event.Skip();
 }
@@ -207,7 +219,7 @@ THDTimeline::renderSlice(pixelData_t &data, int x)
          * to the bufferBitmap.
          */
 
-        SliceValue &slice = sliceCache.get(key);
+        SliceValue &slice = sliceCache.get(key, needSliceEnqueue);
         uint32_t *pixIn = slice.pixels;
 
         for (int y = 0; y < SLICE_HEIGHT; y++) {
@@ -227,7 +239,7 @@ THDTimeline::renderSlice(pixelData_t &data, int x)
 
     } catch (LazyCacheMiss &e) {
         /*
-         * If no data is ready yet, our cache will start generating it
+         * If no data is ready yet, our cache will be generating it
          * asynchronously. If data isn't available yet but the current
          * contents of the buffer isn't too old, we'll leave it
          * alone. If it's older than MAX_SLICE_AGE frames, though,
@@ -283,7 +295,7 @@ THDTimeline::OnSize(wxSizeEvent &event)
         bufferAges = std::vector<uint8_t>(roundedWidth, 0xFF);
     }
 
-    clampView();
+    viewChanged();
     event.Skip();
 }
 
@@ -296,10 +308,14 @@ THDTimeline::OnRefreshTimer(wxTimerEvent &event)
 
 
 void
-THDTimeline::clampView(void)
+THDTimeline::viewChanged(void)
 {
     /*
-     * Clamp the current TimelineView to the allowed range.
+     * The view changed. We need to:
+     *
+     *   1. Clamp the current TimelineView to the allowed range
+     *   2. Remember to enqueue new slices to draw on the next paint
+     *   3. Queue up a repaint
      */
 
     if ((int64_t)view.origin < 0)
@@ -309,6 +325,10 @@ THDTimeline::clampView(void)
 
     if (view.origin > duration)
         view.origin = duration;
+
+    needSliceEnqueue = true;
+
+    Refresh();
 }
 
 void
