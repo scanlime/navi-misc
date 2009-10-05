@@ -38,7 +38,8 @@ LogIndex::LogIndex()
     : progressReceiver(NULL),
       duration(0),
       cmd_getInstantForTimestep(NULL),
-      instantCache(GetNumStrata())
+      instantCache(INSTANT_CACHE_SIZE,
+                   instantPtr_t(new LogInstant(GetNumStrata(), 0, 0, true)))
 {
     if (!progressEvent)
         progressEvent = wxNewEventType();
@@ -526,7 +527,7 @@ LogIndex::GetInstant(ClockType time, ClockType distance)
     }
 
     // Always remember the data we just pulled all the way from disk...
-    instantCache.store(dbInst);
+    instantCache.store(dbInst->time, dbInst);
 
     // Is this one close enough yet?
     if (instDist <= distance) {
@@ -571,8 +572,7 @@ LogIndex::GetInstant(ClockType time, ClockType distance)
     }
 
     // Cache it and return it
-    instantCache.store(newInst);
-    instantCache.vacuum();
+    instantCache.store(newInst->time, newInst);
 
     return newInst;
 }
