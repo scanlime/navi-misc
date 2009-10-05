@@ -209,4 +209,97 @@ private:
     map_t map;
 };
 
+
+/*
+ * A specialized LRU cache that uses an ordered map rather than a hash
+ * table. Queries can look for the closest cached item to a specified
+ * key.
+ */
+
+template <typename Key, typename Value>
+class FuzzyCache {
+public:
+    FuzzyCache(int _size, Value _defaultValue)
+        : lru(_size),
+          defaultValue(_defaultValue)
+    {}
+
+    static Key distance(Key a, Key b)
+    {
+        if (a >= b)
+            return a - b;
+        else
+            return b - a;
+    }
+
+    Value &findClosest(Key k)
+    {
+        iterator_t below = cacheMap.upper_bound(k);
+        iterator_t above = cacheMap.lower_bound(k);
+        bool belowExists = below != cacheMap.end();
+        bool aboveExists = above != cacheMap.end();
+
+        if (belowExists && (!aboveExists || (k - below->first <= above->first - k))) {
+            touch(below->first);
+            return below->second;
+        }
+
+        if (aboveExists && (!belowExists || (k - below->first >= above->first - k))) {
+            touch(above->first);
+            return above->second;
+        }
+
+        // Map is empty. Return a blank instant.
+        return defaultValue;
+    }
+
+    void store(Key &k, Value &v)
+    {
+        // Recycle the oldest slot
+        int slot = lru.head;
+        lru.moveToTail(slot);
+
+        // Free the old item, if any
+        slotMapIter_t slotIter = slotMap.find(slot);
+        if (slotIter != slotMap.end()) {
+            Key oldKey = slotIter->second;
+            slotMap.erase(slotIter);
+            keyMap.erase(oldKey);
+            cacheMap.erase(oldKey);
+        }
+
+        // Insert the new item
+        cacheMap.insert(value_t(k, v));
+        slotMap.insert(slotMapValue_t(slot, k));
+        keyMap.insert(keyMapValue_t(k, slot));
+    }
+
+private:
+
+    void touch(Key k)
+    {
+        // Mark a key as most recently used
+        lru.moveToTail(keyMap.at(k));
+    }
+
+    typedef typename std::map<Key, Value> map_t;
+    typedef typename std::map<Key, Value>::iterator iterator_t;
+    typedef typename std::map<Key, Value>::value_type value_t;
+
+    typedef typename std::map<int, Key> slotMap_t;
+    typedef typename std::map<int, Key>::iterator slotMapIter_t;
+    typedef typename std::map<int, Key>::value_type slotMapValue_t;
+
+    typedef typename std::map<Key, int> keyMap_t;
+    typedef typename std::map<Key, int>::iterator keyMapIter_t;
+    typedef typename std::map<Key, int>::value_type keyMapValue_t;
+
+    Value defaultValue;
+    map_t cacheMap;
+    slotMap_t slotMap;
+    keyMap_t keyMap;
+    SlotList<> lru;
+};
+
+
 #endif /* __LRU_CACHE_H */
