@@ -33,7 +33,8 @@ THDApp::OnInit()
     frame->Show();
     SetTopWindow(frame);
 
-    frame->Open(argv[1]);
+    if (argv[1])
+        frame->Open(argv[1]);
 
     return true;
 }

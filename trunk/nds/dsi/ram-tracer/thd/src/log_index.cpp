@@ -36,13 +36,22 @@ wxEventType LogIndex::progressEvent = 0;
 
 LogIndex::LogIndex()
     : progressReceiver(NULL),
-      duration(0)
+      duration(0),
+      cmd_getInstantForTimestep(NULL),
+      instantCache(GetNumStrata())
 {
     if (!progressEvent)
         progressEvent = wxNewEventType();
 
     SetProgress(0.0, IDLE);
 }
+
+
+LogIndex::~LogIndex()
+{
+    Close();
+}
+
 
 void
 LogIndex::Open(LogReader *reader)
@@ -81,6 +90,11 @@ LogIndex::Open(LogReader *reader)
 void
 LogIndex::Close()
 {
+    if (cmd_getInstantForTimestep) {
+        delete cmd_getInstantForTimestep;
+        cmd_getInstantForTimestep = NULL;
+    }
+
     db.close();
     reader = NULL;
 }
@@ -271,22 +285,26 @@ LogIndex::StoreInstant(LogInstant &instant)
 
 
 void
-LogIndex::AdvanceInstant(LogInstant &instant, MemTransfer &mt)
+LogIndex::AdvanceInstant(LogInstant &instant, MemTransfer &mt, bool reverse)
 {
     /*
-     * Advance a LogInstant forward by processing one memory transfer.
+     * Advance a LogInstant forward or backward by processing one memory transfer.
      */
 
     AlignedIterator<STRATUM_SHIFT> iter(mt);
 
-    instant.time += mt.duration;
+    if (reverse)
+        instant.time -= mt.duration;
+    else
+        instant.time += mt.duration;
+
     instant.offset = mt.LogOffset();
 
     do {
         switch (mt.type) {
 
         case MemTransfer::READ: {
-            instant.readTotals.add(iter.blockId, iter.len);
+            instant.readTotals.add(iter.blockId, reverse ? -iter.len : iter.len);
             break;
         }
 
@@ -299,8 +317,8 @@ LogIndex::AdvanceInstant(LogInstant &instant, MemTransfer &mt)
                     numZeroes++;
             }
 
-            instant.writeTotals.add(iter.blockId, iter.len);
-            instant.zeroTotals.add(iter.blockId, numZeroes);
+            instant.writeTotals.add(iter.blockId, reverse ? -iter.len : iter.len);
+            instant.zeroTotals.add(iter.blockId, reverse ? -numZeroes : numZeroes);
             break;
         }
 
@@ -468,53 +486,123 @@ LogIndex::IndexerThread::Entry()
 boost::shared_ptr<LogInstant>
 LogIndex::GetInstant(ClockType time, ClockType distance)
 {
-    instantPtr_t instant(new LogInstant(GetNumStrata()));
+    time = std::min<ClockType>(time, GetDuration());
+
+    instantPtr_t inst = instantCache.findClosest(time);
+    ClockType instDist = instantCache.distance(inst->time, time);
 
     /*
-     * XXX: Use other cached instants to generate a new instant
-     * XXX: Use fuzzy bounds on 'time'
+     * First try: Is there already a good instant in the cache?
      */
 
-    if (time < GetDuration()) {
-        wxCriticalSectionLocker locker(dbLock);
+    if (instDist <= distance) {
+        return inst;
+    }
 
-        sqlite3_command cmd(db, "SELECT * FROM strata "
-                            "WHERE time < ? ORDER BY time DESC LIMIT 1");
-        cmd.bind(1, (sqlite3x::int64_t) time);
-        sqlite3_cursor crsr = cmd.executecursor();
+    /*
+     * No. See what the closest one is from the current timestep.
+     * If this is closer that the cached one, we'll use it instead.
+     */
 
-        if (crsr.step()) {
-            int size;
-            const void *blob;
+    instantPtr_t dbInst = GetInstantForTimestep(time);
+    ClockType dbInstDist = instantCache.distance(dbInst->time, time);
+    if (dbInstDist < instDist) {
+        instDist = dbInstDist;
+        inst = dbInst;
+    }
 
-            instant->time = crsr.getint64(0);
-            instant->offset = crsr.getint64(1);
+    // Always remember the data we just pulled all the way from disk...
+    instantCache.store(dbInst);
 
-            blob = crsr.getblob(2, size);
-            instant->readTotals.unpack((const uint8_t *)blob, size);
+    // Is this one close enough yet?
+    if (instDist <= distance) {
+        return inst;
+    }
 
-            blob = crsr.getblob(3, size);
-            instant->writeTotals.unpack((const uint8_t *)blob, size);
+    /*
+     * If we're still not close enough, we need to make a new
+     * LogInstant by advancing the existing one forward or backward
+     * through the original log file.
+     *
+     * A LogInstant is inclusive of the data in the MemTransfer at the
+     * instant's saved offset. So if we're iterating forward, we need
+     * to call Next() first. If we're iterating backward, we need to
+     * call Prev() second.
+     */
 
-            blob = crsr.getblob(4, size);
-            instant->zeroTotals.unpack((const uint8_t *)blob, size);
+    instantPtr_t newInst(new LogInstant(*inst));
+    bool reverse = time < newInst->time;
+    MemTransfer mt(newInst->offset);
 
-            /*
-             * Now advance it forward to the actual requested time.
-             */
+    if (time < newInst->time) {
+        ClockType target = time + distance;
 
-            MemTransfer mt(instant->offset);
-            while (instant->time < time && reader->Read(mt)) {
-                AdvanceInstant(*instant, mt);
-                reader->Next(mt);
-            }
+        do {
+            if (!reader->Read(mt))
+                break;
+            AdvanceInstant(*newInst, mt, true);
+            reader->Prev(mt);
+        } while (newInst->time > target);
 
-        } else {
-            // Before the first recorded log entry
-            instant->clear();
-        }
     } else {
-        // After the last indexed log entry
+        ClockType target = time - distance;
+
+        do {
+            reader->Next(mt);
+            if (!reader->Read(mt))
+                break;
+            AdvanceInstant(*newInst, mt);
+        } while (newInst->time < target);
+    }
+
+    // Cache it and return it
+    instantCache.store(newInst);
+    instantCache.vacuum();
+
+    return newInst;
+}
+
+
+instantPtr_t
+LogIndex::GetInstantForTimestep(ClockType upperBound)
+{
+    /*
+     * This is a low-level function to get a LogInstant from the
+     * database of timesteps, without regard to transfer playback or
+     * the instant cache.
+     */
+
+    instantPtr_t instant(new LogInstant(GetNumStrata()));
+    wxCriticalSectionLocker locker(dbLock);
+    sqlite3_command *cmd = cmd_getInstantForTimestep;
+
+    if (!cmd) {
+        cmd = cmd_getInstantForTimestep =
+            new sqlite3_command(db, "SELECT * FROM strata WHERE "
+                                "time < ? ORDER BY time DESC LIMIT 1");
+    }
+
+    cmd->bind(1, (sqlite3x::int64_t) upperBound);
+    sqlite3_cursor crsr = cmd->executecursor();
+
+    if (crsr.step()) {
+        int size;
+        const void *blob;
+
+        instant->time = crsr.getint64(0);
+        instant->offset = crsr.getint64(1);
+
+        blob = crsr.getblob(2, size);
+        instant->readTotals.unpack((const uint8_t *)blob, size);
+
+        blob = crsr.getblob(3, size);
+        instant->writeTotals.unpack((const uint8_t *)blob, size);
+
+        blob = crsr.getblob(4, size);
+        instant->zeroTotals.unpack((const uint8_t *)blob, size);
+
+    } else {
+        // Before the first recorded log entry
         instant->clear();
     }
 

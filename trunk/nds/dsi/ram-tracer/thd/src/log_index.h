@@ -30,12 +30,157 @@
 #include <wx/thread.h>
 #include <wx/event.h>
 #include <boost/shared_ptr.hpp>
+#include <map>
+#include <algorithm>
 
 #include "sqlite3x.h"
 #include "mem_transfer.h"
 #include "log_reader.h"
 
 class LogInstant;
+
+typedef boost::shared_ptr<LogInstant> instantPtr_t;
+
+
+/*
+ * An array of values, one per log strata. Each value can hold up to 56
+ * bits of data, and is serialized using a variable-length integer encoding.
+ */
+
+class LogStrata {
+public:
+    LogStrata(int numStrata)
+        : count(numStrata), values(new uint64_t[numStrata])
+    {}
+
+    LogStrata(const LogStrata &copy)
+        : count(copy.count), values(new uint64_t[copy.count])
+    {
+        std::copy(copy.values, copy.values + copy.count, values);
+    }
+
+    ~LogStrata()
+    {
+        delete[] values;
+    }
+
+    uint64_t get(int index)
+    {
+        return values[index];
+    }
+
+    void set(int index, uint64_t value)
+    {
+        values[index] = value;
+    }
+
+    void add(int index, uint64_t value)
+    {
+        values[index] += value;
+    }
+
+    size_t getPackedLen();
+    void pack(uint8_t *buffer);
+    void unpack(const uint8_t *buffer, size_t bufferLen);
+    void clear();
+
+private:
+    int count;
+    uint64_t *values;
+};
+
+
+/*
+ * A summary of the log's state at a particular instant. LogInstants
+ * can be retrieved from a LogIndex, and the LogIndex internally
+ * caches them.
+ */
+
+class LogInstant {
+public:
+    LogInstant(int numStrata,
+               MemTransfer::ClockType _time = 0,
+               MemTransfer::OffsetType _offset = 0)
+        : readTotals(numStrata),
+          writeTotals(numStrata),
+          zeroTotals(numStrata),
+          time(_time),
+          offset(_offset)
+    {}
+
+    void clear();
+
+    MemTransfer::ClockType time;
+    MemTransfer::OffsetType offset;
+
+    LogStrata readTotals;
+    LogStrata writeTotals;
+    LogStrata zeroTotals;
+};
+
+
+/*
+ * A utility class that manages a cache of LogInstants.  The cached
+ * instants are sorted by time, and they can be queried to find nearby
+ * instants rather than just exact matches.
+ */
+
+class InstantCache {
+public:
+    InstantCache(int numStrata)
+        : defaultInstant(new LogInstant(numStrata))
+    {
+        defaultInstant->clear();
+    }
+
+    typedef MemTransfer::ClockType key_t;
+    typedef std::map<key_t, instantPtr_t> map_t;
+
+    static key_t distance(key_t a, key_t b)
+    {
+        if (a >= b)
+            return a - b;
+        else
+            return b - a;
+    }
+
+    instantPtr_t findClosest(key_t k)
+    {
+        map_t::iterator below = cacheMap.upper_bound(k);
+        map_t::iterator above = cacheMap.lower_bound(k);
+        bool belowExists = below != cacheMap.end();
+        bool aboveExists = above != cacheMap.end();
+
+        if (belowExists && (!aboveExists || (k - below->first <= above->first - k))) {
+            return below->second;
+        }
+
+        if (aboveExists && (!belowExists || (k - below->first >= above->first - k))) {
+            return above->second;
+        }
+
+        // Map is empty. Return a blank instant.
+        return defaultInstant;
+    }
+
+    void store(instantPtr_t v)
+    {
+        cacheMap.insert(map_t::value_type(v->time, v));
+        count++;
+    }
+
+    void vacuum(void)
+    {
+        // XXX: Cull old entries from the cache, to get it below the max size
+    }
+
+private:
+    static const int INSTANT_CACHE_SIZE = 4096;
+
+    instantPtr_t defaultInstant;
+    int count;
+    map_t cacheMap;
+};
 
 
 class LogIndex {
@@ -51,6 +196,7 @@ public:
     };
 
     LogIndex();
+    ~LogIndex();
 
     /*
      * Opening/closing a log file automatically starts/stops
@@ -100,7 +246,6 @@ public:
      * return an instant that's no farther than 'distance' from the
      * specified time.
      */
-    typedef boost::shared_ptr<LogInstant> instantPtr_t;
     instantPtr_t GetInstant(ClockType time, ClockType distance=0);
 
 private:
@@ -120,9 +265,7 @@ private:
      *            block granularity.
      */
 
-    static const int INSTANT_CACHE_SIZE = 4096;
-
-    static const int TIMESTEP_SIZE = 128 * 1024;     // Timestep duration, in bytes
+    static const int TIMESTEP_SIZE = 256 * 1024;     // Timestep duration, in bytes
 
     static const int BLOCK_SHIFT = 9;                // 512 bytes
     static const int BLOCK_SIZE = 1 << BLOCK_SHIFT;
@@ -138,7 +281,8 @@ private:
     void SetProgress(double progress, State state);
     void StartIndexing();
     void StoreInstant(LogInstant &instant);
-    void AdvanceInstant(LogInstant &instant, MemTransfer &mt);
+    void AdvanceInstant(LogInstant &instant, MemTransfer &mt, bool reverse = false);
+    instantPtr_t GetInstantForTimestep(ClockType upperBound);
 
     class IndexerThread : public wxThread {
     public:
@@ -156,79 +300,14 @@ private:
     double logFileSize;
     ClockType duration;
 
+    InstantCache instantCache;
+
+    sqlite3x::sqlite3_command *cmd_getInstantForTimestep;
+
     State state;
     double progress;
     static wxEventType progressEvent;
     wxEvtHandler *progressReceiver;
-};
-
-
-/*
- * An array of values, one per log strata. Each value can hold up to 56
- * bits of data, and is serialized using a variable-length integer encoding.
- */
-
-class LogStrata {
-public:
-    LogStrata(int numStrata)
-        : count(numStrata), values(new uint64_t[numStrata])
-    {}
-
-    ~LogStrata() {
-        delete[] values;
-    }
-
-    uint64_t get(int index) {
-        assert(index < count);
-        return values[index];
-    }
-
-    void set(int index, uint64_t value) {
-        assert(index < count);
-        values[index] = value;
-    }
-
-    void add(int index, uint64_t value) {
-        assert(index < count);
-        values[index] += value;
-    }
-
-    size_t getPackedLen();
-    void pack(uint8_t *buffer);
-    void unpack(const uint8_t *buffer, size_t bufferLen);
-    void clear();
-
-private:
-    int count;
-    uint64_t *values;
-};
-
-
-/*
- * A summary of the log's state at a particular instant. LogInstants
- * can be retrieved from a LogIndex, and the LogIndex internally
- * caches them.
- */
-
-struct LogInstant {
-    LogInstant(int numStrata,
-               LogIndex::ClockType _time = 0,
-               MemTransfer::OffsetType _offset = 0)
-        : readTotals(numStrata),
-          writeTotals(numStrata),
-          zeroTotals(numStrata),
-          time(_time),
-          offset(_offset)
-    {}
-
-    void clear();
-
-    LogIndex::ClockType time;
-    MemTransfer::OffsetType offset;
-
-    LogStrata readTotals;
-    LogStrata writeTotals;
-    LogStrata zeroTotals;
 };
 
 
