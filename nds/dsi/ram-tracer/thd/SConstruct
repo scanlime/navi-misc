@@ -2,7 +2,7 @@
 
 env = Environment(
     CPPPATH = '#/../include',
-    CCFLAGS = '-g -O2',
+    CCFLAGS = '-g -O3',
     )
 
 env.ParseConfig('wx-config --cflags --libs')

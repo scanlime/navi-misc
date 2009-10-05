@@ -64,6 +64,16 @@ public:
         delete[] values;
     }
 
+    bool operator ==(const LogStrata &other)
+    {
+        if (count != other.count)
+            return false;
+        for (int i = 0; i < count; i++)
+            if (values[i] != other.values[i])
+                return false;
+        return true;
+    }
+
     uint64_t get(int index)
     {
         return values[index];
@@ -74,9 +84,12 @@ public:
         values[index] = value;
     }
 
-    void add(int index, uint64_t value)
+    void update(int index, uint64_t value, bool reverse=false)
     {
-        values[index] += value;
+        if (reverse)
+            values[index] -= value;
+        else
+            values[index] += value;
     }
 
     size_t getPackedLen();
@@ -108,10 +121,27 @@ public:
           offset(_offset)
     {}
 
+    bool operator ==(const LogInstant &other)
+    {
+        return time == other.time &&
+               offset == other.offset &&
+               readTotals == other.readTotals &&
+               writeTotals == other.writeTotals &&
+               zeroTotals == other.zeroTotals;
+    }
+
     void clear();
 
     MemTransfer::ClockType time;
     MemTransfer::OffsetType offset;
+
+    void updateTime(MemTransfer::ClockType amount, bool reverse=false)
+    {
+        if (reverse)
+            time -= amount;
+        else
+            time += amount;
+    }
 
     LogStrata readTotals;
     LogStrata writeTotals;

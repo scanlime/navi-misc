@@ -42,27 +42,16 @@ public:
     typedef uint32_t DurationType;   // Duration of one command
     typedef uint64_t ClockType;      // Global clock values
 
-    MemTransfer(OffsetType offset = 0) {
-        Seek(offset);
-    }
+    MemTransfer(OffsetType offset = 0)
+        : logOffset(offset) {}
 
-    /*
-     * Change the offset of this transfer. Seeking resets the
-     * transfer's metadata. (The LogReader can use byteCount to estimate
-     * the position of the next packet- so we must invalidate it in
-     * transfers that have been seeked but not read.)
-     */
     void Seek(OffsetType offset) {
         logOffset = offset;
-        address = (AddressType) -1;
-        byteCount = 0;
-        duration = 0;
     }
 
     OffsetType LogOffset() {
         return logOffset;
     }
-
 
     AddressType address;
     LengthType byteCount;

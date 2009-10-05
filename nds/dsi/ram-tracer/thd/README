@@ -19,18 +19,10 @@ If you're using Debian or Ubuntu, the packages you need are:
   wx-common
   libboost-dev
 
-BUGS
+TODO
 ----
 
-- The backward iteration in the log instant cache probably doesn't
-  quite work 100%, and it's causing discontinuity artifacts when you
-  zoom in sometimes.
-
 - The instant cache's vacuum() isn't implemented, so it uses unbounded RAM.
-
-- Slices are supposed to fill in from the cursor outward, but a lot of
-  other random slices appear sooner than they should. Maybe this is a
-  bug in the cache?
 
 - OnPaint for the timeline control always redraws the whole thing. It
   should only redraw visible areas, and only if they need drawing.

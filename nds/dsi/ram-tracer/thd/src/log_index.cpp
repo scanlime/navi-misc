@@ -291,41 +291,39 @@ LogIndex::AdvanceInstant(LogInstant &instant, MemTransfer &mt, bool reverse)
      * Advance a LogInstant forward or backward by processing one memory transfer.
      */
 
-    AlignedIterator<STRATUM_SHIFT> iter(mt);
-
-    if (reverse)
-        instant.time -= mt.duration;
-    else
-        instant.time += mt.duration;
-
+    instant.updateTime(mt.duration, reverse);
     instant.offset = mt.LogOffset();
 
-    do {
-        switch (mt.type) {
+    if (mt.byteCount) {
+        AlignedIterator<STRATUM_SHIFT> iter(mt);
 
-        case MemTransfer::READ: {
-            instant.readTotals.add(iter.blockId, reverse ? -iter.len : iter.len);
-            break;
-        }
+        do {
+            switch (mt.type) {
 
-        case MemTransfer::WRITE: {
-            MemTransfer::LengthType numZeroes = 0;
-
-            for (MemTransfer::LengthType i = 0; i < iter.len; i++) {
-                uint8_t byte = mt.buffer[i + iter.mtOffset];
-                if (!byte)
-                    numZeroes++;
+            case MemTransfer::READ: {
+                instant.readTotals.update(iter.blockId, iter.len, reverse);
+                break;
             }
 
-            instant.writeTotals.add(iter.blockId, reverse ? -iter.len : iter.len);
-            instant.zeroTotals.add(iter.blockId, reverse ? -numZeroes : numZeroes);
-            break;
-        }
+            case MemTransfer::WRITE: {
+                MemTransfer::LengthType numZeroes = 0;
 
-        default:
-            break;
-        }
-    } while (iter.next());
+                for (MemTransfer::LengthType i = 0; i < iter.len; i++) {
+                    uint8_t byte = mt.buffer[i + iter.mtOffset];
+                    if (!byte)
+                        numZeroes++;
+                }
+
+                instant.writeTotals.update(iter.blockId, iter.len, reverse);
+                instant.zeroTotals.update(iter.blockId, numZeroes, reverse);
+                break;
+            }
+
+            default:
+                break;
+            }
+        } while (iter.next());
+    }
 }
 
 
@@ -531,7 +529,6 @@ LogIndex::GetInstant(ClockType time, ClockType distance)
      */
 
     instantPtr_t newInst(new LogInstant(*inst));
-    bool reverse = time < newInst->time;
     MemTransfer mt(newInst->offset);
 
     if (time < newInst->time) {
@@ -540,15 +537,17 @@ LogIndex::GetInstant(ClockType time, ClockType distance)
         do {
             if (!reader->Read(mt))
                 break;
+            if (!reader->Prev(mt))
+                break;
             AdvanceInstant(*newInst, mt, true);
-            reader->Prev(mt);
         } while (newInst->time > target);
 
     } else {
         ClockType target = time - distance;
 
         do {
-            reader->Next(mt);
+            if (!reader->Next(mt))
+                break;
             if (!reader->Read(mt))
                 break;
             AdvanceInstant(*newInst, mt);

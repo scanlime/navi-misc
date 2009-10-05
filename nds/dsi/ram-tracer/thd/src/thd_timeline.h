@@ -83,7 +83,7 @@ private:
     static const int INDEXING_FPS      = 5;
 
     struct SliceValue {
-        uint32_t pixels[256];
+        uint32_t pixels[SLICE_HEIGHT];
     };
 
     typedef LazyCache<SliceKey, SliceValue> sliceCache_t;
@@ -96,7 +96,7 @@ private:
     };
 
     void zoom(double factor, int xPivot);
-    void clampView(void);
+    void viewChanged(void);
     bool renderSlice(pixelData_t &data, int x);
     bool renderSliceRange(pixelData_t &data, int xMin, int xMax);
 
@@ -111,7 +111,7 @@ private:
     wxPoint cursor;
     TimelineView view;
     TimelineView savedView;
-
+    bool needSliceEnqueue;
 };
 
 #endif /* __THD_TIMELINE_H */
