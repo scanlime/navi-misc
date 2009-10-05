@@ -305,6 +305,7 @@ private:
     static const int STRATUM_SIZE = 1 << STRATUM_SHIFT;
     static const int STRATUM_MASK = STRATUM_SIZE - 1;
 
+    void DeleteCommands();
     void InitDB();
     void Finish();
     bool CheckFinished();
