@@ -100,7 +100,8 @@ public:
      * return an instant that's no farther than 'distance' from the
      * specified time.
      */
-    boost::shared_ptr<LogInstant> GetInstant(ClockType time, ClockType distance=0);
+    typedef boost::shared_ptr<LogInstant> instantPtr_t;
+    instantPtr_t GetInstant(ClockType time, ClockType distance=0);
 
 private:
     /*
@@ -118,6 +119,8 @@ private:
      *            chunks. Any data that changes during a timestep is indexed with
      *            block granularity.
      */
+
+    static const int INSTANT_CACHE_SIZE = 4096;
 
     static const int TIMESTEP_SIZE = 128 * 1024;     // Timestep duration, in bytes
 

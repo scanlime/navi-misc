@@ -30,6 +30,7 @@
 #include <wx/bitmap.h>
 #include <wx/timer.h>
 #include <wx/rawbmp.h>
+#include <vector>
 
 #include "log_index.h"
 #include "lazy_cache.h"
@@ -78,6 +79,7 @@ private:
     static const int SLICE_HEIGHT      = 256;
     static const int SLICE_CACHE_SIZE  = 1 << 16;
     static const int REFRESH_FPS       = 60;
+    static const int MAX_SLICE_AGE     = 30;
     static const int INDEXING_FPS      = 5;
 
     struct SliceValue {
@@ -102,6 +104,7 @@ private:
     sliceCache_t sliceCache;
     SliceGenerator sliceGenerator;
     wxBitmap bufferBitmap;
+    std::vector<uint8_t> bufferAges;
     wxTimer refreshTimer;
 
     wxPoint dragOrigin;

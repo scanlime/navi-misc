@@ -220,25 +220,37 @@ THDTimeline::renderSlice(pixelData_t &data, int x)
             pixOut.OffsetY(data, 1);
         }
 
+        // This slice is up to date
+        bufferAges[x] = 0;
+
         return true;
 
     } catch (LazyCacheMiss &e) {
         /*
-         * If no data is ready yet, our cache will start
-         * generating it asynchronously, but for now we'll
-         * display a placeholder checkerboard pattern.
+         * If no data is ready yet, our cache will start generating it
+         * asynchronously. If data isn't available yet but the current
+         * contents of the buffer isn't too old, we'll leave it
+         * alone. If it's older than MAX_SLICE_AGE frames, though,
+         * we'll display a placeholder checkerboard pattern.
          *
-         * If any slices are incomplete, we'll remember to
-         * retry later, so the display progressively updates
-         * as slices become available.
+         * If any slices are incomplete, we'll remember to retry
+         * later, so the display progressively updates as slices
+         * become available.
          */
 
-        for (int y = 0; y < SLICE_HEIGHT; y++) {
-            uint8_t shade = (x ^ y) & 8 ? 0x22 : 0x55;
-            pixOut.Red() = shade;
-            pixOut.Green() = shade;
-            pixOut.Blue() = shade;
-            pixOut.OffsetY(data, 1);
+        if (bufferAges[x] < MAX_SLICE_AGE) {
+            bufferAges[x]++;
+
+        } else {
+            // Checkerboard
+
+            for (int y = 0; y < SLICE_HEIGHT; y++) {
+                uint8_t shade = (x ^ y) & 8 ? 0x22 : 0x55;
+                pixOut.Red() = shade;
+                pixOut.Green() = shade;
+                pixOut.Blue() = shade;
+                pixOut.OffsetY(data, 1);
+            }
         }
 
         return false;
@@ -262,6 +274,13 @@ THDTimeline::OnSize(wxSizeEvent &event)
     int roundedWidth = (width | (WIDTH_ROUNDING - 1)) + 1;
     if (roundedWidth != bufferBitmap.GetWidth()) {
         bufferBitmap.Create(roundedWidth, SLICE_HEIGHT);
+
+        /*
+         * Start out with each column at the maximum age possible,
+         * since the existing contents of the buffer are totally
+         * incorrect.
+         */
+        bufferAges = std::vector<uint8_t>(roundedWidth, 0xFF);
     }
 
     clampView();
@@ -295,8 +314,11 @@ THDTimeline::clampView(void)
 void
 THDTimeline::SliceGenerator::fn(SliceKey &key, SliceValue &value)
 {
-    boost::shared_ptr<LogInstant> begin = timeline->index->GetInstant(key.begin);
-    boost::shared_ptr<LogInstant> end = timeline->index->GetInstant(key.end);
+    // Allowable deviation from correct begin/end timestamps
+    LogIndex::ClockType fuzz = (key.end - key.begin) >> 2;
+
+    boost::shared_ptr<LogInstant> begin = timeline->index->GetInstant(key.begin, fuzz);
+    boost::shared_ptr<LogInstant> end = timeline->index->GetInstant(key.end, fuzz);
 
     for (int y = 0; y < SLICE_HEIGHT; y++) {
         uint64_t readDelta = end->readTotals.get(y) - begin->readTotals.get(y);
