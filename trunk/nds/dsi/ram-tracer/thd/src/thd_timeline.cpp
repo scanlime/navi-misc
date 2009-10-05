@@ -113,10 +113,14 @@ THDTimeline::OnPaint(wxPaintEvent &event)
     {
         pixelData_t data(bufferBitmap);
 
-        if (!renderSliceRange(data, xMin, xMax))
+        if (!renderSliceRange(data, xMin, xMax)) {
+            // Redraw quickly if we're still waiting for more data.
             refreshTimer.Start(1000 / REFRESH_FPS, wxTIMER_ONE_SHOT);
-        else if (index->GetState() == index->INDEXING)
+
+        } else if (index->GetState() == index->INDEXING) {
+            // Redraw slowly if we're indexing.
             refreshTimer.Start(1000 / INDEXING_FPS, wxTIMER_ONE_SHOT);
+        }
     }
 
     dc.DrawBitmap(bufferBitmap, 0, 0, false);
@@ -131,8 +135,11 @@ THDTimeline::OnPaint(wxPaintEvent &event)
      * changing the order in which slices are queued- so every time
      * the work thread picks a new slice to work on, it will be
      * effectively random.)
+     *
+     * We do need to keep enqueueing slices during indexing, since the
+     * log duration will be constantly changing.
      */
-    needSliceEnqueue = false;
+    needSliceEnqueue = index->GetState() == index->INDEXING;
 
     event.Skip();
 }
