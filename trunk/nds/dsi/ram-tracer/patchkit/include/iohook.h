@@ -112,5 +112,11 @@ IOHook_FWrite(const void *data, uint32_t len)
  */
 void IOHook_FRead(void *data, uint32_t len);
 
+static inline void
+IOHook_SetClock(uint32_t khz)
+{
+   IOHook_Send(IOH_SVC_SETCLOCK, &khz, sizeof khz);
+}
+
 
 #endif /* __IOHOOK_H */

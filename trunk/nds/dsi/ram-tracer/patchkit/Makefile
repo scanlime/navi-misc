@@ -5,6 +5,7 @@ PATCHES := \
 	register-dump.elf \
 	core-dump.elf \
 	stub.elf \
+	gdb-stub.elf \
 
 # Common files for all patches
 LDSCRIPT := lib/patch.ld
