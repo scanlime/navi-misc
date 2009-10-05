@@ -468,9 +468,12 @@ LogIndex::IndexerThread::Entry()
 boost::shared_ptr<LogInstant>
 LogIndex::GetInstant(ClockType time, ClockType distance)
 {
-    /* XXX: Needs work. */
+    instantPtr_t instant(new LogInstant(GetNumStrata()));
 
-    boost::shared_ptr<LogInstant> instant(new LogInstant(GetNumStrata()));
+    /*
+     * XXX: Use other cached instants to generate a new instant
+     * XXX: Use fuzzy bounds on 'time'
+     */
 
     if (time < GetDuration()) {
         wxCriticalSectionLocker locker(dbLock);
