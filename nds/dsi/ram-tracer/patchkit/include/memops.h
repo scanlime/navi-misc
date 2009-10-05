@@ -18,6 +18,8 @@ memcpy32(void *dest, const void *src, uint32_t bytes)
 {
    const uint32_t *src32 = src;
    uint32_t *dest32 = dest;
-   while (bytes -= sizeof *dest32)
+   while (bytes) {
       *(dest32++) = *(src32++);
+      bytes -= sizeof *dest32;
+   }
 }
