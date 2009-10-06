@@ -169,10 +169,11 @@ public:
 
 protected:
     bool find(Key k, int &index) {
-        if (map.find(k) == map.end()) {
+        iterator_t i = map.find(k);
+        if (i == map.end()) {
             return false;
         } else {
-            index = map.at(k);
+            index = i->second;
             return true;
         }
     }
@@ -200,7 +201,8 @@ protected:
     generator_t *generator;
 
 private:
-    typedef boost::unordered_map<Key, int> map_t;
+    typedef typename boost::unordered_map<Key, int> map_t;
+    typedef typename boost::unordered_map<Key, int>::iterator iterator_t;
 
     int size;
     Value *values;
@@ -275,7 +277,6 @@ public:
     }
 
 private:
-
     void touch(Key k)
     {
         // Mark a key as most recently used
