@@ -24,6 +24,9 @@
  * THE SOFTWARE.
  */
 
+#define __STDC_LIMIT_MACROS
+#include <stdint.h>
+
 #include <wx/string.h>
 #include <assert.h>
 #include "log_index.h"
@@ -36,7 +39,7 @@ wxEventType LogIndex::progressEvent = 0;
 
 LogIndex::LogIndex()
     : progressReceiver(NULL),
-      duration(0),
+      lastInstant(new LogInstant(GetNumStrata(), 0, 0, true)),
       cmd_getInstantForTimestep(NULL),
       instantCache(INSTANT_CACHE_SIZE,
                    instantPtr_t(new LogInstant(GetNumStrata(), 0, 0, true)))
@@ -57,36 +60,51 @@ LogIndex::~LogIndex()
 void
 LogIndex::Open(LogReader *reader)
 {
-    wxCriticalSectionLocker locker(dbLock);
+    /*
+     * While we're holding the database lock, open the DB and start
+     * indexing if necessary.
+     */
+    {
+        wxCriticalSectionLocker locker(dbLock);
 
-    this->reader = reader;
-    logFileSize = std::max<double>(1.0, reader->FileName().GetSize().ToDouble());
+        this->reader = reader;
+        logFileSize = std::max<double>(1.0, reader->FileName().GetSize().ToDouble());
 
-    wxFileName indexFile = reader->FileName();
-    indexFile.SetExt(wxT("index"));
-    wxString indexPath = indexFile.GetFullPath();
+        wxFileName indexFile = reader->FileName();
+        indexFile.SetExt(wxT("index"));
+        wxString indexPath = indexFile.GetFullPath();
 
-    db.open(indexPath.fn_str());
-    InitDB();
+        db.open(indexPath.fn_str());
+        InitDB();
+
+        /*
+         * Is this index complete and up-to-date?
+         * If not, throw it away and start over.
+         *
+         * TODO: In the future we may want to store indexing progress, so we
+         *       can stop indexing partway through and resume later.
+         */
+        if (CheckFinished()) {
+            SetProgress(1.0, COMPLETE);
+        } else {
+            db.close();
+            DeleteCommands();
+
+            wxRemoveFile(indexPath);
+            db.open(indexPath.fn_str());
+
+            InitDB();
+            StartIndexing();
+        }
+    }
 
     /*
-     * Is this index complete and up-to-date?
-     * If not, throw it away and start over.
-     *
-     * TODO: In the future we may want to store indexing progress, so we
-     *       can stop indexing partway through and resume later.
+     * If the index is complete, store some important state from the
+     * database. If we're still indexing, this state will be stored
+     * periodically by the indexer.
      */
-    if (CheckFinished()) {
-        SetProgress(1.0, COMPLETE);
-    } else {
-        db.close();
-        DeleteCommands();
-
-        wxRemoveFile(indexPath);
-        db.open(indexPath.fn_str());
-
-        InitDB();
-        StartIndexing();
+    if (GetState() != INDEXING) {
+        lastInstant = GetInstantForTimestep(INT64_MAX);
     }
 }
 
@@ -126,7 +144,7 @@ LogIndex::InitDB()
 
     // Stores state for Finish()/checkinished().
     db.executenonquery("CREATE TABLE IF NOT EXISTS logInfo ("
-                       "name, mtime, timestepSize, blockSize, stratumSize, duration)");
+                       "name, mtime, timestepSize, blockSize, stratumSize)");
 
     /*
      * The strata- thick layers of coarse but quick spatial stats.
@@ -138,6 +156,7 @@ LogIndex::InitDB()
     db.executenonquery("CREATE TABLE IF NOT EXISTS strata ("
                        "time INTEGER PRIMARY KEY ASC,"
                        "offset,"
+                       "transferId,"
                        "readTotals,"
                        "writeTotals,"
                        "zeroTotals"
@@ -166,29 +185,21 @@ LogIndex::Finish()
     wxCriticalSectionLocker locker(dbLock);
     sqlite3_transaction transaction(db);
 
-#if 0
-    db.executenonquery("CREATE INDEX IF NOT EXISTS rblockIdx1 "
-                       "on rblocks (time)");
-    db.executenonquery("CREATE UNIQUE INDEX IF NOT EXISTS rblockIdx2 "
-                       "on rblocks (block, time)");
-
     db.executenonquery("CREATE INDEX IF NOT EXISTS wblockIdx1 "
                        "on wblocks (time)");
     db.executenonquery("CREATE UNIQUE INDEX IF NOT EXISTS wblockIdx2 "
                        "on wblocks (block, time)");
-#endif
 
     db.executenonquery("ANALYZE");
 
     wxFileName indexFile = reader->FileName();
-    sqlite3_command cmd(db, "INSERT INTO logInfo VALUES(?,?,?,?,?,?)");
+    sqlite3_command cmd(db, "INSERT INTO logInfo VALUES(?,?,?,?,?)");
 
     cmd.bind(1, indexFile.GetName().fn_str());
     cmd.bind(2, (sqlite3x::int64_t) indexFile.GetModificationTime().GetTicks());
     cmd.bind(3, TIMESTEP_SIZE);
     cmd.bind(4, BLOCK_SIZE);
     cmd.bind(5, STRATUM_SIZE);
-    cmd.bind(6, (sqlite3x::int64_t) duration);
 
     cmd.executenonquery();
 
@@ -203,7 +214,6 @@ LogIndex::Finish()
 
 /*
  * Check whether an existing index is correct and finished.
- * If so, return true and load the log's final duration. If not, returns false.
  */
 
 bool
@@ -225,18 +235,14 @@ LogIndex::CheckFinished()
     int timestepSize = reader.getint(2);
     int blockSize = reader.getint(3);
     int stratumSize = reader.getint(4);
-    sqlite3x::int64_t savedDuration = reader.getint(5);
 
     if (name == indexFile.GetName() &&
         mtime == indexFile.GetModificationTime().GetTicks() &&
         timestepSize == TIMESTEP_SIZE &&
         blockSize == BLOCK_SIZE &&
         stratumSize == STRATUM_SIZE) {
-
-        duration = (MemTransfer::ClockType) savedDuration;
         return true;
     } else {
-        duration = 0;
         return false;
     }
 }
@@ -281,21 +287,22 @@ LogIndex::StoreInstant(LogInstant &instant)
      * The caller must have already locked the database and started a transaction.
      */
 
-    sqlite3_command cmd(db, "INSERT INTO strata VALUES(?,?,?,?,?)");
+    sqlite3_command cmd(db, "INSERT INTO strata VALUES(?,?,?,?,?,?)");
 
     cmd.bind(1, (sqlite3x::int64_t) instant.time);
     cmd.bind(2, (sqlite3x::int64_t) instant.offset);
+    cmd.bind(3, (sqlite3x::int64_t) instant.transferId);
 
     uint8_t buffer[GetNumStrata() * 8];   // Worst-case packed size
 
     instant.readTotals.pack(buffer);
-    cmd.bind(3, buffer, instant.readTotals.getPackedLen());
+    cmd.bind(4, buffer, instant.readTotals.getPackedLen());
 
     instant.writeTotals.pack(buffer);
-    cmd.bind(4, buffer, instant.writeTotals.getPackedLen());
+    cmd.bind(5, buffer, instant.writeTotals.getPackedLen());
 
     instant.zeroTotals.pack(buffer);
-    cmd.bind(5, buffer, instant.zeroTotals.getPackedLen());
+    cmd.bind(6, buffer, instant.zeroTotals.getPackedLen());
 
     cmd.executenonquery();
 }
@@ -309,7 +316,8 @@ LogIndex::AdvanceInstant(LogInstant &instant, MemTransfer &mt, bool reverse)
      */
 
     instant.updateTime(mt.duration, reverse);
-    instant.offset = mt.LogOffset();
+    instant.offset = mt.offset;
+    instant.transferId = mt.id;
 
     if (mt.byteCount) {
         AlignedIterator<STRATUM_SHIFT> iter(mt);
@@ -347,7 +355,6 @@ LogIndex::AdvanceInstant(LogInstant &instant, MemTransfer &mt, bool reverse)
 wxThread::ExitCode
 LogIndex::IndexerThread::Entry()
 {
-    MemTransfer mt(0);
     bool aborted = false;
     bool running = true;
 
@@ -377,7 +384,7 @@ LogIndex::IndexerThread::Entry()
      */
 
     LogReader *reader = index->reader;
-    mt.Seek(prevOffset);
+    MemTransfer mt(prevOffset);
 
     /*
      * Periodically we should release our locks, commit the transaction,
@@ -418,7 +425,7 @@ LogIndex::IndexerThread::Entry()
                         do {
                             BlockState *block = &blocks[iter.blockId];
 
-                            block->lastWriteOffset = mt.LogOffset();
+                            block->lastWriteOffset = mt.offset;
                             if (!block->wDirty) {
                                 block->firstWriteOffset = block->lastWriteOffset;
                                 block->wDirty = true;
@@ -436,7 +443,7 @@ LogIndex::IndexerThread::Entry()
                 }
 
                 // Loop until end of timestep, or end of file.
-            } while (!eof && mt.LogOffset() < prevOffset + TIMESTEP_SIZE);
+            } while (!eof && mt.offset < prevOffset + TIMESTEP_SIZE);
 
             // Flush all blocks that have been touched.
 
@@ -475,7 +482,7 @@ LogIndex::IndexerThread::Entry()
          * Periodic actions: Report progress, check for abort.
          */
 
-        index->duration = instant.time;
+        index->lastInstant = instantPtr_t(new LogInstant(instant));
         index->SetProgress(instant.offset / index->logFileSize, INDEXING);
 
         if (TestDestroy()) {
@@ -606,14 +613,15 @@ LogIndex::GetInstantForTimestep(ClockType upperBound)
 
         instant->time = crsr.getint64(0);
         instant->offset = crsr.getint64(1);
-
-        blob = crsr.getblob(2, size);
-        instant->readTotals.unpack((const uint8_t *)blob, size);
+        instant->transferId = crsr.getint64(2);
 
         blob = crsr.getblob(3, size);
-        instant->writeTotals.unpack((const uint8_t *)blob, size);
+        instant->readTotals.unpack((const uint8_t *)blob, size);
 
         blob = crsr.getblob(4, size);
+        instant->writeTotals.unpack((const uint8_t *)blob, size);
+
+        blob = crsr.getblob(5, size);
         instant->zeroTotals.unpack((const uint8_t *)blob, size);
 
     } else {
@@ -668,6 +676,7 @@ LogInstant::clear()
 {
     time = 0;
     offset = 0;
+    transferId = 0;
     readTotals.clear();
     writeTotals.clear();
     zeroTotals.clear();

@@ -139,6 +139,7 @@ public:
 
     MemTransfer::ClockType time;
     MemTransfer::OffsetType offset;
+    MemTransfer::OffsetType transferId;
 
     void updateTime(MemTransfer::ClockType amount, bool reverse=false)
     {
@@ -157,6 +158,7 @@ public:
 class LogIndex {
 public:
     typedef MemTransfer::ClockType ClockType;
+    typedef MemTransfer::OffsetType OffsetType;
 
     enum State {
         IDLE,
@@ -189,10 +191,15 @@ public:
     /*
      * We keep a running total of the log's duration during
      * indexing, and after indexing is complete this is an
-     * accurate representation of the log's total length in
-     * clock ticks.
+     * accurate representation of the log's total length.
      */
-    ClockType GetDuration() { return duration; }
+
+    ClockType GetDuration() {
+        return lastInstant->time;
+    }
+    OffsetType GetNumTransfers() {
+        return lastInstant->transferId;
+    }
 
     /*
      * Information about the (fixed) geometry of the log index.
@@ -244,7 +251,7 @@ private:
     static const int BLOCK_SIZE = 1 << BLOCK_SHIFT;
     static const int BLOCK_MASK = BLOCK_SIZE - 1;
 
-    static const int STRATUM_SHIFT = 16;             // 64 kB (256 strata per 16MB)
+    static const int STRATUM_SHIFT = 14;             // 16 kB (4096 strata per 16MB)
     static const int STRATUM_SIZE = 1 << STRATUM_SHIFT;
     static const int STRATUM_MASK = STRATUM_SIZE - 1;
 
@@ -272,9 +279,9 @@ private:
     sqlite3x::sqlite3_connection db;
     IndexerThread *indexer;
     double logFileSize;
-    ClockType duration;
 
     FuzzyCache<ClockType, instantPtr_t> instantCache;
+    instantPtr_t lastInstant;
 
     sqlite3x::sqlite3_command *cmd_getInstantForTimestep;
 
