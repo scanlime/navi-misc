@@ -207,6 +207,36 @@ THDTimeline::renderSliceRange(wxBitmap &bmp, int xMin, int xMax)
 }
 
 
+SliceKey
+THDTimeline::getSliceKeyForPixel(int x)
+{
+    LogIndex::ClockType clk = view.origin + view.scale * x;
+    SliceKey key = { clk, clk + view.scale };
+    return key;
+}
+
+
+StrataRange
+THDTimeline::getStrataRangeForPixel(int y)
+{
+    // TODO: Eventually the first/last strata will be dynamic, so we can zoom in.
+    const int strataBegin = 0;
+    const int strataEnd = index->GetNumStrata();
+
+    const int pixelHeight = SLICE_STRATA_BOTTOM - SLICE_STRATA_TOP;
+    const int strataCount = strataEnd - strataBegin;
+
+    y -= SLICE_STRATA_TOP;
+
+    StrataRange range;
+
+    range.begin = (y * strataCount + pixelHeight/2) / pixelHeight;
+    range.end = ((y+1) * strataCount + pixelHeight/2) / pixelHeight;
+
+    return range;
+}
+
+
 bool
 THDTimeline::renderSlice(pixelData_t &data, int x)
 {
@@ -215,9 +245,6 @@ THDTimeline::renderSlice(pixelData_t &data, int x)
      * If the slice is available, returns true. If no data
      * is ready yet, draws placeholder data and returns false.
      */
-
-    LogIndex::ClockType clk = view.origin + view.scale * x;
-    SliceKey key = { clk, clk + view.scale };
 
     pixelData_t::Iterator pixOut(data);
     pixOut.OffsetX(data, x);
@@ -228,7 +255,7 @@ THDTimeline::renderSlice(pixelData_t &data, int x)
          * to the bufferBitmap.
          */
 
-        SliceValue &slice = sliceCache.get(key, needSliceEnqueue);
+        SliceValue &slice = sliceCache.get(getSliceKeyForPixel(x), needSliceEnqueue);
         ColorRGB *pixIn = slice.pixels;
 
         for (int y = 0; y < SLICE_HEIGHT; y++) {
@@ -264,7 +291,7 @@ THDTimeline::renderSlice(pixelData_t &data, int x)
             // Checkerboard
 
             for (int y = 0; y < SLICE_HEIGHT; y++) {
-                uint8_t shade = (x ^ y) & 8 ? 0x22 : 0x55;
+                uint8_t shade = (x ^ y) & 8 ? SHADE_CHECKER_1 : SHADE_CHECKER_2;
                 pixOut.Red() = shade;
                 pixOut.Green() = shade;
                 pixOut.Blue() = shade;
@@ -338,9 +365,14 @@ THDTimeline::viewChanged(void)
     Refresh();
 }
 
+
 void
 THDTimeline::SliceGenerator::fn(SliceKey &key, SliceValue &value)
 {
+    /*
+     * Retrieve cached LogInstants for the beginning and end of this slice.
+     */
+
     // Allowable deviation from correct begin/end timestamps
     LogIndex::ClockType fuzz = (key.end - key.begin) >> 2;
 
@@ -349,6 +381,72 @@ THDTimeline::SliceGenerator::fn(SliceKey &key, SliceValue &value)
 
     int numStrata = timeline->index->GetNumStrata();
     LogIndex::ClockType timeDiff = end->time - begin->time;
+
+    /*
+     * Rescale the log strata to fit in the available pixels.
+     */
+
+    int y;
+    for (y = 0; y < SLICE_STRATA_TOP; y++)
+        value.pixels[y] = COLOR_BG_TOP;
+
+    for (; y < SLICE_STRATA_BOTTOM; y++) {
+        /*
+         * Which log stratum is the bottom of this pixel in?
+         */
+
+        uint64_t readDelta = 0;
+        uint64_t writeDelta = 0;
+        uint64_t zeroDelta = 0;
+
+        StrataRange range = timeline->getStrataRangeForPixel(y);
+
+        for (int current = range.begin; current < range.end; current++) {
+            readDelta += end->readTotals.get(current) -
+                begin->readTotals.get(current);
+            writeDelta += end->writeTotals.get(current) -
+                begin->writeTotals.get(current);
+            zeroDelta += end->zeroTotals.get(current) -
+                begin->zeroTotals.get(current);
+        }
+
+        /*
+         * Calculate a color for this pixel
+         */
+
+        ColorRGB color(0);
+
+        if (readDelta || writeDelta || zeroDelta) {
+            /*
+             * If anything at all is happening in this pixel, we want
+             * it to be obvious- so use a color that stands out
+             * against a white background. But we'll shift the color
+             * to indicate how much of the transfer within this pixel
+             * is made up of reads, writes, or zero writes.
+             */
+
+            double total = readDelta + writeDelta;
+            float readAlpha = readDelta / total;
+            float writeAlpha = (writeDelta - zeroDelta) / total;
+            float zeroAlpha = zeroDelta / total;
+
+            color += ColorRGB(COLOR_READ) * readAlpha;
+            color += ColorRGB(COLOR_WRITE) * writeAlpha;
+            color += ColorRGB(COLOR_ZERO) * zeroAlpha;
+        } else {
+            color = COLOR_BG_TOP;
+        }
+
+        value.pixels[y] = color;
+    }
+
+    for (; y < SLICE_BANDWIDTH_TOP; y++)
+        value.pixels[y] = COLOR_BG_TOP;
+
+    /*
+     * Calculate and graph the bandwidth in this slice, as a stacked
+     * graph showing read/write/zero bandwidth.
+     */
 
     uint64_t readTotal = 0;
     uint64_t writeTotal = 0;
@@ -364,36 +462,18 @@ THDTimeline::SliceGenerator::fn(SliceKey &key, SliceValue &value)
     double writeBandwidth = timeDiff ? writeTotal / (double)timeDiff : 0;
     double zeroBandwidth = timeDiff ? zeroTotal / (double)timeDiff : 0;
 
-    for (int y = SLICE_STRATA_TOP; y < SLICE_STRATA_BOTTOM; y++) {
-        uint64_t readDelta = end->readTotals.get(y) - begin->readTotals.get(y);
-        uint64_t writeDelta = end->writeTotals.get(y) - begin->writeTotals.get(y);
-        uint64_t zeroDelta = end->zeroTotals.get(y) - begin->zeroTotals.get(y);
-
-        ColorRGB color;
-
-        color += ColorRGB(0x0000FF) * (readDelta * 0.01f);
-        color += ColorRGB(0x00FF00) * (writeDelta * 0.01f);
-        color += ColorRGB(0xFF0000) * (zeroDelta * 0.01f);
-
-        value.pixels[y] = color;
-    }
-
     const double vScale = (SLICE_BANDWIDTH_BOTTOM - SLICE_BANDWIDTH_TOP) * -0.5;
     int origin = SLICE_BANDWIDTH_BOTTOM;
-    int rH = origin + readBandwidth * vScale + 0.5;
+    int rH = origin + readBandwidth * vScale + 0.75;
     int rwH = origin + (readBandwidth + writeBandwidth - zeroBandwidth) * vScale + 0.5;
     int rwzH = origin + (readBandwidth + writeBandwidth) * vScale + 0.5;
 
-    rH = std::max(SLICE_BANDWIDTH_TOP, rH);
-    rwH = std::max(SLICE_BANDWIDTH_TOP, rwH);
-    rwzH = std::max(SLICE_BANDWIDTH_TOP, rwzH);
-
-    for (int y = SLICE_BANDWIDTH_TOP; y < rwzH; y++)
-        value.pixels[y] = 0;
-    for (int y = rwzH; y < rwH; y++)
-        value.pixels[y] = ColorRGB(0xff0000);
-    for (int y = rwH; y < rH; y++)
-        value.pixels[y] = ColorRGB(0x00ff00);
-    for (int y = rH; y < origin; y++)
-        value.pixels[y] = ColorRGB(0x0000ff);
+    for (; y < rwzH; y++)
+        value.pixels[y] = COLOR_BG_BOTTOM;
+    for (; y < rwH; y++)
+        value.pixels[y] = COLOR_ZERO;
+    for (; y < rH; y++)
+        value.pixels[y] = COLOR_WRITE;
+    for (; y < origin; y++)
+        value.pixels[y] = COLOR_READ;
 }

@@ -51,7 +51,7 @@ LogReader::Close()
 bool
 LogReader::Read(MemTransfer &mt)
 {
-    MemTransfer::OffsetType offset = mt.LogOffset();
+    MemTransfer::OffsetType offset = mt.offset;
     bool haveAddress = false;
 
     mt.duration = 0;
@@ -177,7 +177,7 @@ LogReader::Next(MemTransfer &mt)
      * (like timestamp packets) we'll skip over them.
      */
 
-    MemTransfer::OffsetType offset = mt.LogOffset();
+    MemTransfer::OffsetType offset = mt.offset;
     uint32_t wordCount = (mt.byteCount + 1) >> 1;
     uint32_t minPackets = 1 + wordCount;
     offset += minPackets * sizeof(MemPacket);
@@ -192,7 +192,8 @@ LogReader::Next(MemTransfer &mt)
 
         if (MemPacket_IsAligned(packet)) {
             if (MemPacket_GetType(packet) == MEMPKT_ADDR) {
-                mt.Seek(offset);
+                mt.offset = offset;
+                mt.id++;
                 return true;
             }
             offset += sizeof(MemPacket);
@@ -210,7 +211,7 @@ LogReader::Next(MemTransfer &mt)
 bool
 LogReader::Prev(MemTransfer &mt)
 {
-    MemTransfer::OffsetType offset = mt.LogOffset();
+    MemTransfer::OffsetType offset = mt.offset;
 
     while (true) {
         if (offset < sizeof(MemPacket)) {
@@ -227,7 +228,8 @@ LogReader::Prev(MemTransfer &mt)
 
         if (MemPacket_IsAligned(packet)) {
             if (MemPacket_GetType(packet) == MEMPKT_ADDR) {
-                mt.Seek(offset);
+                mt.offset = offset;
+                mt.id--;
                 return true;
             }
         } else {

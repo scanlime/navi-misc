@@ -51,6 +51,16 @@ std::size_t hash_value(SliceKey const &k);
 
 
 /*
+ * The range of log strata represented by each vertical pixel
+ */
+
+struct StrataRange {
+    int begin;
+    int end;
+};
+
+
+/*
  * View origin and scale for the timeline
  */
 
@@ -89,6 +99,16 @@ private:
     static const int SLICE_BANDWIDTH_TOP    = 193;
     static const int SLICE_BANDWIDTH_BOTTOM = 255;
 
+    // Timeline color scheme
+    static const int COLOR_BG_TOP     = 0xffffff;
+    static const int COLOR_BG_BOTTOM  = 0xcccccc;
+    static const int COLOR_READ       = 0x2d7db3;
+    static const int COLOR_WRITE      = 0xcb0c29;
+    static const int COLOR_ZERO       = 0xc57d0c;
+
+    static const int SHADE_CHECKER_1  = 0xaa;
+    static const int SHADE_CHECKER_2  = 0xbb;
+
     struct SliceValue {
         ColorRGB pixels[SLICE_HEIGHT];
     };
@@ -107,6 +127,9 @@ private:
     bool renderSlice(pixelData_t &data, int x);
     bool renderSliceRange(pixelData_t &data, int xMin, int xMax);
     bool renderSliceRange(wxBitmap &bmp, int xMin, int xMax);
+
+    SliceKey getSliceKeyForPixel(int x);
+    StrataRange getStrataRangeForPixel(int y);
 
     LogIndex *index;
     sliceCache_t sliceCache;

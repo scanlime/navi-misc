@@ -32,8 +32,7 @@
 
 #include <stdint.h>
 
-class MemTransfer {
-public:
+struct MemTransfer {
     static const int MAX_LENGTH = 4096;
 
     typedef uint64_t OffsetType;
@@ -42,20 +41,19 @@ public:
     typedef uint32_t DurationType;   // Duration of one command
     typedef uint64_t ClockType;      // Global clock values
 
-    MemTransfer(OffsetType offset = 0)
-        : logOffset(offset) {}
-
-    void Seek(OffsetType offset) {
-        logOffset = offset;
-    }
-
-    OffsetType LogOffset() {
-        return logOffset;
-    }
+    MemTransfer(OffsetType _offset = 0)
+        : offset(_offset),
+          address(0),
+          byteCount(0),
+          duration(0),
+          id(0)
+    {}
 
     AddressType address;
     LengthType byteCount;
     DurationType duration;
+    OffsetType offset;
+    OffsetType id;
 
     enum {
         READ,
@@ -69,9 +67,6 @@ public:
     } type;
 
     uint8_t buffer[MAX_LENGTH];
-
-private:
-    OffsetType logOffset;
 };
 
 
