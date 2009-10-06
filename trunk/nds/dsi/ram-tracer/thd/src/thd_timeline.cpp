@@ -102,28 +102,22 @@ THDTimeline::zoom(double factor, int xPivot)
 void
 THDTimeline::OnPaint(wxPaintEvent &event)
 {
-    wxAutoBufferedPaintDC dc(this);
+    wxPaintDC dc(this);
 
     int width, height;
     GetSize(&width, &height);
 
-    const int xMin = 0;
-    const int xMax = xMin + width - 1;
-
-    {
-        pixelData_t data(bufferBitmap);
-
-        if (!renderSliceRange(data, xMin, xMax)) {
-            // Redraw quickly if we're still waiting for more data.
-            refreshTimer.Start(1000 / REFRESH_FPS, wxTIMER_ONE_SHOT);
-
-        } else if (index->GetState() == index->INDEXING) {
-            // Redraw slowly if we're indexing.
-            refreshTimer.Start(1000 / INDEXING_FPS, wxTIMER_ONE_SHOT);
-        }
-    }
+    bool isComplete = renderSliceRange(bufferBitmap, 0, width-1);
 
     dc.DrawBitmap(bufferBitmap, 0, 0, false);
+
+    if (index->GetState() == index->INDEXING) {
+        // Redraw slowly if we're indexing.
+        refreshTimer.Start(1000 / INDEXING_FPS, wxTIMER_ONE_SHOT);
+    } else if (!isComplete) {
+        // Redraw quickly if we're still waiting for more data.
+        refreshTimer.Start(1000 / REFRESH_FPS, wxTIMER_ONE_SHOT);
+    }
 
     /*
      * We only enqueue new slices on the first paint after user
@@ -206,6 +200,14 @@ THDTimeline::renderSliceRange(pixelData_t &data, int xMin, int xMax)
 
 
 bool
+THDTimeline::renderSliceRange(wxBitmap &bmp, int xMin, int xMax)
+{
+    pixelData_t data(bufferBitmap);
+    return renderSliceRange(data, xMin, xMax);
+}
+
+
+bool
 THDTimeline::renderSlice(pixelData_t &data, int x)
 {
     /*
@@ -227,16 +229,14 @@ THDTimeline::renderSlice(pixelData_t &data, int x)
          */
 
         SliceValue &slice = sliceCache.get(key, needSliceEnqueue);
-        uint32_t *pixIn = slice.pixels;
+        ColorRGB *pixIn = slice.pixels;
 
         for (int y = 0; y < SLICE_HEIGHT; y++) {
-            uint32_t color = *pixIn;
-            pixIn++;
-
-            pixOut.Red() = (uint8_t) (color >> 16);
-            pixOut.Green() = (uint8_t) (color >> 8);
-            pixOut.Blue() = (uint8_t) color;
+            pixOut.Red() = pixIn->red();
+            pixOut.Green() = pixIn->green();
+            pixOut.Blue() = pixIn->blue();
             pixOut.OffsetY(data, 1);
+            pixIn++;
         }
 
         // This slice is up to date
@@ -344,23 +344,56 @@ THDTimeline::SliceGenerator::fn(SliceKey &key, SliceValue &value)
     // Allowable deviation from correct begin/end timestamps
     LogIndex::ClockType fuzz = (key.end - key.begin) >> 2;
 
-    boost::shared_ptr<LogInstant> begin = timeline->index->GetInstant(key.begin, fuzz);
-    boost::shared_ptr<LogInstant> end = timeline->index->GetInstant(key.end, fuzz);
+    instantPtr_t begin = timeline->index->GetInstant(key.begin, fuzz);
+    instantPtr_t end = timeline->index->GetInstant(key.end, fuzz);
 
-    for (int y = 0; y < SLICE_HEIGHT; y++) {
+    int numStrata = timeline->index->GetNumStrata();
+    LogIndex::ClockType timeDiff = end->time - begin->time;
+
+    uint64_t readTotal = 0;
+    uint64_t writeTotal = 0;
+    uint64_t zeroTotal = 0;
+
+    for (int s = 0; s < numStrata; s++) {
+        readTotal += end->readTotals.get(s) - begin->readTotals.get(s);
+        writeTotal += end->writeTotals.get(s) - begin->writeTotals.get(s);
+        zeroTotal += end->zeroTotals.get(s) - begin->zeroTotals.get(s);
+    }
+
+    double readBandwidth = timeDiff ? readTotal / (double)timeDiff : 0;
+    double writeBandwidth = timeDiff ? writeTotal / (double)timeDiff : 0;
+    double zeroBandwidth = timeDiff ? zeroTotal / (double)timeDiff : 0;
+
+    for (int y = SLICE_STRATA_TOP; y < SLICE_STRATA_BOTTOM; y++) {
         uint64_t readDelta = end->readTotals.get(y) - begin->readTotals.get(y);
         uint64_t writeDelta = end->writeTotals.get(y) - begin->writeTotals.get(y);
         uint64_t zeroDelta = end->zeroTotals.get(y) - begin->zeroTotals.get(y);
-        uint32_t color = 0;
 
-        if (zeroDelta && zeroDelta >= readDelta && zeroDelta >= writeDelta) {
-            color = 0xff0000;
-        } else if (writeDelta && writeDelta >= readDelta && writeDelta >= zeroDelta) {
-            color = 0x00ff00;
-        } else if (readDelta) {
-            color = 0x0000ff;
-        }
+        ColorRGB color;
+
+        color += ColorRGB(0x0000FF) * (readDelta * 0.01f);
+        color += ColorRGB(0x00FF00) * (writeDelta * 0.01f);
+        color += ColorRGB(0xFF0000) * (zeroDelta * 0.01f);
 
         value.pixels[y] = color;
     }
+
+    const double vScale = (SLICE_BANDWIDTH_BOTTOM - SLICE_BANDWIDTH_TOP) * -0.5;
+    int origin = SLICE_BANDWIDTH_BOTTOM;
+    int rH = origin + readBandwidth * vScale + 0.5;
+    int rwH = origin + (readBandwidth + writeBandwidth - zeroBandwidth) * vScale + 0.5;
+    int rwzH = origin + (readBandwidth + writeBandwidth) * vScale + 0.5;
+
+    rH = std::max(SLICE_BANDWIDTH_TOP, rH);
+    rwH = std::max(SLICE_BANDWIDTH_TOP, rwH);
+    rwzH = std::max(SLICE_BANDWIDTH_TOP, rwzH);
+
+    for (int y = SLICE_BANDWIDTH_TOP; y < rwzH; y++)
+        value.pixels[y] = 0;
+    for (int y = rwzH; y < rwH; y++)
+        value.pixels[y] = ColorRGB(0xff0000);
+    for (int y = rwH; y < rH; y++)
+        value.pixels[y] = ColorRGB(0x00ff00);
+    for (int y = rH; y < origin; y++)
+        value.pixels[y] = ColorRGB(0x0000ff);
 }

@@ -34,6 +34,7 @@
 
 #include "log_index.h"
 #include "lazy_cache.h"
+#include "color_rgb.h"
 
 
 /*
@@ -82,8 +83,14 @@ private:
     static const int MAX_SLICE_AGE     = 30;
     static const int INDEXING_FPS      = 5;
 
+    // Vertical positions within a slice. Might want to make these dynamic later.
+    static const int SLICE_STRATA_TOP       = 1;
+    static const int SLICE_STRATA_BOTTOM    = 192;
+    static const int SLICE_BANDWIDTH_TOP    = 193;
+    static const int SLICE_BANDWIDTH_BOTTOM = 255;
+
     struct SliceValue {
-        uint32_t pixels[SLICE_HEIGHT];
+        ColorRGB pixels[SLICE_HEIGHT];
     };
 
     typedef LazyCache<SliceKey, SliceValue> sliceCache_t;
@@ -99,6 +106,7 @@ private:
     void viewChanged(void);
     bool renderSlice(pixelData_t &data, int x);
     bool renderSliceRange(pixelData_t &data, int xMin, int xMax);
+    bool renderSliceRange(wxBitmap &bmp, int xMin, int xMax);
 
     LogIndex *index;
     sliceCache_t sliceCache;
