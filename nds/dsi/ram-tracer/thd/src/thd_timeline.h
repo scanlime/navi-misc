@@ -94,7 +94,7 @@ private:
     static const int INDEXING_FPS      = 5;
 
     // Horizontal supersampling
-    static const int SUBPIXEL_SHIFT = 1;
+    static const int SUBPIXEL_SHIFT = 2;
     static const int SUBPIXEL_COUNT = 1 << SUBPIXEL_SHIFT;
 
     // Vertical positions within a slice. Might want to make these dynamic later.
