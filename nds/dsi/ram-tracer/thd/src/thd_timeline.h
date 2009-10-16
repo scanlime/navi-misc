@@ -93,6 +93,10 @@ private:
     static const int MAX_SLICE_AGE     = 30;
     static const int INDEXING_FPS      = 5;
 
+    // Horizontal supersampling
+    static const int SUBPIXEL_SHIFT = 1;
+    static const int SUBPIXEL_COUNT = 1 << SUBPIXEL_SHIFT;
+
     // Vertical positions within a slice. Might want to make these dynamic later.
     static const int SLICE_STRATA_TOP       = 1;
     static const int SLICE_STRATA_BOTTOM    = 192;
@@ -129,6 +133,8 @@ private:
     bool renderSliceRange(wxBitmap &bmp, int xMin, int xMax);
 
     SliceKey getSliceKeyForPixel(int x);
+    SliceKey getSliceKeyForSubpixel(int x, int subpix);
+
     StrataRange getStrataRangeForPixel(int y);
 
     LogIndex *index;

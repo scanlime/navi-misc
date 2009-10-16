@@ -216,6 +216,17 @@ THDTimeline::getSliceKeyForPixel(int x)
 }
 
 
+SliceKey
+THDTimeline::getSliceKeyForSubpixel(int x, int subpix)
+{
+    LogIndex::ClockType clk = view.origin + view.scale * x;
+    clk <<= SUBPIXEL_SHIFT;
+    clk += view.scale * subpix;
+    SliceKey key = { clk >> SUBPIXEL_SHIFT, (clk + view.scale) >> SUBPIXEL_SHIFT };
+    return key;
+}
+
+
 StrataRange
 THDTimeline::getStrataRangeForPixel(int y)
 {
@@ -249,21 +260,56 @@ THDTimeline::renderSlice(pixelData_t &data, int x)
     pixelData_t::Iterator pixOut(data);
     pixOut.OffsetX(data, x);
 
-    try {
-        /*
-         * Get this slice's image from the cache, and copy it
-         * to the bufferBitmap.
-         */
+    /*
+     * Get this pixel's slices from the cache, and merge them into
+     * the bufferBitmap.
+     */
 
-        SliceValue &slice = sliceCache.get(getSliceKeyForPixel(x), needSliceEnqueue);
-        ColorRGB *pixIn = slice.pixels;
+    bool haveAllSlices = true;
+    ColorAccumulator acc[SLICE_HEIGHT];
 
+    for (int s = 0; s < SUBPIXEL_COUNT; s++) {
+        try {
+            SliceValue &slice = sliceCache.get(getSliceKeyForSubpixel(x, s),
+                                               needSliceEnqueue);
+
+            for (int y = 0; y < SLICE_HEIGHT; y++) {
+                acc[y] += slice.pixels[y];
+            }
+
+        } catch (LazyCacheMiss &e) {
+            haveAllSlices = false;
+        }
+    }
+
+    if (haveAllSlices) {
         for (int y = 0; y < SLICE_HEIGHT; y++) {
-            pixOut.Red() = pixIn->red();
-            pixOut.Green() = pixIn->green();
-            pixOut.Blue() = pixIn->blue();
+            ColorAccumulator a = acc[y];
+            a >>= SUBPIXEL_SHIFT;
+            ColorRGB c(a);
+
+            // Emphasize edges
+            if (c.value == COLOR_BG_TOP) {
+                ColorAccumulator above = acc[std::max(0,y-1)];
+                ColorAccumulator below = acc[std::min(SLICE_HEIGHT-1,y+1)];
+
+                above >>= SUBPIXEL_SHIFT;
+                below >>= SUBPIXEL_SHIFT;
+
+                ColorRGB ca(above);
+                ColorRGB cb(below);
+
+                if (ca.value != COLOR_BG_TOP)
+                    c = ColorRGB(COLOR_BG_TOP) - (ColorRGB(COLOR_BG_TOP) - ca) * 3.0f;
+
+                if (cb.value != COLOR_BG_TOP)
+                    c = ColorRGB(COLOR_BG_TOP) - (ColorRGB(COLOR_BG_TOP) - cb) * 3.0f;
+            }
+
+            pixOut.Red() = c.red();
+            pixOut.Green() = c.green();
+            pixOut.Blue() = c.blue();
             pixOut.OffsetY(data, 1);
-            pixIn++;
         }
 
         // This slice is up to date
@@ -271,7 +317,7 @@ THDTimeline::renderSlice(pixelData_t &data, int x)
 
         return true;
 
-    } catch (LazyCacheMiss &e) {
+    } else {
         /*
          * If no data is ready yet, our cache will be generating it
          * asynchronously. If data isn't available yet but the current

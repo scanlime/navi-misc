@@ -73,14 +73,17 @@ LogReader::Read(MemTransfer &mt)
 
         if (MemPacket_IsOverflow(packet)) {
             mt.type = mt.ERROR_OVERFLOW;
+            mt.duration = 0;
             return true;
         }
         if (!MemPacket_IsAligned(packet)) {
             mt.type = mt.ERROR_SYNC;
+            mt.duration = 0;
             return true;
         }
         if (!MemPacket_IsChecksumCorrect(packet)) {
             mt.type = mt.ERROR_CHECKSUM;
+            mt.duration = 0;
             return true;
         }
 
@@ -128,6 +131,7 @@ LogReader::Read(MemTransfer &mt)
 
         if (mt.byteCount >= mt.MAX_LENGTH) {
             mt.type = mt.ERROR_PROTOCOL;
+            mt.duration = 0;
             return true;
         }
 
@@ -169,18 +173,7 @@ LogReader::Read(MemTransfer &mt)
 bool
 LogReader::Next(MemTransfer &mt)
 {
-    /*
-     * We can use the transfer's byteCount to calculate the minimum
-     * number of packets that this transfer must have taken up on
-     * disk. We'll start looking for the next transfer there.  Usually
-     * this estimate will be correct- but if there are any extra packets
-     * (like timestamp packets) we'll skip over them.
-     */
-
-    MemTransfer::OffsetType offset = mt.offset;
-    uint32_t wordCount = (mt.byteCount + 1) >> 1;
-    uint32_t minPackets = 1 + wordCount;
-    offset += minPackets * sizeof(MemPacket);
+    MemTransfer::OffsetType offset = mt.offset + sizeof(MemPacket);
 
     while (true) {
         uint8_t *bytes = file.Get(offset, sizeof(MemPacket));
