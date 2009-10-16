@@ -130,6 +130,7 @@ public:
     {
         return time == other.time &&
                offset == other.offset &&
+               transferId == other.transferId &&
                readTotals == other.readTotals &&
                writeTotals == other.writeTotals &&
                zeroTotals == other.zeroTotals;
@@ -224,7 +225,7 @@ public:
      * return an instant that's no farther than 'distance' from the
      * specified time.
      */
-    instantPtr_t GetInstant(ClockType time, ClockType distance=0);
+    instantPtr_t GetInstant(ClockType time, ClockType distance = 0);
 
 private:
     /*
@@ -264,6 +265,8 @@ private:
     void StoreInstant(LogInstant &instant);
     void AdvanceInstant(LogInstant &instant, MemTransfer &mt, bool reverse = false);
     instantPtr_t GetInstantForTimestep(ClockType upperBound);
+    instantPtr_t GetInstantFromStartingPoint(instantPtr_t start, ClockType time,
+                                             ClockType distance = 0);
 
     class IndexerThread : public wxThread {
     public:

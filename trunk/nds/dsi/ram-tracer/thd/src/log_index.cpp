@@ -26,7 +26,7 @@
 
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
-
+#include <stdio.h>
 #include <wx/string.h>
 #include <assert.h>
 #include "log_index.h"
@@ -36,13 +36,19 @@ using namespace sqlite3x;
 
 wxEventType LogIndex::progressEvent = 0;
 
+/*
+ * DEBUG: This enables very expensive debugging checks which verify the
+ * integrity of the index. Don't enable them unless you suspect something
+ * is wrong with the index, since the checks are extremely slow.
+ */
+#define INDEX_DEBUG  0
+
 
 LogIndex::LogIndex()
     : progressReceiver(NULL),
-      lastInstant(new LogInstant(GetNumStrata(), 0, 0, true)),
       cmd_getInstantForTimestep(NULL),
-      instantCache(INSTANT_CACHE_SIZE,
-                   instantPtr_t(new LogInstant(GetNumStrata(), 0, 0, true)))
+      lastInstant(GetInstantForTimestep(0)),
+      instantCache(INSTANT_CACHE_SIZE, GetInstantForTimestep(0))
 {
     if (!progressEvent)
         progressEvent = wxNewEventType();
@@ -315,6 +321,13 @@ LogIndex::AdvanceInstant(LogInstant &instant, MemTransfer &mt, bool reverse)
      * Advance a LogInstant forward or backward by processing one memory transfer.
      */
 
+    if (INDEX_DEBUG)
+        printf("Advancing: inst(time=%lld offset=%lld) rev=%d "
+               "mt(type=%s, dur=%d, offset=%lld)\n",
+               instant.time, instant.offset,
+               reverse,
+               mt.getTypeName(), mt.duration, mt.offset);
+
     instant.updateTime(mt.duration, reverse);
     instant.offset = mt.offset;
     instant.transferId = mt.id;
@@ -440,6 +453,9 @@ LogIndex::IndexerThread::Entry()
 
                     index->AdvanceInstant(instant, mt);
                     reader->Next(mt);
+
+                    if (INDEX_DEBUG)
+                        printf("Indexing at: %lld/%lld\n", instant.time, instant.offset);
                 }
 
                 // Loop until end of timestep, or end of file.
@@ -511,13 +527,13 @@ LogIndex::GetInstant(ClockType time, ClockType distance)
     time = std::min<ClockType>(time, GetDuration());
 
     instantPtr_t inst = instantCache.findClosest(time);
-    ClockType instDist = instantCache.distance(inst->time, time);
+    ClockType dist = instantCache.distance(inst->time, time);
 
     /*
      * First try: Is there already a good instant in the cache?
      */
 
-    if (instDist <= distance) {
+    if (dist <= distance) {
         return inst;
     }
 
@@ -527,18 +543,54 @@ LogIndex::GetInstant(ClockType time, ClockType distance)
      */
 
     instantPtr_t dbInst = GetInstantForTimestep(time);
+    instantCache.store(dbInst->time, dbInst);
+
     ClockType dbInstDist = instantCache.distance(dbInst->time, time);
-    if (dbInstDist < instDist) {
-        instDist = dbInstDist;
+    if (dbInstDist < dist) {
         inst = dbInst;
     }
 
-    // Always remember the data we just pulled all the way from disk...
-    instantCache.store(dbInst->time, dbInst);
+    /*
+     * Still no luck. Iterate forward/backward.
+     */
 
-    // Is this one close enough yet?
-    if (instDist <= distance) {
-        return inst;
+    inst = LogIndex::GetInstantFromStartingPoint(inst, time, distance);
+    instantCache.store(inst->time, inst);
+
+    // DEBUG: Verify against another starting point
+    if (INDEX_DEBUG) {
+        instantPtr_t first = GetInstantForTimestep(0);
+        instantPtr_t check = GetInstantFromStartingPoint(first, dbInst->time);
+        printf("Checking %lld/%lld/%lld against %lld/%lld/%lld\n",
+               dbInst->time, dbInst->offset, dbInst->transferId,
+               check->time, check->offset, check->transferId);
+        assert(*check == *dbInst);
+    }
+    if (INDEX_DEBUG) {
+        instantPtr_t first = GetInstantForTimestep(0);
+        instantPtr_t check = GetInstantFromStartingPoint(first, inst->time);
+        assert(*check == *inst);
+    }
+
+    return inst;
+}
+
+
+instantPtr_t
+LogIndex::GetInstantFromStartingPoint(instantPtr_t start, ClockType time,
+                                      ClockType distance)
+{
+    /*
+     * Using 'start' as the starting point for iteration, find the
+     * first LogInstant which is at or below 'time', or any LogInstant
+     * that is within 'distance' from 'time'.
+     */
+
+    ClockType dist = instantCache.distance(start->time, time);
+
+    // Already close enough?
+    if (dist <= distance) {
+        return start;
     }
 
     /*
@@ -552,34 +604,93 @@ LogIndex::GetInstant(ClockType time, ClockType distance)
      * call Prev() second.
      */
 
-    instantPtr_t newInst(new LogInstant(*inst));
-    MemTransfer mt(newInst->offset);
+    instantPtr_t newInst(new LogInstant(*start));
+    MemTransfer mt(newInst->offset, newInst->transferId);
+    const char *indexErrFmt = "INDEX: %s error while %s %lld -> %lld\n";
 
     if (time < newInst->time) {
+        /*
+         * The time threshold is before the current instant, and it
+         * isn't already within the fuzz window provided by
+         * 'distance'.
+         *
+         * This means we *must* iterate backwards until we enter the
+         * fuzz window and/or cross over 'time'.
+         */
+
         ClockType target = time + distance;
 
         do {
-            if (!reader->Read(mt))
-                break;
-            if (!reader->Prev(mt))
-                break;
+            if (!reader->Read(mt)) {
+                fprintf(stderr, indexErrFmt, "Read", "reverse-iterating",
+                        newInst->time, target);
+                return newInst;
+            }
+            if (!reader->Prev(mt)) {
+                fprintf(stderr, indexErrFmt, "Seek", "reverse-iterating",
+                        newInst->time, target);
+                return newInst;
+            }
+
+            // Reverse advance
             AdvanceInstant(*newInst, mt, true);
+
         } while (newInst->time > target);
 
     } else {
+        /*
+         * The time threshold is after the current instant, and it
+         * isn't already in the fuzz window. We need to iterate
+         * forward, stopping either:
+         *
+         *    1. After entering the fuzz region
+         *    2. Just *before* crossing over 'time'.
+         *
+         * So we'll step forward, but if we realize that we just went
+         * too far, we might go back a step.
+         */
+
         ClockType target = time - distance;
 
         do {
-            if (!reader->Next(mt))
-                break;
-            if (!reader->Read(mt))
-                break;
-            AdvanceInstant(*newInst, mt);
-        } while (newInst->time < target);
-    }
+            if (!reader->Next(mt)) {
+                fprintf(stderr, indexErrFmt, "Seek", "advancing",
+                        newInst->time, target);
+                return newInst;
+            }
+            if (!reader->Read(mt)) {
+                fprintf(stderr, indexErrFmt, "Read", "advancing",
+                        newInst->time, target);
+                return newInst;
+            }
 
-    // Cache it and return it
-    instantCache.store(newInst->time, newInst);
+            AdvanceInstant(*newInst, mt);
+
+            if (INDEX_DEBUG)
+                printf("Forward: %lld -> %lld\n", newInst->time, target);
+
+        } while (newInst->time < target);
+
+        if (newInst->time > time) {
+            /*
+             * Went too far. Back up a step.
+             */
+
+            if (!reader->Prev(mt)) {
+                fprintf(stderr, indexErrFmt, "Seek", "backing up",
+                        newInst->time, target);
+                return newInst;
+            }
+
+            // Reverse advance
+            AdvanceInstant(*newInst, mt, true);
+
+            assert(newInst->time <= time);
+
+            if (INDEX_DEBUG)
+                printf("Backed up: %lld -> %lld\n", newInst->time, target);
+        }
+    }
 
     return newInst;
 }
@@ -592,43 +703,60 @@ LogIndex::GetInstantForTimestep(ClockType upperBound)
      * This is a low-level function to get a LogInstant from the
      * database of timesteps, without regard to transfer playback or
      * the instant cache.
+     *
+     * This function, unlike most of the others in LogIndex, is legal
+     * to call before a log has been opened. If no log exists, we'll
+     * end up returning an all-zero instant.
      */
 
     instantPtr_t instant(new LogInstant(GetNumStrata()));
     wxCriticalSectionLocker locker(dbLock);
-    sqlite3_command *cmd = cmd_getInstantForTimestep;
 
-    if (!cmd) {
-        cmd = cmd_getInstantForTimestep =
-            new sqlite3_command(db, "SELECT * FROM strata WHERE "
-                                "time < ? ORDER BY time DESC LIMIT 1");
+    if (db.db()) {
+        sqlite3_command *cmd = cmd_getInstantForTimestep;
+
+        if (!cmd) {
+            cmd = cmd_getInstantForTimestep =
+                new sqlite3_command(db, "SELECT * FROM strata WHERE "
+                                    "time <= ? ORDER BY time DESC LIMIT 1");
+        }
+
+        cmd->bind(1, (sqlite3x::int64_t) upperBound);
+        sqlite3_cursor crsr = cmd->executecursor();
+
+        if (crsr.step()) {
+            int size;
+            const void *blob;
+
+            instant->time = crsr.getint64(0);
+            instant->offset = crsr.getint64(1);
+            instant->transferId = crsr.getint64(2);
+
+            blob = crsr.getblob(3, size);
+            instant->readTotals.unpack((const uint8_t *)blob, size);
+
+            blob = crsr.getblob(4, size);
+            instant->writeTotals.unpack((const uint8_t *)blob, size);
+
+            blob = crsr.getblob(5, size);
+            instant->zeroTotals.unpack((const uint8_t *)blob, size);
+
+            return instant;
+        }
     }
 
-    cmd->bind(1, (sqlite3x::int64_t) upperBound);
-    sqlite3_cursor crsr = cmd->executecursor();
+    /*
+     * Construct the first valid instant: Since instants are
+     * inclusive of the transfer at their 'offset', this would
+     * just be an instant which includes only the transfer at
+     * offset zero.
+     */
 
-    if (crsr.step()) {
-        int size;
-        const void *blob;
-
-        instant->time = crsr.getint64(0);
-        instant->offset = crsr.getint64(1);
-        instant->transferId = crsr.getint64(2);
-
-        blob = crsr.getblob(3, size);
-        instant->readTotals.unpack((const uint8_t *)blob, size);
-
-        blob = crsr.getblob(4, size);
-        instant->writeTotals.unpack((const uint8_t *)blob, size);
-
-        blob = crsr.getblob(5, size);
-        instant->zeroTotals.unpack((const uint8_t *)blob, size);
-
-    } else {
-        // Before the first recorded log entry
-        instant->clear();
-    }
-
+    MemTransfer mt;
+    instant->clear();
+    if (reader)
+        reader->Read(mt);
+    AdvanceInstant(*instant, mt);
     return instant;
 }
 
@@ -647,9 +775,20 @@ LogStrata::getPackedLen()
 void
 LogStrata::pack(uint8_t *buffer)
 {
+    uint8_t *p = buffer;
+
     for (int i = 0; i < count; i++) {
-        varint::write(values[i], buffer);
-        buffer += varint::len(values[i]);
+        varint::write(values[i], p);
+        p += varint::len(values[i]);
+    }
+
+    // DEBUG: Verify pack/unpack
+    if (INDEX_DEBUG) {
+        const uint8_t *q = buffer;
+        const uint8_t *fence = buffer + getPackedLen();
+        for (int i = 0; i < count; i++) {
+            assert(values[i] == varint::read(q, fence));
+        }
     }
 }
 

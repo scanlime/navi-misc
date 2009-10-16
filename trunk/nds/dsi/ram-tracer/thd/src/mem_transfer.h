@@ -41,12 +41,12 @@ struct MemTransfer {
     typedef uint32_t DurationType;   // Duration of one command
     typedef uint64_t ClockType;      // Global clock values
 
-    MemTransfer(OffsetType _offset = 0)
+    MemTransfer(OffsetType _offset = 0, OffsetType _id = 0)
         : offset(_offset),
+          id(_id),
           address(0),
           byteCount(0),
-          duration(0),
-          id(0)
+          duration(0)
     {}
 
     AddressType address;
@@ -67,6 +67,18 @@ struct MemTransfer {
     } type;
 
     uint8_t buffer[MAX_LENGTH];
+
+    const char * getTypeName() {
+        switch (type) {
+        case READ:           return "READ";
+        case WRITE:          return "WRITE";
+        case ERROR_OVERFLOW: return "ERROR_OVERFLOW";
+        case ERROR_SYNC:     return "ERROR_SYNC";
+        case ERROR_CHECKSUM: return "ERROR_CHECKSUM";
+        case ERROR_PROTOCOL: return "ERROR_PROTOCOL";
+        default:             return "(invalid)";
+        }
+    }
 };
 
 

@@ -184,4 +184,59 @@ struct ColorRGB {
 };
 
 
+/*
+ * A 16-bit-per-channel color accumulator
+ */
+struct ColorAccumulator {
+    int16_t red;
+    int16_t green;
+    int16_t blue;
+
+    ColorAccumulator()
+        : red(0), green(0), blue(0) {}
+
+    ColorAccumulator(int16_t r, int16_t g, int16_t b)
+        : red(r), green(g), blue(b) {}
+
+    ColorAccumulator(ColorRGB c)
+        : red(c.red()), green(c.green()), blue(c.blue()) {}
+
+    ColorAccumulator operator +=(const ColorRGB &b)
+    {
+        red += (int16_t) b.red();
+        green += (int16_t) b.green();
+        blue += (int16_t) b.blue();
+        return *this;
+    }
+
+    ColorAccumulator operator -=(const ColorRGB &b)
+    {
+        red -= (int16_t) b.red();
+        green -= (int16_t) b.green();
+        blue -= (int16_t) b.blue();
+        return *this;
+    }
+
+    ColorAccumulator operator >>=(int s)
+    {
+        red >>= s;
+        green >>= s;
+        blue >>= s;
+        return *this;
+    }
+
+    ColorAccumulator operator <<=(int s)
+    {
+        red <<= s;
+        green <<= s;
+        blue <<= s;
+        return *this;
+    }
+
+    operator ColorRGB() const {
+        return ColorRGB(red, green, blue);
+    }
+};
+
+
 #endif /* __COLOR_RGB_H */
