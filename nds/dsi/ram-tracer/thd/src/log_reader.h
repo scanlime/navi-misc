@@ -36,10 +36,22 @@
 class LogReader {
 public:
 
+    LogReader() {
+        // Must Open() a log before using.
+    }
+
+    LogReader(const wxChar *path) {
+        Open(path);
+    }
+
+    LogReader(const LogReader &toClone) {
+        Open(toClone.FileName().GetFullPath());
+    }
+
     void Open(const wxChar *path);
     void Close();
 
-    wxFileName FileName() {
+    wxFileName FileName() const {
         return fileName;
     }
 

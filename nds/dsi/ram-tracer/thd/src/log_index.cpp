@@ -394,9 +394,13 @@ LogIndex::IndexerThread::Entry()
      * Index the log. Read transactions, keeping track of the state of
      * each memory block. When we cross a timestep boundary, flush any
      * modified blocks to the database.
+     *
+     * The database is protected by a lock, but for the LogReader it's
+     * more efficient to just clone the log reader, giving us a
+     * separate buffer just for this thread.
      */
 
-    LogReader *reader = index->reader;
+    LogReader reader(*index->reader);
     MemTransfer mt(prevOffset);
 
     /*
@@ -427,7 +431,7 @@ LogIndex::IndexerThread::Entry()
 
             // Loop over memory transfers
             do {
-                eof = !reader->Read(mt);
+                eof = !reader.Read(mt);
 
                 if (eof) {
                     running = false;
@@ -452,7 +456,7 @@ LogIndex::IndexerThread::Entry()
                     }
 
                     index->AdvanceInstant(instant, mt);
-                    reader->Next(mt);
+                    reader.Next(mt);
 
                     if (INDEX_DEBUG)
                         printf("Indexing at: %lld/%lld\n", instant.time, instant.offset);
@@ -518,6 +522,8 @@ LogIndex::IndexerThread::Entry()
     } else {
         index->Finish();
     }
+
+    reader.Close();
 }
 
 
