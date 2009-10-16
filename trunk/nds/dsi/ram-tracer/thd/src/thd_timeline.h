@@ -89,7 +89,7 @@ public:
 private:
     static const int SLICE_HEIGHT      = 256;
     static const int SLICE_CACHE_SIZE  = 1 << 16;
-    static const int REFRESH_FPS       = 60;
+    static const int REFRESH_FPS       = 20;
     static const int MAX_SLICE_AGE     = 30;
     static const int INDEXING_FPS      = 5;
 
@@ -118,7 +118,8 @@ private:
     };
 
     typedef LazyCache<SliceKey, SliceValue> sliceCache_t;
-    typedef wxPixelData<wxBitmap, wxNativePixelFormat> pixelData_t;
+    typedef wxNativePixelFormat pixelFormat_t;
+    typedef wxPixelData<wxBitmap, pixelFormat_t> pixelData_t;
 
     struct SliceGenerator : public sliceCache_t::generator_t {
         SliceGenerator(THDTimeline *_timeline) : timeline(_timeline) {}
@@ -127,7 +128,11 @@ private:
     };
 
     void zoom(double factor, int xPivot);
+    void pan(int pixels);
+
     void viewChanged(void);
+    void updateBitmapForViewChange(TimelineView &oldView, TimelineView &newView);
+
     bool renderSlice(pixelData_t &data, int x);
     bool renderSliceRange(pixelData_t &data, int xMin, int xMax);
     bool renderSliceRange(wxBitmap &bmp, int xMin, int xMax);
@@ -147,7 +152,6 @@ private:
     wxPoint dragOrigin;
     wxPoint cursor;
     TimelineView view;
-    TimelineView savedView;
     bool needSliceEnqueue;
 };
 

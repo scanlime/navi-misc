@@ -24,6 +24,7 @@
  */
 
 #include <wx/dcbuffer.h>
+#include <string.h>
 #include "thd_timeline.h"
 
 #define ID_REFRESH_TIMER  1
@@ -64,12 +65,11 @@ THDTimeline::OnMouseEvent(wxMouseEvent &event)
 
     if (event.LeftDown()) {
         dragOrigin = cursor;
-        savedView = view;
     }
 
     if (event.Dragging()) {
-        view.origin = savedView.origin - (cursor.x - dragOrigin.x) * savedView.scale;
-        viewChanged();
+        pan(dragOrigin.x - cursor.x);
+        dragOrigin = cursor;
     }
 
     static const double ZOOM_FACTOR = 1.2;
@@ -88,14 +88,130 @@ THDTimeline::OnMouseEvent(wxMouseEvent &event)
 void
 THDTimeline::zoom(double factor, int xPivot)
 {
+    /*
+     * Zoom the timeline in/out, using 'xPivot' as the point to zoom
+     * into or out of.  The pivot is measured in pixels from the left
+     * side of the widget.
+     *
+     * This updates the view, calls viewChanged(), and provides
+     * immediate interactivity by scaling the current contents of the
+     * image buffer and bufferAges.
+     */
+
     LogIndex::ClockType newScale = view.scale * factor + 0.5;
+    TimelineView oldView = view;
 
     if (newScale < 1)
         newScale = 1;
 
     view.origin += xPivot * (view.scale - newScale);
     view.scale = newScale;
+
     viewChanged();
+    updateBitmapForViewChange(oldView, view);
+}
+
+
+void
+THDTimeline::pan(int pixels)
+{
+    /*
+     * Slide the view left or right. Moves the graph left by 'pixels',
+     * which may be negative.
+     *
+     * This updates the view, calls viewChanged(), and provides
+     * immediate interactivity by scrolling the current contents of
+     * the image buffer and bufferAges.
+     */
+
+    TimelineView oldView = view;
+    view.origin += pixels * view.scale;
+
+    viewChanged();
+    updateBitmapForViewChange(oldView, view);
+}
+
+
+void
+THDTimeline::updateBitmapForViewChange(TimelineView &oldView, TimelineView &newView)
+{
+    /*
+     * Update the bufferBitmap and bufferAges to account for a view change.
+     * Every column in the new view is populated using the closest available
+     * column in the old view, or it is explicitly expired if no matching
+     * column is available.
+     *
+     * This is a generalization of the buffer update we perform for
+     * both zooming and panning. It's not the most efficient thing
+     * ever, but we only run this when the user interacts with the
+     * graph so it isn't super high-frequency.
+     *
+     * Call this _after_ viewChanged(), so we get a clipped view.
+     */
+
+    int width = bufferBitmap.GetWidth();
+    int height = bufferBitmap.GetHeight();
+
+    /*
+     * Step 1: Resample the age buffer, and calculate a map of which
+     *         old column goes with which new column. This lets us
+     *         do the actual image scaling horizontally (more cache
+     *         friendly) without having to repeat the division at
+     *         every pixel.
+     */
+
+    LogIndex::ClockType clock = newView.origin;
+    std::vector<uint8_t> newAges(width);
+    std::vector<int> oldColumns(width);
+
+    for (int col = 0; col < width; col++) {
+        int64_t oldClock = clock - oldView.origin + (oldView.scale >> 1);
+        int oldCol = oldClock / (int64_t)oldView.scale;
+
+        if (oldCol < 0 || oldCol >= width) {
+            // No corresponding old column
+            newAges[col] = 0xFF;
+            oldColumns[col] = -1;
+
+        } else {
+            // Transfer the old column
+            newAges[col] = bufferAges[oldCol];
+            oldColumns[col] = oldCol;
+        }
+
+        clock += newView.scale;
+    }
+
+    bufferAges = newAges;
+
+    /*
+     * Step 2: Make a new image for the buffer bitmap, resampling it from the
+     *         old bitmap.
+     */
+
+    pixelData_t pixData(bufferBitmap);
+    int stride = pixData.GetRowStride();
+    int pixelSize = pixelFormat_t::SizePixel;
+    int totalSize = stride * height;
+    uint8_t *temp = new uint8_t[totalSize];
+    uint8_t *pixBuffer = (uint8_t*) pixData.GetPixels().m_ptr;
+
+    uint8_t *pixIn = pixBuffer;
+    uint8_t *pixOut = temp;
+
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int srcX = oldColumns[x];
+            if (srcX >= 0) {
+                *(uint32_t*)pixOut = *(uint32_t*)(pixIn + srcX * pixelSize);
+            }
+            pixOut += pixelSize;
+        }
+        pixIn += stride;
+    }
+
+    memcpy(pixBuffer, temp, totalSize);
+    delete[] temp;
 }
 
 
