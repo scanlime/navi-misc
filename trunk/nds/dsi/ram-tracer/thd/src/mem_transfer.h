@@ -47,7 +47,8 @@ struct MemTransfer {
           id(_id),
           address(0),
           byteCount(0),
-          duration(0)
+          duration(0),
+          type(ERROR_UNAVAIL)
     {}
 
 
@@ -78,13 +79,14 @@ struct MemTransfer {
 
     static const wxString getTypeName(TypeEnum type) {
         switch (type) {
-        case READ:           return wxT("READ");
-        case WRITE:          return wxT("WRITE");
-        case ERROR_OVERFLOW: return wxT("ERROR_OVERFLOW");
-        case ERROR_SYNC:     return wxT("ERROR_SYNC");
-        case ERROR_CHECKSUM: return wxT("ERROR_CHECKSUM");
-        case ERROR_PROTOCOL: return wxT("ERROR_PROTOCOL");
-        default:             return wxT("(invalid)");
+        case READ:           return wxT("Read");
+        case WRITE:          return wxT("Write");
+        case ERROR_OVERFLOW: return wxT("Overflow Error");
+        case ERROR_SYNC:     return wxT("Sync Error");
+        case ERROR_CHECKSUM: return wxT("Checksum Error");
+        case ERROR_PROTOCOL: return wxT("Protocol Error");
+        case ERROR_UNAVAIL:  return wxT("(Unavailable)");
+        default:             return wxT("(Invalid)");
         }
     }
 };
