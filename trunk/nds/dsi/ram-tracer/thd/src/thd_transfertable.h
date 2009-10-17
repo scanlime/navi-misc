@@ -1,6 +1,7 @@
 /* -*- Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
  *
- * thd_mainwindow.h -- Main UI window for Temporal Hex Dump
+ * thd_transfertable.h - A wxGridTableBase subclass which displays a list of
+ *                       memory transfers from a LogIndex.
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -23,41 +24,37 @@
  * THE SOFTWARE.
  */
 
-#ifndef __THD_MAINWINDOW_H
-#define __THD_MAINWINDOW_H
+#ifndef __THD_TRANSFERTABLE_H
+#define __THD_TRANSFERTABLE_H
 
-#include <wx/frame.h>
 #include <wx/grid.h>
-#include <wx/splitter.h>
-
-#include "progress_status_bar.h"
-#include "log_reader.h"
 #include "log_index.h"
-#include "thd_timeline.h"
-#include "thd_transfertable.h"
 
 
-class THDMainWindow : public wxFrame {
+class THDTransferTable : public wxGridTableBase {
 public:
-    THDMainWindow();
-    virtual ~THDMainWindow();
+    THDTransferTable(LogIndex *index, double clockHz);
 
-    void Open(wxString fileName);
+    virtual int GetNumberRows();
+    virtual int GetNumberCols();
 
-    void OnIndexProgress(wxCommandEvent &event);
+    virtual bool IsEmptyCell(int row, int col);
+    virtual wxString GetValue(int row, int col);
+    virtual void SetValue(int row, int col, const wxString &value);
+    virtual wxString GetColLabelValue( int col );
 
-    DECLARE_EVENT_TABLE();
+    // Columns
+    enum {
+        COL_TIME = 0,
+        COL_TYPE,
+        COL_ADDRESS,
+        COL_LENGTH,
+        COL_MAX,  // Must be last
+    };
 
 private:
-    LogReader reader;
-    LogIndex index;
-    ProgressStatusBar *statusBar;
-    THDTimeline *timeline;
-    wxSplitterWindow *splitter;
-    wxGrid *transferGrid;
-    wxGrid *contentGrid;
-    THDTransferTable *transferTable;
+    LogIndex *index;
     double clockHz;
 };
 
-#endif /* __THD_MAINWINDOW_H */
+#endif /* __THD_TRANSFERTABLE_H */

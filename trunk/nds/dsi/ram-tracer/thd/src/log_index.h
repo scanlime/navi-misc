@@ -39,8 +39,10 @@
 #include "lru_cache.h"
 
 class LogInstant;
+class TransferSummary;
 
 typedef boost::shared_ptr<LogInstant> instantPtr_t;
+typedef boost::shared_ptr<TransferSummary> transferPtr_t;
 
 
 /*
@@ -156,6 +158,57 @@ public:
 };
 
 
+/*
+ * A summary of a single MemTransfer. These can be retrieved from a
+ * LogIndex, and LogIndex caches them. This class is similar to
+ * MemTransfer, with a few differences:
+ *
+ *   - This includes a timestamp, which MemTransfers (and the on-disk
+ *     format) does not directly include.
+ *
+ *   - This does not include the contents of the transfer, just the
+ *     metadata.
+ */
+
+class TransferSummary {
+public:
+    typedef MemTransfer::ClockType ClockType;
+    typedef MemTransfer::OffsetType OffsetType;
+    typedef MemTransfer::LengthType LengthType;
+    typedef MemTransfer::TypeEnum TypeEnum;
+    typedef MemTransfer::AddressType AddressType;
+
+    // Invalid transfer
+    TransferSummary(ClockType _time=-1,
+                    OffsetType _offset=-1,
+                    OffsetType _id=-1)
+        : time(_time),
+          type(MemTransfer::ERROR_UNAVAIL),
+          address(-1),
+          byteCount(0),
+          offset(_offset),
+          id(_id)
+    {}
+
+    /*
+     * Note that this timestamp is the _end_ of the transfer, not the
+     * beginning. This is consistent with the way LogInstants and the
+     * strata cache operate.
+     */
+    ClockType time;
+
+    TypeEnum type;
+    AddressType address;
+    LengthType byteCount;
+    OffsetType offset;
+    OffsetType id;
+
+    const wxString getTypeName() {
+        return MemTransfer::getTypeName(type);
+    }
+};
+
+
 class LogIndex {
 public:
     typedef MemTransfer::ClockType ClockType;
@@ -227,6 +280,18 @@ public:
      */
     instantPtr_t GetInstant(ClockType time, ClockType distance = 0);
 
+    /*
+     * Get a summary of a particular memory transfer. This includes
+     * information about the transfer's type, offset, timestamp,
+     * address, and length. It does not include the transfer's data
+     * contents.
+     *
+     * If 'id' can't be found or it represents an invalid transfer,
+     * the error will be reported via 'type' in the returned transfer.
+     * Both successful and unsuccessful lookups are cached.
+     */
+    transferPtr_t GetTransferSummary(OffsetType id);
+
 private:
     /*
      * Definitions:
@@ -284,9 +349,11 @@ private:
     double logFileSize;
 
     FuzzyCache<ClockType, instantPtr_t> instantCache;
+    FuzzyCache<OffsetType, transferPtr_t> transferCache;
     instantPtr_t lastInstant;
 
     sqlite3x::sqlite3_command *cmd_getInstantForTimestep;
+    sqlite3x::sqlite3_command *cmd_getTransferSummary;
 
     State state;
     double progress;
