@@ -30,6 +30,7 @@
 #ifndef __MEM_TRANSFER_H
 #define __MEM_TRANSFER_H
 
+#include <wx/string.h>
 #include <stdint.h>
 
 struct MemTransfer {
@@ -49,13 +50,8 @@ struct MemTransfer {
           duration(0)
     {}
 
-    AddressType address;
-    LengthType byteCount;
-    DurationType duration;
-    OffsetType offset;
-    OffsetType id;
 
-    enum {
+    typedef enum {
         READ,
         WRITE,
 
@@ -64,19 +60,31 @@ struct MemTransfer {
         ERROR_SYNC,       // Packet boundary sync problem
         ERROR_CHECKSUM,   // Packet data checksum problem
         ERROR_PROTOCOL,   // Higher-level memory protocol error
-    } type;
+        ERROR_UNAVAIL,    // Data not (currently) available
+    } TypeEnum;
+
+    TypeEnum type;
+    AddressType address;
+    LengthType byteCount;
+    DurationType duration;
+    OffsetType offset;
+    OffsetType id;
 
     uint8_t buffer[MAX_LENGTH];
 
-    const char * getTypeName() {
+    const wxString getTypeName() {
+        return getTypeName(type);
+    }
+
+    static const wxString getTypeName(TypeEnum type) {
         switch (type) {
-        case READ:           return "READ";
-        case WRITE:          return "WRITE";
-        case ERROR_OVERFLOW: return "ERROR_OVERFLOW";
-        case ERROR_SYNC:     return "ERROR_SYNC";
-        case ERROR_CHECKSUM: return "ERROR_CHECKSUM";
-        case ERROR_PROTOCOL: return "ERROR_PROTOCOL";
-        default:             return "(invalid)";
+        case READ:           return wxT("READ");
+        case WRITE:          return wxT("WRITE");
+        case ERROR_OVERFLOW: return wxT("ERROR_OVERFLOW");
+        case ERROR_SYNC:     return wxT("ERROR_SYNC");
+        case ERROR_CHECKSUM: return wxT("ERROR_CHECKSUM");
+        case ERROR_PROTOCOL: return wxT("ERROR_PROTOCOL");
+        default:             return wxT("(invalid)");
         }
     }
 };

@@ -24,6 +24,7 @@
  */
 
 #include <wx/sizer.h>
+#include <wx/splitter.h>
 #include "thd_mainwindow.h"
 #include "thd_timeline.h"
 
@@ -42,9 +43,31 @@ THDMainWindow::THDMainWindow()
     statusBar = new ProgressStatusBar(this);
     SetStatusBar(statusBar);
 
+    /*
+     * Vertical layout: Timeline, then splitter
+     */
+
     wxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 
-    vbox->Add(new THDTimeline(this, &index), 0, wxGROW);
+    timeline = new THDTimeline(this, &index); 
+    vbox->Add(timeline, 0, wxEXPAND);
+
+    splitter = new wxSplitterWindow(this);
+    vbox->Add(splitter, 1, wxEXPAND);
+
+    /*
+     * Horizontal split: Transfers and contents
+     */
+
+    transferGrid = new wxGrid(splitter, wxID_ANY);
+    transferTable = new THDTransferTable(&index, clockHz);
+    transferGrid->EnableEditing(false);
+    transferGrid->SetRowLabelSize(0);
+
+    contentGrid = new wxGrid(splitter, wxID_ANY);
+    contentGrid->EnableEditing(false);
+
+    splitter->SplitVertically(transferGrid, contentGrid);
 
     SetSizer(vbox);
     vbox->Fit(this);
@@ -55,6 +78,11 @@ THDMainWindow::~THDMainWindow()
 {
     SetStatusBar(NULL);
     delete statusBar;
+    delete timeline;
+    delete transferGrid;
+    delete contentGrid;
+    delete transferTable;
+    delete splitter;
 }
 
 
@@ -65,6 +93,15 @@ THDMainWindow::Open(wxString fileName)
     reader.Close();
     reader.Open(fileName);
     index.Open(&reader);
+
+    /*
+     * Refresh the tables.
+     *
+     * XXX: This is a pretty heavy-handed method.
+     *      It'd be nice to allow incremental updates
+     *      during indexing.
+     */
+    transferGrid->SetTable(transferTable);
 }
 
 

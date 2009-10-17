@@ -14,6 +14,7 @@ env.Program(
         'src/thd_app.cpp',
         'src/thd_mainwindow.cpp',
         'src/thd_timeline.cpp',
+        'src/thd_transfertable.cpp',
         'src/progress_status_bar.cpp',
         'src/log_reader.cpp',
         'src/log_index.cpp',

@@ -47,8 +47,10 @@ wxEventType LogIndex::progressEvent = 0;
 LogIndex::LogIndex()
     : progressReceiver(NULL),
       cmd_getInstantForTimestep(NULL),
+      cmd_getTransferSummary(NULL),
       lastInstant(GetInstantForTimestep(0)),
-      instantCache(INSTANT_CACHE_SIZE, GetInstantForTimestep(0))
+      instantCache(INSTANT_CACHE_SIZE, GetInstantForTimestep(0)),
+      transferCache(INSTANT_CACHE_SIZE, transferPtr_t(new TransferSummary()))
 {
     if (!progressEvent)
         progressEvent = wxNewEventType();
@@ -124,6 +126,11 @@ LogIndex::DeleteCommands()
         delete cmd_getInstantForTimestep;
         cmd_getInstantForTimestep = NULL;
     }
+
+    if (cmd_getTransferSummary) {
+        delete cmd_getTransferSummary;
+        cmd_getTransferSummary = NULL;
+    }
 }
 
 
@@ -190,6 +197,10 @@ LogIndex::Finish()
 
     wxCriticalSectionLocker locker(dbLock);
     sqlite3_transaction transaction(db);
+
+    // Used for GetTransferSummary()
+    db.executenonquery("CREATE INDEX IF NOT EXISTS transferIdIdx "
+                       "on strata (transferId)");
 
     db.executenonquery("CREATE INDEX IF NOT EXISTS wblockIdx1 "
                        "on wblocks (time)");
@@ -326,7 +337,8 @@ LogIndex::AdvanceInstant(LogInstant &instant, MemTransfer &mt, bool reverse)
                "mt(type=%s, dur=%d, offset=%lld)\n",
                instant.time, instant.offset,
                reverse,
-               mt.getTypeName(), mt.duration, mt.offset);
+               (const char *)mt.getTypeName().mb_str(),
+               mt.duration, mt.offset);
 
     instant.updateTime(mt.duration, reverse);
     instant.offset = mt.offset;
@@ -612,7 +624,7 @@ LogIndex::GetInstantFromStartingPoint(instantPtr_t start, ClockType time,
 
     instantPtr_t newInst(new LogInstant(*start));
     MemTransfer mt(newInst->offset, newInst->transferId);
-    const char *indexErrFmt = "INDEX: %s error while %s %lld -> %lld\n";
+    const char *indexErrFmt = "INDEX: %s error while %s (clock: %lld -> %lld)\n";
 
     if (time < newInst->time) {
         /*
@@ -633,9 +645,8 @@ LogIndex::GetInstantFromStartingPoint(instantPtr_t start, ClockType time,
                 return newInst;
             }
             if (!reader->Prev(mt)) {
-                fprintf(stderr, indexErrFmt, "Seek", "reverse-iterating",
-                        newInst->time, target);
-                return newInst;
+                // Reached the beginning of the log
+                return GetInstantForTimestep(0);
             }
 
             // Reverse advance
@@ -660,9 +671,8 @@ LogIndex::GetInstantFromStartingPoint(instantPtr_t start, ClockType time,
 
         do {
             if (!reader->Next(mt)) {
-                fprintf(stderr, indexErrFmt, "Seek", "advancing",
-                        newInst->time, target);
-                return newInst;
+                // Reached the end of the log
+                break;
             }
             if (!reader->Read(mt)) {
                 fprintf(stderr, indexErrFmt, "Read", "advancing",
@@ -764,6 +774,169 @@ LogIndex::GetInstantForTimestep(ClockType upperBound)
         reader->Read(mt);
     AdvanceInstant(*instant, mt);
     return instant;
+}
+
+
+transferPtr_t
+LogIndex::GetTransferSummary(OffsetType id)
+{
+    transferPtr_t tp = transferCache.findClosest(id);
+
+    if (tp->id == id) {
+        // Found it in the cache
+        return tp;
+    }
+
+    /*
+     * The closest one in the cache isn't a match, but how close was
+     * it? If we're farther away than the index's timestep
+     * granularity, we'll be better off (on average) using the strata
+     * table as a starting point.
+     *
+     * We don't know the file offest of 'id' yet, so we can't make an
+     * exact calculation. But we can estimate it using the average
+     * number of transfers per byte from lastInstant.
+     */
+
+    bool withinTimestep;
+
+    if (tp->type == MemTransfer::ERROR_UNAVAIL) {
+        withinTimestep = false;
+    } else {
+        OffsetType idDistance = id > tp->id ? id - tp->id : tp->id - id;
+        OffsetType fileDistance = ((idDistance * (uint64_t)lastInstant->offset)
+                                   / lastInstant->transferId);
+        withinTimestep = fileDistance <= TIMESTEP_SIZE;
+    }
+
+    if (!db.db()) {
+        // No database yet.
+        return tp;
+    }
+
+    if (!withinTimestep) {
+        /*
+         * Not close enough. Get a new starting point from the strata table.
+         * This doesn't read the entire MemTransfer, just the file offset,
+         * timestamp, and ID.
+         *
+         * Note that LogInstants are inclusive of the transfer that
+         * its offset and ID point to, so the instant timestamp is the
+         * _end_ of the transfer. This is consistent with the
+         * semantics we've chosen for TransferSummary.
+         */
+
+        bool success;
+
+        {
+            wxCriticalSectionLocker locker(dbLock);
+            sqlite3_command *cmd = cmd_getTransferSummary;
+
+            if (!cmd) {
+                cmd = cmd_getTransferSummary =
+                    new sqlite3_command(db, "SELECT time, offset, transferId FROM strata"
+                                        " WHERE transferId <= ? ORDER BY transferId"
+                                        " DESC LIMIT 1");
+            }
+
+            cmd->bind(1, (sqlite3x::int64_t) id);
+            sqlite3_cursor crsr = cmd->executecursor();
+            success = crsr.step();
+
+            if (success) {
+                tp = transferPtr_t(new TransferSummary(crsr.getint64(0),
+                                                       crsr.getint64(1),
+                                                       crsr.getint64(2)));
+            }
+        }
+
+        if (!success) {
+            /*
+             * Earlier than all existing transfers.  Use
+             * GetInstantForTimestep() to read the very first
+             * MemTransfer from disk, so we know what the timestamp is
+             * at the end of this transfer. We must do this after
+             * releasing the dbLock.
+             */
+
+            instantPtr_t inst = GetInstantForTimestep(0);
+            tp = transferPtr_t(new TransferSummary(inst->time,
+                                                   inst->offset,
+                                                   inst->transferId));
+        }
+    }
+
+    /*
+     * We now have a starting point for iteration, but it isn't
+     * necessarily a complete TransferSummary, so it can't be stored
+     * in the cache yet.
+     *
+     * Iterate forward or backward until we reach the transfer we're
+     * searching for, then cache and return it.
+     */
+
+    MemTransfer mt(tp->offset, tp->id);
+    const char *indexErrFmt = "INDEX: %s error while %s (ID: %lld -> %lld)\n";
+
+    if (id < mt.id) {
+        /*
+         * Seek backwards
+         */
+
+        while (1) {
+            if (!reader->Read(mt)) {
+                fprintf(stderr, indexErrFmt, "Read", "reverse-iterating", mt.id, id);
+                break;
+            }
+            
+            // Exit only after Read()'ing the transfer we're interested in
+            if (id == mt.id) {
+                break;
+            }
+
+            if (!reader->Prev(mt)) {
+                fprintf(stderr, indexErrFmt, "Seek", "reverse-iterating", mt.id, id);
+                break;
+            }
+
+            // Back up the clock, so we're pointing to the end of 'mt'.
+            tp->time -= mt.duration;
+        }
+
+    } else {
+        /*
+         * Seek forward
+         */
+
+        while (id != mt.id) {
+            if (!reader->Next(mt)) {
+                fprintf(stderr, indexErrFmt, "Seek", "advancing", mt.id, id);
+                break;
+            }
+            if (!reader->Read(mt)) {
+                fprintf(stderr, indexErrFmt, "Read", "advancing", mt.id, id);
+                break;
+            }
+
+            // Advance the clock to the end of 'mt'
+            tp->time += mt.duration;
+        } 
+    }
+
+    /*
+     * Now both 'mt' and 'tp' are pointing to the correct transfer,
+     * and we've read the transfer details from disk. Fill in the
+     * rest of the transfer info, and cache the results.
+     */
+
+    tp->type = mt.type;
+    tp->address = mt.address;
+    tp->byteCount = mt.byteCount;
+    tp->offset = mt.offset;
+    tp->id = mt.id;
+
+    transferCache.store(tp->id, tp);
+    return tp;
 }
 
 
