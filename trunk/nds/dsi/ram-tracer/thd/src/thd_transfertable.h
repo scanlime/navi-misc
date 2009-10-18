@@ -67,7 +67,7 @@ private:
     wxGridCellAttr *readAttr;
     wxGridCellAttr *writeAttr;
     wxGridCellAttr *errorAttrs[ERROR_WIDTH];
-    
+
     LogIndex *index;
     double clockHz;
 };
