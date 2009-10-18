@@ -149,10 +149,13 @@ private:
     std::vector<uint8_t> bufferAges;
     wxTimer refreshTimer;
 
+    bool allocated;         // Is our buffer allocated?
+    bool slicesDirty;       // Are any slices potentially not up to date on our bitmap?
+    bool needSliceEnqueue;  // Should we request slice rendering?
+
     wxPoint dragOrigin;
     wxPoint cursor;
     TimelineView view;
-    bool needSliceEnqueue;
 };
 
 #endif /* __THD_TIMELINE_H */
