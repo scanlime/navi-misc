@@ -26,6 +26,7 @@
 
 #include <wx/settings.h>
 #include <wx/dcclient.h>
+#include <boost/bind.hpp>
 #include "color_rgb.h"
 #include "thd_transfertable.h"
 
@@ -288,6 +289,10 @@ THDTransferGrid::THDTransferGrid(wxWindow *_parent, THDModel *_model)
       table(_model)
 {
     Refresh();
+
+    // Attach model signals
+    modelCursorChangeConn = model->cursorChanged.connect(
+       boost::bind(&THDTransferGrid::modelCursorChanged, this));
 }
 
 
@@ -305,7 +310,13 @@ THDTransferGrid::Refresh()
     EnableDragRowSize(false);
     EnableDragColSize(false);
 
+    // Figure out all column widths, and set the table's overall width
     CacheBestSize(wxSize(table.AutoSizeColumns(*this), 1));
+
+    // Scroll by entire rows
+    int rowSize = GetRowSize(0);
+    if (rowSize > 0)
+        SetScrollLineY(rowSize);
 
     EndBatch();
 }
@@ -314,12 +325,30 @@ THDTransferGrid::Refresh()
 void
 THDTransferGrid::OnSelectCell(wxGridEvent &event)
 {
-    transferPtr_t tp = model->index->GetTransferSummary(event.GetRow());
+    int row = event.GetRow();
 
-    model->cursor.time = tp->time;
-    model->cursor.transferId = tp->id;
-    model->cursor.address = tp->address;
-    model->cursorChanged();
+    if (row != model->cursor.transferId) {
+        modelCursorChangeConn.block();
+        model->moveCursorToId(row);
+        modelCursorChangeConn.unblock();
+    }
 
     event.Skip();
+}
+
+
+void
+THDTransferGrid::modelCursorChanged()
+{
+    /*
+     * Another widget changed the THDModel's cursor. Move the cursor
+     * to this cell and hilight it.
+     */
+
+    int row = model->cursor.transferId;
+    int col = GetGridCursorCol();
+
+    SetGridCursor(row, col);
+    SelectRow(row);
+    MakeCellVisible(row, col);
 }

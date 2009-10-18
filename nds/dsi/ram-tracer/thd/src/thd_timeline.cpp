@@ -35,6 +35,9 @@ BEGIN_EVENT_TABLE(THDTimeline, wxPanel)
     EVT_SIZE(THDTimeline::OnSize)
     EVT_MOUSE_EVENTS(THDTimeline::OnMouseEvent)
     EVT_TIMER(ID_REFRESH_TIMER, THDTimeline::OnRefreshTimer)
+    EVT_KEY_DOWN(THDTimeline::OnKeyDown)
+    EVT_SET_FOCUS(THDTimeline::OnFocus)
+    EVT_KILL_FOCUS(THDTimeline::OnFocus)
 END_EVENT_TABLE()
 
 
@@ -57,7 +60,11 @@ THDTimeline::THDTimeline(wxWindow *_parent, THDModel *_model)
     sliceGenerator(this),
     sliceCache(SLICE_CACHE_SIZE, &sliceGenerator),
     refreshTimer(this, ID_REFRESH_TIMER),
-    allocated(false)
+    allocated(false),
+    slicesDirty(true),
+    needSliceEnqueue(true),
+    isDragging(false),
+    hasFocus(false)
 {
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 
@@ -79,11 +86,19 @@ THDTimeline::OnMouseEvent(wxMouseEvent &event)
 
     if (event.LeftDown()) {
         dragOrigin = cursor;
+        isDragging = false;
     }
 
     if (event.Dragging()) {
         pan(dragOrigin.x - cursor.x);
         dragOrigin = cursor;
+        isDragging = true;
+    }
+
+    if (event.LeftUp() && !isDragging) {
+        // Left click
+        SetFocus();
+        model->moveCursorToTime(getSliceKeyForPixel(cursor.x).getCenter());
     }
 
     if (event.ShiftDown()) {
@@ -91,32 +106,33 @@ THDTimeline::OnMouseEvent(wxMouseEvent &event)
 
         static const int WHEEL_PAN = 64;
 
-        if (event.GetWheelRotation() < 0) {
+        if (event.GetWheelRotation() < 0)
             pan(WHEEL_PAN);
-        }
-        if (event.GetWheelRotation() > 0) {
+        if (event.GetWheelRotation() > 0)
             pan(-WHEEL_PAN);
-        }
 
     } else {
         // Wheel: Zooming
 
         static const double ZOOM_FACTOR = 1.2;
 
-        if (event.GetWheelRotation() < 0) {
+        if (event.GetWheelRotation() < 0)
             zoom(ZOOM_FACTOR, cursor.x);
-        }
-        if (event.GetWheelRotation() > 0) {
+        if (event.GetWheelRotation() > 0)
             zoom(1 / ZOOM_FACTOR, cursor.x);
-        }
     }
 
-    if (event.Leaving())
-        updateOverlay(THDTimelineOverlay::STYLE_HIDDEN);
-    else if (event.Entering())
+    if (event.Leaving()) {
+        // On mouse exit, remove the overlay if it was a mouse cursor overlay.
+        if (overlay.style == THDTimelineOverlay::STYLE_MOUSE_CURSOR)
+            updateOverlay(THDTimelineOverlay::STYLE_HIDDEN);
+    } else if (event.Entering()) {
+        // Enable the overly on cursor entry
         updateOverlay(THDTimelineOverlay::STYLE_MOUSE_CURSOR);
-    else if (overlay.style == THDTimelineOverlay::STYLE_MOUSE_CURSOR)
-        updateOverlay(THDTimelineOverlay::STYLE_MOUSE_CURSOR);
+    } else {
+        // Update the existing overlay
+        updateOverlay(overlay.style);
+    }
 
     event.Skip();
 }
@@ -398,7 +414,7 @@ THDTimeline::OnPaint(wxPaintEvent &event)
     if (overlay.incomplete)
         updateOverlay(overlay.style);
 
-    overlay.Paint(dc);
+    overlay.Paint(dc, hasFocus);
 
     event.Skip();
 }
@@ -856,10 +872,66 @@ THDTimeline::OnRefreshTimer(wxTimerEvent &event)
 
 
 void
+THDTimeline::OnKeyDown(wxKeyEvent &event)
+{
+    /*
+     * Keyboard navigation support
+     */
+
+    static const double ZOOM_FACTOR = 1.5;
+    static const int PAGE_SIZE = 100;
+
+    switch (event.GetKeyCode()) {
+
+    case WXK_LEFT:
+    case WXK_UP:
+        model->cursorPrev();
+        break;
+
+    case WXK_RIGHT:
+    case WXK_DOWN:
+        model->cursorNext();
+        break;
+
+    case WXK_PAGEUP:
+        model->cursorPrev(PAGE_SIZE);
+        break;
+
+    case WXK_PAGEDOWN:
+        model->cursorNext(PAGE_SIZE);
+        break;
+
+    case '-':
+    case '_':
+        zoom(ZOOM_FACTOR, overlay.pos.x);
+        break;
+
+    case '=':
+    case '+':
+        zoom(1 / ZOOM_FACTOR, overlay.pos.x);
+        break;
+
+    default:
+        event.Skip();
+    }
+}
+
+
+void
+THDTimeline::OnFocus(wxFocusEvent &event)
+{
+    hasFocus = event.GetEventType() == wxEVT_SET_FOCUS;
+
+    // Focus is displayed in our overlay label area
+    overlay.RefreshRects(*this);
+}
+
+
+void
 THDTimeline::modelCursorChanged()
 {
     /*
-     * Some other widget changed the THDModel's cursor.  Scroll to
+     * Some widget changed the THDModel's cursor.  Scroll to
      * this new position, and hilight it with our overlay.
      */
 
@@ -1051,16 +1123,16 @@ THDTimelineOverlay::RefreshRects(wxWindow &win)
 
 
 void
-THDTimelineOverlay::Paint(wxDC &dc)
+THDTimelineOverlay::Paint(wxDC &dc, bool focusRect)
 {
     if (style == STYLE_HIDDEN)
         return;
 
-    wxBrush labelBrush(ColorRGB(0xddffdd));
-    wxPen labelPen(ColorRGB(0x88dd88));
-
-    wxBrush outlineBrush(ColorRGB(0xdddddd));
-    wxBrush vBrush(ColorRGB(0xff4444));
+    wxBrush labelBrush(ColorRGB(THDTimeline::COLOR_BOX_BG), wxSOLID);
+    wxPen labelPen(ColorRGB(THDTimeline::COLOR_BOX_BORDER), 1, wxSOLID);
+    wxPen focusPen(ColorRGB(THDTimeline::COLOR_FOCUS), 1, wxDOT);
+    wxBrush outlineBrush(ColorRGB(THDTimeline::COLOR_OUTLINES), wxSOLID);
+    wxBrush vBrush(ColorRGB(THDTimeline::COLOR_CURSOR), wxSOLID);
 
     bool inTopHalf = (pos.y >= THDTimeline::SLICE_STRATA_TOP &&
                       pos.y < THDTimeline::SLICE_STRATA_BOTTOM);
@@ -1086,13 +1158,25 @@ THDTimelineOverlay::Paint(wxDC &dc)
     dc.SetBrush(vBrush);
     dc.DrawRectangle(pos.x, 0, 1, height);
 
-    // Labels foreground
+    // Label box
     dc.SetBrush(labelBrush);
     dc.SetPen(labelPen);
     dc.DrawRectangle(labelsRect.x - LABEL_BOX_PAD,
                      labelsRect.y - LABEL_BOX_PAD,
                      labelsRect.width + LABEL_BOX_PAD * 2,
                      labelsRect.height + LABEL_BOX_PAD * 2);
+
+    // Focus rectangle (inside label box)
+    if (focusRect) {
+        dc.SetPen(focusPen);
+        dc.SetBrush(*wxTRANSPARENT_BRUSH);
+        dc.DrawRectangle(labelsRect.x - LABEL_BOX_PAD + 1,
+                         labelsRect.y - LABEL_BOX_PAD + 1,
+                         labelsRect.width + LABEL_BOX_PAD * 2 - 2,
+                         labelsRect.height + LABEL_BOX_PAD * 2 - 2);
+    }
+
+    // Label text
     PaintLabels(labelsRect, dc);
 }
 

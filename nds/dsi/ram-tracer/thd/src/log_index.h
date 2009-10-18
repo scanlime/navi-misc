@@ -302,6 +302,12 @@ public:
      */
     transferPtr_t GetTransferSummary(OffsetType id);
 
+    /*
+     * Get a summary of the transfer closest to 'time', either before
+     * or after it.
+     */
+    transferPtr_t GetClosestTransfer(ClockType time);
+
 private:
     /*
      * Definitions:
