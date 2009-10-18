@@ -177,21 +177,20 @@ private:
     public:
         Thread(LazyCache<Key, Value> *_cache)
             : cache(_cache),
-              mutex(),
-              condvar(mutex)
+              sema()
         {}
 
         virtual ExitCode Entry()
         {
             while (!TestDestroy()) {
-                condvar.WaitTimeout(1000);
+                sema.WaitTimeout(1000);
                 while (processWorkQueue());
             }
         }
 
         void wake()
         {
-            condvar.Signal();
+            sema.Post();
         }
 
     private:
@@ -246,8 +245,7 @@ private:
             return true;
         }
 
-        wxMutex mutex;
-        wxCondition condvar;
+        wxSemaphore sema;
         LazyCache<Key, Value> *cache;
     };
 
