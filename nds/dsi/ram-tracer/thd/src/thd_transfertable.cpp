@@ -24,12 +24,55 @@
  * THE SOFTWARE.
  */
 
+#include <wx/settings.h>
 #include "thd_transfertable.h"
 
 
 THDTransferTable::THDTransferTable(LogIndex *_index, double _clockHz)
     : index(_index), clockHz(_clockHz)
-{}
+{
+    wxFont defaultFont = wxSystemSettings::GetFont(wxSYS_SYSTEM_FONT);
+    wxFont fixedFont = wxFont(defaultFont.GetPointSize(),
+                              wxFONTFAMILY_MODERN,  // Fixed width
+                              wxFONTSTYLE_NORMAL,
+                              wxFONTWEIGHT_NORMAL);
+
+    /*
+     * wxWidgets doesn't make it easy to get a default wxGridCellAttr.
+     * This creates one from scratch, duplicating some of the
+     * functionality of wxGrid itself. This is lame, but I don't see a
+     * better way at the moment.
+     */
+
+    defaultAttr = new wxGridCellAttr();
+
+    defaultAttr->SetDefAttr(defaultAttr);
+    defaultAttr->SetKind(wxGridCellAttr::Default);
+    defaultAttr->SetFont(defaultFont);
+    defaultAttr->SetAlignment(wxALIGN_LEFT, wxALIGN_CENTRE);
+    defaultAttr->SetRenderer(new wxGridCellStringRenderer);
+
+    defaultAttr->SetTextColour(
+        wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
+    defaultAttr->SetBackgroundColour(
+        wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
+
+    /*
+     * Clone this attribute and make one for numeric data.
+     */
+
+    numericAttr = defaultAttr->Clone();
+    numericAttr->SetDefAttr(defaultAttr);
+
+    numericAttr->SetFont(fixedFont);
+    numericAttr->SetAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
+}
+
+THDTransferTable::~THDTransferTable()
+{
+    wxSafeDecRef(defaultAttr);
+    wxSafeDecRef(numericAttr);
+}
 
 int
 THDTransferTable::GetNumberRows()
@@ -90,4 +133,32 @@ THDTransferTable::GetColLabelValue(int col)
     case COL_LENGTH:   return wxT("Length");
     }
     assert(0);
+}
+
+wxGridCellAttr *
+THDTransferTable::GetAttr(int row, int col,
+                          wxGridCellAttr::wxAttrKind kind)
+{
+    /*
+     * Since our data is much too big for wxGrid's normal attribute
+     * storage, we short-circuit much of the attribute code in wxGrid
+     * and calculate our own cell attributes on-demand right here.
+     */
+
+    wxGridCellAttr *attr;
+
+    switch (col) {
+
+    case COL_TIME:
+    case COL_ADDRESS:
+    case COL_LENGTH:
+        attr = numericAttr;
+        break;
+
+    default:
+        attr = defaultAttr;
+    }
+
+    attr->IncRef();
+    return attr;
 }

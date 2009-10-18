@@ -49,6 +49,8 @@ public:
     DECLARE_EVENT_TABLE();
 
 private:
+    void RefreshTables();
+
     LogReader reader;
     LogIndex index;
     ProgressStatusBar *statusBar;

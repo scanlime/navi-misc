@@ -542,6 +542,8 @@ LogIndex::IndexerThread::Entry()
 boost::shared_ptr<LogInstant>
 LogIndex::GetInstant(ClockType time, ClockType distance)
 {
+    wxCriticalSectionLocker dataLocker(dataLock);
+
     time = std::min<ClockType>(time, GetDuration());
 
     instantPtr_t inst = instantCache.findClosest(time);
@@ -780,6 +782,7 @@ LogIndex::GetInstantForTimestep(ClockType upperBound)
 transferPtr_t
 LogIndex::GetTransferSummary(OffsetType id)
 {
+    wxCriticalSectionLocker dataLocker(dataLock);
     transferPtr_t tp = transferCache.findClosest(id);
 
     if (tp->id == id) {
