@@ -3,6 +3,7 @@
 env = Environment(
     CPPPATH = '#/../include',
     CCFLAGS = '-g -O3',
+    LIBS = ['boost_signals-mt'],
     )
 
 env.ParseConfig('wx-config --cflags --libs')

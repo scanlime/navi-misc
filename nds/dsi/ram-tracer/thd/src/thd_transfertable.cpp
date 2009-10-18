@@ -30,8 +30,8 @@
 #include "thd_transfertable.h"
 
 
-THDTransferTable::THDTransferTable(LogIndex *_index, double _clockHz)
-    : index(_index), clockHz(_clockHz)
+THDTransferTable::THDTransferTable(THDModel *_model)
+    : model(_model)
 {
     wxFont defaultFont = wxSystemSettings::GetFont(wxSYS_SYSTEM_FONT);
     wxFont fixedFont = wxFont(defaultFont.GetPointSize(),
@@ -175,7 +175,7 @@ THDTransferTable::AutoSizeColumn(wxGrid &grid, int col, wxString prototype)
 int
 THDTransferTable::GetNumberRows()
 {
-    return index->GetNumTransfers();
+    return model->index->GetNumTransfers();
 }
 
 int
@@ -194,12 +194,12 @@ THDTransferTable::IsEmptyCell(int row, int col)
 wxString
 THDTransferTable::GetValue(int row, int col)
 {
-    transferPtr_t tp = index->GetTransferSummary(row);
+    transferPtr_t tp = model->index->GetTransferSummary(row);
 
     switch (col) {
 
     case COL_TIME:
-        return wxString::Format(wxT("%.06fs "), tp->time / clockHz);
+        return wxString::Format(model->formatClock(tp->time) + wxT(" "));
 
     case COL_TYPE:
         return tp->getTypeName();
@@ -243,7 +243,7 @@ THDTransferTable::GetAttr(int row, int col,
      * and calculate our own cell attributes on-demand right here.
      */
 
-    transferPtr_t tp = index->GetTransferSummary(row);
+    transferPtr_t tp = model->index->GetTransferSummary(row);
     wxGridCellAttr *attr = defaultAttr;
 
     switch (col) {

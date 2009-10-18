@@ -32,6 +32,7 @@
 #include <wx/rawbmp.h>
 #include <vector>
 
+#include "thd_model.h"
 #include "log_index.h"
 #include "lazy_cache.h"
 #include "color_rgb.h"
@@ -83,21 +84,27 @@ struct TimelineView {
 
 class THDTimelineOverlay {
 public:
-    THDTimelineOverlay() : visible(false) {}
+    enum style_t {
+        STYLE_HIDDEN,
+        STYLE_CURSOR,
+    };
+
+    THDTimelineOverlay(style_t _style = STYLE_HIDDEN) :
+        style(_style), incomplete(false) {}
 
     void RefreshRects(wxWindow &win);
     void Paint(wxDC &dc);
 
     bool operator ==(const THDTimelineOverlay &other)
     {
-        if (visible != other.visible)
+        if (style != other.style)
             return false;
 
-        if (visible)
-            return (pos == other.pos && labels == other.labels);
-        else
+        if (style == STYLE_HIDDEN)
             // Content doesn't matter when invisible
             return true;
+
+        return (pos == other.pos && labels == other.labels);
     }
 
     bool operator !=(const THDTimelineOverlay &other)
@@ -105,7 +112,13 @@ public:
         return !(*this == other);
     }
 
-    bool visible;
+    void addLabel(const wxString s)
+    {
+        labels.push_back(s);
+    }
+
+    bool incomplete;
+    style_t style;
     wxPoint pos;
     std::vector<wxString> labels;
 
@@ -126,7 +139,7 @@ private:
 
 class THDTimeline : public wxPanel {
 public:
-    THDTimeline(wxWindow *parent, LogIndex *index);
+    THDTimeline(wxWindow *parent, THDModel *model);
 
     void OnPaint(wxPaintEvent &event);
     void OnSize(wxSizeEvent &event);
@@ -160,12 +173,16 @@ private:
     static const int COLOR_READ       = 0x2d7db3;
     static const int COLOR_WRITE      = 0xcb0c29;
     static const int COLOR_ZERO       = 0xc57d0c;
+    static const int COLOR_GRID       = 0x44888888;
 
     static const int SHADE_CHECKER_1  = 0xaa;
     static const int SHADE_CHECKER_2  = 0xbb;
 
     struct SliceValue {
         ColorRGB pixels[SLICE_HEIGHT];
+        double readBandwidth;
+        double writeBandwidth;
+        double zeroBandwidth;
     };
 
     typedef LazyCache<SliceKey, SliceValue> sliceCache_t;
@@ -181,18 +198,22 @@ private:
     void zoom(double factor, int xPivot);
     void pan(int pixels);
 
-    void viewChanged(void);
+    void viewChanged();
     void updateBitmapForViewChange(TimelineView &oldView, TimelineView &newView);
 
     bool renderSlice(pixelData_t &data, int x);
     bool renderSliceRange(pixelData_t &data, int xMin, int xMax);
     bool renderSliceRange(wxBitmap &bmp, int xMin, int xMax);
 
+    void updateRefreshTimer(bool waitingForData);
+    void updateOverlay(THDTimelineOverlay::style_t style);
+
     SliceKey getSliceKeyForPixel(int x);
     SliceKey getSliceKeyForSubpixel(int x, int subpix);
 
     StrataRange getStrataRangeForPixel(int y);
 
+    THDModel *model;
     LogIndex *index;
     sliceCache_t sliceCache;
     SliceGenerator sliceGenerator;

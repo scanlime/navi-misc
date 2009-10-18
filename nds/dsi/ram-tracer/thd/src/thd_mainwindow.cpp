@@ -35,8 +35,9 @@ THDMainWindow::THDMainWindow()
   : wxFrame(NULL, -1, wxT("Temporal Hex Dump"),
             wxDefaultPosition, wxSize(1000, 700),
             wxDEFAULT_FRAME_STYLE | wxMAXIMIZE),
-    clockHz(LogReader::GetDefaultClockHZ())
+    model(&index)
 {
+
     Connect(index.GetProgressEvent(),
             wxCommandEventHandler(THDMainWindow::OnIndexProgress));
     index.SetProgressReceiver(this);
@@ -50,7 +51,7 @@ THDMainWindow::THDMainWindow()
 
     wxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 
-    timeline = new THDTimeline(this, &index); 
+    timeline = new THDTimeline(this, &model);
     vbox->Add(timeline, 0, wxEXPAND);
 
     wxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
@@ -60,7 +61,7 @@ THDMainWindow::THDMainWindow()
      * Horizontal split: Transfers and contents
      */
 
-    transferTable = new THDTransferTable(&index, clockHz);
+    transferTable = new THDTransferTable(&model);
     transferGrid = new wxGrid(this, wxID_ANY);
     contentGrid = new wxGrid(this, wxID_ANY);
 
@@ -125,7 +126,7 @@ THDMainWindow::RefreshTables()
 void
 THDMainWindow::OnIndexProgress(wxCommandEvent& WXUNUSED(event))
 {
-    statusBar->SetDuration(index.GetDuration() / (double)clockHz);
+    statusBar->SetDuration(index.GetDuration() / (double)model.clockHz);
 
     switch (index.GetState()) {
 

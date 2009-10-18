@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
  *
- * thd_mainwindow.h -- Main UI window for Temporal Hex Dump
+ * thd_model.h -- Mutable data that is shared between the multiple views in THD.
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -23,43 +23,56 @@
  * THE SOFTWARE.
  */
 
-#ifndef __THD_MAINWINDOW_H
-#define __THD_MAINWINDOW_H
+#ifndef __THD_MODEL_H
+#define __THD_MODEL_H
 
-#include <wx/frame.h>
-#include <wx/grid.h>
-
-#include "progress_status_bar.h"
-#include "log_reader.h"
+#include <boost/signal.hpp>
+#include <wx/string.h>
 #include "log_index.h"
-#include "thd_timeline.h"
-#include "thd_transfertable.h"
-#include "thd_model.h"
+#include "log_reader.h"
 
 
-class THDMainWindow : public wxFrame {
-public:
-    THDMainWindow();
-    virtual ~THDMainWindow();
+struct THDModelCursor {
+    typedef MemTransfer::ClockType ClockType;
+    typedef MemTransfer::OffsetType OffsetType;
+    typedef MemTransfer::AddressType AddressType;
 
-    void Open(wxString fileName);
+    static const ClockType NO_TIME = (ClockType)-1;
+    static const OffsetType NO_TRANSFER = (OffsetType)-1;
+    static const AddressType NO_ADDRESS = (AddressType)-1;
 
-    void OnIndexProgress(wxCommandEvent &event);
+    THDModelCursor()
+        : time(NO_TIME),
+          transferId(NO_TRANSFER),
+          address(NO_ADDRESS)
+    {}
 
-    DECLARE_EVENT_TABLE();
-
-private:
-    void RefreshTables();
-
-    LogReader reader;
-    LogIndex index;
-    ProgressStatusBar *statusBar;
-    THDTimeline *timeline;
-    wxGrid *transferGrid;
-    wxGrid *contentGrid;
-    THDTransferTable *transferTable;
-
-    THDModel model;
+    ClockType time;
+    OffsetType transferId;
+    AddressType address;
 };
 
-#endif /* __THD_MAINWINDOW_H */
+
+struct THDModel {
+    typedef boost::signal0<void> signal_t;
+
+    THDModel(LogIndex *_index)
+        : index(_index),
+          clockHz(LogReader::GetDefaultClockHZ())
+    {}
+
+    LogIndex *index;
+
+    double clockHz;
+    signal_t clockHzChanged;
+
+    THDModelCursor cursor;
+    signal_t cursorChanged;
+
+    wxString formatClock(MemTransfer::ClockType clock)
+    {
+        return wxString::Format(wxT("%.06fs"), clock / clockHz);
+    }
+};
+
+#endif /* __THD_MODEL_H */
