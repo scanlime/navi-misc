@@ -81,6 +81,7 @@ THDTimeline::OnMouseEvent(wxMouseEvent &event)
         zoom(1 / ZOOM_FACTOR, cursor.x);
     }
 
+    Refresh();
     event.Skip();
 }
 
