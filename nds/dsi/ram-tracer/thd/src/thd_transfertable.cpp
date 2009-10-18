@@ -116,22 +116,40 @@ THDTransferTable::~THDTransferTable()
     }
 }
 
-void
+int
 THDTransferTable::AutoSizeColumns(wxGrid &grid)
 {
     /*
      * Set reasonable sizes for all columns.
      * We don't want to use wxGrid's normal auto-sizing,
      * since it iterates over every row in the table.
+     *
+     * Returns the total horizontal size of the grid.
      */
 
-    AutoSizeColumn(grid, COL_TYPE, wxT("  Write  "));
-    AutoSizeColumn(grid, COL_TIME, wxT(" 000.00000000s "));
-    AutoSizeColumn(grid, COL_ADDRESS, wxT("00000000 "));
-    AutoSizeColumn(grid, COL_LENGTH, wxT("000 "));
+    int w = (AutoSizeColumn(grid, COL_TYPE, wxT("  Write  ")) +
+             AutoSizeColumn(grid, COL_TIME, wxT(" 000.00000000s ")) +
+             AutoSizeColumn(grid, COL_ADDRESS, wxT("00000000 ")) +
+             AutoSizeColumn(grid, COL_LENGTH, wxT("000 ")));
+
+    /*
+     * Add space for a vertical scrollbar
+     */
+
+    w += wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
+
+    /*
+     * Just like wxGrid::AutoSize(), we need to make sure we're sizing
+     * to a multiple of the scroll step, so we don't get a horizontal
+     * scroll bar.
+     */
+
+    int xUnit, yUnit;
+    grid.GetScrollPixelsPerUnit(&xUnit, &yUnit);
+    return (w + xUnit - 1) / xUnit * xUnit;
 }
 
-void
+int
 THDTransferTable::AutoSizeColumn(wxGrid &grid, int col, wxString prototype)
 {
     /*
@@ -150,6 +168,8 @@ THDTransferTable::AutoSizeColumn(wxGrid &grid, int col, wxString prototype)
 
     grid.SetColMinimalWidth(col, w);
     grid.SetColSize(col, w);
+
+    return w;
 }
 
 int

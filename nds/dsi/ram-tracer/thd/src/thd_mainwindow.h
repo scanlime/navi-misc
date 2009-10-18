@@ -28,7 +28,6 @@
 
 #include <wx/frame.h>
 #include <wx/grid.h>
-#include <wx/splitter.h>
 
 #include "progress_status_bar.h"
 #include "log_reader.h"
@@ -55,7 +54,6 @@ private:
     LogIndex index;
     ProgressStatusBar *statusBar;
     THDTimeline *timeline;
-    wxSplitterWindow *splitter;
     wxGrid *transferGrid;
     wxGrid *contentGrid;
     THDTransferTable *transferTable;
