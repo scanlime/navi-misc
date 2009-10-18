@@ -106,10 +106,13 @@ THDMainWindow::RefreshTables()
     transferGrid->SetTable(transferTable);
     transferGrid->SetRowLabelSize(0);
     transferGrid->EnableEditing(false);
+    transferGrid->EnableDragRowSize(false);
+    transferTable->AutoSizeColumns(*transferGrid);
     transferGrid->EndBatch();
 
     contentGrid->BeginBatch();
     contentGrid->EnableEditing(false);
+    contentGrid->EnableDragRowSize(false);
     contentGrid->EndBatch();
 }
 

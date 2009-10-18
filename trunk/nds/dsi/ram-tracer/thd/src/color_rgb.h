@@ -26,6 +26,7 @@
 #ifndef __COLOR_RGB_H
 #define __COLOR_RGB_H
 
+#include <wx/colour.h>
 #include <stdint.h>
 
 struct ColorRGB {
@@ -33,16 +34,30 @@ struct ColorRGB {
 
     ColorRGB() : value(0) {}
     ColorRGB(uint32_t v) : value(v) {}
-    ColorRGB(uint8_t r, uint8_t g, uint8_t b) : value((r << 16) | (g << 8) | b) {}
+    ColorRGB(uint8_t r, uint8_t g, uint8_t b)
+        : value((r << 16) | (g << 8) | b) {}
+    ColorRGB(wxColour c)
+        : value((c.Red() << 16) | (c.Green() << 8) | c.Blue()) {}
 
     uint8_t red() const { return value >> 16; }
     uint8_t green() const { return value >> 8; }
     uint8_t blue() const { return value; }
 
+    ColorRGB blend(ColorRGB other, uint8_t alpha)
+    {
+        uint8_t alphaPrime = 0xff - alpha;
+        return *this * alphaPrime + (other * alpha);
+    }
+
     operator uint32_t() const { return value; }
     operator int() const { return value; };
 
-    ColorRGB operator +(const ColorRGB &b)
+    operator wxColour() const
+    {
+        return wxColour(red(), green(), blue());
+    }
+
+    ColorRGB operator +(const ColorRGB b)
     {
         // Add with saturate
 
@@ -70,7 +85,7 @@ struct ColorRGB {
         return sum1m | sum2m;
     }
 
-    ColorRGB operator -(const ColorRGB &b)
+    ColorRGB operator -(const ColorRGB b)
     {
         // Subtract with saturate
 
@@ -158,25 +173,25 @@ struct ColorRGB {
         return r1m | r2m;
     }
 
-    ColorRGB operator +=(const ColorRGB &b)
+    ColorRGB operator +=(const ColorRGB b)
     {
         value = (*this + b).value;
         return *this;
     }
 
-    ColorRGB operator -=(const ColorRGB &b)
+    ColorRGB operator -=(const ColorRGB b)
     {
         value = (*this - b).value;
         return *this;
     }
 
-    ColorRGB operator *=(const float &b)
+    ColorRGB operator *=(const float b)
     {
         value = (*this * b).value;
         return *this;
     }
 
-    ColorRGB operator *=(const uint8_t &b)
+    ColorRGB operator *=(const uint8_t b)
     {
         value = (*this * b).value;
         return *this;
@@ -201,7 +216,7 @@ struct ColorAccumulator {
     ColorAccumulator(ColorRGB c)
         : red(c.red()), green(c.green()), blue(c.blue()) {}
 
-    ColorAccumulator operator +=(const ColorRGB &b)
+    ColorAccumulator operator +=(const ColorRGB b)
     {
         red += (int16_t) b.red();
         green += (int16_t) b.green();
@@ -209,7 +224,7 @@ struct ColorAccumulator {
         return *this;
     }
 
-    ColorAccumulator operator -=(const ColorRGB &b)
+    ColorAccumulator operator -=(const ColorRGB b)
     {
         red -= (int16_t) b.red();
         green -= (int16_t) b.green();

@@ -25,6 +25,8 @@
  */
 
 #include <wx/settings.h>
+#include <wx/dcclient.h>
+#include "color_rgb.h"
 #include "thd_transfertable.h"
 
 
@@ -37,6 +39,12 @@ THDTransferTable::THDTransferTable(LogIndex *_index, double _clockHz)
                               wxFONTSTYLE_NORMAL,
                               wxFONTWEIGHT_NORMAL);
 
+    ColorRGB fgColor(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
+    ColorRGB bgColor(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
+
+    ColorRGB readColor = bgColor.blend(ColorRGB(0x0000FF), 0x40);
+    ColorRGB writeColor = bgColor.blend(ColorRGB(0xFF0000), 0x40);
+
     /*
      * wxWidgets doesn't make it easy to get a default wxGridCellAttr.
      * This creates one from scratch, duplicating some of the
@@ -45,17 +53,14 @@ THDTransferTable::THDTransferTable(LogIndex *_index, double _clockHz)
      */
 
     defaultAttr = new wxGridCellAttr();
-
     defaultAttr->SetDefAttr(defaultAttr);
     defaultAttr->SetKind(wxGridCellAttr::Default);
+
     defaultAttr->SetFont(defaultFont);
     defaultAttr->SetAlignment(wxALIGN_LEFT, wxALIGN_CENTRE);
     defaultAttr->SetRenderer(new wxGridCellStringRenderer);
-
-    defaultAttr->SetTextColour(
-        wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
-    defaultAttr->SetBackgroundColour(
-        wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
+    defaultAttr->SetTextColour(fgColor);
+    defaultAttr->SetBackgroundColour(bgColor);
 
     /*
      * Clone this attribute and make one for numeric data.
@@ -66,12 +71,85 @@ THDTransferTable::THDTransferTable(LogIndex *_index, double _clockHz)
 
     numericAttr->SetFont(fixedFont);
     numericAttr->SetAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
+
+    /*
+     * Read and Write attributes
+     */
+
+    readAttr = defaultAttr->Clone();
+    readAttr->SetDefAttr(defaultAttr);
+    readAttr->SetAlignment(wxALIGN_CENTRE, wxALIGN_CENTRE);
+    readAttr->SetBackgroundColour(readColor);
+
+    writeAttr = defaultAttr->Clone();
+    writeAttr->SetDefAttr(defaultAttr);
+    writeAttr->SetAlignment(wxALIGN_CENTRE, wxALIGN_CENTRE);
+    writeAttr->SetBackgroundColour(writeColor);
+
+    /*
+     * To display error codes, we turn COL_TYPE into a wide cell.  To
+     * do this, we need to set the size of COL_TYPE itself to its new
+     * width, and mark the other columns with pointers back to
+     * COL_TYPE.
+     */
+
+    errorAttrs[0] = defaultAttr->Clone();
+    errorAttrs[0]->SetDefAttr(defaultAttr);
+    errorAttrs[0]->SetSize(1, ERROR_WIDTH);
+
+    for (int i = 1; i < ERROR_WIDTH; i++) {
+        errorAttrs[i] = defaultAttr->Clone();
+        errorAttrs[i]->SetDefAttr(defaultAttr);
+        errorAttrs[i]->SetSize(0, -i);
+    }
 }
 
 THDTransferTable::~THDTransferTable()
 {
     wxSafeDecRef(defaultAttr);
     wxSafeDecRef(numericAttr);
+    wxSafeDecRef(readAttr);
+    wxSafeDecRef(writeAttr);
+
+    for (int i = 0; i < ERROR_WIDTH; i++) {
+        wxSafeDecRef(errorAttrs[i]);
+    }
+}
+
+void
+THDTransferTable::AutoSizeColumns(wxGrid &grid)
+{
+    /*
+     * Set reasonable sizes for all columns.
+     * We don't want to use wxGrid's normal auto-sizing,
+     * since it iterates over every row in the table.
+     */
+
+    AutoSizeColumn(grid, COL_TYPE, wxT("  Write  "));
+    AutoSizeColumn(grid, COL_TIME, wxT(" 000.00000000s "));
+    AutoSizeColumn(grid, COL_ADDRESS, wxT("00000000 "));
+    AutoSizeColumn(grid, COL_LENGTH, wxT("000 "));
+}
+
+void
+THDTransferTable::AutoSizeColumn(wxGrid &grid, int col, wxString prototype)
+{
+    /*
+     * Set the current and minimum size for a single column, by
+     * looking up that column's font and measuring the width of a
+     * given 'prototype' string.
+     */
+
+    wxGridCellAttr *attr = GetAttr(-1, col, wxGridCellAttr::Default);
+    wxFont font = attr->GetFont();
+
+    wxClientDC dc(grid.GetParent());
+    wxCoord w, h;
+    dc.GetTextExtent(prototype, &w, &h, NULL, NULL, &font);
+    wxSafeDecRef(attr);
+
+    grid.SetColMinimalWidth(col, w);
+    grid.SetColSize(col, w);
 }
 
 int
@@ -101,7 +179,7 @@ THDTransferTable::GetValue(int row, int col)
     switch (col) {
 
     case COL_TIME:
-        return wxString::Format(wxT("%.06f"), tp->time / clockHz);
+        return wxString::Format(wxT("%.07fs "), tp->time / clockHz);
 
     case COL_TYPE:
         return tp->getTypeName();
@@ -130,7 +208,7 @@ THDTransferTable::GetColLabelValue(int col)
     case COL_TIME:     return wxT("Time");
     case COL_TYPE:     return wxT("Type");
     case COL_ADDRESS:  return wxT("Address");
-    case COL_LENGTH:   return wxT("Length");
+    case COL_LENGTH:   return wxT("Len");
     }
     assert(0);
 }
@@ -145,7 +223,8 @@ THDTransferTable::GetAttr(int row, int col,
      * and calculate our own cell attributes on-demand right here.
      */
 
-    wxGridCellAttr *attr;
+    transferPtr_t tp = index->GetTransferSummary(row);
+    wxGridCellAttr *attr = defaultAttr;
 
     switch (col) {
 
@@ -155,8 +234,22 @@ THDTransferTable::GetAttr(int row, int col,
         attr = numericAttr;
         break;
 
-    default:
-        attr = defaultAttr;
+    case COL_TYPE:
+        if (tp->type == MemTransfer::READ)
+            attr = readAttr;
+        else if (tp->type == MemTransfer::WRITE)
+            attr = writeAttr;
+        break;
+    }
+
+    /*
+     * If this row has an error code, the COL_TYPE cell
+     * is actually ERROR_WIDTH cells wide. Override the
+     * attributes on all cells in this range.
+     */
+    if (tp->type != MemTransfer::READ && tp->type != MemTransfer::WRITE
+        && col >= COL_TYPE && col < (COL_TYPE + ERROR_WIDTH)) {
+        attr = errorAttrs[col - COL_TYPE];
     }
 
     attr->IncRef();
