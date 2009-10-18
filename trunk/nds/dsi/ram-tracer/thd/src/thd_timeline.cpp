@@ -54,7 +54,8 @@ THDTimeline::THDTimeline(wxWindow *_parent, LogIndex *_index)
     index(_index),
     sliceGenerator(this),
     sliceCache(SLICE_CACHE_SIZE, &sliceGenerator),
-    refreshTimer(this, ID_REFRESH_TIMER)
+    refreshTimer(this, ID_REFRESH_TIMER),
+    allocated(false)
 {}
 
 
@@ -81,7 +82,6 @@ THDTimeline::OnMouseEvent(wxMouseEvent &event)
         zoom(1 / ZOOM_FACTOR, cursor.x);
     }
 
-    Refresh();
     event.Skip();
 }
 
@@ -219,38 +219,60 @@ THDTimeline::updateBitmapForViewChange(TimelineView &oldView, TimelineView &newV
 void
 THDTimeline::OnPaint(wxPaintEvent &event)
 {
-    wxPaintDC dc(this);
+    wxAutoBufferedPaintDC dc(this);
 
-    int width, height;
-    GetSize(&width, &height);
+    /*
+     * Step 1: Update the bufferBitmap, where we store fully rendered slices.
+     *         This bitmap contains the graph proper, but not any overlays.
+     *         We only draw this if slicesDirty has been set.
+     */
 
-    bool isComplete = renderSliceRange(bufferBitmap, 0, width-1);
+    if (allocated && slicesDirty) {
+        wxRegionIterator update(GetUpdateRegion());
+        int minSlice = bufferBitmap.GetWidth();
+        int maxSlice = 0;
 
-    dc.DrawBitmap(bufferBitmap, 0, 0, false);
+        // Update only the necessary slices
+        while (update) {
+            minSlice = std::min(minSlice, update.GetX());
+            maxSlice = std::max(maxSlice, update.GetX() + update.GetW() - 1);
+            update++;
+        }
+
+        slicesDirty = !renderSliceRange(bufferBitmap, minSlice, maxSlice);
+
+        /*
+         * We only enqueue new slices on the first paint after user
+         * interaction.  If we're refreshing due to our REFRESH or
+         * INDEXING timers, enqueueing slices will just waste CPU time and
+         * draw the slices in an unintended order.
+         *
+         * (If we enqueued slices on every render, we'd be continuously
+         * changing the order in which slices are queued- so every time
+         * the work thread picks a new slice to work on, it will be
+         * effectively random.)
+         *
+         * We do need to keep enqueueing slices during indexing, since the
+         * log duration will be constantly changing.
+         */
+        needSliceEnqueue = index->GetState() != index->COMPLETE;
+    }
 
     if (index->GetState() == index->INDEXING) {
         // Redraw slowly if we're indexing.
         refreshTimer.Start(1000 / INDEXING_FPS, wxTIMER_ONE_SHOT);
-    } else if (!isComplete) {
+    } else if (slicesDirty) {
         // Redraw quickly if we're still waiting for more data.
         refreshTimer.Start(1000 / REFRESH_FPS, wxTIMER_ONE_SHOT);
     }
 
     /*
-     * We only enqueue new slices on the first paint after user
-     * interaction.  If we're refreshing due to our REFRESH or
-     * INDEXING timers, enqueueing slices will just waste CPU time and
-     * draw the slices in an unintended order.
-     *
-     * (If we enqueued slices on every render, we'd be continuously
-     * changing the order in which slices are queued- so every time
-     * the work thread picks a new slice to work on, it will be
-     * effectively random.)
-     *
-     * We do need to keep enqueueing slices during indexing, since the
-     * log duration will be constantly changing.
+     * Step 2: Draw the bufferBitmap on the screen. This is the base
+     *         layer over top of which we'll draw overlays.
      */
-    needSliceEnqueue = index->GetState() == index->INDEXING;
+
+    if (allocated)
+        dc.DrawBitmap(bufferBitmap, 0, 0, false);
 
     event.Skip();
 }
@@ -490,6 +512,8 @@ THDTimeline::OnSize(wxSizeEvent &event)
          * incorrect.
          */
         bufferAges = std::vector<uint8_t>(roundedWidth, 0xFF);
+
+        allocated = true;
     }
 
     viewChanged();
@@ -524,6 +548,7 @@ THDTimeline::viewChanged(void)
         view.origin = duration;
 
     needSliceEnqueue = true;
+    slicesDirty = true;
 
     Refresh();
 }
