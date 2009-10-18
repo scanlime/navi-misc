@@ -128,7 +128,7 @@ THDTransferTable::AutoSizeColumns(wxGrid &grid)
      */
 
     int w = (AutoSizeColumn(grid, COL_TYPE, wxT("  Write  ")) +
-             AutoSizeColumn(grid, COL_TIME, wxT(" 000.00000000s ")) +
+             AutoSizeColumn(grid, COL_TIME, wxT(" 0000.000000s ")) +
              AutoSizeColumn(grid, COL_ADDRESS, wxT("00000000 ")) +
              AutoSizeColumn(grid, COL_LENGTH, wxT("000 ")));
 
@@ -199,7 +199,7 @@ THDTransferTable::GetValue(int row, int col)
     switch (col) {
 
     case COL_TIME:
-        return wxString::Format(wxT("%.07fs "), tp->time / clockHz);
+        return wxString::Format(wxT("%.06fs "), tp->time / clockHz);
 
     case COL_TYPE:
         return tp->getTypeName();
