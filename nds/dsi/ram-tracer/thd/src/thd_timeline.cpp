@@ -169,6 +169,11 @@ THDTimeline::zoom(double factor, int xPivot)
     if (newScale < 1)
         newScale = 1;
 
+    // Maximum scale is one minute per pixel
+    LogIndex::ClockType maxScale = model->clockHz * 60.0;
+    if (newScale > maxScale)
+        newScale = maxScale;
+
     view.origin += xPivot * (view.scale - newScale);
     view.scale = newScale;
 
@@ -1251,6 +1256,7 @@ TimelineGrid::TimelineGrid(THDTimeline *_timeline)
         1.0f,    // 1s
         10.0f,   // 10s
         60.0f,   // 1min
+        600.0f,  // 10min
     };
 
     for (int i = 0; i < sizeof scaleList / sizeof scaleList[0]; i++) {
