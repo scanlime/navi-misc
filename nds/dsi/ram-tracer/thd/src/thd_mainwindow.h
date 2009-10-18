@@ -55,9 +55,8 @@ private:
     LogIndex index;
     ProgressStatusBar *statusBar;
     THDTimeline *timeline;
-    wxGrid *transferGrid;
+    THDTransferGrid *transferGrid;
     wxGrid *contentGrid;
-    THDTransferTable *transferTable;
 
     THDModel model;
 };

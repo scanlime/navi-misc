@@ -40,7 +40,7 @@ struct MemTransfer {
     typedef uint32_t AddressType;
     typedef uint32_t LengthType;
     typedef uint32_t DurationType;   // Duration of one command
-    typedef uint64_t ClockType;      // Global clock values
+    typedef int64_t  ClockType;      // Global clock values (must be signed)
 
     MemTransfer(OffsetType _offset = 0, OffsetType _id = 0)
         : offset(_offset),

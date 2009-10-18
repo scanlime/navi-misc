@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
  *
- * thd_transfertable.h - A wxGridTableBase subclass which displays a list of
+ * thd_transfertable.h - A wxGrid-based widget which displays a list of
  *                       memory transfers from a LogIndex.
  *
  * Copyright (C) 2009 Micah Dowty
@@ -70,7 +70,23 @@ private:
     wxGridCellAttr *errorAttrs[ERROR_WIDTH];
 
     THDModel *model;
-    double clockHz;
 };
+
+
+class THDTransferGrid : public wxGrid {
+public:
+    THDTransferGrid(wxWindow *parent, THDModel *model);
+    void Refresh();
+
+    void OnSelectCell(wxGridEvent &event);
+
+    DECLARE_EVENT_TABLE();
+
+private:
+    THDModel *model;
+    THDTransferTable table;
+    int lastCursorRow;
+};
+
 
 #endif /* __THD_TRANSFERTABLE_H */

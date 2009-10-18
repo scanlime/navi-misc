@@ -61,12 +61,8 @@ THDMainWindow::THDMainWindow()
      * Horizontal split: Transfers and contents
      */
 
-    transferTable = new THDTransferTable(&model);
-    transferGrid = new wxGrid(this, wxID_ANY);
+    transferGrid = new THDTransferGrid(this, &model);
     contentGrid = new wxGrid(this, wxID_ANY);
-
-    // Refresh once before calculating sizes
-    RefreshTables();
 
     hbox->Add(transferGrid, 0, wxEXPAND);
     hbox->Add(contentGrid, 1, wxEXPAND);
@@ -82,7 +78,6 @@ THDMainWindow::~THDMainWindow()
     delete timeline;
     delete transferGrid;
     delete contentGrid;
-    delete transferTable;
 }
 
 
@@ -100,21 +95,9 @@ THDMainWindow::Open(wxString fileName)
 void
 THDMainWindow::RefreshTables()
 {
-    /*
-     * Update tables to account for the current index state.
-     */
+    // Update tables to account for the current index state.
 
-    int width;
-
-    transferGrid->BeginBatch();
-    transferGrid->SetTable(transferTable, false, wxGrid::wxGridSelectRows);
-    transferGrid->SetRowLabelSize(0);
-    transferGrid->EnableEditing(false);
-    transferGrid->EnableDragRowSize(false);
-    transferGrid->EnableDragColSize(false);
-    width = transferTable->AutoSizeColumns(*transferGrid);
-    transferGrid->CacheBestSize(wxSize(width, 1));
-    transferGrid->EndBatch();
+    transferGrid->Refresh();
 
     contentGrid->BeginBatch();
     contentGrid->EnableEditing(false);
