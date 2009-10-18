@@ -539,7 +539,7 @@ LogIndex::IndexerThread::Entry()
 }
 
 
-boost::shared_ptr<LogInstant>
+instantPtr_t
 LogIndex::GetInstant(ClockType time, ClockType distance)
 {
     wxCriticalSectionLocker dataLocker(dataLock);
@@ -817,7 +817,13 @@ LogIndex::GetTransferSummary(OffsetType id)
         return tp;
     }
 
-    if (!withinTimestep) {
+    if (withinTimestep) {
+        /*
+         * Clone 'tp', it's close enough.
+         */
+        tp = transferPtr_t(new TransferSummary(*tp));
+
+    } else {
         /*
          * Not close enough. Get a new starting point from the strata table.
          * This doesn't read the entire MemTransfer, just the file offset,
@@ -891,7 +897,7 @@ LogIndex::GetTransferSummary(OffsetType id)
                 fprintf(stderr, indexErrFmt, "Read", "reverse-iterating", mt.id, id);
                 break;
             }
-            
+
             // Exit only after Read()'ing the transfer we're interested in
             if (id == mt.id) {
                 break;
@@ -923,7 +929,7 @@ LogIndex::GetTransferSummary(OffsetType id)
 
             // Advance the clock to the end of 'mt'
             tp->time += mt.duration;
-        } 
+        }
     }
 
     /*
@@ -940,6 +946,29 @@ LogIndex::GetTransferSummary(OffsetType id)
 
     transferCache.store(tp->id, tp);
     return tp;
+}
+
+
+transferPtr_t
+LogIndex::GetClosestTransfer(ClockType time)
+{
+    /*
+     * Get the instant closest to 'time'.
+     *
+     * This doesn't currently have to be super-efficient, since it's used to
+     * find out what transfer the user clicked on. We use the instant cache
+     * to find the first transfer prior to the click, then we iterate to the
+     * next transfer, see which is closer, and return the closest one.
+     */
+
+    instantPtr_t prevInst = GetInstant(time, 0);
+    transferPtr_t prevTransfer = GetTransferSummary(prevInst->transferId);
+    transferPtr_t nextTransfer = GetTransferSummary(prevInst->transferId + 1);
+
+    ClockType prevDist = instantCache.distance(time, prevTransfer->time);
+    ClockType nextDist = instantCache.distance(time, nextTransfer->time);
+
+    return prevDist > nextDist ? nextTransfer : prevTransfer;
 }
 
 

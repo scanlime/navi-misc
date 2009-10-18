@@ -30,9 +30,11 @@
 BEGIN_EVENT_TABLE(THDMainWindow, wxFrame)
 END_EVENT_TABLE()
 
+static const wxString windowName = wxT("Temporal Hex Dump");
+
 
 THDMainWindow::THDMainWindow()
-  : wxFrame(NULL, -1, wxT("Temporal Hex Dump"),
+  : wxFrame(NULL, -1, windowName,
             wxDefaultPosition, wxSize(1000, 700),
             wxDEFAULT_FRAME_STYLE | wxMAXIMIZE),
     model(&index)
@@ -88,6 +90,8 @@ THDMainWindow::Open(wxString fileName)
     reader.Close();
     reader.Open(fileName);
     index.Open(&reader);
+
+    SetTitle(reader.FileName().GetName() + wxT(" - ") + windowName);
     RefreshTables();
 }
 

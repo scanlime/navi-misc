@@ -109,7 +109,7 @@ public:
         style(_style), incomplete(false) {}
 
     void RefreshRects(wxWindow &win);
-    void Paint(wxDC &dc);
+    void Paint(wxDC &dc, bool focusRect=false);
 
     bool operator ==(const THDTimelineOverlay &other)
     {
@@ -161,6 +161,8 @@ public:
     void OnSize(wxSizeEvent &event);
     void OnMouseEvent(wxMouseEvent &event);
     void OnRefreshTimer(wxTimerEvent &event);
+    void OnKeyDown(wxKeyEvent &event);
+    void OnFocus(wxFocusEvent &event);
 
     DECLARE_EVENT_TABLE();
 
@@ -185,12 +187,17 @@ private:
     static const int SLICE_BANDWIDTH_BOTTOM = 255;
 
     // Timeline color scheme
-    static const int COLOR_BG_TOP     = 0xffffff;
-    static const int COLOR_BG_BOTTOM  = 0xcccccc;
-    static const int COLOR_READ       = 0x2d7db3;
-    static const int COLOR_WRITE      = 0xcb0c29;
-    static const int COLOR_ZERO       = 0xc57d0c;
+    static const int COLOR_BG_TOP     =   0xffffff;
+    static const int COLOR_BG_BOTTOM  =   0xcccccc;
+    static const int COLOR_READ       =   0x2d7db3;
+    static const int COLOR_WRITE      =   0xcb0c29;
+    static const int COLOR_ZERO       =   0xc57d0c;
     static const int COLOR_GRID       = 0x44888888;
+    static const int COLOR_BOX_BORDER =   0x88dd88;
+    static const int COLOR_BOX_BG     =   0xddffdd;
+    static const int COLOR_FOCUS      =   0x448844;
+    static const int COLOR_OUTLINES   =   0xdddddd;
+    static const int COLOR_CURSOR     =   0xff4444;
 
     static const int SHADE_CHECKER_1  = 0xaa;
     static const int SHADE_CHECKER_2  = 0xbb;
@@ -245,9 +252,12 @@ private:
     bool allocated;         // Is our buffer allocated?
     bool slicesDirty;       // Are any slices potentially not up to date on our bitmap?
     bool needSliceEnqueue;  // Should we request slice rendering?
+    bool isDragging;        // Was this mouse event a drag?
+    bool hasFocus;          // Have keyboard focus?
 
     wxPoint dragOrigin;
     wxPoint cursor;
+
     TimelineView view;
     THDTimelineOverlay overlay;
 };

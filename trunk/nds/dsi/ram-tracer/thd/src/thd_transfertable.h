@@ -83,9 +83,12 @@ public:
     DECLARE_EVENT_TABLE();
 
 private:
+    void modelCursorChanged();
+
     THDModel *model;
     THDTransferTable table;
     int lastCursorRow;
+    boost::signals::connection modelCursorChangeConn;
 };
 
 
