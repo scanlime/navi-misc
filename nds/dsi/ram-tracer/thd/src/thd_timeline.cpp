@@ -747,12 +747,12 @@ THDTimelineOverlay::Paint(wxDC &dc)
     if (!visible)
         return;
 
-    wxBrush labelBrush(wxColour(0xdd, 0xff, 0xdd));
-    wxPen labelPen(wxColour(0x88, 0xdd, 0x88));
+    wxBrush labelBrush(ColorRGB(0xddffdd));
+    wxPen labelPen(ColorRGB(0x88dd88));
 
-    wxBrush outlineBrush(wxColour(0xdd, 0xdd, 0xdd));
-    wxBrush vBrush(wxColour(0xff, 0x44, 0x44));
-    wxBrush hBrush(wxColour(0xaa, 0xaa, 0xff));
+    wxBrush outlineBrush(ColorRGB(0xdddddd));
+    wxBrush vBrush(ColorRGB(0xff4444));
+    wxBrush hBrush(ColorRGB(0xaaaaff));
 
     bool inTopHalf = (pos.y >= THDTimeline::SLICE_STRATA_TOP &&
                       pos.y < THDTimeline::SLICE_STRATA_BOTTOM);
