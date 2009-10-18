@@ -342,18 +342,21 @@ private:
         LogIndex *index;
     };
 
-    LogReader *reader;
-    wxCriticalSection dbLock;
+    // Always acquire locks in the order listed.
+    wxCriticalSection dataLock;  // Local data: reader, all caches, lastInstant
+    wxCriticalSection dbLock;    // Protects the database and cmd_*
+
     sqlite3x::sqlite3_connection db;
+    sqlite3x::sqlite3_command *cmd_getInstantForTimestep;
+    sqlite3x::sqlite3_command *cmd_getTransferSummary;
+
+    LogReader *reader;
     IndexerThread *indexer;
     double logFileSize;
 
     FuzzyCache<ClockType, instantPtr_t> instantCache;
     FuzzyCache<OffsetType, transferPtr_t> transferCache;
     instantPtr_t lastInstant;
-
-    sqlite3x::sqlite3_command *cmd_getInstantForTimestep;
-    sqlite3x::sqlite3_command *cmd_getTransferSummary;
 
     State state;
     double progress;

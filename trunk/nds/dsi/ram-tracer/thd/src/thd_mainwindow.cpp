@@ -33,7 +33,9 @@ END_EVENT_TABLE()
 
 
 THDMainWindow::THDMainWindow()
-: wxFrame(NULL, -1, wxT("Temporal Hex Dump")),
+  : wxFrame(NULL, -1, wxT("Temporal Hex Dump"),
+            wxDefaultPosition, wxSize(1000, 700),
+            wxDEFAULT_FRAME_STYLE | wxMAXIMIZE),
     clockHz(LogReader::GetDefaultClockHZ())
 {
     Connect(index.GetProgressEvent(),
@@ -61,16 +63,12 @@ THDMainWindow::THDMainWindow()
 
     transferGrid = new wxGrid(splitter, wxID_ANY);
     transferTable = new THDTransferTable(&index, clockHz);
-    transferGrid->EnableEditing(false);
-    transferGrid->SetRowLabelSize(0);
 
     contentGrid = new wxGrid(splitter, wxID_ANY);
-    contentGrid->EnableEditing(false);
 
     splitter->SplitVertically(transferGrid, contentGrid);
 
     SetSizer(vbox);
-    vbox->Fit(this);
 }
 
 
@@ -93,15 +91,26 @@ THDMainWindow::Open(wxString fileName)
     reader.Close();
     reader.Open(fileName);
     index.Open(&reader);
+    RefreshTables();
+}
 
+
+void
+THDMainWindow::RefreshTables()
+{
     /*
-     * Refresh the tables.
-     *
-     * XXX: This is a pretty heavy-handed method.
-     *      It'd be nice to allow incremental updates
-     *      during indexing.
+     * Update tables to account for the current index state.
      */
+
+    transferGrid->BeginBatch();
     transferGrid->SetTable(transferTable);
+    transferGrid->SetRowLabelSize(0);
+    transferGrid->EnableEditing(false);
+    transferGrid->EndBatch();
+
+    contentGrid->BeginBatch();
+    contentGrid->EnableEditing(false);
+    contentGrid->EndBatch();
 }
 
 
@@ -138,4 +147,6 @@ THDMainWindow::OnIndexProgress(wxCommandEvent& WXUNUSED(event))
         break;
 
     }
+
+    RefreshTables();
 }
