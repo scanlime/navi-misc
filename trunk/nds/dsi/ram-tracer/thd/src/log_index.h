@@ -311,7 +311,7 @@ private:
 
     static const int INSTANT_CACHE_SIZE = 1 << 15;
 
-    static const int TIMESTEP_SIZE = 128 * 1024;     // Timestep duration, in bytes
+    static const int TIMESTEP_SIZE = 256 * 1024;     // Timestep duration, in bytes
 
     static const int BLOCK_SHIFT = 9;                // 512 bytes
     static const int BLOCK_SIZE = 1 << BLOCK_SHIFT;
