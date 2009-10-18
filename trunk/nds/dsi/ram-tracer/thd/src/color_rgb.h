@@ -54,6 +54,12 @@ struct ColorRGB {
         return blend(ColorRGB(argb), argb >> 24);
     }
 
+    ColorRGB increaseContrast(ColorRGB background, float amount)
+    {
+        // XXX: This version only works for light backgrounds
+        return background - (background - *this) * amount;
+    }
+
     operator uint32_t() const { return value; }
     operator int() const { return value; };
 

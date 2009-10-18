@@ -86,13 +86,29 @@ THDTimeline::OnMouseEvent(wxMouseEvent &event)
         dragOrigin = cursor;
     }
 
-    static const double ZOOM_FACTOR = 1.2;
+    if (event.ShiftDown()) {
+        // Shift-wheel: Panning
 
-    if (event.GetWheelRotation() < 0) {
-        zoom(ZOOM_FACTOR, cursor.x);
-    }
-    if (event.GetWheelRotation() > 0) {
-        zoom(1 / ZOOM_FACTOR, cursor.x);
+        static const int WHEEL_PAN = 64;
+
+        if (event.GetWheelRotation() < 0) {
+            pan(WHEEL_PAN);
+        }
+        if (event.GetWheelRotation() > 0) {
+            pan(-WHEEL_PAN);
+        }
+
+    } else {
+        // Wheel: Zooming
+
+        static const double ZOOM_FACTOR = 1.2;
+
+        if (event.GetWheelRotation() < 0) {
+            zoom(ZOOM_FACTOR, cursor.x);
+        }
+        if (event.GetWheelRotation() > 0) {
+            zoom(1 / ZOOM_FACTOR, cursor.x);
+        }
     }
 
     if (event.Leaving())
@@ -398,11 +414,11 @@ THDTimeline::renderSliceRange(pixelData_t &data, int xMin, int xMax)
     * the most attention.
     *
     * So, we'll carefully choose our rendering order so that we paint
-    * slices near cursor.x last. We alternate between left side and
-    * right side.
+    * slices near our 'focus' (overlay position) last. We alternate
+    * between left side and right side.
     */
 
-    int focus = cursor.x;
+    int focus = overlay.pos.x;
     bool complete = true;
 
     if (focus >= xMax) {
@@ -698,10 +714,35 @@ THDTimeline::renderSlice(pixelData_t &data, int x)
             a >>= SUBPIXEL_SHIFT;
             ColorRGB c(a);
 
-            // Emphasize edges
-            static const float EMPHASIS = 2.5f;
+            /*
+             * Edge emphasis:
+             *
+             * Our transfers are plotted as instantaneous events, so
+             * as you zoom into a single transfer, it gets very light
+             * and hard to see. We'd like to make individual transfers
+             * very visible, but to still preserve the visual
+             * intensity distinctions that arise from our
+             * supersampling and blending.
+             *
+             * This is a simple algorithm that tries to accomplish
+             * that goal:
+             *
+             *   - Any edge pixel (non-background color, bordered on either
+             *     side by background) is emphasized using ColorRGB::increaseContrast().
+             *     This can saturate the color and lose intensity precision, but it
+             *     makes the pixel easy to see.
+             *
+             *   - An edge pixel's original pre-emphasis color will
+             *     'bleed' onto the neighbouring background
+             *     pixel(s). This makes the pixel easier to see still,
+             *     plus it restores some of the lost intensity
+             *     resolution, since very intense original pixels will
+             *     now be even darker, whereas very light original
+             *     pixels will see little effect from the color bleed.
+             */
+            {
+                static const float EMPHASIS = 4.0f;
 
-            if (c.value == COLOR_BG_TOP) {
                 ColorAccumulator above = acc[std::max(0,y-1)];
                 ColorAccumulator below = acc[std::min(SLICE_HEIGHT-1,y+1)];
 
@@ -711,13 +752,20 @@ THDTimeline::renderSlice(pixelData_t &data, int x)
                 ColorRGB ca(above);
                 ColorRGB cb(below);
 
-                if (ca.value != COLOR_BG_TOP)
-                    c = ColorRGB(COLOR_BG_TOP) -
-                        (ColorRGB(COLOR_BG_TOP) - ca) * EMPHASIS;
+                if (c.value == COLOR_BG_TOP) {
+                    // This is a background pixel
 
-                if (cb.value != COLOR_BG_TOP)
-                    c = ColorRGB(COLOR_BG_TOP) -
-                        (ColorRGB(COLOR_BG_TOP) - cb) * EMPHASIS;
+                    if (ca.value != COLOR_BG_TOP) {
+                        // Bleed color from the pixel above
+                        c = ca;
+                    } else if (cb.value != COLOR_BG_TOP) {
+                        // Bleed color from the pixel below
+                        c = cb;
+                    }
+                } else if (ca.value == COLOR_BG_TOP || cb.value == COLOR_BG_TOP) {
+                    // This pixel is an edge. Emphasize it.
+                    c = c.increaseContrast(COLOR_BG_TOP, EMPHASIS);
+                }
             }
 
             // Draw grid lines
