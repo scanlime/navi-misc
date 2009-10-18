@@ -36,6 +36,8 @@ public:
     THDTransferTable(LogIndex *index, double clockHz);
     ~THDTransferTable();
 
+    void AutoSizeColumns(wxGrid &grid);
+
     virtual int GetNumberRows();
     virtual int GetNumberCols();
 
@@ -47,16 +49,24 @@ public:
 
     // Columns
     enum {
-        COL_TIME = 0,
+        COL_TIME,
         COL_TYPE,
         COL_ADDRESS,
         COL_LENGTH,
         COL_MAX,  // Must be last
     };
 
+    // New width for COL_TYPE used when displaying errors
+    static const int ERROR_WIDTH = COL_MAX - COL_TYPE;
+
 private:
+    void AutoSizeColumn(wxGrid &grid, int col, wxString prototype);
+
     wxGridCellAttr *defaultAttr;
     wxGridCellAttr *numericAttr;
+    wxGridCellAttr *readAttr;
+    wxGridCellAttr *writeAttr;
+    wxGridCellAttr *errorAttrs[ERROR_WIDTH];
     
     LogIndex *index;
     double clockHz;
