@@ -34,10 +34,6 @@
 #include "lru_cache.h"
 
 
-// An exception to throw on cache miss.
-struct LazyCacheMiss {};
-
-
 /*
  * The WorkQueue is a bounded set of keys which are sorted by
  * insertion order. When a duplicate key is inserted, that key is
@@ -151,23 +147,23 @@ public:
         thread->Delete();
     }
 
-    // Throws LazyCacheMiss on miss.
+    // Returns NULL on cache miss.
     // If 'insert' is true, inserts/repositions the work item in our thread's queue.
 
-    Value &get(Key k, bool insert=true)
+    Value *get(Key k, bool insert=true)
     {
         wxCriticalSectionLocker locker(lock);
         int index;
 
         if (find(k, index)) {
-            return LRUCache<Key, Value>::retrieve(index);
+            return &LRUCache<Key, Value>::retrieve(index);
         } else {
             if (insert) {
                 workQueue.insert(k);
                 thread->wake();
             }
-            throw LazyCacheMiss();
         }
+        return NULL;
     }
 
 private:

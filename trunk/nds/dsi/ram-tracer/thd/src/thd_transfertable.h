@@ -29,11 +29,12 @@
 
 #include <wx/grid.h>
 #include "log_index.h"
+#include "thd_model.h"
 
 
 class THDTransferTable : public wxGridTableBase {
 public:
-    THDTransferTable(LogIndex *index, double clockHz);
+    THDTransferTable(THDModel *model);
     ~THDTransferTable();
 
     int AutoSizeColumns(wxGrid &grid);
@@ -68,7 +69,7 @@ private:
     wxGridCellAttr *writeAttr;
     wxGridCellAttr *errorAttrs[ERROR_WIDTH];
 
-    LogIndex *index;
+    THDModel *model;
     double clockHz;
 };
 

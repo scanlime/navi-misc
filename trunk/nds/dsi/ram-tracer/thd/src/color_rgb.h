@@ -49,6 +49,11 @@ struct ColorRGB {
         return *this * alphaPrime + (other * alpha);
     }
 
+    ColorRGB blend(uint32_t argb)
+    {
+        return blend(ColorRGB(argb), argb >> 24);
+    }
+
     operator uint32_t() const { return value; }
     operator int() const { return value; };
 
@@ -114,63 +119,38 @@ struct ColorRGB {
         return diff1m | diff2m;
     }
 
-    ColorRGB operator *(float b)
+    ColorRGB operator *(float a)
     {
-        // Floating point multiply
+        // Floating point multiply and saturate
 
-        if (b <= 0)
+        if (a <= 0)
             return ColorRGB(0);
-        if (b >= 255)
-            b = 255;
+        if (a >= 255)
+            a = 255;
 
-        const uint32_t mask1 = 0x0000FF00;
-        const uint32_t mask2 = 0x00FF00FF;
-        const uint32_t a1 = value & mask1;
-        const uint32_t a2 = value & mask2;
+        int r = std::min<int>(255, std::max<int>(0, a * (int)red()));
+        int g = std::min<int>(255, std::max<int>(0, a * (int)green()));
+        int b = std::min<int>(255, std::max<int>(0, a * (int)blue()));
 
-        const uint32_t r1 = a1 * b;
-        const uint32_t r2 = a2 * b;
-
-        uint32_t r1m = r1 & mask1;
-        uint32_t r2m = r2 & mask2;
-
-        if (r1 & 0xFFFF0000)
-            r1m |= 0x0000FF00;
-
-        if (r2 & 0xFF000000)
-            r2m |= 0x00FF0000;
-
-        if (r2 & 0x00000100)
-            r2m |= 0x000000FF;
-
-        return r1m | r2m;
+        return ColorRGB(r, g, b);
     }
 
     ColorRGB operator *(uint8_t b)
     {
-        // Integer multiply
+        // Fixed-point integer multiply
 
         const uint32_t mask1 = 0x0000FF00;
         const uint32_t mask2 = 0x00FF00FF;
         const uint32_t a1 = value & mask1;
         const uint32_t a2 = value & mask2;
 
-        const uint32_t r1 = (a1 * b) >> 8;
-        const uint32_t r2 = (a2 * b) >> 8;
+        const uint32_t r1 = (a1 * b);
+        const uint32_t r2 = (a2 * b);
 
-        uint32_t r1m = r1 & mask1;
-        uint32_t r2m = r2 & mask2;
+        uint32_t r1m = r1 & (mask1 << 8);
+        uint32_t r2m = r2 & (mask2 << 8);
 
-        if (r1 & 0xFFFF0000)
-            r1m |= 0x0000FF00;
-
-        if (r2 & 0xFF000000)
-            r2m |= 0x00FF0000;
-
-        if (r2 & 0x00000100)
-            r2m |= 0x000000FF;
-
-        return r1m | r2m;
+        return (r1m | r2m) >> 8;
     }
 
     ColorRGB operator +=(const ColorRGB b)

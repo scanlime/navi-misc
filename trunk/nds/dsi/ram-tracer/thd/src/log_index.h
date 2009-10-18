@@ -213,6 +213,7 @@ class LogIndex {
 public:
     typedef MemTransfer::ClockType ClockType;
     typedef MemTransfer::OffsetType OffsetType;
+    typedef MemTransfer::AddressType AddressType;
 
     enum State {
         IDLE,
@@ -266,6 +267,12 @@ public:
     }
     int GetNumStrata() const {
         return (reader->MemSize() + STRATUM_MASK) >> STRATUM_SHIFT;
+    }
+    AddressType GetStratumFirstAddress(int s) const {
+        return s << STRATUM_SHIFT;
+    }
+    AddressType GetStratumLastAddress(int s) const {
+        return (s << STRATUM_SHIFT) | STRATUM_MASK;
     }
 
     /*

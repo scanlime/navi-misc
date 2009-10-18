@@ -49,9 +49,10 @@ std::size_t hash_value(SliceKey const &k)
 }
 
 
-THDTimeline::THDTimeline(wxWindow *_parent, LogIndex *_index)
+THDTimeline::THDTimeline(wxWindow *_parent, THDModel *_model)
   : wxPanel(_parent, wxID_ANY, wxPoint(0, 0), wxSize(800, SLICE_HEIGHT)),
-    index(_index),
+    model(_model),
+    index(_model->index),
     sliceGenerator(this),
     sliceCache(SLICE_CACHE_SIZE, &sliceGenerator),
     refreshTimer(this, ID_REFRESH_TIMER),
@@ -69,16 +70,8 @@ THDTimeline::OnMouseEvent(wxMouseEvent &event)
     event.GetPosition(&cursor.x, &cursor.y);
 
     /*
-     * Update state according to this mouse event
+     * Update state according to this mouse event.
      */
-
-    if (event.Entering()) {
-        newOverlay.visible = true;
-    }
-
-    if (event.Leaving()) {
-        newOverlay.visible = false;
-    }
 
     if (event.LeftDown()) {
         dragOrigin = cursor;
@@ -98,30 +91,12 @@ THDTimeline::OnMouseEvent(wxMouseEvent &event)
         zoom(1 / ZOOM_FACTOR, cursor.x);
     }
 
-    if (newOverlay.visible) {
-        /*
-         * The overlay is visible- calculate its contents. This must
-         * happen _after_ dragging, so the slice location is stable
-         * while dragging.
-         */
-
-        SliceKey slice = getSliceKeyForPixel(cursor.x);
-
-        newOverlay.pos = cursor;
-        newOverlay.labels.clear();
-        newOverlay.labels.push_back(wxT("Foo..."));
-        newOverlay.labels.push_back(wxString::Format(wxT("%lld"), slice.getCenter()));
-    }
-
-    /*
-     * If we changed the overlay, apply this change and request repainting.
-     */
-
-    if (newOverlay != overlay) {
-        overlay.RefreshRects(*this);
-        newOverlay.RefreshRects(*this);
-        overlay = newOverlay;
-    }
+    if (event.Leaving())
+        updateOverlay(THDTimelineOverlay::STYLE_HIDDEN);
+    else if (event.Entering())
+        updateOverlay(THDTimelineOverlay::STYLE_CURSOR);
+    else if (overlay.style == THDTimelineOverlay::STYLE_CURSOR)
+        updateOverlay(THDTimelineOverlay::STYLE_CURSOR);
 
     event.Skip();
 }
@@ -143,6 +118,18 @@ THDTimeline::zoom(double factor, int xPivot)
     LogIndex::ClockType newScale = view.scale * factor + 0.5;
     TimelineView oldView = view;
 
+    /*
+     * If scale is very small (single-digits) the multiplicative zoom
+     * may not change it by a whole number. In these cases, make sure it
+     * changes at least a little.
+     */
+    if (newScale == view.scale)
+        if (factor > 1.0)
+            newScale++;
+        else if (newScale)
+            newScale--;
+
+    // Minimum scale is 1 clock cycle per pixel
     if (newScale < 1)
         newScale = 1;
 
@@ -262,6 +249,9 @@ THDTimeline::OnPaint(wxPaintEvent &event)
 {
     wxAutoBufferedPaintDC dc(this);
 
+    int width, height;
+    GetSize(&width, &height);
+
     /*
      * Step 1: Update the bufferBitmap, where we store fully rendered slices.
      *         This bitmap contains the graph proper, but not any overlays.
@@ -280,7 +270,18 @@ THDTimeline::OnPaint(wxPaintEvent &event)
             update++;
         }
 
-        slicesDirty = !renderSliceRange(bufferBitmap, minSlice, maxSlice);
+        bool complete = renderSliceRange(bufferBitmap, minSlice, maxSlice);
+
+        /*
+         * If we just evaluated every slice, we can use 'complete' to
+         * conclusively set slicesDirty and enable or disable
+         * continued updates. If not, we need to leave it at its
+         * former value.  A future full repaint will set it (and
+         * eventually stop any ongoing repaint).
+         */
+        if (minSlice <= 0 && maxSlice >= width - 1) {
+            slicesDirty = !complete;
+        }
 
         /*
          * We only enqueue new slices on the first paint after user
@@ -299,15 +300,7 @@ THDTimeline::OnPaint(wxPaintEvent &event)
         needSliceEnqueue = index->GetState() != index->COMPLETE;
     }
 
-    if (!refreshTimer.IsRunning()) {
-        if (index->GetState() == index->INDEXING) {
-            // Redraw slowly if we're indexing.
-            refreshTimer.Start(1000 / INDEXING_FPS, wxTIMER_ONE_SHOT);
-        } else if (slicesDirty) {
-            // Redraw quickly if we're still waiting for more data.
-            refreshTimer.Start(1000 / REFRESH_FPS, wxTIMER_ONE_SHOT);
-        }
-    }
+    updateRefreshTimer(slicesDirty || overlay.incomplete);
 
     /*
      * Step 2: Draw the bufferBitmap on the screen. This is the base
@@ -319,8 +312,12 @@ THDTimeline::OnPaint(wxPaintEvent &event)
 
     /*
      * Step 3: Draw overlay. This is a position indicator crosshair
-     *         plus some text.
+     *         plus some text. If the overlay was incomplete, give
+     *         it an additional update.
      */
+
+    if (overlay.incomplete)
+        updateOverlay(overlay.style);
 
     overlay.Paint(dc);
 
@@ -396,6 +393,99 @@ THDTimeline::renderSliceRange(wxBitmap &bmp, int xMin, int xMax)
 }
 
 
+void
+THDTimeline::updateRefreshTimer(bool waitingForData)
+{
+    if (!refreshTimer.IsRunning()) {
+        if (index->GetState() == index->INDEXING) {
+            // Redraw slowly if we're indexing.
+            refreshTimer.Start(1000 / INDEXING_FPS, wxTIMER_ONE_SHOT);
+        } else if (waitingForData) {
+            // Redraw quickly if we're still waiting for more data.
+            refreshTimer.Start(1000 / REFRESH_FPS, wxTIMER_ONE_SHOT);
+        }
+    }
+}
+
+
+void
+THDTimeline::updateOverlay(THDTimelineOverlay::style_t style)
+{
+    /*
+     * Rebuild the overlay information, in the provided style.
+     * This collects any necessary information, generates the
+     * new THDTimelineOverlay, and installs it.
+     */
+
+    THDTimelineOverlay newOverlay(style);
+
+    switch (style) {
+
+    case THDTimelineOverlay::STYLE_CURSOR: {
+        /*
+         * Follow the cursor, and display information about its location.
+         */
+
+        SliceKey sliceKey = getSliceKeyForPixel(cursor.x);
+
+        newOverlay.pos = cursor;
+        newOverlay.labels.clear();
+        newOverlay.addLabel(wxT("Cursor:"));
+        newOverlay.addLabel(model->formatClock(sliceKey.getCenter()));
+
+        if (cursor.y >= SLICE_STRATA_TOP && cursor.y < SLICE_STRATA_BOTTOM) {
+            // Cursor is in strata range. Show address.
+
+            StrataRange strata = getStrataRangeForPixel(cursor.y);
+            LogIndex::AddressType addr = index->GetStratumFirstAddress(strata.begin);
+            newOverlay.addLabel(wxString::Format(wxT("0x%08x"), addr));
+        }
+
+        if (cursor.y >= SLICE_BANDWIDTH_TOP && cursor.y < SLICE_BANDWIDTH_BOTTOM) {
+            /*
+             * Cursor is in bandwidth range. Measure the bandwidth,
+             * converting from bytes per clock cycle into kilobytes
+             * per second:
+             *
+             *    byte/clock * clock/sec * kb/byte = kb/sec
+             */
+
+            const double scale = model->clockHz / 1024.0;
+
+            SliceValue *slice = sliceCache.get(sliceKey, true);
+            if (slice) {
+                newOverlay.addLabel(wxString::Format(wxT("Read: %.01f kB/s"),
+                                                     slice->readBandwidth * scale));
+                newOverlay.addLabel(wxString::Format(wxT("Write: %.01f kB/s"),
+                                                     slice->writeBandwidth * scale));
+            } else {
+                // Schedule a refresh, so we get this data asynchronously.
+                newOverlay.incomplete = true;
+                updateRefreshTimer(true);
+
+                newOverlay.addLabel(wxT("Read: -"));
+                newOverlay.addLabel(wxT("Write: -"));
+            }
+        }
+        break;
+    }
+
+    default:
+        break;
+    }
+
+    /*
+     * If we changed the overlay, apply this change and request repainting.
+     */
+
+    if (newOverlay != overlay) {
+        overlay.RefreshRects(*this);
+        newOverlay.RefreshRects(*this);
+        overlay = newOverlay;
+    }
+}
+
+
 SliceKey
 THDTimeline::getSliceKeyForPixel(int x)
 {
@@ -458,26 +548,32 @@ THDTimeline::renderSlice(pixelData_t &data, int x)
     ColorAccumulator acc[SLICE_HEIGHT];
 
     for (int s = 0; s < SUBPIXEL_COUNT; s++) {
-        try {
-            SliceValue &slice = sliceCache.get(getSliceKeyForSubpixel(x, s),
-                                               needSliceEnqueue);
+        SliceValue *slice = sliceCache.get(getSliceKeyForSubpixel(x, s),
+                                           needSliceEnqueue);
 
+        if (slice) {
             for (int y = 0; y < SLICE_HEIGHT; y++) {
-                acc[y] += slice.pixels[y];
+                acc[y] += slice->pixels[y];
             }
-
-        } catch (LazyCacheMiss &e) {
+        } else {
             haveAllSlices = false;
         }
     }
 
     if (haveAllSlices) {
+        // Draw grid lines every second
+        SliceKey sliceKey = getSliceKeyForPixel(x);
+        bool xGrid = (int)(sliceKey.begin / model->clockHz) !=
+                     (int)(sliceKey.end / model->clockHz);
+
         for (int y = 0; y < SLICE_HEIGHT; y++) {
             ColorAccumulator a = acc[y];
             a >>= SUBPIXEL_SHIFT;
             ColorRGB c(a);
 
             // Emphasize edges
+            static const float EMPHASIS = 2.5f;
+
             if (c.value == COLOR_BG_TOP) {
                 ColorAccumulator above = acc[std::max(0,y-1)];
                 ColorAccumulator below = acc[std::min(SLICE_HEIGHT-1,y+1)];
@@ -489,11 +585,17 @@ THDTimeline::renderSlice(pixelData_t &data, int x)
                 ColorRGB cb(below);
 
                 if (ca.value != COLOR_BG_TOP)
-                    c = ColorRGB(COLOR_BG_TOP) - (ColorRGB(COLOR_BG_TOP) - ca) * 3.0f;
+                    c = ColorRGB(COLOR_BG_TOP) -
+                        (ColorRGB(COLOR_BG_TOP) - ca) * EMPHASIS;
 
                 if (cb.value != COLOR_BG_TOP)
-                    c = ColorRGB(COLOR_BG_TOP) - (ColorRGB(COLOR_BG_TOP) - cb) * 3.0f;
+                    c = ColorRGB(COLOR_BG_TOP) -
+                        (ColorRGB(COLOR_BG_TOP) - cb) * EMPHASIS;
             }
+
+            // Draw grid lines
+            if (xGrid)
+                c = c.blend(COLOR_GRID);
 
             pixOut.Red() = c.red();
             pixOut.Green() = c.green();
@@ -579,7 +681,7 @@ THDTimeline::OnRefreshTimer(wxTimerEvent &event)
 
 
 void
-THDTimeline::viewChanged(void)
+THDTimeline::viewChanged()
 {
     /*
      * The view changed. We need to:
@@ -696,15 +798,18 @@ THDTimeline::SliceGenerator::fn(SliceKey &key, SliceValue &value)
         zeroTotal += end->zeroTotals.get(s) - begin->zeroTotals.get(s);
     }
 
-    double readBandwidth = timeDiff ? readTotal / (double)timeDiff : 0;
-    double writeBandwidth = timeDiff ? writeTotal / (double)timeDiff : 0;
-    double zeroBandwidth = timeDiff ? zeroTotal / (double)timeDiff : 0;
+    value.readBandwidth = timeDiff ? readTotal / (double)timeDiff : 0;
+    value.writeBandwidth = timeDiff ? writeTotal / (double)timeDiff : 0;
+    value.zeroBandwidth = timeDiff ? zeroTotal / (double)timeDiff : 0;
 
     const double vScale = (SLICE_BANDWIDTH_BOTTOM - SLICE_BANDWIDTH_TOP) * -0.5;
     int origin = SLICE_BANDWIDTH_BOTTOM;
-    int rH = origin + readBandwidth * vScale + 0.75;
-    int rwH = origin + (readBandwidth + writeBandwidth - zeroBandwidth) * vScale + 0.5;
-    int rwzH = origin + (readBandwidth + writeBandwidth) * vScale + 0.5;
+    int rH = origin + value.readBandwidth * vScale + 0.5;
+    int rwH = origin + (value.readBandwidth +
+                        value.writeBandwidth -
+                        value.zeroBandwidth) * vScale + 0.5;
+    int rwzH = origin + (value.readBandwidth +
+                         value.writeBandwidth) * vScale + 0.5;
 
     for (; y < rwzH; y++)
         value.pixels[y] = COLOR_BG_BOTTOM;
@@ -744,7 +849,7 @@ THDTimelineOverlay::RefreshRects(wxWindow &win)
 void
 THDTimelineOverlay::Paint(wxDC &dc)
 {
-    if (!visible)
+    if (style == STYLE_HIDDEN)
         return;
 
     wxBrush labelBrush(ColorRGB(0xddffdd));
