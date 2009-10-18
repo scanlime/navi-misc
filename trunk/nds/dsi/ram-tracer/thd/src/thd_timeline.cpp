@@ -24,6 +24,7 @@
  */
 
 #include <wx/dcbuffer.h>
+#include <boost/bind.hpp>
 #include <string.h>
 #include "thd_timeline.h"
 
@@ -59,6 +60,9 @@ THDTimeline::THDTimeline(wxWindow *_parent, THDModel *_model)
     allocated(false)
 {
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
+
+    // Attach model signals
+    model->cursorChanged.connect(boost::bind(&THDTimeline::modelCursorChanged, this));
 }
 
 
@@ -94,9 +98,9 @@ THDTimeline::OnMouseEvent(wxMouseEvent &event)
     if (event.Leaving())
         updateOverlay(THDTimelineOverlay::STYLE_HIDDEN);
     else if (event.Entering())
-        updateOverlay(THDTimelineOverlay::STYLE_CURSOR);
-    else if (overlay.style == THDTimelineOverlay::STYLE_CURSOR)
-        updateOverlay(THDTimelineOverlay::STYLE_CURSOR);
+        updateOverlay(THDTimelineOverlay::STYLE_MOUSE_CURSOR);
+    else if (overlay.style == THDTimelineOverlay::STYLE_MOUSE_CURSOR)
+        updateOverlay(THDTimelineOverlay::STYLE_MOUSE_CURSOR);
 
     event.Skip();
 }
@@ -155,6 +159,65 @@ THDTimeline::pan(int pixels)
 
     TimelineView oldView = view;
     view.origin += pixels * view.scale;
+
+    viewChanged();
+    updateBitmapForViewChange(oldView, view);
+}
+
+
+void
+THDTimeline::panTo(LogIndex::ClockType focus)
+{
+    /*
+     * Slide the view left or right, trying to keep 'focus' in the
+     * middle 2/3 of the screen.
+     *
+     * Tries to move the display by an integral number of pixels, to
+     * make better use of our slice cache.
+     */
+
+    TimelineView oldView = view;
+
+    int width, height;
+    GetSize(&width, &height);
+
+    LogIndex::ClockType twoThirds = view.scale * (width * 2 / 3);
+    LogIndex::ClockType oneThird = twoThirds / 2;
+
+    LogIndex::ClockType minOrigin = focus - view.scale * width*2/3;
+    LogIndex::ClockType maxOrigin = focus - view.scale * width*1/3;
+    LogIndex::ClockType jumpDistance = twoThirds + oneThird;
+
+    if (view.origin < minOrigin) {
+        // Pan left
+
+        if (view.origin < minOrigin - jumpDistance) {
+            // Long jump to the left
+            view.origin = minOrigin;
+        } else {
+            // Pixel-aligned scroll to the left
+            do {
+                view.origin += view.scale;
+            } while (view.origin < minOrigin);
+        }
+
+    } else if (view.origin > maxOrigin) {
+        // Pan right
+
+        if (view.origin > maxOrigin + jumpDistance) {
+            // Long jump to the right
+            view.origin = maxOrigin;
+        } else {
+            // Pixel-aligned scroll to the left
+            do {
+                view.origin -= view.scale;
+            } while (view.origin > maxOrigin);
+        }
+
+    } else {
+        // Already within limits
+        return;
+    }
 
     viewChanged();
     updateBitmapForViewChange(oldView, view);
@@ -421,9 +484,9 @@ THDTimeline::updateOverlay(THDTimelineOverlay::style_t style)
 
     switch (style) {
 
-    case THDTimelineOverlay::STYLE_CURSOR: {
+    case THDTimelineOverlay::STYLE_MOUSE_CURSOR: {
         /*
-         * Follow the cursor, and display information about its location.
+         * Follow the mouse cursor, and display information about its location.
          */
 
         SliceKey sliceKey = getSliceKeyForPixel(cursor.x);
@@ -467,6 +530,44 @@ THDTimeline::updateOverlay(THDTimelineOverlay::style_t style)
                 newOverlay.addLabel(wxT("Write: -"));
             }
         }
+        break;
+    }
+
+    case THDTimelineOverlay::STYLE_MODEL_CURSOR: {
+        /*
+         * Follow the THDModel's cursor, and display information about
+         * the hilighted transaction.
+         */
+
+        newOverlay.labels.clear();
+
+        // Mandatory cursor time (horizontal)
+        newOverlay.pos.x = getPixelForClock(model->cursor.time);
+
+        // Optional transfer information
+        if (model->cursor.transferId != THDModelCursor::NO_TRANSFER) {
+            transferPtr_t tp =
+                model->index->GetTransferSummary(model->cursor.transferId);
+
+            // Transfer type and length
+            wxString header = tp->getTypeName();
+            if (tp->byteCount == 1)
+                header += wxT(", 1 byte");
+            else if (tp->byteCount > 1)
+                header += wxString::Format(wxT(", %d bytes"), tp->byteCount);
+            newOverlay.addLabel(header);
+        }
+
+        // Optional address (vertical).
+        if (model->cursor.address == THDModelCursor::NO_ADDRESS) {
+            // Park just out of view.
+            newOverlay.pos.y = -2;
+        } else {
+            newOverlay.pos.y = getPixelForAddress(model->cursor.address);
+            newOverlay.addLabel(wxString::Format(wxT("0x%08x"), model->cursor.address));
+        }
+
+        newOverlay.addLabel(model->formatClock(model->cursor.time));
         break;
     }
 
@@ -527,6 +628,33 @@ THDTimeline::getStrataRangeForPixel(int y)
 }
 
 
+int
+THDTimeline::getPixelForClock(LogIndex::ClockType clock)
+{
+    return (clock - view.origin + view.scale / 2) / view.scale;
+}
+
+
+int
+THDTimeline::getPixelForStratum(int s)
+{
+    const int strataBegin = 0;
+    const int strataEnd = index->GetNumStrata();
+
+    const int pixelHeight = SLICE_STRATA_BOTTOM - SLICE_STRATA_TOP;
+    const int strataCount = strataEnd - strataBegin;
+
+    return (s - strataBegin) * pixelHeight / strataCount + SLICE_STRATA_TOP;
+}
+
+
+int
+THDTimeline::getPixelForAddress(LogIndex::AddressType addr)
+{
+    return getPixelForStratum(index->GetStratumForAddress(addr));
+}
+
+
 bool
 THDTimeline::renderSlice(pixelData_t &data, int x)
 {
@@ -560,11 +688,10 @@ THDTimeline::renderSlice(pixelData_t &data, int x)
         }
     }
 
+    TimelineGrid grid(this);
+
     if (haveAllSlices) {
-        // Draw grid lines every second
-        SliceKey sliceKey = getSliceKeyForPixel(x);
-        bool xGrid = (int)(sliceKey.begin / model->clockHz) !=
-                     (int)(sliceKey.end / model->clockHz);
+        bool xGrid = grid.testX(x);
 
         for (int y = 0; y < SLICE_HEIGHT; y++) {
             ColorAccumulator a = acc[y];
@@ -681,6 +808,19 @@ THDTimeline::OnRefreshTimer(wxTimerEvent &event)
 
 
 void
+THDTimeline::modelCursorChanged()
+{
+    /*
+     * Some other widget changed the THDModel's cursor.  Scroll to
+     * this new position, and hilight it with our overlay.
+     */
+
+    panTo(model->cursor.time);
+    updateOverlay(THDTimelineOverlay::STYLE_MODEL_CURSOR);
+}
+
+
+void
 THDTimeline::viewChanged()
 {
     /*
@@ -691,13 +831,29 @@ THDTimeline::viewChanged()
      *   3. Queue up a repaint
      */
 
-    if ((int64_t)view.origin < 0)
-        view.origin = 0;
-
     LogIndex::ClockType duration = index->GetDuration();
 
-    if (view.origin > duration)
-        view.origin = duration;
+    int width, height;
+    GetSize(&width, &height);
+
+    LogIndex::ClockType clkWidth = width * view.scale;
+
+    if (duration > clkWidth) {
+        // Clamp to end of log, if the log isn't smaller than the widget
+
+        LogIndex::ClockType clkMax = duration - clkWidth;
+
+        if (view.origin > clkMax)
+            view.origin = clkMax;
+
+        // Clamp to the beginning
+        if ((int64_t)view.origin < 0)
+            view.origin = 0;
+
+    } else {
+        // Log is smaller than the widget, always display it at the left side
+        view.origin = 0;
+    }
 
     needSliceEnqueue = true;
     slicesDirty = true;
@@ -857,7 +1013,6 @@ THDTimelineOverlay::Paint(wxDC &dc)
 
     wxBrush outlineBrush(ColorRGB(0xdddddd));
     wxBrush vBrush(ColorRGB(0xff4444));
-    wxBrush hBrush(ColorRGB(0xaaaaff));
 
     bool inTopHalf = (pos.y >= THDTimeline::SLICE_STRATA_TOP &&
                       pos.y < THDTimeline::SLICE_STRATA_BOTTOM);
@@ -870,18 +1025,14 @@ THDTimelineOverlay::Paint(wxDC &dc)
     dc.SetPen(*wxTRANSPARENT_PEN);
     dc.SetBrush(outlineBrush);
 
-    // Horizontal crosshair outline
-    if (inTopHalf)
-        dc.DrawRectangle(0, pos.y - 1, width, 3);
+    // Horizontal crosshair (hollow)
+    if (inTopHalf) {
+        dc.DrawRectangle(0, pos.y - 1, width, 1);
+        dc.DrawRectangle(0, pos.y + 1, width, 1);
+    }
 
     // Vertical crosshair outline
     dc.DrawRectangle(pos.x - 1, 0, 3, height);
-
-    // Horizontal crosshair foreground
-    if (inTopHalf) {
-        dc.SetBrush(hBrush);
-        dc.DrawRectangle(0, pos.y, width, 1);
-    }
 
     // Vertical crosshair foreground
     dc.SetBrush(vBrush);
@@ -919,7 +1070,8 @@ THDTimelineOverlay::GetLabelsRect(wxDC &dc, wxSize widgetSize)
     /*
      * Position the labels adjacent to 'pos'.  Normally it goes below
      * and to the right, typically to the right of the mouse cursor.
-     * If we're too close to the bottom of the screen, put it above.
+     * If we're too close to the bottom of the screen, put it above,
+     * and if we're too close to the right, put it to the left.
      */
 
     r.x = pos.x + LABEL_OFFSET_X;
@@ -927,6 +1079,10 @@ THDTimelineOverlay::GetLabelsRect(wxDC &dc, wxSize widgetSize)
 
     if (r.y + r.height >= widgetSize.y) {
         r.y = pos.y - r.height - LABEL_OFFSET_Y;
+    }
+
+    if (r.x + r.width >= widgetSize.x) {
+        r.x = pos.x - r.width - LABEL_OFFSET_X;
     }
 
     return r;
@@ -944,4 +1100,40 @@ THDTimelineOverlay::PaintLabels(wxRect r, wxDC &dc)
         dc.GetTextExtent(*i, NULL, &height);
         r.y += height;
     }
+}
+
+
+TimelineGrid::TimelineGrid(THDTimeline *_timeline)
+    : timeline(_timeline)
+{
+    /*
+     * How big should the grid lines be? Pick an obvious multiple or
+     * fraction of a second.
+     */
+
+    const int minGridPixels = 5;
+    LogIndex::ClockType minGridClocks = timeline->view.scale * minGridPixels;
+
+    static const float scaleList[] = {
+        0.001f,  // 1ms
+        1.0f,    // 1s
+        10.0f,   // 10s
+        60.0f,   // 1min
+    };
+
+    for (int i = 0; i < sizeof scaleList / sizeof scaleList[0]; i++) {
+        xInterval = timeline->model->clockHz * scaleList[i];
+        if (xInterval >= minGridClocks)
+            break;
+    }
+}
+
+
+bool
+TimelineGrid::testX(int x)
+{
+    // Draw a grid line at coordinate 'x'?
+
+    SliceKey sliceKey = timeline->getSliceKeyForPixel(x);
+    return (int)(sliceKey.begin / xInterval) != (int)(sliceKey.end / xInterval);
 }

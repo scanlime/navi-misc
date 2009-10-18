@@ -37,6 +37,8 @@
 #include "lazy_cache.h"
 #include "color_rgb.h"
 
+class THDTimeline;
+
 
 /*
  * Support for hashable slice keys, used in the slice cache.
@@ -78,6 +80,19 @@ struct TimelineView {
 
 
 /*
+ * Grid scale and grid calculations.
+ */
+
+struct TimelineGrid {
+    TimelineGrid(THDTimeline *timeline);
+    bool testX(int x);
+
+    THDTimeline *timeline;
+    double xInterval;
+};
+
+
+/*
  * An indicator overlay on top of the timeline widget, showing a
  * position and some other information.
  */
@@ -86,7 +101,8 @@ class THDTimelineOverlay {
 public:
     enum style_t {
         STYLE_HIDDEN,
-        STYLE_CURSOR,
+        STYLE_MOUSE_CURSOR,
+        STYLE_MODEL_CURSOR,
     };
 
     THDTimelineOverlay(style_t _style = STYLE_HIDDEN) :
@@ -137,7 +153,7 @@ private:
  * Timeline widget
  */
 
-class THDTimeline : public wxPanel {
+class THDTimeline : public wxPanel, public boost::signals::trackable {
 public:
     THDTimeline(wxWindow *parent, THDModel *model);
 
@@ -150,6 +166,7 @@ public:
 
 private:
     friend class THDTimelineOverlay;
+    friend class TimelineGrid;
 
     static const int SLICE_HEIGHT      = 256;
     static const int SLICE_CACHE_SIZE  = 1 << 16;
@@ -197,7 +214,9 @@ private:
 
     void zoom(double factor, int xPivot);
     void pan(int pixels);
+    void panTo(LogIndex::ClockType focus);
 
+    void modelCursorChanged();
     void viewChanged();
     void updateBitmapForViewChange(TimelineView &oldView, TimelineView &newView);
 
@@ -210,8 +229,10 @@ private:
 
     SliceKey getSliceKeyForPixel(int x);
     SliceKey getSliceKeyForSubpixel(int x, int subpix);
-
     StrataRange getStrataRangeForPixel(int y);
+    int getPixelForClock(LogIndex::ClockType clock);
+    int getPixelForStratum(int s);
+    int getPixelForAddress(LogIndex::AddressType addr);
 
     THDModel *model;
     LogIndex *index;

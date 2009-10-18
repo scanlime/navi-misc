@@ -1,7 +1,7 @@
 /* -*- Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
  *
- * thd_transfertable.cpp - A wxGridTableBase subclass which displays a list of
- *                         memory transfers from a LogIndex.
+ * thd_transfertable.cpp -  A wxGrid-based widget which displays a list of
+ *                          memory transfers from a LogIndex.
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -28,6 +28,10 @@
 #include <wx/dcclient.h>
 #include "color_rgb.h"
 #include "thd_transfertable.h"
+
+BEGIN_EVENT_TABLE(THDTransferGrid, wxGrid)
+    EVT_GRID_SELECT_CELL(THDTransferGrid::OnSelectCell)
+END_EVENT_TABLE()
 
 
 THDTransferTable::THDTransferTable(THDModel *_model)
@@ -274,4 +278,48 @@ THDTransferTable::GetAttr(int row, int col,
 
     attr->IncRef();
     return attr;
+}
+
+
+THDTransferGrid::THDTransferGrid(wxWindow *_parent, THDModel *_model)
+    : wxGrid(_parent, wxID_ANY),
+      lastCursorRow(-1),
+      model(_model),
+      table(_model)
+{
+    Refresh();
+}
+
+
+void
+THDTransferGrid::Refresh()
+{
+    // Update the table to account for current index state.
+
+    BeginBatch();
+
+    SetTable(&table, false, wxGrid::wxGridSelectRows);
+    SetRowLabelSize(0);
+
+    EnableEditing(false);
+    EnableDragRowSize(false);
+    EnableDragColSize(false);
+
+    CacheBestSize(wxSize(table.AutoSizeColumns(*this), 1));
+
+    EndBatch();
+}
+
+
+void
+THDTransferGrid::OnSelectCell(wxGridEvent &event)
+{
+    transferPtr_t tp = model->index->GetTransferSummary(event.GetRow());
+
+    model->cursor.time = tp->time;
+    model->cursor.transferId = tp->id;
+    model->cursor.address = tp->address;
+    model->cursorChanged();
+
+    event.Skip();
 }

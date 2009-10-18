@@ -274,6 +274,9 @@ public:
     AddressType GetStratumLastAddress(int s) const {
         return (s << STRATUM_SHIFT) | STRATUM_MASK;
     }
+    int GetStratumForAddress(AddressType a) const {
+        return a >> STRATUM_SHIFT;
+    }
 
     /*
      * Get a summary of the state of the log at a particular instant.
