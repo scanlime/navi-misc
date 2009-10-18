@@ -103,13 +103,16 @@ THDMainWindow::RefreshTables()
      * Update tables to account for the current index state.
      */
 
+    int width;
+
     transferGrid->BeginBatch();
     transferGrid->SetTable(transferTable, false, wxGrid::wxGridSelectRows);
     transferGrid->SetRowLabelSize(0);
     transferGrid->EnableEditing(false);
     transferGrid->EnableDragRowSize(false);
     transferGrid->EnableDragColSize(false);
-    transferGrid->CacheBestSize(wxSize(transferTable->AutoSizeColumns(*transferGrid), 1));
+    width = transferTable->AutoSizeColumns(*transferGrid);
+    transferGrid->CacheBestSize(wxSize(width, 1));
     transferGrid->EndBatch();
 
     contentGrid->BeginBatch();
@@ -144,14 +147,15 @@ THDMainWindow::OnIndexProgress(wxCommandEvent& WXUNUSED(event))
     case LogIndex::COMPLETE:
         statusBar->SetStatusText(wxT("Index complete."));
         statusBar->HideProgress();
+        RefreshTables();
         break;
 
     case LogIndex::ERROR:
         statusBar->SetStatusText(wxT("Indexing error!"));
         statusBar->SetProgress(index.GetProgress());
+        RefreshTables();
         break;
 
     }
 
-    RefreshTables();
 }
