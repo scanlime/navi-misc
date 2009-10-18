@@ -56,13 +56,29 @@ THDTimeline::THDTimeline(wxWindow *_parent, LogIndex *_index)
     sliceCache(SLICE_CACHE_SIZE, &sliceGenerator),
     refreshTimer(this, ID_REFRESH_TIMER),
     allocated(false)
-{}
+{
+    SetBackgroundStyle(wxBG_STYLE_CUSTOM);
+}
 
 
 void
 THDTimeline::OnMouseEvent(wxMouseEvent &event)
 {
+    THDTimelineOverlay newOverlay = overlay;
+
     event.GetPosition(&cursor.x, &cursor.y);
+
+    /*
+     * Update state according to this mouse event
+     */
+
+    if (event.Entering()) {
+        newOverlay.visible = true;
+    }
+
+    if (event.Leaving()) {
+        newOverlay.visible = false;
+    }
 
     if (event.LeftDown()) {
         dragOrigin = cursor;
@@ -80,6 +96,31 @@ THDTimeline::OnMouseEvent(wxMouseEvent &event)
     }
     if (event.GetWheelRotation() > 0) {
         zoom(1 / ZOOM_FACTOR, cursor.x);
+    }
+
+    if (newOverlay.visible) {
+        /*
+         * The overlay is visible- calculate its contents. This must
+         * happen _after_ dragging, so the slice location is stable
+         * while dragging.
+         */
+
+        SliceKey slice = getSliceKeyForPixel(cursor.x);
+
+        newOverlay.pos = cursor;
+        newOverlay.labels.clear();
+        newOverlay.labels.push_back(wxT("Foo..."));
+        newOverlay.labels.push_back(wxString::Format(wxT("%lld"), slice.getCenter()));
+    }
+
+    /*
+     * If we changed the overlay, apply this change and request repainting.
+     */
+
+    if (newOverlay != overlay) {
+        overlay.RefreshRects(*this);
+        newOverlay.RefreshRects(*this);
+        overlay = newOverlay;
     }
 
     event.Skip();
@@ -258,12 +299,14 @@ THDTimeline::OnPaint(wxPaintEvent &event)
         needSliceEnqueue = index->GetState() != index->COMPLETE;
     }
 
-    if (index->GetState() == index->INDEXING) {
-        // Redraw slowly if we're indexing.
-        refreshTimer.Start(1000 / INDEXING_FPS, wxTIMER_ONE_SHOT);
-    } else if (slicesDirty) {
-        // Redraw quickly if we're still waiting for more data.
-        refreshTimer.Start(1000 / REFRESH_FPS, wxTIMER_ONE_SHOT);
+    if (!refreshTimer.IsRunning()) {
+        if (index->GetState() == index->INDEXING) {
+            // Redraw slowly if we're indexing.
+            refreshTimer.Start(1000 / INDEXING_FPS, wxTIMER_ONE_SHOT);
+        } else if (slicesDirty) {
+            // Redraw quickly if we're still waiting for more data.
+            refreshTimer.Start(1000 / REFRESH_FPS, wxTIMER_ONE_SHOT);
+        }
     }
 
     /*
@@ -273,6 +316,13 @@ THDTimeline::OnPaint(wxPaintEvent &event)
 
     if (allocated)
         dc.DrawBitmap(bufferBitmap, 0, 0, false);
+
+    /*
+     * Step 3: Draw overlay. This is a position indicator crosshair
+     *         plus some text.
+     */
+
+    overlay.Paint(dc);
 
     event.Skip();
 }
@@ -664,4 +714,129 @@ THDTimeline::SliceGenerator::fn(SliceKey &key, SliceValue &value)
         value.pixels[y] = COLOR_WRITE;
     for (; y < origin; y++)
         value.pixels[y] = COLOR_READ;
+}
+
+
+void
+THDTimelineOverlay::RefreshRects(wxWindow &win)
+{
+    bool inTopHalf = (pos.y >= THDTimeline::SLICE_STRATA_TOP &&
+                      pos.y < THDTimeline::SLICE_STRATA_BOTTOM);
+
+    int width, height;
+    win.GetSize(&width, &height);
+
+    // Horizontal crosshair
+    if (inTopHalf)
+        win.RefreshRect(wxRect(0, pos.y - 1, width, 3));
+
+    // Vertical crosshair
+    win.RefreshRect(wxRect(pos.x - 1, 0, 3, height));
+
+    // Label text. Include some margin for the outline.
+    wxClientDC dc(win.GetParent());
+    wxRect labelsRect = GetLabelsRect(dc, wxSize(width, height));
+    labelsRect.Inflate(LABEL_REFRESH_PAD);
+    win.RefreshRect(labelsRect);
+}
+
+
+void
+THDTimelineOverlay::Paint(wxDC &dc)
+{
+    if (!visible)
+        return;
+
+    wxBrush labelBrush(ColorRGB(0xddffdd));
+    wxPen labelPen(ColorRGB(0x88dd88));
+
+    wxBrush outlineBrush(ColorRGB(0xdddddd));
+    wxBrush vBrush(ColorRGB(0xff4444));
+    wxBrush hBrush(ColorRGB(0xaaaaff));
+
+    bool inTopHalf = (pos.y >= THDTimeline::SLICE_STRATA_TOP &&
+                      pos.y < THDTimeline::SLICE_STRATA_BOTTOM);
+
+    int width, height;
+    dc.GetSize(&width, &height);
+
+    wxRect labelsRect = GetLabelsRect(dc, wxSize(width, height));
+
+    dc.SetPen(*wxTRANSPARENT_PEN);
+    dc.SetBrush(outlineBrush);
+
+    // Horizontal crosshair outline
+    if (inTopHalf)
+        dc.DrawRectangle(0, pos.y - 1, width, 3);
+
+    // Vertical crosshair outline
+    dc.DrawRectangle(pos.x - 1, 0, 3, height);
+
+    // Horizontal crosshair foreground
+    if (inTopHalf) {
+        dc.SetBrush(hBrush);
+        dc.DrawRectangle(0, pos.y, width, 1);
+    }
+
+    // Vertical crosshair foreground
+    dc.SetBrush(vBrush);
+    dc.DrawRectangle(pos.x, 0, 1, height);
+
+    // Labels foreground
+    dc.SetBrush(labelBrush);
+    dc.SetPen(labelPen);
+    dc.DrawRectangle(labelsRect.x - LABEL_BOX_PAD,
+                     labelsRect.y - LABEL_BOX_PAD,
+                     labelsRect.width + LABEL_BOX_PAD * 2,
+                     labelsRect.height + LABEL_BOX_PAD * 2);
+    PaintLabels(labelsRect, dc);
+}
+
+
+wxRect
+THDTimelineOverlay::GetLabelsRect(wxDC &dc, wxSize widgetSize)
+{
+    wxRect r(0, 0, 0, 0);
+
+    /*
+     * Calculate the overall extents of all label lines
+     */
+
+    for (std::vector<wxString>::iterator i = labels.begin();
+         i != labels.end(); i++) {
+
+        wxCoord width, height;
+        dc.GetTextExtent(*i, &width, &height);
+        r.width = std::max(r.width, width);
+        r.height += height;
+    }
+
+    /*
+     * Position the labels adjacent to 'pos'.  Normally it goes below
+     * and to the right, typically to the right of the mouse cursor.
+     * If we're too close to the bottom of the screen, put it above.
+     */
+
+    r.x = pos.x + LABEL_OFFSET_X;
+    r.y = pos.y + LABEL_OFFSET_Y;
+
+    if (r.y + r.height >= widgetSize.y) {
+        r.y = pos.y - r.height - LABEL_OFFSET_Y;
+    }
+
+    return r;
+}
+
+
+void
+THDTimelineOverlay::PaintLabels(wxRect r, wxDC &dc)
+{
+    for (std::vector<wxString>::iterator i = labels.begin();
+         i != labels.end(); i++) {
+
+        wxCoord height;
+        dc.DrawText(*i, r.x, r.y);
+        dc.GetTextExtent(*i, NULL, &height);
+        r.y += height;
+    }
 }

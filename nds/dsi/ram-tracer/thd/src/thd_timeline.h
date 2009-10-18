@@ -44,6 +44,11 @@
 struct SliceKey {
     LogIndex::ClockType begin;
     LogIndex::ClockType end;
+
+    LogIndex::ClockType getCenter()
+    {
+        return (begin + end) >> 1;
+    }
 };
 
 bool operator == (SliceKey const &a, SliceKey const &b);
@@ -72,6 +77,50 @@ struct TimelineView {
 
 
 /*
+ * An indicator overlay on top of the timeline widget, showing a
+ * position and some other information.
+ */
+
+class THDTimelineOverlay {
+public:
+    THDTimelineOverlay() : visible(false) {}
+
+    void RefreshRects(wxWindow &win);
+    void Paint(wxDC &dc);
+
+    bool operator ==(const THDTimelineOverlay &other)
+    {
+        if (visible != other.visible)
+            return false;
+
+        if (visible)
+            return (pos == other.pos && labels == other.labels);
+        else
+            // Content doesn't matter when invisible
+            return true;
+    }
+
+    bool operator !=(const THDTimelineOverlay &other)
+    {
+        return !(*this == other);
+    }
+
+    bool visible;
+    wxPoint pos;
+    std::vector<wxString> labels;
+
+private:
+    static const int LABEL_OFFSET_X    = 20;
+    static const int LABEL_OFFSET_Y    = 8;
+    static const int LABEL_BOX_PAD     = 3;
+    static const int LABEL_REFRESH_PAD = 5;
+
+    wxRect GetLabelsRect(wxDC &dc, wxSize widgetSize);
+    void PaintLabels(wxRect r, wxDC &dc);
+};
+
+
+/*
  * Timeline widget
  */
 
@@ -87,6 +136,8 @@ public:
     DECLARE_EVENT_TABLE();
 
 private:
+    friend class THDTimelineOverlay;
+
     static const int SLICE_HEIGHT      = 256;
     static const int SLICE_CACHE_SIZE  = 1 << 16;
     static const int REFRESH_FPS       = 20;
@@ -156,6 +207,7 @@ private:
     wxPoint dragOrigin;
     wxPoint cursor;
     TimelineView view;
+    THDTimelineOverlay overlay;
 };
 
 #endif /* __THD_TIMELINE_H */
