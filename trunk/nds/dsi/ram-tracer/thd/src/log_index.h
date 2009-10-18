@@ -318,7 +318,15 @@ private:
 
     static const int INSTANT_CACHE_SIZE = 1 << 15;
 
-    static const int TIMESTEP_SIZE = 256 * 1024;     // Timestep duration, in bytes
+    /*
+     * XXX: Timestep size (index density) should be scaled more
+     *      intelligently.  For smallish log files (<= 1 GB) a
+     *      timestep size of 128 kB or less gives much better
+     *      interactive performance when the instant cache is cold.
+     *      But on much larger log files, the index becomes big enough
+     *      that any database lookups require excessive disk activity.
+     */
+    static const int TIMESTEP_SIZE = 96 * 1024;      // Timestep duration, in bytes
 
     static const int BLOCK_SHIFT = 9;                // 512 bytes
     static const int BLOCK_SIZE = 1 << BLOCK_SHIFT;
