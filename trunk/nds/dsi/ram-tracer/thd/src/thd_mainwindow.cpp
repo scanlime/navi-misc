@@ -24,7 +24,6 @@
  */
 
 #include <wx/sizer.h>
-#include <wx/splitter.h>
 #include "thd_mainwindow.h"
 #include "thd_timeline.h"
 
@@ -46,7 +45,7 @@ THDMainWindow::THDMainWindow()
     SetStatusBar(statusBar);
 
     /*
-     * Vertical layout: Timeline, then splitter
+     * Vertical layout: Timeline, then hbox
      */
 
     wxSizer *vbox = new wxBoxSizer(wxVERTICAL);
@@ -54,19 +53,22 @@ THDMainWindow::THDMainWindow()
     timeline = new THDTimeline(this, &index); 
     vbox->Add(timeline, 0, wxEXPAND);
 
-    splitter = new wxSplitterWindow(this);
-    vbox->Add(splitter, 1, wxEXPAND);
+    wxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
+    vbox->Add(hbox, 1, wxEXPAND);
 
     /*
      * Horizontal split: Transfers and contents
      */
 
-    transferGrid = new wxGrid(splitter, wxID_ANY);
     transferTable = new THDTransferTable(&index, clockHz);
+    transferGrid = new wxGrid(this, wxID_ANY);
+    contentGrid = new wxGrid(this, wxID_ANY);
 
-    contentGrid = new wxGrid(splitter, wxID_ANY);
+    // Refresh once before calculating sizes
+    RefreshTables();
 
-    splitter->SplitVertically(transferGrid, contentGrid);
+    hbox->Add(transferGrid, 0, wxEXPAND);
+    hbox->Add(contentGrid, 1, wxEXPAND);
 
     SetSizer(vbox);
 }
@@ -80,7 +82,6 @@ THDMainWindow::~THDMainWindow()
     delete transferGrid;
     delete contentGrid;
     delete transferTable;
-    delete splitter;
 }
 
 
@@ -103,11 +104,12 @@ THDMainWindow::RefreshTables()
      */
 
     transferGrid->BeginBatch();
-    transferGrid->SetTable(transferTable);
+    transferGrid->SetTable(transferTable, false, wxGrid::wxGridSelectRows);
     transferGrid->SetRowLabelSize(0);
     transferGrid->EnableEditing(false);
     transferGrid->EnableDragRowSize(false);
-    transferTable->AutoSizeColumns(*transferGrid);
+    transferGrid->EnableDragColSize(false);
+    transferGrid->CacheBestSize(wxSize(transferTable->AutoSizeColumns(*transferGrid), 1));
     transferGrid->EndBatch();
 
     contentGrid->BeginBatch();
