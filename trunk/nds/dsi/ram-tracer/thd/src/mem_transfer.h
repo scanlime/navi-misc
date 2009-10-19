@@ -73,8 +73,16 @@ struct MemTransfer {
 
     uint8_t buffer[MAX_LENGTH];
 
-    const wxString getTypeName() {
+    const wxString getTypeName() const {
         return getTypeName(type);
+    }
+
+    bool isError() const {
+        return isError(type);
+    }
+
+    static bool isError(TypeEnum type) {
+        return type > WRITE;
     }
 
     static const wxString getTypeName(TypeEnum type) {

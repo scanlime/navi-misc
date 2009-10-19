@@ -37,4 +37,11 @@ UI Hints
      Wheel          Zoom in/out
      Shift-wheel    Pan left/right
 
+BUGS
+----
+
+- The first transfer and the last one or two transfers are cut off.
+  Compare the transfer list in THD with the output of 'decoder' to
+  see this.
+
 --Micah

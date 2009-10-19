@@ -203,10 +203,16 @@ private:
     static const int SHADE_CHECKER_2  = 0xbb;
 
     struct SliceValue {
-        ColorRGB pixels[SLICE_HEIGHT];
+        // Unique ID for this cached slice
+        uint32_t cookie;
+
+        // Calculated bandwidths
         double readBandwidth;
         double writeBandwidth;
         double zeroBandwidth;
+
+        // Slice image, without supersampling or emphasis
+        ColorRGB pixels[SLICE_HEIGHT];
     };
 
     typedef LazyCache<SliceKey, SliceValue> sliceCache_t;
@@ -214,9 +220,14 @@ private:
     typedef wxPixelData<wxBitmap, pixelFormat_t> pixelData_t;
 
     struct SliceGenerator : public sliceCache_t::generator_t {
-        SliceGenerator(THDTimeline *_timeline) : timeline(_timeline) {}
+        SliceGenerator(THDTimeline *_timeline)
+            : timeline(_timeline),
+              nextCookie(0)
+        {}
+
         virtual void fn(SliceKey &key, SliceValue &value);
         THDTimeline *timeline;
+        uint32_t nextCookie;
     };
 
     void zoom(double factor, int xPivot);
@@ -247,6 +258,7 @@ private:
     SliceGenerator sliceGenerator;
     wxBitmap bufferBitmap;
     std::vector<uint8_t> bufferAges;
+    std::vector<uint32_t> bufferCookies;
     wxTimer refreshTimer;
 
     bool allocated;         // Is our buffer allocated?

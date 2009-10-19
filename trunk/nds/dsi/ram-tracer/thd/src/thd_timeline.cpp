@@ -291,6 +291,7 @@ THDTimeline::updateBitmapForViewChange(TimelineView &oldView, TimelineView &newV
 
     LogIndex::ClockType clock = newView.origin;
     std::vector<uint8_t> newAges(width);
+    std::vector<uint32_t> newCookies(width);
     std::vector<int> oldColumns(width);
 
     for (int col = 0; col < width; col++) {
@@ -300,11 +301,13 @@ THDTimeline::updateBitmapForViewChange(TimelineView &oldView, TimelineView &newV
         if (oldCol < 0 || oldCol >= width) {
             // No corresponding old column
             newAges[col] = 0xFF;
+            newCookies[col] = 0;
             oldColumns[col] = -1;
 
         } else {
             // Transfer the old column
             newAges[col] = bufferAges[oldCol];
+            newCookies[col] = bufferCookies[oldCol];
             oldColumns[col] = oldCol;
         }
 
@@ -312,6 +315,7 @@ THDTimeline::updateBitmapForViewChange(TimelineView &oldView, TimelineView &newV
     }
 
     bufferAges = newAges;
+    bufferCookies = newCookies;
 
     /*
      * Step 2: Make a new image for the buffer bitmap, resampling it from the
@@ -500,9 +504,20 @@ THDTimeline::updateRefreshTimer(bool waitingForData)
         if (index->GetState() == index->INDEXING) {
             // Redraw slowly if we're indexing.
             refreshTimer.Start(1000 / INDEXING_FPS, wxTIMER_ONE_SHOT);
+
         } else if (waitingForData) {
             // Redraw quickly if we're still waiting for more data.
             refreshTimer.Start(1000 / REFRESH_FPS, wxTIMER_ONE_SHOT);
+
+        } else {
+            /*
+             * We're idle. The LazyCache might still be working on
+             * older work items, but now we know we don't need the
+             * results.  Let it go to sleep. This saves CPU, and helps
+             * prevent other caches from being polluted with items we
+             * no longer need.
+             */
+            sliceCache.quiesce();
         }
     }
 }
@@ -711,12 +726,26 @@ THDTimeline::renderSlice(pixelData_t &data, int x)
 
     bool haveAllSlices = true;
     ColorAccumulator acc[SLICE_HEIGHT];
+    uint32_t sliceCookie = 0;
 
     for (int s = 0; s < SUBPIXEL_COUNT; s++) {
         SliceValue *slice = sliceCache.get(getSliceKeyForSubpixel(x, s),
                                            needSliceEnqueue);
 
         if (slice) {
+            if (s == 0) {
+                /*
+                 * Use the first subpixel's cookie as a marker to uniquely
+                 * identify the slice we're rendering. If it's the same as
+                 * the stored bufferCookie, we exit early without
+                 * rendering anything.
+                 */
+                sliceCookie = slice->cookie;
+                if (sliceCookie == bufferCookies[x])
+                    return true;
+            }
+
+            // Store this slice in the accumulator
             for (int y = 0; y < SLICE_HEIGHT; y++) {
                 acc[y] += slice->pixels[y];
             }
@@ -801,6 +830,7 @@ THDTimeline::renderSlice(pixelData_t &data, int x)
 
         // This slice is up to date
         bufferAges[x] = 0;
+        bufferCookies[x] = sliceCookie;
 
         return true;
 
@@ -860,6 +890,7 @@ THDTimeline::OnSize(wxSizeEvent &event)
          * incorrect.
          */
         bufferAges = std::vector<uint8_t>(roundedWidth, 0xFF);
+        bufferCookies = std::vector<uint32_t>(roundedWidth, 0);
 
         allocated = true;
     }
@@ -909,11 +940,13 @@ THDTimeline::OnKeyDown(wxKeyEvent &event)
     case '-':
     case '_':
         zoom(ZOOM_FACTOR, overlay.pos.x);
+        updateOverlay(overlay.style);
         break;
 
     case '=':
     case '+':
         zoom(1 / ZOOM_FACTOR, overlay.pos.x);
+        updateOverlay(overlay.style);
         break;
 
     default:
@@ -990,6 +1023,13 @@ THDTimeline::viewChanged()
 void
 THDTimeline::SliceGenerator::fn(SliceKey &key, SliceValue &value)
 {
+    /*
+     * Assign a unique cookie to this generated slice. This helps us
+     * avoid duplication in our Paint handler by detecting which
+     * slices are the same from frame to frame.
+     */
+    value.cookie = nextCookie++;
+
     /*
      * Retrieve cached LogInstants for the beginning and end of this slice.
      */
