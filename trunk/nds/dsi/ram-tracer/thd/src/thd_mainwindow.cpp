@@ -39,7 +39,6 @@ THDMainWindow::THDMainWindow()
             wxDEFAULT_FRAME_STYLE | wxMAXIMIZE),
     model(&index)
 {
-
     Connect(index.GetProgressEvent(),
             wxCommandEventHandler(THDMainWindow::OnIndexProgress));
     index.SetProgressReceiver(this);
@@ -57,6 +56,7 @@ THDMainWindow::THDMainWindow()
     vbox->Add(timeline, 0, wxEXPAND);
 
     wxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
+    vbox->Add(3, 3);
     vbox->Add(hbox, 1, wxEXPAND);
 
     /*
@@ -64,9 +64,13 @@ THDMainWindow::THDMainWindow()
      */
 
     transferGrid = new THDTransferGrid(this, &model);
-    contentGrid = new wxGrid(this, wxID_ANY);
+
+    contentGrid = new THDContentGrid(this, &model);
+    contentGrid->AddColumns(visualizerPtr_t(new THDVisAddress));
+    contentGrid->AddColumns(visualizerPtr_t(new THDVisHex), 16);
 
     hbox->Add(transferGrid, 0, wxEXPAND);
+    hbox->Add(6, 6);
     hbox->Add(contentGrid, 1, wxEXPAND);
 
     SetSizer(vbox);
@@ -102,11 +106,7 @@ THDMainWindow::RefreshTables()
     // Update tables to account for the current index state.
 
     transferGrid->Refresh();
-
-    contentGrid->BeginBatch();
-    contentGrid->EnableEditing(false);
-    contentGrid->EnableDragRowSize(false);
-    contentGrid->EndBatch();
+    contentGrid->Refresh();
 }
 
 

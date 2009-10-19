@@ -1,7 +1,9 @@
 /* -*- Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
  *
- * thd_transfertable.h - A wxGrid-based widget which displays a list of
- *                       memory transfers from a LogIndex.
+ * thd_contenttable.h - A wxGrid-based widget which displays the contents of
+ *                      memory at a particular time. Content decoding is handled
+ *                      by separate Visualizer classes. The content table is configured
+ *                      with a list of visualizers which map to columns in the table.
  *
  * Copyright (C) 2009 Micah Dowty
  *
@@ -24,20 +26,37 @@
  * THE SOFTWARE.
  */
 
-#ifndef __THD_TRANSFERTABLE_H
-#define __THD_TRANSFERTABLE_H
+#ifndef __THD_CONTENTTABLE_H
+#define __THD_CONTENTTABLE_H
 
 #include <wx/grid.h>
-#include "log_index.h"
+#include <vector>
 #include "thd_model.h"
+#include "thd_visualizer.h"
 
 
-class THDTransferTable : public wxGridTableBase {
+/*
+ * Information about an instance of a column. When AddColumns() is
+ * called with count > 1, several THDContentColumns are created, but
+ * they all share the same visualizerPtr_t.
+ */
+
+struct THDContentColumn {
+    THDContentColumn(visualizerPtr_t _visualizer,
+                     int _addrOffset=0)
+        : visualizer(_visualizer),
+          addrOffset(_addrOffset)
+    {}
+
+    visualizerPtr_t visualizer;
+    int addrOffset;
+};
+
+
+class THDContentTable : public wxGridTableBase {
 public:
-    THDTransferTable(THDModel *model);
-    ~THDTransferTable();
-
-    int AutoSizeColumns(wxGrid &grid);
+    THDContentTable(THDModel *model);
+    ~THDContentTable();
 
     virtual int GetNumberRows();
     virtual int GetNumberCols();
@@ -45,48 +64,31 @@ public:
     virtual bool IsEmptyCell(int row, int col);
     virtual wxString GetValue(int row, int col);
     virtual void SetValue(int row, int col, const wxString &value);
-    virtual wxString GetColLabelValue( int col );
     virtual wxGridCellAttr *GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind);
 
-    // Columns
-    enum {
-        COL_TIME,
-        COL_TYPE,
-        COL_ADDRESS,
-        COL_LENGTH,
-        COL_MAX,  // Must be last
-    };
+    THDVisBlock GetBlockForCell(int row, int col);
 
-    // New width for COL_TYPE used when displaying errors
-    static const int ERROR_WIDTH = COL_MAX - COL_TYPE;
+    std::vector<THDContentColumn> columns;
+    int bytesPerRow;
 
 private:
-    int AutoSizeColumn(wxGrid &grid, int col, wxString prototype);
-
-    wxGridCellAttr *defaultAttr;
-    wxGridCellAttr *numericAttr;
-    wxGridCellAttr *readAttr;
-    wxGridCellAttr *writeAttr;
-    wxGridCellAttr *errorAttrs[ERROR_WIDTH];
-
     THDModel *model;
 };
 
 
-class THDTransferGrid : public wxGrid {
+class THDContentGrid : public wxGrid {
 public:
-    THDTransferGrid(wxWindow *parent, THDModel *model);
+    THDContentGrid(wxWindow *parent, THDModel *model);
     void Refresh();
 
-    void OnSelectCell(wxGridEvent &event);
-
-    DECLARE_EVENT_TABLE();
+    void ClearColumns();
+    void AddColumns(visualizerPtr_t viz, int count=1);
 
 private:
     void modelCursorChanged();
 
     THDModel *model;
-    THDTransferTable table;
+    THDContentTable table;
     boost::signals::connection modelCursorChangeConn;
 };
 
