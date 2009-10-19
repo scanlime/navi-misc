@@ -272,6 +272,9 @@ public:
     int GetNumStrata() const {
         return (reader->MemSize() + STRATUM_MASK) >> STRATUM_SHIFT;
     }
+    AddressType GetMemSize() const {
+        return reader->MemSize();
+    }
     AddressType GetStratumFirstAddress(int s) const {
         return s << STRATUM_SHIFT;
     }

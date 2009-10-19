@@ -34,6 +34,7 @@
 #include "log_index.h"
 #include "thd_timeline.h"
 #include "thd_transfertable.h"
+#include "thd_contenttable.h"
 #include "thd_model.h"
 
 
@@ -56,7 +57,7 @@ private:
     ProgressStatusBar *statusBar;
     THDTimeline *timeline;
     THDTransferGrid *transferGrid;
-    wxGrid *contentGrid;
+    THDContentGrid *contentGrid;
 
     THDModel model;
 };

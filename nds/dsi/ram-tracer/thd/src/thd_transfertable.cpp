@@ -284,7 +284,6 @@ THDTransferTable::GetAttr(int row, int col,
 
 THDTransferGrid::THDTransferGrid(wxWindow *_parent, THDModel *_model)
     : wxGrid(_parent, wxID_ANY),
-      lastCursorRow(-1),
       model(_model),
       table(_model)
 {
@@ -305,6 +304,13 @@ THDTransferGrid::Refresh()
 
     SetTable(&table, false, wxGrid::wxGridSelectRows);
     SetRowLabelSize(0);
+
+    /*
+     * We support column labels, but currently they're disabled since
+     * they aren't very useful and they're inconsistent with the
+     * label-less content table. Maybe this should be configurable?
+     */
+    SetColLabelSize(0);
 
     EnableEditing(false);
     EnableDragRowSize(false);
