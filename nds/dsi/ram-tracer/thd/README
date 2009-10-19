@@ -19,14 +19,22 @@ If you're using Debian or Ubuntu, the packages you need are:
   wx-common
   libboost-dev
 
-TODO
-----
+UI Hints
+--------
 
-- OnPaint for the timeline control always redraws the whole thing. It
-  should only redraw visible areas, and only if they need drawing.
+- The timeline and grid views both support keyboard navigation.
 
-- On zooming in/out, we might want to scale the buffer bitmap horizontally
-  for better visual continuity before the whole thing is loaded.
+- Keyboard commands for the timeline view:
+
+     Arrow keys     Select the previous/next transfer
+     Page up/down   Go forward/backward by 100 transfers
+     +/-            Zoom in/out
+
+- Mouse commands for the timeline view:
+
+     Click          Select the nearest transfer
+     Drag           Pan left/right
+     Wheel          Zoom in/out
+     Shift-wheel    Pan left/right
 
 --Micah
-
