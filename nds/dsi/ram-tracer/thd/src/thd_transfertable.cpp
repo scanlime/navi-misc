@@ -163,7 +163,7 @@ THDTransferTable::AutoSizeColumn(wxGrid &grid, int col, wxString prototype)
      * given 'prototype' string.
      */
 
-    wxGridCellAttr *attr = GetAttr(-1, col, wxGridCellAttr::Default);
+    wxGridCellAttr *attr = GetAttr(0, col, wxGridCellAttr::Default);
     wxFont font = attr->GetFont();
 
     wxClientDC dc(grid.GetParent());

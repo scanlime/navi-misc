@@ -203,8 +203,12 @@ public:
     OffsetType offset;
     OffsetType id;
 
-    const wxString getTypeName() {
+    const wxString getTypeName() const {
         return MemTransfer::getTypeName(type);
+    }
+
+    bool isError() const {
+        return MemTransfer::isError(type);
     }
 };
 
@@ -253,7 +257,7 @@ public:
         return lastInstant->time;
     }
     OffsetType GetNumTransfers() {
-        return lastInstant->transferId;
+        return lastInstant->transferId + 1;
     }
 
     /*

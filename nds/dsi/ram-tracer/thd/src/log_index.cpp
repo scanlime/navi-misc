@@ -380,6 +380,10 @@ LogIndex::AdvanceInstant(LogInstant &instant, MemTransfer &mt, bool reverse)
 wxThread::ExitCode
 LogIndex::IndexerThread::Entry()
 {
+    /*
+     * Main loop for indexing thread.
+     */
+
     bool aborted = false;
     bool running = true;
 
@@ -445,10 +449,7 @@ LogIndex::IndexerThread::Entry()
             do {
                 eof = !reader.Read(mt);
 
-                if (eof) {
-                    running = false;
-                } else {
-
+                if (!eof) {
                     if (mt.type == MemTransfer::WRITE) {
                         AlignedIterator<BLOCK_SHIFT> iter(mt);
                         do {
@@ -468,11 +469,14 @@ LogIndex::IndexerThread::Entry()
                     }
 
                     index->AdvanceInstant(instant, mt);
-                    reader.Next(mt);
-
-                    if (INDEX_DEBUG)
-                        printf("Indexing at: %lld/%lld\n", instant.time, instant.offset);
+                    eof = !reader.Next(mt);
                 }
+
+                if (eof)
+                    running = false;
+
+                if (INDEX_DEBUG)
+                    printf("Indexing at: %lld/%lld\n", instant.time, instant.offset);
 
                 // Loop until end of timestep, or end of file.
             } while (!eof && mt.offset < prevOffset + TIMESTEP_SIZE);
@@ -782,6 +786,9 @@ LogIndex::GetInstantForTimestep(ClockType upperBound)
 transferPtr_t
 LogIndex::GetTransferSummary(OffsetType id)
 {
+    // Clamp ID to the end of the log
+    id = std::min<OffsetType>(id, GetNumTransfers() - 1);
+
     wxCriticalSectionLocker dataLocker(dataLock);
     transferPtr_t tp = transferCache.findClosest(id);
 
@@ -912,12 +919,12 @@ LogIndex::GetTransferSummary(OffsetType id)
             tp->time -= mt.duration;
         }
 
-    } else {
+    } else if (id > mt.id) {
         /*
          * Seek forward
          */
 
-        while (id != mt.id) {
+        do {
             if (!reader->Next(mt)) {
                 fprintf(stderr, indexErrFmt, "Seek", "advancing", mt.id, id);
                 break;
@@ -929,7 +936,15 @@ LogIndex::GetTransferSummary(OffsetType id)
 
             // Advance the clock to the end of 'mt'
             tp->time += mt.duration;
-        }
+        } while (id != mt.id);
+
+    } else {
+        /*
+         * Already on the right transfer. Read the details from disk.
+         */
+
+        if (!reader->Read(mt))
+            fprintf(stderr, indexErrFmt, "Read", "reading identity", mt.id, id);
     }
 
     /*

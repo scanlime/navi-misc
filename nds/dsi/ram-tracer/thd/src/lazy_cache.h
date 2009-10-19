@@ -88,6 +88,12 @@ public:
         }
     }
 
+    void clear()
+    {
+        map.clear();
+        itemCount = 0;
+    }
+
     bool empty()
     {
         return itemCount == 0;
@@ -147,9 +153,10 @@ public:
         thread->Delete();
     }
 
-    // Returns NULL on cache miss.
-    // If 'insert' is true, inserts/repositions the work item in our thread's queue.
-
+    /*
+     * Returns NULL on cache miss.
+     * If 'insert' is true, inserts/repositions the work item in our thread's queue.
+     */
     Value *get(Key k, bool insert=true)
     {
         wxCriticalSectionLocker locker(lock);
@@ -164,6 +171,16 @@ public:
             }
         }
         return NULL;
+    }
+
+    /*
+     * Forget all current work item, lets the background thread go
+     * idle as soon as the current work item is finished.
+     */
+    void quiesce()
+    {
+        wxCriticalSectionLocker locker(lock);
+        workQueue.clear();
     }
 
 private:

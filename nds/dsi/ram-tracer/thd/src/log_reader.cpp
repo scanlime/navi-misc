@@ -65,7 +65,12 @@ LogReader::Read(MemTransfer &mt)
     while (true) {
         uint8_t *bytes = file.Get(offset, sizeof(MemPacket));
         if (!bytes) {
-            return false;
+            /*
+             * We hit EOF. If we have a vaild packet that just happens
+             * to end at the end of the file, return success. If we
+             * don't have a vaild packet yet, return an EOF error.
+             */
+            return mt.type != mt.ERROR_PROTOCOL;
         }
 
         MemPacket packet = MemPacket_FromBytes(bytes);
