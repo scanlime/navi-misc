@@ -105,7 +105,7 @@ THDVisBase::GetAttr(THDVisBlock &block)
  * THDVisAddress
  */
 
-THDVisBlock::AddressType
+AddressType
 THDVisAddress::GetBlockSize()
 {
     return 0;
@@ -122,7 +122,7 @@ THDVisAddress::GetStringValue(THDVisBlock &block)
  * THDVisHex
  */
 
-THDVisBlock::AddressType
+AddressType
 THDVisHex::GetBlockSize()
 {
     return 1;

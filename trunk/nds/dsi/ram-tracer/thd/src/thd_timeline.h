@@ -45,10 +45,10 @@ class THDTimeline;
  */
 
 struct SliceKey {
-    LogIndex::ClockType begin;
-    LogIndex::ClockType end;
+    ClockType begin;
+    ClockType end;
 
-    LogIndex::ClockType getCenter()
+    ClockType getCenter()
     {
         return (begin + end) >> 1;
     }
@@ -74,8 +74,8 @@ struct StrataRange {
 
 struct TimelineView {
     TimelineView() : origin(0), scale(100000) {}
-    LogIndex::ClockType origin;
-    LogIndex::ClockType scale;
+    ClockType origin;
+    ClockType scale;
 };
 
 
@@ -232,7 +232,7 @@ private:
 
     void zoom(double factor, int xPivot);
     void pan(int pixels);
-    void panTo(LogIndex::ClockType focus);
+    void panTo(ClockType focus);
 
     void modelCursorChanged();
     void viewChanged();
@@ -248,9 +248,9 @@ private:
     SliceKey getSliceKeyForPixel(int x);
     SliceKey getSliceKeyForSubpixel(int x, int subpix);
     StrataRange getStrataRangeForPixel(int y);
-    int getPixelForClock(LogIndex::ClockType clock);
+    int getPixelForClock(ClockType clock);
     int getPixelForStratum(int s);
-    int getPixelForAddress(LogIndex::AddressType addr);
+    int getPixelForAddress(AddressType addr);
 
     THDModel *model;
     LogIndex *index;

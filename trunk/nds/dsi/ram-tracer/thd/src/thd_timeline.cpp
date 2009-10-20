@@ -151,7 +151,7 @@ THDTimeline::zoom(double factor, int xPivot)
      * image buffer and bufferAges.
      */
 
-    LogIndex::ClockType newScale = view.scale * factor + 0.5;
+    ClockType newScale = view.scale * factor + 0.5;
     TimelineView oldView = view;
 
     /*
@@ -170,7 +170,7 @@ THDTimeline::zoom(double factor, int xPivot)
         newScale = 1;
 
     // Maximum scale is one minute per pixel
-    LogIndex::ClockType maxScale = model->clockHz * 60.0;
+    ClockType maxScale = model->clockHz * 60.0;
     if (newScale > maxScale)
         newScale = maxScale;
 
@@ -203,7 +203,7 @@ THDTimeline::pan(int pixels)
 
 
 void
-THDTimeline::panTo(LogIndex::ClockType focus)
+THDTimeline::panTo(ClockType focus)
 {
     /*
      * Slide the view left or right, trying to keep 'focus' in the
@@ -218,12 +218,12 @@ THDTimeline::panTo(LogIndex::ClockType focus)
     int width, height;
     GetSize(&width, &height);
 
-    LogIndex::ClockType twoThirds = view.scale * (width * 2 / 3);
-    LogIndex::ClockType oneThird = twoThirds / 2;
+    ClockType twoThirds = view.scale * (width * 2 / 3);
+    ClockType oneThird = twoThirds / 2;
 
-    LogIndex::ClockType minOrigin = focus - view.scale * width*2/3;
-    LogIndex::ClockType maxOrigin = focus - view.scale * width*1/3;
-    LogIndex::ClockType jumpDistance = twoThirds + oneThird;
+    ClockType minOrigin = focus - view.scale * width*2/3;
+    ClockType maxOrigin = focus - view.scale * width*1/3;
+    ClockType jumpDistance = twoThirds + oneThird;
 
     if (view.origin < minOrigin) {
         // Pan left
@@ -289,7 +289,7 @@ THDTimeline::updateBitmapForViewChange(TimelineView &oldView, TimelineView &newV
      *         every pixel.
      */
 
-    LogIndex::ClockType clock = newView.origin;
+    ClockType clock = newView.origin;
     std::vector<uint8_t> newAges(width);
     std::vector<uint32_t> newCookies(width);
     std::vector<int> oldColumns(width);
@@ -552,7 +552,7 @@ THDTimeline::updateOverlay(THDTimelineOverlay::style_t style)
             // Cursor is in strata range. Show address.
 
             StrataRange strata = getStrataRangeForPixel(cursor.y);
-            LogIndex::AddressType addr = index->GetStratumFirstAddress(strata.begin);
+            AddressType addr = index->GetStratumFirstAddress(strata.begin);
             newOverlay.addLabel(wxString::Format(wxT("0x%08x"), addr));
         }
 
@@ -642,7 +642,7 @@ THDTimeline::updateOverlay(THDTimelineOverlay::style_t style)
 SliceKey
 THDTimeline::getSliceKeyForPixel(int x)
 {
-    LogIndex::ClockType clk = view.origin + view.scale * x;
+    ClockType clk = view.origin + view.scale * x;
     SliceKey key = { clk, clk + view.scale };
     return key;
 }
@@ -651,7 +651,7 @@ THDTimeline::getSliceKeyForPixel(int x)
 SliceKey
 THDTimeline::getSliceKeyForSubpixel(int x, int subpix)
 {
-    LogIndex::ClockType clk = view.origin + view.scale * x;
+    ClockType clk = view.origin + view.scale * x;
     clk <<= SUBPIXEL_SHIFT;
     clk += view.scale * subpix;
     SliceKey key = { clk >> SUBPIXEL_SHIFT, (clk + view.scale) >> SUBPIXEL_SHIFT };
@@ -681,7 +681,7 @@ THDTimeline::getStrataRangeForPixel(int y)
 
 
 int
-THDTimeline::getPixelForClock(LogIndex::ClockType clock)
+THDTimeline::getPixelForClock(ClockType clock)
 {
     return (clock - view.origin + view.scale / 2) / view.scale;
 }
@@ -701,7 +701,7 @@ THDTimeline::getPixelForStratum(int s)
 
 
 int
-THDTimeline::getPixelForAddress(LogIndex::AddressType addr)
+THDTimeline::getPixelForAddress(AddressType addr)
 {
     return getPixelForStratum(index->GetStratumForAddress(addr));
 }
@@ -989,17 +989,17 @@ THDTimeline::viewChanged()
      *   3. Queue up a repaint
      */
 
-    LogIndex::ClockType duration = index->GetDuration();
+    ClockType duration = index->GetDuration();
 
     int width, height;
     GetSize(&width, &height);
 
-    LogIndex::ClockType clkWidth = width * view.scale;
+    ClockType clkWidth = width * view.scale;
 
     if (duration > clkWidth) {
         // Clamp to end of log, if the log isn't smaller than the widget
 
-        LogIndex::ClockType clkMax = duration - clkWidth;
+        ClockType clkMax = duration - clkWidth;
 
         if (view.origin > clkMax)
             view.origin = clkMax;
@@ -1035,13 +1035,13 @@ THDTimeline::SliceGenerator::fn(SliceKey &key, SliceValue &value)
      */
 
     // Allowable deviation from correct begin/end timestamps
-    LogIndex::ClockType fuzz = (key.end - key.begin) >> 2;
+    ClockType fuzz = (key.end - key.begin) >> 2;
 
     instantPtr_t begin = timeline->index->GetInstant(key.begin, fuzz);
     instantPtr_t end = timeline->index->GetInstant(key.end, fuzz);
 
     int numStrata = timeline->index->GetNumStrata();
-    LogIndex::ClockType timeDiff = end->time - begin->time;
+    ClockType timeDiff = end->time - begin->time;
 
     /*
      * Rescale the log strata to fit in the available pixels.
@@ -1289,7 +1289,7 @@ TimelineGrid::TimelineGrid(THDTimeline *_timeline)
      */
 
     const int minGridPixels = 5;
-    LogIndex::ClockType minGridClocks = timeline->view.scale * minGridPixels;
+    ClockType minGridClocks = timeline->view.scale * minGridPixels;
 
     static const float scaleList[] = {
         0.001f,  // 1ms

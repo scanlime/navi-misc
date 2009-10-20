@@ -215,7 +215,7 @@ LogIndex::Finish()
     cmd.bind(1, indexFile.GetName().fn_str());
     cmd.bind(2, (sqlite3x::int64_t) indexFile.GetModificationTime().GetTicks());
     cmd.bind(3, TIMESTEP_SIZE);
-    cmd.bind(4, BLOCK_SIZE);
+    cmd.bind(4, LogBlock::SIZE);
     cmd.bind(5, STRATUM_SIZE);
 
     cmd.executenonquery();
@@ -256,7 +256,7 @@ LogIndex::CheckFinished()
     if (name == indexFile.GetName() &&
         mtime == indexFile.GetModificationTime().GetTicks() &&
         timestepSize == TIMESTEP_SIZE &&
-        blockSize == BLOCK_SIZE &&
+        blockSize == LogBlock::SIZE &&
         stratumSize == STRATUM_SIZE) {
         return true;
     } else {
@@ -356,9 +356,9 @@ LogIndex::AdvanceInstant(LogInstant &instant, MemTransfer &mt, bool reverse)
             }
 
             case MemTransfer::WRITE: {
-                MemTransfer::LengthType numZeroes = 0;
-
-                for (MemTransfer::LengthType i = 0; i < iter.len; i++) {
+                LengthType numZeroes = 0;
+                
+                for (LengthType i = 0; i < iter.len; i++) {
                     uint8_t byte = mt.buffer[i + iter.mtOffset];
                     if (!byte)
                         numZeroes++;
@@ -388,7 +388,7 @@ LogIndex::IndexerThread::Entry()
     bool running = true;
 
     // Beginning of this timestep, end of previous timestep
-    MemTransfer::OffsetType prevOffset = 0;
+    OffsetType prevOffset = 0;
     ClockType prevTime = 0;
 
     /* Data about the current log instant */
@@ -400,7 +400,7 @@ LogIndex::IndexerThread::Entry()
         uint64_t firstWriteOffset;
         uint64_t lastWriteOffset;
         bool wDirty;
-        uint8_t data[BLOCK_SIZE];
+        uint8_t data[LogBlock::SIZE];
     };
 
     BlockState *blocks = new BlockState[index->GetNumBlocks()];
@@ -451,7 +451,7 @@ LogIndex::IndexerThread::Entry()
 
                 if (!eof) {
                     if (mt.type == MemTransfer::WRITE) {
-                        AlignedIterator<BLOCK_SHIFT> iter(mt);
+                        AlignedIterator<LogBlock::SHIFT> iter(mt);
                         do {
                             BlockState *block = &blocks[iter.blockId];
 
@@ -461,7 +461,7 @@ LogIndex::IndexerThread::Entry()
                                 block->wDirty = true;
                             }
 
-                            for (MemTransfer::LengthType i = 0; i < iter.len; i++) {
+                            for (LengthType i = 0; i < iter.len; i++) {
                                 uint8_t byte = mt.buffer[i + iter.mtOffset];
                                 block->data[i + iter.blockOffset] = byte;
                             }
@@ -483,9 +483,7 @@ LogIndex::IndexerThread::Entry()
 
             // Flush all blocks that have been touched.
 
-            for (MemTransfer::AddressType blockId = 0;
-                 blockId < index->GetNumBlocks();
-                 blockId++) {
+            for (AddressType blockId = 0; blockId < index->GetNumBlocks(); blockId++) {
                 BlockState *block = &blocks[blockId];
 
                 if (block->wDirty) {
