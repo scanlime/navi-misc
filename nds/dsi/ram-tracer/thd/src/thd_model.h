@@ -33,10 +33,6 @@
 
 
 struct THDModelCursor {
-    typedef MemTransfer::ClockType ClockType;
-    typedef MemTransfer::OffsetType OffsetType;
-    typedef MemTransfer::AddressType AddressType;
-
     static const ClockType NO_TIME = (ClockType)-1;
     static const OffsetType NO_TRANSFER = (OffsetType)-1;
     static const AddressType NO_ADDRESS = (AddressType)-1;
@@ -75,18 +71,18 @@ struct THDModel {
     THDModelCursor cursor;
     signal_t cursorChanged;
 
-    wxString formatClock(MemTransfer::ClockType clock)
+    wxString formatClock(ClockType clock)
     {
         return wxString::Format(wxT("%.06fs"), clock / clockHz);
     }
 
-    void moveCursorToId(MemTransfer::OffsetType id)
+    void moveCursorToId(OffsetType id)
     {
         cursor = index->GetTransferSummary(id);
         cursorChanged();
     }
 
-    void moveCursorToTime(MemTransfer::ClockType time)
+    void moveCursorToTime(ClockType time)
     {
         cursor = index->GetClosestTransfer(time);
         cursorChanged();

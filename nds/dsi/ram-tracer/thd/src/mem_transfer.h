@@ -33,14 +33,19 @@
 #include <wx/string.h>
 #include <stdint.h>
 
+
+/*
+ * Common data types
+ */
+typedef uint64_t OffsetType;
+typedef uint32_t AddressType;
+typedef uint32_t LengthType;
+typedef uint32_t DurationType;   // Duration of one command
+typedef int64_t  ClockType;      // Global clock values (must be signed)
+
+
 struct MemTransfer {
     static const int MAX_LENGTH = 4096;
-
-    typedef uint64_t OffsetType;
-    typedef uint32_t AddressType;
-    typedef uint32_t LengthType;
-    typedef uint32_t DurationType;   // Duration of one command
-    typedef int64_t  ClockType;      // Global clock values (must be signed)
 
     MemTransfer(OffsetType _offset = 0, OffsetType _id = 0)
         : offset(_offset),
@@ -147,29 +152,28 @@ public:
     }
 
     // Current offset within the MemTransfer
-    MemTransfer::LengthType mtOffset;
+    LengthType mtOffset;
 
     // Current offset within the current block
-    MemTransfer::LengthType blockOffset;
+    LengthType blockOffset;
 
     // Current block number
-    MemTransfer::LengthType blockId;
+    LengthType blockId;
 
     // Number of bytes within this block
-    MemTransfer::LengthType len;
+    LengthType len;
 
 private:
     void updateLen()
     {
-        len = std::min<MemTransfer::LengthType>(SIZE - blockOffset,
-                                                mtByteCount - mtOffset);
+        len = std::min<LengthType>(SIZE - blockOffset, mtByteCount - mtOffset);
     }
 
-    MemTransfer::LengthType mtByteCount;
-    MemTransfer::AddressType addrFirst;
-    MemTransfer::AddressType addrLast;
-    MemTransfer::AddressType blockFirst;
-    MemTransfer::AddressType blockLast;
+    LengthType mtByteCount;
+    AddressType addrFirst;
+    AddressType addrLast;
+    AddressType blockFirst;
+    AddressType blockLast;
 };
 
 

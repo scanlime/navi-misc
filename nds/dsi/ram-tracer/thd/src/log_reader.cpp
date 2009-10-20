@@ -51,7 +51,7 @@ LogReader::Close()
 bool
 LogReader::Read(MemTransfer &mt)
 {
-    MemTransfer::OffsetType offset = mt.offset;
+    OffsetType offset = mt.offset;
     bool haveAddress = false;
 
     mt.duration = 0;
@@ -178,7 +178,7 @@ LogReader::Read(MemTransfer &mt)
 bool
 LogReader::Next(MemTransfer &mt)
 {
-    MemTransfer::OffsetType offset = mt.offset + sizeof(MemPacket);
+    OffsetType offset = mt.offset + sizeof(MemPacket);
 
     while (true) {
         uint8_t *bytes = file.Get(offset, sizeof(MemPacket));
@@ -209,7 +209,7 @@ LogReader::Next(MemTransfer &mt)
 bool
 LogReader::Prev(MemTransfer &mt)
 {
-    MemTransfer::OffsetType offset = mt.offset;
+    OffsetType offset = mt.offset;
 
     while (true) {
         if (offset < sizeof(MemPacket)) {

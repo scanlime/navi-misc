@@ -47,8 +47,6 @@ typedef boost::shared_ptr<THDVisBase> visualizerPtr_t;
  */
 
 struct THDVisBlock {
-    typedef MemTransfer::AddressType AddressType;
-
     THDVisBlock(AddressType _address=0,
                 AddressType _length=0,
                 uint8_t *_data=NULL)
@@ -72,7 +70,7 @@ public:
     THDVisBase();
     virtual ~THDVisBase();
 
-    virtual THDVisBlock::AddressType GetBlockSize() = 0;
+    virtual AddressType GetBlockSize() = 0;
     virtual wxString GetStringValue(THDVisBlock &block) = 0;
     virtual int GetWidth(wxDC &dc);
     virtual wxGridCellAttr *GetAttr(THDVisBlock &block);
@@ -88,7 +86,7 @@ protected:
 
 class THDVisAddress : public THDVisBase {
 public:
-    virtual THDVisBlock::AddressType GetBlockSize();
+    virtual AddressType GetBlockSize();
     virtual wxString GetStringValue(THDVisBlock &block);
 };
 
@@ -99,7 +97,7 @@ public:
 
 class THDVisHex : public THDVisBase {
 public:
-    virtual THDVisBlock::AddressType GetBlockSize();
+    virtual AddressType GetBlockSize();
     virtual wxString GetStringValue(THDVisBlock &block);
 };
 

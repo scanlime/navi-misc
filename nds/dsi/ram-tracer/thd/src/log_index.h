@@ -31,6 +31,7 @@
 #include <wx/event.h>
 #include <boost/shared_ptr.hpp>
 #include <map>
+#include <vector>
 #include <algorithm>
 
 #include "sqlite3x.h"
@@ -39,9 +40,11 @@
 #include "lru_cache.h"
 
 class LogInstant;
+class LogBlock;
 class TransferSummary;
 
 typedef boost::shared_ptr<LogInstant> instantPtr_t;
+typedef boost::shared_ptr<LogBlock> blockPtr_t;
 typedef boost::shared_ptr<TransferSummary> transferPtr_t;
 
 
@@ -115,8 +118,8 @@ private:
 class LogInstant {
 public:
     LogInstant(int numStrata,
-               MemTransfer::ClockType _time = 0,
-               MemTransfer::OffsetType _offset = 0,
+               ClockType _time = 0,
+               OffsetType _offset = 0,
                bool cleared = false)
         : readTotals(numStrata),
           writeTotals(numStrata),
@@ -140,11 +143,11 @@ public:
 
     void clear();
 
-    MemTransfer::ClockType time;
-    MemTransfer::OffsetType offset;
-    MemTransfer::OffsetType transferId;
+    ClockType time;
+    OffsetType offset;
+    OffsetType transferId;
 
-    void updateTime(MemTransfer::ClockType amount, bool reverse=false)
+    void updateTime(ClockType amount, bool reverse=false)
     {
         if (reverse)
             time -= amount;
@@ -172,12 +175,6 @@ public:
 
 class TransferSummary {
 public:
-    typedef MemTransfer::ClockType ClockType;
-    typedef MemTransfer::OffsetType OffsetType;
-    typedef MemTransfer::LengthType LengthType;
-    typedef MemTransfer::TypeEnum TypeEnum;
-    typedef MemTransfer::AddressType AddressType;
-
     // Invalid transfer
     TransferSummary(ClockType _time=-1,
                     OffsetType _offset=-1,
@@ -197,7 +194,7 @@ public:
      */
     ClockType time;
 
-    TypeEnum type;
+    MemTransfer::TypeEnum type;
     AddressType address;
     LengthType byteCount;
     OffsetType offset;
@@ -213,12 +210,41 @@ public:
 };
 
 
+/*
+ * A LogBlock is a small chunk of memory from a specific point in
+ * time. Blocks have an address, a timestamp, and a byte array.
+ */
+
+class LogBlock {
+public:
+    static const int SHIFT = 9;          // 512 bytes
+    static const int SIZE = 1 << SHIFT;
+    static const int MASK = SIZE - 1;
+
+    LogBlock(AddressType _address=0, ClockType _time=0)
+        : address(_address),
+          time(_time),
+          data(SIZE, 0)
+    {}
+
+    AddressType address;
+    ClockType time;
+    std::vector<uint8_t> data;
+};
+
+
+/*
+ * A sparse collection of LogBlocks, with copy-on-write.
+ */
+
+class BlockTracker {
+public:
+    std::map<AddressType, blockPtr_t> blocks;
+};
+
+
 class LogIndex {
 public:
-    typedef MemTransfer::ClockType ClockType;
-    typedef MemTransfer::OffsetType OffsetType;
-    typedef MemTransfer::AddressType AddressType;
-
     enum State {
         IDLE,
         INDEXING,
@@ -263,11 +289,8 @@ public:
     /*
      * Information about the (fixed) geometry of the log index.
      */
-    int GetBlockSize() const {
-        return BLOCK_SIZE;
-    }
     int GetNumBlocks() const {
-        return (reader->MemSize() + BLOCK_MASK) >> BLOCK_SHIFT;
+        return (reader->MemSize() + LogBlock::MASK) >> LogBlock::SHIFT;
     }
     int GetNumStrata() const {
         return (reader->MemSize() + STRATUM_MASK) >> STRATUM_SHIFT;
@@ -315,6 +338,11 @@ public:
      */
     transferPtr_t GetClosestTransfer(ClockType time);
 
+    /*
+     * Get the memory block contaning 'address', at the specified time.
+     */
+    blockPtr_t GetBlock(ClockType time, AddressType addr);
+
 private:
     /*
      * Definitions:
@@ -343,10 +371,6 @@ private:
      *      that any database lookups require excessive disk activity.
      */
     static const int TIMESTEP_SIZE = 96 * 1024;      // Timestep duration, in bytes
-
-    static const int BLOCK_SHIFT = 9;                // 512 bytes
-    static const int BLOCK_SIZE = 1 << BLOCK_SHIFT;
-    static const int BLOCK_MASK = BLOCK_SIZE - 1;
 
     static const int STRATUM_SHIFT = 14;             // 16 kB (1024 strata per 16MB)
     static const int STRATUM_SIZE = 1 << STRATUM_SHIFT;

@@ -93,7 +93,7 @@ THDContentTable::GetBlockForCell(int row, int col)
 {
     THDContentColumn &colObj = columns[col];
 
-    THDVisBlock::AddressType addr = row;
+    AddressType addr = row;
     addr *= bytesPerRow;
     addr += colObj.addrOffset;
 
