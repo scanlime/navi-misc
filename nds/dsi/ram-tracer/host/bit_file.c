@@ -27,8 +27,8 @@
  * THE SOFTWARE.
  */
 
-#include <malloc.h>
 #include <string.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include "bit_file.h"
 
