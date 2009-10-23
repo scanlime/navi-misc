@@ -158,6 +158,14 @@ BIOSCallInternal(void)
                 "int $0xFF");
 
    /*
+    * Some BIOS routines will turn interrupts back on. If an interrupt
+    * occurs while we're partway through our 16-to-32 transition
+    * below, any interrupts will cause the ISR to fault, so we must
+    * make sure interrupts are still off.
+    */
+   asm volatile("cli");
+
+   /*
     * Push Regs back onto the stack.
     */
    asm volatile("pushal \n"
