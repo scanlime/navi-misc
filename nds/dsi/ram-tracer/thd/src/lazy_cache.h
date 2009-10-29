@@ -199,6 +199,7 @@ private:
                 sema.WaitTimeout(1000);
                 while (processWorkQueue());
             }
+			return 0;
         }
 
         void wake()

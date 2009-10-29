@@ -153,7 +153,7 @@ private:
  * Timeline widget
  */
 
-class THDTimeline : public wxPanel, public boost::signals::trackable {
+class THDTimeline : public wxPanel, public boost::signals2::trackable {
 public:
     THDTimeline(wxWindow *parent, THDModel *model);
 

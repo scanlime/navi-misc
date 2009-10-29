@@ -89,7 +89,7 @@ private:
 
     THDModel *model;
     THDContentTable table;
-    boost::signals::connection modelCursorChangeConn;
+    boost::signals2::connection modelCursorChangeConn;
 };
 
 

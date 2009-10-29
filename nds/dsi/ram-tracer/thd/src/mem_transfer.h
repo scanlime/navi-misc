@@ -32,6 +32,7 @@
 
 #include <wx/string.h>
 #include <stdint.h>
+#include <algorithm>
 
 
 /*

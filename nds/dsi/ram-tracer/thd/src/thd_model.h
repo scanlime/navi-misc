@@ -26,7 +26,7 @@
 #ifndef __THD_MODEL_H
 #define __THD_MODEL_H
 
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 #include <wx/string.h>
 #include "log_index.h"
 #include "log_reader.h"
@@ -56,7 +56,7 @@ struct THDModelCursor {
 
 
 struct THDModel {
-    typedef boost::signal0<void> signal_t;
+    typedef boost::signals2::signal<void ()> signal_t;
 
     THDModel(LogIndex *_index)
         : index(_index),
