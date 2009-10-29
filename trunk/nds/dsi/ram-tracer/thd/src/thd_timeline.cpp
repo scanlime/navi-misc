@@ -18,13 +18,14 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT,min TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
 
 #include <wx/dcbuffer.h>
 #include <boost/bind.hpp>
+#include <algorithm>
 #include <string.h>
 #include "thd_timeline.h"
 
@@ -369,8 +370,8 @@ THDTimeline::OnPaint(wxPaintEvent &event)
 
         // Update only the necessary slices
         while (update) {
-            minSlice = std::min(minSlice, update.GetX());
-            maxSlice = std::max(maxSlice, update.GetX() + update.GetW() - 1);
+            minSlice = std::min<int>(minSlice, update.GetX());
+            maxSlice = std::max<int>(maxSlice, update.GetX() + update.GetW() - 1);
             update++;
         }
 

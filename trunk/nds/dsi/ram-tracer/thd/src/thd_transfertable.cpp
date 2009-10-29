@@ -334,9 +334,8 @@ THDTransferGrid::OnSelectCell(wxGridEvent &event)
     int row = event.GetRow();
 
     if (row != model->cursor.transferId) {
-        modelCursorChangeConn.block();
+		boost::signals2::shared_connection_block blocker(modelCursorChangeConn);
         model->moveCursorToId(row);
-        modelCursorChangeConn.unblock();
     }
 
     event.Skip();

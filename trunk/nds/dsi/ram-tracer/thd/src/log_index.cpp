@@ -538,6 +538,8 @@ LogIndex::IndexerThread::Entry()
     }
 
     reader.Close();
+
+	return 0;
 }
 
 

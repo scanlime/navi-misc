@@ -280,7 +280,7 @@ private:
     void touch(Key k)
     {
         // Mark a key as most recently used
-        lru.moveToTail(keyMap.at(k));
+        lru.moveToTail(keyMap[k]);
     }
 
     typedef typename std::map<Key, Value> map_t;

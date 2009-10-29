@@ -28,6 +28,7 @@
 
 #include <wx/colour.h>
 #include <stdint.h>
+#include <algorithm>
 
 struct ColorRGB {
     uint32_t value;
