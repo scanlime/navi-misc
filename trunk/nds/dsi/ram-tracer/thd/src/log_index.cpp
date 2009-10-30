@@ -48,6 +48,7 @@ LogIndex::LogIndex()
     : progressReceiver(NULL),
       cmd_getInstantForTimestep(NULL),
       cmd_getTransferSummary(NULL),
+      reader(NULL),
       lastInstant(GetInstantForTimestep(0)),
       instantCache(INSTANT_CACHE_SIZE, GetInstantForTimestep(0)),
       transferCache(INSTANT_CACHE_SIZE, transferPtr_t(new TransferSummary()))
@@ -539,7 +540,7 @@ LogIndex::IndexerThread::Entry()
 
     reader.Close();
 
-	return 0;
+    return 0;
 }
 
 

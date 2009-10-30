@@ -55,17 +55,17 @@ std::size_t hash_value(SliceKey const &k)
 
 
 THDTimeline::THDTimeline(wxWindow *_parent, THDModel *_model)
-  : wxPanel(_parent, wxID_ANY, wxPoint(0, 0), wxSize(800, SLICE_HEIGHT)),
-    model(_model),
-    index(_model->index),
-    sliceGenerator(this),
-    sliceCache(SLICE_CACHE_SIZE, &sliceGenerator),
-    refreshTimer(this, ID_REFRESH_TIMER),
-    allocated(false),
-    slicesDirty(true),
-    needSliceEnqueue(true),
-    isDragging(false),
-    hasFocus(false)
+    : wxPanel(_parent, wxID_ANY, wxPoint(0, 0), wxSize(800, SLICE_HEIGHT)),
+      model(_model),
+      index(_model->index),
+      sliceGenerator(this),
+      sliceCache(SLICE_CACHE_SIZE, &sliceGenerator),
+      refreshTimer(this, ID_REFRESH_TIMER),
+      allocated(false),
+      slicesDirty(true),
+      needSliceEnqueue(true),
+      isDragging(false),
+      hasFocus(false)
 {
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 
@@ -433,16 +433,16 @@ THDTimeline::OnPaint(wxPaintEvent &event)
 bool
 THDTimeline::renderSliceRange(pixelData_t &data, int xMin, int xMax)
 {
-   /*
-    * The LazyThread will process the newest requests first. We'd
-    * like the first completed rendering to be near the mouse
-    * cursor, since that's likely to be where the user is paying
-    * the most attention.
-    *
-    * So, we'll carefully choose our rendering order so that we paint
-    * slices near our 'focus' (overlay position) last. We alternate
-    * between left side and right side.
-    */
+    /*
+     * The LazyThread will process the newest requests first. We'd
+     * like the first completed rendering to be near the mouse
+     * cursor, since that's likely to be where the user is paying
+     * the most attention.
+     *
+     * So, we'll carefully choose our rendering order so that we paint
+     * slices near our 'focus' (overlay position) last. We alternate
+     * between left side and right side.
+     */
 
     int focus = overlay.pos.x;
     bool complete = true;
@@ -882,7 +882,7 @@ THDTimeline::OnSize(wxSizeEvent &event)
     GetSize(&width, &height);
 
     int roundedWidth = (width | (WIDTH_ROUNDING - 1)) + 1;
-    if (roundedWidth != bufferBitmap.GetWidth()) {
+    if (!bufferBitmap.Ok() || roundedWidth != bufferBitmap.GetWidth()) {
         bufferBitmap.Create(roundedWidth, SLICE_HEIGHT);
 
         /*
