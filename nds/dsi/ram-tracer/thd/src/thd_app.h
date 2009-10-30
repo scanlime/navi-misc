@@ -27,11 +27,16 @@
 #define __THD_APP_H
 
 #include <wx/app.h>
+#include "thd_mainwindow.h"
 
 
 class THDApp : public wxApp {
 public:
     virtual bool OnInit();
+    virtual void MacOpenFile(const wxString &fileName);
+
+private:
+    THDMainWindow *frame;
 };
 
 #endif /* __THD_APP_H */
