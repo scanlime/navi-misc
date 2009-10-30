@@ -80,7 +80,7 @@ THDContentTable::SetValue(int row, int col, const wxString &value)
 
 wxGridCellAttr *
 THDContentTable::GetAttr(int row, int col,
-                          wxGridCellAttr::wxAttrKind kind)
+                         wxGridCellAttr::wxAttrKind kind)
 {
     THDContentColumn &colObj = columns[col];
     THDVisBlock block = GetBlockForCell(row, col);
@@ -130,20 +130,22 @@ THDContentGrid::Refresh()
     EnableDragRowSize(false);
     EnableDragColSize(false);
 
-    // Scroll by entire rows
-    int rowSize = GetRowSize(0);
-    if (rowSize > 0)
-        SetScrollLineY(rowSize);
+    if (GetNumberRows() > 0) {
+        // Scroll by entire rows
+        int rowSize = GetRowSize(0);
+        if (rowSize > 0)
+            SetScrollLineY(rowSize);
 
-    // Size all columns
-    for (int col = 0; col < table.columns.size(); col++) {
-        THDContentColumn &colObj = table.columns[col];
+        // Size all columns
+        for (int col = 0; col < table.columns.size(); col++) {
+            THDContentColumn &colObj = table.columns[col];
 
-        wxClientDC dc(GetParent());
-        int width = colObj.visualizer->GetWidth(dc);
+            wxClientDC dc(GetParent());
+            int width = colObj.visualizer->GetWidth(dc);
 
-        SetColMinimalWidth(col, width);
-        SetColSize(col, width);
+            SetColMinimalWidth(col, width);
+            SetColSize(col, width);
+        }
     }
 
     EndBatch();
