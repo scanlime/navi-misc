@@ -24,19 +24,42 @@
  */
 
 #include "thd_app.h"
-#include "thd_mainwindow.h"
 
 bool
 THDApp::OnInit()
 {
-    THDMainWindow *frame = new THDMainWindow();
+#ifdef __WXMAC__
+    /*
+     * On Mac OS, we have one frame per opened document, and the application
+     * doesn't exit when the last window is closed.
+     */
+    SetExitOnFrameDelete(false);
+
+    if (argv[1])
+        MacOpenFile(argv[1]);
+
+#else
+    /*
+     * On other platforms, there is one frame per process.
+     */
+        
+    frame = new THDMainWindow();
     frame->Show();
     SetTopWindow(frame);
 
     if (argv[1])
         frame->Open(argv[1]);
+#endif
 
     return true;
+}
+
+void
+THDApp::MacOpenFile(const wxString &fileName)
+{
+    THDMainWindow *newFrame = new THDMainWindow();
+    newFrame->Show();
+    newFrame->Open(fileName);
 }
 
 IMPLEMENT_APP(THDApp)

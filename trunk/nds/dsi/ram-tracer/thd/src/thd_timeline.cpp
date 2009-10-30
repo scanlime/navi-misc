@@ -90,7 +90,7 @@ THDTimeline::OnMouseEvent(wxMouseEvent &event)
         isDragging = false;
     }
 
-    if (event.Dragging()) {
+    if (event.Dragging() && cursor.x != dragOrigin.x) {
         pan(dragOrigin.x - cursor.x);
         dragOrigin = cursor;
         isDragging = true;
