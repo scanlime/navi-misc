@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		758C988E109CF0860095D78E /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 758C988D109CF0860095D78E /* AGL.framework */; };
+		758C9890109CF0860095D78E /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 758C988F109CF0860095D78E /* Carbon.framework */; };
+		758C9892109CF0860095D78E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 758C9891109CF0860095D78E /* Cocoa.framework */; };
+		758C9894109CF0860095D78E /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 758C9893109CF0860095D78E /* IOKit.framework */; };
+		758C9896109CF0860095D78E /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 758C9895109CF0860095D78E /* OpenGL.framework */; };
+		758C9898109CF0860095D78E /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 758C9897109CF0860095D78E /* libsqlite3.dylib */; };
+		758C989A109CF0860095D78E /* libwx_macud-2.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 758C9899109CF0860095D78E /* libwx_macud-2.8.dylib */; };
+		758C98A7109CF0970095D78E /* QuickTime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 758C98A6109CF0970095D78E /* QuickTime.framework */; };
 		75C24B6D1099450D0073F299 /* log_index.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 75C24B501099450D0073F299 /* log_index.cpp */; };
 		75C24B6E1099450D0073F299 /* log_reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 75C24B521099450D0073F299 /* log_reader.cpp */; };
 		75C24B6F1099450D0073F299 /* progress_status_bar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 75C24B561099450D0073F299 /* progress_status_bar.cpp */; };
@@ -21,11 +29,20 @@
 		75C24B791099450D0073F299 /* thd_timeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 75C24B661099450D0073F299 /* thd_timeline.cpp */; };
 		75C24B7A1099450D0073F299 /* thd_transfertable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 75C24B681099450D0073F299 /* thd_transfertable.cpp */; };
 		75C24B7B1099450D0073F299 /* thd_visualizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 75C24B6A1099450D0073F299 /* thd_visualizer.cpp */; };
+		75EDBE06109BDA910002F320 /* thd.icns in Resources */ = {isa = PBXBuildFile; fileRef = 75EDBE05109BDA910002F320 /* thd.icns */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		75873451109973EA00A429E0 /* iohook_defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iohook_defs.h; sourceTree = "<group>"; };
 		75873452109973EA00A429E0 /* memtrace_fmt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = memtrace_fmt.h; sourceTree = "<group>"; };
+		758C988D109CF0860095D78E /* AGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AGL.framework; path = System/Library/Frameworks/AGL.framework; sourceTree = SDKROOT; };
+		758C988F109CF0860095D78E /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
+		758C9891109CF0860095D78E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		758C9893109CF0860095D78E /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		758C9895109CF0860095D78E /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		758C9897109CF0860095D78E /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
+		758C9899109CF0860095D78E /* libwx_macud-2.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_macud-2.8.dylib"; path = "usr/lib/libwx_macud-2.8.dylib"; sourceTree = SDKROOT; };
+		758C98A6109CF0970095D78E /* QuickTime.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickTime.framework; path = System/Library/Frameworks/QuickTime.framework; sourceTree = SDKROOT; };
 		75C24B4D1099450D0073F299 /* color_rgb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = color_rgb.h; sourceTree = "<group>"; };
 		75C24B4E1099450D0073F299 /* file_buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = file_buffer.h; sourceTree = "<group>"; };
 		75C24B4F1099450D0073F299 /* lazy_cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lazy_cache.h; sourceTree = "<group>"; };
@@ -57,6 +74,7 @@
 		75C24B6A1099450D0073F299 /* thd_visualizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thd_visualizer.cpp; sourceTree = "<group>"; };
 		75C24B6B1099450D0073F299 /* thd_visualizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = thd_visualizer.h; sourceTree = "<group>"; };
 		75C24B6C1099450D0073F299 /* varint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = varint.h; sourceTree = "<group>"; };
+		75EDBE05109BDA910002F320 /* thd.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = thd.icns; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Temporal Hex Dump.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Temporal Hex Dump.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -65,6 +83,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				758C988E109CF0860095D78E /* AGL.framework in Frameworks */,
+				758C9890109CF0860095D78E /* Carbon.framework in Frameworks */,
+				758C9892109CF0860095D78E /* Cocoa.framework in Frameworks */,
+				758C9894109CF0860095D78E /* IOKit.framework in Frameworks */,
+				758C9896109CF0860095D78E /* OpenGL.framework in Frameworks */,
+				758C9898109CF0860095D78E /* libsqlite3.dylib in Frameworks */,
+				758C989A109CF0860095D78E /* libwx_macud-2.8.dylib in Frameworks */,
+				758C98A7109CF0970095D78E /* QuickTime.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,6 +111,14 @@
 				75873450109973EA00A429E0 /* include */,
 				75C24B4C1099450D0073F299 /* src */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
+				758C988D109CF0860095D78E /* AGL.framework */,
+				758C988F109CF0860095D78E /* Carbon.framework */,
+				758C9891109CF0860095D78E /* Cocoa.framework */,
+				758C9893109CF0860095D78E /* IOKit.framework */,
+				758C9895109CF0860095D78E /* OpenGL.framework */,
+				758C98A6109CF0970095D78E /* QuickTime.framework */,
+				758C9899109CF0860095D78E /* libwx_macud-2.8.dylib */,
+				758C9897109CF0860095D78E /* libsqlite3.dylib */,
 			);
 			name = thd;
 			sourceTree = "<group>";
@@ -102,6 +136,7 @@
 		75C24B4C1099450D0073F299 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				75EDBE05109BDA910002F320 /* thd.icns */,
 				75C24B4D1099450D0073F299 /* color_rgb.h */,
 				75C24B4E1099450D0073F299 /* file_buffer.h */,
 				75C24B4F1099450D0073F299 /* lazy_cache.h */,
@@ -180,6 +215,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				75EDBE06109BDA910002F320 /* thd.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -215,8 +251,10 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
+				GCC_AUTO_VECTORIZATION = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_ENABLE_SSE3_EXTENSIONS = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -224,36 +262,22 @@
 				GCC_VERSION = "";
 				INFOPLIST_FILE = "src/thd-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
-					"-I/usr/lib/wx/include/mac-unicode-debug-2.8",
-					"-I/usr/include/wx-2.8",
 					"-I/opt/local/include",
+					"-I/usr/lib/wx/include/mac-unicode-debug-2.8/",
+					"-I/Developer/SDKs/MacOSX10.5.sdk/usr/include/wx-2.8",
 					"-D_FILE_OFFSET_BITS=64",
 					"-D_LARGE_FILES",
 					"-D__WXDEBUG__",
 					"-D__WXMAC__",
 					"$(OTHER_CFLAGS)",
 				);
-				OTHER_LDFLAGS = (
-					"-lsqlite3",
-					"-framework",
-					IOKit,
-					"-framework",
-					Carbon,
-					"-framework",
-					Cocoa,
-					"-framework",
-					System,
-					"-framework",
-					QuickTime,
-					"-framework",
-					OpenGL,
-					"-framework",
-					AGL,
-					"-lwx_macud-2.8",
-				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "Temporal Hex Dump";
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx10.5;
+				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = dynamic;
 				VALID_ARCHS = i386;
 			};
 			name = Debug;
@@ -263,44 +287,33 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_AUTO_VECTORIZATION = YES;
+				GCC_ENABLE_SSE3_EXTENSIONS = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = thd_Prefix.pch;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = "";
 				INFOPLIST_FILE = "src/thd-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
-					"-I/usr/lib/wx/include/mac-unicode-debug-2.8",
-					"-I/usr/include/wx-2.8",
 					"-I/opt/local/include",
+					"-I/usr/lib/wx/include/mac-unicode-debug-2.8/",
+					"-I/Developer/SDKs/MacOSX10.5.sdk/usr/include/wx-2.8",
 					"-D_FILE_OFFSET_BITS=64",
 					"-D_LARGE_FILES",
 					"-D__WXDEBUG__",
 					"-D__WXMAC__",
 					"$(OTHER_CFLAGS)",
 				);
-				OTHER_LDFLAGS = (
-					"-lsqlite3",
-					"-framework",
-					IOKit,
-					"-framework",
-					Carbon,
-					"-framework",
-					Cocoa,
-					"-framework",
-					System,
-					"-framework",
-					QuickTime,
-					"-framework",
-					OpenGL,
-					"-framework",
-					AGL,
-					"-lwx_macud-2.8",
-				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "Temporal Hex Dump";
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx10.5;
+				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = dynamic;
 				VALID_ARCHS = i386;
 			};
 			name = Release;

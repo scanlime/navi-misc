@@ -141,7 +141,8 @@ public:
 
     LazyCache(int _size, generator_t *_generator)
         : LRUCache<Key, Value>(_size, _generator),
-          workQueue(_size)
+          workQueue(_size),
+          running(true)
     {
         thread = new Thread(this);
         thread->Create();
@@ -150,7 +151,11 @@ public:
 
     ~LazyCache()
     {
-        thread->Delete();
+        quiesce();
+        running = false;
+        thread->wake();
+        thread->Wait();
+        delete thread;
     }
 
     /*
@@ -189,13 +194,14 @@ private:
     {
     public:
         Thread(LazyCache<Key, Value> *_cache)
-            : cache(_cache),
+            : wxThread(wxTHREAD_JOINABLE),
+              cache(_cache),
               sema()
         {}
 
         virtual ExitCode Entry()
         {
-            while (!TestDestroy()) {
+            while (cache->running && !TestDestroy()) {
                 sema.WaitTimeout(1000);
                 while (processWorkQueue());
             }
@@ -265,6 +271,7 @@ private:
 
     Thread *thread;
     wxCriticalSection lock;
+    bool running;
     WorkQueue<Key> workQueue;
 };
 
