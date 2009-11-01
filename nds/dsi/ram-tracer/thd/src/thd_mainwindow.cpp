@@ -64,10 +64,7 @@ THDMainWindow::THDMainWindow()
      */
 
     transferGrid = new THDTransferGrid(this, &model);
-
     contentGrid = new THDContentGrid(this, &model);
-    contentGrid->AddColumns(visualizerPtr_t(new THDVisAddress));
-    contentGrid->AddColumns(visualizerPtr_t(new THDVisHex), 16);
 
     hbox->Add(transferGrid, 0, wxEXPAND);
     hbox->Add(6, 6);
@@ -107,6 +104,9 @@ THDMainWindow::RefreshTables()
 
     transferGrid->Refresh();
     contentGrid->Refresh();
+
+    contentGrid->AddColumns(visualizerPtr_t(new THDVisAddress));
+    contentGrid->AddColumns(visualizerPtr_t(new THDVisHex), 16);
 }
 
 

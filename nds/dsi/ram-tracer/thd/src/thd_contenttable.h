@@ -88,7 +88,7 @@ private:
     void modelCursorChanged();
 
     THDModel *model;
-    THDContentTable table;
+    THDContentTable *table;
     boost::signals2::connection modelCursorChangeConn;
 };
 
