@@ -21,7 +21,8 @@ If you're using Debian or Ubuntu, the packages you need are:
 
 On Mac OS, you can build using the included XCode project. Currently
 it assumes you have Boost installed via macports, but it only uses
-the header files.
+the header files. It uses the sqlite3 and wxWidgets libraries bundled
+with Mac OS 10.5 and later.
 
 UI Hints
 --------
