@@ -103,10 +103,8 @@ THDContentTable::GetBlockForCell(int row, int col)
 
 THDContentGrid::THDContentGrid(wxWindow *_parent, THDModel *_model)
     : wxGrid(_parent, wxID_ANY),
-      model(_model),
-      table(_model)
+      model(_model)
 {
-    ClearColumns();
     Refresh();
 
     // Attach model signals
@@ -122,7 +120,11 @@ THDContentGrid::Refresh()
 
     BeginBatch();
 
-    SetTable(&table, false);
+    // Give wxGrid ownership over the pointer, so it's destroyed at the proper time.
+    table = new THDContentTable(model);
+    ClearColumns();
+
+    SetTable(table, true);
     SetRowLabelSize(0);
     SetColLabelSize(0);
 
@@ -137,9 +139,9 @@ THDContentGrid::Refresh()
             SetScrollLineY(rowSize);
 
         // Size all columns
-        for (int col = 0; col < table.columns.size(); col++) {
-            THDContentColumn &colObj = table.columns[col];
-
+        for (int col = 0; col < table->columns.size(); col++) {
+            THDContentColumn &colObj = table->columns[col];
+            
             wxClientDC dc(GetParent());
             int width = colObj.visualizer->GetWidth(dc);
 
@@ -155,23 +157,27 @@ THDContentGrid::Refresh()
 void
 THDContentGrid::ClearColumns()
 {
-    table.columns.clear();
-    table.bytesPerRow = 0;
+    assert(table);
+
+    table->columns.clear();
+    table->bytesPerRow = 0;
 }
 
 
 void
 THDContentGrid::AddColumns(visualizerPtr_t viz, int count)
 {
-    int offset = table.bytesPerRow;
+    assert(table);
+
+    int offset = table->bytesPerRow;
     int blockSize = viz->GetBlockSize();
 
     for (int i = 0; i < count; i++) {
-        table.columns.push_back(THDContentColumn(viz, offset));
+        table->columns.push_back(THDContentColumn(viz, offset));
         offset += blockSize;
     }
 
-    table.bytesPerRow = offset;
+    table->bytesPerRow = offset;
 }
 
 

@@ -139,8 +139,8 @@ void
 LogIndex::Close()
 {
     wxCriticalSectionLocker locker(dbLock);
-    db.close();
     DeleteCommands();
+    db.close();
     reader = NULL;
 }
 

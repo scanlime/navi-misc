@@ -284,8 +284,7 @@ THDTransferTable::GetAttr(int row, int col,
 
 THDTransferGrid::THDTransferGrid(wxWindow *_parent, THDModel *_model)
     : wxGrid(_parent, wxID_ANY),
-      model(_model),
-      table(_model)
+      model(_model)
 {
     Refresh();
 
@@ -302,7 +301,14 @@ THDTransferGrid::Refresh()
 
     BeginBatch();
 
-    SetTable(&table, false, wxGrid::wxGridSelectRows);
+    /*
+     * We must give wxGrid ownership over the table, so it can
+     * be destroyed at the proper time. If we destroyed it in
+     * our destructor, that would be too early.
+     */
+    THDTransferTable *table = new THDTransferTable(model);
+    
+    SetTable(table, true, wxGrid::wxGridSelectRows);
     SetRowLabelSize(0);
 
     /*
@@ -317,7 +323,7 @@ THDTransferGrid::Refresh()
     EnableDragColSize(false);
 
     // Figure out all column widths, and set the table's overall width
-    CacheBestSize(wxSize(table.AutoSizeColumns(*this), 1));
+    CacheBestSize(wxSize(table->AutoSizeColumns(*this), 1));
 
     // Scroll by entire rows
     int rowSize = GetRowSize(0);
