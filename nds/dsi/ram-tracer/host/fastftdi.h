@@ -71,6 +71,9 @@ typedef struct {
 #define FTDI_VENDOR               0x0403
 #define FTDI_PRODUCT_FT2232H      0x6010
 
+#define TWLFPGA_VENDOR            0xe461   // Micah's made-up VID
+#define TWLFPGA_PRODUCT           0x0014
+
 #define FTDI_COMMAND_TIMEOUT      1000
 
 #define FTDI_SET_BAUD_REQUEST     0x03
