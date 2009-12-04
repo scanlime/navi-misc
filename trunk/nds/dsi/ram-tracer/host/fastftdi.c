@@ -78,11 +78,18 @@ FTDIDevice_Open(FTDIDevice *dev)
     return err;
   }
 
-  libusb_set_debug(dev->libusb, 3);
+  libusb_set_debug(dev->libusb, 2);
 
   dev->handle = libusb_open_device_with_vid_pid(dev->libusb,
-                                                FTDI_VENDOR,
-                                                FTDI_PRODUCT_FT2232H);
+						TWLFPGA_VENDOR,
+						TWLFPGA_PRODUCT);
+
+  if (!dev->handle) {
+    dev->handle = libusb_open_device_with_vid_pid(dev->libusb,
+						  FTDI_VENDOR,
+						  FTDI_PRODUCT_FT2232H);
+  }
+
   if (!dev->handle) {
     return LIBUSB_ERROR_NO_DEVICE;
   }
