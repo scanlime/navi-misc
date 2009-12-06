@@ -423,9 +423,11 @@ rwand_read_byte(unsigned short request, unsigned short wValue, unsigned short wI
     xfer.timeout = 1000;
     xfer.data = &byte;
 
+    // Default in case of error
+    byte = 0;
+
     if (ioctl(device.fd, USBDEVFS_CONTROL, &xfer) < 0) {
 	perror("USBDEVFS_CONTROL");
-	exit(1);
     }
 
     return byte;
