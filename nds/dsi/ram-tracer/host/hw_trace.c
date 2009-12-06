@@ -112,7 +112,8 @@ HW_Trace(FTDIDevice *dev, HWPatch *patch, const char *filename,
 {
    int err;
    uint32_t traceFlags;
-
+   uint32_t powerFlags = POWERFLAG_DSI_BATT;
+   
    // Blank line between initialization messages and live tracing
    fprintf(stderr, "\n");
 
@@ -149,11 +150,12 @@ HW_Trace(FTDIDevice *dev, HWPatch *patch, const char *filename,
 
    HW_ConfigWrite(dev, REG_TRACEFLAGS, 0, false);
    if (resetDSI)
-      HW_ConfigWrite(dev, REG_POWERFLAGS, POWERFLAG_DSI_RESET, false);
+      HW_ConfigWrite(dev, REG_POWERFLAGS, powerFlags | POWERFLAG_DSI_RESET, false);
+
    while (FTDIDevice_ReadByteSync(dev, FTDI_INTERFACE_A, NULL) >= 0);
+
    HW_ConfigWrite(dev, REG_TRACEFLAGS, traceFlags, false);
-   if (resetDSI)
-      HW_ConfigWrite(dev, REG_POWERFLAGS, 0, false);
+   HW_ConfigWrite(dev, REG_POWERFLAGS, powerFlags, false);
 
    /*
     * Capture data until we're interrupted.

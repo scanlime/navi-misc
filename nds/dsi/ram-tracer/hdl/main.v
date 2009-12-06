@@ -23,15 +23,21 @@
  */
 
 
-module main(mclk, clk50,
+module main(mclk, clk50, batt_ven, led,
             usb_d, usb_rxf_n, usb_txe_n, usb_rd_n, usb_wr_n, usb_oe_n,
             ram_a, ram_d, ram_oe, ram_we, ram_ce1_in,
             ram_ce1_out, ram_ce2, ram_ub, ram_lb, ram_adv, ram_clk,
-            dsi_sysclk, dsi_reset);
+            dsi_sysclk, dsi_reset, dsi_powerbtn);
 
    input mclk, clk50;
    wire  reset = 1'b0;   // Placeholder- no need for reset yet
 
+   output        batt_ven;
+   output [3:0]  led; 
+
+   // XXX
+   assign led = 4'b0000;
+   
    inout [7:0] usb_d;
    input       usb_rxf_n, usb_txe_n;
    output      usb_rd_n, usb_wr_n, usb_oe_n;
@@ -42,7 +48,7 @@ module main(mclk, clk50,
    input        ram_ub, ram_lb, ram_adv, ram_clk;
 
    output       ram_ce1_out;
-   output       dsi_sysclk, dsi_reset;
+   output       dsi_sysclk, dsi_reset, dsi_powerbtn;
 
 
    /************************************************
@@ -129,6 +135,8 @@ module main(mclk, clk50,
    wire [15:0] power_flags;
 
    assign      dsi_reset = power_flags[0] ? 1'b0 : 1'bZ;
+   assign      dsi_powerbtn = power_flags[1] ? 1'b0 : 1'bZ;
+   assign      batt_ven = power_flags[2];
 
    usb_config #(16'h0002) power_cfg(mclk, reset, config_addr, config_data,
                                     config_strobe, power_flags);

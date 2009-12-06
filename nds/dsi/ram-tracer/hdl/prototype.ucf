@@ -1,13 +1,17 @@
 #
-# twlfpga constraints and wiring information.
-#
-# This is for bushing's "twlfpga" board, which is the successor to
-# the "RAM Tracer version 2" prototype. This board is very similar
-# to the prototype, with some small modifications and several extra
-# peripherals.
+# RAM Tracer revision 2, constraints and wiring information.
+# This constraints file is for the prototype hardware only.
+# The later 'twlfpga' PCBs have additional peripherals,
+# aren't quite compatible with the prototype's constraints
+# file.
 #
 # This file contains both the FPGA constraints and some
 # human-readable notes about other necessary hookups.
+#
+# This is designed for use with a bare Spartan 3E chip in the
+# PQ208 package. I used the breakout board from Spark Fun electronics:
+#
+#  http://www.sparkfun.com/commerce/product_info.php?products_id=8458
 #
 # This design may be adaptable to other FPGAs, but please pay special
 # attention to the I/O standards. All DSi memory bus connections must
@@ -19,51 +23,21 @@
 
 ########################################################
 #
-# On-board peripherals
+# Spark Fun Spartan3E Evaluation Card peripherals
 #
 
+# RS-232 port and line drivers
+
+#NET "serial_cts" LOC = "P109" | IOSTANDARD = LVCMOS33 ;
+#NET "serial_txd" LOC = "P107" | IOSTANDARD = LVCMOS33 ;
+#NET "serial_rxd" LOC = "P106" | IOSTANDARD = LVCMOS33 ;
+#NET "serial_dtr" LOC = "P108" | IOSTANDARD = LVCMOS33 ;
+
 # 50 MHz oscillator
+# XXX: It's on a 1.8v bank, but the oscillator is 3.3v. Oops.
 
-NET "clk50" LOC = "P126" | IOSTANDARD = LVCMOS33 | TNM_NET = clk50 ;
+NET "clk50" LOC = "P181" | IOSTANDARD = LVCMOS18 | TNM_NET = clk50 ;
 TIMESPEC TS_clk50 = PERIOD "clk50" 50 MHz HIGH 50%;
-PIN "dsosc/dcm4x.CLKIN" CLOCK_DEDICATED_ROUTE = FALSE;
-
-# DSi power supply (battery emulator)
-
-NET "batt_ven" LOC = "P60" | IOSTANDARD = LVCMOS33 ;
-
-# 4-bit DIP switch
-
-#NET "dipsw<0>" LOC = "P168" | IOSTANDARD = LVCMOS33 ;
-#NET "dipsw<1>" LOC = "P169" | IOSTANDARD = LVCMOS33 ;
-#NET "dipsw<2>" LOC = "P174" | IOSTANDARD = LVCMOS33 ;
-#NET "dipsw<3>" LOC = "P175" | IOSTANDARD = LVCMOS33 ;
-
-# LEDs
-
-NET "led<0>" LOC = "P128" | IOSTANDARD = LVCMOS33 ;
-NET "led<1>" LOC = "P127" | IOSTANDARD = LVCMOS33 ;
-NET "led<2>" LOC = "P123" | IOSTANDARD = LVCMOS33 ;
-NET "led<3>" LOC = "P122" | IOSTANDARD = LVCMOS33 ;
-
-# LCD (HD44780 compatible, 4-bit mode)
-
-#NET "lcd_db<4>" LOC = "P134" | IOSTANDARD = LVCMOS33 ;
-#NET "lcd_db<5>" LOC = "P135" | IOSTANDARD = LVCMOS33 ;
-#NET "lcd_db<6>" LOC = "P137" | IOSTANDARD = LVCMOS33 ;
-#NET "lcd_db<7>" LOC = "P138" | IOSTANDARD = LVCMOS33 ;
-#NET "lcd_rs" LOC = "P129" | IOSTANDARD = LVCMOS33 ;
-#NET "lcd_rw" LOC = "P132" | IOSTANDARD = LVCMOS33 ;
-#NET "lcd_e"  LOC = "P133" | IOSTANDARD = LVCMOS33 ;
-
-# SD card slot
-
-#NET "sd_clk"  LOC = "P144" | IOSTANDARD = LVCMOS33 ;
-#NET "sd_cmd"  LOC = "P145" | IOSTANDARD = LVCMOS33 ;
-#NET "sd_dat<0>"  LOC = "P140" | IOSTANDARD = LVCMOS33 ;
-#NET "sd_dat<1>"  LOC = "P139" | IOSTANDARD = LVCMOS33 ;
-#NET "sd_dat<2>"  LOC = "P147" | IOSTANDARD = LVCMOS33 ;
-#NET "sd_dat<3>"  LOC = "P146" | IOSTANDARD = LVCMOS33 ;
 
 
 ########################################################
@@ -163,9 +137,8 @@ NET "usb_oe_n"  LOC = "P64"  | IOSTANDARD = LVCMOS33 ;
 # DSi 3.3 volt I/O
 #
 
-NET "dsi_sysclk"     LOC = "P69"  | IOSTANDARD = LVCMOS33 ;
-NET "dsi_reset"      LOC = "P90"  | IOSTANDARD = LVCMOS33 ;
-NET "dsi_powerbtn"   LOC = "P84"  | IOSTANDARD = LVCMOS33 ;
+NET "dsi_sysclk"  LOC = "P69"  | IOSTANDARD = LVCMOS33 ;
+NET "dsi_reset"  LOC = "P90"  | IOSTANDARD = LVCMOS33 ;
 
 # CE1 Override
 #
@@ -212,6 +185,11 @@ NET "ram_ce1_out"  LOC = "P68"  | IOSTANDARD = LVCMOS33 ;
 #   - ram_clk needs a 330 ohm series resistor.
 #     Otherwise, ringing on the clock line can interfere
 #     with the RAM's normal operation, and the DSi won't boot.
+#
+# XXX: I should probably include termination resistors for
+#      all of these signals, but so far I'm not. If this was
+#      a Spartan 3 rather than a 3E, I could use DCI for
+#      on-die termination...
 
 ##### Global glock I/O pins
 
