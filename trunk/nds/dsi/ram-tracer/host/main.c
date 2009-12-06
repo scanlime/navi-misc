@@ -199,6 +199,7 @@ int main(int argc, char **argv)
       HWTrace_InitIOHookPatch(&patch);
 
    HW_Init(&dev, resetFPGA ? bitstream : NULL);
+   HW_ConfigWrite(&dev, REG_POWERFLAGS, POWERFLAG_DSI_BATT, false);
    HW_SetSystemClock(&dev, clock);
    HW_LoadPatch(&dev, &patch);
 

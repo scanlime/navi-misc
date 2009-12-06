@@ -38,7 +38,7 @@
     <property xil_pn:name="Package" xil_pn:value="pq208"/>
     <property xil_pn:name="Preferred Language" xil_pn:value="Verilog"/>
     <property xil_pn:name="Project Generator" xil_pn:value="CoreGen"/>
-    <property xil_pn:name="Simulator" xil_pn:value="ISim (VHDL/Verilog)"/>
+    <property xil_pn:name="Simulator" xil_pn:value="Modelsim-SE Mixed"/>
     <property xil_pn:name="Speed Grade" xil_pn:value="-4"/>
     <property xil_pn:name="Synthesis Tool" xil_pn:value="XST (VHDL/Verilog)"/>
     <property xil_pn:name="Top-Level Source Type" xil_pn:value="HDL"/>

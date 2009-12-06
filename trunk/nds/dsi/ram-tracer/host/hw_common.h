@@ -47,8 +47,9 @@
 #define TRACEFLAG_READS       (1 << 0)
 #define TRACEFLAG_WRITES      (1 << 1)
 
-#define POWERFLAG_DSI_RESET   (1 << 0)
-
+#define POWERFLAG_DSI_RESET    (1 << 0)   // Holding CPU in reset
+#define POWERFLAG_DSI_POWERBTN (1 << 1)   // Pressing power button
+#define POWERFLAG_DSI_BATT     (1 << 2)   // Battery power supply enable
 
 /*
  * Public
@@ -60,6 +61,5 @@ void HW_SetSystemClock(FTDIDevice *dev, float mhz);
 void HW_ConfigWriteMultiple(FTDIDevice *dev, uint16_t *addrArray,
                             uint16_t *dataArray, int count, bool async);
 void HW_ConfigWrite(FTDIDevice *dev, uint16_t addr, uint16_t data, bool async);
-
 
 #endif // __HW_COMMON_H
