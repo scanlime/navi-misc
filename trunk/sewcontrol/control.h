@@ -1,72 +1,18 @@
 /*
- * triac.c -- Triac control module for the sewing machine speed controller.
+ * control.h - Main speed control loop
  *
  * Copyright (c) 2010 Micah Dowty <micah@navi.cx>
  * See end of file for license terms. (BSD style)
  */
 
-#include <avr/interrupt.h>
-#include <avr/io.h>
+#ifndef _CONTROL_H
+#define _CONTROL_H
 
-#include "triac.h"
+void Control_Init();
+float Control_Loop(float curSpeed);
+void Control_SetSpeed(float targetSpeed);
 
-enum {
-   S_TRIGGERED = 0,
-   S_PULSING,
-};
-
-static uint8_t state;
-
-ISR(TIMER1_OVF_vect, ISR_BLOCK)
-{
-   if (state == S_PULSING) {
-      // End the pulse
-      TRIAC_PORT &= ~TRIAC_MASK;
-      TCCR1B = 0;
-
-   } else {
-      // Begin the pulse
-      TCCR1B = 0;
-      TCNT1 = -TRIAC_PULSE_LEN;
-      state = S_PULSING;
-      TRIAC_PORT |= TRIAC_MASK;
-      TCCR1B = 1 << CS11;
-   }
-}
-
-void
-Triac_Init()
-{
-   // Initialize port
-   TRIAC_PORT &= ~TRIAC_MASK;
-   TRIAC_DDR |= TRIAC_MASK;
-
-   // Disable timer, but enable overflow interrupts
-   TCCR1A = 0;
-   TCCR1B = 0;
-   TIMSK1 = 1 << TOIE1;
-}
-
-void
-Triac_Trigger(uint16_t delay)
-{
-   // Keep delay from wrapping around
-   if (delay <= 0)
-      delay = 1;
-
-   // Disable timer
-   TCCR1B = 0;
-
-   // Asynchronously trigger the triac, in 'delay' ticks.
-   TCNT1 = -delay;
-   state = S_TRIGGERED;
-
-   // If we were already in the middle of a pulse, end it
-   TRIAC_PORT &= ~TRIAC_MASK;
-
-   // Restart timer
-   TCCR1B = 1 << CS11;
-}
+#endif // _CONTROL_H
 
 /*****************************************************************/
 

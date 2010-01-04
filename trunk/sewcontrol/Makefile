@@ -8,7 +8,7 @@
 MCU = atmega169
 FORMAT = ihex
 TARGET = sewcontrol
-SRC = main.c LCD_Driver.c sensors.c triac.c
+SRC = main.c LCD_Driver.c sensors.c triac.c control.c
 ASRC =
 OPT = s
 

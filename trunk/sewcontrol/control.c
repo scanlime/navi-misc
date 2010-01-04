@@ -1,71 +1,65 @@
 /*
- * triac.c -- Triac control module for the sewing machine speed controller.
+ * control.h - Main speed control loop
  *
  * Copyright (c) 2010 Micah Dowty <micah@navi.cx>
  * See end of file for license terms. (BSD style)
  */
 
-#include <avr/interrupt.h>
-#include <avr/io.h>
+#include "joystick.h"
 
-#include "triac.h"
+extern int debug;
+static float power;
 
-enum {
-   S_TRIGGERED = 0,
-   S_PULSING,
-};
-
-static uint8_t state;
-
-ISR(TIMER1_OVF_vect, ISR_BLOCK)
+void
+Control_Init()
 {
-   if (state == S_PULSING) {
-      // End the pulse
-      TRIAC_PORT &= ~TRIAC_MASK;
-      TCCR1B = 0;
+   power = 0;
+}
 
+static float
+filter(float input)
+{
+   /*
+    * Single pole butterworth low-pass filter, sampling at 120 Hz,
+    * with a corner frequency of 10 Hz. Designed with the applet at:
+    *   http://www-users.cs.york.ac.uk/~fisher/mkfilter/trad.html
+    */
+
+   static float xv0, xv1, yv0, yv1;
+
+   xv0 = xv1;
+   xv1 = input / 4.732050808;
+   yv0 = yv1;
+   yv1 = xv0 + xv1 + 0.5773502692 * yv0;
+
+   return yv1;
+}
+
+float
+Control_Loop(float curSpeed)
+{
+   // Target speed
+   const float target = 120.0f;
+
+   static int igain = 1;
+   float gain = igain * 1e-6;
+   debug = igain;
+
+   uint8_t joy = Joystick_Poll();
+   if (JOY_LEFT & joy)
+      igain++;
+   if (JOY_RIGHT & joy)
+      igain--;
+
+   float error = target - curSpeed;
+
+   if (target <= 0.0f) {
+      power = 0.0f;
    } else {
-      // Begin the pulse
-      TCCR1B = 0;
-      TCNT1 = -TRIAC_PULSE_LEN;
-      state = S_PULSING;
-      TRIAC_PORT |= TRIAC_MASK;
-      TCCR1B = 1 << CS11;
+      power += error * gain;
    }
-}
 
-void
-Triac_Init()
-{
-   // Initialize port
-   TRIAC_PORT &= ~TRIAC_MASK;
-   TRIAC_DDR |= TRIAC_MASK;
-
-   // Disable timer, but enable overflow interrupts
-   TCCR1A = 0;
-   TCCR1B = 0;
-   TIMSK1 = 1 << TOIE1;
-}
-
-void
-Triac_Trigger(uint16_t delay)
-{
-   // Keep delay from wrapping around
-   if (delay <= 0)
-      delay = 1;
-
-   // Disable timer
-   TCCR1B = 0;
-
-   // Asynchronously trigger the triac, in 'delay' ticks.
-   TCNT1 = -delay;
-   state = S_TRIGGERED;
-
-   // If we were already in the middle of a pulse, end it
-   TRIAC_PORT &= ~TRIAC_MASK;
-
-   // Restart timer
-   TCCR1B = 1 << CS11;
+   return power;
 }
 
 /*****************************************************************/
