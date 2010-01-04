@@ -9,6 +9,7 @@
 
 #include <avr/interrupt.h>
 #include <avr/io.h>
+#include <avr/wdt.h>
 #include <stdio.h>
 
 #include "LCD_Driver.h"
@@ -17,6 +18,7 @@
 #include "triac.h"
 
 const char FooText[] PROGMEM = "Foobar";
+int debug;
 
 void
 Beep() {
@@ -26,6 +28,7 @@ Beep() {
    for (i = 0; i < 100; i++) {
       volatile int j;
 
+      wdt_reset();
       PORTB ^= 1 << 5;
       for (j = 0; j < 100; j++);
    }
@@ -41,6 +44,8 @@ Clock_Init()
 
 int
 main() {
+   wdt_enable(0);
+   Control_Init();
    Clock_Init();
    Triac_Init();
    Pedal_Init();
@@ -51,9 +56,11 @@ main() {
    Beep();
 
    while (1) {
-      static char buffer[7];
+      wdt_reset();
 
-      sprintf(buffer, "%d", Pedal_Read());
+      static char buffer[32];
+
+      sprintf(buffer, "%d", debug);
       LCD_PutStr(buffer);
    }
 }

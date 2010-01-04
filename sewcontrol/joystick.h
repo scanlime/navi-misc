@@ -1,72 +1,33 @@
 /*
- * triac.c -- Triac control module for the sewing machine speed controller.
+ * joystick.h - Simple joystick header for the AVR Butterfly
  *
  * Copyright (c) 2010 Micah Dowty <micah@navi.cx>
  * See end of file for license terms. (BSD style)
  */
 
-#include <avr/interrupt.h>
+#ifndef _JOYSTICK_H
+#define _JOYSTICK_H
+
 #include <avr/io.h>
 
-#include "triac.h"
+#define JOY_LEFT                  (1 << 2)
+#define JOY_RIGHT                 (1 << 3)
+#define JOY_UP                    (1 << 6)
+#define JOY_DOWN                  (1 << 7)
+#define JOY_PRESS                 (1 << 4)
 
-enum {
-   S_TRIGGERED = 0,
-   S_PULSING,
-};
+#define JOY_BMASK                 ((1 << 4) | (1 << 6) | (1 << 7))
+#define JOY_EMASK                 ((1 << 2) | (1 << 3))
 
-static uint8_t state;
-
-ISR(TIMER1_OVF_vect, ISR_BLOCK)
+static inline uint8_t
+Joystick_Poll()
 {
-   if (state == S_PULSING) {
-      // End the pulse
-      TRIAC_PORT &= ~TRIAC_MASK;
-      TCCR1B = 0;
-
-   } else {
-      // Begin the pulse
-      TCCR1B = 0;
-      TCNT1 = -TRIAC_PULSE_LEN;
-      state = S_PULSING;
-      TRIAC_PORT |= TRIAC_MASK;
-      TCCR1B = 1 << CS11;
-   }
+   PORTB |= JOY_BMASK;
+   PORTE |= JOY_EMASK;
+   return (~PINB & JOY_BMASK) | (~PINE & JOY_EMASK);
 }
 
-void
-Triac_Init()
-{
-   // Initialize port
-   TRIAC_PORT &= ~TRIAC_MASK;
-   TRIAC_DDR |= TRIAC_MASK;
-
-   // Disable timer, but enable overflow interrupts
-   TCCR1A = 0;
-   TCCR1B = 0;
-   TIMSK1 = 1 << TOIE1;
-}
-
-void
-Triac_Trigger(uint16_t delay)
-{
-   // Keep delay from wrapping around
-   if (delay <= 0)
-      delay = 1;
-
-   // Disable timer
-   TCCR1B = 0;
-
-   // Asynchronously trigger the triac, in 'delay' ticks.
-   TCNT1 = -delay;
-   state = S_TRIGGERED;
-
-   // If we were already in the middle of a pulse, end it
-   TRIAC_PORT &= ~TRIAC_MASK;
-
-   // Restart timer
-   TCCR1B = 1 << CS11;
-}
+#endif // _JOYSTICK_H
 
 /*****************************************************************/
 
