@@ -97,8 +97,9 @@ CON
   LED_EFFECT_SPIN = $40
   
   ' Special LED characters (From 0x10 to 0x1F)
-  LED_CHAR_BLANK = $10
-  LED_CHAR_DASH = $11
+  LED_CHAR_BLANK     = $10
+  LED_CHAR_DASH      = $11
+  LED_CHAR_SEGMENTS  = $12     ' Segments from led_segments instead of font table
   
   
 OBJ
@@ -121,6 +122,7 @@ VAR
   byte  tx_buffer[TX_PACKET_LEN]
   byte  rx_buffers[RX_MAX_PACKET_LEN * NUM_SLOTS]
   byte  led_chars[NUM_SLOTS]
+  byte  led_segments[NUM_SLOTS]
 
 
 PUB start(rxpin, txpin) : okay
@@ -180,6 +182,29 @@ PUB set_led_char(slot, char)
   led_chars[slot] := char
 
 
+PUB set_led_segments(slot, leds)
+
+  '' Set the low-level LED segments to display on a particular
+  '' slot's LED display. This can be used in place of set_led_char
+  '' for control over the individual LEDs. 
+  ''
+  '' "leds" is the raw LED state passed on to the remote unit.
+  '' Bit positions:
+  ''        
+  ''       5
+  ''      ---
+  ''    6| 7 |4
+  ''      ---
+  ''    0|   |2
+  ''      ---  
+  ''       1
+  ''
+  '' (The dot cannot be controlled remotely. Bit 3 is ignored.)
+
+  led_segments[slot] := leds
+  led_chars[slot] := LED_CHAR_SEGMENTS
+
+
 PUB set_actuator(slot, actuator, value)
 
   '' Set the value of a force feedback actuator on a particular slot.
@@ -223,24 +248,13 @@ PRI is_new_packet : new
 PRI update_leds | slot, leds, char
 
   ' Recalculate values for TX_LEDS based on led_chars.
-
-  ' "leds" is the raw LED state passed on to the remote unit.
-  ' Bit positions:
-  '        
-  '       5
-  '      ---
-  '    6| 7 |4
-  '      ---
-  '    0|   |2
-  '      ---  
-  '       1
-  '
-  ' (The dot cannot be controlled remotely. Bit 3 is ignored.)
-
+                                                         
   repeat slot from 0 to NUM_SLOTS-1
     char := led_chars[slot]
 
-    if char & LED_EFFECT_SPIN
+    if char == LED_CHAR_SEGMENTS
+      leds := led_segments[slot]
+    elseif char & LED_EFFECT_SPIN
       leds := BYTE[@led_spin_table + (cnt >> 22) // 6]
     else
       leds := BYTE[@led_char_table + (char & $1F)]
