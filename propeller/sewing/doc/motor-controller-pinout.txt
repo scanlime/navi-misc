@@ -1,0 +1,12 @@
+Motor controller pinout:
+
+1/ORG. +6V Regulated Out
+2/RED. +6V Regulated Out
+3/BRN. Ground
+4/BLK. Ground
+5WHT. Direction
+6/GRY. Brake
+7/PUR. PWM
+8/BLU. Thermal flag out
+9/GRN. Current sense out
+10. N/C
