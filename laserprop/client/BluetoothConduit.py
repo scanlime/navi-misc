@@ -26,12 +26,24 @@ Copyright (c) 2008 Micah Dowty
 
 """
 
-from bluetooth import *
+try:
+    # Use PyBlueZ if we can (Linux/Windows). Otherwise (Mac OS) use a raw device node
+    # that the user must have already mapped to the right RFCOMM device.
+    import bluetooth
+except ImportError:
+    bluetooth = None
+
 import time
 import threading
 import Queue
+import os
+import struct
 
 __all__ = ['BluetoothConduit']
+
+# Bluetooth device
+BD_ADDR    = '03:1F:08:07:15:2E'
+BD_DEVNODE = '/dev/tty.TestDevice-SerialPort'
 
 # Hardware constants
 MAX_REGIONS = 32
@@ -137,10 +149,10 @@ def drainQueue(q):
 class SendThread(threading.Thread):
     """Send thread: Just write strings to the device.
        """
-    def __init__(self, sock):
+    def __init__(self, sendFn):
         self.running = True
         self.queue = Queue.Queue()
-        self.sock = sock
+        self.sendFn = sendFn
         threading.Thread.__init__(self)
 
     def run(self):
@@ -156,8 +168,9 @@ class SendThread(threading.Thread):
         """Our owm implementation of sendall(), since PyBlueZ
            doesn't have it on Windows hosts.
            """
+        print "TX: %r" % data
         while data and self.running:
-            ret = self.sock.send(data[:MAX_SEND_SIZE])
+            ret = self.sendFn(data[:MAX_SEND_SIZE])
             assert ret > 0
             data = data[ret:]
 
@@ -166,11 +179,11 @@ class RecvThread(threading.Thread):
     """Recv thread: Read data from the device, and process
        queued callbacks.
        """
-    def __init__(self, socket):
+    def __init__(self, recvFn):
         self.running = True
         self.discardData = True
         self.queue = Queue.Queue(MAX_PENDING_READS - 1)
-        self.sock = socket
+        self.recvFn = recvFn
         threading.Thread.__init__(self)
 
     def run(self):
@@ -181,7 +194,7 @@ class RecvThread(threading.Thread):
                 # Receive and discard (all but the last iteration,
                 # since that will be the first byte received after
                 # discardData was cleared)
-                buf = self.sock.recv(1)
+                buf = self.recvFn(1)
                 continue
 
             item = self.queue.get()
@@ -196,7 +209,8 @@ class RecvThread(threading.Thread):
             while len(buf) < size:
                 if not self.running:
                     return
-                buf += self.sock.recv(size - len(buf))
+                buf += self.recvFn(size - len(buf))
+            print "RX: %r" % buf
 
             assert len(buf) == size
             cb(buf)
@@ -234,17 +248,27 @@ class BluetoothConduit:
         self.onDisconnect = []
         self.lock = threading.Lock()
 
-    def connect(self, bdaddr='03:1F:08:07:15:2E'):
+    def connect(self):
         try:
-            debug("Connecting to %s" % bdaddr)
-            self.sock = BluetoothSocket(RFCOMM)
-            self.sock.connect((bdaddr, 1))
-            self.sock.setblocking(True)
+            if bluetooth:
+                debug("Connecting to %s" % BD_ADDR)
+                self.sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+                self.sock.connect((BD_ADDR, 1))
+                self.sock.setblocking(True)
+                self._sockSend = self.sock.send
+                self._sockRecv = self.sock.recv
+            else:
+                # Big hack for Mac OS...
+                import serial
+                debug("Opening RFCOMM device %s" % BD_DEVNODE)
+                self.sock = serial.Serial(BD_DEVNODE)
+                self._sockSend = self.sock.write
+                self._sockRecv = self.sock.read
 
             debug("Socket connected.")
-            self.send = SendThread(self.sock)
+            self.send = SendThread(self._sockSend)
             self.send.start()
-            self.recv = RecvThread(self.sock)
+            self.recv = RecvThread(self._sockRecv)
             self.recv.start()
 
             # Finish any unfinished command.
