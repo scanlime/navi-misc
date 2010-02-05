@@ -168,7 +168,6 @@ class SendThread(threading.Thread):
         """Our owm implementation of sendall(), since PyBlueZ
            doesn't have it on Windows hosts.
            """
-        print "TX: %r" % data
         while data and self.running:
             ret = self.sendFn(data[:MAX_SEND_SIZE])
             assert ret > 0
@@ -210,7 +209,6 @@ class RecvThread(threading.Thread):
                 if not self.running:
                     return
                 buf += self.recvFn(size - len(buf))
-            print "RX: %r" % buf
 
             assert len(buf) == size
             cb(buf)
