@@ -159,6 +159,14 @@ PUB add_actuator_buffer(buffer) : okay | i
       quit
 
 
+PUB init_state_buffer(buffer)
+
+  '' Fill a state buffer with default values
+
+  bytefill(buffer, 0, STATE_BUFFER_LEN)
+  bytefill(buffer, $80, 6)
+  bytefill(buffer, $ff, 2)
+       
 PUB add_state_buffer(buffer) : okay | i
 
   '' Add an additional state buffer for this controller to read.
