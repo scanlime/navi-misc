@@ -8,11 +8,11 @@ OBJ
 
 PUB main | pedal
 
-  sew.start
+  sew.start          
   term.start(115200)
 
-  repeat             
-    if sew.isPedalDown
-      sew.runToPosition(sew#CYCLE_BOTTOM)
-    else
-      sew.runToPosition(sew#CYCLE_TOP)
+  repeat
+    repeat until sew.isPedalDown
+    sew.runToPosition(sew#CYCLE_BOTTOM)
+    repeat while sew.isPedalDown
+    sew.runToPosition(sew#CYCLE_TOP)
