@@ -40,28 +40,51 @@ PUB main | value, error, i
     error := hc.SetConfiguration(1)
     term.dec(error)
 
+    bulkRead
+
+    hc.Control($fea1, 0, 0)
+
     term.str(string(term#NL, term#NL, "Bulk Write: "))
-    error := hc.BulkWrite(2, 32, @cbw, 31)
+    error := hc.BulkWrite(2, 64, @cbw, 31)
     term.dec(error)
     term.str(string(term#NL))
 
-    repeat 5
-      term.str(string(term#NL, term#NL, "Bulk Read: "))
-      error := hc.BulkRead(1, 32, @buf, 32)
-      term.dec(error)
-      term.str(string(term#NL))
-      repeat i from 0 to 64
-        term.str(string(" "))
-        term.hex(BYTE[buf + i], 2)
- 
-    waitcnt(cnt + clkfreq/4)
+    bulkRead
+    bulkRead
+    bulkRead
+         
+    waitcnt(cnt + clkfreq*2)
+
+pub bulkRead | value, i
+  term.str(string(term#NL, term#NL, "Bulk Read: "))
+  bytefill(@buf, $42, 64)
+  value := hc.BulkRead(1, 64, @buf, 64)
+  term.dec(value)
+  term.char(term#NL)
+
+  repeat i from 0 to 64
+    term.char(" ")
+    term.hex(BYTE[@buf + i], 2)
+
+  term.char(term#NL)
+
+  repeat i from 0 to 64
+    value := BYTE[@buf + i]
+    if value < 32 or value > 127
+      value := "."
+    term.char(value)
+
 
 DAT
 
 cbw     long  $43425355
-        long  12345       ' tag
-        long  8           ' length
+        long  1           ' tag
+        long  $24         ' length
         byte  $80         ' flags
         byte  0           ' lun
-        byte  1           ' cbLength
-        byte  $25         ' READ_CAPACITY  
+        byte  $6          ' cbLength
+
+        byte  $12, 0, 0, 0, $24, 0  ' INQUIRY
+        'byte  $0, 0, 0, 0, 0, 0  ' TEST_UNIT_READY
+        
+        byte  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 
