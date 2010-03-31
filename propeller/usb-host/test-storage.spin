@@ -9,6 +9,7 @@ OBJ
   
 VAR
   byte  buf[2048]
+  long  epIn, epOut
 
 PUB main | value, error, i
   term.Start(115200)
@@ -27,38 +28,37 @@ PUB main | value, error, i
       term.str(string(")"))
     else
       term.str(string(term#NL, term#NL, "Found device "))
-      term.hex(hc.GetVendorID, 4)
+      term.hex(hc.VendorID, 4)
       term.str(string(":"))
-      term.hex(hc.GetProductID, 4)
+      term.hex(hc.ProductID, 4)
                                       
     term.str(string(term#NL, term#NL, "Device Descriptor:", term#NL))    
     repeat i from 0 to hc#DEVDESC_LEN - 1
       term.str(string(" "))
-      term.hex(BYTE[hc.GetDeviceDescriptor + i], 2)
+      term.hex(BYTE[hc.DeviceDescriptor + i], 2)
 
-    term.str(string(term#NL, term#NL, "SetConfiguration: "))
-    error := hc.SetConfiguration(1)
+    term.str(string(term#NL, term#NL, "Configure: "))
+    error := hc.Configure
     term.dec(error)
 
-    bulkRead
-
-    hc.Control($fea1, 0, 0)
-
+    i := hc.FindInterface(8)
+    epIn := hc.NextEndpoint(i)
+    epOut := hc.NextEndpoint(epIn)
+      
     term.str(string(term#NL, term#NL, "Bulk Write: "))
-    error := hc.BulkWrite(2, 64, @cbw, 31)
+    error := hc.BulkWrite(epOut, @cbw, 31)
     term.dec(error)
     term.str(string(term#NL))
 
     bulkRead
     bulkRead
-    bulkRead
          
-    waitcnt(cnt + clkfreq*2)
+    waitcnt(cnt + clkfreq / 4)
 
 pub bulkRead | value, i
   term.str(string(term#NL, term#NL, "Bulk Read: "))
   bytefill(@buf, $42, 64)
-  value := hc.BulkRead(1, 64, @buf, 64)
+  value := hc.BulkRead(epIn, @buf, 64)
   term.dec(value)
   term.char(term#NL)
 
