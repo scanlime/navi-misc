@@ -15,7 +15,7 @@ VAR
 PUB main
   term.Start(115200)
   hc.Start
-
+        
   repeat
     testHID
     waitcnt(cnt + clkfreq)
@@ -49,8 +49,11 @@ PRI pollForHIDReports(epd) | retval
   retval := hc.InterruptRead(epd, @buf, 64)
   
   if retval == hc#E_TIMEOUT
-    ' No data available. Try again later
-    return
+    ' No data available. Try again later.
+
+    ' Show the button state continuously, but just flash the
+    ' scroll wheel LEDs when we get a scroll packet.
+    blinkenlights(buf[0], 0)
 
   if not showError(retval, string("Read Error"))
     ' Successful transfer
@@ -60,11 +63,23 @@ PRI pollForHIDReports(epd) | retval
     term.str(string(" bytes] "))
     hexDump(@buf, retval)
     term.char(term#NL)
-                                
-    ' Just for fun, map the mouse buttons to the
-    ' LEDs on the Propeller Demo Board
-    dira := $FF << 16
-    outa := buf[0] << 16
+
+    blinkenlights(buf[0], ~buf[6])
+
+PRI blinkenlights(buttons, dz) | leds                           
+  ' Just for fun, map the mouse buttons and scroll wheel
+  ' to the LEDs on the Propeller Demo Board. LEDs 0-5 are
+  ' buttons, and 6-7 are scroll wheel.
+
+  leds := buttons & $3F
+
+  if dz > 0
+    leds |= $40
+  elseif dz < 0
+    leds |= $80
+  
+  dira := $FF << 16
+  outa := leds << 16
   
 PRI hexDump(buffer, len)
   repeat while len--
