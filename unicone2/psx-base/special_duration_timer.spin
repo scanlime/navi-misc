@@ -64,21 +64,26 @@ PUB Main | in_buttons, prev_in, changed, down_ts, state, autorepeat_en, autorepe
     if in_buttons & Rem#BTN_UP
       ' autorepeat on
       autorepeat_en := 1
-      autorepeat_deadline := cnt + (clkfreq * AUTOREPEAT_SEC)
+      autorepeat_deadline := cnt + clkfreq/10
+      Term.Str(String(Term#NL, "Repeat on!"))
+
     if in_buttons & Rem#BTN_DOWN
       ' autorepeat off
       autorepeat_en := 0
+      Term.Str(String(Term#NL, "Repeat off!"))
       
     if (changed & Rem#BTN_X) and (in_buttons & Rem#BTN_X)
       ' X pressed: Trigger
       state := Rem#BTN_CIRCLE
       down_ts := cnt
+      Term.Str(String(Term#NL, "Manual trigger"))
 
     if autorepeat_en and (cnt - autorepeat_deadline) => 0
       ' Autorepeat reached: Trigger 
       state := Rem#BTN_CIRCLE
       down_ts := cnt
       autorepeat_deadline := cnt + (clkfreq * AUTOREPEAT_SEC)
+      Term.Str(String(Term#NL, "Auto trigger"))
       
     if state and (cnt - down_ts) => saved_len
       ' Release
