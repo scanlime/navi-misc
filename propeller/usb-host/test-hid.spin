@@ -55,7 +55,7 @@ PRI pollForHIDReports(epd) | retval
     ' scroll wheel LEDs when we get a scroll packet.
     blinkenlights(buf[0], 0)
 
-  if not showError(retval, string("Read Error"))
+  elseif not showError(retval, string("Read Error"))
     ' Successful transfer
 
     term.char("[")
