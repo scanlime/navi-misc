@@ -13,10 +13,9 @@ VAR
 
 PUB main | value, error, i
   term.Start(115200)
-  hc.Start
 
   repeat
-    error := hc.Enumerate
+    error := \hc.Enumerate
 
     term.str(string(term#CS))
     
@@ -38,7 +37,7 @@ PUB main | value, error, i
       term.hex(BYTE[hc.DeviceDescriptor + i], 2)
 
     term.str(string(term#NL, term#NL, "Configure: "))
-    error := hc.Configure
+    error := \hc.Configure
     term.dec(error)
 
     i := hc.FindInterface(8)
@@ -46,7 +45,7 @@ PUB main | value, error, i
     epOut := hc.NextEndpoint(epIn)
       
     term.str(string(term#NL, term#NL, "Bulk Write: "))
-    error := hc.BulkWrite(epOut, @cbw, 31)
+    error := \hc.BulkWrite(epOut, @cbw, 31)
     term.dec(error)
     term.str(string(term#NL))
 
@@ -58,7 +57,7 @@ PUB main | value, error, i
 pub bulkRead | value, i
   term.str(string(term#NL, term#NL, "Bulk Read: "))
   bytefill(@buf, $42, 64)
-  value := hc.BulkRead(epIn, @buf, 64)
+  value := \hc.BulkRead(epIn, @buf, 64)
   term.dec(value)
   term.char(term#NL)
 

@@ -8,7 +8,6 @@ OBJ
   
 PUB main
   term.Start(115200)
-  hc.Start
 
   repeat
     testEnumerate
@@ -16,8 +15,8 @@ PUB main
 
 PRI testEnumerate
                     
-  if showError(hc.Enumerate, string(term#CS, "Can't enumerate device"))
-    return
+  if showError(\hc.Enumerate, string(term#CS, "Can't enumerate device"))
+    return         
 
   term.str(string(term#CS, "Found device "))
   term.hex(hc.VendorID, 4)
@@ -30,7 +29,7 @@ PRI testEnumerate
   term.str(string(term#NL, term#NL, "Device configuration:", term#NL))
   dumpConfig
   
-  if showError(hc.Configure, string("Error configuring device"))
+  if showError(\hc.Configure, string("Error configuring device"))
     return
 
 PRI hexDump(buffer, len)
