@@ -14,7 +14,6 @@ VAR
 
 PUB main
   term.Start(115200)
-  hc.Start
         
   repeat
     testHID
@@ -22,7 +21,7 @@ PUB main
 
 PRI testHID | ifd, epd
                     
-  if showError(hc.Enumerate, string(term#CS, "Can't enumerate device"))
+  if showError(\hc.Enumerate, string(term#CS, "Can't enumerate device"))
     return
 
   term.str(string(term#CS, "Found device "))
@@ -31,7 +30,7 @@ PRI testHID | ifd, epd
   term.hex(hc.ProductID, 4)
   term.str(string(term#NL, term#NL))
   
-  if showError(hc.Configure, string("Error configuring device"))
+  if showError(\hc.Configure, string("Error configuring device"))
     return
 
   if not (ifd := hc.FindInterface(3))
@@ -46,7 +45,7 @@ PRI testHID | ifd, epd
 
 PRI pollForHIDReports(epd) | retval
 
-  retval := hc.InterruptRead(epd, @buf, 64)
+  retval := \hc.InterruptRead(epd, @buf, 64)
   
   if retval == hc#E_TIMEOUT
     ' No data available. Try again later.
