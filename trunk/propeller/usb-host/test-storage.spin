@@ -50,17 +50,22 @@ PRI testStorage
   
   term.str(string(term#NL, "SCSI INQUIRY:", term#NL))
   storage.SCSI_CB_Begin(storage#INQUIRY, 6)
-  showError(\storage.SCSI_Command(@replyBuf, $24, storage#DIR_IN, storage#DEFAULT_TIMEOUT), string("Cmd"))
+  showError(\storage.SCSI_Command(@replyBuf, $24, storage#DIR_IN, storage#DEFAULT_TIMEOUT), string("Inquiry"))
   hexDump(@replyBuf, $24)
 
-  ' Read and hexdump the first disk sector (Usually the MBR)
+  ' Read and hexdump a disk sector
+  showSector($01)  
 
-  term.str(string(term#NL, "First disk sector:", term#NL))
-  showError(\storage.ReadSectors(@replyBuf, 0, 1), string("Cmd"))
+PRI showSector(num)
+  term.str(string(term#NL, "Disk sector "))
+  term.hex(num, 8)
+  term.str(string(":", term#NL))
+  showError(\storage.ReadSectors(@replyBuf, num, 1), string("ReadSectors"))
   hexDump(@replyBuf, storage.SectorSize)
 
-  
 PRI hexDump(buffer, bytes) | x, y, b
+  ' A basic 16-byte-wide hex/ascii dump
+
   repeat y from 0 to ((bytes + 15) >> 4) - 1
     term.hex(y << 4, 4)
     term.str(string(": "))
