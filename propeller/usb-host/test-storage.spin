@@ -35,33 +35,31 @@ PRI testStorage
 
   ' Show the information that our usb-storage driver collected about the device
   
-  term.str(string(term#NL, "Sector Size: "))
-  term.dec(storage.SectorSize)
   term.str(string(term#NL, "Number of Sectors: "))
   term.hex(storage.NumSectors, 8)
-
-  ' Calculate disk capacity in megabytes
-
   term.str(string(" ("))
-  term.dec(storage.NumSectors / ($100000 / storage.SectorSize))
+  term.dec(storage.NumSectors >> 11)
   term.str(string(" MB)", term#NL))
   
   ' Use the low-level SCSI interface to send an INQUIRY packet.
-  
+
   term.str(string(term#NL, "SCSI INQUIRY:", term#NL))
   storage.SCSI_CB_Begin(storage#INQUIRY, 6)
   showError(\storage.SCSI_Command(@replyBuf, $24, storage#DIR_IN, storage#DEFAULT_TIMEOUT), string("Inquiry"))
   hexDump(@replyBuf, $24)
 
-  ' Read and hexdump a disk sector
-  showSector($01)  
+  showError(\showSectors, string("Error reading disk sectors"))
+
+PRI showSectors | i
+  repeat i from 0 to $FF
+    showSector(i)  
 
 PRI showSector(num)
   term.str(string(term#NL, "Disk sector "))
   term.hex(num, 8)
   term.str(string(":", term#NL))
-  showError(\storage.ReadSectors(@replyBuf, num, 1), string("ReadSectors"))
-  hexDump(@replyBuf, storage.SectorSize)
+  storage.ReadSectors(@replyBuf, num, 1)
+  hexDump(@replyBuf, storage#SECTORSIZE)
 
 PRI hexDump(buffer, bytes) | x, y, b
   ' A basic 16-byte-wide hex/ascii dump
