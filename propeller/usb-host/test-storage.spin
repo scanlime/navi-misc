@@ -1,14 +1,18 @@
+' WARNING: This test may destroy any data on the USB storage device you test it with!
 
 CON
   _clkmode = xtal1 + pll16x
   _xinfreq = 6_000_000
 
+  ' Which LBA do we clobber with our test?
+  TEST_LBA = (8 * 1024 * 1024) / 512
+  
 OBJ
   storage : "usb-storage"
   term : "Parallax Serial Terminal"
 
 VAR
-  byte  replyBuf[1024]
+  byte  buf[1024]
   
 PUB main
   term.Start(115200)
@@ -45,21 +49,37 @@ PRI testStorage
 
   term.str(string(term#NL, "SCSI INQUIRY:", term#NL))
   storage.SCSI_CB_Begin(storage#INQUIRY, 6)
-  showError(\storage.SCSI_Command(@replyBuf, $24, storage#DIR_IN, storage#DEFAULT_TIMEOUT), string("Inquiry"))
-  hexDump(@replyBuf, $24)
+  showError(\storage.SCSI_Command(@buf, $24, storage#DIR_IN, storage#DEFAULT_TIMEOUT), string("Inquiry"))
+  hexDump(@buf, $24)
 
+  'showError(\writeSectors, string("Error writing disk sectors"))
   showError(\showSectors, string("Error reading disk sectors"))
+
+PRI writeSectors | i
+  repeat i from 0 to $FF
+    writeSector(TEST_LBA + i)    
 
 PRI showSectors | i
   repeat i from 0 to $FF
-    showSector(i)  
+    showSector(TEST_LBA + i)  
+
+PRI writeSector(num)
+  term.str(string(term#NL, "Writing Disk sector "))
+  term.hex(num, 8)
+
+  ' Fill it with repeating copies of its sector number's 8 LSBs.
+  bytefill(@buf, num, storage#SECTORSIZE)
+
+  ' Put a string at a known address
+  bytemove(@buf+16, string("Hello World"), 11) 
+  storage.WriteSectors(@buf, num, 1)
 
 PRI showSector(num)
   term.str(string(term#NL, "Disk sector "))
   term.hex(num, 8)
   term.str(string(":", term#NL))
-  storage.ReadSectors(@replyBuf, num, 1)
-  hexDump(@replyBuf, storage#SECTORSIZE)
+  storage.ReadSectors(@buf, num, 1)
+  hexDump(@buf, storage#SECTORSIZE)
 
 PRI hexDump(buffer, bytes) | x, y, b
   ' A basic 16-byte-wide hex/ascii dump
