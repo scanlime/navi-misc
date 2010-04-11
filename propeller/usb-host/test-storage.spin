@@ -52,12 +52,12 @@ PRI testStorage
   showError(\storage.SCSI_Command(@buf, $24, storage#DIR_IN, storage#DEFAULT_TIMEOUT), string("Inquiry"))
   hexDump(@buf, $24)
 
-  'showError(\writeSectors, string("Error writing disk sectors"))
+  showError(\writeSectors, string("Error writing disk sectors"))
   showError(\showSectors, string("Error reading disk sectors"))
 
 PRI writeSectors | i
   repeat i from 0 to $FF
-    writeSector(TEST_LBA + i)    
+    writeSector(TEST_LBA + i)
 
 PRI showSectors | i
   repeat i from 0 to $FF
