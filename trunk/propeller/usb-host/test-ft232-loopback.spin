@@ -37,6 +37,7 @@ VAR
   byte  pattern
   word  burstSize
   long  baudRate
+  long  debug
 
   long  testCount
   long  errCounts[NUM_ERROR_BUCKETS]
@@ -44,7 +45,7 @@ VAR
 PUB main | uiPeriod, nextUpdate
   term.Start(115200)
   baudRate := 1000000
-  burstSize := 1
+  burstSize := 16
 
   dira[PIN_TX_TRIGGER]~~
   dira[PIN_RX_TRIGGER]~~
@@ -89,6 +90,7 @@ uiTemplate    byte      term#CS
               byte      term#PC, 4, 3, "Baud Rate: [Q/A]"
               byte      term#PC, 3, 4, "Burst Size: [W/S]"
               byte      term#PC, 6, 5, "Pattern: [E/D]"
+              byte      term#PC, 5, 6, "HC Debug: [R/F]"
 
               byte      term#PC, 30, 2, "Errors"
               byte      term#PC, 34, 3, "Success:"
@@ -99,6 +101,9 @@ uiTemplate    byte      term#CS
               byte      term#PC, 32, 8, "Too Short:"
               byte      term#PC, 33, 9, "Too Long:"
               byte      term#PC, 36, 10, "Other:"
+
+              byte      term#PC, 1, 11, "Last bad data buffer:"
+              byte      term#PC, 1, 16, "Error rate chart:"
               
               byte      0
             
@@ -114,6 +119,8 @@ PUB uiUpdate | i
       "s": burstSize := (burstSize - 1) #> 1
       "e": pattern++
       "d": pattern--
+      "r": debug++
+      "f": debug--
 
       "Q": baudRate := (baudRate + 1000) <# 1000000
       "A": baudRate := (baudRate - 1000) #> 100
@@ -123,7 +130,7 @@ PUB uiUpdate | i
       "D": pattern -= $10
 
       other: term.str(@uiTemplate)
-
+      
   term.str(string(term#HM, term#PX, 36))
   term.dec(testCount)
 
@@ -133,6 +140,11 @@ PUB uiUpdate | i
   term.dec(burstSize)
   term.str(string("  ", term#PC, 21, 5))
   term.hex(pattern, 2)
+  term.str(string("  ", term#PC, 21, 6))
+  term.dec(debug)
+  term.str(string("  "))
+  
+  ' Update error buckets
 
   repeat i from 0 to NUM_ERROR_BUCKETS - 1
     term.position(43, 3 + i)
@@ -141,11 +153,28 @@ PUB uiUpdate | i
 
     term.position(50, 3 + i)
     term.char("(")
-    term.dec(errCounts[i] * 100 / testCount)
-    term.str(string("%)   "))
+    term.dec(errCounts[i] * 100/ testCount)
+    term.str(string("%)", term#CE))
+    
+  ' Update error rate bargraph chart.
+  ' Each row represents one burst size, bar length is error rate.
+  term.position(1, 17 + ($f & (burstSize - 1)))
+  term.dec(burstSize)
+  term.str(string(" "))
+  term.positionX(6)
+  term.chars("#", (testCount - errCounts[0]) * 60 / testCount)
+  term.char(term#CE)
 
+PUB showBadData | i
+  ' Dump out data buffer
+  term.position(0, 12)
+  repeat i from 0 to burstSize - 1
+    term.char(" ")
+    term.hex(buf[i], 2)
+  term.char(term#CE)
 
 PUB runTest | len, i
+  hc.SetDebugFlags(debug)
   uart.SetBaud(baudRate)
 
   bytefill(@buf, pattern, burstSize)
@@ -163,6 +192,7 @@ PUB runTest | len, i
     if len == burstSize
       repeat i from 0 to burstSize - 1
         if buf[i] <> pattern
+          showBadData
           abort E_BAD_DATA 
       return
         
