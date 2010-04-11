@@ -57,6 +57,7 @@ pub start
       term.CharIn
       ' if these fail, comment out the next line
       mounttests
+      dir
       rawspeed
       fsrwspeed
       sdfat.unmount
@@ -108,6 +109,22 @@ pub mounttests | r, startcnt, bytes, n, duration, i
    stop_block_layer
    term.str(string("Block layer seems to check out", 13))
    return
+
+pub dir
+   ' Directory listing
+   term.str(string(term#NL, "Directory listing:", term#NL))
+   sdfat.opendir
+   repeat while 0 == sdfat.nextfile(@bigbuf)
+      ' show the filename
+      term.str(@bigbuf)
+      repeat 15 - strsize(@bigbuf)
+         term.char(" ")
+      sdfat[1].popen(@bigbuf, "r")
+      term.dec(sdfat[1].get_filesize)
+      sdfat[1].pclose      
+      term.str(string( " bytes", term#NL ))
+   term.char(term#NL)
+      
 pub showspeed(b) | duration, bytes
    duration := long[b][1]
    bytes := long[b][2]
