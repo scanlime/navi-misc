@@ -57,7 +57,6 @@ pub start
       term.CharIn
       ' if these fail, comment out the next line
       mounttests
-      dir
       rawspeed
       fsrwspeed
       sdfat.unmount
@@ -111,7 +110,6 @@ pub mounttests | r, startcnt, bytes, n, duration, i
    return
 
 pub dir
-   ' Directory listing
    term.str(string(term#NL, "Directory listing:", term#NL))
    sdfat.opendir
    repeat while 0 == sdfat.nextfile(@bigbuf)
@@ -124,6 +122,7 @@ pub dir
       sdfat[1].pclose      
       term.str(string( " bytes", term#NL ))
    term.char(term#NL)
+   stop_block_layer
       
 pub showspeed(b) | duration, bytes
    duration := long[b][1]
@@ -203,6 +202,8 @@ pub fsrwspeed | r, startcnt, bytes, n, duration, i
    term.str(string("Trying to mount",13))
    sdfat.mount_explicit(0,0,0,0)
    term.str(string("Mounted.",13))
+   dir
+
    ' determine the write speed first, then use that size for the read
    term.str(string("How fast can we write using pwrite?",13))
    n := 0
