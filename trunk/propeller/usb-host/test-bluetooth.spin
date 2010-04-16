@@ -23,10 +23,19 @@ PUB setupBT
   term.str(string("Bluetooth Address: "))
   term.str(bt.BDAddressString)
   term.char(term#NL)
+  showPerfCounters
 
+  term.str(string("Setting class of device", term#NL))
   bt.SetClassOfDevice($000100)
+  showPerfCounters
+
+  term.str(string("Setting local name", term#NL))
   bt.SetLocalName(string("Propeller"))
+  showPerfCounters
+
+  term.str(string("Setting device as discoverable", term#NL))
   bt.SetDiscoverable
+  showPerfCounters
 
 PRI testBT | i
 
@@ -44,6 +53,10 @@ PRI testBT | i
   if showError(\setupBT, string("Error initializing Bluetooth device"))
     return
 
+  term.str(string("Bluetooth Address: "))
+  term.str(bt.BDAddressString)
+  term.char(term#NL)
+  
   bt.HCIcmd_Begin(bt#CB_ReadClassOfDevice)
   if not showError(\bt.HCIcmd_Wait, string("Error sending cmd"))
     term.str(string("Read Class : "))
@@ -91,3 +104,11 @@ PRI showError(error, message) : bool
     term.str(string(")", term#NL))
     return 1
   return 0
+
+PRI showPerfCounters | i
+  term.str(string("Perf:"))
+  repeat i from 0 to bt#PERFMAX-1
+    term.char(" ")
+    term.dec(LONG[(i<<2) + bt.GetPerfCounters])
+  term.char(term#NL)
+ 
