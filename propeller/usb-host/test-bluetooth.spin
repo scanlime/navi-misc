@@ -9,6 +9,9 @@ OBJ
   hc : "usb-fs-host"
   term : "Parallax Serial Terminal"
 
+VAR
+  byte addr[6]
+  
 PUB main
   term.Start(115200)
 
@@ -21,21 +24,17 @@ PUB setupBT
   bt.Init
 
   term.str(string("Bluetooth Address: "))
-  term.str(bt.BDAddressString)
+  term.str(bt.AddressToString(bt.ReadBDAddress))
   term.char(term#NL)
-  showPerfCounters
 
   term.str(string("Setting class of device", term#NL))
-  bt.SetClassOfDevice($000100)
-  showPerfCounters
+  bt.WriteClassOfDevice($000100)
 
   term.str(string("Setting local name", term#NL))
-  bt.SetLocalName(string("Propeller"))
-  showPerfCounters
+  bt.WriteLocalName(string("Propeller"))
 
   term.str(string("Setting device as discoverable", term#NL))
   bt.SetDiscoverable
-  showPerfCounters
 
 PRI testBT | i
 
@@ -53,26 +52,28 @@ PRI testBT | i
   if showError(\setupBT, string("Error initializing Bluetooth device"))
     return
 
-  term.str(string("Bluetooth Address: "))
-  term.str(bt.BDAddressString)
-  term.char(term#NL)
+  showPerfCounters
+  showError(\inquiry, string("Error in inquiry"))
+  showPerfCounters
   
-  bt.HCIcmd_Begin(bt#CB_ReadClassOfDevice)
-  if not showError(\bt.HCIcmd_Wait, string("Error sending cmd"))
-    term.str(string("Read Class : "))
-    term.dec(bt.HCIevt_ParamSize)
-    term.char(term#NL)
-    hexDump(bt.HCIevt_Buffer, bt.HCIevt_ParamSize)
-
-  bt.HCIcmd_Begin(bt#CB_ReadLocalName)
-  if not showError(\bt.HCIcmd_Wait, string("Error sending cmd"))
-    term.str(string("Read local name : "))
-    term.dec(bt.HCIevt_ParamSize)
-    term.char(term#NL)
-    hexDump(bt.HCIevt_Buffer, bt.HCIevt_ParamSize)
+  term.str(string("Looking for Wiimote... "))
+  if not showError(\bt.FindDeviceByClass($002504, @addr, 5), string("Error in inquiry"))
+    term.str(bt.AddressToString(@addr))
+  term.char(term#NL)
 
   repeat while hc.GetPortConnection == hc#PORTC_FULL_SPEED
-
+    
+    
+PRI inquiry
+  term.str(string("Inquiry...", term#NL))
+  if not showError(\bt.Inquiry(1), string("Error sending inquiry"))
+    repeat while bt.Inquiry_Next
+      term.str(bt.AddressToString(bt.Inquiry_BDAddress))
+      term.str(string(" class="))
+      term.hex(bt.Inquiry_Class, 6)
+      term.char(term#NL)
+    term.str(string("Done!", term#NL))
+  
 PRI hexDump(buffer, bytes) | x, y, b
   ' A basic 16-byte-wide hex/ascii dump
 
