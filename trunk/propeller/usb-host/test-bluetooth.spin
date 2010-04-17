@@ -7,13 +7,14 @@ CON
 OBJ
   bt : "usb-bluetooth"
   hc : "usb-fs-host"
-  term : "Parallax Serial Terminal"
+  term : "tv_text"  
 
 VAR
-  byte addr[6]
+  byte localAddr[6]
+  byte remoteAddr[6]
   
 PUB main
-  term.Start(115200)
+  term.start(12)
 
   repeat
     testBT
@@ -23,56 +24,64 @@ PUB setupBT
 
   bt.Init
 
-  term.str(string("Bluetooth Address: "))
-  term.str(bt.AddressToString(bt.ReadBDAddress))
-  term.char(term#NL)
+  term.out(0)
+  term.str(string("Local BDAddress: ", $C, $83))
+  bytemove(@localAddr, bt.ReadBDAddress, 6)
+  term.str(bt.AddressToString(@localAddr))
+  term.str(string($D, $C, $80))
 
-  term.str(string("Setting class of device", term#NL))
   bt.WriteClassOfDevice($000100)
-
-  term.str(string("Setting local name", term#NL))
   bt.WriteLocalName(string("Propeller"))
-
-  term.str(string("Setting device as discoverable", term#NL))
   bt.SetDiscoverable
 
 PRI testBT | i
 
-  term.char(term#CS)
-
   if showError(\bt.Enumerate, string("Can't enumerate device"))
     return         
 
-  if bt.Identify
-    term.str(string("Identified as Bluetooth HCI", term#NL))
-  else
-    term.str(string("NOT a bluetooth device!", term#NL))
+  if not bt.Identify
+    term.str(string("NOT a bluetooth device!", 13))
     return
 
   if showError(\setupBT, string("Error initializing Bluetooth device"))
     return
 
-  showPerfCounters
-  showError(\inquiry, string("Error in inquiry"))
-  showPerfCounters
-  
-  term.str(string("Looking for Wiimote... "))
-  if not showError(\bt.FindDeviceByClass($002504, @addr, 5), string("Error in inquiry"))
-    term.str(bt.AddressToString(@addr))
-  term.char(term#NL)
+  showError(\initWiimote, string("Error testing wiimote"))
 
+  term.str(string(13, "Done"))
   repeat while hc.GetPortConnection == hc#PORTC_FULL_SPEED
-    
-    
+
+PRI initWiimote | cHandle
+
+  repeat
+    term.dec(\bt.HCIevt_WaitMS(1000))
+    term.out(" ")
+
+  term.str(string("Looking for wiimote.. "))
+  bt.FindDeviceByClass($002504, @remoteAddr, 10)
+  term.str(bt.AddressToString(@remoteAddr))
+
+  ' PIN is the first 3 bytes of our BDADDR.
+  bt.SendPIN(@remoteAddr, @localAddr, 3)
+
+  term.str(string(13, "Connecting... "))
+  cHandle := bt.Connect(@remoteAddr)
+  term.dec(cHandle)
+
+  
+  repeat 100
+    bt.Write(cHandle)
+
+
 PRI inquiry
-  term.str(string("Inquiry...", term#NL))
+  term.str(string("Inquiry...", 13))
   if not showError(\bt.Inquiry(1), string("Error sending inquiry"))
     repeat while bt.Inquiry_Next
       term.str(bt.AddressToString(bt.Inquiry_BDAddress))
       term.str(string(" class="))
       term.hex(bt.Inquiry_Class, 6)
-      term.char(term#NL)
-    term.str(string("Done!", term#NL))
+      term.out(13)
+    term.str(string("Done!", 13))
   
 PRI hexDump(buffer, bytes) | x, y, b
   ' A basic 16-byte-wide hex/ascii dump
@@ -83,33 +92,33 @@ PRI hexDump(buffer, bytes) | x, y, b
 
     repeat x from 0 to 15
       term.hex(BYTE[buffer + x + (y<<4)], 2)
-      term.char(" ")
+      term.out(" ")
 
-    term.char(" ")
+    term.out(" ")
 
     repeat x from 0 to 15
       b := BYTE[buffer + x + (y<<4)]
       case b
         32..126:
-          term.char(b)
+          term.out(b)
         other:
-          term.char(".")
+          term.out(".")
 
-    term.char(term#NL)
+    term.out(13)
     
 PRI showError(error, message) : bool
   if error < 0
     term.str(message)
     term.str(string(" (Error "))
     term.dec(error)
-    term.str(string(")", term#NL))
+    term.str(string(")", 13))
     return 1
   return 0
 
 PRI showPerfCounters | i
   term.str(string("Perf:"))
   repeat i from 0 to bt#PERFMAX-1
-    term.char(" ")
+    term.out(" ")
     term.dec(LONG[(i<<2) + bt.GetPerfCounters])
-  term.char(term#NL)
+  term.out(13)
  
