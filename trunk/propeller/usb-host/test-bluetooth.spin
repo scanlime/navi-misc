@@ -6,7 +6,6 @@ CON
   
 OBJ
   bt : "bluetooth-host"
-  hc : "usb-fs-host"
   term : "tv_text"
   
 PUB main
@@ -26,18 +25,19 @@ PUB main
 
   'showConnections
   'showDiscovery
-  aclDebug
+  debug
 
-PRI aclDebug | ptr
+PRI debug | ptr
   repeat
     term.out($a)
     term.out(0)
     term.out($b)
     term.out(3)
 
-    ptr := bt.XXX_ACLBuffer
-    repeat 64
-      term.hex(BYTE[ptr++], 2)
+    ptr := $4000
+    repeat 16
+      term.hex(LONG[ptr], 8)
+      ptr += 4
       term.out(" ")
   
 PRI showConnections | i
