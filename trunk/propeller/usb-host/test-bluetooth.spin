@@ -25,8 +25,21 @@ PUB main
   term.str(string(" ", $C, $80, $D))
 
   'showConnections
-  showDiscovery
+  'showDiscovery
+  aclDebug
 
+PRI aclDebug | ptr
+  repeat
+    term.out($a)
+    term.out(0)
+    term.out($b)
+    term.out(3)
+
+    ptr := bt.XXX_ACLBuffer
+    repeat 64
+      term.hex(BYTE[ptr++], 2)
+      term.out(" ")
+  
 PRI showConnections | i
   repeat
     repeat i from 0 to 7
