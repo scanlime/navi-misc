@@ -18,6 +18,8 @@ PUB main
   bt.SetName(string("Propeller"))
   bt.SetClass(bt#COD_Computer)
   bt.SetDiscoverable
+  bt.AddService(@mySerialService)
+  bt.AddService(@myService2)
   
   term.str(string("Done.", $D, "Local Address: ", $C, $85, " "))
   term.str(bt.AddressToString(bt.LocalAddress))
@@ -77,3 +79,62 @@ PRI showError(error, message) : bool
     term.str(string(")", 13))
     return 1
   return 0
+
+
+DAT
+mySerialService
+
+    word  0                                ' Link
+    byte  bt#DE_Seq8, @t0 - @h0            ' <sequence>
+h0      
+
+    byte    bt#DE_Uint16, $00,$00          '   ServiceRecordHandle
+    byte    bt#DE_Uint32, $00,$01,$00,$02  '     (Arbitrary unique value)
+
+    byte    bt#DE_Uint16, $00,$01          '   ServiceClassIDList
+    byte    bt#DE_Seq8, @t1 - @h1          '   <sequence>
+h1  byte      bt#DE_UUID16, $11,$01        '     SerialPort
+t1
+
+    byte    bt#DE_Uint16, $00,$04          '   ProtocolDescriptorList
+    byte    bt#DE_Seq8, @t2 - @h2          '   <sequence>
+h2  byte      bt#DE_Seq8, @t3 - @h3        '     <sequence>
+h3  byte        bt#DE_UUID16, $01,$00      '       L2CAP
+t3  byte      bt#DE_Seq8, @t4 - @h4        '     <sequence>
+h4  byte        bt#DE_UUID16, $00,$03      '       RFCOMM
+    byte        bt#DE_Uint8, $03           '       Channel
+t4
+t2
+
+    byte    bt#DE_Uint16, $00,$05          '   BrowseGroupList
+    byte    bt#DE_Seq8, @t5 - @h5        '   <sequence>
+h5  byte      bt#DE_UUID16, $10,$02        '     PublicBrowseGroup
+t5
+
+    byte    bt#DE_Uint16, $00,$09          '   BluetoothProfileDescriptorList
+    byte    bt#DE_Seq8, @t7 - @h7          '   <sequence>
+h7  byte      bt#DE_Seq8, @t8 - @h8        '     <sequence>
+h8  byte      bt#DE_UUID16, $11,$01        '       SerialPort
+    byte      bt#DE_Uint16, $01,$00        '       Version 1.0
+t8
+t7              
+
+    byte    bt#DE_Uint16, $01,$00          '   ServiceName + Language Base
+    byte    bt#DE_Text8, @t9 - @h9
+h9  byte      "Propeller Virtual Serial Port"
+t9
+
+t0
+
+myService2
+
+    word  0                                ' Link
+    byte  bt#DE_Seq8, @tx - @hx            ' <sequence>
+hx      
+
+    byte    bt#DE_Uint16, $01,$00          '   ServiceName + Language Base
+    byte    bt#DE_Text8, @ty - @hy
+hy  byte      "This is another long string widget, for testing continuation records and stuff. Woo......."
+ty
+
+tx
