@@ -18,6 +18,7 @@ PUB main
   bt.SetName(string("Propeller"))
   bt.SetClass(bt#COD_Computer)
   bt.SetDiscoverable
+  bt.SetFixedPIN(string("zugzug"))
   bt.AddService(@mySerialService)
   bt.AddService(@myService2)
   
