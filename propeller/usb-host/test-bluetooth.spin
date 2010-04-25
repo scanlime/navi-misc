@@ -20,7 +20,6 @@ PUB main
   bt.SetDiscoverable
   bt.SetFixedPIN(string("zugzug"))
   bt.AddService(@mySerialService)
-  bt.AddService(@myService2)
   
   term.str(string("Done.", $D, "Local Address: ", $C, $85, " "))
   term.str(bt.AddressToString(bt.LocalAddress))
@@ -108,9 +107,16 @@ t4
 t2
 
     byte    bt#DE_Uint16, $00,$05          '   BrowseGroupList
-    byte    bt#DE_Seq8, @t5 - @h5        '   <sequence>
+    byte    bt#DE_Seq8, @t5 - @h5          '   <sequence>
 h5  byte      bt#DE_UUID16, $10,$02        '     PublicBrowseGroup
 t5
+
+    byte    bt#DE_Uint16, $00,$06          '   LanguageBaseAttributeIDList
+    byte    bt#DE_Seq8, @t16 - @h16        '   <sequence>
+h16 byte      bt#DE_Uint16, $65,$6e        '     Language
+    byte      bt#DE_Uint16, $00,$6a        '     Encoding
+    byte      bt#DE_Uint16, $01,$00        '     Base attribute ID value
+t16             
 
     byte    bt#DE_Uint16, $00,$09          '   BluetoothProfileDescriptorList
     byte    bt#DE_Seq8, @t7 - @h7          '   <sequence>
@@ -121,21 +127,9 @@ t8
 t7              
 
     byte    bt#DE_Uint16, $01,$00          '   ServiceName + Language Base
-    byte    bt#DE_Text8, @t9 - @h9
-h9  byte      "Propeller Virtual Serial Port"
-t9
+    byte    bt#DE_Text8, @t19 - @h19
+h19 byte      "Serial"
+t19
+
 
 t0
-
-myService2
-
-    word  0                                ' Link
-    byte  bt#DE_Seq8, @tx - @hx            ' <sequence>
-hx      
-
-    byte    bt#DE_Uint16, $01,$00          '   ServiceName + Language Base
-    byte    bt#DE_Text8, @ty - @hy
-hy  byte      "This is another long string widget, for testing continuation records and stuff. Woo......."
-ty
-
-tx
