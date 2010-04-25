@@ -11,6 +11,8 @@ OBJ
 
 VAR
   word  socket
+  long  rxCount
+  long  errCount
   
 PUB main
   term.start(12)
@@ -39,37 +41,51 @@ PRI terminal | tmp
     if (tmp := rx.RxCheck) > 0
       term.out(tmp)
   
-PRI debug | ptr
+PRI debug | t
   repeat
     term.out($a)
     term.out(0)
     term.out($b)
     term.out(3)
 
-    ptr := socket
+    ' Raw socket struct
+    t := socket
+    term.str(string("Socket: "))
     repeat 5
-      term.hex(WORD[ptr], 4)
-      ptr += 2
+      term.hex(WORD[t], 4)
+      t += 2
       term.out(" ")
 
-    repeat 2
-      term.out(13)
+    ' Raw ring struct
+    t := rx.Ring
+    term.str(string(13, "  Ring: "))
+    repeat 4
+      term.hex(WORD[t], 4)
+      t += 2
+      term.out(" ")
+
+    ' Temporary debugging
+    t := $4000
+    term.str(string(13, " Debug: "))
+    repeat 6
+      term.hex(WORD[t], 4)
+      t += 2
+      term.out(" ")
+
+    ' count and show error codes
+    term.str(string(13, "Errors: "))
+    if t := bt.GetLastError
+      errCount++
+      term.dec(errCount)
+      term.out(" ")
+      term.dec(t)
+
+    ' Incoming data
+    term.str(string(13, 13, " Bytes: "))
+    repeat while (t := rx.RxCheck) => 0
+      rxCount++
+    term.dec(rxCount)
     
-    ptr := rx.Ring
-    repeat 16
-      term.hex(LONG[ptr], 8)
-      ptr += 4
-      term.out(" ")
-
-    repeat 2
-      term.out(13)
-
-    repeat while (ptr := rx.RxCheck) > 0
-    if ptr > 0  
-      term.out(ptr)
-      term.out(" ")
-      term.hex(ptr, 2)
-
 PRI showDiscovery | i, count
   bt.DiscoverDevices(30)
   repeat
