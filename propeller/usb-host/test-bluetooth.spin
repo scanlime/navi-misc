@@ -6,7 +6,11 @@ CON
   
 OBJ
   bt : "bluetooth-host"
+  rx : "bluetooth-ring"
   term : "tv_text"
+
+VAR
+  word  socket
   
 PUB main
   term.start(12)
@@ -20,15 +24,21 @@ PUB main
   bt.SetDiscoverable
   bt.SetFixedPIN(string("zugzug"))
   bt.AddService(@mySerialService)
+  socket := bt.ListenRFCOMM(3, rx.Ring, 0)
   
   term.str(string("Done.", $D, "Local Address: ", $C, $85, " "))
   term.str(bt.AddressToString(bt.LocalAddress))
   term.str(string(" ", $C, $80, $D))
 
-  'showConnections
   'showDiscovery
+  'terminal
   debug
 
+PRI terminal | tmp
+  repeat
+    if (tmp := rx.RxCheck) > 0
+      term.out(tmp)
+  
 PRI debug | ptr
   repeat
     term.out($a)
@@ -36,20 +46,29 @@ PRI debug | ptr
     term.out($b)
     term.out(3)
 
-    ptr := $4000
+    ptr := socket
+    repeat 5
+      term.hex(WORD[ptr], 4)
+      ptr += 2
+      term.out(" ")
+
+    repeat 2
+      term.out(13)
+    
+    ptr := rx.Ring
     repeat 16
       term.hex(LONG[ptr], 8)
       ptr += 4
       term.out(" ")
-  
-PRI showConnections | i
-  repeat
-    repeat i from 0 to 7
-      term.str(string($A, 3, $B))
-      term.out(4+i)
-      term.hex(i, 4)
+
+    repeat 2
+      term.out(13)
+
+    repeat while (ptr := rx.RxCheck) > 0
+    if ptr > 0  
+      term.out(ptr)
       term.out(" ")
-      term.str(bt.AddressToString(\bt.ConnectionAddress(i)))
+      term.hex(ptr, 2)
 
 PRI showDiscovery | i, count
   bt.DiscoverDevices(30)
