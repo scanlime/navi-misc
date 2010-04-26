@@ -13,6 +13,11 @@ VAR
   word  socket
   long  rxCount
   long  errCount
+
+  ' Bytes per second
+  long  bpsDeadline
+  long  bpsCount
+  long  bps
   
 PUB main
   term.start(12)
@@ -42,6 +47,8 @@ PRI terminal | tmp
       term.out(tmp)
   
 PRI debug | t
+  bpsDeadline := cnt
+  
   repeat
     term.out($a)
     term.out(0)
@@ -79,12 +86,21 @@ PRI debug | t
       term.dec(errCount)
       term.out(" ")
       term.dec(t)
-
+                            
     ' Incoming data
     term.str(string(13, 13, " Bytes: "))
-    repeat while (t := rx.RxCheck) => 0
-      rxCount++
+    rxCount += rx.RxFlush
     term.dec(rxCount)
+   
+    ' Count bytes per second
+    if (cnt - bpsDeadline) > 0
+      bpsDeadline += clkfreq
+      bps := rxCount - bpsCount
+      bpsCount := rxCount
+    term.str(string(" ("))
+    term.dec(bps)
+    term.str(string(" B/s)    "))
+      
     
 PRI showDiscovery | i, count
   bt.DiscoverDevices(30)
