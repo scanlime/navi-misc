@@ -29,7 +29,7 @@ PUB main
   bt.SetName(string("Propeller"))
   bt.SetClass(bt#COD_Computer)
   bt.SetDiscoverable
-  bt.SetFixedPIN(string("zugzug"))
+  bt.SetFixedPIN(string("0000"))
   bt.AddService(@mySerialService)
   socket := bt.ListenRFCOMM(3, rx.Ring, 0)
   
