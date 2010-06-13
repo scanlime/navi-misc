@@ -2,8 +2,10 @@
  * Software-only implementation of a passive low-frequency RFID tag,
  * using an AVR microcontroller.
  *
- * Copyright (c) 2008 Micah Dowty <micah@navi.cx>
- * See end of file for license terms. (BSD style) 
+ * Copyright (c) 2008-2010 Micah Dowty <micah@navi.cx>
+ * See end of file for license terms. (BSD style)
+ * Improved HID modulation contributed by Luke Koops <luke.koops@gmail.com>
+ * HID parity bit support contributed by Cesar Fernandez <cex123@gmail.com>
  *
  * Supports EM4102-style tags, and the HID 125 kHz prox card protocol.
  * The card format and ID number are set below, with #defines.
@@ -95,15 +97,23 @@
 // For the EM4102: An 8-bit manufacturer ID and 32-bit unique ID.
 
 #define EM4102_MFR_ID		0x12
-#define EM4102_UNIQUE_ID    0x3456789A
+#define EM4102_UNIQUE_ID	0x3456789A
 
-// For the HID card: A 24-bit site code, and 20-bit (6 decimal digit) unique ID.
-
-#define HID_SITE_CODE       0x11111
-#define HID_UNIQUE_ID       123456
+/*
+ * For the HID card:
+ *   A 20-bit manufacturer code, 8-bit site code, and 16-bit unique ID, 1-bit odd parity.
+ *
+ * Manufacturer code is fixed. If modified, HID readers do not recognise the tag.
+ * (This may also be a kind of fixed header.) Tested on HID readers with 26-bit wiegand output.
+ */
+	
+#define HID_MFG_CODE        0x01002  // Do not modify
+#define HID_SITE_CODE       0x9F
+#define HID_UNIQUE_ID       1326     // May be written on the back of the card
 
 /************ Common ************************************************/
 
+#define __ASSEMBLER__
 #include <avr/io.h>
 
 .global main
@@ -206,25 +216,25 @@ main:
          * Takes a total of 30 clock cycles, including call overhead.
          */
 baseband30_0:
-        ldi		r16, OUT_PINS       // 1
-        rjmp	baseband30			// 2
+        ldi	r16, OUT_PINS		// 1
+        rjmp	baseband30		// 2
 
         /*
          * Emit a 1 at the baseband layer.
          * Takes a total of 30 clock cycles, including call overhead.
          */
 baseband30_1:
-        ldi		r16, 0							// 1
-        rjmp	baseband30						// 2
+        ldi	r16, 0			// 1
+        rjmp	baseband30		// 2
         
         /*
          * Internal routine for baseband32_0 and _1. Must use
          * a total of 24 clock cycles. (32 - 1 ldi - 2 rjmp - 3 rcall)
          */ 
 baseband30:
-        out		_SFR_IO_ADDR(DDRB), r16			// 1
-        delay	19								// 19
-        ret										// 4
+        out	_SFR_IO_ADDR(DDRB), r16		// 1
+        delay	19				// 19
+        ret					// 4
 
 #endif /* FORMAT_IS_EM4102 */
 
@@ -250,9 +260,17 @@ baseband30:
  
 #ifdef FORMAT_IS_HID
 
+#define ODD_PARITY(n)  ((( ((n) >> 0 ) ^ ((n) >> 1 ) ^ ((n) >> 2 ) ^ ((n) >> 3 ) ^ \
+                           ((n) >> 4 ) ^ ((n) >> 5 ) ^ ((n) >> 6 ) ^ ((n) >> 7 ) ^ \
+                           ((n) >> 8 ) ^ ((n) >> 9 ) ^ ((n) >> 10) ^ ((n) >> 11) ^ \
+                           ((n) >> 12) ^ ((n) >> 13) ^ ((n) >> 14) ^ ((n) >> 15) ^ \
+                           ((n) >> 16) ^ ((n) >> 17) ^ ((n) >> 18) ^ ((n) >> 19) ^ \
+                           ((n) >> 20) ^ ((n) >> 21) ^ ((n) >> 22) ^ ((n) >> 23) ^ \
+                           ((n) >> 24) ^ ((n) >> 25) ^ ((n) >> 26) ^ ((n) >> 27) ^ \
+                           ((n) >> 28) ^ ((n) >> 29) ^ ((n) >> 30) ^ ((n) >> 31) ) & 1) ^ 1)
 main:
-        eor		r16, r16
-        ldi		r17, OUT_PINS
+        eor	r16, r16
+        ldi	r17, OUT_PINS
 loop:
 
         /*
@@ -260,18 +278,31 @@ loop:
          * of total clock cycles.
          */        
         .macro toggle clocks
-        eor		r16, r17
-        out		_SFR_IO_ADDR(DDRB), r16
         delay	(\clocks - 2)
+        eor	r16, r17
+        out	_SFR_IO_ADDR(DDRB), r16
         .endm
         
         /*
          * Emit a 0 at the baseband layer. (Toggle every 4 cycles, for 50 cycles)
+	 * There was an rjmp that got us to the beginning of the loop, so drop
+	 * 2 cycles from the delay if this is the first bit.  That will give the
+	 * appropriate delay before the toggle.
+	 *
+	 * From observing the HID card, each 0 bit is either 48 or 52 cycles.
+	 * The length alternates to keep the average at 50.  This keeps the
+	 * waveform smooth, and keeps each bit in its 50 cycle time slot.
+	 *
          * We don't have time for a function call, so we just chew
          * up lots of flash...
          */
         .macro	baseband_0
+	.if startloop
+	toggle	2		// 4
+	.equ startloop, 0
+	.else
         toggle	4		// 4
+	.endif
         toggle	4		// 8
         toggle	4		// 12
         toggle	4		// 16
@@ -283,14 +314,24 @@ loop:
         toggle	4		// 40
         toggle	4		// 44
         toggle	4		// 48
-        toggle	2		// 50
+	.if evenzero
+	.equ evenzero, 0
+	.else
+	toggle	4		// 52
+	.equ evenzero, 1
+	.endif
         .endm
 
         /*
          * Emit a 1 at the baseband layer. (Toggle every 5 cycles, for 50 cycles)
          */	
         .macro	baseband_1
-        toggle	5		// 5
+	.if startloop
+	toggle	3		// 4
+	.equ startloop, 0
+	.else
+        toggle	5		// 4
+	.endif
         toggle	5		// 10
         toggle	5		// 15
         toggle	5		// 20
@@ -302,24 +343,9 @@ loop:
         toggle	5		// 50
         .endm
 
-        /*
-         * Emit a 1 at the baseband layer, but only take 47 cycles.
-         */	
-        .macro	baseband_1_last
-        toggle	5		// 5
-        toggle	5		// 10
-        toggle	5		// 15
-        toggle	5		// 20
-        toggle	5		// 25
-        toggle	5		// 30
-        toggle	5		// 35
-        toggle	5		// 40
-        toggle	5		// 45
-        toggle	2		// 47
-        rjmp	loop
-        .endm
-    
-        .macro	header
+        .macro header
+	.equ evenzero, 0
+	.equ startloop, 1
         baseband_0
         baseband_0
         baseband_0
@@ -328,10 +354,27 @@ loop:
         baseband_1
         .endm
 
+
+	/*
+	 * This should add up to 45 bits.
+	 *
+	 * Some cards may use different 45-bit codes: For example,
+	 * a Wiegand code, or something more site-specific. But the
+	 * cards that I've seen use a 20-bit manufacturer code,
+	 * 8-bit site code, 16-bit unique ID, and a single parity bit.
+	 *
+	 * If your card uses ad ifferent coding scheme, you can add,
+	 * remove, and modify these 'manchester' macros. Just make sure
+	 * the result adds up to the right number of bits.
+	 */
         header
-        manchester	HID_SITE_CODE, 24
-        manchester	HID_UNIQUE_ID, 20
-        stop_bit
+        manchester	HID_MFG_CODE, 20
+	manchester	HID_SITE_CODE, 8
+	manchester	HID_UNIQUE_ID, 16
+	manchester	ODD_PARITY(HID_MFG_CODE ^ HID_SITE_CODE ^ HID_UNIQUE_ID), 1
+
+        rjmp	loop
+
 
 #endif /* FORMAT_IS_HID */
 
