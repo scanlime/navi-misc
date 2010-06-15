@@ -2,6 +2,8 @@
  * Software-only implementation of a passive low-frequency RFID tag,
  * using an AVR microcontroller.
  *
+ * Version 1.1, 2010-06-15
+ *
  * Copyright (c) 2008-2010 Micah Dowty <micah@navi.cx>
  * See end of file for license terms. (BSD style)
  * Improved HID modulation contributed by Luke Koops <luke.koops@gmail.com>
