@@ -113,7 +113,9 @@
 
 /************ Common ************************************************/
 
+#ifndef __ASSEMBLER__
 #define __ASSEMBLER__
+#endif
 #include <avr/io.h>
 
 .global main
