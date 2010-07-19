@@ -31,7 +31,9 @@ PUB main
   bt.SetClass(bt#COD_Computer)
   bt.SetDiscoverable
   bt.SetFixedPIN(string("0000"))
+
   bt.AddService(@mySerialService)
+  bt.AddService(@myChatService)
   socket := bt.ListenRFCOMM(3, rx.Ring, tx.Ring)
   
   term.str(string("Done.", $D, "Local Address: ", $C, $85, " "))
@@ -144,9 +146,9 @@ PRI showError(error, message) : bool
 
 
 DAT
-mySerialService
 
-    word  0                                ' Link
+mySerialService word 0
+
     byte  bt#DE_Seq8, @t0 - @h0            ' <sequence>
 h0      
 
@@ -193,5 +195,43 @@ t7
 h19 byte      "Serial"
 t19
 
-
 t0
+
+
+DAT
+
+' This service is compatible with the BluetoothChat example in the Android SDK
+
+myChatService word 0
+
+    byte  bt#DE_Seq8, @t20 - @h20          ' <sequence>
+h20      
+
+    byte    bt#DE_Uint16, $00,$00          '   ServiceRecordHandle
+    byte    bt#DE_Uint32, $00,$01,$00,$03  '     (Arbitrary unique value)
+
+    byte    bt#DE_Uint16, $00,$01          '   ServiceClassIDList
+    byte    bt#DE_Seq8, @t21 - @h21        '   <sequence>
+h21 byte      bt#DE_UUID128                '     Android BluetoothChat sample
+    byte         $fa, $87, $c0, $d0
+    byte         $af, $ac, $11, $de
+    byte         $8a, $39, $08, $00
+    byte         $20, $0c, $9a, $66
+t21
+
+    byte    bt#DE_Uint16, $00,$04          '   ProtocolDescriptorList
+    byte    bt#DE_Seq8, @t22 - @h22        '   <sequence>
+h22 byte      bt#DE_Seq8, @t23 - @h23      '     <sequence>
+h23 byte        bt#DE_UUID16, $01,$00      '       L2CAP
+t23 byte      bt#DE_Seq8, @t24 - @h24      '     <sequence>
+h24 byte        bt#DE_UUID16, $00,$03      '       RFCOMM
+    byte        bt#DE_Uint8, $03           '       Channel
+t24
+t22
+
+    byte    bt#DE_Uint16, $00,$05          '   BrowseGroupList
+    byte    bt#DE_Seq8, @t25 - @h25        '   <sequence>
+h25 byte      bt#DE_UUID16, $10,$02        '     PublicBrowseGroup
+t25
+
+t20
