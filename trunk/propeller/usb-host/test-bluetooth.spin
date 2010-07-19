@@ -7,6 +7,7 @@ CON
 OBJ
   bt : "bluetooth-host"
   rx : "bluetooth-ring"
+  tx : "bluetooth-ring"
   term : "tv_text"
 
 VAR
@@ -31,7 +32,7 @@ PUB main
   bt.SetDiscoverable
   bt.SetFixedPIN(string("0000"))
   bt.AddService(@mySerialService)
-  socket := bt.ListenRFCOMM(3, rx.Ring, 0)
+  socket := bt.ListenRFCOMM(3, rx.Ring, tx.Ring)
   
   term.str(string("Done.", $D, "Local Address: ", $C, $85, " "))
   term.str(bt.AddressToString(bt.LocalAddress))
@@ -39,13 +40,23 @@ PUB main
 
   'showDiscovery
   'terminal
-  debug
+  'debug
+  echoServer
 
 PRI terminal | tmp
   repeat
     if (tmp := rx.RxCheck) > 0
       term.out(tmp)
-  
+
+PRI echoServer | tmp
+  repeat
+    tmp := rx.charIn
+    tx.str(string("You pressed: "))
+    tx.hex(tmp, 2)
+    tx.str(string(" ("))
+    tx.char(tmp)
+    tx.str(string(")",$a,$d))
+
 PRI debug | t
   bpsDeadline := cnt
   
