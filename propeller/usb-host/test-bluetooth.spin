@@ -58,6 +58,7 @@ PRI echoServer | tmp
     tx.str(string(" ("))
     tx.char(tmp)
     tx.str(string(")",$a,$d))
+    tx.txFlush
 
 PRI debug | t
   bpsDeadline := cnt
@@ -102,7 +103,7 @@ PRI debug | t
                             
     ' Incoming data
     term.str(string(13, 13, " Bytes: "))
-    rxCount += rx.RxFlush
+    rxCount += rx.RxDiscard
     term.dec(rxCount)
    
     ' Count bytes per second
