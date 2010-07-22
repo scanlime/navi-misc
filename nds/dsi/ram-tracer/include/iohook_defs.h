@@ -85,6 +85,7 @@
 #define IOH_SVC_FREAD       0x07  // Read up to IOH_DATA_LEN bytes
 #define IOH_SVC_QUIT        0x08  // Tell the host program to exit. Arg = quit message
 #define IOH_SVC_SETCLOCK    0x09  // Set sysclock. Arg = 32-bit freq in KHz.
+#define IOH_SVC_INIT        0x0A  // Initialize IOHook sequence
 
 /*
  * Check byte format:
