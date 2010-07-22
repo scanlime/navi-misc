@@ -32,8 +32,13 @@ static uint8_t sequence;
 void
 IOHook_Init(void)
 {
+   uint32_t dummy = 0;
+
    // We don't have real initialized data yet, so this is mandatory.
    sequence = 0;
+
+   // Reset the host's sequence number too
+   IOHook_Send(IOH_SVC_INIT, &dummy, 4);
 }
 
 
