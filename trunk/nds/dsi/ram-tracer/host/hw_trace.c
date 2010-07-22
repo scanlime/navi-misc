@@ -258,12 +258,16 @@ ioHookTrace(uint32_t index, uint16_t word)
          dataError("I/O Hook Checksum Error", errDetail);
          return false;
       }
-      if (ioHookSequence != rxSeq) {
-         dataError("I/O Hook Sequence Error", errDetail);
-         return false;
-      }
       if (rxLen > IOH_DATA_LEN) {
          dataError("I/O Hook Data Length Error", errDetail);
+         return false;
+      }
+
+      if (rxSvc == IOH_SVC_INIT)
+         ioHookSequence = 0;
+
+      if (ioHookSequence != rxSeq) {
+         dataError("I/O Hook Sequence Error", errDetail);
          return false;
       }
 

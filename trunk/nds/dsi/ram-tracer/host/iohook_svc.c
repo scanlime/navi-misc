@@ -71,6 +71,12 @@ uint8_t
 IOH_HandlePacket(FTDIDevice *dev, uint8_t service, void *data, uint8_t length)
 {
    switch (service) {
+   
+   case IOH_SVC_INIT: {
+	  HWTrace_HideStatus();
+	  fprintf(stderr, "LOG: Inited IOHook sequence.\n");
+      return 0;
+   }
 
    case IOH_SVC_LOG_STR: {
       HWTrace_HideStatus();
