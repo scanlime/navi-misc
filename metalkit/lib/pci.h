@@ -76,6 +76,11 @@ typedef struct PCIScanState {
    PCIAddress addr;
 } PCIScanState;
 
+// BAR bits
+#define PCI_CONF_BAR_IO          0x01
+#define PCI_CONF_BAR_64BIT       0x04
+#define PCI_CONF_BAR_PREFETCH    0x08
+
 fastcall uint32 PCI_ConfigRead32(const PCIAddress *addr, uint16 offset);
 fastcall uint16 PCI_ConfigRead16(const PCIAddress *addr, uint16 offset);
 fastcall uint8 PCI_ConfigRead8(const PCIAddress *addr, uint16 offset);

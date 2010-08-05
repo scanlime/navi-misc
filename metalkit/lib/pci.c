@@ -207,13 +207,18 @@ PCI_SetBAR(const PCIAddress *addr, int index, uint32 value)
  * PCI_GetBARAddr --
  *
  *    Get the current address set in one of the device's Base Address Registers.
- *    (We mask off the lower 2 bits, which hold memory type flags.)
+ *    We mask off the lower bits that are not part of the address.  IO bars are
+ *    4 byte aligned so we mask lower 2 bits, and memory bars are 16-byte aligned
+ *    so we mask the lower 4 bits.
  */
 
 fastcall uint32
 PCI_GetBARAddr(const PCIAddress *addr, int index)
 {
-   return PCI_ConfigRead32(addr, offsetof(PCIConfigSpace, BAR[index])) & ~3;
+   uint32 bar = PCI_ConfigRead32(addr, offsetof(PCIConfigSpace, BAR[index]));
+   uint32 mask = (bar & PCI_CONF_BAR_IO) ? 0x3 : 0xf;
+
+   return bar & ~mask;
 }
 
 
