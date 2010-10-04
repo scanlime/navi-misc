@@ -1,0 +1,19 @@
+User interface cable, to LCD and encoder wheel:
+
+1/PUR.    Switch S1        P15,  w/ pull-up
+2/GRY.    Switch S2        P14,  w/ pull-up
+3/WHT.    LCD CS           P13
+4/BLK.    LCD Clock        P12
+5/BRN.    LCD Data         P11
+6/RED.    LCD Reset        P10
+7/ORG.    LED (Green)      P9
+8/YEL.    LED (Blue)       P8
+9/GRN.    LED (Red)        P7
+10/BLU.   Ground
+11/PUR.   3.3V
+12/GRY.   Backlight Supply (To regulated 6v)
+13/BLU.   Ground
+14/GRN.   Quadrature 0     P6    w/ pull-up
+15/YEL.   Quadrature 1     P5    w/ pull-up
+16/ORG.   Enter Switch     P4    w/ pull-up
+
