@@ -10,3 +10,15 @@ Motor controller pinout:
 8/BLU. Thermal flag out
 9/GRN. Current sense out
 10. N/C
+
+NOTES:
+  - Leave thermal flag and current sense disconnected.
+    They aren't being used, and they are huge noise sources.
+
+  - All signals (dir, brake, pwm) connected via 3.3k resistors,
+    to limit the current of transients that come into the uC
+    via these pins. (Ideally I'd have a better grounding layout,
+    and maybe even opto-isolate these.)
+
+  - Also, brake and dir turned out to be useless. But they're
+    still connected at the moment.
