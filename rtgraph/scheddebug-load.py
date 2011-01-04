@@ -79,8 +79,8 @@ class LoadViewer:
             ui = rtgraph.GraphUI(channels,
                                  rtgraph.HScrollLineGraph(range = (0, 10000),
                                                           size = (400, 300),
-                                                          pollInterval = 100,
-                                                          scrollRate = 10),
+                                                          pollInterval = 10,
+                                                          scrollRate = 100),
                                  valueUpdateInterval = 500,
                                  visibilityDefault = True,
                                  showTweakControls = False)
