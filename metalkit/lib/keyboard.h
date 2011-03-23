@@ -91,8 +91,60 @@ typedef struct KeyEvent {
 
 typedef fastcall void (*KeyboardIRQHandler)(KeyEvent *event);
 
-fastcall void Keyboard_Init(void);
-fastcall Bool Keyboard_IsKeyPressed(Keycode key);
-fastcall void Keyboard_SetHandler(KeyboardIRQHandler handler);
+/*
+ * Private data, used by the inline functions below.
+ */
 
-#endif /* __VGA_TEXT_H__ */
+typedef struct KeyboardPrivate {
+   Bool escape;
+   KeyboardIRQHandler handler;
+   Bool keyDown[KEY_MAX];
+} KeyboardPrivate;
+
+extern KeyboardPrivate gKeyboard;
+
+
+/*
+ * Public Functions
+ */
+
+fastcall void Keyboard_Init(void);
+
+
+/*
+ * Keyboard_IsKeyPressed --
+ *
+ *    Check whether a key, identified by Keycode, is down.
+ */
+
+static inline Bool
+Keyboard_IsKeyPressed(Keycode k)
+{
+   if (k < KEY_MAX) {
+      return gKeyboard.keyDown[k];
+   }
+   return FALSE;
+}
+
+
+/*
+ * Keyboard_SetHandler --
+ *
+ *    Set a handler that will receive translated keys and scancodes.
+ *    This handler is run within the IRQ handler, so it must complete
+ *    quickly and use minimal stack space.
+ *
+ *    The handler will be called once per scancode byte, regardless of
+ *    whether that byte ended a key event or not. If event->key is
+ *    zero, the event can be ignored unless you're interested in
+ *    seeing the raw scancodes.
+ */
+
+static inline void
+Keyboard_SetHandler(KeyboardIRQHandler handler)
+{
+   gKeyboard.handler = handler;
+}
+
+
+#endif /* __KEYBOARD_H__ */
