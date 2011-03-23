@@ -53,12 +53,7 @@
  * Global keyboard state
  */
 
-static struct {
-   Bool escape;
-   KeyboardIRQHandler handler;
-   uint32 keyDown[roundup(KEY_MAX, 32)];
-} gKeyboard;
-
+KeyboardPrivate gKeyboard;
 
 /*
  * KeyboardWrite --
@@ -119,24 +114,6 @@ KeyboardReadCB(void)
    while (IO_In8(KB_STATUS_PORT) & KB_STATUS_OBF);
    IO_Out8(KB_CMD_PORT, KB_CMD_RCB);
    return KeyboardRead();
-}
-
-
-/*
- * KeyboardSetKeyPressed --
- *
- *    Set a key's up/down state.
- */
-
-static void
-KeyboardSetKeyPressed(Keycode k, Bool down)
-{
-   uint32 mask = 1 << (k & 0x1F);
-   if (down) {
-      gKeyboard.keyDown[k >> 5] |= mask; 
-   } else {
-      gKeyboard.keyDown[k >> 5] &= ~mask;
-   }
 }
 
 
@@ -287,7 +264,7 @@ KeyboardTranslate(KeyEvent *event)
       }
    }
 
-   KeyboardSetKeyPressed(event->rawKey, event->pressed);
+   gKeyboard.keyDown[event->rawKey] = event->pressed;
 }
 
 
@@ -333,40 +310,4 @@ Keyboard_Init(void)
 
    Intr_SetMask(KB_IRQ, TRUE);
    Intr_SetHandler(IRQ_VECTOR(KB_IRQ), KeyboardHandlerInternal);
-}
-
-
-/*
- * Keyboard_IsKeyPressed --
- *
- *    Check whether a key, identified by Keycode, is down.
- */
-
-fastcall Bool
-Keyboard_IsKeyPressed(Keycode k)
-{
-   if (k < KEY_MAX) {
-      return (gKeyboard.keyDown[k >> 5] >> (k & 0x1F)) & 1;
-   }
-   return FALSE;
-}
-
-
-/*
- * Keyboard_SetHandler --
- *
- *    Set a handler that will receive translated keys and scancodes.
- *    This handler is run within the IRQ handler, so it must complete
- *    quickly and use minimal stack space.
- *
- *    The handler will be called once per scancode byte, regardless of
- *    whether that byte ended a key event or not. If event->key is
- *    zero, the event can be ignored unless you're interested in
- *    seeing the raw scancodes.
- */
-
-fastcall void
-Keyboard_SetHandler(KeyboardIRQHandler handler)
-{
-   gKeyboard.handler = handler;
 }
