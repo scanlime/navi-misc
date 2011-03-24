@@ -35,15 +35,6 @@
 #include "boot.h"
 #include "io.h"
 
-/*
- * Definitions for the two PIC chips.
- */
-
-#define PIC1_COMMAND_PORT  0x20
-#define PIC1_DATA_PORT     0x21
-#define PIC2_COMMAND_PORT  0xA0
-#define PIC2_DATA_PORT     0xA1
-
 
 /*
  * IDT table and IDT table descriptor. The table itself lives in the
@@ -78,29 +69,7 @@ const struct {
    .address = IDT,
 };
 
-/*
- * To save space, we don't include assembly-language trampolines for
- * each interrupt vector. Instead, we allocate a table in the BSS
- * segment which we can fill in at runtime with simple trampoline
- * functions. This structure actually describes executable 32-bit
- * code.
- */
-
-typedef struct {
-   uint16      code1;
-   uint32      arg;
-   uint8       code2;
-   IntrHandler handler;
-   uint32      code3;
-   uint32      code4;
-   uint32      code5;
-   uint32      code6;
-   uint32      code7;
-   uint32      code8;
-} PACKED IntrTrampolineType;
-
-static IntrTrampolineType ALIGNED(4) IntrTrampoline[NUM_INTR_VECTORS];
-
+IntrTrampolineType ALIGNED(4) IntrTrampoline[NUM_INTR_VECTORS];
 
 /*
  * IntrDefaultHandler --
@@ -250,52 +219,6 @@ Intr_Init(void)
    }
 
    Intr_Enable();
-}
-
-
-/*
- * Intr_SetHandler --
- *
- *    Set a C-language interrupt handler for a particular vector.
- *    Note that the argument is a vector number, not an IRQ.
- */
-
-fastcall void
-Intr_SetHandler(int vector, IntrHandler handler)
-{
-   IntrTrampoline[vector].handler = handler;
-}
-
-
-/*
- * Intr_SetMask --
- *
- *    (Un)mask a particular IRQ.
- */
-
-fastcall void
-Intr_SetMask(int irq, Bool enable)
-{
-   uint8 port, bit, mask;
-
-   if (irq >= 8) {
-      bit = 1 << (irq - 8);
-      port = PIC2_DATA_PORT;
-   } else {
-      bit = 1 << irq;
-      port = PIC1_DATA_PORT;
-   }
-
-   mask = IO_In8(port);
-
-   /* A '1' bit in the mask inhibits the interrupt. */
-   if (enable) {
-      mask &= ~bit;
-   } else {
-      mask |= bit;
-   }
-
-   IO_Out8(port, mask);
 }
 
 
