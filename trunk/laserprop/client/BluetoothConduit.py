@@ -282,7 +282,8 @@ class BluetoothConduit:
             debug("Region list retrieved.")
 
         except:
-            self.sock.close()
+            if self.sock:
+                self.sock.close()
             self.sock = None
             raise
 
