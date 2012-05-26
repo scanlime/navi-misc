@@ -648,6 +648,21 @@ class PathParser(object):
         if cmd == 'z':
             cmd = 'Z'
 
+        # Convert relative to absolute
+        if cmd in ('m', 'c'):
+            cmd = cmd.upper();
+            if self.pathData:
+                args = tuple(a + self.pathData[-1][(i & 1) - 2]
+                             for i, a in enumerate(args))
+
+        if cmd == 'c':
+            cmd = cmd.upper();
+            if self.pathData:
+                args = (args[0] + self.pathData[-1][-2],
+                        args[1] + self.pathData[-1][-1],
+                        args[2] + args[0] + self.pathData[-1][-2],
+                        args[3] + args[1] + self.pathData[-1][-1])
+
         if cmd == 'M':
             self.finishPath()
 
