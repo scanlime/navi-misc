@@ -1,0 +1,21 @@
+we probably can't have too much text, so we'll need to sum up
+the histogram technique in a couple sentances and expand in maybe
+2-3 paragraphs. The guidelines say that the main points should be
+visible from 3m away, while interested viewers should be able to
+read finer points from about 1m away. I estimate the 3m font will
+need to be at least 2" high, while the 1m font more like 0.75".
+This is maybe even too conservative.
+
+We can probably reduce the amount we say on the poster to the bare
+minimum, and interested folks can talk to us in person. We should
+probably bring a stack of printed-out abstracts to keep on the table
+during the session.
+
+As for images, we ought to have:
+* side-by-side comparison of logistic map bifurcation diagram
+  rendered with histogram & plotting half-dark points
+
+* something pointing out the 4d-color luminance niftiness
+
+* comparison of a bunch of images pointing out the differences that HDR
+  interpolation can make - accentuate different features in the image

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="10in"
+   height="7.5in"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.43"
+   version="1.0"
+   sodipodi:docbase="/home/evan/Desktop/Projects/motion/dlc-presentation"
+   sodipodi:docname="01.svg"
+   inkscape:export-filename="/home/evan/template.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4">
+    <linearGradient
+       id="linearGradient3956">
+      <stop
+         style="stop-color:#ff0000;stop-opacity:1;"
+         offset="0"
+         id="stop3958" />
+      <stop
+         id="stop3964"
+         offset="0.61000001"
+         style="stop-color:#ec0000;stop-opacity:1;" />
+      <stop
+         style="stop-color:#b30000;stop-opacity:1;"
+         offset="1"
+         id="stop3960" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3073">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0"
+         id="stop3075" />
+      <stop
+         id="stop3081"
+         offset="0.63999999"
+         style="stop-color:#ffffff;stop-opacity:0.39175257;" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0;"
+         offset="1"
+         id="stop3077" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient2243">
+      <stop
+         style="stop-color:#ff0000;stop-opacity:1;"
+         offset="0"
+         id="stop2245" />
+      <stop
+         style="stop-color:#ff0000;stop-opacity:0;"
+         offset="1"
+         id="stop2247" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4899">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0;"
+         offset="0"
+         id="stop4901" />
+      <stop
+         id="stop4907"
+         offset="0.22600447"
+         style="stop-color:#ffffff;stop-opacity:0.85567009;" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0.85567009;"
+         offset="0.703125"
+         id="stop4909" />
+      <stop
+         id="stop4911"
+         offset="0.9375"
+         style="stop-color:#ffffff;stop-opacity:0.85567009;" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0;"
+         offset="1"
+         id="stop4903" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2243"
+       id="linearGradient2249"
+       x1="-0.5"
+       y1="84.702458"
+       x2="900.79107"
+       y2="84.702458"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,10)" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="1"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.1451852"
+     inkscape:cx="450"
+     inkscape:cy="337.5"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer2"
+     inkscape:window-width="1280"
+     inkscape:window-height="945"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     showguides="true"
+     inkscape:guide-bbox="true" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Background"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:inline"
+     sodipodi:insensitive="true">
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect4060"
+       width="899.82867"
+       height="674.78143"
+       x="0.17165264"
+       y="0.21652652" />
+    <g
+       id="g3134"
+       transform="translate(-8,0)">
+      <image
+         y="104.18499"
+         x="98.91333"
+	 xlink:href="data/lorenz.png"
+         sodipodi:absref="data/lorenz.png"
+         width="761.08667"
+         height="570.815"
+         id="image1357" />
+      <rect
+         y="103.91332"
+         x="101.46184"
+         height="571.9599"
+         width="758.82922"
+         id="rect2251"
+         style="fill:#ffffff;fill-opacity:0.8579235;stroke:none;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:url(#linearGradient2249);stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 0,94.702458 L 900.29107,94.702458"
+       id="path1360" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Data"
+     style="display:inline">
+    <text
+       xml:space="preserve"
+       style="font-size:64px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:URW Gothic L"
+       x="444.3895"
+       y="255.76501"
+       id="text1357"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="444.3895"
+         y="255.76501"
+         id="tspan1361">In Search of Smoothness</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:28px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:129.99999523%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:URW Gothic L"
+       x="449.0502"
+       y="394.599"
+       id="text1365"
+       sodipodi:linespacing="130%"><tspan
+         sodipodi:role="line"
+         id="tspan1367"
+         x="449.0502"
+         y="394.599">W. Evan Sheehan</tspan><tspan
+         sodipodi:role="line"
+         x="449.0502"
+         y="430.999"
+         id="tspan1369">Dr. Elizabeth Bradley</tspan><tspan
+         sodipodi:role="line"
+         x="449.0502"
+         y="467.399"
+         id="tspan1371">David Trowbridge</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:URW Gothic L"
+       x="196.51387"
+       y="302.13452"
+       id="text1381"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan1383"
+         x="196.51387"
+         y="302.13452">Interpolating Chaotic Dance</tspan></text>
+  </g>
+</svg>

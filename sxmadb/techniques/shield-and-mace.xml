@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="shield and mace" level="first-brown" category="punch"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>step through right straight punch</attack>
+  <stances>
+    <attacker>left neutral bow</attacker>
+    <defender>natural</defender>
+  </stances>
+  <steps>
+    <step>
+      <footManeuver side="left">step</footManeuver> into a
+      <stance side="left">neutral bow</stance> as you perform a
+      <block side="right">vertical outward</block> and a
+      <punch side="left">thrusting horizontal punch</punch> to the ribs.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> into a
+      <stance side="left">forward bow</stance> and execute a
+      <punch side="right">reverse punch</punch>, also to the ribs.
+    </step>
+    <step>
+      <!-- FIXME - characterize check -->
+      <footManeuver>pivot</footManeuver> back into a
+      <stance side="left">neutral bow</stance> as you perform a
+      <strike side="left">inward horizontal palm heel</strike> to the back
+      of the head. Continue the motion of your left arm and check your
+      opponent's right arm into their body.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> back into a
+      <stance side="left">forward bow</stance> as you strike your opponent's
+      face with a
+      <fingerTechnique side="right">inward circular claw</fingerTechnique>.
+    </step>
+    <step>
+      Continue the motion of your right hand circularly as you
+      drop into a <stance side="left">close kneel</stance>. Strike the top of
+      your opponent's calf with a
+      <strike side="right">downward hand sword</strike>.
+    </step>
+    <step>
+      Keeping your body low, perform a <footManeuver>step-through</footManeuver>
+      <kick side="right">knife-edge side</kick>
+      to the back of your opponent's left leg.
+    </step>
+  </steps>
+</technique>

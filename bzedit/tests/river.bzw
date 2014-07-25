@@ -1,0 +1,920 @@
+# BZFlag client: saved world on Fri Jan  7 20:56:21 2005
+
+options
+  -j
+  +r
+  -handicap
+  -ms 10
+  -set _explodeTime 1
+#  -set _mirror "black 0.8"
+  -set _noClimb 0
+  -set _noShadows 1
+#  -set _rainType rain
+  -set _syncLocation 1
+  -set _syncTime 55000
+  -set _tankSpeed 25
+  -set _trackFade 3
+  -set _wallHeight 20
+  -set _wingsJumpCount 20
+  -set _wingsJumpVelocity 20
+  -set _wingsSlideTime 1
+  -set _worldSize 500
+end
+
+dynamicColor
+  name redtower
+  green limits 0.8 0.9
+  blue limits 0.6 0.7
+  red limits 1 1
+  blue sinusoid 2 0 1
+  green sinusoid 2 1 1
+end
+
+dynamicColor
+  name bluetower
+  green limits 0.8 0.9
+  red limits 0.6 0.7
+  blue limits 1 1
+  red sinusoid 2 0 1
+  green sinusoid 2 1 1
+end
+
+
+dynamicColor
+  name nojumpColor
+  red limits 0 0
+  green sinusoid 2 0 1
+  blue sinusoid 2 1 1
+end
+
+dynamicColor
+  name LinkMaterial
+  red limits 0 0.1
+  red sinusoid 2 0 1
+  green limits 0 0.1
+  green sinusoid 2 0.666667 1
+  blue limits 0 0.1
+  blue sinusoid 2 1.33333 1
+  alpha limits 0.75 0.75
+end
+material #dummy
+  
+end
+material #MatRef 1 , Red Tower Walls
+  dyncol redtower
+  addtexture boxwall
+end
+material #MatRef 2 , Red Tower Roofs
+  dyncol redtower
+  addtexture roof
+end
+material #MatRef 3 , Blue Tower Walls
+  dyncol bluetower
+  addtexture boxwall
+end
+material #MatRef 4 , Blue Tower Roofs
+  dyncol bluetower
+  addtexture roof
+end
+
+textureMatrix
+  name spinTop
+  shift -1.5 0
+end
+
+textureMatrix
+  name flowing
+  shift 0 1
+end
+
+textureMatrix
+  name slideup
+  shift 0 1.5
+end
+
+
+material #Matref 5 , water
+  diffuse 0.3 0.4 0.6 0.6
+  addtexture mesh
+    texmat spinTop
+end
+
+material #Matref 6 , boxwall
+  addtexture boxwall
+end
+
+material #Matref 7 , sand
+  diffuse 0.8 0.7 0.6
+  addtexture mesh
+end
+
+material #Matref 8 , water under water
+  diffuse 0.1 0.2 0.4 0.9
+  addtexture mesh
+    texmat spinTop
+end
+
+material # MatRef 9 , black
+  diffuse 0.1 0.1 0.1 1
+  addtexture mesh
+end
+
+material # MatRef 10 , white
+  diffuse 0.9 0.9 0.9 1
+  addtexture mesh
+end
+
+material #MatRef 11 , red
+  diffuse 0.9 0.2 0.2 1
+  addtexture mesh
+end
+
+material #MatRef 12 , escalator
+  diffuse 0.8 0.8 0.5
+  addtexture mesh
+    texmat slideup
+end
+physics # water
+  name slide
+  linear 0 2 0
+end
+
+physics
+  name upred
+  linear 0 9 4 #too high value -> bouncy :)
+end
+physics
+  name upblue
+  linear 0 -9 4 #too high value -> bouncy :)
+end
+
+
+physics
+  name pokeball
+  death Eww.. A pokemon just ate you!
+end
+
+#define WORLD
+   arc #middle
+     position -5 -2 0.1 
+     size 55 55 59.9
+     rotation 90
+     angle 200
+     ratio 1
+     divisions 32
+   end
+   arc #middle , part #2
+     position 5 2 0.1
+     size 55 55 59.9
+     rotation 290
+     angle 160
+     ratio 1
+     divisions 32
+   end
+      arc #middle FOR RADAR
+     position -5 -2 0 
+     size 55 55 0.1
+     rotation 90
+     angle 200
+     ratio 1
+     divisions 32
+   end
+   arc #middle , part #2 FOR RADAR
+     position 5 2 0
+     size 55 55 0.1
+     rotation 290
+     angle 160
+     ratio 1
+     divisions 32
+   end
+  box #Wall 1
+    position -155 0 15
+    size 95 5 30
+    rotation 0
+  end
+  box #For river
+    position -203 0 0
+    size 47 5 15
+  end
+  box
+   position -97 0 0
+   size 37 5 15
+  end
+  box #Wall 2
+    position 155 0 0
+    size 95 5 45
+    rotation 0
+  end
+  teleporter /t0
+    position -15 0 60.1
+    size 0.5 8 10
+    rotation 90
+    border 1
+  end
+  
+  
+  #River
+  arc
+    position 1150 0 0.5
+    size 1300 1300 1.5
+    angle 25
+    rotation 167.5
+    divisions 14
+    ratio 0.007   
+    texsize 32 4 8 8
+    top matref 5
+    outside matref 5
+    inside matref 5
+    endside matref 5
+    startside matref 5
+    bottom matref 5
+    drivethrough
+  end
+   arc #for the sliding-effect under water
+    position 1150 0 0.1
+    size 1300 1300 0.4
+    angle 25
+    rotation 167.5
+    divisions 14
+    ratio 0.007   
+    texsize 32 4 8 8
+    top matref 5
+    outside matref 8
+    inside matref 8
+    endside matref 8
+    startside matref 8
+    bottom matref 8
+    drivethrough
+  end
+  arc
+    position 1150 0 0
+    size 1300 1300 0.1
+    angle 25
+    rotation 167.5
+    divisions 14
+    ratio 0.007
+    top matref 7
+    phydrv slide
+  end
+  #River sides
+  arc
+    position 1150 0 0
+    size 1301 1301 3
+    angle 25
+    rotation 167.5
+    divisions 14
+    ratio 0.0007
+    texsize 64 1 8 8
+    outside matref 6
+    inside matref 6
+  end 
+  arc
+    position 1150 0 0
+    size 1291 1291 3
+    angle 25
+    rotation 167.5
+    divisions 14
+    ratio 0.0007
+    texsize 64 1 8 8
+    outside matref 6
+    inside matref 6
+  end
+  arc
+    position -145 0 0
+    size 15 15 15
+    angle 180
+    rotation 0
+    divisions 24
+    ratio 0.3
+    spin 90 1 0 0
+    shift 0 7.5 0
+  end
+  arc
+    position -145 0 0
+    size 25 25 10.1
+    angle 180
+    rotation 0
+    divisions 24
+    ratio 0.5
+    spin 90 1 0 0
+    shift 0 5.05 0
+    top matref 6
+    bottom matref 6
+   end
+   
+   
+  #Red side
+  teleporter /t1
+    position -70 -15 0
+    size 0.5 8 10
+    rotation -90
+    border 1.12
+  end
+  
+  arc #tower, inside
+    position 0 -165 0.1
+    size 45 45 54.9
+    rotation 180
+    angle 220
+    ratio 0.1
+    divisions 32
+    top matref 2
+    inside matref 1
+    outside matref 1
+    inside matref 1
+    outside matref 1
+    startside matref 1
+    endside matref 1
+  end
+  arc #tower, outside
+    position 0 -165 0.1
+    size 65 65 59.9
+    rotation 0
+    angle 220
+    ratio 0.06
+    divisions 32
+    top matref 2
+    inside matref 1
+    outside matref 1
+    inside matref 1
+    outside matref 1
+    startside matref 1
+    endside matref 1
+  end
+  arc #inner tower
+    position 0 -165 0.1
+    size 10 10 49.9
+    rotation 0
+    angle 360
+    ratio 1
+    divisions 32
+    top matref 2
+    inside matref 1
+    outside matref 1
+    inside matref 1
+    outside matref 1
+    startside matref 1
+    endside matref 1
+  end
+  arc #tower, inside FOR RADAR
+    position 0 -165 0
+    size 45 45 0.1
+    rotation 180
+    angle 220
+    ratio 0.1
+    divisions 32
+    top matref 2
+    inside matref 1
+    outside matref 1
+    inside matref 1
+    outside matref 1
+    startside matref 1
+    endside matref 1
+  end
+  arc #tower, outside FOR RADAR
+    position 0 -165 0
+    size 65 65 0.1
+    rotation 0
+    angle 220
+    ratio 0.06
+    divisions 32
+    top matref 2
+    inside matref 1
+    outside matref 1
+    inside matref 1
+    outside matref 1
+    startside matref 1
+    endside matref 1
+  end
+  arc #inner tower FOR RADAR
+    position 0 -165 0
+    size 10 10 0.1
+    rotation 0
+    angle 360
+    ratio 1
+    divisions 32
+    top matref 2
+    inside matref 1
+    outside matref 1
+    inside matref 1
+    outside matref 1
+    startside matref 1
+    endside matref 1
+  end
+  
+  
+  box #stairs
+    position 0 -165 10
+    size 20 5 1
+    rotation 0
+  end
+  box #stairs
+    position 0 -165 20
+    size 20 5 1
+    rotation 30
+  end
+  box #stairs
+    position 0 -165 30
+    size 20 5 1
+    rotation 60
+  end
+  box #stairs
+    position 0 -165 40
+    size 20 5 1
+    rotation 90
+  end
+  box #stairs
+    position 0 -165 49.1
+    size 20 5 1
+    rotation 120
+  end
+  base
+    position 0 -165 50
+    size 7 7 1
+    rotation 0
+    color 1
+  end
+  arc #corner stairs
+    position 250 -250 0
+    size 60 60 10
+    rotation 90
+    angle 90
+    ratio 1
+    divisions 14
+  end
+  arc #corner stairs
+    position 250 -250 10
+    size 50 50 10
+    rotation 90
+    angle 90
+    ratio 1
+    divisions 14
+  end
+  arc #corner stairs
+    position 250 -250 20
+    size 40 40 10
+    rotation 90
+    angle 90
+    ratio 1
+    divisions 14
+  end
+  arc #corner stairs
+    position 250 -250 30
+    size 30 30 10
+    rotation 90
+    angle 90
+    ratio 1
+    divisions 14
+  end
+  arc #corner stairs
+    position 250 -250 40
+    size 20 20 10
+    rotation 90
+    angle 90
+    ratio 1
+    divisions 14
+  end
+  arc #corner stairs
+    position 250 -250 50
+    size 10 10 10
+    rotation 90
+    angle 90
+    ratio 1
+    divisions 14
+  end
+  box #jumping boxes
+    position -200 -50 0
+    size 20 20 35
+    rotation 70
+  end
+  box #jumping boxes
+    position -180 -90 0
+    size 15 15 25
+    rotation 50
+  end
+  box #jumping boxes
+    position -190 -120 0
+    size 10 10 15
+    rotation 30
+  end
+  box #jumping boxes
+    position -210 -140 0
+    size 6 6 6
+    rotation 10
+  end
+  pyramid #pyramids on floor
+    position 200 -150 0
+    size 10 10 10
+    rotation 45
+  end
+  pyramid #pyramids on floor
+    position 180 -160 0
+    size 10 10 10
+    rotation 67
+  end
+  pyramid #pyramids on floor
+    position 220 -100 0
+    size 10 10 10
+    rotation 90
+  end
+  pyramid #pyramids on floor
+    position 210 -200 0
+    size 10 10 10
+    rotation 15
+  end
+  pyramid #pyramids on floor
+    position 230 -180 0
+    size 10 10 10
+    rotation 60
+  end
+  pyramid #pyramids on floor
+    position 160 -200 0
+    size 10 10 10
+    rotation 70
+  end
+  
+  define ball
+    sphere #pokeball on the sky
+      position 0 0 0
+      size 2 2 2
+      divisions 16
+      edge matref 11
+      phydrv pokeball
+    end
+    arc
+      position 0 0 -0.4
+      size 2.1 2.1 0.8
+      divisions 16
+      outside matref 9
+      top matref 9
+      bottom matref 9
+      startside matref 9
+      endside matref 9
+      phydrv pokeball
+    end
+    arc
+      position 0 0 -0.2
+      size 2.11 2.11 0.4
+      divisions 16
+      outside matref 10
+      top matref 10
+      bottom matref 10
+      startside matref 10
+      endside matref 10
+      phydrv pokeball
+    end
+  enddef
+  
+#   group ball  
+#     shift -80 -50 90
+#   end
+#   group ball
+#     shift 160 140 70
+#   end
+#   group ball
+#     shift 90 60 85
+#   end
+#   group ball
+#     shift -150 -140 75
+#   end
+  
+  
+  
+  #Blue side -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+  teleporter /t2
+    position 70 15 0
+    size 0.5 8 10
+    rotation 90
+    border 1.12
+  end
+  
+  arc #tower, inside
+    position 0 165 0.1
+    size 45 45 54.9
+    rotation 0
+    angle 220
+    ratio 0.1
+    divisions 32
+    top matref 4
+    inside matref 3
+    outside matref 3
+    inside matref  3
+    outside matref 3
+    startside matref 3
+    endside matref 3
+  end
+  arc #tower, outside
+    position 0 165 0.1
+    size 65 65 59.9
+    rotation 180
+    angle 220
+    ratio 0.06
+    divisions 32
+    top matref 4
+    inside matref 3
+    outside matref 3
+    inside matref 3
+    outside matref 3
+    startside matref 3
+    endside matref 3
+  end
+  arc #inner tower
+    position 0 165 0.1
+    size 10 10 49.9
+    rotation 180
+    angle 360
+    ratio 1
+    divisions 32
+    top matref 4
+    inside matref 3
+    outside matref 3
+    inside matref 3
+    outside matref 3
+    startside matref 3
+    endside matref 3
+  end
+  arc #tower, inside FOR RADAR
+    position 0 165 0
+    size 45 45 0.1
+    rotation 0
+    angle 220
+    ratio 0.1
+    divisions 32
+    top matref 4
+    inside matref 3
+    outside matref 3
+    inside matref 3
+    outside matref 3
+    startside matref 3
+    endside matref 3
+  end
+  arc #tower, outside FOR RADAR
+    position 0 165 0
+    size 65 65 0.1
+    rotation 180
+    angle 220
+    ratio 0.06
+    divisions 32
+    top matref 4
+    inside matref 3
+    outside matref 3
+    inside matref 3
+    outside matref 3
+    startside matref 3
+    endside matref 3 
+  end
+  arc #inner tower FOR RADAR
+    position 0 165 0
+    size 10 10 0.1
+    rotation 180
+    angle 360
+    ratio 1
+    divisions 32
+    top matref 4
+    inside matref 3
+    outside matref 3
+    inside matref 3
+    outside matref 3
+    startside matref 3
+    endside matref 3
+  end
+  
+  box #stairs
+    position 0 165 10
+    size 20 5 1
+    rotation 0
+  end
+  box #stairs
+    position 0 165 20
+    size 20 5 1
+    rotation 30
+  end
+  box #stairs
+    position 0 165 30
+    size 20 5 1
+    rotation 60
+  end
+  box #stairs
+    position 0 165 40
+    size 20 5 1
+    rotation 90
+  end
+  box #stairs
+    position 0 165 49.1
+    size 20 5 1
+    rotation 120
+  end
+  base
+    position 0 165 50
+    size 7 7 1
+    rotation 0
+    color 3
+  end
+  arc #corner stairs
+    position -250 250 0
+    size 60 60 10
+    rotation -90
+    angle 90
+    ratio 1
+    divisions 14
+  end
+  arc #corner stairs
+    position -250 250 10
+    size 50 50 10
+    rotation -90
+    angle 90
+    ratio 1
+    divisions 14
+  end
+  arc #corner stairs
+    position -250 250 20
+    size 40 40 10
+    rotation -90
+    angle 90
+    ratio 1
+    divisions 14
+  end
+  arc #corner stairs
+    position -250 250 30
+    size 30 30 10
+    rotation -90
+    angle 90
+    ratio 1
+    divisions 14
+  end
+  arc #corner stairs
+    position -250 250 40
+    size 20 20 10
+    rotation -90
+    angle 90
+    ratio 1
+    divisions 14
+  end
+  arc #corner stairs
+    position -250 250 50
+    size 10 10 10
+    rotation -90
+    angle 90
+    ratio 1
+    divisions 14
+  end
+  box #jumping boxes
+    position 200 50 0
+    size 20 20 35
+    rotation 70
+  end
+  box #jumping boxes
+    position 180 90 0
+    size 15 15 25
+    rotation 50
+  end
+  box #jumping boxes
+    position 190 120 0
+    size 10 10 15
+    rotation 30
+  end
+  box #jumping boxes
+    position 210 140 0
+    size 6 6 6
+    rotation 10
+  end
+  pyramid #pyramids on floor
+    position -200 150 0
+    size 10 10 10
+    rotation 45
+  end
+  pyramid #pyramids on floor
+    position -180 160 0
+    size 10 10 10
+    rotation 67
+  end
+  pyramid #pyramids on floor
+    position -220 100 0
+    size 10 10 10
+    rotation 90
+  end
+  pyramid #pyramids on floor
+    position -210 200 0
+    size 10 10 10
+    rotation 15
+  end
+  pyramid #pyramids on floor
+    position -230 180 0
+    size 10 10 10
+    rotation 60
+  end
+  pyramid #pyramids on floor
+    position -160 200 0
+    size 10 10 10
+    rotation 70
+  end
+  define escalatorred
+    mesh
+      inside 0 0 0.2
+      vertex -1 -1 0
+      vertex 1 -1 0
+      vertex 1 1 0
+      vertex -1 1 0
+      vertex 1 1 1
+      vertex -1 1 1
+      
+      matref 6
+      
+      face
+        vertices 3 2 1 0
+      endface
+      face
+        vertices 2 3 5 4
+      endface
+      face
+        vertices 0 1 4 5
+        matref 12
+        phydrv upred
+      endface
+      face
+        vertices 5 3 0
+      endface
+      face
+        vertices 1 2 4
+      endface
+    end
+    box
+      position 0 0 0
+      size 1 1.001 0.001
+    end
+ enddef
+ define escalatorblue
+    mesh
+          inside 0 0 0.2
+
+      vertex -1 -1 0
+      vertex 1 -1 0
+      vertex 1 1 0
+      vertex -1 1 0
+      vertex 1 1 1
+      vertex -1 1 1
+      
+      matref 6
+      
+      face
+        vertices 3 2 1 0
+      endface
+      face
+        vertices 2 3 5 4
+      endface
+      face
+        vertices 0 1 4 5
+        matref 12
+        phydrv upblue
+      endface
+      face
+        vertices 5 3 0
+      endface
+      face
+        vertices 1 2 4
+      endface
+    end
+    box
+      position 0 0 0
+      size 1 1.001 0.001
+    end
+ enddef
+ group escalatorred
+   scale 5 60 45
+   shift -245 -65 0
+ end
+  group escalatorblue
+   scale 5 60 45
+   shift 245 65 0
+   rotation 180
+ end
+       
+  link
+    from /t1:f
+    to /t0:b
+  end
+  link
+    from /t2:f
+    to /t0:f
+  end
+  link
+    from /t1:b
+    to /t2:b
+  end
+  link
+    from /t2:b
+    to /t1:b
+  end
+  link
+    from /t0:b
+    to /t1:f
+  end
+  link
+    from /t0:f
+    to /t2:f
+  end
+
+  
+#enddef
+
+

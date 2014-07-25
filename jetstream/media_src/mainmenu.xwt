@@ -1,0 +1,55 @@
+<application name="MainMenuPanel">
+
+	<!--========================================== Header =======-->
+	<box side="top" transparent="1">
+		<label bitmap_src="splashlogo_sm.png" side="all" />
+	</box>	
+
+	<box transparent="1" side="all">
+
+		<!--================================== About ============-->
+		<tabpage text="About" side="left">
+			<box transparent="1" margin="0" side="bottom">
+				<label bitmap_src="pglogo3.png" side="left" />
+				<label bitmap_src="pythonlogo.png" side="right" />		
+			</box>
+			<box transparent="1" margin="0" side="left">
+				<label bitmap_src="jetcow2_64.png" side="top"/>
+				<label bitmap_src="jetcow_128.png" side="bottom"/>
+			</box>
+			<textbox text_src="about.text" side="all" readonly="1"/>
+		</tabpage>
+
+		<!--================================== Introduction =====-->
+		<tabpage text="Introduction" side="left">
+			<scrollbox transparent="1">
+				<textbox text_src="intro.text" side="all" readonly="1"/>
+			</scrollbox>
+		</tabpage>
+
+
+		<!--================================== Single-player ====-->
+		<tabpage text="Single-player Missions" side="left">
+			<label side="all">
+				This isn't here yet
+			</label>
+			<button name="Play" text="Play" />
+		</tabpage>
+
+		<!--================================== Multiplayer ======-->
+		<tabpage text="Multiplayer" side="left">
+			<label side="all">
+				This doesn't do anything either
+			</label>
+		</tabpage>
+
+		<!--================================== Mods =============-->
+		<tabpage text="Mods" side="left" name="ModsTab">
+			<label side="all">
+				No mods installed
+			</label>
+		</tabpage>
+
+	</box>
+
+</application>

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="lone kimono" level="orange" category="grabs-and-tackles"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>left hand lapel grab</attack>
+  <stances>
+    <attacker><stance side="left">neutral bow</stance></attacker>
+    <defender><stance>natural</stance></defender>
+  </stances>
+  <steps>
+    <step>
+      <footManeuver side="left">step back</footManeuver> into a
+      <stance side="right">neutral bow</stance> as you pin your
+      opponent's left hand to your chest with your left hand. Simultaneously
+      execute a <block side="right">upward</block> to your opponent's left
+      elbow.
+    </step>
+    <step>
+      Execute a <block side="right">hammering inward</block> to your
+      opponent's left arm as you release your pin.
+    </step>
+    <step>
+      Execute a <strike side="right">outward hand sword</strike> to your
+      opponent's neck
+    </step>
+  </steps>
+  <notes>
+    <note>
+      When the opponent is really grabbing as if to punch, stepping back
+      often isn't an option. To get the arm bar, the uppercut/upward block
+      needs to act similarly to the uppercut in obscure claws.
+    </note>
+  </notes>
+</technique>

@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="sword and hammer" category="grabs-and-tackles"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>left hand grab to right shoulder from the right flank</attack>
+  <stances>
+    <attacker>left neutral bow</attacker>
+    <defender>natural</defender>
+  </stances>
+  <steps>
+    <step>
+      <footManeuver side="right">step</footManeuver> toward 3:00 into a
+      <stance>horse</stance> while executing a
+      <strike side="right">obscure hand sword</strike> to your opponent's
+      chin. Simultaneously pin your opponent's left hand to your right
+      shoulder with your left hand.
+    </step>
+    <step>
+      Return your right hand to your body.
+    </step>
+    <step>
+      Execute a <strike side="right">back hammer fist</strike> to your
+      opponent's groin.
+    </step>
+  </steps>
+</technique>

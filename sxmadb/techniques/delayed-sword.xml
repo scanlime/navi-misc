@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="delayed sword" level="yellow" category="grabs-and-tackles"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>right hand lapel grab</attack>
+  <stances>
+    <attacker><stance side="right">neutral bow</stance></attacker>
+    <defender><stance>natural</stance></defender>
+  </stances>
+  <steps>
+    <step>
+      <footManeuver side="left">step back</footManeuver> toward 6:00 into a
+      <stance side="right">neutral bow</stance> while executing a
+      <block side="right">hammering inward</block> to your opponent's
+      right inner forearm.
+    </step>
+    <step>
+      Draw your right foot back toward your left into a
+      <stance side="right">cat</stance> stance.
+    </step>
+    <step>
+      Execute a <kick side="right">front snap</kick> to your opponent's
+      groin.
+    </step>
+    <step>
+      Step down to a <stance side="right">neutral bow</stance> while
+      executing a <strike side="right">outward hand sword</strike> to
+      your opponent's right neck.
+    </step>
+  </steps>
+</technique>

@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "screamers", "screamers.vcproj", "{640E4C87-D32C-41C3-9790-4214754251A5}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "screamersd", "screamersd.vcproj", "{26B0F314-D236-45D4-BD4B-55A4369BC99B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{640E4C87-D32C-41C3-9790-4214754251A5}.Debug.ActiveCfg = Debug|Win32
+		{640E4C87-D32C-41C3-9790-4214754251A5}.Debug.Build.0 = Debug|Win32
+		{640E4C87-D32C-41C3-9790-4214754251A5}.Release.ActiveCfg = Release|Win32
+		{640E4C87-D32C-41C3-9790-4214754251A5}.Release.Build.0 = Release|Win32
+		{26B0F314-D236-45D4-BD4B-55A4369BC99B}.Debug.ActiveCfg = Debug|Win32
+		{26B0F314-D236-45D4-BD4B-55A4369BC99B}.Debug.Build.0 = Debug|Win32
+		{26B0F314-D236-45D4-BD4B-55A4369BC99B}.Release.ActiveCfg = Release|Win32
+		{26B0F314-D236-45D4-BD4B-55A4369BC99B}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

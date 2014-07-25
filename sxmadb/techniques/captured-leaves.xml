@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="captured leaves" level="purple" category="chokes-and-locks"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>right hand finger lock to the left hand</attack>
+  <stances>
+    <attacker><stance>natural</stance></attacker>
+    <defender><stance>natural</stance></defender>
+  </stances>
+  <steps>
+    <step>
+      <footManeuver side="left">step</footManeuver> toward 12:00 into a
+      <stance side="left">neutral bow</stance> as you thrust your left
+      hand forward and above your head
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> into a
+      <stance side="left">reverse bow</stance> as you execute a
+      <strike side="right">back elbow</strike> to your
+      opponent's left kidney.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> into a
+      <stance side="left">forward bow</stance> as you execute a
+      <strike side="left">outward elbow</strike> to your opponent's
+      left ribs. Simultaneously grab and control your opponent's right
+      wrist with your right hand.
+    </step>
+  </steps>
+</technique>

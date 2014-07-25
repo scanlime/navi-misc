@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="iso-8859-1"?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>Firestarter::List Server</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<link rel="stylesheet" type="text/css" href="../../CSS/basic.css" />
+</head>
+
+<body>
+<div id="container">
+
+<div id="header">
+<h1><a href="../../index.html">Firestarter</a></h1>
+</div>
+
+<div id="nav">
+<ul>
+	<li class="head">About
+	<ul>
+		<li><a href="../../news.html">News</a></li>
+		<li><a href="../../readme.html">Readme</a></li>
+		<li><a href="../../todo.html">Todo</a></li>
+		<li><a href="../../relnotes.html">Release Notes</a></li>
+		<li><a href="../../bugs.html">Bugs</a></li>
+		<li><a href="../../devinfo.html">Developer Info</a></li>
+		<li><a href="../../compiling.html">Compiling</a></li>
+		<li><a href="../../coding.html">Coding Style</a></li>
+		<li><a href="../../porting.html">Porting</a></li>
+		<li><a href="../../copying.html">Copying</a></li>
+		<li><a href="../../authors.html">Authors</a></li>
+		<li><a href="../../contacts.html">Contact Us</a></li>
+	</ul>
+	</li>
+</ul>
+<ul>
+	<li class="head">Documentation
+	<ul>
+		<li><a href="../user/index.html">User Manual</a></li>
+		<li><a href="index.html">Developer Manual</a></li>
+	</ul>
+	</li>
+</ul>
+<ul>
+	<li class="head">Resources
+	<ul>
+		<li><a href="http://forum.firestarter.org">Forum</a></li>
+		<li><a href="http://somecgiircthing">Irc</a></li>
+		<li><a href="http://www.ogre3d.org">Ogre</a></li>
+		<li><a href="http://www.libsdl.org">SDL</a></li>
+		<li><a href="http://www.bzflag.org">BZFlag</a></li>
+	</ul>
+	</li>
+</ul>
+
+<br />
+<p class="copy">Copyright &copy; 2004<br />Jeff Myers</p>
+</div>
+
+<div id="content">
+<h4>List Server</h4>
+<p><b>List server requirements doc</b></p>
+<ul>
+<li>One Central URL for list server access. Must span multiple machines/subnets
+to allow for redundancy. All data is shared between all servers.
+<li>Allow logins from game servers, clients, bots, and admins.
+<li>collect game server info for publishing.
+<li>connect back to game servers for verification of server address
+<li>publish server list to game clients and bots that connect.
+<li>collect version,OS, and other anonymous info for each connection. Possibly
+publish those stats to a database
+<li>Poll or allow a push of game server update data with player counts, game
+type, and other info
+<li>Allow any info to be published ( some sort of named field thing )
+<li>Track current release and dev versions of client and server apps. notify
+all if they are out of version on connect or on version update
+<li>Allow banned servers and clients based on hostmask
+<li>Separate dev, beta, and release server lists.
+<li>Allow admin client to login and change local settings, backup database, remove
+servers, etc.<li>Publish server list database to a some web accessible database
+(mysql?)
+<li>Provide address of default login friends and league servers
+<li>More?
+</ul>
+
+</div>
+
+</div> <!-- End Container div -->
+</body>
+</html>

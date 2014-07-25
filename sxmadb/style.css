@@ -1,0 +1,157 @@
+body {
+  font: 9pt Verdana, Helvetica, Arial, sans-serif;
+  background: #eef4eb;
+  color: Black;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: #000080;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+img {
+  border: none;
+  vertical-align: middle;
+  padding: 0em 1em;
+}
+
+ul {
+  line-height: 1.5em;
+  list-style-image: url(bullet.png);
+  margin-left: 2.0em;
+  padding: 0em;
+  margin: 0em 0em 0em 1.5em;
+}
+
+div.siteName {
+  float: right;
+  margin: 0em 0.5em;
+  font: 350% Verdana, Helvetica, Arial, sans-serif;
+  color: #D0D0D0;
+}
+
+div.heading {
+  background: White;
+  border-bottom: 1px solid Black;
+  padding: 0.5em 0.5em 0em 0.5em;
+  margin: 0em 0em 2.0em 0em;
+}
+
+div.headingTabs {
+  margin: 1em 0em 0em 0em;
+}
+
+div.footer {
+  background: white;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  margin: 0em;
+  padding: 1em;
+  text-align: center;
+}
+
+div.title {
+  font: 250% bold;
+}
+
+a.headingTab {
+  background: #eef4eb;
+  border: 1px solid black;
+  border-bottom: #eef4eb 1px solid;
+  color: #000080;
+  margin: 1.5em 0.5em 0em 0.5em;
+  padding: 0em 0.5em;
+  text-decoration: none;
+}
+
+a.headingTab:hover {
+  text-decoration: underline;
+}
+
+span.section {
+  background: #dee7ec;
+  border: 1px solid #8CACBB;
+  border-bottom: #dee7ec 1px solid;
+  color: #436976;
+  font: 110% Bold;
+  margin: 0em 0.5em 0em 0.8em;
+  padding: 0em 2em;
+}
+
+span.emph {
+  font-weight: Bold;
+}
+
+div.sectionTop {
+  background: #dee7ec;
+  padding: 0.4em;
+  margin: 0em 0em 0em 0em;
+}
+
+div.section {
+  background: White;
+  border: 1px solid #8CACBB;
+  margin: 0em 0em 2.0em 0em;
+}
+
+div.rowMiddle {
+  padding: 0.5em;
+  border-bottom: 1px solid #8CACBB;
+}
+
+div.row {
+  padding: 0.5em;
+}
+
+/* Most of this table formatting is modified from Plone's default CSS */
+
+table {
+  margin: 0em 0em 1em 0em;
+  font: 9pt Verdana, Helvetica, Arial, sans-serif;
+}
+
+table th {
+  border-bottom: 1px solid #8CACBB;
+  font-weight: normal;
+  padding: 0.2em 1em;
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+
+table td {
+  padding: 0.8em 0.8em 0em 0.8em;
+  text-align: left;
+}
+
+table.columns {
+  width: 100%;
+  margin: 0em;
+  margin: 0em;
+}
+
+table.columns td.left {
+  vertical-align: top;
+  width: 14em;
+  margin: 0em;
+  padding: 0em 0em 0em 1.5em;
+}
+
+table.columns td.main {
+  vertical-align: top;
+  margin: 0em;
+  padding: 0em 1.5em;
+}
+
+table.columns td.right {
+  vertical-align: top;
+  width: 20em;
+  margin: 0em;
+  padding: 0em 1.5em 0em 0em;
+}
+

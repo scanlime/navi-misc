@@ -1,0 +1,40 @@
+jetstream
+------------
+
+Insert some insightful rubbish here
+
+To compile it, you will need:
+
+  - SDL
+  - PicoGUI server (pgserver)
+  - PicoGUI theme compiler (themec)
+  - Python 2.2
+  - PicoGUI Python client library (cli_python)
+  - FMOD sound library (Currently disabled)
+  - OpenGL
+  - libpng
+  - libjpeg
+  - freetype2 (version 2.1.3 recommended)
+  - Boost.Python
+
+Notes:
+
+  - This app requires specific options to be enabled in
+    the picogui server. If in doubt, you can ./configure
+    your pgserver with a line like:
+
+    ./configure --with-profile=/path/to/jetstream/pgserver-profile
+
+  - You have to enable OpenGL support for the PicoGUI theme compiler:
+
+    ./configure --enable-opengl
+
+  - FMOD is not open source. It will be eventually replaced
+    with an alternative, like OpenAL
+    (Update: FMOD support is currently disabled)
+
+  - The path to the python library is hardcoded in the makefile.
+    It works on Gentoo, you might need to change it on other distros
+    as it hasn't been tested.
+
+--- The End ---

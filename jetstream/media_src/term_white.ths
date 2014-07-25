@@ -1,0 +1,36 @@
+/* Black-on-white terminal theme */
+
+obj default name = "White background terminal theme";
+
+obj terminal {
+  /*
+   * 'textcolors' is an array of 16 pgcolor values to use as a palette.
+   * This one has darker colors than the default, 
+   * and black and white are swapped.
+   */
+  textcolors = Array(0xFFFFFF,
+		     0x000080,
+		     0x008000,
+		     0x008080,
+		     0x800000,
+		     0x800080,
+		     0x808000,
+		     0x808080,
+		     0x000000,
+		     0x0000A0,
+		     0x00A000,
+		     0x00A0A0,
+		     0xA00000,
+		     0xA000A0,
+		     0xA0A000,
+		     0x000000);
+
+  /* In color attributes, the high nibble is an index to the background
+   * color and the low nibble is an index to the foreground color.
+   * This sets up black text and a blue cursor. Note that the forground color
+   * for the cursor only shows if there is a character under it, and that
+   * a background color of 0 allows the bitmap to show through.
+   */
+  attr.default = 0x0F;
+  attr.cursor = 0x9E;
+}

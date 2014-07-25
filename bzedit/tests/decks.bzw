@@ -1,0 +1,1197 @@
+# Copyright (c) 2001 Michael Rodgers
+
+options
+    -j -fb
+    -srvmsg "this is the end"
+  end
+
+#------------------steps up to teleporter 0
+
+box
+position 30 -30 0
+rotation 0.0
+size 15 15 5
+end
+
+box
+position 30 0 0
+rotation 0.0
+size 15 15 10
+end
+
+box
+position 30 30 0
+rotation 0.0
+size 15 15 15
+end
+
+box
+position 0 30 0
+rotation 0.0
+size 15 15 20
+end
+
+box
+position -30 30 0
+rotation 0.0
+size 15 15 25
+end
+
+box
+position -30 0 0
+rotation 0.0
+size 15 15 30
+end
+
+box
+position -30 -30 0
+rotation 0.0
+size 15 15 35
+end
+
+box
+position 0 -30 0
+rotation 0.0
+size 15 15 40
+end
+
+#------------------pedastal for teleporter 0, hole left underneath
+
+box
+position 0 0 10
+rotation 0.0
+size 15 15 35
+end
+
+#------------------central high platform
+
+box
+position 0 0 75
+rotation 45.0
+size 60 60 5
+end
+
+#------------------smaller nodes off of central high platform
+
+box
+position 150 150 75
+rotation 45.0
+size 30 30 5
+end
+
+box
+position 150 -150 75
+rotation 45.0
+size 30 30 5
+end
+
+box
+position -150 150 75
+rotation 45.0
+size 30 30 5
+end
+
+box
+position -150 -150 75
+rotation 45.0
+size 30 30 5
+end
+
+#------------------supports for nodes:  struts down to ground
+
+box
+position 150 150 0
+rotation 0.0
+size 5 5 75
+end
+
+box
+position 150 -150 0
+rotation 0.0
+size 5 5 75
+end
+
+box
+position -150 150 0
+rotation 0.0
+size 5 5 75
+end
+
+box
+position -150 -150 0
+rotation 0.0
+size 5 5 75
+end
+
+#------------------connection between platform and subplatform:  walkway/support for central platform
+
+box
+position -75 75 75
+rotation 45.0
+size 10 100 5
+end
+
+box
+position 75 -75 75
+rotation 45.0
+size 10 100 5
+end
+
+box
+position -75 -75 75
+rotation -45.0
+size 10 100 5
+end
+
+box
+position 75 75 75
+rotation -45.0
+size 10 100 5
+end
+
+#------------------level 2 walkways between vertical support struts
+
+box
+position 150 0 15
+rotation 90.0
+size 170 20 2.5
+end
+
+box
+position -150 0 15
+rotation 90.0
+size 170 20 2.5
+end
+
+box
+position 0 150 15
+rotation 0.0
+size 170 20 2.5
+end
+
+box
+position 0 -150 15
+rotation 0.0
+size 170 20 2.5
+end
+
+#------------------level 3 walkways between vertical support struts
+
+box
+position 150 0 30
+rotation 90.0
+size 165 15 2.5
+end
+box
+position -150 0 30
+rotation 90.0
+size 165 15 2.5
+end
+box
+position 0 150 30
+rotation 0.0
+size 165 15 2.5
+end
+box
+position 0 -150 30
+rotation 0.0
+size 165 15 2.5
+end
+
+#------------------level 4 walkways between vertical support struts
+
+box
+position 150 0 45
+rotation 90.0
+size 160 10 2.5
+end
+box
+position -150 0 45
+rotation 90.0
+size 160 10 2.5
+end
+box
+position 0 150 45
+rotation 0.0
+size 160 10 2.5
+end
+box
+position 0 -150 45
+rotation 0.0
+size 160 10 2.5
+end
+
+#------------------level 5 walkways between vertical support struts
+
+box
+position 150 0 60
+rotation 90.0
+size 155 5 2.5
+end
+box
+position -150 0 60
+rotation 90.0
+size 155 5 2.5
+end
+box
+position 0 150 60
+rotation 0.0
+size 155 5 2.5
+end
+box
+position 0 -150 60
+rotation 0.0
+size 155 5 2.5
+end
+
+#------------------level 5 additional crossways 
+
+box
+position 75 75 60
+rotation -45.0
+size 106.7 5 2.5
+end
+
+box
+position -75 -75 60
+rotation -45.0
+size 106.7 5 2.5
+end
+
+box
+position 75 -75 60
+rotation 45.0
+size 106.7 5 2.5
+end
+
+box
+position -75 75 60
+rotation 45.0
+size 106.7 5 2.5
+end
+
+#------------------level 4 additional crossways 
+
+box
+position 75 75 45
+rotation -45.0
+size 106.7 10 2.5
+end
+
+box
+position -75 -75 45
+rotation -45.0
+size 106.7 10 2.5
+end
+
+box
+position 75 -75 45
+rotation 45.0
+size 106.7 10 2.5
+end
+
+box
+position -75 75 45
+rotation 45.0
+size 106.7 10 2.5
+end
+
+#------------------level 3 additional crossways 
+
+box
+position 75 75 30
+rotation -45.0
+size 106.7 15 2.5
+end
+
+box
+position -75 -75 30
+rotation -45.0
+size 106.7 15 2.5
+end
+
+box
+position 75 -75 30
+rotation 45.0
+size 106.7 15 2.5
+end
+
+box
+position -75 75 30
+rotation 45.0
+size 106.7 15 2.5
+end
+
+#------------------level 2 additional crossways 
+
+box
+position 75 75 15
+rotation -45.0
+size 106.7 20 2.5
+end
+
+box
+position -75 -75 15
+rotation -45.0
+size 106.7 20 2.5
+end
+
+box
+position 75 -75 15
+rotation 45.0
+size 106.7 20 2.5
+end
+
+box
+position -75 75 15
+rotation 45.0
+size 106.7 20 2.5
+end
+
+#------------------outer walkways--level2
+
+box
+position 300 0 15
+rotation 0.0
+size 20 320 2.5
+end
+
+box
+position -300 0 15
+rotation 0.0
+size 20 320 2.5
+end
+
+box
+position 0 300 15
+rotation 0.0
+size 320 20 2.5
+end
+
+box
+position 0 -300 15
+rotation 0.0
+size 320 20 2.5
+end
+
+#------------------outer walkways--level3
+
+box
+position 300 0 30
+rotation 0.0
+size 15 315 2.5
+end
+
+box
+position -300 0 30
+rotation 0.0
+size 15 315 2.5
+end
+
+box
+position 0 300 30
+rotation 0.0
+size 315 15 2.5
+end
+
+box
+position 0 -300 30
+rotation 0.0
+size 315 15 2.5
+end
+
+#------------------outer walkways--level4
+
+box
+position 300 0 45
+rotation 0.0
+size 10 310 2.5
+end
+
+box
+position -300 0 45
+rotation 0.0
+size 10 310 2.5
+end
+
+box
+position 0 300 45
+rotation 0.0
+size 310 10 2.5
+end
+
+box
+position 0 -300 45
+rotation 0.0
+size 310 10 2.5
+end
+
+#------------------outer walkways--level5
+
+box
+position 300 0 60
+rotation 0.0
+size 5 305 2.5
+end
+
+box
+position -300 0 60
+rotation 0.0
+size 5 305 2.5
+end
+
+box
+position 0 300 60
+rotation 0.0
+size 305 5 2.5
+end
+
+box
+position 0 -300 60
+rotation 0.0
+size 305 5 2.5
+end
+
+#------------------connections for level2 inner-outer walkways
+
+box
+position 225 0 15
+rotation 0.0
+size 55 20 2.5
+end
+
+box
+position -225 0 15
+rotation 0.0
+size 55 20 2.5
+end
+
+box
+position 0 225 15
+rotation 0.0
+size 20 55 2.5
+end
+
+box
+position 0 -225 15
+rotation 0.0
+size 20 55 2.5
+end
+
+#------------------connections for level3 inner-outer walkways
+
+box
+position 225 0 30
+rotation 0.0
+size 60 15 2.5
+end
+
+box
+position -225 0 30
+rotation 0.0
+size 60 15 2.5
+end
+
+box
+position 0 225 30
+rotation 0.0
+size 15 60 2.5
+end
+
+box
+position 0 -225 30
+rotation 0.0
+size 15 60 2.5
+end
+
+#------------------connections for level4 inner-outer walkways
+
+box
+position 225 0 45
+rotation 0.0
+size 65 10 2.5
+end
+
+box
+position -225 0 45
+rotation 0.0
+size 65 10 2.5
+end
+
+box
+position 0 225 45
+rotation 0.0
+size 10 65 2.5
+end
+
+box
+position 0 -225 45
+rotation 0.0
+size 10 65 2.5
+end
+
+#------------------connections for level5 inner-outer walkways
+
+box
+position 225 0 60
+rotation 0.0
+size 70 5 2.5
+end
+
+box
+position -225 0 60
+rotation 0.0
+size 70 5 2.5
+end
+
+box
+position 0 225 60
+rotation 0.0
+size 5 70 2.5
+end
+
+box
+position 0 -225 60
+rotation 0.0
+size 5 70 2.5
+end
+
+#------------------support for outer walkways
+
+box
+position 300 0 0
+rotation 0.0
+size 5 5 60
+end
+
+box
+position -300 0 0
+rotation 0.0
+size 5 5 60
+end
+
+box
+position 0 -300 0
+rotation 0.0
+size 5 5 60
+end
+
+box
+position 0 300 0
+rotation 0.0
+size 5 5 60
+end
+
+box
+position 300 300 0
+rotation 0.0
+size 5 5 75
+end
+
+box
+position -300 300 0
+rotation 0.0
+size 5 5 75
+end
+
+box
+position 300 -300 0
+rotation 0.0
+size 5 5 75
+end
+
+box
+position -300 -300 0
+rotation 0.0
+size 5 5 75
+end
+
+#------------------platforms off of outer walkways: level 2
+
+box
+position 350 0 15
+rotation 0.0
+size 20 20 2.5
+end
+
+box
+position -350 0 15
+rotation 0.0
+size 20 20 2.5
+end
+
+box
+position 0 350 15
+rotation 0.0
+size 20 20 2.5
+end
+
+box
+position 0 -350 15
+rotation 0.0
+size 20 20 2.5
+end
+
+#--connections to outer walkway
+
+box
+position 325 0 15
+rotation 0.0
+size 5 2.5 2.5
+end
+
+box
+position -325 0 15
+rotation 0.0
+size 5 2.5 2.5
+end
+
+box
+position 0 325 15
+rotation 0.0
+size 2.5 5 2.5
+end
+
+box
+position 0 -325 15
+rotation 0.0
+size 2.5 5 2.5
+end
+
+#------------------platforms off of outer walkways: level 3
+
+box
+position 350 0 30
+rotation 0.0
+size 15 15 2.5
+end
+
+box
+position -350 0 30
+rotation 0.0
+size 15 15 2.5
+end
+
+box
+position 0 350 30
+rotation 0.0
+size 15 15 2.5
+end
+
+box
+position 0 -350 30
+rotation 0.0
+size 15 15 2.5
+end
+
+#--connections to outer walkway
+
+box
+position 325 0 30
+rotation 0.0
+size 10 2.5 2.5
+end
+
+box
+position -325 0 30
+rotation 0.0
+size 10 2.5 2.5
+end
+
+box
+position 0 325 30
+rotation 0.0
+size 2.5 10 2.5
+end
+
+box
+position 0 -325 30
+rotation 0.0
+size 2.5 10 2.5
+end
+
+#------------------platforms off of outer walkways: level 4
+
+box
+position 350 0 45
+rotation 0.0
+size 10 10 2.5
+end
+
+box
+position -350 0 45
+rotation 0.0
+size 10 10 2.5
+end
+
+box
+position 0 350 45
+rotation 0.0
+size 10 10 2.5
+end
+
+box
+position 0 -350 45
+rotation 0.0
+size 10 10 2.5
+end
+
+#--connections to outer walkway
+
+box
+position 325 0 45
+rotation 0.0
+size 15 2.5 2.5
+end
+
+box
+position -325 0 45
+rotation 0.0
+size 15 2.5 2.5
+end
+
+box
+position 0 325 45
+rotation 0.0
+size 2.5 15 2.5
+end
+
+box
+position 0 -325 45
+rotation 0.0
+size 2.5 15 2.5
+end
+
+#------------------platforms off of outer walkways: level 5
+
+box
+position 350 0 60
+rotation 0.0
+size 5 5 2.5
+end
+
+box
+position -350 0 60
+rotation 0.0
+size 5 5 2.5
+end
+
+box
+position 0 350 60
+rotation 0.0
+size 5 5 2.5
+end
+
+box
+position 0 -350 60
+rotation 0.0
+size 5 5 2.5
+end
+
+#--connections to outer walkway
+
+box
+position 325 0 60
+rotation 0.0
+size 20 2.5 2.5
+end
+
+box
+position -325 0 60
+rotation 0.0
+size 20 2.5 2.5
+end
+
+box
+position 0 325 60
+rotation 0.0
+size 2.5 20 2.5
+end
+
+box
+position 0 -325 60
+rotation 0.0
+size 2.5 20 2.5
+end
+
+#------------------corner platforms
+
+box
+position 300 300 75
+rotation 0.0
+size 30 30 5
+end
+
+box
+position 300 -300 75
+rotation 0.0
+size 30 30 5
+end
+
+box
+position -300 300 75
+rotation 0.0
+size 30 30 5
+end
+
+box
+position -300 -300 75
+rotation 0.0
+size 30 30 5
+end
+
+#----------------------------------------------------PYRAMIDS BEGIN
+
+#------------------anti-tip-supports for primary (inner) set of walkways (ricochet laser killer)
+
+pyramid
+position 150 150 0
+rotation 0.0
+size 10 10 15
+end
+
+pyramid
+position -150 -150 0
+rotation 0.0
+size 10 10 15
+end
+
+pyramid
+position 150 -150 0
+rotation 0.0
+size 10 10 15
+end
+
+pyramid
+position -150 150 0
+rotation 0.0
+size 10 10 15
+end
+
+#------------------anti-tip-supports for secondary (outer) set of walkways (ricochet laser killer)
+
+pyramid
+position 300 0 0
+rotation 0.0
+size 10 10 15
+end
+
+pyramid
+position -300 0 0
+rotation 0.0
+size 10 10 15
+end
+
+pyramid
+position 0 -300 0
+rotation 0.0
+size 10 10 15
+end
+
+pyramid
+position 0 300 0
+rotation 0.0
+size 10 10 15
+end
+
+pyramid
+position 300 300 0
+rotation 0.0
+size 10 10 15
+end
+
+pyramid
+position -300 300 0
+rotation 0.0
+size 10 10 15
+end
+
+pyramid
+position 300 -300 0
+rotation 0.0
+size 10 10 15
+end
+
+pyramid
+position -300 -300 0
+rotation 0.0
+size 10 10 15
+end
+
+
+#------------------central platform decorative spikes
+
+pyramid
+position 79.196 0 80
+rotation 45.0
+size 4 4 88
+end
+
+pyramid
+position -79.196 0 80
+rotation 45.0
+size 4 4 88
+end
+
+pyramid
+position 0 79.196 80
+rotation 45.0
+size 4 4 88
+end
+
+pyramid
+position 0 -79.196 80
+rotation 45.0
+size 4 4 88
+end
+
+#------------------decorative spikes for a sub platform
+
+pyramid
+position 150 186.77 80
+rotation 45.0
+size 4 4 84
+end
+
+pyramid
+position 150 113.23 80
+rotation 45.0
+size 4 4 84
+end
+
+pyramid
+position 186.77 150 80
+rotation 45.0
+size 4 4 84
+end
+
+pyramid
+position 113.23 150 80
+rotation 45.0
+size 4 4 84
+end
+
+#------------------decorative spikes for a sub platform
+
+pyramid
+position -150 186.77 80
+rotation 45.0
+size 4 4 84
+end
+
+pyramid
+position -150 113.23 80
+rotation 45.0
+size 4 4 84
+end
+
+pyramid
+position -186.77 150 80
+rotation 45.0
+size 4 4 84
+end
+
+pyramid
+position -113.23 150 80
+rotation 45.0
+size 4 4 84
+end
+
+#------------------decorative spikes for a sub platform
+
+pyramid
+position 150 -186.77 80
+rotation 45.0
+size 4 4 84
+end
+
+pyramid
+position 150 -113.23 80
+rotation 45.0
+size 4 4 84
+end
+
+pyramid
+position 186.77 -150 80
+rotation 45.0
+size 4 4 84
+end
+
+pyramid
+position 113.23 -150 80
+rotation 45.0
+size 4 4 84
+end
+
+#------------------decorative spikes for a sub platform
+
+pyramid
+position -150 -186.77 80
+rotation 45.0
+size 4 4 84
+end
+
+pyramid
+position -150 -113.23 80
+rotation 45.0
+size 4 4 84
+end
+
+pyramid
+position -186.77 -150 80
+rotation 45.0
+size 4 4 84
+end
+
+pyramid
+position -113.23 -150 80
+rotation 45.0
+size 4 4 84
+end
+
+#------------------teleporters begin-------------------------------------------->
+
+# tele0 {ln 0,1):  top of stairs to central high platform
+teleporter
+position 0 0 45
+rotation -90.0
+size 0 5 20
+border 1
+end
+
+# tele1 {ln 2,3):  bottom half of teleporter at top; no links
+teleporter
+position 0 0 80
+rotation -90.0
+size 0 5 10
+border 0
+end
+
+# tele2 {ln 4,5):  hidden under stairs; leads to high central platform
+teleporter
+position 0 0 0
+rotation -90.0
+size 0 4 10
+border 0.4
+end
+
+# tele3 {ln 6,7):  (secret) upper half of central high platform; leads to under stairs
+teleporter
+position 0 0 90
+rotation -90.0
+size 0 5 10
+border 0
+end
+
+# tele4 {ln 8,9):  central high platform; frame about two halfs; no links
+teleporter
+position 0 0 80
+rotation -90.0
+size 0 4 20
+border 1
+end
+
+#teleporters that cross diagnally from high corner platforms
+
+# tele5 {ln 10,11):  
+teleporter
+position 300 300 80
+rotation 45.0
+size 0 7 20
+border 1
+end
+
+# tele6 {ln 12,13): 
+teleporter
+position -300 -300 80
+rotation 45.0
+size 0 7 20
+border 1
+end
+
+# tele7 {ln 14,15): 
+teleporter
+position 300 -300 80
+rotation -45.0
+size 0 7 20
+border 1
+end
+
+# tele8 {ln 16,17):
+teleporter
+position -300 300 80
+rotation -45.0
+size 0 7 20
+border 1
+end
+#------------------see teleporters for explanation of links
+
+link
+from 0
+to 2
+end
+
+link
+from 1
+to 3
+end
+
+link
+from 4
+to 2
+end
+
+link
+from 5
+to 3
+end
+
+link
+from 6
+to 4
+end
+
+link
+from 7
+to 5
+end
+
+link
+from 12
+to 10
+end
+
+link
+from 13
+to 11
+end
+
+link
+from 16
+to 14
+end
+
+link
+from 17
+to 15
+end
+
+link
+from 10
+to 12
+end
+
+link
+from 11
+to 13
+end
+
+link
+from 14
+to 16
+end
+
+link
+from 15
+to 17
+end

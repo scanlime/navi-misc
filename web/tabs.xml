@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<!--
+   The master list of projects in navi-misc, used to generate the navigation list
+-->
+
+<tabs>
+  <headingTab name="index" href="index.xml"/>
+  <headingTab name="repository" href="/svn/misc"/>
+</tabs>

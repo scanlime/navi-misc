@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="raining claw" level="purple" category="punch"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>right step-through uppercut</attack>
+  <stances>
+    <attacker><stance side="left">neutral bow</stance></attacker>
+    <defender><stance>natural</stance></defender>
+  </stances>
+  <steps>
+    <step>
+      <footManeuver side="left">step back</footManeuver> toward 6:00 into a
+      <stance side="right">neutral bow</stance> while executing a
+      <block side="right">hammering inward</block> to the inside of your opponent's
+      right forearm.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> into a <stance side="right">forward bow</stance>
+      as you execute a <strike side="left">overhead palm heel claw</strike> to the
+      bridge of your opponent's nose.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> into a <stance side="right">neutral bow</stance>
+      as you execute a <punch side="right">thrusting vertical back knuckle</punch> to
+      your opponent's face.
+    </step>
+  </steps>
+</technique>

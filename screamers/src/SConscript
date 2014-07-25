@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+
+Import ('env')
+
+libraries = ['tinyxml', 'tnl', 'tomcrypt']
+
+e = env.Copy ()
+e.Append (CPPPATH = libraries, LIBS = libraries, LIBPATH = libraries)
+
+# Build our libraries
+SConscript (['%s/SConscript' % s for s in libraries])
+
+ogreenv = e.Copy ()
+ogreenv.ParseConfig ('pkg-config --cflags --libs OGRE')
+ogreenv.Append (CCFLAGS = ['-DTNL_ENABLE_LOGGING'])
+# Build the server
+screamersd_sources = [
+	'Application.cpp',
+	'ConnectionManager.cpp',
+	'GameConnection.cpp',
+	'Listeners.cpp',
+	'Log.cpp',
+	'MainLoop.cpp',
+	'Pod.cpp',
+	'ScreamersD.cpp',
+	'TextUtils.cpp',
+	'World.cpp',
+	'WorldParser.cpp',
+]
+ogreenv.Program ('screamersd', screamersd_sources)
+
+# Build the client
+screamers_sources = [
+	'Application.cpp',
+	'ConnectionManager.cpp',
+	'Listeners.cpp',
+	'GameConnection.cpp',
+	'Log.cpp',
+	'MainLoop.cpp',
+	'Pod.cpp',
+	'TextUtils.cpp',
+	'Screamers.cpp',
+]
+ogreenv.Program ('screamers', screamers_sources)

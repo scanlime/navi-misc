@@ -1,0 +1,18 @@
+This is the dir for ogre plugins
+
+it should contain the following DLL or SO files
+Plugin_FileSystem
+PluginCgProgramManager
+Plugin_GuiElements
+Plugin_OctreeSceneManager
+Plugin_ParticleFX
+
+RenderSystem_GL
+
+(windows only)
+RenderSystem_Direct3D9
+RenderSystem_Direct3D7
+
+Optional
+Plugin_BSPSceneManager
+Plugin_NatureSceneManager

@@ -1,0 +1,108 @@
+This file contains my thoughts on what the game should do. Consider it as a
+sort of pseudo-requirements doc, but without any hard rules or traceability.
+
+
+The Pod:
+
+The pod is pretty simple - it floats like a float-bot, stings like an automatic
+stingin' machine and moves like a boat (see the old screamers).
+
+The pod has a fixed energy pool, which slowly recharges.
+Pickups can be grabbed to increase the recharge rate and pool size. Shots take power
+from pool. The more powerful the shot, the more energy it takes. Players start with
+level 1 shots, and can get pickups to increase shots to level 3. Pod has 2 guns.
+
+Damage from shots and bumping too hard against obstacles is absorbed by a shield,
+which uses energy from the pool.
+
+Power from the pool can be dumped to engines to move at a faster (2x?) rate.
+
+Pod explodes when total energy reaches 0.
+
+Shooting or moving can never reduce the energy all the way to 0; the only way a player
+can die is by hitting too many walls/getting shot too much.
+
+As far as pod physics, I'd love for zipping around on a flat surface to feel just
+like the old screamers.  For more complicated worlds, I'm thinking that the pod
+will have a sort of force field pushing up whose strength is some factor of the
+distance to the ground.  This will allow moving around on terrain, but you can still
+run into it if you move to fast towards too steep a surface.  There should probably
+be some kind of jumping involved, but I haven't thought about that yet
+
+
+World features:
+
+The world has areas that are impassable. These are objects in the world. The pod
+should react when it hits them ( bump off, or climb up ).
+
+The world can have safety zones, where no shot may be generated or pass thru.
+Anyone in this area is conisidered safe. There should be a limit on how often
+you can go in these things. mostly it's for when you have to pee. ( just an idea
+David adds: I don't like the idea of any safety areas or pausing - you can die or
+sit out for a round if you need to pee)
+
+The world should have pickups. These are objects that pods can pick up, and give
+the pod "things". Things such as upgraded weapons, more power, or other abilities.
+
+
+Scoring:
+
+Every pickup a player picks up adds 1 to his bounty. When a player dies, his bounty is set
+to 0. This means that the longer a player is alive, the higher his bounty will be.
+When you kill a player, his bounty is added to your score, as well as added to your
+bounty. This means that the better players will be "jucier" targets, and can make
+for some very fun gameplay.  It also avoids rewarding cowardice.
+
+Some game modes will not use the bounty based score, but rely on kills or flag captures.
+
+Game modes:
+
+DeathMatch:
+	Very simple, run around, shoot other players.
+
+	Mode options would include:
+		Timed rounds - highest score wins.
+		Frag limit games.
+		Last man standing games with a respawn limit.
+		Max Score limit games
+
+	A game is a round of action. Game should be ether open or closed.
+
+	Open games let anyone join at a time, they will just be at a disadvantage
+	for that round, and start as a normal player in the next round.
+
+	Closed games don't let players join untill a round starts. This creates a more
+	"pure" game, but can be frustrating for new players, or people just looking for fun.
+
+	both team and true Free for all.
+
+Capture the flag:
+	Always a team game. Rounds run to a max capture limit. Players move from an
+	area(s) that are designated their "base". Each base has a flag holder with
+	it's assocated team flag. Teams attempt to enter the other teams base and
+	capture their flag and bring it back to there own base, and touch it to there
+	team flag in it's holder.
+
+	When a flag carrier dies he drops the flag. When a team touches it's own team
+	flag and it is loose on the ground, the flag teleports back to it's holder. There
+	should be an option to respawn everyone on each capture, with some sort of delay
+	after capture, where no caputures can happen. As with FFA allow options for open
+	and closed games.
+
+Race:
+	canyon pod racing, baby. just because last exile r0x0rz my s0x0rz.
+
+	This is always a closed game: noone can join when a race is underway.
+	Players start at a start line and have to complete N laps. Each lap is a path around
+	the map procedeing across N waypoints in order. Pickups spawn on the map. Weapons and
+	stuff are allowed. Anyone who dies durning the race is "out" and must observe until
+	the race is complete.
+
+
+Other stuff:
+	When a player connects in the middle of a closed game, they're put in a 'waiting
+	room'.  During this time, they're allowed to observe the current round.
+
+	When a player dies out of a round, they're put in observer mode for the remainder
+	of the round.
+

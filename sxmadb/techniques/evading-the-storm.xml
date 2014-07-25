@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="evading the storm" level="purple" category="weapons"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>right hand lapel grab</attack>
+  <stances>
+    <attacker><stance side="left">neutral bow</stance></attacker>
+    <defender><stance>natural</stance></defender>
+  </stances>
+  <steps>
+    <step>
+      <footManeuver side="left">step</footManeuver> toward 4:30 into a
+      <stance side="right">neutral bow</stance> as you execute a
+      <parry side="left">inward</parry> to the outside of your opponent's
+      left wrist.
+    </step>
+    <step>
+      Transition into a <stance side="right">cat</stance> stance as you
+      execute a <parry side="right">outward</parry> to the outside of
+      your opponent's left wrist.
+    </step>
+    <step>
+      Execute a <kick side="right">wheel</kick>, with the ball of your foot,
+      to your opponent's groin.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> into a
+      <stance side="right">forward bow</stance> as you execute a
+      <punch side="left">vertical reverse punch</punch> to your
+      opponent's left floating rib.
+    </step>
+    <step>
+      Execute a <footManeuver>step-through</footManeuver>
+      <knee side="left">vertical</knee> to the back of your opponent's
+      right hamstring.
+    </step>
+    <step>
+      Drop to a <stance side="left">close kneel</stance>, breaking your
+      opponent's right ankle with your right shin.
+    </step>
+  </steps>
+</technique>

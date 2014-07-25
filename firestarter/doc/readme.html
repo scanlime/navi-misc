@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="iso-8859-1"?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>Firestarter::Readme</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<link rel="stylesheet" type="text/css" href="CSS/basic.css" />
+</head>
+
+<body>
+<div id="container">
+
+<div id="header">
+<h1><a href="index.html">Firestarter</a></h1>
+</div>
+
+<div id="nav">
+<ul>
+	<li class="head">About
+	<ul>
+		<li><a href="news.html">News</a></li>
+		<li><a href="readme.html">Readme</a></li>
+		<li><a href="todo.html">Todo</a></li>
+		<li><a href="relnotes.html">Release Notes</a></li>
+		<li><a href="bugs.html">Bugs</a></li>
+		<li><a href="devinfo.html">Developer Info</a></li>
+		<li><a href="compiling.html">Compiling</a></li>
+		<li><a href="coding.html">Coding Style</a></li>
+		<li><a href="porting.html">Porting</a></li>
+		<li><a href="copying.html">Copying</a></li>
+		<li><a href="authors.html">Authors</a></li>
+		<li><a href="contacts.html">Contact Us</a></li>
+	</ul>
+	</li>
+</ul>
+<ul>
+	<li class="head">Documentation
+	<ul>
+		<li><a href="Manual/user/index.html">User Manual</a></li>
+		<li><a href="Manual/developer/index.html">Developer Manual</a></li>
+	</ul>
+	</li>
+</ul>
+<ul>
+	<li class="head">Resources
+	<ul>
+		<li><a href="http://forum.firestarter.org">Forum</a></li>
+		<li><a href="http://somecgiircthing">Irc</a></li>
+		<li><a href="http://www.ogre3d.org">Ogre</a></li>
+		<li><a href="http://www.libsdl.org">SDL</a></li>
+		<li><a href="http://www.bzflag.org">BZFlag</a></li>
+	</ul>
+	</li>
+</ul>
+
+<br />
+<p class="copy">Copyright &copy; 2004<br />Jeff Myers</p>
+</div>
+
+<div id="content">
+<h4>Readme</h4>
+<h6>Windows</h6>
+<p>The only build system right now is for windows, and it is Microsoft Visual C++ 7.1. We do not have project for VC5 or 6. To build the project you will need several 3rd party libraries:</p>
+
+<ul>
+	<li>SDL. you will need the SDL Development librarys from <a href="http://www.libSDL.org/">SDL</a>. You will need to install this so that Visual C++ can find the headers and the libs. This can be done by copying the files into the Visual C++ dirs or adding the dirs to the IDE via the preferences.</li>
+	<li>Ogre. This is the base 3d engine for the system. It is avalabe at <a href="http://www.ogre3d.org">Ogre</a>. The project asumes that ogre is located one dir level higher then the base application folder.</li>
+	<li>Ogre Dependencies. These are also available via the ogre site, install them as directed.</li>
+</ul>
+<p>Build SDL and Ogre. Then you can build the game.</p>
+
+<p>Before you can run the first time you need to copy the ogre DLLs you have built into the bin and bin/plugins folders. There are text files in each dir that will tell you what DLLs you need. The best place to pull them from is <code>ogrenew/samples/common/bin/</code></p>
+
+<p>Once you have built you may run. Note Release builds don't run well at all now.</p>
+</div>
+
+</div> <!-- End Container div -->
+</body>
+</html>
+

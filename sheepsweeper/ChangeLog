@@ -1,0 +1,333 @@
+Thu Mar 18 01:07:34 PST 2004  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/List.cpp:
+	* src/List.h:
+	* src/Makefile.am:
+	  - Added a basic linked list class.
+
+Thu Mar 18 00:45:05 PST 2004  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/IsoMapObjectFactory.cpp:
+	* src/IsoMapObjectFactory.h:
+	* src/MapObjectFactory.h:
+	* src/Sheep.cpp:
+	* src/main.cpp:
+	  - Added MapObjectFactory::makeSheep().
+
+Thu Mar 18 00:33:56 PST 2004  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/Sheep.cpp:
+	* src/Sheep.h:
+	  - Improved upon the Sheep class, I think. It handles its own
+	    image cache now, and the image changes when the direction is
+	    changed.
+
+Thu Mar 18 00:04:44 PST 2004  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/IsoMapObjectFactory.cpp:
+	* src/Makefile.am:
+	* src/Sheep.cpp:
+	* src/Sheep.h:
+	  - Added a Sheep class.
+
+Wed Mar 17 22:27:58 PST 2004  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/IsoMapData.cpp:
+	* src/IsoMapData.h:
+	* src/MapData.cpp:
+	* src/MapData.h:
+	  - Moved the implementation of MapData::getNeighbor() to
+	    IsoMapData. Made MapData::getNeighbor() pure virtual.
+
+Wed Mar 17 22:14:10 PST 2004  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/IsoMapTile.cpp:
+	* src/IsoMapObject.cpp:
+	* src/main.cpp:
+	  - Fixed map rendering up a bit.
+	  - Added another sheep!
+
+Wed Mar 17 22:03:35 PST 2004  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/MapData.cpp:
+	* src/MapData.h:
+	  - Added MapData::getNeighbor().
+
+Wed Mar 17 21:56:23 PST 2004  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/MapLocation.cpp:
+	* src/MapLocation.h:
+	  - Added MapLocation::isEvenRow() and isOddRow().
+
+Wed Feb 04 21:50:41 PST 2004  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/Fadey.cpp:
+	  - Exit if we can't find the images, instead of segfaulting.
+
+Mon Feb 02 17:33:41 PST 2004  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/main.cpp:
+	  - Increase the fade time to 3 seconds.
+
+Sat Aug 16 23:55:29 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/MapObject.cpp:
+	* src/MapObject.h:
+	  - MapObjects are now notified when their direction changes.
+	    Sheep will implement this later.
+
+Sat Aug 16 23:19:18 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/MapObject.cpp:
+	* src/MapObject.h:
+	  - Added a function for setting the direction of an object.
+
+Sat Aug 16 20:24:21 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/Direction.h:
+	  - Added a Direction enum.
+
+Sat Aug 16 13:19:02 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* images/sheep-0.png:
+	* images/sheep-135.png:
+	* images/sheep-180.png:
+	* images/sheep-225.png:
+	* images/sheep-270.png:
+	* images/sheep-315.png:
+	* images/sheep-45.png:
+	* images/sheep-90.png:
+	* images/tile_grass_1.png:
+	* images/tile_grass_red.png:
+	* images/tiles/Makefile.am:
+	* images/tiles/grass_brown_1.png:
+	* images/tiles/grass_green_1.png:
+	* src/IsoMapObject.cpp:
+	* src/IsoMapObject.h:
+	* src/IsoMapObjectFactory.cpp:
+	* src/IsoMapTile.h:
+	* src/MapTile.h:
+	* src/main.cpp:
+	  - Changed the tile size, and updated the images. Also put new,
+	    better grass images in.
+
+Sat Aug 16 12:37:50 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/IsoMapObject.cpp:
+	* src/IsoMapObject.h:
+	* src/IsoMapObjectFactory.cpp:
+	* src/IsoMapTile.cpp:
+	* src/MapObject.cpp:
+	* src/MapObject.h:
+	* src/MapTile.cpp:
+	* src/MapTile.h:
+	* src/main.cpp:
+	  - Objects now have individual heights set, and sheep are being
+	    stacked up again.
+
+Sat Aug 16 12:26:52 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/IsoMapObject.cpp:
+	* src/MapObject.cpp:
+	* src/MapObject.h:
+	* src/main.cpp:
+	  - The y offset on objects is now affected when there are objects
+	    beneath it.
+
+Sat Aug 16 12:22:49 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/MapData.cpp:
+	* src/MapData.h:
+	* src/MapLocation.cpp:
+	* src/MapLocation.h:
+	* src/MapObject.cpp:
+	* src/MapObject.h:
+	* src/main.cpp:
+	  - Added back tile/object layering.
+
+Sat Aug 16 12:10:08 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/main.cpp:
+	  - Clean up main.cpp a bit.
+
+Sat Aug 16 12:08:47 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/IsoMapObjectFactory.cpp:
+	* src/IsoMapView.cpp:
+	* src/main.cpp:
+	  - Draw the field again.
+
+Sat Aug 16 12:03:59 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/IsoMapObject.cpp:
+	* src/IsoMapObjectFactory.cpp:
+	* src/IsoMapObjectFactory.h:
+	* src/IsoMapTile.cpp:
+	* src/IsoMapTile.h:
+	* src/Makefile.am:
+	* src/MapObjectFactory.h:
+	* src/MapTile.cpp:
+	* src/MapTile.h:
+	  - Added the generic and isometric MapTile classes.
+
+Sat Aug 16 03:39:41 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/IsoMapObject.cpp:
+	* src/IsoMapObject.h:
+	* src/IsoMapObjectFactory.cpp:
+	* src/IsoMapView.cpp:
+	* src/MapData.cpp:
+	* src/MapData.h:
+	* src/MapObject.cpp:
+	* src/MapObject.h:
+	* src/main.cpp:
+	 - Ladies and gentlemen, we have a room full of sheep.
+
+Sat Aug 16 02:21:13 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/IsoMapData.h:
+	* src/IsoMapData.cpp:
+	* src/Makefile.am:
+	* src/MapData.cpp:
+	* src/MapData.h:
+	* src/MapObject.h:
+	* src/MapObjectFactory.h:
+	* src/main.cpp:
+	  - Removed the old Map class and changed main() to use the new
+	    framework. Nothing loads or displays yet, though.
+
+Sat Aug 16 02:05:00 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/IsoMapData.cpp:
+	* src/IsoMapView.cpp:
+	* src/IsoMapView.h:
+	* src/MapData.cpp:
+	* src/MapData.h:
+	* src/MapView.cpp:
+	  - Added stuff to the wrong class.
+
+Sat Aug 16 02:00:09 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/IsoMapData.cpp:
+	* src/IsoMapObjectFactory.cpp:
+	* src/IsoMapObjectFactory.h:
+	* src/Makefile.am:
+	* src/MapData.cpp:
+	* src/MapData.h:
+	* src/MapObjectFactory.h:
+	  - Added MapObjectFactory and IsoMapObjectFactory.
+
+Sat Aug 16 01:06:18 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/IsoMapView.cpp:
+	* src/IsoMapView.h:
+	* src/Makefile.am:
+	* src/MapData.cpp:
+	  - Make IsoMapView actually compile.
+
+Sat Aug 16 00:54:44 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/IsoMapObject.cpp:
+	* src/IsoMapObject.h:
+	* src/Makefile.am:
+	 - Added the base IsoMapObject stuff.
+
+Sat Aug 16 00:29:14 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/Makefile.am:
+	* src/IsoMapData.cpp:
+	* src/IsoMapData.h:
+	* src/IsoMapView.cpp:
+	* src/IsoMapView.h:
+	* src/mapData.cpp:
+	* src/MapData.h:
+	* src/MapLocation.cpp:
+	* src/MapLocation.h:
+	* src/MapObject.cpp:
+	* src/MapObject.h:
+	* src/MapView.cpp:
+	* src/MapView.h:
+	* src/Map.cpp:
+	* src/main.cpp:
+	  - Added the beginnings of the framework that will be the map and
+	    object system.
+
+Tue Aug 12 20:58:37 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/ImageLoader.cpp:
+	* src/ImageLoader.h:
+	* src/main.cpp:
+	  - Added a sucky dirt mound tile.
+
+Tue Aug 12 18:38:16 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/Map.cpp:
+	* src/Map.h:
+	* src/Sheep.cpp:
+	* src/Sheep.h:
+	* src/Sprite.cpp:
+	* src/Sprite.h:
+	* src/main.cpp:
+	  - Added tile layering. Look! Sheep on top of sheep! ... It's not
+	    what you think.
+
+Tue Aug 12 18:19:22 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/ImageLoader.cpp:
+	* src/ImageLoader.h:
+	* src/Mapp.cpp:
+	* src/Map.h:
+	* src/main.cpp:
+	  - Got map drawing working. Mostly. It sucks badly though.
+
+Tue Aug 12 16:27:28 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/Map.cpp:
+	* src/main.cpp:
+	  - The map draws all isometric-like now.
+
+Tue Aug 12 16:01:44 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/ImageLoader.cpp:
+	* src/ImageLoader.h:
+	* src/Map.cpp:
+	* src/Map.h:
+	* src/Sheep.cpp:
+	* src/main.cpp:
+	  - My idiot sheep are now sitting on the ugly tiled map.
+
+Tue Aug 12 15:13:22 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/Map.cpp:
+	* src/Map.h:
+	* src/main.cpp:
+	  - Let's draw some sheep.
+
+Tue Aug 12 15:04:24 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/Map.cpp:
+	  - Fixed map rendering. Infinite loops are bad, mmkay?
+
+Tue Aug 12 14:57:00 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/Makefile.am:
+	* src/Sheep.cpp:
+	* src/Sheep.h:
+	* src/Sprite.h:
+	  - Added a basic Sheep class.
+
+Tue Aug 12 14:36:38 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/Map.cpp:
+	* src/Map.h:
+	* src/main.cpp:
+	  - Initialize SDL, and render the map.
+
+Tue Aug 12 14:18:21 PDT 2003  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/Makefile.am:
+	* src/Map.cpp:
+	* src/Map.h:
+	* src/main.cpp:
+	  - Added a Map class.
+

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<set name="blocking set 1" level="yellow"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <steps>
+    <step>right upward block</step>
+    <step>right hammering inward block</step>
+    <step>right extended outward block</step>
+    <step>right downward block</step>
+    <step>right back elbow strike</step>
+    <step>right palm heel (push-down) block</step>
+    <step>return to training horse stance</step>
+    <step>left upward block</step>
+    <step>left hammering inward block</step>
+    <step>left extended outward block</step>
+    <step>left downward block</step>
+    <step>left back elbow strike</step>
+    <step>left palm heel (push-down) block</step>
+    <step>return to training horse stance</step>
+    <step>double upward block</step>
+    <step>double hammering inward block</step>
+    <step>double extended outward block</step>
+    <step>double downward block</step>
+    <step>double back elbow strike</step>
+    <step>double palm heel block (left hand above the right)</step>
+  </steps>
+</set>

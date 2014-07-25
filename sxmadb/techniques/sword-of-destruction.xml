@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="sword of destruction" level="yellow" category="punch"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>left step through haymaker punch to the head</attack>
+  <stances>
+    <attacker>right neutral bow</attacker>
+    <defender>natural</defender>
+  </stances>
+  <steps>
+    <step>
+      <footManeuver side="left">step back</footManeuver> toward 6:00
+      into a <stance side="right">neutral bow</stance> while executing a
+      <block side="right">extended outward</block> to your opponent's
+      left inner forearm.
+    </step>
+    <step>
+      Draw your right foot back toward your left into a
+      <stance side="right">cat</stance> stance.
+    </step>
+    <step>
+      Execute a <kick side="right">front snap</kick> to your opponent's
+      groin.
+    </step>
+    <step>
+      step down into a <stance side="right">neutral bow</stance> while
+      executing a <strike side="right">inward hand sword</strike> to your
+      opponent's left neck.
+    </step>
+  </steps>
+</technique>

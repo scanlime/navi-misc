@@ -1,0 +1,15 @@
+
+material shot:shot1
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture .\shot.png
+			}
+		}
+	}
+}

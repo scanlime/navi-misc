@@ -1,0 +1,1119 @@
+#Apathy's Dinner for six
+
+#Main table
+box
+position 0 0 25
+size 225 100 5
+rotation 0
+end
+
+#Table legs
+pyramid
+position 220 95 0
+size 5 5 29
+rotation 0
+end
+
+pyramid
+position -220 95 0
+size 5 5 29
+rotation 0
+end
+
+pyramid
+position 220 -95 0
+size 5 5 29
+rotation 0
+end
+
+pyramid
+position -220 -95 0
+size 5 5 29
+rotation 0
+end
+
+box
+position 220 95 25
+size 5 5 5
+rotation 0
+end
+
+box
+position -220 95 25
+size 5 5 5
+rotation 0
+end
+
+box
+position 220 -95 25
+size 5 5 5
+rotation 0
+end
+
+box
+position -220 -95 25
+size 5 5 5
+rotation 0
+end
+
+#Chair 1
+box
+position 235 0 12
+size 25 25 4
+rotation 0
+end
+
+#--
+pyramid
+position 211 24 0
+size 2 2 15
+rotation 0
+end
+
+pyramid
+position 211 -24 0
+size 2 2 15
+rotation 0
+end
+
+pyramid
+position 259 24 0
+size 2 2 15
+rotation 0
+end
+
+pyramid
+position 259 -24 0
+size 2 2 15
+rotation 0
+end
+
+#--
+box 
+position 211 0 7
+size 1 23 1
+rotation 0
+end
+
+box
+position 259 0 7
+size 1 23 1
+rotation 0
+end
+
+box
+position 235 24 7
+size 23 1 1
+rotation 0
+end
+
+box
+position 235 -24 7
+size 23 1 1
+rotation 0
+end
+#--
+box
+position 259 24 16
+size 1 1 30
+rotation 0
+end
+
+box
+position 259 -24 16
+size 1 1 30
+rotation 0
+end
+
+teleporter
+position 259 0 16
+size 1 25 30
+rotation 0
+border 0
+end
+
+box
+position 259 0 45
+size 1 25 5
+rotation 0
+end
+
+box 
+position 235 -24 16
+size 1 1 10
+rotation 0
+end
+
+box 
+position 245 -24 26
+size 15 3 1
+rotation 0
+end
+
+box 
+position 235 24 16
+size 1 1 10
+rotation 0
+end
+
+box 
+position 245 24 26
+size 15 3 1
+rotation 0
+end
+
+#Chair 2
+box
+position -235 0 12
+size 25 25 4
+rotation 0
+end
+
+#--
+pyramid
+position -211 24 0
+size 2 2 15
+rotation 0
+end
+
+pyramid
+position -211 -24 0
+size 2 2 15
+rotation 0
+end
+
+pyramid
+position -259 24 0
+size 2 2 15
+rotation 0
+end
+
+pyramid
+position -259 -24 0
+size 2 2 15
+rotation 0
+end
+
+#--
+box 
+position -211 0 7
+size 1 23 1
+rotation 0
+end
+
+box
+position -259 0 7
+size 1 23 1
+rotation 0
+end
+
+box
+position -235 24 7
+size 23 1 1
+rotation 0
+end
+
+box
+position -235 -24 7
+size 23 1 1
+rotation 0
+end
+
+#--
+box
+position -259 24 16
+size 1 1 30
+rotation 0
+end
+
+box
+position -259 -24 16
+size 1 1 30
+rotation 0
+end
+
+teleporter
+position -259 0 16
+size 1 25 30
+rotation 0
+border 0
+end
+
+box
+position -259 0 45
+size 1 25 5
+rotation 0
+end
+
+box 
+position -235 -24 16
+size 1 1 10
+rotation 0
+end
+
+box 
+position -245 -24 26
+size 15 3 1
+rotation 0
+end
+
+box 
+position -235 24 16
+size 1 1 10
+rotation 0
+end
+
+box 
+position -245 24 26
+size 15 3 1
+rotation 0
+end
+
+#Chair 3
+box
+position 60 -110 12
+size 25 25 4
+rotation 0
+end
+
+#--
+pyramid
+position 84 -86 0
+size 2 2 15
+rotation 0
+end
+
+pyramid
+position 36 -86 0
+size 2 2 15
+rotation 0
+end
+
+pyramid
+position 84 -134 0
+size 2 2 15
+rotation 0
+end
+
+pyramid
+position 36 -134 0
+size 2 2 15
+rotation 0
+end
+
+#--
+box 
+position 60 -86 7
+size 23 1 1
+rotation 0
+end
+
+box
+position 60 -134 7
+size 23 1 1
+rotation 0
+end
+
+box
+position 84 -110 7
+size 1 23 1
+rotation 0
+end
+
+box
+position 36 -110 7
+size 1 23 1
+rotation 0
+end
+
+#--
+box
+position 84 -134 16
+size 1 1 30
+rotation 0
+end
+
+box
+position 36 -134 16
+size 1 1 30
+rotation 0
+end
+
+teleporter
+position 60 -134 16
+size 1 25 30
+rotation 90
+border 0
+end
+
+box
+position 60 -134 45
+size 25 1 5
+rotation 0
+end
+
+box 
+position 36 -110 16
+size 1 1 10
+rotation 0
+end
+
+box 
+position 36 -120 26
+size 3 15 1
+rotation 0
+end
+
+box 
+position 84 -110 16
+size 1 1 10
+rotation 0
+end
+
+box 
+position 84 -120 26
+size 3 15 1
+rotation 0
+end
+
+
+#Chair 4
+box
+position -60 -110 12
+size 25 25 4
+rotation 0
+end
+
+#--
+pyramid
+position -84 -86 0
+size 2 2 15
+rotation 0
+end
+
+pyramid
+position -36 -86 0
+size 2 2 15
+rotation 0
+end
+
+pyramid
+position -84 -134 0
+size 2 2 15
+rotation 0
+end
+
+pyramid
+position -36 -134 0
+size 2 2 15
+rotation 0
+end
+
+#--
+box 
+position -60 -86 7
+size 23 1 1
+rotation 0
+end
+
+box
+position -60 -134 7
+size 23 1 1
+rotation 0
+end
+
+box
+position -84 -110 7
+size 1 23 1
+rotation 0
+end
+
+box
+position -36 -110 7
+size 1 23 1
+rotation 0
+end
+
+#--
+box
+position -84 -134 16
+size 1 1 30
+rotation 0
+end
+
+box
+position -36 -134 16
+size 1 1 30
+rotation 0
+end
+
+teleporter
+position -60 -134 16
+size 1 25 30
+rotation 90
+border 0
+end
+
+box
+position -60 -134 45
+size 25 1 5
+rotation 0
+end
+
+box 
+position -36 -110 16
+size 1 1 10
+rotation 0
+end
+
+box 
+position -36 -120 26
+size 3 15 1
+rotation 0
+end
+
+box 
+position -84 -110 16
+size 1 1 10
+rotation 0
+end
+
+box 
+position -84 -120 26
+size 3 15 1
+rotation 0
+end
+
+
+#Chair 5
+box
+position 60 110 12
+size 25 25 4
+rotation 0
+end
+
+#--
+pyramid
+position 84 86 0
+size 2 2 15
+rotation 0
+end
+
+pyramid
+position 36 86 0
+size 2 2 15
+rotation 0
+end
+
+pyramid
+position 84 134 0
+size 2 2 15
+rotation 0
+end
+
+pyramid
+position 36 134 0
+size 2 2 15
+rotation 0
+end
+
+#--
+box 
+position 60 86 7
+size 23 1 1
+rotation 0
+end
+
+box
+position 60 134 7
+size 23 1 1
+rotation 0
+end
+
+box
+position 84 110 7
+size 1 23 1
+rotation 0
+end
+
+box
+position 36 110 7
+size 1 23 1
+rotation 0
+end
+
+#--
+box
+position 84 134 16
+size 1 1 30
+rotation 0
+end
+
+box
+position 36 134 16
+size 1 1 30
+rotation 0
+end
+
+teleporter
+position 60 134 16
+size 1 25 30
+rotation 90
+border 0
+end
+
+box
+position 60 134 45
+size 25 1 5
+rotation 0
+end
+
+box 
+position 36 110 16
+size 1 1 10
+rotation 0
+end
+
+box 
+position 36 120 26
+size 3 15 1
+rotation 0
+end
+
+box 
+position 84 110 16
+size 1 1 10
+rotation 0
+end
+
+box 
+position 84 120 26
+size 3 15 1
+rotation 0
+end
+
+
+#Chair 6
+box
+position -60 110 12
+size 25 25 4
+rotation 0
+end
+
+#--
+pyramid
+position -84 86 0
+size 2 2 15
+rotation 0
+end
+
+pyramid
+position -36 86 0
+size 2 2 15
+rotation 0
+end
+
+pyramid
+position -84 134 0
+size 2 2 15
+rotation 0
+end
+
+pyramid
+position -36 134 0
+size 2 2 15
+rotation 0
+end
+
+#--
+box 
+position -60 86 7
+size 23 1 1
+rotation 0
+end
+
+box
+position -60 134 7
+size 23 1 1
+rotation 0
+end
+
+box
+position -84 110 7
+size 1 23 1
+rotation 0
+end
+
+box
+position -36 110 7
+size 1 23 1
+rotation 0
+end
+
+#--
+box
+position -84 134 16
+size 1 1 30
+rotation 0
+end
+
+box
+position -36 134 16
+size 1 1 30
+rotation 0
+end
+
+teleporter
+position -60 134 16
+size 1 25 30
+rotation 90
+border 0
+end
+
+box
+position -60 134 45
+size 25 1 5
+rotation 0
+end
+
+box 
+position -36 110 16
+size 1 1 10
+rotation 0
+end
+
+box 
+position -36 120 26
+size 3 15 1
+rotation 0
+end
+
+box 
+position -84 110 16
+size 1 1 10
+rotation 0
+end
+
+box 
+position -84 120 26
+size 3 15 1
+rotation 0
+end
+
+#Plates
+
+box
+position 200 0 30
+size 10 10 2
+rotation 0
+end
+
+box
+position -200 0 30
+size 10 10 2
+rotation 0
+end
+
+box 
+position 60 75 30
+size 10 10 2
+rotation 0
+end
+
+box 
+position -60 75 30
+size 10 10 2
+rotation 0
+end
+
+box 
+position 60 -75 30
+size 10 10 2
+rotation 0
+end
+
+box 
+position -60 -75 30
+size 10 10 2
+rotation 0
+end
+
+#Table Candles
+
+pyramid
+position 30 0 30
+size 8 8 8
+rotation 45
+end
+
+box
+position 30 0 35
+size 1 1 30
+rotation 45
+end
+
+pyramid
+position 30 0 66
+size 1 1 5
+rotation 45
+end
+
+pyramid
+position -30 0 30
+size 8 8 8
+rotation 45
+end
+
+box
+position -30 0 35
+size 1 1 30
+rotation 45
+end
+
+pyramid
+position -30 0 66
+size 1 1 5
+rotation 45
+end
+
+#Glasses
+
+box
+position 180 10 30
+size 2 2 8
+rotation 0
+end
+
+box
+position -180 -10 30
+size 2 2 8
+rotation 0
+end
+
+box 
+position 70 -55 30
+size 2 2 8
+rotation 0
+end
+
+box 
+position 50 55 30
+size 2 2 8
+rotation 0
+end
+
+box 
+position -70 55 30
+size 2 2 8
+rotation 0
+end
+
+box 
+position -50 -55 30
+size 2 2 8
+rotation 0
+end
+
+#Furniture
+box 
+position 0 350 0
+size 400 50 30
+rotation 0
+end
+
+box 
+position 0 -350 0
+size 400 50 30
+rotation 0
+end
+
+box 
+position 0 300 10
+size 350 4 10
+rotation 0
+end
+
+box 
+position 0 -300 10
+size 350 4 10
+rotation 0
+end
+
+#links
+link
+from 0 
+to 1
+end
+
+link
+from 1 
+to 3
+end
+
+link 
+from 2 
+to 3
+end
+
+link 
+from 3 
+to 5
+end
+
+link 
+from 4
+to 5
+end
+
+link 
+from 5
+to 7
+end
+
+link 
+from 6
+to 7
+end
+
+link 
+from 7
+to 9
+end
+
+link 
+from 8
+to 9
+end
+
+link 
+from 9
+to 11
+end
+
+link 
+from 10
+to 11
+end
+
+
+#edging
+
+pyramid 
+position 400 0 0
+size 10 400 15
+rotation 0
+end
+
+pyramid
+position -400 0 0
+size 10 400 15
+rotation 0
+end
+
+box
+position 400 0 3
+size 5 400 10
+rotation 0
+end
+
+box
+position -400 0 3
+size 5 400 10
+rotation 0
+end
+
+pyramid 
+position 0 300 0
+size 400 10 5
+rotation 0
+end
+
+pyramid
+position 0 -300 0
+size 400 10 5
+rotation 0
+end
+
+# Furniture candles
+
+pyramid
+position -50 350 30
+size 8 8 8
+rotation 0
+end
+
+box
+position -50 350 35
+size 1 1 30
+rotation 0
+end
+
+pyramid
+position -50 350 66
+size 1 1 5
+rotation 0
+end
+
+pyramid
+position -25 350 30
+size 8 8 8
+rotation 0
+end
+
+box
+position -25 350 35
+size 1 1 30
+rotation 0
+end
+
+pyramid
+position -25 350 66
+size 1 1 5
+rotation 0
+end
+
+pyramid
+position 0 350 30
+size 8 8 8
+rotation 0
+end
+
+box
+position 0 350 35
+size 1 1 30
+rotation 0
+end
+
+pyramid
+position 0 350 66
+size 1 1 5
+rotation 0
+end
+
+pyramid
+position 25 350 30
+size 8 8 8
+rotation 0
+end
+
+box
+position 25 350 35
+size 1 1 30
+rotation 0
+end
+
+pyramid
+position 25 350 66
+size 1 1 5
+rotation 0
+end
+
+pyramid
+position 50 350 30
+size 8 8 8
+rotation 0
+end
+
+box
+position 50 350 35
+size 1 1 30
+rotation 0
+end
+
+pyramid
+position 50 350 66
+size 1 1 5
+rotation 0
+end
+
+#--
+
+pyramid
+position -50 -350 30
+size 8 8 8
+rotation 0
+end
+
+box
+position -50 -350 35
+size 1 1 30
+rotation 0
+end
+
+pyramid
+position -50 -350 66
+size 1 1 5
+rotation 0
+end
+
+pyramid
+position -25 -350 30
+size 8 8 8
+rotation 0
+end
+
+box
+position -25 -350 35
+size 1 1 30
+rotation 0
+end
+
+pyramid
+position -25 -350 66
+size 1 1 5
+rotation 0
+end
+
+pyramid
+position 0 -350 30
+size 8 8 8
+rotation 0
+end
+
+box
+position 0 -350 35
+size 1 1 30
+rotation 0
+end
+
+pyramid
+position 0 -350 66
+size 1 1 5
+rotation 0
+end
+
+pyramid
+position 25 -350 30
+size 8 8 8
+rotation 0
+end
+
+box
+position 25 -350 35
+size 1 1 30
+rotation 0
+end
+
+pyramid
+position 25 -350 66
+size 1 1 5
+rotation 0
+end
+
+pyramid
+position 50 -350 30
+size 8 8 8
+rotation 0
+end
+
+box
+position 50 -350 35
+size 1 1 30
+rotation 0
+end
+
+pyramid
+position 50 -350 66
+size 1 1 5
+rotation 0
+end

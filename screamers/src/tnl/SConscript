@@ -1,0 +1,37 @@
+#!/usr/bin/env python
+
+# bleh, this bothers me a bit
+Import('env')
+e = env.Copy ()
+e.Append (CPPPATH = ['#src/tomcrypt'], CCFLAGS = ['-DTNL_ENABLE_LOGGING'])
+
+tnl_sources = [
+	'assert.cpp',
+	'asymmetricKey.cpp',
+	'bitStream.cpp',
+	'byteBuffer.cpp',
+	'certificate.cpp',
+	'clientPuzzle.cpp',
+	'connectionStringTable.cpp',
+	'dataChunker.cpp',
+	'eventConnection.cpp',
+	'ghostConnection.cpp',
+	'huffmanStringProcessor.cpp',
+	'journal.cpp',
+	'log.cpp',
+	'netBase.cpp',
+	'netConnection.cpp',
+	'netInterface.cpp',
+	'netObject.cpp',
+	'netStringTable.cpp',
+	'platform.cpp',
+	'random.cpp',
+	'rpc.cpp',
+	'symmetricCipher.cpp',
+	'thread.cpp',
+	'tnlMethodDispatch.cpp',
+	'udp.cpp',
+	'vector.cpp',
+]
+
+e.StaticLibrary ('tnl', tnl_sources)

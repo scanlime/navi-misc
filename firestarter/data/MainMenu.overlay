@@ -1,0 +1,211 @@
+// XXXXX main menu overlay scripts
+menu/mainMenu
+{
+	zorder 250
+	container Panel(main/LogoPanel)
+	{	
+		metrics_mode pixels
+		horz_align center
+		vert_align top
+		top 10
+		left -256
+		width 512
+		height 128
+		material menu/logoMaterial
+	}
+	
+	zorder 150
+	container Panel(main/selection)
+	{	
+		metrics_mode pixels
+		horz_align center
+		vert_align top
+		top 10
+		left -256
+		width 64
+		height 64
+		material menu/menuArrowMaterial
+	}
+
+	zorder 250
+	container Panel(main/menuPanel)
+	{
+		metrics_mode pixels
+		horz_align center
+		vert_align top
+		left -200 
+		top 175
+		width 512
+		height 512
+
+		element TextArea(main/join)
+		{
+			metrics_mode pixels
+			left 0
+			top 5
+			width 256
+			height 128
+			font_name HanSolo64
+			char_height 50
+			caption Join Game
+			colour_top 1 1 1
+			colour_bottom 1 1 1
+		}
+
+		element TextArea(main/setings)
+		{
+			metrics_mode pixels
+			left 0
+			top 100
+			width 256
+			height 128
+			font_name HanSolo64
+			char_height 50
+			caption Settings
+			colour_top 1 1 1
+			colour_bottom 1 1 1
+		}
+
+		element TextArea(main/exit)
+		{
+			metrics_mode pixels
+			left 64
+			top 200
+			width 256
+			height 128
+			font_name HanSolo64
+			char_height 18
+			caption Press escape to quit
+			colour_top 1 1 1
+			colour_bottom 1 1 1
+		}
+
+	}
+}
+
+menu/joinMenu
+{
+	zorder 250
+	container Panel(join/LogoPanel)
+	{	
+		metrics_mode pixels
+		horz_align center
+		vert_align top
+		top 10
+		left -256
+		width 512
+		height 128
+		material menu/logoMaterial
+	}
+	
+	zorder 150
+	container Panel(join/selection)
+	{	
+		metrics_mode pixels
+		horz_align center
+		vert_align top
+		top 10
+		left -256
+		width 24
+		height 24
+		material menu/menuArrowMaterial
+	}
+
+	zorder 250
+	container Panel(join/menuPanel)
+	{
+		metrics_mode pixels
+		horz_align center
+		vert_align top
+		left -450
+		top 155
+		width 512
+		height 512
+
+		element TextArea(join/servers)
+		{
+			metrics_mode pixels
+			left 128
+			top 25
+			width 256
+			height 128
+			font_name HanSolo64
+			char_height 12
+			caption Servers
+			colour_top 1 1 1
+			colour_bottom 1 1 1
+		}
+
+		element TextArea(join/server1)
+		{
+			metrics_mode pixels
+			left 128
+			top 50
+			width 512
+			height 128
+			font_name HanSolo64
+			char_height 12
+			caption Server:--
+			colour_top 1 1 1
+			colour_bottom 1 1 1
+		}
+
+		element TextArea(join/server2)
+		{
+			metrics_mode pixels
+			left 128
+			top 75
+			width 512
+			height 128
+			font_name HanSolo64
+			char_height 12
+			caption Server:--
+			colour_top 1 1 1
+			colour_bottom 1 1 1
+		}
+
+		element TextArea(join/server3)
+		{
+			metrics_mode pixels
+			left 128
+			top 100
+			width 512
+			height 128
+			font_name HanSolo64
+			char_height 12
+			caption Server:--
+			colour_top 1 1 1
+			colour_bottom 1 1 1
+		}
+
+		element TextArea(join/server4)
+		{
+			metrics_mode pixels
+			left 128
+			top 125
+			width 512
+			height 128
+			font_name HanSolo64
+			char_height 12
+			caption Server:--
+			colour_top 1 1 1
+			colour_bottom 1 1 1
+		}
+
+		element TextArea(join/server5)
+		{
+			metrics_mode pixels
+			left 128
+			top 150
+			width 512
+			height 128
+			font_name HanSolo64
+			char_height 12
+			caption Server:--
+			colour_top 1 1 1
+			colour_bottom 1 1 1
+		}
+	}
+}
+
+

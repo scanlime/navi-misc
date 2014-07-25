@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<!--
+  The master list of stuff, used to generate the tabs at the top
+-->
+
+<tabs>
+        <headingTab name="forms" href="forms.xml"/>
+        <headingTab name="sets" href="sets.xml"/>
+        <headingTab name="techniques" href="techniques.xml"/>
+        <headingTab name="concepts" href="concepts.xml"/>
+</tabs>

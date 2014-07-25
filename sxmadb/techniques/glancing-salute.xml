@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="glancing salute" level="orange" category="push"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>front right cross shoulder push</attack>
+  <stances>
+    <attacker>left neutral bow</attacker>
+    <defender>natural</defender>
+  </stances>
+  <steps>
+    <step>
+      <footManeuver side="right">step</footManeuver> toward 6:00 into a
+      <stance side="left">neutral bow</stance> while pinning your
+      opponent's right hand to your chest with your left hand.
+      Simultaneously execute a <block side="left">hammering inward</block>
+      to your opponent's right elbow.
+    </step>
+    <step>
+      Execute a <block side="left">palm heel</block> to your opponent's
+      right arm, pinning their arm to their body.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> into a
+      <stance side="left">forward bow</stance> while executing a
+      <strike side="right">thrusting palm heel</strike> behind your
+      opponent's right year
+    </step>
+    <step>
+      Execute a <footManeuver side="right">step-through</footManeuver>
+      <knee side="right">vertical</knee> to your opponent's groin.
+    </step>
+    <step>
+      Step down into a <stance side="right">neutral bow</stance> as you
+      execute a <strike side="right">inward horizontal elbow</strike> to
+      your opponent's left jaw.
+    </step>
+  </steps>
+</technique>

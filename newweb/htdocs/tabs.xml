@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<tabs>
+  <headingTab name="cia" href="/cgi-bin/cia_stats.cgi"/>
+  <headingTab name="therm" href="/therm"/>
+  <headingTab name="disks" href="/cgi-bin/disks.cgi"/>
+  <headingTab name="images" href="/images"/>
+  <headingTab name="monitor" href="/monitor"/>
+  <headingTab name="stats" href="/webalizer"/>
+  <headingTab name="misc" href="/svn/misc/trunk"/>
+  <headingTab name="picogui" href="/svn/picogui/trunk"/>
+</tabs>

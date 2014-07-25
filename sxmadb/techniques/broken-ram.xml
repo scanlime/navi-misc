@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="broken ram" level="first-brown" category="grabs-and-tackles"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>front tackle</attack>
+  <stances>
+    <defender><stance>natural</stance>, hands up</defender>
+  </stances>
+  <steps>
+    <step>
+      <footManeuver side="left">step back</footManeuver> to 4:30 into a
+      <stance side="right">forward bow</stance>. Simultaneously, execute a
+      <strike side="right">outward hand sword</strike> to your opponent's
+      left wrist and a <strike side="left">outward hand sword</strike>
+      to the side of their neck.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> to a
+      <stance side="right">neutral bow</stance> as you strike the back of your
+      opponent's neck with a <strike side="right">inward hand sword</strike>.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> into a
+      <stance side="left">forward bow</stance> (facing 4:30) with a
+      <punch side="right">uppercut</punch> under the arm (breaking their
+      elbow against your bicep).
+    </step>
+    <step>
+      Execute an <strike side="right">back knuckle</strike> to the
+      floating ribs and a <kick side="right">scoop</kick> to the groin.
+    </step>
+    <step>
+      <!-- FIXME - how to describe kick? -->
+      Plant your right foot back into a <stance side="left">forward bow</stance>
+      as you perform a <punch side="right">chopping punch</punch> to your
+      opponent's head. Your right leg is kicking out your opponent's leg,
+      causing them to fall as you punch.
+    </step>
+  </steps>
+</technique>

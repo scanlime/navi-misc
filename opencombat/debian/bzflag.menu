@@ -1,0 +1,7 @@
+?package(bzflag):\
+ needs="X11"\
+ hints="3D,first-person"\
+ section="Games/Arcade"\
+ title="bzflag"\
+ icon="/usr/share/bzflag/menu_arrow.png"\
+ command="/usr/games/bzflag"

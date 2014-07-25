@@ -1,0 +1,13 @@
+This program is for doing the same thing port forwarding does, except in userspace with a proxy server type thing.  It is done in Java so I can learn more about the Java Socket API, and doing real bi-directional communication.
+
+Usage:
+
+To proxy an external port to an internal port when they're the same, on the machine that is visible to the rest of the world, the first argument is the internal host, and the second argument is the port that will be used, both internal and external.
+
+entropy:~/starjox/src brandon$ java -jar starjox.jar ion 8080
+Forwarding localhost:8080 to ion:8080
+
+If you want to forward the external port to a different internal port, just append the internal port to the command line arguments.
+
+entropy:~/starjox/src brandon$ java -jar starjox.jar ion 8080 80
+Forwarding localhost:8080 to ion:80

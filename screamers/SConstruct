@@ -1,0 +1,17 @@
+#!/usr/bin/env python
+
+import os
+
+# use this version if you want gprof info
+#env = Environment (CCFLAGS = ['-g', '-pg'], LINKFLAGS = ['-pg'], CPPPATH = '#include')
+env = Environment (CCFLAGS = '-g', CPPPATH = '#include')
+Export ('env')
+
+# Create the plugins.cfg file with the correct plugin path
+pkgconfig = os.popen ('pkg-config --variable=plugindir OGRE')
+plugindir = pkgconfig.readline ()[:-1]
+pkgconfig.close ()
+env.Command ('plugins.cfg', 'plugins.cfg.in', 'sed -e "s|\@ogrepluginpath\@|%s|g" < $SOURCES > $TARGET' % plugindir)
+
+# Build stuff in src/
+SConscript ('src/SConscript')

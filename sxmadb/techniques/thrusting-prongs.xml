@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="thrusting prongs" level="orange" category="hugs and holds"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>front bear hug, arms pinned</attack>
+  <stances>
+    <attacker><stance>natural</stance></attacker>
+    <defender><stance>natural</stance></defender>
+  </stances>
+  <steps>
+    <step>
+      <footManeuver side="right">step</footManeuver> toward 6:00 into a
+      <stance side="left">forward bow</stance> as you execute a
+      <fingerTechnique>double thrusting thumb</fingerTechnique> to your
+      opponent's groin.
+    </step>
+    <step>
+      Execute a left hooking grab (from the outside of the arm) to your
+      opponent's right tricep, immediately followed by a
+      <strike side="right">thrusting palm heel</strike> to your opponent's jaw.
+    </step>
+    <step>
+      Execute a <footManeuver side="right">step-through</footManeuver>
+      <knee side="right">vertical</knee> to your opponent's groin.
+    </step>
+    <step>
+      Before placing your foot down, execute a
+      <kick side="right">knife-edge side</kick> to the inside of your
+      opponent's left knee.
+    </step>
+    <step>
+      Execute a <strike side="right">inward horizontal elbow</strike> to
+      your opponent's face.
+    </step>
+  </steps>
+</technique>

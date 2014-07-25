@@ -1,0 +1,2669 @@
+material
+name PT_gnome_bb_light_glow
+texture C:\Documents
+ambient 0.200000 0.200000 0.200000 1.000000
+diffuse 0.800000 0.800000 0.800000 1.000000
+specular 0.000000 0.000000 0.000000 1.000000
+shininess 0.000000
+end
+
+material
+name PT_gnome_bb_light_hit
+texture C:\Documents
+ambient 1.000000 1.000000 1.000000 1.000000
+diffuse 1.000000 1.000000 1.000000 1.000000
+specular 1.000000 1.000000 1.000000 1.000000
+shininess 0.000000
+end
+
+material
+name PT_gnome_bb_lights
+texture C:\Documents
+ambient 1.000000 1.000000 1.000000 1.000000
+diffuse 1.000000 1.000000 1.000000 1.000000
+specular 0.000000 0.000000 0.000000 1.000000
+shininess 0.000000
+end
+
+material
+name gnome_billboard
+texture C:\Documents
+ambient 0.200000 0.200000 0.200000 1.000000
+diffuse 0.800000 0.800000 0.800000 1.000000
+specular 0.000000 0.000000 0.000000 1.000000
+shininess 0.000000
+end
+
+material
+name gnome_billboard_frame
+texture C:\Documents
+ambient 0.200000 0.200000 0.200000 1.000000
+diffuse 0.800000 0.800000 0.800000 1.000000
+specular 0.000000 0.000000 0.000000 1.000000
+shininess 0.000000
+end
+
+
+mesh # Billboard_face
+matref gnome_billboard
+# vertices: 8
+# normals: 2
+# texcoords: 4
+# faces: 4
+
+vertex -20.499659 -0.162159 20.675816
+vertex -20.499659 -0.162159 0.216802
+vertex 20.082991 -0.162159 20.675816
+vertex 20.082991 -0.162159 0.216802
+vertex 20.082991 0.230341 20.675816
+vertex 20.082991 0.230341 0.216802
+vertex -20.499659 0.230341 20.675816
+vertex -20.499659 0.230341 0.216802
+normal 0.000000 -1.000000 0.000000
+normal 0.000000 1.000000 0.000000
+texcoord 0.000000 1.000000
+texcoord 0.000000 0.000000
+texcoord 1.000000 1.000000
+texcoord 1.000000 0.000000
+smoothbounce
+face
+vertices 0 1 2
+normals 0 0 0
+texcoords 0 1 2
+endface
+face
+vertices 1 3 2
+normals 0 0 0
+texcoords 1 3 2
+endface
+face
+vertices 4 5 6
+normals 1 1 1
+texcoords 0 1 2
+endface
+face
+vertices 5 7 6
+normals 1 1 1
+texcoords 1 3 2
+endface
+end
+
+mesh # gnome_bb_frame
+matref gnome_billboard_frame
+# vertices: 32
+# normals: 6
+# texcoords: 4
+# faces: 48
+
+vertex 19.914513 -0.304212 20.741051
+vertex 19.914513 -0.304212 0.178519
+vertex 20.291115 -0.304212 20.741051
+vertex 20.291115 -0.304212 0.178519
+vertex 20.291115 0.304212 20.741051
+vertex 20.291115 0.304212 0.178519
+vertex 19.914513 0.304212 20.741051
+vertex 19.914513 0.304212 0.178519
+vertex -20.692280 -0.304212 20.716957
+vertex -20.692280 -0.304212 0.154423
+vertex -20.315678 -0.304212 20.716957
+vertex -20.315678 -0.304212 0.154423
+vertex -20.315678 0.304212 20.716957
+vertex -20.315678 0.304212 0.154423
+vertex -20.692280 0.304212 20.716957
+vertex -20.692280 0.304212 0.154423
+vertex -20.882086 -0.304212 20.559013
+vertex 20.427149 -0.304212 20.559013
+vertex -20.882086 -0.304212 20.891582
+vertex 20.427149 -0.304212 20.891582
+vertex -20.882086 0.304212 20.891582
+vertex 20.427149 0.304212 20.891582
+vertex -20.882086 0.304212 20.559013
+vertex 20.427149 0.304212 20.559013
+vertex -21.038195 -0.465555 0.059014
+vertex 20.583258 -0.465555 0.059014
+vertex -21.038195 -0.465555 0.391582
+vertex 20.583258 -0.465555 0.391582
+vertex -21.038195 0.465555 0.391582
+vertex 20.583258 0.465555 0.391582
+vertex -21.038195 0.465555 0.059014
+vertex 20.583258 0.465555 0.059014
+normal 0.000000 -1.000000 0.000000
+normal 1.000000 0.000000 0.000000
+normal 0.000000 1.000000 0.000000
+normal -1.000000 0.000000 0.000000
+normal 0.000000 0.000000 1.000000
+normal 0.000000 0.000000 -1.000000
+texcoord -9.305495 3.969247
+texcoord -9.305495 -9.665264
+texcoord 21.121143 3.969247
+texcoord 21.121143 -9.665264
+smoothbounce
+face
+vertices 0 1 2
+normals 0 0 0
+texcoords 0 1 2
+endface
+face
+vertices 1 3 2
+normals 0 0 0
+texcoords 1 3 2
+endface
+face
+vertices 2 3 4
+normals 1 1 1
+texcoords 0 1 2
+endface
+face
+vertices 3 5 4
+normals 1 1 1
+texcoords 1 3 2
+endface
+face
+vertices 4 5 6
+normals 2 2 2
+texcoords 0 1 2
+endface
+face
+vertices 5 7 6
+normals 2 2 2
+texcoords 1 3 2
+endface
+face
+vertices 6 7 0
+normals 3 3 3
+texcoords 0 1 2
+endface
+face
+vertices 7 1 0
+normals 3 3 3
+texcoords 1 3 2
+endface
+face
+vertices 6 0 4
+normals 4 4 4
+texcoords 0 1 2
+endface
+face
+vertices 0 2 4
+normals 4 4 4
+texcoords 1 3 2
+endface
+face
+vertices 1 7 3
+normals 5 5 5
+texcoords 0 1 2
+endface
+face
+vertices 7 5 3
+normals 5 5 5
+texcoords 1 3 2
+endface
+face
+vertices 8 9 10
+normals 0 0 0
+texcoords 0 1 2
+endface
+face
+vertices 9 11 10
+normals 0 0 0
+texcoords 1 3 2
+endface
+face
+vertices 10 11 12
+normals 1 1 1
+texcoords 0 1 2
+endface
+face
+vertices 11 13 12
+normals 1 1 1
+texcoords 1 3 2
+endface
+face
+vertices 12 13 14
+normals 2 2 2
+texcoords 0 1 2
+endface
+face
+vertices 13 15 14
+normals 2 2 2
+texcoords 1 3 2
+endface
+face
+vertices 14 15 8
+normals 3 3 3
+texcoords 0 1 2
+endface
+face
+vertices 15 9 8
+normals 3 3 3
+texcoords 1 3 2
+endface
+face
+vertices 14 8 12
+normals 4 4 4
+texcoords 0 1 2
+endface
+face
+vertices 8 10 12
+normals 4 4 4
+texcoords 1 3 2
+endface
+face
+vertices 9 15 11
+normals 5 5 5
+texcoords 0 1 2
+endface
+face
+vertices 15 13 11
+normals 5 5 5
+texcoords 1 3 2
+endface
+face
+vertices 16 17 18
+normals 0 0 0
+texcoords 0 1 2
+endface
+face
+vertices 17 19 18
+normals 0 0 0
+texcoords 1 3 2
+endface
+face
+vertices 18 19 20
+normals 4 4 4
+texcoords 0 1 2
+endface
+face
+vertices 19 21 20
+normals 4 4 4
+texcoords 1 3 2
+endface
+face
+vertices 20 21 22
+normals 2 2 2
+texcoords 0 1 2
+endface
+face
+vertices 21 23 22
+normals 2 2 2
+texcoords 1 3 2
+endface
+face
+vertices 22 23 16
+normals 5 5 5
+texcoords 0 1 2
+endface
+face
+vertices 23 17 16
+normals 5 5 5
+texcoords 1 3 2
+endface
+face
+vertices 22 16 20
+normals 3 3 3
+texcoords 0 1 2
+endface
+face
+vertices 16 18 20
+normals 3 3 3
+texcoords 1 3 2
+endface
+face
+vertices 17 23 19
+normals 1 1 1
+texcoords 0 1 2
+endface
+face
+vertices 23 21 19
+normals 1 1 1
+texcoords 1 3 2
+endface
+face
+vertices 24 25 26
+normals 0 0 0
+texcoords 0 1 2
+endface
+face
+vertices 25 27 26
+normals 0 0 0
+texcoords 1 3 2
+endface
+face
+vertices 26 27 28
+normals 4 4 4
+texcoords 0 1 2
+endface
+face
+vertices 27 29 28
+normals 4 4 4
+texcoords 1 3 2
+endface
+face
+vertices 28 29 30
+normals 2 2 2
+texcoords 0 1 2
+endface
+face
+vertices 29 31 30
+normals 2 2 2
+texcoords 1 3 2
+endface
+face
+vertices 30 31 24
+normals 5 5 5
+texcoords 0 1 2
+endface
+face
+vertices 31 25 24
+normals 5 5 5
+texcoords 1 3 2
+endface
+face
+vertices 30 24 28
+normals 3 3 3
+texcoords 0 1 2
+endface
+face
+vertices 24 26 28
+normals 3 3 3
+texcoords 1 3 2
+endface
+face
+vertices 25 31 27
+normals 1 1 1
+texcoords 0 1 2
+endface
+face
+vertices 31 29 27
+normals 1 1 1
+texcoords 1 3 2
+endface
+end
+
+mesh # PT_gnome_bb_light_round_glows
+passable
+matref PT_gnome_bb_light_hit
+# vertices: 40
+# normals: 2
+# texcoords: 4
+# faces: 24
+
+vertex 20.527843 0.541667 9.326518
+vertex 20.527843 0.541667 2.993189
+vertex 13.777847 0.541667 9.326518
+vertex 13.777847 0.541667 2.993189
+vertex 12.642444 0.541667 9.472702
+vertex 12.642444 0.541667 3.139373
+vertex 5.892449 0.541667 9.472702
+vertex 5.892449 0.541667 3.139373
+vertex 3.939191 0.541667 9.306036
+vertex 3.939191 0.541667 2.972707
+vertex -2.810803 0.541667 9.306036
+vertex -2.810803 0.541667 2.972707
+vertex -4.644143 0.541667 9.306036
+vertex -4.644143 0.541667 2.972707
+vertex -11.394135 0.541667 9.306036
+vertex -11.394135 0.541667 2.972707
+vertex -13.121783 0.541667 9.271482
+vertex -13.121783 0.541667 2.938154
+vertex -19.871775 0.541667 9.271482
+vertex -19.871775 0.541667 2.938154
+vertex 20.432783 -0.545290 2.713509
+vertex 20.432783 -0.545290 9.046836
+vertex 13.682788 -0.545290 2.713509
+vertex 13.682788 -0.545290 9.046836
+vertex 12.695602 -0.545290 2.668638
+vertex 12.695602 -0.545290 9.001968
+vertex 5.945608 -0.545290 2.668638
+vertex 5.945608 -0.545290 9.001968
+vertex 3.939191 -0.545290 2.681457
+vertex 3.939191 -0.545290 9.014786
+vertex -2.810803 -0.545290 2.681457
+vertex -2.810803 -0.545290 9.014786
+vertex -4.501286 -0.545290 2.714424
+vertex -4.501286 -0.545290 9.047754
+vertex -11.251280 -0.545290 2.714424
+vertex -11.251280 -0.545290 9.047754
+vertex -12.989380 -0.545290 2.619188
+vertex -12.989380 -0.545290 8.952516
+vertex -19.739372 -0.545290 2.619188
+vertex -19.739372 -0.545290 8.952516
+normal 0.000000 1.000000 0.000000
+normal 0.000000 -1.000000 0.000000
+texcoord 0.000000 1.000000
+texcoord 0.000000 0.000000
+texcoord 1.000000 1.000000
+texcoord 1.000000 0.000000
+smoothbounce
+face
+vertices 0 1 2
+normals 0 0 0
+texcoords 0 1 2
+endface
+face
+vertices 1 3 2
+normals 0 0 0
+texcoords 1 3 2
+endface
+face
+vertices 4 5 6
+normals 0 0 0
+texcoords 0 1 2
+endface
+face
+vertices 5 7 6
+normals 0 0 0
+texcoords 1 3 2
+endface
+face
+vertices 8 9 10
+normals 0 0 0
+texcoords 0 1 2
+endface
+face
+vertices 9 11 10
+normals 0 0 0
+texcoords 1 3 2
+endface
+face
+vertices 12 13 14
+normals 0 0 0
+texcoords 0 1 2
+endface
+face
+vertices 13 15 14
+normals 0 0 0
+texcoords 1 3 2
+endface
+face
+vertices 16 17 18
+normals 0 0 0
+texcoords 0 1 2
+endface
+face
+vertices 17 19 18
+normals 0 0 0
+texcoords 1 3 2
+endface
+face
+vertices 16 17 18
+normals 0 0 0
+texcoords 0 1 2
+endface
+face
+vertices 17 19 18
+normals 0 0 0
+texcoords 1 3 2
+endface
+face
+vertices 20 21 22
+normals 1 1 1
+texcoords 0 1 2
+endface
+face
+vertices 21 23 22
+normals 1 1 1
+texcoords 1 3 2
+endface
+face
+vertices 24 25 26
+normals 1 1 1
+texcoords 0 1 2
+endface
+face
+vertices 25 27 26
+normals 1 1 1
+texcoords 1 3 2
+endface
+face
+vertices 28 29 30
+normals 1 1 1
+texcoords 0 1 2
+endface
+face
+vertices 29 31 30
+normals 1 1 1
+texcoords 1 3 2
+endface
+face
+vertices 32 33 34
+normals 1 1 1
+texcoords 0 1 2
+endface
+face
+vertices 33 35 34
+normals 1 1 1
+texcoords 1 3 2
+endface
+face
+vertices 36 37 38
+normals 1 1 1
+texcoords 0 1 2
+endface
+face
+vertices 37 39 38
+normals 1 1 1
+texcoords 1 3 2
+endface
+face
+vertices 36 37 38
+normals 1 1 1
+texcoords 0 1 2
+endface
+face
+vertices 37 39 38
+normals 1 1 1
+texcoords 1 3 2
+endface
+end
+
+mesh # PT_gnome_light_cones
+passable
+matref PT_gnome_bb_light_glow
+# vertices: 140
+# normals: 74
+# texcoords: 16
+# faces: 140
+
+vertex 18.921913 2.005907 4.560859
+vertex 17.306501 3.456543 0.212255
+vertex 18.269527 3.099701 4.958968
+vertex 17.254599 3.536390 0.241318
+vertex 17.137976 3.556116 0.248497
+vertex 16.803633 3.369848 5.057292
+vertex 15.628078 2.612920 4.781795
+vertex 17.044453 3.500854 0.228384
+vertex 17.044453 3.412231 0.196127
+vertex 15.628078 1.398896 4.339924
+vertex 16.803633 0.641968 4.064425
+vertex 17.137976 3.356969 0.176014
+vertex 17.254599 3.376696 0.183194
+vertex 18.269527 0.912116 4.162751
+vertex 11.005246 2.005907 4.477525
+vertex 9.122712 3.456543 0.128922
+vertex 10.352860 3.099701 4.875634
+vertex 9.070808 3.536390 0.157984
+vertex 8.954186 3.556116 0.165164
+vertex 8.886966 3.369848 4.973958
+vertex 7.711411 2.612920 4.698461
+vertex 8.860663 3.500854 0.145051
+vertex 8.860663 3.412231 0.112793
+vertex 7.711411 1.398896 4.256590
+vertex 8.886966 0.641968 3.981091
+vertex 8.954186 3.356969 0.092680
+vertex 9.070808 3.376696 0.099861
+vertex 10.352860 0.912116 4.079417
+vertex 2.088580 2.005907 4.310858
+vertex 0.493716 3.456543 0.151112
+vertex 1.436194 3.099701 4.708967
+vertex 0.441813 3.536390 0.180175
+vertex 0.325190 3.556116 0.187354
+vertex -0.029700 3.369848 4.807292
+vertex -1.205255 2.612920 4.531794
+vertex 0.231667 3.500854 0.167241
+vertex 0.231667 3.412231 0.134984
+vertex -1.205255 1.398896 4.089923
+vertex -0.029700 0.641968 3.814425
+vertex 0.325190 3.356969 0.114871
+vertex 0.441813 3.376696 0.122051
+vertex 1.436194 0.912116 3.912750
+vertex -6.161420 2.005907 4.310858
+vertex -7.752539 3.456543 0.126767
+vertex -6.813806 3.099701 4.708967
+vertex -7.804442 3.536390 0.155830
+vertex -7.921064 3.556116 0.163009
+vertex -8.279699 3.369848 4.807292
+vertex -9.455254 2.612920 4.531794
+vertex -8.014585 3.500854 0.142896
+vertex -8.014585 3.412231 0.110639
+vertex -9.455254 1.398896 4.089923
+vertex -8.279699 0.641968 3.814425
+vertex -7.921064 3.356969 0.090526
+vertex -7.804442 3.376696 0.097706
+vertex -6.813806 0.912116 3.912750
+vertex -14.994753 2.005907 4.144191
+vertex -16.589617 3.456543 0.158602
+vertex -15.647139 3.099701 4.542300
+vertex -16.641520 3.536390 0.187665
+vertex -16.758142 3.556116 0.194845
+vertex -17.113033 3.369848 4.640625
+vertex -18.288586 2.612920 4.365127
+vertex -16.851665 3.500854 0.174731
+vertex -16.851665 3.412231 0.142474
+vertex -18.288586 1.398896 3.923257
+vertex -17.113033 0.641968 3.647758
+vertex -16.758142 3.356969 0.122361
+vertex -16.641520 3.376696 0.129541
+vertex -15.647139 0.912116 3.746083
+vertex 18.921913 -2.248014 4.471701
+vertex 17.327049 -3.202116 0.339029
+vertex 18.269527 -1.113854 4.209859
+vertex 17.275146 -3.119322 0.319915
+vertex 17.158524 -3.098868 0.315192
+vertex 16.803633 -0.833739 4.145188
+vertex 15.628078 -1.618599 4.326388
+vertex 17.065001 -3.156169 0.328421
+vertex 17.065001 -3.248063 0.349636
+vertex 15.628078 -2.877424 4.617009
+vertex 16.803633 -3.662285 4.798208
+vertex 17.158524 -3.305363 0.362866
+vertex 17.275146 -3.284908 0.358144
+vertex 18.269527 -3.382169 4.733541
+vertex 11.005246 -2.293399 4.401809
+vertex 9.410382 -3.247503 0.269138
+vertex 10.352860 -1.159241 4.139969
+vertex 9.358479 -3.164708 0.250025
+vertex 9.241857 -3.144254 0.245304
+vertex 8.886966 -0.879127 4.075300
+vertex 7.711411 -1.663987 4.256498
+vertex 9.148334 -3.201556 0.258532
+vertex 9.148334 -3.293450 0.279747
+vertex 7.711411 -2.922813 4.547121
+vertex 8.886966 -3.707672 4.728319
+vertex 9.241857 -3.350750 0.292976
+vertex 9.358479 -3.330296 0.288254
+vertex 10.352860 -3.427555 4.663650
+vertex 2.088580 -2.384173 4.262033
+vertex 0.493716 -3.338275 0.129361
+vertex 1.436194 -1.250015 4.000190
+vertex 0.441813 -3.255480 0.110247
+vertex 0.325190 -3.235028 0.105525
+vertex -0.029700 -0.969900 3.935519
+vertex -1.205255 -1.754761 4.116720
+vertex 0.231667 -3.292328 0.118754
+vertex 0.231667 -3.384222 0.139968
+vertex -1.205255 -3.013586 4.407342
+vertex -0.029700 -3.798444 4.588539
+vertex 0.325190 -3.441524 0.153198
+vertex 0.441813 -3.421069 0.148476
+vertex 1.436194 -3.518328 4.523871
+vertex -6.161420 -2.384173 4.262033
+vertex -7.756283 -3.338275 0.129361
+vertex -6.813806 -1.250015 4.000190
+vertex -7.808186 -3.255480 0.110247
+vertex -7.924809 -3.235028 0.105525
+vertex -8.279699 -0.969900 3.935519
+vertex -9.455254 -1.754761 4.116720
+vertex -8.018332 -3.292328 0.118754
+vertex -8.018332 -3.384222 0.139968
+vertex -9.455254 -3.013586 4.407342
+vertex -8.279699 -3.798444 4.588539
+vertex -7.924809 -3.441524 0.153198
+vertex -7.808186 -3.421069 0.148476
+vertex -6.813806 -3.518328 4.523871
+vertex -14.994753 -2.474947 4.122252
+vertex -16.589617 -3.429050 -0.010418
+vertex -15.647140 -1.340788 3.860412
+vertex -16.641520 -3.346255 -0.029531
+vertex -16.758142 -3.325802 -0.034254
+vertex -17.113033 -1.060673 3.795741
+vertex -18.288586 -1.845532 3.976943
+vertex -16.851665 -3.383102 -0.021024
+vertex -16.851665 -3.474996 0.000190
+vertex -18.288586 -3.104357 4.267562
+vertex -17.113033 -3.889219 4.448763
+vertex -16.758142 -3.532297 0.013420
+vertex -16.641520 -3.511843 0.008698
+vertex -15.647140 -3.609101 4.384091
+normal 0.927771 -0.066578 -0.367163
+normal 0.926161 0.277218 -0.255686
+normal 0.543548 0.838461 -0.039221
+normal 0.533116 0.845257 -0.036450
+normal -0.186549 0.982008 0.029304
+normal -0.191742 0.981135 0.024673
+normal -0.831121 0.534163 -0.154619
+normal -0.826593 0.542049 -0.151417
+normal -0.835571 -0.321497 -0.445489
+normal -0.840682 -0.315074 -0.440434
+normal -0.188583 -0.797715 -0.572789
+normal -0.182937 -0.798624 -0.573353
+normal 0.550114 -0.640849 -0.535432
+normal 0.559876 -0.632910 -0.534756
+normal 0.910679 -0.047481 -0.410378
+normal 0.908630 0.289744 -0.300731
+normal 0.535626 0.841750 -0.067543
+normal 0.525425 0.848410 -0.064254
+normal -0.189339 0.981112 0.039616
+normal -0.194747 0.980220 0.035246
+normal -0.844458 0.523947 -0.111223
+normal -0.839860 0.531899 -0.108253
+normal -0.848334 -0.341263 -0.404807
+normal -0.853417 -0.334896 -0.399404
+normal -0.191039 -0.803455 -0.563882
+normal -0.185239 -0.804218 -0.564730
+normal 0.542830 -0.625434 -0.560507
+normal 0.552323 -0.617308 -0.560241
+normal 0.924462 -0.061640 -0.376258
+normal 0.923938 0.279668 -0.261008
+normal -0.827719 0.536773 -0.163571
+normal -0.823219 0.544647 -0.160220
+normal -0.829670 -0.311014 -0.463592
+normal -0.834826 -0.304764 -0.458458
+normal -0.187121 -0.783520 -0.592522
+normal -0.181512 -0.784420 -0.593076
+normal 0.547125 -0.629913 -0.551238
+normal 0.556808 -0.622035 -0.550488
+normal 0.925317 -0.062778 -0.373961
+normal 0.924654 0.279016 -0.259163
+normal 0.543662 0.838454 -0.037763
+normal 0.533236 0.845244 -0.034950
+normal -0.830123 -0.311928 -0.462166
+normal -0.835272 -0.305655 -0.457051
+normal -0.187257 -0.785286 -0.590137
+normal -0.181648 -0.786190 -0.590685
+normal 0.547710 -0.631766 -0.548530
+normal 0.557409 -0.623885 -0.547780
+normal 0.919793 -0.055237 -0.388498
+normal 0.920379 0.283110 -0.269724
+normal -0.186223 0.982023 0.030862
+normal -0.191346 0.981183 0.025835
+normal -0.825387 0.538624 -0.169177
+normal -0.820909 0.546492 -0.165696
+normal -0.824669 -0.302026 -0.478228
+normal -0.829868 -0.295956 -0.473000
+normal -0.185788 -0.769579 -0.610926
+normal -0.180203 -0.770458 -0.611491
+normal 0.543447 -0.617683 -0.568448
+normal 0.553029 -0.609855 -0.567658
+normal 0.919792 -0.257918 -0.295737
+normal 0.920379 0.090532 -0.380402
+normal 0.542792 0.681959 -0.490214
+normal 0.532403 0.689232 -0.491432
+normal -0.186221 0.840403 -0.508965
+normal -0.191346 0.836960 -0.512723
+normal -0.825386 0.359588 -0.435240
+normal -0.820908 0.368083 -0.436606
+normal -0.824667 -0.513764 -0.236581
+normal -0.829868 -0.505824 -0.235503
+normal -0.185786 -0.978158 -0.093222
+normal -0.180199 -0.979203 -0.093217
+normal 0.543446 -0.827632 -0.140326
+normal 0.553029 -0.820636 -0.143927
+texcoord 0.020209 0.021569
+texcoord 0.020209 0.975555
+texcoord 0.156514 0.021569
+texcoord 0.156514 0.975555
+texcoord 0.292819 0.975555
+texcoord 0.292819 0.021569
+texcoord 0.429124 0.021569
+texcoord 0.429124 0.975555
+texcoord 0.565430 0.975555
+texcoord 0.565430 0.021569
+texcoord 0.701735 0.021569
+texcoord 0.701735 0.975555
+texcoord 0.838040 0.975555
+texcoord 0.838040 0.021569
+texcoord 0.974345 0.021569
+texcoord 0.974345 0.975555
+smoothbounce
+face
+vertices 0 1 2
+normals 0 1 2
+texcoords 0 1 2
+endface
+face
+vertices 1 3 2
+normals 1 3 2
+texcoords 1 3 2
+endface
+face
+vertices 2 3 4
+normals 2 3 4
+texcoords 2 3 4
+endface
+face
+vertices 2 4 5
+normals 2 4 5
+texcoords 2 4 5
+endface
+face
+vertices 5 4 6
+normals 5 4 6
+texcoords 5 4 6
+endface
+face
+vertices 4 7 6
+normals 4 7 6
+texcoords 4 7 6
+endface
+face
+vertices 6 7 8
+normals 6 7 8
+texcoords 6 7 8
+endface
+face
+vertices 6 8 9
+normals 6 8 9
+texcoords 6 8 9
+endface
+face
+vertices 9 8 10
+normals 9 8 10
+texcoords 9 8 10
+endface
+face
+vertices 8 11 10
+normals 8 11 10
+texcoords 8 11 10
+endface
+face
+vertices 10 11 12
+normals 10 11 12
+texcoords 10 11 12
+endface
+face
+vertices 10 12 13
+normals 10 12 13
+texcoords 10 12 13
+endface
+face
+vertices 13 12 0
+normals 13 12 0
+texcoords 13 12 14
+endface
+face
+vertices 12 1 0
+normals 12 1 0
+texcoords 12 15 14
+endface
+face
+vertices 14 15 16
+normals 14 15 16
+texcoords 0 1 2
+endface
+face
+vertices 15 17 16
+normals 15 17 16
+texcoords 1 3 2
+endface
+face
+vertices 16 17 18
+normals 16 17 18
+texcoords 2 3 4
+endface
+face
+vertices 16 18 19
+normals 16 18 19
+texcoords 2 4 5
+endface
+face
+vertices 19 18 20
+normals 19 18 20
+texcoords 5 4 6
+endface
+face
+vertices 18 21 20
+normals 18 21 20
+texcoords 4 7 6
+endface
+face
+vertices 20 21 22
+normals 20 21 22
+texcoords 6 7 8
+endface
+face
+vertices 20 22 23
+normals 20 22 23
+texcoords 6 8 9
+endface
+face
+vertices 23 22 24
+normals 23 22 24
+texcoords 9 8 10
+endface
+face
+vertices 22 25 24
+normals 22 25 24
+texcoords 8 11 10
+endface
+face
+vertices 24 25 26
+normals 24 25 26
+texcoords 10 11 12
+endface
+face
+vertices 24 26 27
+normals 24 26 27
+texcoords 10 12 13
+endface
+face
+vertices 27 26 14
+normals 27 26 14
+texcoords 13 12 14
+endface
+face
+vertices 26 15 14
+normals 26 15 14
+texcoords 12 15 14
+endface
+face
+vertices 28 29 30
+normals 28 29 2
+texcoords 0 1 2
+endface
+face
+vertices 29 31 30
+normals 29 3 2
+texcoords 1 3 2
+endface
+face
+vertices 30 31 32
+normals 2 3 4
+texcoords 2 3 4
+endface
+face
+vertices 30 32 33
+normals 2 4 5
+texcoords 2 4 5
+endface
+face
+vertices 33 32 34
+normals 5 4 30
+texcoords 5 4 6
+endface
+face
+vertices 32 35 34
+normals 4 31 30
+texcoords 4 7 6
+endface
+face
+vertices 34 35 36
+normals 30 31 32
+texcoords 6 7 8
+endface
+face
+vertices 34 36 37
+normals 30 32 33
+texcoords 6 8 9
+endface
+face
+vertices 37 36 38
+normals 33 32 34
+texcoords 9 8 10
+endface
+face
+vertices 36 39 38
+normals 32 35 34
+texcoords 8 11 10
+endface
+face
+vertices 38 39 40
+normals 34 35 36
+texcoords 10 11 12
+endface
+face
+vertices 38 40 41
+normals 34 36 37
+texcoords 10 12 13
+endface
+face
+vertices 41 40 28
+normals 37 36 28
+texcoords 13 12 14
+endface
+face
+vertices 40 29 28
+normals 36 29 28
+texcoords 12 15 14
+endface
+face
+vertices 42 43 44
+normals 38 39 40
+texcoords 0 1 2
+endface
+face
+vertices 43 45 44
+normals 39 41 40
+texcoords 1 3 2
+endface
+face
+vertices 44 45 46
+normals 40 41 4
+texcoords 2 3 4
+endface
+face
+vertices 44 46 47
+normals 40 4 5
+texcoords 2 4 5
+endface
+face
+vertices 47 46 48
+normals 5 4 30
+texcoords 5 4 6
+endface
+face
+vertices 46 49 48
+normals 4 31 30
+texcoords 4 7 6
+endface
+face
+vertices 48 49 50
+normals 30 31 42
+texcoords 6 7 8
+endface
+face
+vertices 48 50 51
+normals 30 42 43
+texcoords 6 8 9
+endface
+face
+vertices 51 50 52
+normals 43 42 44
+texcoords 9 8 10
+endface
+face
+vertices 50 53 52
+normals 42 45 44
+texcoords 8 11 10
+endface
+face
+vertices 52 53 54
+normals 44 45 46
+texcoords 10 11 12
+endface
+face
+vertices 52 54 55
+normals 44 46 47
+texcoords 10 12 13
+endface
+face
+vertices 55 54 42
+normals 47 46 38
+texcoords 13 12 14
+endface
+face
+vertices 54 43 42
+normals 46 39 38
+texcoords 12 15 14
+endface
+face
+vertices 56 57 58
+normals 48 49 2
+texcoords 0 1 2
+endface
+face
+vertices 57 59 58
+normals 49 3 2
+texcoords 1 3 2
+endface
+face
+vertices 58 59 60
+normals 2 3 50
+texcoords 2 3 4
+endface
+face
+vertices 58 60 61
+normals 2 50 51
+texcoords 2 4 5
+endface
+face
+vertices 61 60 62
+normals 51 50 52
+texcoords 5 4 6
+endface
+face
+vertices 60 63 62
+normals 50 53 52
+texcoords 4 7 6
+endface
+face
+vertices 62 63 64
+normals 52 53 54
+texcoords 6 7 8
+endface
+face
+vertices 62 64 65
+normals 52 54 55
+texcoords 6 8 9
+endface
+face
+vertices 65 64 66
+normals 55 54 56
+texcoords 9 8 10
+endface
+face
+vertices 64 67 66
+normals 54 57 56
+texcoords 8 11 10
+endface
+face
+vertices 66 67 68
+normals 56 57 58
+texcoords 10 11 12
+endface
+face
+vertices 66 68 69
+normals 56 58 59
+texcoords 10 12 13
+endface
+face
+vertices 69 68 56
+normals 59 58 48
+texcoords 13 12 14
+endface
+face
+vertices 68 57 56
+normals 58 49 48
+texcoords 12 15 14
+endface
+face
+vertices 70 71 72
+normals 60 61 62
+texcoords 0 1 2
+endface
+face
+vertices 71 73 72
+normals 61 63 62
+texcoords 1 3 2
+endface
+face
+vertices 72 73 74
+normals 62 63 64
+texcoords 2 3 4
+endface
+face
+vertices 72 74 75
+normals 62 64 65
+texcoords 2 4 5
+endface
+face
+vertices 75 74 76
+normals 65 64 66
+texcoords 5 4 6
+endface
+face
+vertices 74 77 76
+normals 64 67 66
+texcoords 4 7 6
+endface
+face
+vertices 76 77 78
+normals 66 67 68
+texcoords 6 7 8
+endface
+face
+vertices 76 78 79
+normals 66 68 69
+texcoords 6 8 9
+endface
+face
+vertices 79 78 80
+normals 69 68 70
+texcoords 9 8 10
+endface
+face
+vertices 78 81 80
+normals 68 71 70
+texcoords 8 11 10
+endface
+face
+vertices 80 81 82
+normals 70 71 72
+texcoords 10 11 12
+endface
+face
+vertices 80 82 83
+normals 70 72 73
+texcoords 10 12 13
+endface
+face
+vertices 83 82 70
+normals 73 72 60
+texcoords 13 12 14
+endface
+face
+vertices 82 71 70
+normals 72 61 60
+texcoords 12 15 14
+endface
+face
+vertices 84 85 86
+normals 60 61 62
+texcoords 0 1 2
+endface
+face
+vertices 85 87 86
+normals 61 63 62
+texcoords 1 3 2
+endface
+face
+vertices 86 87 88
+normals 62 63 64
+texcoords 2 3 4
+endface
+face
+vertices 86 88 89
+normals 62 64 65
+texcoords 2 4 5
+endface
+face
+vertices 89 88 90
+normals 65 64 66
+texcoords 5 4 6
+endface
+face
+vertices 88 91 90
+normals 64 67 66
+texcoords 4 7 6
+endface
+face
+vertices 90 91 92
+normals 66 67 68
+texcoords 6 7 8
+endface
+face
+vertices 90 92 93
+normals 66 68 69
+texcoords 6 8 9
+endface
+face
+vertices 93 92 94
+normals 69 68 70
+texcoords 9 8 10
+endface
+face
+vertices 92 95 94
+normals 68 71 70
+texcoords 8 11 10
+endface
+face
+vertices 94 95 96
+normals 70 71 72
+texcoords 10 11 12
+endface
+face
+vertices 94 96 97
+normals 70 72 73
+texcoords 10 12 13
+endface
+face
+vertices 97 96 84
+normals 73 72 60
+texcoords 13 12 14
+endface
+face
+vertices 96 85 84
+normals 72 61 60
+texcoords 12 15 14
+endface
+face
+vertices 98 99 100
+normals 60 61 62
+texcoords 0 1 2
+endface
+face
+vertices 99 101 100
+normals 61 63 62
+texcoords 1 3 2
+endface
+face
+vertices 100 101 102
+normals 62 63 64
+texcoords 2 3 4
+endface
+face
+vertices 100 102 103
+normals 62 64 65
+texcoords 2 4 5
+endface
+face
+vertices 103 102 104
+normals 65 64 66
+texcoords 5 4 6
+endface
+face
+vertices 102 105 104
+normals 64 67 66
+texcoords 4 7 6
+endface
+face
+vertices 104 105 106
+normals 66 67 68
+texcoords 6 7 8
+endface
+face
+vertices 104 106 107
+normals 66 68 69
+texcoords 6 8 9
+endface
+face
+vertices 107 106 108
+normals 69 68 70
+texcoords 9 8 10
+endface
+face
+vertices 106 109 108
+normals 68 71 70
+texcoords 8 11 10
+endface
+face
+vertices 108 109 110
+normals 70 71 72
+texcoords 10 11 12
+endface
+face
+vertices 108 110 111
+normals 70 72 73
+texcoords 10 12 13
+endface
+face
+vertices 111 110 98
+normals 73 72 60
+texcoords 13 12 14
+endface
+face
+vertices 110 99 98
+normals 72 61 60
+texcoords 12 15 14
+endface
+face
+vertices 112 113 114
+normals 60 61 62
+texcoords 0 1 2
+endface
+face
+vertices 113 115 114
+normals 61 63 62
+texcoords 1 3 2
+endface
+face
+vertices 114 115 116
+normals 62 63 64
+texcoords 2 3 4
+endface
+face
+vertices 114 116 117
+normals 62 64 65
+texcoords 2 4 5
+endface
+face
+vertices 117 116 118
+normals 65 64 66
+texcoords 5 4 6
+endface
+face
+vertices 116 119 118
+normals 64 67 66
+texcoords 4 7 6
+endface
+face
+vertices 118 119 120
+normals 66 67 68
+texcoords 6 7 8
+endface
+face
+vertices 118 120 121
+normals 66 68 69
+texcoords 6 8 9
+endface
+face
+vertices 121 120 122
+normals 69 68 70
+texcoords 9 8 10
+endface
+face
+vertices 120 123 122
+normals 68 71 70
+texcoords 8 11 10
+endface
+face
+vertices 122 123 124
+normals 70 71 72
+texcoords 10 11 12
+endface
+face
+vertices 122 124 125
+normals 70 72 73
+texcoords 10 12 13
+endface
+face
+vertices 125 124 112
+normals 73 72 60
+texcoords 13 12 14
+endface
+face
+vertices 124 113 112
+normals 72 61 60
+texcoords 12 15 14
+endface
+face
+vertices 126 127 128
+normals 60 61 62
+texcoords 0 1 2
+endface
+face
+vertices 127 129 128
+normals 61 63 62
+texcoords 1 3 2
+endface
+face
+vertices 128 129 130
+normals 62 63 64
+texcoords 2 3 4
+endface
+face
+vertices 128 130 131
+normals 62 64 65
+texcoords 2 4 5
+endface
+face
+vertices 131 130 132
+normals 65 64 66
+texcoords 5 4 6
+endface
+face
+vertices 130 133 132
+normals 64 67 66
+texcoords 4 7 6
+endface
+face
+vertices 132 133 134
+normals 66 67 68
+texcoords 6 7 8
+endface
+face
+vertices 132 134 135
+normals 66 68 69
+texcoords 6 8 9
+endface
+face
+vertices 135 134 136
+normals 69 68 70
+texcoords 9 8 10
+endface
+face
+vertices 134 137 136
+normals 68 71 70
+texcoords 8 11 10
+endface
+face
+vertices 136 137 138
+normals 70 71 72
+texcoords 10 11 12
+endface
+face
+vertices 136 138 139
+normals 70 72 73
+texcoords 10 12 13
+endface
+face
+vertices 139 138 126
+normals 73 72 60
+texcoords 13 12 14
+endface
+face
+vertices 138 127 126
+normals 72 61 60
+texcoords 12 15 14
+endface
+end
+
+mesh # PT_gnome_light_cans
+passable
+matref PT_gnome_bb_lights
+# vertices: 120
+# normals: 26
+# texcoords: 12
+# faces: 200
+
+vertex -16.287394 -3.395930 -0.004458
+vertex -16.582224 -3.741564 -0.004458
+vertex -16.714079 -3.395930 -0.004458
+vertex -16.287394 -3.395930 0.324379
+vertex -16.714079 -3.395930 0.324379
+vertex -16.582224 -3.741564 0.324379
+vertex -17.059267 -3.609544 -0.004458
+vertex -17.059267 -3.609544 0.324379
+vertex -17.059267 -3.182315 -0.004458
+vertex -17.059267 -3.182315 0.324379
+vertex -16.582224 -3.050295 -0.004458
+vertex -16.582224 -3.050295 0.324379
+vertex -16.287394 3.465516 0.013614
+vertex -16.582224 3.119882 0.013614
+vertex -16.714079 3.465516 0.013614
+vertex -16.287394 3.465516 0.342452
+vertex -16.714079 3.465516 0.342452
+vertex -16.582224 3.119882 0.342452
+vertex -17.059267 3.251902 0.013614
+vertex -17.059267 3.251902 0.342452
+vertex -17.059267 3.679130 0.013614
+vertex -17.059267 3.679130 0.342452
+vertex -16.582224 3.811151 0.013614
+vertex -16.582224 3.811151 0.342452
+vertex -7.480943 -3.395930 -0.004458
+vertex -7.775773 -3.741564 -0.004458
+vertex -7.907628 -3.395930 -0.004458
+vertex -7.480943 -3.395930 0.324379
+vertex -7.907628 -3.395930 0.324379
+vertex -7.775773 -3.741564 0.324379
+vertex -8.252816 -3.609544 -0.004458
+vertex -8.252816 -3.609544 0.324379
+vertex -8.252816 -3.182315 -0.004458
+vertex -8.252816 -3.182315 0.324379
+vertex -7.775773 -3.050295 -0.004458
+vertex -7.775773 -3.050295 0.324379
+vertex 0.712605 -3.395930 -0.004458
+vertex 0.417775 -3.741564 -0.004458
+vertex 0.285920 -3.395930 -0.004458
+vertex 0.712605 -3.395930 0.324379
+vertex 0.285920 -3.395930 0.324379
+vertex 0.417775 -3.741564 0.324379
+vertex -0.059268 -3.609544 -0.004458
+vertex -0.059268 -3.609544 0.324379
+vertex -0.059268 -3.182315 -0.004458
+vertex -0.059268 -3.182315 0.324379
+vertex 0.417775 -3.050295 -0.004458
+vertex 0.417775 -3.050295 0.324379
+vertex 9.583573 -3.395930 -0.004458
+vertex 9.288743 -3.741564 -0.004458
+vertex 9.156888 -3.395930 -0.004458
+vertex 9.583573 -3.395930 0.324379
+vertex 9.156888 -3.395930 0.324379
+vertex 9.288743 -3.741564 0.324379
+vertex 8.811700 -3.609544 -0.004458
+vertex 8.811700 -3.609544 0.324379
+vertex 8.811700 -3.182315 -0.004458
+vertex 8.811700 -3.182315 0.324379
+vertex 9.288743 -3.050295 -0.004458
+vertex 9.288743 -3.050295 0.324379
+vertex -7.480944 3.465516 0.013614
+vertex -7.775772 3.119882 0.013614
+vertex -7.907628 3.465516 0.013614
+vertex -7.480944 3.465516 0.342452
+vertex -7.907628 3.465516 0.342452
+vertex -7.775772 3.119882 0.342452
+vertex -8.252816 3.251902 0.013614
+vertex -8.252816 3.251902 0.342452
+vertex -8.252816 3.679130 0.013614
+vertex -8.252816 3.679130 0.342452
+vertex -7.775772 3.811151 0.013614
+vertex -7.775772 3.811151 0.342452
+vertex 17.583572 3.465516 -0.015484
+vertex 17.288744 3.119882 0.005064
+vertex 17.156889 3.465516 0.005064
+vertex 17.583572 3.465516 0.313353
+vertex 17.156889 3.465516 0.333901
+vertex 17.288744 3.119882 0.333901
+vertex 16.811701 3.251902 0.005064
+vertex 16.811701 3.251902 0.333901
+vertex 16.811701 3.679130 0.005064
+vertex 16.811701 3.679130 0.333901
+vertex 17.288744 3.811151 0.005064
+vertex 17.288744 3.811151 0.333901
+vertex 9.615830 3.465516 0.009339
+vertex 9.321002 3.119882 0.009339
+vertex 9.189147 3.465516 0.009339
+vertex 9.615830 3.465516 0.338176
+vertex 9.189147 3.465516 0.338176
+vertex 9.321002 3.119882 0.338176
+vertex 8.843959 3.251902 0.009339
+vertex 8.843959 3.251902 0.338176
+vertex 8.843959 3.679130 0.009339
+vertex 8.843959 3.679130 0.338176
+vertex 9.321002 3.811151 0.009339
+vertex 9.321002 3.811151 0.338176
+vertex 0.680347 3.465516 0.013614
+vertex 0.385518 3.119882 0.013614
+vertex 0.253663 3.465516 0.013614
+vertex 0.680347 3.465516 0.342452
+vertex 0.253663 3.465516 0.342452
+vertex 0.385518 3.119882 0.342452
+vertex -0.091525 3.251902 0.013614
+vertex -0.091525 3.251902 0.342452
+vertex -0.091525 3.679130 0.013614
+vertex -0.091525 3.679130 0.342452
+vertex 0.385518 3.811151 0.013614
+vertex 0.385518 3.811151 0.342452
+vertex 17.519056 -3.395930 -0.004458
+vertex 17.224226 -3.741564 -0.004458
+vertex 17.092371 -3.395930 -0.004458
+vertex 17.519056 -3.395930 0.324379
+vertex 17.092371 -3.395930 0.324379
+vertex 17.224226 -3.741564 0.324379
+vertex 16.747183 -3.609544 -0.025006
+vertex 16.747183 -3.609544 0.303831
+vertex 16.747183 -3.182315 -0.025006
+vertex 16.747183 -3.182315 0.303831
+vertex 17.224226 -3.050295 -0.004458
+vertex 17.224226 -3.050295 0.324379
+normal 0.000000 0.000000 -1.000000
+normal 0.000000 0.000000 1.000000
+normal 0.961873 0.273496 0.000000
+normal 0.961873 -0.273497 0.000000
+normal 0.292924 -0.956136 0.000000
+normal -0.795839 -0.605508 0.000000
+normal -0.795839 0.605508 0.000000
+normal 0.292924 0.956136 0.000000
+normal -0.048102 0.000000 -0.998842
+normal -0.024055 -0.009177 -0.999669
+normal -0.019244 0.000000 -0.999815
+normal 0.048102 0.000000 0.998842
+normal 0.019244 0.000000 0.999815
+normal 0.024055 0.009177 0.999669
+normal -0.024055 0.009177 -0.999669
+normal 0.024055 -0.009177 0.999669
+normal 0.024055 0.009177 -0.999669
+normal 0.031134 0.000000 -0.999515
+normal -0.031134 0.000000 0.999515
+normal -0.024055 -0.009177 0.999669
+normal 0.053761 0.009174 -0.998512
+normal -0.053761 -0.009174 0.998512
+normal 0.053761 -0.009174 -0.998512
+normal -0.053761 0.009174 0.998512
+normal 0.024055 -0.009177 -0.999669
+normal -0.024055 0.009177 0.999669
+texcoord 0.000000 1.000000
+texcoord 0.000000 0.000000
+texcoord 0.200000 0.000000
+texcoord 0.200000 1.000000
+texcoord 0.400000 1.000000
+texcoord 0.400000 0.000000
+texcoord 0.600000 0.000000
+texcoord 0.600000 1.000000
+texcoord 0.800000 1.000000
+texcoord 0.800000 0.000000
+texcoord 1.000000 0.000000
+texcoord 1.000000 1.000000
+smoothbounce
+face
+vertices 0 1 2
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 3 4 5
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 0 3 1
+normals 2 3 4
+texcoords 1 0 2
+endface
+face
+vertices 3 5 1
+normals 3 4 4
+texcoords 0 3 2
+endface
+face
+vertices 1 6 2
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 5 4 7
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 1 5 7
+normals 4 4 5
+texcoords 2 3 4
+endface
+face
+vertices 1 7 6
+normals 4 5 5
+texcoords 2 4 5
+endface
+face
+vertices 6 8 2
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 7 4 9
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 6 7 8
+normals 5 5 6
+texcoords 5 4 6
+endface
+face
+vertices 7 9 8
+normals 5 6 6
+texcoords 4 7 6
+endface
+face
+vertices 8 10 2
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 9 4 11
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 8 9 11
+normals 6 6 7
+texcoords 6 7 8
+endface
+face
+vertices 8 11 10
+normals 6 7 7
+texcoords 6 8 9
+endface
+face
+vertices 10 0 2
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 11 4 3
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 10 11 0
+normals 7 7 2
+texcoords 9 8 10
+endface
+face
+vertices 11 3 0
+normals 7 3 2
+texcoords 8 11 10
+endface
+face
+vertices 12 13 14
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 15 16 17
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 12 15 13
+normals 2 3 4
+texcoords 1 0 2
+endface
+face
+vertices 15 17 13
+normals 3 4 4
+texcoords 0 3 2
+endface
+face
+vertices 13 18 14
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 17 16 19
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 13 17 19
+normals 4 4 5
+texcoords 2 3 4
+endface
+face
+vertices 13 19 18
+normals 4 5 5
+texcoords 2 4 5
+endface
+face
+vertices 18 20 14
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 19 16 21
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 18 19 20
+normals 5 5 6
+texcoords 5 4 6
+endface
+face
+vertices 19 21 20
+normals 5 6 6
+texcoords 4 7 6
+endface
+face
+vertices 20 22 14
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 21 16 23
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 20 21 23
+normals 6 6 7
+texcoords 6 7 8
+endface
+face
+vertices 20 23 22
+normals 6 7 7
+texcoords 6 8 9
+endface
+face
+vertices 22 12 14
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 23 16 15
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 22 23 12
+normals 7 7 2
+texcoords 9 8 10
+endface
+face
+vertices 23 15 12
+normals 7 3 2
+texcoords 8 11 10
+endface
+face
+vertices 24 25 26
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 27 28 29
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 24 27 25
+normals 2 3 4
+texcoords 1 0 2
+endface
+face
+vertices 27 29 25
+normals 3 4 4
+texcoords 0 3 2
+endface
+face
+vertices 25 30 26
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 29 28 31
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 25 29 31
+normals 4 4 5
+texcoords 2 3 4
+endface
+face
+vertices 25 31 30
+normals 4 5 5
+texcoords 2 4 5
+endface
+face
+vertices 30 32 26
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 31 28 33
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 30 31 32
+normals 5 5 6
+texcoords 5 4 6
+endface
+face
+vertices 31 33 32
+normals 5 6 6
+texcoords 4 7 6
+endface
+face
+vertices 32 34 26
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 33 28 35
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 32 33 35
+normals 6 6 7
+texcoords 6 7 8
+endface
+face
+vertices 32 35 34
+normals 6 7 7
+texcoords 6 8 9
+endface
+face
+vertices 34 24 26
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 35 28 27
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 34 35 24
+normals 7 7 2
+texcoords 9 8 10
+endface
+face
+vertices 35 27 24
+normals 7 3 2
+texcoords 8 11 10
+endface
+face
+vertices 36 37 38
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 39 40 41
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 36 39 37
+normals 2 3 4
+texcoords 1 0 2
+endface
+face
+vertices 39 41 37
+normals 3 4 4
+texcoords 0 3 2
+endface
+face
+vertices 37 42 38
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 41 40 43
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 37 41 43
+normals 4 4 5
+texcoords 2 3 4
+endface
+face
+vertices 37 43 42
+normals 4 5 5
+texcoords 2 4 5
+endface
+face
+vertices 42 44 38
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 43 40 45
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 42 43 44
+normals 5 5 6
+texcoords 5 4 6
+endface
+face
+vertices 43 45 44
+normals 5 6 6
+texcoords 4 7 6
+endface
+face
+vertices 44 46 38
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 45 40 47
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 44 45 47
+normals 6 6 7
+texcoords 6 7 8
+endface
+face
+vertices 44 47 46
+normals 6 7 7
+texcoords 6 8 9
+endface
+face
+vertices 46 36 38
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 47 40 39
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 46 47 36
+normals 7 7 2
+texcoords 9 8 10
+endface
+face
+vertices 47 39 36
+normals 7 3 2
+texcoords 8 11 10
+endface
+face
+vertices 48 49 50
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 51 52 53
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 48 51 49
+normals 2 3 4
+texcoords 1 0 2
+endface
+face
+vertices 51 53 49
+normals 3 4 4
+texcoords 0 3 2
+endface
+face
+vertices 49 54 50
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 53 52 55
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 49 53 55
+normals 4 4 5
+texcoords 2 3 4
+endface
+face
+vertices 49 55 54
+normals 4 5 5
+texcoords 2 4 5
+endface
+face
+vertices 54 56 50
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 55 52 57
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 54 55 56
+normals 5 5 6
+texcoords 5 4 6
+endface
+face
+vertices 55 57 56
+normals 5 6 6
+texcoords 4 7 6
+endface
+face
+vertices 56 58 50
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 57 52 59
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 56 57 59
+normals 6 6 7
+texcoords 6 7 8
+endface
+face
+vertices 56 59 58
+normals 6 7 7
+texcoords 6 8 9
+endface
+face
+vertices 58 48 50
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 59 52 51
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 58 59 48
+normals 7 7 2
+texcoords 9 8 10
+endface
+face
+vertices 59 51 48
+normals 7 3 2
+texcoords 8 11 10
+endface
+face
+vertices 60 61 62
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 63 64 65
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 60 63 61
+normals 2 3 4
+texcoords 1 0 2
+endface
+face
+vertices 63 65 61
+normals 3 4 4
+texcoords 0 3 2
+endface
+face
+vertices 61 66 62
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 65 64 67
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 61 65 67
+normals 4 4 5
+texcoords 2 3 4
+endface
+face
+vertices 61 67 66
+normals 4 5 5
+texcoords 2 4 5
+endface
+face
+vertices 66 68 62
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 67 64 69
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 66 67 68
+normals 5 5 6
+texcoords 5 4 6
+endface
+face
+vertices 67 69 68
+normals 5 6 6
+texcoords 4 7 6
+endface
+face
+vertices 68 70 62
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 69 64 71
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 68 69 71
+normals 6 6 7
+texcoords 6 7 8
+endface
+face
+vertices 68 71 70
+normals 6 7 7
+texcoords 6 8 9
+endface
+face
+vertices 70 60 62
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 71 64 63
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 70 71 60
+normals 7 7 2
+texcoords 9 8 10
+endface
+face
+vertices 71 63 60
+normals 7 3 2
+texcoords 8 11 10
+endface
+face
+vertices 72 73 74
+normals 8 9 10
+texcoords 0 0 0
+endface
+face
+vertices 75 76 77
+normals 11 12 13
+texcoords 0 0 0
+endface
+face
+vertices 72 75 73
+normals 2 3 4
+texcoords 1 0 2
+endface
+face
+vertices 75 77 73
+normals 3 4 4
+texcoords 0 3 2
+endface
+face
+vertices 73 78 74
+normals 9 0 10
+texcoords 0 0 0
+endface
+face
+vertices 77 76 79
+normals 13 12 1
+texcoords 0 0 0
+endface
+face
+vertices 73 77 79
+normals 4 4 5
+texcoords 2 3 4
+endface
+face
+vertices 73 79 78
+normals 4 5 5
+texcoords 2 4 5
+endface
+face
+vertices 78 80 74
+normals 0 0 10
+texcoords 0 0 0
+endface
+face
+vertices 79 76 81
+normals 1 12 1
+texcoords 0 0 0
+endface
+face
+vertices 78 79 80
+normals 5 5 6
+texcoords 5 4 6
+endface
+face
+vertices 79 81 80
+normals 5 6 6
+texcoords 4 7 6
+endface
+face
+vertices 80 82 74
+normals 0 14 10
+texcoords 0 0 0
+endface
+face
+vertices 81 76 83
+normals 1 12 15
+texcoords 0 0 0
+endface
+face
+vertices 80 81 83
+normals 6 6 7
+texcoords 6 7 8
+endface
+face
+vertices 80 83 82
+normals 6 7 7
+texcoords 6 8 9
+endface
+face
+vertices 82 72 74
+normals 14 8 10
+texcoords 0 0 0
+endface
+face
+vertices 83 76 75
+normals 15 12 11
+texcoords 0 0 0
+endface
+face
+vertices 82 83 72
+normals 7 7 2
+texcoords 9 8 10
+endface
+face
+vertices 83 75 72
+normals 7 3 2
+texcoords 8 11 10
+endface
+face
+vertices 84 85 86
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 87 88 89
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 84 87 85
+normals 2 3 4
+texcoords 1 0 2
+endface
+face
+vertices 87 89 85
+normals 3 4 4
+texcoords 0 3 2
+endface
+face
+vertices 85 90 86
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 89 88 91
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 85 89 91
+normals 4 4 5
+texcoords 2 3 4
+endface
+face
+vertices 85 91 90
+normals 4 5 5
+texcoords 2 4 5
+endface
+face
+vertices 90 92 86
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 91 88 93
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 90 91 92
+normals 5 5 6
+texcoords 5 4 6
+endface
+face
+vertices 91 93 92
+normals 5 6 6
+texcoords 4 7 6
+endface
+face
+vertices 92 94 86
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 93 88 95
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 92 93 95
+normals 6 6 7
+texcoords 6 7 8
+endface
+face
+vertices 92 95 94
+normals 6 7 7
+texcoords 6 8 9
+endface
+face
+vertices 94 84 86
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 95 88 87
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 94 95 84
+normals 7 7 2
+texcoords 9 8 10
+endface
+face
+vertices 95 87 84
+normals 7 3 2
+texcoords 8 11 10
+endface
+face
+vertices 96 97 98
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 99 100 101
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 96 99 97
+normals 2 3 4
+texcoords 1 0 2
+endface
+face
+vertices 99 101 97
+normals 3 4 4
+texcoords 0 3 2
+endface
+face
+vertices 97 102 98
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 101 100 103
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 97 101 103
+normals 4 4 5
+texcoords 2 3 4
+endface
+face
+vertices 97 103 102
+normals 4 5 5
+texcoords 2 4 5
+endface
+face
+vertices 102 104 98
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 103 100 105
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 102 103 104
+normals 5 5 6
+texcoords 5 4 6
+endface
+face
+vertices 103 105 104
+normals 5 6 6
+texcoords 4 7 6
+endface
+face
+vertices 104 106 98
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 105 100 107
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 104 105 107
+normals 6 6 7
+texcoords 6 7 8
+endface
+face
+vertices 104 107 106
+normals 6 7 7
+texcoords 6 8 9
+endface
+face
+vertices 106 96 98
+normals 0 0 0
+texcoords 0 0 0
+endface
+face
+vertices 107 100 99
+normals 1 1 1
+texcoords 0 0 0
+endface
+face
+vertices 106 107 96
+normals 7 7 2
+texcoords 9 8 10
+endface
+face
+vertices 107 99 96
+normals 7 3 2
+texcoords 8 11 10
+endface
+face
+vertices 108 109 110
+normals 0 16 17
+texcoords 0 0 0
+endface
+face
+vertices 111 112 113
+normals 1 18 19
+texcoords 0 0 0
+endface
+face
+vertices 108 111 109
+normals 2 3 4
+texcoords 1 0 2
+endface
+face
+vertices 111 113 109
+normals 3 4 4
+texcoords 0 3 2
+endface
+face
+vertices 109 114 110
+normals 16 20 17
+texcoords 0 0 0
+endface
+face
+vertices 113 112 115
+normals 19 18 21
+texcoords 0 0 0
+endface
+face
+vertices 109 113 115
+normals 4 4 5
+texcoords 2 3 4
+endface
+face
+vertices 109 115 114
+normals 4 5 5
+texcoords 2 4 5
+endface
+face
+vertices 114 116 110
+normals 20 22 17
+texcoords 0 0 0
+endface
+face
+vertices 115 112 117
+normals 21 18 23
+texcoords 0 0 0
+endface
+face
+vertices 114 115 116
+normals 5 5 6
+texcoords 5 4 6
+endface
+face
+vertices 115 117 116
+normals 5 6 6
+texcoords 4 7 6
+endface
+face
+vertices 116 118 110
+normals 22 24 17
+texcoords 0 0 0
+endface
+face
+vertices 117 112 119
+normals 23 18 25
+texcoords 0 0 0
+endface
+face
+vertices 116 117 119
+normals 6 6 7
+texcoords 6 7 8
+endface
+face
+vertices 116 119 118
+normals 6 7 7
+texcoords 6 8 9
+endface
+face
+vertices 118 108 110
+normals 24 0 17
+texcoords 0 0 0
+endface
+face
+vertices 119 112 111
+normals 25 18 1
+texcoords 0 0 0
+endface
+face
+vertices 118 119 108
+normals 7 7 2
+texcoords 9 8 10
+endface
+face
+vertices 119 111 108
+normals 7 3 2
+texcoords 8 11 10
+endface
+end
+

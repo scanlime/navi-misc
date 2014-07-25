@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="buckling branch" level="orange" category="kick"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>left step through front kick</attack>
+  <stances>
+    <attacker><stance side="right">neutral bow</stance></attacker>
+    <defender><stance>natural</stance></defender>
+  </stances>
+  <steps>
+    <step>
+      <footManeuver side="right">step back</footManeuver> toward 4:30 into a
+      <stance side="left">neutral bow</stance> while executing a
+      <block side="left">downward</block> to your opponent's left foreleg.
+    </step>
+    <step>
+      Draw your left foot back into a <stance side="left">cat</stance>.
+    </step>
+    <step>
+      Execute a <kick side="left">front snap</kick> to your opponent's groin.
+    </step>
+    <step>
+      Step down into a <stance side="left">front twist</stance> stance.
+    </step>
+    <step>
+      Execute a <footManeuver>step-through</footManeuver>
+      <kick side="right">knife-edge side</kick> to the back of your
+      opponent's left knee.
+    </step>
+  </steps>
+</technique>

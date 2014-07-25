@@ -1,0 +1,204 @@
+<?xml version="1.0" ?>
+<!--
+   The master list of projects in navi-misc, used to generate the navigation list
+-->
+
+<projects>
+
+  <project name="cia" href="cia.xml">
+    <description>
+      Super-happy IRC VCS commit announce bot.
+    </description>
+    <status>
+      In the process of being rewritten.
+    </status>
+    <people>
+      Micah
+    </people>
+  </project>
+
+  <project name="fieldsensor" href="fieldsensor.xml">
+    <description>
+      Experiments in cheap electric-field-based input devices
+    </description>
+    <status>
+      First prototype built, second prototype designed
+    </status>
+    <people>
+      Micah
+    </people>
+  </project>
+
+  <project name="infraduck" href="infraduck.xml">
+    <description>
+      Wireless multiplayer Duck Hunt using modified Zapper light guns
+    </description>
+    <status>
+      Hardware mostly built, needs firmware and software
+    </status>
+    <people>
+      David and Micah
+    </people>
+  </project>
+
+  <project name="jetstream" href="jetstream.xml">
+    <description>
+      A 3D engine featuring an advanced continuous level-of-detail algorithm
+    </description>
+    <status>
+      CLOD on very simple planets, python scripting, advanced in-game console
+    </status>
+    <people>
+      David and Micah
+    </people>
+  </project>
+
+  <project name="ledboard" href="ledboard.xml">
+    <description>
+      LED arrays used for case mods and music visualization
+    </description>
+    <status>
+      First case mod prototype finished, new matrix controller designed but not built
+    </status>
+    <people>
+      Micah
+    </people>
+  </project>
+
+  <project name="multiplay" href="multiplay.xml">
+    <description>
+      gstreamer-based audio player that splits the stereo across two sound cards.
+    </description>
+    <status>
+      Stable and abandoned.
+    </status>
+    <people>
+      David
+    </people>
+  </project>
+
+  <project name="pybzengine" href="pybzengine.xml">
+    <description>
+      A 3D game engine written in Python, originally written for PyBZFlag
+    </description>
+    <status>
+      Working, currently also being used for the Wasabi UI
+    </status>
+    <people>
+      David and Micah
+    </people>
+  </project>
+
+  <project name="rcpod" href="rcpod.xml">
+    <description>
+      A simple system for prototyping PIC firmware in Python
+    </description>
+    <status>
+      Working, includes test programs for several of the PIC's peripherals
+    </status>
+    <people>
+      Micah
+    </people>
+
+    <project name="therm" href="therm.xml">
+      <description>
+        rrdtool+xmlrpc interface for monitoring temperature using rcpod.
+      </description>
+      <status>
+        Currently monitoring temperatures
+      </status>
+      <people>
+        Micah and David
+      </people>
+    </project>
+  </project>
+
+  <project name="rtgraph" href="rtgraph.xml">
+    <description>
+      Real-time graphing widgets for PyGTK
+    </description>
+    <status>
+      dunno, smack Micah about it
+    </status>
+    <people>
+      Micah
+    </people>
+  </project>
+
+  <project name="sxmadb" href="sxmadb.xml">
+    <description>
+      Mathematical categorization of martial arts movement.
+    </description>
+    <status>
+      Schema written, big scary XSL file written, a couple sample data files.
+      Pondering the math.
+    </status>
+    <people>
+      David
+    </people>
+  </project>
+
+  <project name="trough" href="trough.xml">
+    <description>
+      A system for selecting music from navi, aware of our organization schemes
+    </description>
+    <status>
+      Capable of randomly selecting complete pieces of music
+    </status>
+    <people>
+      Dan
+    </people>
+  </project>
+
+  <project name="pyg" href="pyg.xml">
+    <description>
+      An open source python-based environment for experimenting with the Cg shader language
+    </description>
+    <status>
+      UI designed, python interface to the Cg runtime works
+    </status>
+    <people>
+      David
+    </people>
+  </project>
+
+  <project name="wasabi" href="wasabi.xml">
+    <description>
+      A set-top-box system capable of managing video game systems, presenting
+      an onscreen user interface, and playing back media stored on navi.
+    </description>
+    <status>
+      UI under development using pybzengine
+    </status>
+    <people>
+      Micah
+    </people>
+
+    <project name="mi6k" href="mi6k.xml">
+      <description>
+        A USB peripheral combining infrared receive and transmit with a VFD and LEDs
+      </description>
+      <status>
+        Set-top-box and portable prototypes built and mostly working. IR transmit
+        not quite working due to a firmware bug
+      </status>
+      <people>
+        Micah
+      </people>
+    </project>
+
+    <project name="uvswitch" href="uvswitch.xml">
+      <description>
+        An 8-port video/audio switch and signal detector, controlled over USB
+      </description>
+      <status>
+        Revision A hardware, firmware, and kernel module all built and working
+      </status>
+      <people>
+        Micah
+      </people>
+    </project>
+
+  </project>
+
+</projects>

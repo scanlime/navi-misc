@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<form name="short form 1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <contents>
+    <overview>predominantly defensive movements</overview>
+    <stances>
+      <stance>attention</stance>
+      <stance>horse</stance>
+      <stance>neutral bow</stance>
+    </stances>
+    <blocks>
+      <block>hammering inward</block>
+      <block>extended outward</block>
+      <block>upward</block>
+      <block>downward</block>
+    </blocks>
+  </contents>
+  <lessons>
+    <lesson>stablized base</lesson>
+    <lesson>erect posture</lesson>
+    <lesson>increased peripheral vision</lesson>
+    <lesson>always look at opponent</lesson>
+    <lesson>never expose back unnecessarily</lesson>
+    <lesson>stance transitions into neutral bow (rear cover, side cover)</lesson>
+    <lesson>basic timing of hands and feet</lesson>
+    <lesson>how to block while retreating</lesson>
+    <lesson>relax and tense at the proper moment</lesson>
+    <lesson>angle changes in preparation for mass attack</lesson>
+    <lesson>how to use opposite arm as a hidden weapon</lesson>
+    <lesson>how to move up and down in an "L" shaped patter</lesson>
+    <lesson>repetition of the four basic blocks while retreating</lesson>
+    <lesson>making contact with blocks at a proper distance</lesson>
+    <lesson>crisp movements with snap and torque</lesson>
+  </lessons>
+  <steps>
+    <step>
+      Move your left foot back to 6:00 as you step into a right neutral
+      bow. Simultaneously execute a right hammering inward block with a
+      left back elbow strike. Your left hand should be at your left hip
+      after the back elbow strike.
+    </step>
+    <step>
+      Move your right foot back to 6:00 as you step into a left neutral
+      bow. Simultaneously execute a left hammering inward block with a
+      right back elbow strike.
+    </step>
+    <step>
+      Execute a left side cover moving your right foot to 3:00 ending in
+      a left neutral bow facing 9:00. Simultaneously execute a left outward
+      vertical block with a right back elbow strike.
+    </step>
+    <step>
+      Move your left foot back to 3:00 as you step into a right neutral bow
+      facing 9:00. Simultaneously execute a right outward vertical block
+      with a left back elbow strike.
+    </step>
+    <step>
+      Execute a rear cover, turning to face 3:00 in a left neutral bow.
+      Simultaneously execute a left upward block with a right back elbow
+      strike.
+    </step>
+    <step>
+      Move your left foot back to 9:00 as you step into a right neutral bow.
+      Simultaneously execute a right upward block with a left back elbow strike.
+    </step>
+    <step>
+      Execute a right side cover moving your left foot to 12:00 ending in
+      a right neutral bow facing 6:00. Simultaneously execute a right downward
+      block with a left back elbow strike.
+    </step>
+    <step>
+      Move your right foot back to 12:00 as you step into a left neutral bow.
+      Simultaneously execute a left downward block while executing a right
+      back elbow strike.
+    </step>
+    <step>
+      Return to a meditating horse stance by moving your left leg clockwise
+      to 9:00. You should now be in your starting position facing 12:00.
+      Return to your attention stance and finish with the Kenpo greeting
+      followed by a short bow.
+    </step>
+  </steps>
+</form>

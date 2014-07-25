@@ -1,0 +1,119 @@
+html {
+	margin: 0;
+	padding: 0;
+}
+
+body, h1, h2, h3 {
+/* Fonts as recommended by www.realworldstyle.com/fonts.html for Windows and Unix */
+	font-family: 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
+}
+
+body {
+	color: black;
+	background-color: #FFFFFF;
+	margin: 0;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	color: lightsteelblue;
+	background-color: #330000;
+}
+
+a:active {
+	color: darkblue;
+}
+
+img {
+	border: none;
+	padding: 0;
+}
+
+/* Tweak the below for the right header image and size 
+NOTE: kill the margin to get the image to fill screen
+Increase padding to shift the text within the image.
+*/
+div#header {
+	margin: 0 0 30px 0;
+	text-align: left;
+	font-weight: bold;
+	clear: both;
+	height: 40px;
+	background-image: url(../Images/sky.jpg);
+	padding: 0 0 0 .5em;
+}
+div#header h1 {
+	margin: 0;
+	padding: 0;
+}
+
+/* Main Content */
+div#content {
+	position: relative;
+	margin: 1em 1em 0 15em;
+	padding: 1em 0 1em 1em; 
+}
+div#content h4 {
+	margin: 0 0 0 -1em;
+	padding: 0;
+}
+
+.sig {
+	text-align: right;
+}
+
+.copy {
+	font-size: .8em;
+	font-style: oblique;
+	text-align: center;
+}
+
+/* Nav crap */
+div#nav {
+	position: absolute;
+	top: 60px;
+	left: 10px;
+	width: 160px;
+	margin: 0;
+	padding: 0;
+}
+
+div#nav ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0 0 .5em 0;
+}
+
+div#nav li {
+	margin-left: 1.5em;
+	padding-bottom: 2px;
+	font-variant: small-caps;
+	width: 100%;
+}
+div#nav li a {
+	display: block;
+	width: 100%;
+}
+
+div#nav li.head {
+	margin-left: .5em;
+	font-weight: bold;
+}
+
+/* Footer Garbage
+div#footer {
+	left: 0px;
+	width: 100%;
+	margin: auto;
+	border-top: 1px dotted black;
+}
+div#footer p {
+	margin: 0;
+	padding: 3px;
+	text-align: center;
+	font-variant: small-caps;
+	font-size: 80%;
+} */

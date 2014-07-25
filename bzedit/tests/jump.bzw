@@ -1,0 +1,99 @@
+physics
+name bouncy
+linear 0 0 15
+end
+
+arc
+name Trampoline
+	position 0 0 3
+	size 15 15 1
+	rotation 0
+	angle 360
+	ratio 1
+	divisions 360
+	color .15 .15 .15 .75
+	phydrv bouncy
+end
+
+arc
+name Ring
+	position 0 0 3
+	size 20 20 1
+	rotation 0
+	angle 360
+	ratio .2
+	divisions 360
+	color .25 .25 .25 1
+end
+
+arc
+name Support1
+	position 13 13 0
+	size 2 2 3
+	rotation 0
+	angle 360
+	ratio 1
+	divisions 360
+	color .15 .15 .15 1
+end
+
+arc
+name Support2
+	position -13 13 0
+	size 2 2 3
+	rotation 0
+	angle 360
+	ratio 1
+	divisions 360
+	color .15 .15 .15 1
+end
+
+arc
+name Support3
+	position -13 -13 0
+	size 2 2 3
+	rotation 0
+	angle 360
+	ratio 1
+	divisions 360
+	color .15 .15 .15 1
+end
+
+arc
+name Support4
+	position 13 -13 0
+	size 2 2 3
+	rotation 0
+	angle 360
+	ratio 1
+	divisions 360
+	color .15 .15 .15 1
+end
+
+meshbox
+name Spring1
+	position 15.5 0 3.5
+	size 1 .25 .25
+	rotation 0
+end
+
+meshbox
+name Spring2
+	position -15.5 0 3.5
+	size 1 .25 .25
+	rotation 0
+end
+
+meshbox
+name Spring3
+	position 0 15.5 3.5
+	size 1 .25 .25
+	rotation 90
+end
+
+meshbox
+name Spring4
+	position 0 -15.5 3.5
+	size 1 .25 .25
+	rotation 90
+end

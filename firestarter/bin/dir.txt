@@ -1,0 +1,18 @@
+This dir is for the executables
+
+it will contain the apps
+and the following DLLs or SO files 
+
+cg
+devil
+ilu
+ilut
+OgreMain
+OgrePlatform
+./plugins
+
+the follwing files may be created at run time
+Ogre.log
+OgreMemory.log
+OgreLeaks.log
+ogre.cfg

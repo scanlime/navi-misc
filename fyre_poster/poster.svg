@@ -1,0 +1,821 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   id="svg1"
+   sodipodi:version="0.32"
+   inkscape:version="0.38.1"
+   width="36.000000in"
+   height="60.000000in"
+   sodipodi:docname="poster.svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xml="http://www.w3.org/XML/1998/namespace"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   sodipodi:docbase="/home/micah/navi-misc/docs/fyre_poster">
+  <defs
+     id="defs3">
+    <linearGradient
+       xlink:href="#linearGradient937"
+       id="linearGradient941"
+       x1="0.54777068"
+       y1="0.038461540"
+       x2="0.54777068"
+       y2="0.98717946" />
+    <linearGradient
+       xlink:href="#linearGradient921"
+       id="linearGradient925"
+       x1="0.39440331"
+       y1="-0.057122264"
+       x2="0.39440331"
+       y2="1.3248004"
+       gradientTransform="scale(1.324800,0.754831)" />
+    <linearGradient
+       xlink:href="#linearGradient921"
+       id="linearGradient920"
+       x1="0.40574044"
+       y1="-0.072392128"
+       x2="0.40574044"
+       y2="1.6561860"
+       gradientTransform="scale(1.324800,0.754831)" />
+    <linearGradient
+       xlink:href="#linearGradient921"
+       id="linearGradient924"
+       x1="-1.8245505"
+       y1="0.10655234"
+       x2="-1.8245505"
+       y2="9.7495384" />
+    <linearGradient
+       xlink:href="#linearGradient921"
+       id="linearGradient919"
+       x1="-1.7454408"
+       y1="8.5074336e-13"
+       x2="-1.7454408"
+       y2="12.061930" />
+    <linearGradient
+       id="linearGradient937">
+      <stop
+         style="stop-color:#3b3b3b;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop938" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop940" />
+    </linearGradient>
+    <linearGradient
+       xlink:href="#linearGradient937"
+       id="linearGradient936"
+       x1="0.51592356"
+       y1="0.064102568"
+       x2="0.51592356"
+       y2="0.98717946" />
+    <linearGradient
+       xlink:href="#linearGradient921"
+       id="linearGradient929"
+       x1="0.37401643"
+       y1="-0.057696972"
+       x2="0.37401643"
+       y2="1.3012551"
+       gradientTransform="scale(1.308763,0.764080)" />
+    <linearGradient
+       xlink:href="#linearGradient921"
+       id="linearGradient927"
+       x1="0.34460658"
+       y1="-0.047590017"
+       x2="0.34460658"
+       y2="1.2999556"
+       gradientTransform="scale(1.308763,0.764080)" />
+    <linearGradient
+       xlink:href="#linearGradient921"
+       id="linearGradient928"
+       x1="-2.1572993"
+       y1="0.055650521"
+       x2="-2.1572993"
+       y2="10.128395" />
+    <linearGradient
+       id="linearGradient921">
+      <stop
+         style="stop-color:#ff7439;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop922" />
+      <stop
+         style="stop-color:#000000;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop923" />
+    </linearGradient>
+    <linearGradient
+       xlink:href="#linearGradient921"
+       id="linearGradient926"
+       x1="-2.3752892"
+       y1="0.13056469"
+       x2="-2.3752892"
+       y2="10.118763" />
+    <linearGradient
+       xlink:href="#linearGradient932"
+       id="linearGradient931"
+       x1="0.014962173"
+       y1="0.28829175"
+       x2="1.6271331"
+       y2="0.29858053"
+       gradientTransform="scale(0.622678,1.605967)" />
+    <linearGradient
+       id="linearGradient932">
+      <stop
+         style="stop-color:#ff7439;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop933" />
+      <stop
+         style="stop-color:#e7a284;stop-opacity:1.0000000;"
+         offset="0.29405797"
+         id="stop935" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop934" />
+    </linearGradient>
+    <linearGradient
+       xlink:href="#linearGradient932"
+       id="linearGradient930"
+       x1="-10.495348"
+       y1="2.4097898"
+       x2="0.94690371"
+       y2="2.4828136" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="1.0000000"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.61399264"
+     inkscape:cx="1849.5804"
+     inkscape:cy="2241.6136"
+     inkscape:window-width="1394"
+     inkscape:window-height="1113"
+     showgrid="true"
+     snaptogrid="true"
+     inkscape:window-x="68"
+     inkscape:window-y="15"
+     showborder="true"
+     showguides="true"
+     snaptoguides="true"
+     gridspacingy="0.50000000in"
+     gridspacingx="0.50000000in">
+    <sodipodi:guide
+       orientation="vertical"
+       position="2452.7981"
+       id="guide2637" />
+    <sodipodi:guide
+       orientation="vertical"
+       position="146.58156"
+       id="guide2641" />
+    <sodipodi:guide
+       orientation="vertical"
+       position="1332.2635"
+       id="guide2651" />
+    <sodipodi:guide
+       orientation="vertical"
+       position="1267.1162"
+       id="guide2652" />
+  </sodipodi:namedview>
+  <image
+     xlink:href="images/badbif-large.png"
+     sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/badbif-large.png"
+     width="1400.4000"
+     height="467.10001"
+     id="image1138"
+     x="183.49523"
+     y="2059.2967" />
+  <g
+     id="g1087"
+     transform="translate(45.00000,114.7151)"
+     style="">
+    <image
+       xlink:href="images/increased-gamma-larger.png"
+       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/increased-gamma-larger.png"
+       width="630.00000"
+       height="630.00000"
+       id="image834"
+       x="1672.9062"
+       y="4205.8512"
+       style="" />
+    <image
+       xlink:href="images/decreased-exposure-increased-gamma-larger.png"
+       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/decreased-exposure-increased-gamma-larger.png"
+       width="630.00000"
+       height="630.00000"
+       id="image835"
+       x="2336.4385"
+       y="4205.8511"
+       style="" />
+  </g>
+  <text
+     xml:space="preserve"
+     style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:50.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+     x="179.50000"
+     y="803.79718"
+     id="text1669"
+     sodipodi:linespacing="120%"><tspan
+       id="tspan1670"
+       style="letter-spacing:3.6528194e-10;"
+       dx="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.7384434e-08 -2.7384434e-08 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0">Techniques for visualizing chaotic maps and similar systems are typically very simple- the system's states are mapped to pixels on</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1717"
+       x="179.50000"
+       y="863.79718"
+       style="letter-spacing:0.48858014;">an image, and at each iteration the current state's pixel is darkened partially or completely. With this method, either the resulting</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1719"
+       x="179.50000"
+       y="923.79718"
+       style="letter-spacing:0.60707343;">image is very low quality, or the system must run for a long time before any usable image is generated. This makes it difficult to</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1721"
+       x="179.50000"
+       y="983.79719">experiment with a system's parameters and render high quality images from them.</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1682"
+       x="179.50000"
+       y="1043.7972"></tspan><tspan
+       sodipodi:role="line"
+       id="tspan1684"
+       x="179.50000"
+       y="1103.7972"
+       style="letter-spacing:-0.28568152;">Our method treats the image as a two dimensional histogram, and divides the rendering process into two steps: collecting histogram</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2604"
+       x="179.50000"
+       y="1163.7972"
+       style="letter-spacing:0.49751425;">samples, and generating an image from the histogram. Like pixels in the traditional technique, each histogram bucket maps to a</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2608"
+       x="179.50000"
+       y="1223.7972"
+       style="letter-spacing:0.47385740;">range of states in the chaotic system. As the system iterates, the histogram buckets each sample the probability that the chaotic</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2642"
+       x="179.50000"
+       y="1283.7972"
+       style="letter-spacing:0.33924684;">system's state falls within its range of states. To create an image in the second step, the histogram buckets are mapped to pixels</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2644"
+       x="179.50000"
+       y="1343.7972">and the probabilities are mapped to colors. Normally each bucket corresponds to one pixel, but oversampling may be implemented</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2646"
+       x="179.50000"
+       y="1403.7972">by mapping multiple buckets to one pixel.</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2610"
+       x="179.50000"
+       y="1463.7972"></tspan><tspan
+       sodipodi:role="line"
+       id="tspan2620"
+       x="179.50000"
+       y="1523.7972"
+       style="letter-spacing:0.48967928;">Unlike the traditional technique's images, these histograms will converge over time rather than diverge. This means that a crude</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2622"
+       x="179.50000"
+       y="1583.7972">rendering can be generated very quickly, then progressively refined. As the histogram is refined, the relatively fast conversion from</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2624"
+       x="179.50000"
+       y="1643.7972"
+       style="letter-spacing:0.35989168;">histogram to image can be repeated, showing this refinement in real-time. The ability to show a complete but possibly low quality</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2626"
+       x="179.50000"
+       y="1703.7972"
+       style="letter-spacing:-0.034377716;">image at any time gives this technique excellent interactivity, making it suitable as a tool for artists and everyday computer users to</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2628"
+       x="179.50000"
+       y="1763.7972"
+       style="letter-spacing:-0.45247805;">explore chaotic maps. Current desktop computers can achieve very smooth interactivity in our implementation at modest image sizes.</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1712"
+       x="179.50000"
+       y="1823.7972"
+       style="letter-spacing:13.819841;"></tspan></text>
+  <rect
+     style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke-width:13.875000;stroke:#000000;stroke-opacity:1.0000000;stroke-dasharray:none;"
+     id="rect836"
+     width="3060.0000"
+     height="5220.0000"
+     x="90.000000"
+     y="90.000000" />
+  <text
+     xml:space="preserve"
+     style="fill:#000000;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+     x="47.077332"
+     y="21.647196"
+     id="text842"
+     transform="scale(18.15221,18.15221)"><tspan
+       id="tspan843"
+       style="fill:#000000;fill-opacity:1.0000000;">Mapping Chaos</tspan></text>
+  <g
+     id="g867"
+     transform="translate(302.9437,-70.93750)"
+     style="">
+    <text
+       xml:space="preserve"
+       style="fill:#000000;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+       x="42.640923"
+       y="100.71604"
+       id="text855"
+       transform="scale(6.466470,6.466470)"><tspan
+         id="tspan856"
+         style="fill:#000000;fill-opacity:1.0000000;">David Trowbridge</tspan></text>
+    <text
+       xml:space="preserve"
+       style="fill:#000000;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+       x="50.126904"
+       y="154.85270"
+       id="text861"
+       transform="scale(4.790458,4.790458)"><tspan
+         id="tspan862"
+         style="fill:#000000;fill-opacity:1.0000000;">trowbrds@cs.colorado.edu</tspan></text>
+  </g>
+  <g
+     id="g874"
+     transform="translate(855.0803,-70.93750)"
+     style="">
+    <text
+       xml:space="preserve"
+       style="fill:#000000;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+       x="198.81442"
+       y="100.78794"
+       id="text858"
+       transform="scale(6.466470,6.466470)"><tspan
+         id="tspan859"
+         style="fill:#000000;fill-opacity:1.0000000;">Micah Dowty</tspan></text>
+    <text
+       xml:space="preserve"
+       style="fill:#000000;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+       x="274.20767"
+       y="154.85270"
+       id="text864"
+       transform="scale(4.790458,4.790458)"><tspan
+         id="tspan865"
+         style="fill:#000000;fill-opacity:1.0000000;">micah@navi.cx</tspan></text>
+  </g>
+  <image
+     xlink:href="images/goodbif-large.png"
+     sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/goodbif-large.png"
+     width="1400.6683"
+     height="466.88940"
+     id="image1460"
+     x="183.22694"
+     y="2667.7811"
+     style="" />
+  <text
+     xml:space="preserve"
+     style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill:#000000;fill-opacity:1.0000000;"
+     x="591.87097"
+     y="2459.2931"
+     id="text1464"
+     transform="scale(1.061576,1.061576)"
+     sodipodi:linespacing="100%"><tspan
+       id="tspan1465"
+       style="fill:#000000;fill-opacity:1.0000000;">Traditional Rendering</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill:#000000;fill-opacity:1.0000000;"
+     x="595.93652"
+     y="3034.8939"
+     id="text1467"
+     transform="scale(1.061575,1.061575)"
+     sodipodi:linespacing="100%"><tspan
+       id="tspan1468"
+       style="fill:#000000;fill-opacity:1.0000000;">Histogram Rendering</tspan></text>
+  <g
+     id="g1490"
+     transform="translate(50.27412,276.3968)"
+     style="fill:#000000;fill-opacity:1.0000000;">
+    <text
+       xml:space="preserve"
+       style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+       x="802.92673"
+       y="3216.8450"
+       id="text1484"
+       transform="scale(1.513519,1.513519)"><tspan
+         id="tspan1485"
+         style="fill:#000000;fill-opacity:1.0000000;">SIGGRAPH 2004</tspan></text>
+    <text
+       xml:space="preserve"
+       style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+       x="1053.7117"
+       y="4302.4865"
+       id="text1487"
+       transform="scale(1.150824,1.150824)"><tspan
+         id="tspan1488"
+         style="fill:#000000;fill-opacity:1.0000000;">Los Angeles, California</tspan></text>
+  </g>
+  <text
+     xml:space="preserve"
+     style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill:#000000;fill-opacity:1.0000000;"
+     x="560.40103"
+     y="4259.1533"
+     id="text1538"
+     sodipodi:linespacing="100%"><tspan
+       id="tspan1539"
+       style="fill:#000000;fill-opacity:1.0000000;">Clamped Before Interpolation</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:50.000000;fill-opacity:1.0000000;stroke-width:3.0000000pt;font-family:Luxi Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill:#000000;"
+     x="581.25113"
+     y="4985.3501"
+     id="text1541"
+     sodipodi:linespacing="100%"><tspan
+       id="tspan1542"
+       style="fill:#000000;fill-opacity:1.0000000;">Clamped After Interpolation</tspan></text>
+  <text
+     xml:space="preserve"
+     style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:40.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+     x="182.82695"
+     y="3342.4061"
+     id="text1619"
+     sodipodi:linespacing="120%"><tspan
+       id="tspan1620"
+       style="letter-spacing:0.60004151;">The extra detail stored in the original high dynamic range histogram can also</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2807"
+       x="182.82695"
+       y="3390.4060"
+       style="letter-spacing:0.21430056;">be expressed with the help of color. We take an approach that mirrors the way</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2809"
+       x="182.82695"
+       y="3438.4060"
+       style="letter-spacing:-0.30751830;">natural objects appear in photography. Very bright objects, for example, saturate</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2817"
+       x="182.82695"
+       y="3486.4060">the image and always appear white. By clamping each color component as late</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2819"
+       x="182.82695"
+       y="3534.4060"
+       style="letter-spacing:-0.16085768;">as possible in the rendering process, a similar saturation effect can be achieved:</tspan></text>
+  <text
+     xml:space="preserve"
+     style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:40.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+     x="192.50195"
+     y="1906.3664"
+     id="text1651"
+     sodipodi:linespacing="120%"><tspan
+       id="tspan1652"
+       style="letter-spacing:0.36215508;">The logistic map bifurcation diagram is an omnipresent image in the study of</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2676"
+       x="192.50195"
+       y="1954.3665"
+       style="letter-spacing:0.53638667;">chaotic maps. By using a histogram-based imaging technique to render it, a</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2678"
+       x="192.50195"
+       y="2002.3665">striking amount of additional detail is uncovered.</tspan></text>
+  <text
+     xml:space="preserve"
+     style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:40.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+     x="1668.5176"
+     y="1906.3660"
+     id="text2680"
+     sodipodi:linespacing="120%"><tspan
+       id="tspan2681"
+       style="letter-spacing:2.4592769;"
+       dy="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2.7384432e-08 0 0 0 0 0 0">The interactive properties of histogram rendering make it easy to find</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2701"
+       x="1668.5176"
+       y="1954.3660">appealing images and tweak them with an artistic eye rather than mathematics.</tspan></text>
+  <g
+     id="g2899"
+     transform="translate(0.000000,-2486.220)">
+    <g
+       id="g2861">
+      <g
+         id="g1381"
+         transform="translate(161.3550,3070.332)"
+         style="">
+        <rect
+           style="fill:url(#linearGradient941);fill-rule:evenodd;stroke:#000000;stroke-width:6.6815262;"
+           id="rect825"
+           width="382.81645"
+           height="382.81645"
+           ry="0.0000000"
+           x="172.48779"
+           y="3098.0086" />
+        <path
+           sodipodi:type="arc"
+           style="fill:#000000;fill-opacity:1.0000000;fill-rule:evenodd;stroke-width:3.0000000pt;"
+           id="path837"
+           sodipodi:cx="162.67107"
+           sodipodi:cy="403.83731"
+           sodipodi:rx="5.0384841"
+           sodipodi:ry="5.0384841"
+           d="M 167.70955 403.83731 A 5.0384841 5.0384841 0 1 0 157.63258,403.83731 A 5.0384841 5.0384841 0 1 0 167.70955 403.83731 z"
+           transform="matrix(2.672611,0.000000,0.000000,2.672611,-204.0624,2336.324)" />
+        <path
+           sodipodi:type="arc"
+           style="fill:#ff753a;fill-opacity:1.0000000;fill-rule:evenodd;stroke-width:3.0000000pt;"
+           id="path838"
+           sodipodi:cx="162.67107"
+           sodipodi:cy="403.83731"
+           sodipodi:rx="5.0384841"
+           sodipodi:ry="5.0384841"
+           d="M 167.70955 403.83731 A 5.0384841 5.0384841 0 1 0 157.63258,403.83731 A 5.0384841 5.0384841 0 1 0 167.70955 403.83731 z"
+           transform="matrix(2.672611,0.000000,0.000000,2.672611,-111.7248,2107.404)" />
+        <text
+           xml:space="preserve"
+           style="font-size:12.000000;fill-opacity:1.0000000;stroke-width:3.0000000pt;font-family:helvetica;fill:#000000;"
+           x="95.674985"
+           y="1282.1260"
+           id="text1328"
+           transform="scale(2.672611,2.672611)"><tspan
+             id="tspan1329"
+             style="fill:#000000;fill-opacity:1.0000000;">Background</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:12.000000;fill-opacity:1.0000000;stroke-width:3.0000000pt;font-family:helvetica;fill:#ffffff;"
+           x="129.50483"
+           y="1196.4719"
+           id="text845"
+           transform="scale(2.672611,2.672611)"><tspan
+             id="tspan846"
+             style="fill:#ffffff;fill-opacity:1.0000000;">Foreground</tspan></text>
+        <path
+           style="fill:url(#linearGradient920);fill-rule:evenodd;stroke:url(#linearGradient925);stroke-width:2.3719418;stroke-linecap:round;stroke-linejoin:round;"
+           d="M 239.39893,3395.6075 L 311.63741,3215.2593 L 311.63741,3215.2593"
+           id="path849" />
+        <path
+           style="fill:url(#linearGradient919);fill-rule:evenodd;stroke:url(#linearGradient924);stroke-width:2.3719418;stroke-linecap:round;stroke-linejoin:round;"
+           d="M 316.02161,3205.2748 L 304.22837,3218.4349 L 314.81309,3222.6683 L 316.02161,3205.2748 z "
+           id="path850" />
+        <text
+           xml:space="preserve"
+           style="fill:#272727;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+           x="144.22608"
+           y="1686.3734"
+           id="text1336"
+           transform="scale(2.084623,2.084623)"><tspan
+             id="tspan871"
+             style="fill:#272727;fill-opacity:1.0000000;">Colorspace</tspan></text>
+      </g>
+    </g>
+    <image
+       xlink:href="images/clamped-pre-interp-large.png"
+       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/clamped-pre-interp-large.png"
+       width="585.00000"
+       height="585.00000"
+       id="image2897"
+       x="855.00000"
+       y="6075.0000" />
+  </g>
+  <g
+     id="g2917"
+     transform="translate(0.000000,-2570.024)">
+    <g
+       id="g2878">
+      <g
+         id="g1361"
+         transform="translate(-2235.188,3880.332)"
+         style="">
+        <rect
+           style="fill:url(#linearGradient936);fill-rule:evenodd;stroke:#000000;stroke-width:6.6815262;"
+           id="rect890"
+           width="382.81644"
+           height="382.81644"
+           ry="0.0000000"
+           x="2569.0309"
+           y="3098.0085" />
+        <path
+           sodipodi:type="arc"
+           style="fill:#000000;fill-opacity:1.0000000;fill-rule:evenodd;stroke-width:3.0000000pt;"
+           id="path891"
+           sodipodi:cx="162.67107"
+           sodipodi:cy="403.83731"
+           sodipodi:rx="5.0384841"
+           sodipodi:ry="5.0384841"
+           d="M 167.70955 403.83731 A 5.0384841 5.0384841 0 1 0 157.63258,403.83731 A 5.0384841 5.0384841 0 1 0 167.70955 403.83731 z"
+           transform="matrix(2.672611,0.000000,0.000000,2.672611,2192.481,2336.324)" />
+        <path
+           sodipodi:type="arc"
+           style="fill:#ff753a;fill-opacity:1.0000000;fill-rule:evenodd;stroke-width:3.0000000pt;"
+           id="path892"
+           sodipodi:cx="162.67107"
+           sodipodi:cy="403.83731"
+           sodipodi:rx="5.0384841"
+           sodipodi:ry="5.0384841"
+           d="M 167.70955 403.83731 A 5.0384841 5.0384841 0 1 0 157.63258,403.83731 A 5.0384841 5.0384841 0 1 0 167.70955 403.83731 z"
+           transform="matrix(2.672611,0.000000,0.000000,2.672611,2284.818,2107.404)" />
+        <text
+           xml:space="preserve"
+           style="font-size:12.000000;fill-opacity:1.0000000;stroke-width:3.0000000pt;font-family:helvetica;fill:#000000;"
+           x="992.37988"
+           y="1282.1260"
+           id="text893"
+           transform="scale(2.672611,2.672611)"><tspan
+             id="tspan894"
+             style="fill:#000000;fill-opacity:1.0000000;">Background</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:12.000000;fill-opacity:1.0000000;stroke-width:3.0000000pt;font-family:helvetica;fill:#ffffff;"
+           x="1026.2096"
+           y="1196.4719"
+           id="text896"
+           transform="scale(2.672611,2.672611)"><tspan
+             id="tspan897"
+             style="fill:#ffffff;fill-opacity:1.0000000;">Foreground</tspan></text>
+        <path
+           style="fill:url(#linearGradient927);fill-rule:evenodd;stroke:url(#linearGradient929);stroke-width:3.2071328;stroke-linecap:round;stroke-linejoin:round;"
+           d="M 2635.9420,3395.6075 L 2708.1804,3215.2593 L 2708.1804,3215.2593"
+           id="path899" />
+        <path
+           style="fill:url(#linearGradient926);fill-rule:evenodd;stroke:url(#linearGradient928);stroke-width:1.5282189;stroke-linecap:round;stroke-linejoin:round;"
+           d="M 2712.5647,3205.2748 L 2700.7714,3218.4349 L 2711.3562,3222.6683 L 2712.5647,3205.2748 z "
+           id="path900" />
+        <path
+           style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:url(#linearGradient931);stroke-width:2.3719418;stroke-linecap:round;stroke-linejoin:round;"
+           d="M 2726.7558,3168.9205 L 2750.5604,3110.4293 L 2940.6569,3111.1094"
+           id="path905"
+           sodipodi:nodetypes="ccc" />
+        <path
+           style="fill:#ffffff;fill-rule:evenodd;stroke:url(#linearGradient930);stroke-width:2.3719418;stroke-linecap:round;stroke-linejoin:round;"
+           d="M 2944.5148,3111.4957 L 2927.9206,3105.4210 L 2927.9125,3116.8208 L 2944.5148,3111.4957 z "
+           id="path906" />
+        <text
+           xml:space="preserve"
+           style="fill:#272727;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+           x="1293.8551"
+           y="1686.3734"
+           id="text907"
+           transform="scale(2.084623,2.084623)"><tspan
+             id="tspan908"
+             style="fill:#272727;fill-opacity:1.0000000;">Colorspace</tspan></text>
+      </g>
+    </g>
+    <image
+       xlink:href="images/clamped-post-interp-large.png"
+       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/clamped-post-interp-large.png"
+       width="585.00000"
+       height="585.00000"
+       id="image2898"
+       x="855.00000"
+       y="6885.0000" />
+  </g>
+  <g
+     id="g1078"
+     transform="translate(45.00000,46.83103)"
+     style="">
+    <text
+       xml:space="preserve"
+       style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;text-anchor:middle;"
+       x="1987.9063"
+       y="4926.4775"
+       id="text863"
+       sodipodi:linespacing="120%"><tspan
+         id="tspan864"
+         style="fill:#000000;fill-opacity:1.0000000;">Increased Gamma</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;text-anchor:middle;"
+       x="2651.4385"
+       y="4926.4776"
+       id="text866"
+       sodipodi:linespacing="120%"><tspan
+         id="tspan867"
+         style="fill:#000000;fill-opacity:1.0000000;">Decreased Exposure,</tspan><tspan
+         sodipodi:role="line"
+         id="tspan869"
+         x="2651.4385"
+         y="4986.4775"
+         style="fill:#000000;fill-opacity:1.0000000;">Increased Gamma</tspan></text>
+  </g>
+  <g
+     id="g1090"
+     transform="translate(45.00000,156.8633)"
+     style="">
+    <image
+       xlink:href="images/base-larger.png"
+       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/base-larger.png"
+       width="630.00000"
+       height="630.00000"
+       id="image828"
+       x="1672.9062"
+       y="3517.1179"
+       style="" />
+    <image
+       xlink:href="images/increased-exposure-larger.png"
+       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/increased-exposure-larger.png"
+       width="630.00000"
+       height="630.00000"
+       id="image832"
+       x="2336.4385"
+       y="3517.1179"
+       style="" />
+  </g>
+  <g
+     id="g1071"
+     transform="translate(45.00000,149.9220)"
+     style="">
+    <text
+       xml:space="preserve"
+       style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;"
+       x="1853.9312"
+       y="4174.4017"
+       id="text854"
+       sodipodi:linespacing="100%"><tspan
+         id="tspan855"
+         style="fill:#000000;fill-opacity:1.0000000;">Base Image</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;"
+       x="2428.3633"
+       y="4176.8018"
+       id="text860"
+       sodipodi:linespacing="100%"><tspan
+         id="tspan861"
+         style="fill:#000000;fill-opacity:1.0000000;">Increased Exposure</tspan></text>
+  </g>
+  <image
+     xlink:href="images/100-percent-organic-large.png"
+     sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/100-percent-organic-large.png"
+     width="585.00000"
+     height="585.00000"
+     id="image1029"
+     x="1755.0000"
+     y="2025.0000" />
+  <image
+     xlink:href="images/energy-ribbon-large.png"
+     sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/energy-ribbon-large.png"
+     width="585.00000"
+     height="585.00000"
+     id="image1030"
+     x="2385.0000"
+     y="2655.0000" />
+  <text
+     xml:space="preserve"
+     style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:40.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+     x="1664.9293"
+     y="3345.5889"
+     id="text1628"
+     sodipodi:linespacing="120%"><tspan
+       id="tspan1629"
+       style="letter-spacing:0.26576617;">The histogram data collected while iterating the chaotic system is treated as a</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2721"
+       x="1664.9293"
+       y="3393.5889"
+       style="letter-spacing:1.3210143;">high dynamic range image. As is common with high dynamic range image </tspan><tspan
+       sodipodi:role="line"
+       id="tspan2733"
+       x="1664.9293"
+       y="3441.5889"
+       style="letter-spacing:0.68125981;">processing, we can perform gamma and exposure adjustment at the original</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2735"
+       x="1664.9293"
+       y="3489.5889"
+       style="letter-spacing:0.42653832;">image's full precision, and use various settings to bring out different details in</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2737"
+       x="1664.9293"
+       y="3537.5889"
+       style="letter-spacing:0.38886997;">the image. This is all done while converting the histogram to an image, so the</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2743"
+       x="1664.9293"
+       y="3585.5889"
+       style="letter-spacing:0.15562886;">exposure, gamma adjustment, and colorization parameters can all be adjusted</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2745"
+       x="1664.9293"
+       y="3633.5889"
+       style="letter-spacing:0.40307873;">in real-time without restarting any calculations. This makes it particularly easy</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2747"
+       x="1664.9293"
+       y="3681.5889">to explore the hidden details in a single histogram:</tspan></text>
+  <image
+     xlink:href="images/red-gaussian2-large.png"
+     sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/red-gaussian2-large.png"
+     width="585.00000"
+     height="585.00000"
+     id="image1031"
+     x="2385.0000"
+     y="2025.0000" />
+  <image
+     xlink:href="images/19-large.png"
+     sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/19-large.png"
+     width="585.00000"
+     height="585.00000"
+     id="image1032"
+     x="1755.0000"
+     y="2655.0000" />
+</svg>

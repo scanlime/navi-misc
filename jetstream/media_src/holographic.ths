@@ -1,0 +1,1072 @@
+/* 
+ * holographic.ths - PicoGUI theme for jetstream's user interface
+ *
+ * Copyright (C) 2002 Micah Dowty and David Trowbridge
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * 
+ */
+
+/* Fillings */
+prop filling_Outline, filling_Translucent, filling_Caustic;
+prop filling_InterferenceStatic, filling_InterferenceLine;
+prop filling_Glowing, filling_End;
+
+/* Shapes */
+prop shape_Vertex, shape_BeveledPanel, shape_ComplexLeftPanel_outline;
+prop shape_TiltedPanel, shape_ComplexLeftPanel_strip;
+prop shape_ComplexLeftPanelInterior, shape_NWTriangle, shape_NETriangle;
+
+/* Miscellaneous parameters */
+prop panelMargin, borderColor;
+prop alpha, causticsColor, staticColor;
+
+/* For shape_BeveledPanel */
+prop upperBevel, lowerBevel;
+
+/* For shape_ComplexLeftPanel */
+prop hWidth, vWidth, bumpWidth, bumpBevel;
+
+/* Textures */
+prop caustic00,caustic01,caustic02,caustic03,caustic04,caustic05,caustic06,caustic07;
+prop caustic08,caustic09,caustic10,caustic11,caustic12,caustic13,caustic14,caustic15;
+prop caustic16,caustic17,caustic18,caustic19,caustic20,caustic21,caustic22,caustic23;
+prop caustic24,caustic25,caustic26,caustic27,caustic28,caustic29,caustic30,caustic31;
+prop interference_line, interference_static, glowing_texture;
+
+
+/*********************************************************** Default definitions *****/
+
+object default {
+  name = "Holographic";
+
+  bgfill = fillstyle {
+    Nop();
+  };
+
+
+  /************* Load all textures ***************************************************/
+
+  caustic00 = LoadBitmap("caust00.bw.jpeg");
+  caustic01 = LoadBitmap("caust01.bw.jpeg");
+  caustic02 = LoadBitmap("caust02.bw.jpeg");
+  caustic03 = LoadBitmap("caust03.bw.jpeg");
+  caustic04 = LoadBitmap("caust04.bw.jpeg");
+  caustic05 = LoadBitmap("caust05.bw.jpeg");
+  caustic06 = LoadBitmap("caust06.bw.jpeg");
+  caustic07 = LoadBitmap("caust07.bw.jpeg");
+  caustic08 = LoadBitmap("caust08.bw.jpeg");
+  caustic09 = LoadBitmap("caust09.bw.jpeg");
+  caustic10 = LoadBitmap("caust10.bw.jpeg");
+  caustic11 = LoadBitmap("caust11.bw.jpeg");
+  caustic12 = LoadBitmap("caust12.bw.jpeg");
+  caustic13 = LoadBitmap("caust13.bw.jpeg");
+  caustic14 = LoadBitmap("caust14.bw.jpeg");
+  caustic15 = LoadBitmap("caust15.bw.jpeg");
+  caustic16 = LoadBitmap("caust16.bw.jpeg");
+  caustic17 = LoadBitmap("caust17.bw.jpeg");
+  caustic18 = LoadBitmap("caust18.bw.jpeg");
+  caustic19 = LoadBitmap("caust19.bw.jpeg");
+  caustic20 = LoadBitmap("caust20.bw.jpeg");
+  caustic21 = LoadBitmap("caust21.bw.jpeg");
+  caustic22 = LoadBitmap("caust22.bw.jpeg");
+  caustic23 = LoadBitmap("caust23.bw.jpeg");
+  caustic24 = LoadBitmap("caust24.bw.jpeg");
+  caustic25 = LoadBitmap("caust25.bw.jpeg");
+  caustic26 = LoadBitmap("caust26.bw.jpeg");
+  caustic27 = LoadBitmap("caust27.bw.jpeg");
+  caustic28 = LoadBitmap("caust28.bw.jpeg");
+  caustic29 = LoadBitmap("caust29.bw.jpeg");
+  caustic30 = LoadBitmap("caust30.bw.jpeg");
+  caustic31 = LoadBitmap("caust31.bw.jpeg");
+
+  interference_line   = LoadBitmap("interference_line.png");
+  interference_static = LoadBitmap("interference_static.png");
+  glowing_texture = LoadBitmap("glowing.png");
+
+
+  /************* Shape definitions ***************************************************/
+
+  /* These 'shape' fillstyles are the OpenGL vertices defining various
+   * polygons. They will be used in combination with 'filling' fillstyles
+   * to combine shapes with their interiors.
+   * Note that the coordinates are all translated to the bottom-left by 1/2
+   * pixel, so that the antialiased lines will fall on pixel boundaries.
+   * 
+   */
+
+  /* Vertex used by the other shapes */
+  shape_Vertex = fillstyle {
+    GL.vertex3f((x<<16) - 0x8000,
+		(y<<16) + 0x8000,
+		w<<16);
+  };
+
+  /*     _____
+   *    /     |
+   *   |      |
+   *   |_____/
+   */
+  shape_BeveledPanel = fillstyle {
+    shape_Vertex(x+upperBevel    ,y               ,0,1);
+    shape_Vertex(x+w-1           ,y               ,0,1);
+    shape_Vertex(x+w-1           ,y+h-1-lowerBevel,0,1);
+    shape_Vertex(x+w-1-lowerBevel,y+h-1           ,0,1);
+    shape_Vertex(x               ,y+h-1           ,0,1);
+    shape_Vertex(x               ,y+upperBevel    ,0,1);
+  };
+
+  /*    ___
+   *   |   ----
+   *   |       |
+   *    |      |
+   *    |___---
+   */
+  shape_TiltedPanel = fillstyle {
+    shape_Vertex(x         ,y         ,0,1);
+    shape_Vertex(x+w-1     ,y+h*15/100,0,1);
+    shape_Vertex(x+w*92/100,y+h*85/100,0,1);
+    shape_Vertex(x+w* 8/100,y+h-1     ,0,1);
+  };
+
+  /*    ____ 
+   *   |   /
+   *   |  /
+   *   | /
+   *   |/
+   */
+  shape_NWTriangle = fillstyle {
+    shape_Vertex(x         ,y    ,0,1);
+    shape_Vertex(x+w-1     ,y    ,0,1);
+    shape_Vertex(x         ,y+h-1,0,1);
+  };
+
+  /*    ____ 
+   *   \   |
+   *    \  |
+   *     \ |
+   *      \|
+   */
+  shape_NETriangle = fillstyle {
+    shape_Vertex(x         ,y    ,0,1);
+    shape_Vertex(x+w-1     ,y    ,0,1);
+    shape_Vertex(x+w-1     ,y+h-1,0,1);
+  };
+
+  /*        _____
+   *   ____/     \____
+   *  /     _____     \
+   * |    _/     \____/
+   * |   /
+   * |  |        
+   * |   \_       ____
+   * |     \_____/    \
+   *  \____       ____/
+   *       \_____/
+   *
+   * NOTE: this is a concave shape, therefore two versions of this
+   *       shape are provided- an outline and a triangle strip.
+   */
+  shape_ComplexLeftPanel_outline = fillstyle {
+    var bumpCenter;
+    bumpCenter = hWidth + (w-hWidth)/2;
+
+    /* Top half */
+    shape_Vertex(x+upperBevel,
+		 y+bumpBevel,
+		 0,1);
+    shape_Vertex(x+bumpCenter-bumpWidth/2,
+		 y+bumpBevel,
+		 0,1);
+    shape_Vertex(x+bumpCenter-bumpWidth/2+bumpBevel,
+		 y,
+		 0,1);
+    shape_Vertex(x+bumpCenter+bumpWidth/2-bumpBevel,
+		 y,
+		 0,1);
+    shape_Vertex(x+bumpCenter+bumpWidth/2,
+		 y+bumpBevel,
+		 0,1);
+    shape_Vertex(x+w-1-upperBevel,
+		 y+bumpBevel,
+		 0,1);
+    shape_Vertex(x+w-1,
+		 y+bumpBevel+upperBevel,
+		 0,1);
+    shape_Vertex(x+w-1,
+		 y+bumpBevel+vWidth-lowerBevel,
+		 0,1);
+    shape_Vertex(x+w-1-lowerBevel,
+		 y+bumpBevel+vWidth,
+		 0,1);
+    shape_Vertex(x+bumpCenter+bumpWidth/2,
+		 y+bumpBevel+vWidth,
+		 0,1);
+    shape_Vertex(x+bumpCenter+bumpWidth/2-bumpBevel,
+		 y+vWidth,
+		 0,1);
+    shape_Vertex(x+bumpCenter-bumpWidth/2+bumpBevel,
+		 y+vWidth,
+		 0,1);
+    shape_Vertex(x+bumpCenter-bumpWidth/2,
+		 y+bumpBevel+vWidth,
+		 0,1);
+    shape_Vertex(x+hWidth+upperBevel,
+		 y+bumpBevel+vWidth,
+		 0,1);
+    shape_Vertex(x+hWidth,
+		 y+bumpBevel+vWidth+upperBevel,
+		 0,1);
+
+    /* Bottom half */
+    shape_Vertex(x+hWidth,
+		 y+h-1-bumpBevel-vWidth-lowerBevel,
+		 0,1);
+    shape_Vertex(x+hWidth+lowerBevel,
+		 y+h-1-bumpBevel-vWidth,
+		 0,1);
+    shape_Vertex(x+bumpCenter-bumpWidth/2,
+		 y+h-1-bumpBevel-vWidth,
+		 0,1);
+    shape_Vertex(x+bumpCenter-bumpWidth/2+bumpBevel,
+		 y+h-1-vWidth,
+		 0,1);
+    shape_Vertex(x+bumpCenter+bumpWidth/2-bumpBevel,
+		 y+h-1-vWidth,
+		 0,1);
+    shape_Vertex(x+bumpCenter+bumpWidth/2,
+		 y+h-1-bumpBevel-vWidth,
+		 0,1);
+    shape_Vertex(x+w-1-upperBevel,
+		 y+h-1-bumpBevel-vWidth,
+		 0,1);
+    shape_Vertex(x+w-1,
+		 y+h-1-bumpBevel-vWidth+upperBevel,
+		 0,1);
+    shape_Vertex(x+w-1,
+		 y+h-1-bumpBevel-lowerBevel,
+		 0,1);
+    shape_Vertex(x+w-1-lowerBevel,
+		 y+h-1-bumpBevel,
+		 0,1);
+    shape_Vertex(x+bumpCenter+bumpWidth/2,
+		 y+h-1-bumpBevel,
+		 0,1);
+    shape_Vertex(x+bumpCenter+bumpWidth/2-bumpBevel,
+		 y+h-1,
+		 0,1);
+    shape_Vertex(x+bumpCenter-bumpWidth/2+bumpBevel,
+		 y+h-1,
+		 0,1);
+    shape_Vertex(x+bumpCenter-bumpWidth/2,
+		 y+h-1-bumpBevel,
+		 0,1);
+    shape_Vertex(x+lowerBevel,
+		 y+h-1-bumpBevel,
+		 0,1);
+    shape_Vertex(x,
+		 y+h-1-bumpBevel-lowerBevel,
+		 0,1);
+    shape_Vertex(x,
+		 y+bumpBevel+upperBevel,
+		 0,1);
+  };
+
+  shape_ComplexLeftPanel_strip = fillstyle {
+    var bumpCenter;
+    bumpCenter = hWidth + (w-hWidth)/2;
+
+    /* Bottom */
+    shape_Vertex(x+w-1,
+		 y+h-1-vWidth-bumpBevel+upperBevel,
+		 0,1);
+    shape_Vertex(x+w-1,
+		 y+h-1-bumpBevel-lowerBevel,
+		 0,1);
+
+    shape_Vertex(x+w-1-upperBevel,
+		 y+h-1-vWidth-bumpBevel,
+		 0,1);
+    shape_Vertex(x+w-1-lowerBevel,
+		 y+h-1-bumpBevel,
+		 0,1);
+
+    shape_Vertex(x+bumpCenter+bumpWidth/2,
+		 y+h-1-vWidth-bumpBevel,
+		 0,1);
+    shape_Vertex(x+bumpCenter+bumpWidth/2,
+		 y+h-1-bumpBevel,
+		 0,1);
+
+    shape_Vertex(x+bumpCenter+bumpWidth/2-bumpBevel,
+		 y+h-1-vWidth,
+		 0,1);
+    shape_Vertex(x+bumpCenter+bumpWidth/2-bumpBevel,
+		 y+h-1,
+		 0,1);
+
+    shape_Vertex(x+bumpCenter-bumpWidth/2+bumpBevel,
+		 y+h-1-vWidth,
+		 0,1);
+    shape_Vertex(x+bumpCenter-bumpWidth/2+bumpBevel,
+		 y+h-1,
+		 0,1);
+
+    shape_Vertex(x+bumpCenter-bumpWidth/2,
+		 y+h-1-bumpBevel-vWidth,
+		 0,1);
+    shape_Vertex(x+bumpCenter-bumpWidth/2,
+		 y+h-1-bumpBevel,
+		 0,1);
+
+    shape_Vertex(x+hWidth+lowerBevel,
+		 y+h-1-bumpBevel-vWidth,
+		 0,1);
+    shape_Vertex(x+lowerBevel,
+		 y+h-1-bumpBevel,
+		 0,1);
+
+    shape_Vertex(x+hWidth,
+		 y+h-1-bumpBevel-lowerBevel-vWidth,
+		 0,1);
+    shape_Vertex(x,
+		 y+h-1-bumpBevel-lowerBevel,
+		 0,1);
+
+    /* Top */
+    shape_Vertex(x+hWidth,
+		 y+bumpBevel+upperBevel+vWidth,
+		 0,1);
+    shape_Vertex(x,
+		 y+bumpBevel+upperBevel,
+		 0,1);
+
+    shape_Vertex(x+hWidth+upperBevel,
+		 y+bumpBevel+vWidth,
+		 0,1);
+    shape_Vertex(x+upperBevel,
+		 y+bumpBevel,
+		 0,1);
+
+    shape_Vertex(x+bumpCenter-bumpWidth/2,
+		 y+bumpBevel+vWidth,
+		 0,1);
+    shape_Vertex(x+bumpCenter-bumpWidth/2,
+		 y+bumpBevel,
+		 0,1);
+
+    shape_Vertex(x+bumpCenter-bumpWidth/2+bumpBevel,
+		 y+vWidth,
+		 0,1);
+    shape_Vertex(x+bumpCenter-bumpWidth/2+bumpBevel,
+		 y,
+		 0,1);
+
+    shape_Vertex(x+bumpCenter+bumpWidth/2-bumpBevel,
+		 y+vWidth,
+		 0,1);
+    shape_Vertex(x+bumpCenter+bumpWidth/2-bumpBevel,
+		 y,
+		 0,1);
+
+    shape_Vertex(x+bumpCenter+bumpWidth/2,
+		 y+vWidth+bumpBevel,
+		 0,1);
+    shape_Vertex(x+bumpCenter+bumpWidth/2,
+		 y+bumpBevel,
+		 0,1);
+
+    shape_Vertex(x+w-1-lowerBevel,
+		 y+vWidth+bumpBevel,
+		 0,1);
+    shape_Vertex(x+w-1-upperBevel,
+		 y+bumpBevel,
+		 0,1);
+
+    shape_Vertex(x+w-1,
+		 y+vWidth+bumpBevel-lowerBevel,
+		 0,1);
+    shape_Vertex(x+w-1,
+		 y+bumpBevel+upperBevel,
+		 0,1);
+  };
+
+  /* The interior of the above shape, represented as a triangle strip */
+  shape_ComplexLeftPanelInterior = fillstyle {
+    var bumpCenter;
+    bumpCenter = hWidth + (w-hWidth)/2;
+
+    shape_Vertex(x+hWidth,
+		 y+vWidth+bumpBevel+upperBevel,
+		 0,1);
+    shape_Vertex(x+hWidth,
+		 y+h-1-bumpBevel-vWidth-lowerBevel,
+		 0,1);
+    
+    shape_Vertex(x+hWidth+upperBevel,
+		 y+vWidth+bumpBevel,
+		 0,1);
+    shape_Vertex(x+hWidth+lowerBevel,
+		 y+h-1-bumpBevel-vWidth,
+		 0,1);
+    
+    shape_Vertex(x+bumpCenter-bumpWidth/2,
+		 y+vWidth+bumpBevel,
+		 0,1);
+    shape_Vertex(x+bumpCenter-bumpWidth/2,
+		 y+h-1-bumpBevel-vWidth,
+		 0,1);
+    
+    shape_Vertex(x+bumpCenter-bumpWidth/2+bumpBevel,
+		 y+vWidth,
+		 0,1);
+    shape_Vertex(x+bumpCenter-bumpWidth/2+bumpBevel,
+		 y+h-1-vWidth,
+		 0,1);
+
+    shape_Vertex(x+bumpCenter+bumpWidth/2-bumpBevel,
+		 y+vWidth,
+		 0,1);
+    shape_Vertex(x+bumpCenter+bumpWidth/2-bumpBevel,
+		 y+h-1-vWidth,
+		 0,1);
+    
+    shape_Vertex(x+bumpCenter+bumpWidth/2,
+		 y+vWidth+bumpBevel,
+		 0,1);
+    shape_Vertex(x+bumpCenter+bumpWidth/2,
+		 y+h-1-vWidth-bumpBevel,
+		 0,1);
+
+    shape_Vertex(x+w-1-hWidth,
+		 y+vWidth+bumpBevel,
+		 0,1);
+    shape_Vertex(x+w-1-hWidth,
+		 y+h-1-vWidth-bumpBevel,
+		 0,1);
+    
+  };
+
+
+  /************* Filling definitions *************************************************/
+
+  filling_Outline = fillstyle {
+    GL.enable(GL_BLEND);
+    GL.enable(GL_LINE_SMOOTH);
+    GL.color(borderColor);
+  };
+
+  filling_Translucent = fillstyle {
+    GL.enable(GL_BLEND);
+    GL.color(bgcolor | PGCF_ALPHA | alpha);
+  };
+
+  filling_Caustic = fillstyle {
+    var frame, texture, tscale;
+    
+    frame = (ticks >> 5) & 31;
+
+    /* Yes, this is terribly ugly */
+    texture = frame== 0 ? caustic00 :
+              frame== 1 ? caustic01 :
+              frame== 2 ? caustic02 :
+              frame== 3 ? caustic03 :
+              frame== 4 ? caustic04 :
+              frame== 5 ? caustic05 :
+              frame== 6 ? caustic06 :
+              frame== 7 ? caustic07 :
+              frame== 8 ? caustic08 :
+              frame== 9 ? caustic09 :
+              frame==10 ? caustic10 :
+              frame==11 ? caustic11 :
+              frame==12 ? caustic12 :
+              frame==13 ? caustic13 :
+              frame==14 ? caustic14 :
+              frame==15 ? caustic15 :
+              frame==16 ? caustic16 :
+              frame==17 ? caustic17 :
+              frame==18 ? caustic18 :
+              frame==19 ? caustic19 :
+              frame==20 ? caustic20 :
+              frame==21 ? caustic21 :
+              frame==22 ? caustic22 :
+              frame==23 ? caustic23 :
+              frame==24 ? caustic24 :
+              frame==25 ? caustic25 :
+              frame==26 ? caustic26 :
+              frame==27 ? caustic27 :
+              frame==28 ? caustic28 :
+              frame==29 ? caustic29 :
+              frame==30 ? caustic30 : 
+                          caustic31 ;
+
+    /* We use texture coordinate generation to project our caustics onto the shape.
+     * tscale is a fixed point number to scale pixels by to produce texture coordinates.
+     * The smaller it is, the larger the resulting caustic pattern will be.
+     */
+    tscale = 100;
+    GL.texgenfv(GL_S, GL_EYE_PLANE, 0,0, tscale,      0, 0);
+    GL.texgenfv(GL_T, GL_EYE_PLANE, 0,0,      0, tscale, 0);
+    GL.texgeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+    GL.texgeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+    GL.enable(GL_TEXTURE_GEN_S);
+    GL.enable(GL_TEXTURE_GEN_T);
+
+    /* By default, picogui textures are clamped. We want to repeat */
+    GL.bindtexture(texture);
+    GL.texparameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    GL.texparameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    GL.enable(GL_TEXTURE_2D);
+    GL.enable(GL_BLEND);
+    GL.color(causticsColor);
+  };
+
+  filling_InterferenceStatic = fillstyle {
+    var offset_x, offset_y;
+    var tscale;
+
+    /* Make a pseudorandom index into our interference texture */
+    offset_x = random;
+    offset_y = random;
+
+    /* Fixed point number to scale pixels by to get texture coords */
+    tscale = 800;
+
+    /* Generate texture coordinates */
+    GL.texgenfv(GL_S, GL_EYE_PLANE, 0,offset_x, tscale,      0, 0);
+    GL.texgenfv(GL_T, GL_EYE_PLANE, 0,offset_y,      0, tscale, 0);
+    GL.texgeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+    GL.texgeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+    GL.enable(GL_TEXTURE_GEN_S);
+    GL.enable(GL_TEXTURE_GEN_T);
+
+    /* By default, picogui textures are clamped. We want to repeat */
+    GL.bindtexture(interference_static);
+    GL.texparameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    GL.texparameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    GL.enable(GL_TEXTURE_2D);
+    GL.enable(GL_BLEND);
+    GL.color(staticColor);
+  };
+
+  filling_InterferenceLine = fillstyle {
+    var offset_x, offset_y, t, scale;
+
+    /* texels per pixel (fixed point) */
+    scale = 2500;
+
+    /* We have a 8x8 texture for our interference line, where the X
+     * axis represents time (for the pulsating effect)
+     */
+    t = ticks;
+    offset_x = t<<5;
+    offset_y = ( ((0xFFFF - ((t<<2) & 0xFFFF)) >> 6) * 
+		 ((h*scale) >> 6) ) >> 4;
+
+    /* Generate texture coordinates */
+    GL.texgenfv(GL_S, GL_EYE_PLANE, 0, offset_x, 0, 0, 0);
+    GL.texgenfv(GL_T, GL_EYE_PLANE, offset_y>>16, offset_y, 0, -scale, 0);
+    GL.texparameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    GL.texgeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+    GL.texgeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+    GL.enable(GL_TEXTURE_GEN_S);
+    GL.enable(GL_TEXTURE_GEN_T);
+
+    /* Add this texture to the destination */
+    GL.bindtexture(interference_line);
+    GL.enable(GL_TEXTURE_2D);
+    GL.enable(GL_BLEND);
+    GL.blendfunc(GL_SRC_ALPHA,GL_ONE);
+    GL.color(staticColor);
+  };
+
+  filling_Glowing = fillstyle {
+    var xyscale;
+
+    /* We have an 8x32 texture, where the Y axis corresponds to time */
+    xyscale = 0x10000 / (w+h);
+    GL.texgenfv(GL_S, GL_EYE_PLANE, 0, 0, xyscale, xyscale, 0);
+    GL.texgenfv(GL_T, GL_EYE_PLANE, 0, ticks<<5, 0, 0, 0);
+    GL.texgeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+    GL.texgeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+    GL.enable(GL_TEXTURE_GEN_S);
+    GL.enable(GL_TEXTURE_GEN_T);
+
+    GL.bindtexture(glowing_texture);
+    GL.texparameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    GL.texparameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    GL.enable(GL_TEXTURE_2D);
+    GL.enable(GL_BLEND);
+    GL.color(PGCF_ALPHA | PGC_WHITE | alpha);
+  };
+
+  filling_End = fillstyle {
+    GL.end();
+    GL.disable(GL_LINE_SMOOTH);
+    GL.disable(GL_TEXTURE_2D);
+    GL.disable(GL_BLEND);
+    GL.disable(GL_TEXTURE_GEN_S);
+    GL.disable(GL_TEXTURE_GEN_T);
+    GL.blendfunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+  };
+
+
+  /************* Miscellaneous defaults **********************************************/
+  
+  bgcolor       = 0xe5e8fd;
+  borderColor   = 0xffffff;
+  alpha         = 0x40000000;
+  causticsColor = 0x30000000 | PGCF_ALPHA | 0xe5e8fd;
+  staticColor   = PGC_WHITE | PGCF_ALPHA | 0x38000000;
+
+  cursorbitmap = LoadBitmap("cursor.png");
+  cursorbitmask = 0;
+
+  margin = 10;
+  panelMargin = 5;
+  upperBevel = 10;
+  lowerBevel = 20;
+  bitmapmargin = 5;
+}
+
+
+/*********************************************************** Widgets *****************/
+
+object button {
+  bgfill = fillstyle {
+    filling_Translucent(x,y,w,h);
+    GL.begin(GL_POLYGON);
+    shape_TiltedPanel(x,y,w,h);
+    filling_End(x,y,w,h);
+
+    filling_Outline(x,y,w,h);
+    GL.begin(GL_LINE_LOOP);
+    shape_TiltedPanel(x,y,w,h);
+    filling_End(x,y,w,h);
+  };
+
+  lowerBevel = 12;
+  height = 28;
+  width = 28;
+  margin = 15;
+  spacing = 5;
+  panelMargin = 2;
+  bgcolor = 0xb8b7ff;
+  alpha = 0x50000000;
+  fgcolor = PGCF_ALPHA | 0x50000000 | PGC_BLACK;
+  borderColor = PGCF_ALPHA | 0x50000000 | PGC_WHITE;
+}
+
+object button.hilight {
+  alpha = 0x7f000000;
+  fgcolor = PGC_BLACK;
+  borderColor = PGC_WHITE;
+}
+
+object button.on {
+  bgcolor = 0xEDEDFF;
+}
+
+object tab.bar margin = 4;
+
+object tab {
+  bgfill = fillstyle {
+    GL.disable(GL_CLIP_PLANE0);
+    GL.disable(GL_CLIP_PLANE1);
+    GL.disable(GL_CLIP_PLANE2);
+    GL.disable(GL_CLIP_PLANE3);
+
+    filling_Translucent(x,y,w,h);
+    GL.begin(GL_POLYGON);
+    shape_BeveledPanel(x,y,w,h);
+    filling_End(x,y,w,h);
+    
+    filling_Outline(x,y,w,h);
+    GL.begin(GL_LINE_LOOP);
+    shape_BeveledPanel(x,y,w,h);
+    filling_End(x,y,w,h);
+
+    /* Scoot the text over a bit */
+    x = x+10;
+    w = w-10;
+  };
+
+  bgcolor = 0x8cafd8;
+  align = PG_A_LEFT;
+}
+
+object tab.hilight {
+  parent = PGTH_O_TAB;
+  bgfill = fillstyle {
+    /* Glowing version of the tab fillstyle */
+
+    var is_left, is_top;
+    var saved_w, saved_h;
+    is_left = (widget::PG_WP_SIDE) == PG_S_TOP;
+    is_top  = (widget::PG_WP_SIDE) == PG_S_LEFT;
+
+    /* Disable clipping so we can draw behind the tab page */
+    GL.disable(GL_CLIP_PLANE0);
+    GL.disable(GL_CLIP_PLANE1);
+    GL.disable(GL_CLIP_PLANE2);
+    GL.disable(GL_CLIP_PLANE3);
+
+    saved_w = w;
+    saved_h = h;
+    w = is_left ? w + offset : w;
+    h =  is_top ? h + offset : h;
+    
+    filling_Glowing(x,y,w,h);
+    GL.begin(GL_POLYGON);
+    shape_BeveledPanel(x,y,w,h);
+    filling_End(x,y,w,h);
+    
+    filling_Outline(x,y,w,h);
+    GL.begin(GL_LINE_LOOP);
+    shape_BeveledPanel(x,y,w,h);
+    filling_End(x,y,w,h);
+
+    w = saved_w;
+    h = saved_h;
+
+    /* Scoot the text over a bit */
+    x = x+10;
+    w = w-10;
+  };
+}
+
+object tab.on {
+  parent = PGTH_O_TAB_HILIGHT;
+  offset = 15;
+}
+
+object tab.page {
+  bgfill = fillstyle {
+    /* This fillstyle draws something resembling a holographic
+     * screen suspended on three sides by a futuristic-looking
+     * holder device. Of course this is all surplus equipment,
+     * so it's a little staticky...
+     */
+
+    /* Disable clipping. We need this so we can be right up
+     * against the edge of the divnode (which would normally cause
+     * our left and bottom to extend 1/2 pixel over) so we can
+     * connect flush with our tab bar.
+     */
+    GL.disable(GL_CLIP_PLANE0);
+    GL.disable(GL_CLIP_PLANE1);
+    GL.disable(GL_CLIP_PLANE2);
+    GL.disable(GL_CLIP_PLANE3);
+
+    /* screen static */
+    filling_InterferenceStatic(x,y,w,h);
+    GL.begin(GL_TRIANGLE_STRIP);
+    shape_ComplexLeftPanelInterior(x,y,w,h);
+    filling_End(x,y,w,h);
+
+    /* screen interference line */
+    filling_InterferenceLine(x,y,w,h);
+    GL.begin(GL_TRIANGLE_STRIP);
+    shape_ComplexLeftPanelInterior(x,y,w,h);
+    filling_End(x,y,w,h);
+
+    /* screen translucent base color */
+    filling_Translucent(x,y,w,h);
+    GL.begin(GL_TRIANGLE_STRIP);
+    shape_ComplexLeftPanelInterior(x,y,w,h);
+    filling_End(x,y,w,h);
+
+    /* holder translucent base */
+    filling_Translucent(x,y,w,h);
+    GL.begin(GL_TRIANGLE_STRIP);
+    shape_ComplexLeftPanel_strip(x,y,w,h);
+    filling_End(x,y,w,h);
+
+    /* holder caustics */
+    filling_Caustic(x,y,w,h);
+    GL.begin(GL_TRIANGLE_STRIP);
+    shape_ComplexLeftPanel_strip(x,y,w,h);
+    filling_End(x,y,w,h);
+
+    /* holder outline */
+    filling_Outline(x,y,w,h);
+    GL.begin(GL_LINE_LOOP);
+    shape_ComplexLeftPanel_outline(x,y,w,h);
+    filling_End(x,y,w,h);
+  };
+
+  margin = 25;
+  upperBevel = 4;
+  lowerBevel = 4;
+  hWidth = 20;
+  vWidth = 10;
+  bumpWidth = 100;
+  bumpBevel = 5;
+}
+
+object field {
+  bgfill = fillstyle {
+    x = x + 1;
+    y = y + 1;
+    w = w - 2;
+    h = h - 2;
+
+    filling_Outline(x,y,w,h);
+    GL.begin(GL_LINE_LOOP);
+    shape_BeveledPanel(x,y,w,h);
+    filling_End(x,y,w,h);
+  };
+  
+  upperBevel = 4;
+  lowerBevel = 8;
+  margin = 5;
+}
+
+object box bgfill = fillstyle {
+  x = x + panelMargin;
+  y = y + panelMargin;
+  w = w - panelMargin*2;
+  h = h - panelMargin*2;
+  
+  filling_Translucent(x,y,w,h);
+  GL.begin(GL_POLYGON);
+  shape_BeveledPanel(x,y,w,h);
+  filling_End(x,y,w,h);
+
+  filling_Caustic(x,y,w,h);
+  GL.begin(GL_POLYGON);
+  shape_BeveledPanel(x,y,w,h);
+  filling_End(x,y,w,h);
+  
+  filling_Outline(x,y,w,h);
+  GL.begin(GL_LINE_LOOP);
+  shape_BeveledPanel(x,y,w,h);
+  filling_End(x,y,w,h);
+};
+
+object panelbar {
+  parent = PGTH_O_BOX;
+  lowerBevel = 12;
+  height = 28;
+  width = 28;
+  margin = 4;
+  panelMargin = 2;
+  bgcolor = 0xcad1f9;
+}
+
+object base.panelbtn {
+  bgfill = fillstyle {
+    x = x+1;
+    y = y+1;
+    w = w-2;
+    h = h-2;
+
+    filling_Translucent(x,y,w,h);
+    GL.begin(GL_POLYGON);
+    shape_BeveledPanel(x,y,w,h);
+    filling_End(x,y,w,h);
+    
+    filling_Outline(x,y,w,h);
+    GL.begin(GL_LINE_LOOP);
+    shape_BeveledPanel(x,y,w,h);
+    filling_End(x,y,w,h);
+  };
+
+  spacing = 2;
+  side = PG_S_RIGHT;
+  align = PG_A_CENTER;
+}
+
+object closebtn {
+  text = "Close";
+  upperBevel = 0;
+}
+
+object rotatebtn {
+  text = "Rotate";
+  lowerBevel = 0;
+}
+
+object closebtn.hilight {
+  bgfill = fillstyle {
+    x = x+1;
+    y = y+1;
+    w = w-2;
+    h = h-2;
+
+    filling_Glowing(x,y,w,h);
+    GL.begin(GL_POLYGON);
+    shape_BeveledPanel(x,y,w,h);
+    filling_End(x,y,w,h);
+    
+    filling_Outline(x,y,w,h);
+    GL.begin(GL_LINE_LOOP);
+    shape_BeveledPanel(x,y,w,h);
+    filling_End(x,y,w,h);
+  };
+}
+
+object rotatebtn.hilight bgfill = closebtn.hilight::bgfill;
+
+object zoombtn { 
+  width = 0;
+  height = 0;
+}
+
+object scroll {
+  alpha = 0x60000000;
+  upperBevel = 2;
+  lowerBevel = 6;
+  width = 30;
+}
+
+object scroll.v {
+  bgfill = fillstyle {
+    x = x+14;
+    y = y+4;
+    w = w-18;
+    h = h-8;
+
+    filling_Translucent(x,y,w,h);
+    GL.begin(GL_POLYGON);
+    shape_NWTriangle(x,y,w,h);
+    filling_End(x,y,w,h);
+
+    filling_Outline(x,y,w,h);
+    GL.begin(GL_LINE_LOOP);
+    shape_NWTriangle(x,y,w,h);
+    filling_End(x,y,w,h);
+  };
+
+  overlay = fillstyle {
+    x = x-12;
+    SetColor(borderColor);
+    Frame(x,y,10,h);
+    SetColor(bgcolor);
+    Rect(x+1,y+1,8,h-2);
+  };
+}
+
+object scroll.h {
+  bgfill = fillstyle {
+    y = y+14;
+    x = x+4;
+    h = h-18;
+    w = w-8;
+
+    filling_Translucent(x,y,w,h);
+    GL.begin(GL_POLYGON);
+    shape_NETriangle(x,y,w,h);
+    filling_End(x,y,w,h);
+
+    filling_Outline(x,y,w,h);
+    GL.begin(GL_LINE_LOOP);
+    shape_NETriangle(x,y,w,h);
+    filling_End(x,y,w,h);
+  };
+
+  overlay = fillstyle {
+    y = y-12;
+    SetColor(borderColor);
+    Frame(x,y,w,10);
+    SetColor(bgcolor);
+    Rect(x+1,y+1,w-2,8);
+  };
+}
+
+object textbox margin = 0;
+
+object checkbox {
+  parent = PGTH_O_BUTTON;
+  align = PG_A_LEFT;
+  fgcolor = 0x000000;
+
+  bgfill = fillstyle {
+    filling_Translucent(x,y,h,h);
+    GL.begin(GL_POLYGON);
+    shape_TiltedPanel(x,y,h,h);
+    filling_End(x,y,w,h);
+
+    filling_Outline(x,y,h,h);
+    GL.begin(GL_LINE_LOOP);
+    shape_TiltedPanel(x,y,h,h);
+    filling_End(x,y,w,h);
+
+    x = x+h+5;
+    w = w-h-5;
+  };
+}
+
+prop xfont;
+object checkbox.on {
+  text = "X";
+  xfont = Font(NULL,0,PG_FSTYLE_BOLD);
+  bgfill = fillstyle {
+    checkbox::bgfill(x,y,w,h);
+    SetFont(xfont);
+    Text(8,6,1,1,text);
+    SetFont(font);
+    x = x+h+5;
+    w = w-h-5;
+  };
+}    
+
+object radiobutton.on text = "O";
+object radiobutton.on.nohilight text = radiobutton.on::text;
+
+object menuitem {
+  align = PG_A_LEFT;
+  height = 25;
+  width = 25;
+
+  bgfill = fillstyle {
+    x = x+4;
+    y = y+4;
+    w = w-8;
+    h = h-8;
+  };
+}
+
+object menuitem.hilight {
+  bgfill = fillstyle {
+    x = x+2;
+    y = y+2;
+    w = w-4;
+    h = h-4;
+
+    filling_Translucent(x,y,w,h);
+    GL.begin(GL_POLYGON);
+    shape_BeveledPanel(x,y,w,h);
+    filling_End(x,y,w,h);
+
+    filling_Outline(x,y,w,h);
+    GL.begin(GL_LINE_LOOP);
+    shape_BeveledPanel(x,y,w,h);
+    filling_End(x,y,w,h);
+
+    x = x+2;
+    y = y+2;
+    w = w-4;
+    h = h-4;
+  };
+
+  bgcolor = button::bgcolor;
+  upperBevel = 3;
+  lowerBevel = 15;
+}
+
+/* The End */

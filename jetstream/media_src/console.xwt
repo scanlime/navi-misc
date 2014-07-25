@@ -1,0 +1,128 @@
+ <application text="Console" name="ConsolePanel">
+
+	<!--================================== Python console ====-->
+	<tabpage text="Python Console">
+		<panel side="right" text="Code Editor">
+			<toolbar>
+				<button name="PythonRun" text="Run"/>
+				<button name="PythonClear" text="Clear"/>
+				<button name="PythonLoad" text="Load"/>
+				<button name="PythonSave" text="Save"/>
+				<label side="left" text=" Filename: "/>
+				<field name="PythonFile"
+				       text="scratchpad.py"
+				       sizemode="percent"
+				       size="40"
+				       side="all"
+				       />
+			</toolbar>
+		       	<scrollbox transparent="1" margin="0">
+		             	<textbox side="all" 
+		                         name="PythonEditor"
+		                         />
+		  	</scrollbox>
+		</panel>
+
+		<box side="bottom" transparent="1" margin="0">	
+			<label side="left" name="PythonPrompt"/>
+	              	<field side="all" name="PythonCommand"/>
+		</box> 
+	       	<scrollbox transparent="1" margin="0">
+	             	<textbox side="all" 
+	                         readonly="1" 
+	                         insertmode="append"
+	                         name="PythonConsole"
+	                         />
+	  	</scrollbox>
+	</tabpage>
+
+	<!--================================== Terminal ====-->
+	<tabpage text="Terminal">
+		<terminal name="ConsoleTerminal" side="all"/>
+	</tabpage>
+
+	<!--================================== Video recorder ====-->
+	<tabpage text="Video Recorder">
+		<label bitmap_src="crystal_video_64.png" side="left" align="top"/>
+		<scrollbox transparent="1" margin="0">
+			<textbox readonly="1" text_src="video_recorder.text"/>
+			<box transparent="1">
+				<label side="left" sizemode="percent" size="30"/>
+				<checkbox text="Enable recording hotkey" name="VideoRecorder_EnableHotkeys"/>
+				<box transparent="1" margin="0">
+					<button side="left" 
+						text="Record (F12)"
+						name="VideoRecorder_Record"
+						bitmap_src="crystal_filesave_22.png"
+						extdevents="toggle"
+						/>
+				</box>
+			</box>
+			<box transparent="1" margin="0">
+				<label side="left" sizemode="percent" size="30" text="File name: " align="right"/>
+				<field side="all" name="VideoRecorder_Filename"/>
+			</box>
+			<box transparent="1" margin="0">
+				<label side="left" sizemode="percent" size="30" text="Resolution: " align="right"/>
+				<field side="all" name="VideoRecorder_Resolution"/>
+			</box>
+			<box transparent="1" margin="0">
+				<label side="left" sizemode="percent" size="30" text="Frames per second: " align="right"/>
+				<field side="all" name="VideoRecorder_Framerate"/>
+			</box>
+			<box transparent="1" margin="0">
+				<label side="left" sizemode="percent" size="30" text="RTJpeg Quality: " align="right"/>
+				<box side="all" transparent="1">
+					<label side="left" text="0%"/>
+					<label side="right" text="100%"/>
+					<scroll side="top" name="VideoRecorder_Quality"/>
+				</box>
+			</box>
+			<box transparent="1" margin="0">
+				<label side="left" sizemode="percent" size="30"/>
+				<checkbox text="Use RTJpeg lossy compression" name="VideoRecorder_RTJpeg"/>
+			</box>
+			<box transparent="1" margin="0">
+				<label side="left" sizemode="percent" size="30"/>
+				<checkbox text="Use LZO lossless compression" name="VideoRecorder_LZO"/>
+			</box>
+		</scrollbox>
+	</tabpage>
+
+	<!--================================== Options ====-->
+	<tabpage text="Options">
+		<label bitmap_src="crystal_bomb_64.png" side="left" align="top"/>
+		<scrollbox transparent="1" margin="0">
+			<box transparent="1" margin="0">
+				<label side="left" sizemode="percent" size="30" text="Rendering controls: " align="right"/>
+				<checkbox name="WireframeEnable" text="Wireframe mode"/>
+			</box>
+			<box transparent="1" margin="0">
+				<label side="left" sizemode="percent" size="30"/>
+				<checkbox name="FrustumLock" text="Frustum lock"/>
+			</box>
+			<box transparent="1" margin="0">
+				<label side="left" sizemode="percent" size="30"/>
+				<checkbox name="DisableBackfaceCull" text="Disable backface culling"/>
+			</box>
+			<box transparent="1" margin="0">
+				<label side="left" sizemode="percent" size="30" text="Background shade: " align="right"/>
+				<scroll name="BackgroundShade" side="top"/>
+			</box>
+			<box transparent="1" margin="0">
+				<label side="left" sizemode="percent" size="30" text="Onscreen display: " align="right"/>
+				<checkbox name="ShowFPS" text="Frame hertz"/>
+			</box>
+			<box transparent="1" margin="0">
+				<label side="left" sizemode="percent" size="30" text="Debug panels: " align="right"/>
+				<button name="LaunchCameraPanel" text="Camera"/>
+				<button name="LaunchDetailPanel" text="Detail"/>
+			</box>
+			<box transparent="1" margin="0">
+				<label side="left" sizemode="percent" size="30" text="Terminal color scheme: " align="right"/>
+				<box side="all" name="TermColorSchemes"/>
+			</box>		
+		</scrollbox>
+	</tabpage>
+
+</application>

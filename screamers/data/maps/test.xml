@@ -1,0 +1,28 @@
+<?xml version="1.0"  standalone='no' >
+
+<world
+ name="test world"
+ description="a simple test world"
+ size="1000,1000"
+ wallheight="10">
+
+	<spawn
+	 name="default"
+	 postion="100,100,10"
+	/>
+
+	<ground>
+		<material name="basic_ground"/>
+
+		<material
+		 name="basic_ground_detail"
+		 scale="10,10"/>
+	</ground>
+
+	<mesh
+	 model = "jumpad1.mesh"
+	 postion = "0,0,0"
+	 rotation = "0,0,0">
+		<material name = "jumpad1"/>
+	</mesh>
+</world>

@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<?xml-stylesheet type="text/xsl" href="style.xsl"?>
+
+<page title="Miscellaneous Projects on Navi" subtitle="What's that blue thing doing here?">
+
+   <overview>
+     <p>
+       Strange and somehow interrelated piles of source code from the same people bringing you
+       navi's other inhabitants...
+     </p>
+   </overview>
+
+   <projectIndex/>
+   <activeProjects/>
+
+</page>

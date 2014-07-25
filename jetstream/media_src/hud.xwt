@@ -1,0 +1,10 @@
+<toolbarapp side="bottom">
+	<box side="left">
+		<label bitmap_src="speedometer_32.png" side="left"/>
+		<label name="Velocity" font=":30:bold" side="left"/>
+	</box>
+	<box side="right">
+		<label bitmap_src="lasers_32.png" side="left"/>
+		<label name="Lasers" font=":30:bold" side="left"/>
+	</box>
+</toolbarapp>

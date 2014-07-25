@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="intellectual departure" category="kick"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>right step through front snap kick</attack>
+  <stances>
+    <attacker>left neutral bow</attacker>
+    <defender>natural</defender>
+  </stances>
+  <steps>
+    <step>
+      <footManeuver side="left">step back</footManeuver> toward 4:30 into a
+      <stance side="right">close kneel</stance> as you execute a right
+      <block side="right">inward downward palm down</block> to your
+      opponent's right foreleg.
+    </step>
+    <step>
+      Execute a <kick side="right">back thrust</kick> to your
+      opponent's mid section.
+    </step>
+  </steps>
+</technique>

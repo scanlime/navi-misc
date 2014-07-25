@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="locked wing" level="green" category="hugs-and-holds"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>Right arm hammer lock with a left wrist grab</attack>
+  <stances>
+    <attacker>right foot forward</attacker>
+    <defender>natural</defender>
+  </stances>
+  <steps>
+    <step>
+      Regrab your opponent's right wrist with your right hand,
+      <footManeuver side="left">step back</footManeuver> toward 6:00 into a
+      <stance side="right">forward bow</stance> while executing a
+      <strike side="left">back elbow</strike> to your opponent's
+      solar plexus.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> into a
+      <stance side="right">neutral bow</stance> as you execute a
+      <strike side="left">obscure elbow</strike> to your opponent's chin.
+    </step>
+    <step>
+      Execute a <strike side="left">outward horizontal palm heel</strike> to
+      your opponent's jaw.
+    </step>
+    <step>
+      Execute a <punch side="left">uppercut</punch> under your opponent's
+      right elbow.
+    </step>
+    <step>
+      <footManeuver side="right">step</footManeuver> toward 3:00 into a
+      <stance side="left">forward bow</stance>,
+      <footManeuver>pivot</footManeuver> into a
+      <stance side="left">neutral bow</stance>
+      bringing your opponent forward and down.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> into a
+      <stance side="left">forward bow</stance> while executing a
+      <strike side="left">downward palm heel</strike> to the back of
+      your opponent's head.
+    </step>
+    <step>
+      Execute a <knee side="right">vertical</knee> to your opponent's face.
+    </step>
+  </steps>
+</technique>

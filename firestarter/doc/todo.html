@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="iso-8859-1"?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+
+<head>
+<title>Firestarter::TODO</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<link rel="stylesheet" type="text/css" href="CSS/basic.css" />
+</head>
+
+<body>
+<div id="container">
+
+<div id="header">
+<h1><a href="index.html">Firestarter</a></h1>
+</div>
+
+<div id="nav">
+<ul>
+	<li class="head">About
+	<ul>
+		<li><a href="news.html">News</a></li>
+		<li><a href="readme.html">Readme</a></li>
+		<li><a href="todo.html">Todo</a></li>
+		<li><a href="relnotes.html">Release Notes</a></li>
+		<li><a href="bugs.html">Bugs</a></li>
+		<li><a href="devinfo.html">Developer Info</a></li>
+		<li><a href="compiling.html">Compiling</a></li>
+		<li><a href="coding.html">Coding Style</a></li>
+		<li><a href="porting.html">Porting</a></li>
+		<li><a href="copying.html">Copying</a></li>
+		<li><a href="authors.html">Authors</a></li>
+		<li><a href="contacts.html">Contact Us</a></li>
+	</ul>
+	</li>
+</ul>
+<ul>
+	<li class="head">Documentation
+	<ul>
+		<li><a href="Manual/user/index.html">User Manual</a></li>
+		<li><a href="Manual/developer/index.html">Developer Manual</a></li>
+	</ul>
+	</li>
+</ul>
+<ul>
+	<li class="head">Resources
+	<ul>
+		<li><a href="http://forum.firestarter.org">Forum</a></li>
+		<li><a href="http://somecgiircthing">Irc</a></li>
+		<li><a href="http://www.ogre3d.org">Ogre</a></li>
+		<li><a href="http://www.libsdl.org">SDL</a></li>
+		<li><a href="http://www.bzflag.org">BZFlag</a></li>
+	</ul>
+	</li>
+</ul>
+
+<br />
+<p class="copy">Copyright &copy; 2004<br />Jeff Myers</p>
+</div>
+
+<div id="content">
+<h4>TODO</h4>
+<p>There is always something to do.  If you feel you can contribute to any of these things, in any way, please do contact us.</p>
+<h5>Code Base</h5>
+<ul>
+	<li>Implement shots, effects, and goodies in test world.</li>
+	<li>Clean up basic DR.</li>
+	<li>Get some sort of messages going that takes into account thrusting, time, rotational velocity, and stoping</li>
+	<li>Hook up some sort of throtle for updates</li>
+	<li>Get Multi-messages working</li>
+	<li>Replace Enet with TNL or SOMETHING THAT DOSN'T SUCK!</li>
+	
+	<li>Implement CInputManager in a device unspecific manner, using classes and listeners for axis and button functions that can map to any device.</li>
+
+	<li>Port/re-implement CSoundManger to work properly. It must play MP3,OGG and WAV files, if possible streaming from standard shoutcast/icecast sources is a bonus. It should use 3d sound hardware on any OS that supports it (FMOD, OPENAL, SDLMixer, or any other suggestions). The ability to read sounds from a zip file would be very nice as well.</li>
+
+	<li>Verify the operation and stability of the enet based network library. Add additional DNS functions if needed.</li>
+
+	<li>Implement a client->server time sync that can do it's best to comp for lag (ping/2 at worst).</li>
+
+	<li>Implement client and server message throttling. Create system to queue up positional messages until update throttle time is up, ditching older messages in place of new ones.</li>
+
+	<li>Implement a proper menu system, including system settings, user registration info, and list server display system.</li>
+
+	<li>Create build systems for Linux and OSX and any other systems that need it.</li>
+	<li>Move common items into a game module base class for ease of use in other game types.</li>
+	<li>Implement a model scanning system to determine what models are included on the client system.</li>
+	<li>Implement some sort of content management system.</li>
+	<li>Many other things.</li>
+</ul>
+
+<h5>Documentation</h5>
+<ul>
+	<li>Convert all existing docs to .html format.</li>
+	<li>Develop directory structure for Manual / Dev Docs, etc further (add CSS folder, and so-on).</li>
+	<li>Add content to existing docs.</li>
+</ul>
+</div>
+
+</div> <!-- End Container div -->
+</body>
+</html>

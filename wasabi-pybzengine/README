@@ -1,0 +1,9 @@
+Wasabi is a set-top-box project that focuses on using
+pretty graphics and custom hardware to provide a user
+interface for playing back media over a LAN and for
+selecting video game systems.
+
+Wasabi is written in Python using PyBZEngine, and is
+compatible with the MI6K and uvswitch hardware projects.
+
+--Micah Dowty <micah@picogui.org>

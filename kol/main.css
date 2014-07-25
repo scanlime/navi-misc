@@ -1,0 +1,31 @@
+body {
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.header {
+  background: #7a8e8b;
+  padding: 5px;
+}
+
+.navbar {
+  background: #26222c;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border-top: thin solid #600814;
+}
+
+a.navlink {
+  color: #d5dbd4;
+  padding-left: 4em;
+  padding-right: 1em;
+  font-variant: small-caps;
+}

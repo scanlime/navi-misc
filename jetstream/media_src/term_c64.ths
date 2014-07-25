@@ -1,0 +1,33 @@
+/* This one just kinda reminds you of the C64 :) */
+
+obj default name = "C64 Terminal Theme";
+
+obj terminal {
+  /* Light blue on dark blue
+   * The terminal widget uses color 0, regardless of attr.default, as
+   * the color for its overscan border. Make that bright blue.
+   */
+  textcolors = Array(0x0000FF,
+		     0x000080,
+		     0x0000A0,
+		     0x0000A0,
+		     0x0000A0,
+		     0x0000A0,
+		     0x0000A0,
+		     0x0000A0,
+		     0x0000A0,
+		     0x0000FF,
+		     0x0000FF,
+		     0x0000FF,
+		     0x0000FF,
+		     0x0000FF,
+		     0x0000FF,
+		     0x0000FF);
+  attr.default = 0x1F;
+  attr.cursor = 0xF0;
+
+  /* less smart timing */
+  time.on = 500;
+  time.off = 500;
+  time.delay = 10;
+}

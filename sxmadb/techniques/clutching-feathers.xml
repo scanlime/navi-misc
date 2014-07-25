@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="clutching feathers" level="orange" category="grab"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>left hand hair grab to the top of the head</attack>
+  <stances>
+    <attacker><stance side="left">neutral bow</stance></attacker>
+    <defender><stance>natural</stance></defender>
+  </stances>
+  <steps>
+    <step>
+      <footManeuver side="left">step back</footManeuver> into a
+      <stance side="right">neutral bow</stance> while executing a
+      <punch side="right">uppercut</punch> to your opponent's left ribs.
+    </step>
+    <step>
+      Execute a <block side="right">extected outward</block> to your opponent's bicep.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> to a <stance side="right">forward bow</stance>
+      while executing a <fingerTechnique side="left">overhead palm heel claw</fingerTechnique>
+      to the bridge of your opponent's nose and face.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> to a <stance side="right">neutral bow</stance>
+      as you execute a <strike side="right">inward hammer fist</strike> to your opponent's
+      left jaw.
+    </step>
+  </steps>
+</technique>

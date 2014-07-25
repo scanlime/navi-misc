@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<concept name="circle in circle"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <origin>judo?</origin>
+  <overview>
+    When your opponent makes a circle (such as with a haymaker), it is
+    very effective to move within that circle and create a smaller circle
+    of your own.
+  </overview>
+  <techniques>
+    <technique>
+      From a right haymaker, step forward with the right foot with the arms
+      extended. By keeping the arms out and making contact with them, timing
+      is easier. Grab hold of their arm, then step around left forming a
+      180. Anchor arms either to chest or waist and throw. By forming the
+      smaller circle, you utilize their energy for the throw.
+    </technique>
+    <technique>
+      From a right haymaker, step forward with the right foot with the arms
+      extended. Fold the arms and drive the right elbow into their chest.
+      Use fishtail-type motion to create inner circles?
+      <note>
+        Make sure to move in far enough - too far out causes overrotation,
+        which saps away power.
+      </note>
+    </technique>
+  </techniques>
+</concept>

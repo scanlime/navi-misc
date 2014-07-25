@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="style.xsl"?>
+
+<page title="Navi disk status" subtitle="Its big. And stuff.">
+  <tabs>
+    <headingTab name="blar" href="yeup"/>
+  </tabs>
+  <section title="charts">
+    Insert charts here.
+  </section>
+  <section title="uptime">
+    Yay, uptime.
+  </section>
+</page>

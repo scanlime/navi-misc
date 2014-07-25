@@ -1,0 +1,225 @@
+body {
+  font: 9pt Verdana, Helvetica, Arial, sans-serif;
+  background: #eef4eb;
+  color: Black;
+  margin: 0;
+  padding: 0;
+}
+
+body.white {
+  background: #ffffff;
+}
+
+img {
+  border: none;
+  vertical-align: middle;
+  padding: 0em 1em;
+}
+
+.centered {
+  text-align: center;
+  margin: 1.5em;
+}
+
+a {
+  color: #000080;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+ul {
+  line-height: 1.5em;
+  margin-left: 2.0em;
+  padding: 0em;
+  margin: 0em 0em 0em 1.5em;
+}
+
+ul.catalog {
+  list-style-image: url(/images/bullet.png);
+}
+
+div.headingTabs {
+  margin: 1em 0em 0em 0em;
+}
+
+div.siteName {
+  float: right;
+  margin: 0em 0.5em;
+  font: 350% Verdana, Helvetical, Arial, sans-serif;
+  color: #D0D0D0;
+}
+
+a.headingTab {
+  background: #eef4eb;
+  border: 1px solid black;
+  border-bottom: #eef4eb 1px solid;
+  color: #000080;
+  margin: 1.5em 0.5em 0em 0.5em;
+  padding: 0em 0.5em;
+  text-decoration: none;
+}
+
+a.headingTab:hover {
+  text-decoration: underline;
+}
+
+div.heading {
+  background: White;
+  border-bottom: 1px solid Black;
+  padding: 0.5em 0.5em 0em 0.5em;
+  margin: 0em 0em 2.0em 0em;
+}
+
+div.majorTitle {
+  text-align: center;
+  font: 30pt sans-serif;
+  margin: 0em;
+}
+
+div.title {
+  font: 250% bold;
+}
+
+div.subtitle {
+  font: 100% sans-serif;
+  font-style: italic;
+  margin: 0em 3em;
+}
+
+div.footer {
+  background: white;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  margin: 0em;
+  padding: 1em;
+  text-align: center;
+}
+
+span.section {
+  background: #dee7ec;
+  border: 1px solid #8CACBB;
+  border-bottom: #dee7ec 1px solid;
+  color: #436976;
+  font: 110% Bold;
+  margin: 0em 0.5em 0em 0.8em;
+  padding: 0em 2em;
+}
+
+div.sectionTop {
+  background: #dee7ec;
+  padding: 0.4em;
+  margin: 0em 0em 0em 0em;
+}
+
+div.section {
+  background: White;
+  border: 1px solid #8CACBB;
+  margin: 0em 0em 2em 0em;
+}
+
+div.row {
+  padding: 0.5em;
+}
+
+div.terminalBox {
+  font-family: monospace;
+  background: Black;
+  color: #dbdbdb;
+  padding: 1em;
+}
+
+div.monoBox {
+  font-family: monospace;
+  padding: 1em;
+}
+
+table {
+  margin: 0em 0em 1em 0em;
+  font: 9pt Verdana, Helvetical, Arial, sans-serif;
+}
+
+table th {
+  border-bottom: 1px solid #8CACBB;
+  font-weight: normal;
+  padding: 0.2em 1em;
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+
+table td {
+  padding: 0.8em 0.8em 0em 0.8em;
+  text-align: left;
+}
+
+table.columns {
+  width: 100%;
+  margin: 0em;
+}
+
+table.columns td.left {
+  vertical-align: top;
+  width: 14em;
+  margin: 0em;
+  padding: 0em 0em 0em 1.5em;
+}
+
+table.columns td.main {
+  vertical-align: top;
+  margin: 0em;
+  padding: 0em 1.5em;
+}
+
+table.columns td.right {
+  vertical-align: top;
+  width: 20em;
+  margin: 0em;
+  padding: 0em 1.5em 0em 0em;
+}
+
+span.bargraph {
+  background: #DEECE7;
+  border: 1px solid #8CBBAC;
+}
+
+.fgColor-black       { color: #000000; }
+.fgColor-dark-blue   { color: #0000cc; }
+.fgColor-dark-green  { color: #00cc00; }
+.fgColor-green       { color: #00cc00; }
+.fgColor-red         { color: #cc0000; }
+.fgColor-brown       { color: #aa0000; }
+.fgColor-purple      { color: #bb00bb; }
+.fgColor-orange      { color: #ffaa00; }
+.fgColor-yellow      { color: #eedd22; }
+.fgColor-light-green { color: #33d355; }
+.fgColor-aqua        { color: #00cccc; }
+.fgColor-light-blue  { color: #33eeff; }
+.fgColor-blue        { color: #0000ff; }
+.fgColor-violet      { color: #ee22ee; }
+.fgColor-grey        { color: #777777; }
+.fgColor-gray        { color: #777777; }
+.fgColor-light-grey  { color: #999999; }
+.fgColor-light-gray  { color: #999999; }
+.fgColor-white       { color: #FFFFFF; }
+
+.bgColor-black       { background: #000000; }
+.bgColor-dark-blue   { background: #0000cc; }
+.bgColor-dark-green  { background: #00cc00; }
+.bgColor-green       { background: #00cc00; }
+.bgColor-red         { background: #cc0000; }
+.bgColor-brown       { background: #aa0000; }
+.bgColor-purple      { background: #bb00bb; }
+.bgColor-orange      { background: #ffaa00; }
+.bgColor-yellow      { background: #eedd22; }
+.bgColor-light-green { background: #33d355; }
+.bgColor-aqua        { background: #00cccc; }
+.bgColor-light-blue  { background: #33eeff; }
+.bgColor-blue        { background: #0000ff; }
+.bgColor-violet      { background: #ee22ee; }
+.bgColor-grey        { background: #777777; }
+.bgColor-gray        { background: #777777; }
+.bgColor-light-grey  { background: #999999; }
+.bgColor-light-gray  { background: #999999; }
+.bgColor-white       { background: #FFFFFF; }

@@ -1,0 +1,427 @@
+<?xml version="1.0"?>
+<xsd:schema
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xi="http://www.w3.org/2003/XInclude">
+
+<xsd:simpleType name="side">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="right"/>
+    <xsd:enumeration value="left"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<!-- =============== movement -->
+<xsd:simpleType name="movement-stance">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="attention"/>
+    <xsd:enumeration value="natural"/>
+    <xsd:enumeration value="horse"/>
+    <xsd:enumeration value="neutral bow"/>
+    <xsd:enumeration value="forward bow"/>
+    <xsd:enumeration value="cat"/>
+    <xsd:enumeration value="reverse bow"/>
+    <xsd:enumeration value="close kneel"/>
+    <xsd:enumeration value="wide kneel"/>
+    <xsd:enumeration value="front twist"/>
+    <xsd:enumeration value="rear twist"/>
+    <xsd:enumeration value="reverse close kneel"/>
+    <xsd:enumeration value="reverse wide kneel"/>
+    <xsd:enumeration value="concave"/>
+    <xsd:enumeration value="diamond"/>
+  </xsd:restriction>
+</xsd:simpleType>
+<xsd:complexType name="stance">
+  <xsd:simpleContent>
+    <xsd:extension base="movement-stance">
+      <xsd:attribute name="side" type="side"/>
+    </xsd:extension>
+  </xsd:simpleContent>
+</xsd:complexType>
+
+<xsd:simpleType name="movement-block">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="hammering inward"/>
+    <xsd:enumeration value="thrusting inward"/>
+    <xsd:enumeration value="vertical outward"/>
+    <xsd:enumeration value="extended outward"/>
+    <xsd:enumeration value="upward"/>
+    <xsd:enumeration value="downward"/>
+    <xsd:enumeration value="palm heel"/>
+    <xsd:enumeration value="inward downward palm up"/>
+    <xsd:enumeration value="inward downward palm down"/>
+    <xsd:enumeration value="cross"/>
+    <xsd:enumeration value="universal"/>
+    <xsd:enumeration value="outward downward diagonal"/>
+    <xsd:enumeration value="downward horizontal forearm"/>
+    <xsd:enumeration value="inward vertical forearm"/>
+    <xsd:enumeration value="outward vertical forearm"/>
+  </xsd:restriction>
+</xsd:simpleType>
+<xsd:complexType name="block">
+  <xsd:simpleContent>
+    <xsd:extension base="movement-block">
+      <xsd:attribute name="side" type="side"/>
+    </xsd:extension>
+  </xsd:simpleContent>
+</xsd:complexType>
+
+<xsd:simpleType name="movement-footManeuver">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="drag-step"/>
+    <xsd:enumeration value="step-drag"/>
+    <xsd:enumeration value="step-through"/>
+    <xsd:enumeration value="rear cover"/>
+    <xsd:enumeration value="reverse rear cover"/>
+    <xsd:enumeration value="side cover"/>
+    <xsd:enumeration value="push step-drag"/>
+    <xsd:enumeration value="front crossover"/>
+    <xsd:enumeration value="rear crossover"/>
+    <xsd:enumeration value="hop"/>
+    <xsd:enumeration value="pull-drag"/>
+    <xsd:enumeration value="leap"/>
+    <xsd:enumeration value="step"/>
+    <xsd:enumeration value="step back"/>
+    <xsd:enumeration value="pivot"/>
+  </xsd:restriction>
+</xsd:simpleType>
+<xsd:complexType name="footManeuver">
+  <xsd:simpleContent>
+    <xsd:extension base="movement-footManeuver">
+      <xsd:attribute name="side" type="side"/>
+    </xsd:extension>
+  </xsd:simpleContent>
+</xsd:complexType>
+
+<xsd:simpleType name="movement-kick">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="front snap"/>
+    <xsd:enumeration value="side thrust"/>
+    <xsd:enumeration value="back snapping heel"/>
+    <xsd:enumeration value="roundhouse"/>
+    <xsd:enumeration value="knife-edge side"/>
+    <xsd:enumeration value="back thrust"/>
+    <xsd:enumeration value="jump front"/>
+    <xsd:enumeration value="hop front"/>
+    <xsd:enumeration value="wheel"/>
+    <xsd:enumeration value="downward looping roundhouse"/>
+    <xsd:enumeration value="jump roundhouse"/>
+    <xsd:enumeration value="hop roundhouse"/>
+    <xsd:enumeration value="inward crescent"/>
+    <xsd:enumeration value="outward crescent"/>
+    <xsd:enumeration value="spin hook"/>
+    <xsd:enumeration value="spin roundhouse"/>
+    <xsd:enumeration value="jump spin side"/>
+    <xsd:enumeration value="jump spin hook"/>
+    <xsd:enumeration value="spin crescent"/>
+    <xsd:enumeration value="inward axe"/>
+    <xsd:enumeration value="outward axe"/>
+    <xsd:enumeration value="jump side"/>
+    <xsd:enumeration value="hook"/>
+    <xsd:enumeration value="twist"/>
+    <xsd:enumeration value="scoop"/>
+    <xsd:enumeration value="linear axe"/>
+    <xsd:enumeration value="front stomp"/>
+    <xsd:enumeration value="side stomp"/>
+    <xsd:enumeration value="rear stomp"/>
+    <xsd:enumeration value="front chicken"/>
+    <xsd:enumeration value="back chicken"/>
+    <xsd:enumeration value="spin side"/>
+    <xsd:enumeration value="tornado roundhouse"/>
+    <xsd:enumeration value="ball roundhouse"/>
+  </xsd:restriction>
+</xsd:simpleType>
+<xsd:complexType name="kick">
+  <xsd:simpleContent>
+    <xsd:extension base="movement-kick">
+      <xsd:attribute name="side" type="side"/>
+    </xsd:extension>
+  </xsd:simpleContent>
+</xsd:complexType>
+
+<xsd:simpleType name="movement-parry">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="inward"/>
+    <xsd:enumeration value="outward"/>
+    <xsd:enumeration value="inward downward"/>
+    <xsd:enumeration value="outward downward"/>
+    <xsd:enumeration value="inward horizontal palm heel"/>
+    <xsd:enumeration value="outward horizontal palm heel"/>
+    <xsd:enumeration value="upward"/>
+    <xsd:enumeration value="inward knee"/>
+    <xsd:enumeration value="outward knee"/>
+  </xsd:restriction>
+</xsd:simpleType>
+<xsd:complexType name="parry">
+  <xsd:simpleContent>
+    <xsd:extension base="movement-parry">
+      <xsd:attribute name="side" type="side"/>
+    </xsd:extension>
+  </xsd:simpleContent>
+</xsd:complexType>
+
+<xsd:simpleType name="movement-knee">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="vertical"/>
+    <xsd:enumeration value="hop vertical"/>
+  </xsd:restriction>
+</xsd:simpleType>
+<xsd:complexType name="knee">
+  <xsd:simpleContent>
+    <xsd:extension base="movement-knee">
+      <xsd:attribute name="side" type="side"/>
+    </xsd:extension>
+  </xsd:simpleContent>
+</xsd:complexType>
+
+<xsd:simpleType name="movement-strike">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="inward hand sword"/>
+    <xsd:enumeration value="outward hand sword"/>
+    <xsd:enumeration value="inward horizontal elbow"/>
+    <xsd:enumeration value="outward elbow"/>
+    <xsd:enumeration value="inward overhead elbow"/>
+    <xsd:enumeration value="obscure elbow"/>
+    <xsd:enumeration value="back hammer fist"/>
+    <xsd:enumeration value="outward downward hammer fist"/>
+    <xsd:enumeration value="thrusting palm heel"/>
+    <xsd:enumeration value="upward elbow"/>
+    <xsd:enumeration value="back elbow"/>
+    <xsd:enumeration value="underhand reverse hammer"/>
+    <xsd:enumeration value="inward diagonal hammer fist"/>
+    <xsd:enumeration value="ridge hand"/>
+    <xsd:enumeration value="underhand palm heel"/>
+    <xsd:enumeration value="inward horizontal palm heel"/>
+    <xsd:enumeration value="outward horizontal palm heel"/>
+    <xsd:enumeration value="back stiff-arm palm heel"/>
+    <xsd:enumeration value="inward vertical forearm"/>
+    <xsd:enumeration value="outward vertical forearm"/>
+    <xsd:enumeration value="outward overhead elbow"/>
+    <xsd:enumeration value="flapping elbow"/>
+    <xsd:enumeration value="downward elbow"/>
+    <xsd:enumeration value="downward palm heel"/>
+    <xsd:enumeration value="downward hand sword"/>
+    <xsd:enumeration value="obscure hand sword"/>
+    <xsd:enumeration value="overhead palm heel claw"/>
+    <xsd:enumeration value="upward palm heel claw"/>
+  </xsd:restriction>
+</xsd:simpleType>
+<xsd:complexType name="strike">
+  <xsd:simpleContent>
+    <xsd:extension base="movement-strike">
+      <xsd:attribute name="side" type="side"/>
+    </xsd:extension>
+  </xsd:simpleContent>
+</xsd:complexType>
+
+<xsd:simpleType name="movement-punch">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="snapping horizontal punch"/>
+    <xsd:enumeration value="thrusting horizontal punch"/>
+    <xsd:enumeration value="snapping vertical punch"/>
+    <xsd:enumeration value="thrusting vertical punch"/>
+    <xsd:enumeration value="uppercut"/>
+    <xsd:enumeration value="roundhouse punch"/>
+    <xsd:enumeration value="snapping vertical back knuckle"/>
+    <xsd:enumeration value="thrusting vertical back knuckle"/>
+    <xsd:enumeration value="outward back knuckle"/>
+    <xsd:enumeration value="overhead punch"/>
+    <xsd:enumeration value="shapping inverted vertical punch"/>
+    <xsd:enumeration value="thrusting inverted vertical punch"/>
+    <xsd:enumeration value="hook punch"/>
+    <xsd:enumeration value="inverted vertical roundhouse punch"/>
+    <xsd:enumeration value="chopping punch"/>
+    <xsd:enumeration value="reverse punch"/>
+    <xsd:enumeration value="vertical reverse punch"/>
+  </xsd:restriction>
+</xsd:simpleType>
+<xsd:complexType name="punch">
+  <xsd:simpleContent>
+    <xsd:extension base="movement-punch">
+      <xsd:attribute name="side" type="side"/>
+    </xsd:extension>
+  </xsd:simpleContent>
+</xsd:complexType>
+
+<xsd:simpleType name="movement-fingerTechnique">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="inward overhead claw"/>
+    <xsd:enumeration value="horizontal finger thrust"/>
+    <xsd:enumeration value="outward finger whip"/>
+    <xsd:enumeration value="vertical finger thrust"/>
+    <xsd:enumeration value="upward finger thrust"/>
+    <xsd:enumeration value="overhead finger whip"/>
+    <xsd:enumeration value="underhand whip"/>
+    <xsd:enumeration value="underhand claw"/>
+    <xsd:enumeration value="back finger thrust"/>
+    <xsd:enumeration value="upward claw"/>
+    <xsd:enumeration value="inward circular claw"/>
+    <xsd:enumeration value="outward circular claw"/>
+    <xsd:enumeration value="inward finger slice"/>
+    <xsd:enumeration value="outward finger slice"/>
+    <xsd:enumeration value="horse-bite pinch"/>
+    <xsd:enumeration value="double thrusting thumb"/>
+  </xsd:restriction>
+</xsd:simpleType>
+<xsd:complexType name="fingerTechnique">
+  <xsd:simpleContent>
+    <xsd:extension base="movement-fingerTechnique">
+      <xsd:attribute name="side" type="side"/>
+    </xsd:extension>
+  </xsd:simpleContent>
+</xsd:complexType>
+
+<!-- =============== types for technique -->
+<xsd:simpleType name="technique-category">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="punch"/>
+    <xsd:enumeration value="push"/>
+    <xsd:enumeration value="kick"/>
+    <xsd:enumeration value="hugs-and-holds"/>
+    <xsd:enumeration value="chokes-and-locks"/>
+    <xsd:enumeration value="weapons"/>
+    <xsd:enumeration value="multiple-attacks"/>
+    <xsd:enumeration value="grabs-and-tackles"/>
+    <xsd:enumeration value="combination"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="technique-level">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="yellow"/>
+    <xsd:enumeration value="orange"/>
+    <xsd:enumeration value="purple"/>
+    <xsd:enumeration value="blue"/>
+    <xsd:enumeration value="green"/>
+    <xsd:enumeration value="first-brown"/>
+    <xsd:enumeration value="second-brown"/>
+    <xsd:enumeration value="third-brown"/>
+    <xsd:enumeration value="first-black"/>
+    <xsd:enumeration value="second-black"/>
+    <xsd:enumeration value="third-black"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:complexType name="technique-stances">
+  <xsd:sequence>
+    <xsd:element name="attacker" minOccurs="0"/>
+    <xsd:element name="defender" minOccurs="0"/>
+  </xsd:sequence>
+</xsd:complexType>
+
+<xsd:complexType name="technique-step" mixed="true">
+  <xsd:choice maxOccurs="unbounded" minOccurs="0">
+    <xsd:element name="footManeuver" type="footManeuver"/>
+    <xsd:element name="stance" type="stance"/>
+    <xsd:element name="block" type="block"/>
+    <xsd:element name="kick" type="kick"/>
+    <xsd:element name="parry" type="parry"/>
+    <xsd:element name="knee" type="knee"/>
+    <xsd:element name="strike" type="strike"/>
+    <xsd:element name="fingerTechnique" type="fingerTechnique"/>
+    <xsd:element name="punch" type="punch"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<xsd:complexType name="technique-steps">
+  <xsd:sequence>
+    <xsd:element name="step" type="technique-step" maxOccurs="200"/>
+  </xsd:sequence>
+</xsd:complexType>
+
+<xsd:complexType name="technique-notes">
+  <xsd:sequence>
+    <xsd:element name="note" type="xsd:string"/>
+  </xsd:sequence>
+</xsd:complexType>
+
+<!-- =============== top-level technique -->
+<xsd:element name="technique">
+  <xsd:complexType>
+    <xsd:all>
+      <xsd:element name="attack" type="xsd:string"/>
+      <xsd:element name="stances" type="technique-stances" minOccurs="0"/>
+      <xsd:element name="steps" type="technique-steps"/>
+      <xsd:element name="notes" type="technique-notes" minOccurs="0"/>
+    </xsd:all>
+    <xsd:attribute name="name" type="xsd:string"/>
+    <xsd:attribute name="level" type="technique-level"/>
+    <xsd:attribute name="category" type="technique-category"/>
+  </xsd:complexType>
+</xsd:element>
+
+<!-- =============== types for concept -->
+<xsd:complexType name="concept-technique" mixed="true">
+  <xsd:sequence>
+    <xsd:element name="note" type="xsd:string" minOccurs="0"/>
+  </xsd:sequence>
+</xsd:complexType>
+
+<xsd:complexType name="concept-techniques">
+  <xsd:sequence>
+    <xsd:element name="technique" type="concept-technique" maxOccurs="20"/>
+  </xsd:sequence>
+</xsd:complexType>
+
+<!-- =============== top-level concept -->
+<xsd:element name="concept">
+  <xsd:complexType>
+    <xsd:all>
+      <xsd:element name="origin" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="overview" type="xsd:string"/>
+      <xsd:element name="techniques" type="concept-techniques"/>
+    </xsd:all>
+    <xsd:attribute name="name" type="xsd:string"/>
+  </xsd:complexType>
+</xsd:element>
+
+<!-- =============== top-level set -->
+<xsd:element name="set">
+  <xsd:complexType>
+    <xsd:all>
+      <xsd:element name="steps" type="technique-steps"/>
+    </xsd:all>
+    <xsd:attribute name="name" type="xsd:string"/>
+    <xsd:attribute name="level" type="technique-level"/>
+  </xsd:complexType>
+</xsd:element>
+
+<!-- =============== types for form -->
+<xsd:complexType name="form-lessons">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="lesson" type="xsd:string"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<xsd:complexType name="form-stances">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="stance" type="stance"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<xsd:complexType name="form-blocks">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="block" type="block"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<xsd:complexType name="form-contents">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="overview" type="xsd:string"/>
+    <xsd:element name="stances" type="form-stances"/>
+    <xsd:element name="blocks" type="form-blocks"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<!-- =============== top-level form -->
+<xsd:element name="form">
+  <xsd:complexType>
+    <xsd:all>
+      <xsd:element name="contents" type="form-contents" minOccurs="0"/>
+      <xsd:element name="lessons" type="form-lessons" minOccurs="0"/>
+      <xsd:element name="steps" type="technique-steps"/>
+    </xsd:all>
+    <xsd:attribute name="name" type="xsd:string"/>
+  </xsd:complexType>
+</xsd:element>
+
+</xsd:schema>

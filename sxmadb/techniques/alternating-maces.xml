@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="alternating maces" category="push"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>two-hand low push</attack>
+  <stances>
+    <attacker><stance side="right">forward bow</stance></attacker>
+    <defender><stance>natural</stance></defender>
+  </stances>
+  <steps>
+    <step>
+      <footManeuver side="left">step back</footManeuver>toward 6:00
+      into a <stance side="right">neutral bow</stance> while executing a
+      <block side="right">hammering inward</block> to your opponent's left
+      outer forearm (at or above the elbow).
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> to a
+      <stance side="right">forward bow</stance> while executing a
+      <punch side="left">vertical reverse punch</punch> to your opponent's
+      solar plexus.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> to a
+      <stance side="right">neutral bow</stance> while executing a
+      <strike side="right">back knuckle</strike> to your opponent's
+      right temple.
+    </step>
+  </steps>
+</technique>

@@ -1,0 +1,1 @@
+1) in parse(): dynamically allocate buffers, linked list of 4k buffers

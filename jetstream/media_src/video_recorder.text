@@ -1,0 +1,3 @@
+This video recorder will record your screen live to a NuppelVideo file. NuppelVideo is a format designed for low CPU usage while compressing. After you have captured a video, you can use a tool like mencoder to transcode it to a codec with a better compression ratio.
+
+You can adjust compression options below. NuppelVideo supports RTJpeg lossy compression and/or LZO lossless compression.

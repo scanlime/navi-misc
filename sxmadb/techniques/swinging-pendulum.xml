@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="swinging pendulum" level="purple" category="kick"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>right step-through roundhouse kick</attack>
+  <stances>
+    <attacker><stance side="left">neutral bow</stance></attacker>
+    <defender><stance side="right">neutral bow</stance></defender>
+  </stances>
+  <steps>
+    <step>
+      <footManeuver>reverse rear cover</footManeuver> toward 5:30 into a
+      <stance side="right">neutral bow</stance> as you execute a
+      <block side="right">universal</block> above your opponent's right knee.
+    </step>
+    <step>
+      <footManeuver>step-drag</footManeuver> toward 10:30 into a
+      <stance side="right">neutral bow</stance> as you execute a
+      <strike side="right">outward downward hammer fist</strike> to your opponent's
+      groin.
+    </step>
+    <step>
+      <footManeuver side="left">step</footManeuver> toward 3:00 into a
+      <stance side="right">neutral bow</stance> (moving up the circle) as you execute
+      a <strike side="right">obscure elbow</strike> to your opponent's chin.
+    </step>
+  </steps>
+</technique>
