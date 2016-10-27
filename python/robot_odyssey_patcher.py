@@ -408,7 +408,7 @@ def blitPatch(exe, fps, kbFast=False, noPIT=False):
         jz    waitLoop
         mov   byte [tmr_init], 1
 
-        %%if !%d
+        %%if %d==0
           mov   dx, 0x43          ; Program the divisor for PIT channel 0
           mov   al, 0x34
           out   dx, al
@@ -428,7 +428,7 @@ waitLoop:
         cmp   bx, %d              ; Have enough ticks passed?
         jnb   exit                ; If so, we're done.
 
-        %%if %d                   ; Optional: If there are keys waiting
+        %%if %d!=0                ; Optional: If there are keys waiting
            push  dx               ; in the keyboard buffer don't wait.
            mov   ax, 0x100
            int   0x16
